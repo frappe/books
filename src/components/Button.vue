@@ -14,8 +14,10 @@
     <slot></slot>
   </button>
 </template>
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   name: 'Button',
   props: {
     type: {
@@ -53,7 +55,7 @@ export default {
       };
     },
   },
-};
+});
 </script>
 <style scoped>
 button:focus {

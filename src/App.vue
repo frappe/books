@@ -36,13 +36,12 @@
     </div>
   </div>
 </template>
-
-<script>
+<script lang="ts">
 import { ConfigKeys } from 'fyo/core/types';
 import { RTL_LANGUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
 import { systemLanguageRef } from 'src/utils/refs';
-import { computed } from 'vue';
+import { defineComponent, provide, ref, Ref } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { fyo } from './initFyo';
@@ -50,8 +49,10 @@ import DatabaseSelector from './pages/DatabaseSelector.vue';
 import Desk from './pages/Desk.vue';
 import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
 import setupInstance from './setup/setupInstance';
+import { SetupWizardOptions } from './setup/types';
 import './styles/index.css';
 import { initializeInstance } from './utils/initialization';
+import * as injectionKeys from './utils/injectionKeys';
 import { checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
 import { updatePrintTemplates } from './utils/printTemplates';
@@ -60,26 +61,38 @@ import { setGlobalShortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { Shortcuts, useKeys } from './utils/vueUtils';
 
-export default {
+enum Screen {
+  Desk = 'Desk',
+  DatabaseSelector = 'DatabaseSelector',
+  SetupWizard = 'SetupWizard',
+}
+
+export default defineComponent({
   name: 'App',
   setup() {
-    return { keys: useKeys() };
+    const keys = useKeys();
+    const searcher: Ref<null | Search> = ref(null);
+    const shortcuts = new Shortcuts(keys);
+    const languageDirection = ref(
+      getLanguageDirection(systemLanguageRef.value)
+    );
+
+    provide(injectionKeys.keysKey, keys);
+    provide(injectionKeys.searcherKey, searcher);
+    provide(injectionKeys.shortcutsKey, shortcuts);
+    provide(injectionKeys.languageDirectionKey, languageDirection);
+
+    return { keys, searcher, shortcuts, languageDirection };
   },
   data() {
     return {
       activeScreen: null,
       dbPath: '',
       companyName: '',
-      searcher: null,
-      shortcuts: null,
-    };
-  },
-  provide() {
-    return {
-      languageDirection: computed(() => this.languageDirection),
-      searcher: computed(() => this.searcher),
-      shortcuts: computed(() => this.shortcuts),
-      keys: computed(() => this.keys),
+    } as {
+      activeScreen: null | Screen;
+      dbPath: string;
+      companyName: string;
     };
   },
   components: {
@@ -89,66 +102,77 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
-    const shortcuts = new Shortcuts(this.keys);
-    this.shortcuts = shortcuts;
-    const lastSelectedFilePath = fyo.config.get(
-      ConfigKeys.LastSelectedFilePath,
-      null
-    );
-
-    if (!lastSelectedFilePath) {
-      return (this.activeScreen = 'DatabaseSelector');
-    }
-
-    try {
-      await this.fileSelected(lastSelectedFilePath, false);
-    } catch (err) {
-      await handleErrorWithDialog(err, undefined, true, true);
-      await this.showDbSelector();
-    }
-
-    setGlobalShortcuts(shortcuts);
+    setGlobalShortcuts(this.shortcuts as Shortcuts);
+    this.setInitialScreen();
+  },
+  watch: {
+    language(value) {
+      this.languageDirection = getLanguageDirection(value);
+    },
   },
   computed: {
-    language() {
+    language(): string {
       return systemLanguageRef.value;
-    },
-    languageDirection() {
-      return RTL_LANGUAGES.includes(this.language) ? 'rtl' : 'ltr';
     },
   },
   methods: {
-    async setDesk(filePath) {
-      this.activeScreen = 'Desk';
-      await this.setDeskRoute();
-      await fyo.telemetry.start(true);
-      await checkForUpdates(false);
-      this.dbPath = filePath;
-      this.companyName = await fyo.getValue(
-        ModelNameEnum.AccountingSettings,
-        'companyName'
+    async setInitialScreen(): Promise<void> {
+      const lastSelectedFilePath = fyo.config.get(
+        ConfigKeys.LastSelectedFilePath,
+        null
       );
-      await this.setSearcher();
-      updateConfigFiles(fyo);
+
+      if (
+        typeof lastSelectedFilePath !== 'string' ||
+        !lastSelectedFilePath.length
+      ) {
+        this.activeScreen = Screen.DatabaseSelector;
+        return;
+      }
+
+      await this.fileSelected(lastSelectedFilePath, false);
     },
-    async setSearcher() {
+    async setSearcher(): Promise<void> {
       this.searcher = new Search(fyo);
       await this.searcher.initializeKeywords();
     },
-    async fileSelected(filePath, isNew) {
+    async setDesk(filePath: string): Promise<void> {
+      this.activeScreen = Screen.Desk;
+      await this.setDeskRoute();
+      await fyo.telemetry.start(true);
+      await checkForUpdates();
+      this.dbPath = filePath;
+      this.companyName = (await fyo.getValue(
+        ModelNameEnum.AccountingSettings,
+        'companyName'
+      )) as string;
+      await this.setSearcher();
+      updateConfigFiles(fyo);
+    },
+    async fileSelected(filePath: string, isNew?: boolean): Promise<void> {
       fyo.config.set(ConfigKeys.LastSelectedFilePath, filePath);
       if (isNew) {
-        this.activeScreen = 'SetupWizard';
+        this.activeScreen = Screen.SetupWizard;
         return;
       }
-      await this.showSetupWizardOrDesk(filePath);
+
+      try {
+        await this.showSetupWizardOrDesk(filePath);
+      } catch (error) {
+        await handleErrorWithDialog(error, undefined, true, true);
+        await this.showDbSelector();
+      }
     },
-    async setupComplete(setupWizardOptions) {
+    async setupComplete(setupWizardOptions: SetupWizardOptions): Promise<void> {
       const filePath = fyo.config.get(ConfigKeys.LastSelectedFilePath);
+      if (typeof filePath !== 'string') {
+        return;
+      }
+
       await setupInstance(filePath, setupWizardOptions, fyo);
       await this.setDesk(filePath);
     },
-    async showSetupWizardOrDesk(filePath) {
+    async showSetupWizardOrDesk(filePath: string): Promise<void> {
       const countryCode = await fyo.db.connectToDatabase(filePath);
       const setupComplete = await fyo.getValue(
         ModelNameEnum.AccountingSettings,
@@ -156,7 +180,7 @@ export default {
       );
 
       if (!setupComplete) {
-        this.activeScreen = 'SetupWizard';
+        this.activeScreen = Screen.SetupWizard;
         return;
       }
 
@@ -164,7 +188,7 @@ export default {
       await updatePrintTemplates(fyo);
       await this.setDesk(filePath);
     },
-    async setDeskRoute() {
+    async setDeskRoute(): Promise<void> {
       const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
       const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
 
@@ -174,15 +198,19 @@ export default {
         routeTo('/get-started');
       }
     },
-    async showDbSelector() {
+    async showDbSelector(): Promise<void> {
       fyo.config.set('lastSelectedFilePath', null);
       fyo.telemetry.stop();
       await fyo.purgeCache();
-      this.activeScreen = 'DatabaseSelector';
+      this.activeScreen = Screen.DatabaseSelector;
       this.dbPath = '';
       this.searcher = null;
       this.companyName = '';
     },
   },
-};
+});
+
+function getLanguageDirection(language: string): 'rtl' | 'ltr' {
+  return RTL_LANGUAGES.includes(language) ? 'rtl' : 'ltr';
+}
 </script>
