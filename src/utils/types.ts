@@ -59,6 +59,7 @@ export interface SidebarItem {
   route: string;
   schemaName?: string;
   hidden?: () => boolean;
+  filters?: QueryFilter;
 }
 
 export interface ExportField {

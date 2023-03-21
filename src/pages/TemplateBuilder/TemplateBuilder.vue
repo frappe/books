@@ -149,7 +149,15 @@
         </div>
         <div
           v-if="templateChanged"
-          class="flex gap-2 p-2 text-sm text-gray-600 items-center mt-auto border-t"
+          class="
+            flex
+            gap-2
+            p-2
+            text-sm text-gray-600
+            items-center
+            mt-auto
+            border-t
+          "
         >
           <ShortcutKeys :keys="applyChangesShortcut" :simple="true" />
           {{ t` to apply changes` }}
@@ -218,7 +226,7 @@ import {
   getPrintTemplatePropHints,
   getPrintTemplatePropValues,
 } from 'src/utils/printTemplates';
-import { docsPathRef, focusedDocsRef, showSidebar } from 'src/utils/refs';
+import { docsPathRef, showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
 import {
   focusOrSelectFormControl,
@@ -289,7 +297,6 @@ export default defineComponent({
   },
   async mounted() {
     await this.initialize();
-    focusedDocsRef.add(this.doc);
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore
       window.tb = this;
@@ -305,9 +312,6 @@ export default defineComponent({
   },
   deactivated(): void {
     docsPathRef.value = '';
-    if (this.doc instanceof Doc) {
-      focusedDocsRef.delete(this.doc);
-    }
     this.shortcuts.ctrl.delete(['Enter']);
     this.shortcuts.ctrl.delete(['KeyE']);
     this.shortcuts.ctrl.delete(['KeyH']);

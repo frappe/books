@@ -314,10 +314,10 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import LinkedEntryWidget from 'src/components/Widgets/LinkedEntryWidget.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
-import { docsPathRef, focusedDocsRef } from 'src/utils/refs';
+import { docsPathRef } from 'src/utils/refs';
 import {
-  commonDocSync,
   commonDocSubmit,
+  commonDocSync,
   getGroupedActionsForDoc,
   routeTo,
 } from 'src/utils/ui';
@@ -458,16 +458,13 @@ export default {
   },
   activated() {
     docsPathRef.value = docsPathMap[this.schemaName];
-    focusedDocsRef.add(this.doc);
   },
   deactivated() {
     docsPathRef.value = '';
-    focusedDocsRef.delete(this.doc);
   },
   async mounted() {
     try {
       this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
-      focusedDocsRef.add(this.doc);
     } catch (error) {
       if (error instanceof fyo.errors.NotFoundError) {
         routeTo(`/list/${this.schemaName}`);
