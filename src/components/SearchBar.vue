@@ -26,8 +26,6 @@
           spellcheck="false"
           :placeholder="t`Type to search...`"
           v-model="inputValue"
-          @focus="search"
-          @input="search"
           @keydown.up="up"
           @keydown.down="down"
           @keydown.enter="() => select()"
@@ -50,7 +48,7 @@
       <div :style="`max-height: ${49 * 6 - 1}px`" class="overflow-auto">
         <div
           v-for="(si, i) in suggestions"
-          :key="`${i}-${si.key}`"
+          :key="`${i}-${si.label}`"
           ref="suggestions"
           class="hover:bg-gray-50 cursor-pointer"
           :class="idx === i ? 'border-blue-500 bg-gray-50 border-s-4' : ''"
@@ -97,7 +95,7 @@
               :key="g"
               class="border px-1 py-0.5 rounded-lg"
               :class="getGroupFilterButtonClass(g)"
-              @click="searcher.set(g, !searcher.filters.groupFilters[g])"
+              @click="searcher!.set(g, !searcher!.filters.groupFilters[g])"
             >
               {{ groupLabelMap[g] }}
             </button>
@@ -115,11 +113,11 @@
           <!-- Group Skip Filters -->
           <div class="flex gap-1 text-gray-800">
             <button
-              v-for="s in ['skipTables', 'skipTransactions']"
+              v-for="s in ['skipTables', 'skipTransactions'] as const"
               :key="s"
               class="border px-1 py-0.5 rounded-lg"
-              :class="{ 'bg-gray-200': searcher.filters[s] }"
-              @click="searcher.set(s, !searcher.filters[s])"
+              :class="{ 'bg-gray-200': searcher?.filters[s] }"
+              @click="searcher?.set(s, !searcher?.filters[s])"
             >
               {{
                 s === 'skipTables' ? t`Skip Child Tables` : t`Skip Transactions`
@@ -141,12 +139,12 @@
                 whitespace-nowrap
               "
               :class="{
-                'bg-blue-100': searcher.filters.schemaFilters[sf.value],
+                'bg-blue-100': searcher?.filters.schemaFilters[sf.value],
               }"
               @click="
-                searcher.set(
+                searcher?.set(
                   sf.value,
-                  !searcher.filters.schemaFilters[sf.value]
+                  !searcher?.filters.schemaFilters[sf.value]
                 )
               "
             >
@@ -180,12 +178,12 @@
           >
             <template
               v-for="c in allowedLimits.filter(
-                (c) => c < searcher.numSearches || c === -1
+                (c) => c < (searcher?.numSearches ?? 0) || c === -1
               )"
               :key="c + '-count'"
             >
               <button
-                @click="limit = parseInt(c)"
+                @click="limit = Number(c)"
                 class="w-9"
                 :class="limit === c ? 'bg-gray-100' : ''"
               >
@@ -198,17 +196,32 @@
     </div>
   </Modal>
 </template>
-<script>
+
+<script lang="ts">
 import { fyo } from 'src/initFyo';
 import { getBgTextColorClass } from 'src/utils/colors';
+import { searcherKey, shortcutsKey } from 'src/utils/injectionKeys';
 import { openLink } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
-import { getGroupLabelMap, searchGroups } from 'src/utils/search';
-import { nextTick } from 'vue';
+import {
+  getGroupLabelMap,
+  SearchGroup,
+  searchGroups,
+  SearchItems,
+} from 'src/utils/search';
+import { defineComponent, inject, nextTick } from 'vue';
 import Button from './Button.vue';
 import Modal from './Modal.vue';
 
-export default {
+type SchemaFilters = { value: string; label: string; index: number }[];
+
+export default defineComponent({
+  setup() {
+    return {
+      searcher: inject(searcherKey),
+      shortcuts: inject(shortcutsKey),
+    };
+  },
   data() {
     return {
       idx: 0,
@@ -220,10 +233,10 @@ export default {
       allowedLimits: [50, 100, 500, -1],
     };
   },
-  inject: ['searcher', 'shortcuts'],
   components: { Modal, Button },
   async mounted() {
     if (fyo.store.isDevelopment) {
+      // @ts-ignore
       window.search = this;
     }
 
@@ -234,15 +247,15 @@ export default {
     this.openModal = false;
   },
   deactivated() {
-    this.deleteShortcuts();
+    this.shortcuts!.delete(this);
   },
   methods: {
     openDocs() {
       openLink('https://docs.frappebooks.com/' + docsPathMap.Search);
     },
     getShortcuts() {
-      const ifOpen = (cb) => () => this.openModal && cb();
-      const ifClose = (cb) => () => !this.openModal && cb();
+      const ifOpen = (cb: Function) => () => this.openModal && cb();
+      const ifClose = (cb: Function) => () => !this.openModal && cb();
 
       const shortcuts = [
         {
@@ -256,12 +269,16 @@ export default {
           shortcut: `Digit${Number(i) + 1}`,
           callback: ifOpen(() => {
             const group = searchGroups[i];
+            if (!this.searcher) {
+              return;
+            }
+
             const value = this.searcher.filters.groupFilters[group];
             if (typeof value !== 'boolean') {
               return;
             }
 
-            this.searcher.set(group, !value);
+            this.searcher!.set(group, !value);
           }),
         });
       }
@@ -270,15 +287,10 @@ export default {
     },
     setShortcuts() {
       for (const { shortcut, callback } of this.getShortcuts()) {
-        this.shortcuts.pmod.set([shortcut], callback);
+        this.shortcuts!.pmod.set(this, [shortcut], callback);
       }
     },
-    deleteShortcuts() {
-      for (const { shortcut } of this.getShortcuts()) {
-        this.shortcuts.pmod.delete([shortcut]);
-      }
-    },
-    modKeyText(key) {
+    modKeyText(key: string): string {
       key = key.toUpperCase();
       if (this.platform === 'Mac') {
         return `⌘ ${key}`;
@@ -286,41 +298,48 @@ export default {
 
       return `Ctrl ${key}`;
     },
-    open() {
+    open(): void {
       this.openModal = true;
       this.searcher?.updateKeywords();
+
       nextTick(() => {
-        this.$refs.input.focus();
+        (this.$refs.input as HTMLInputElement).focus();
       });
     },
-    close() {
+    close(): void {
       this.openModal = false;
       this.reset();
     },
-    reset() {
+    reset(): void {
       this.inputValue = '';
     },
-    up() {
+    up(): void {
       this.idx = Math.max(this.idx - 1, 0);
       this.scrollToHighlighted();
     },
-    down() {
+    down(): void {
       this.idx = Math.max(
         Math.min(this.idx + 1, this.suggestions.length - 1),
         0
       );
       this.scrollToHighlighted();
     },
-    select(idx) {
+    select(idx?: number): void {
       this.idx = idx ?? this.idx;
-      this.suggestions[this.idx]?.action();
+      this.suggestions[this.idx]?.action?.();
       this.close();
     },
-    scrollToHighlighted() {
-      const ref = this.$refs.suggestions[this.idx];
-      ref.scrollIntoView({ block: 'nearest' });
+    scrollToHighlighted(): void {
+      const suggestionRefs = this.$refs.suggestions;
+      if (!Array.isArray(suggestionRefs)) {
+        return;
+      }
+      const el = suggestionRefs[this.idx];
+      if (el instanceof HTMLElement) {
+        el.scrollIntoView({ block: 'nearest' });
+      }
     },
-    getGroupFilterButtonClass(g) {
+    getGroupFilterButtonClass(g: SearchGroup): string {
       if (!this.searcher) {
         return '';
       }
@@ -335,27 +354,34 @@ export default {
     },
   },
   computed: {
-    groupLabelMap() {
+    groupLabelMap(): Record<SearchGroup, string> {
       return getGroupLabelMap();
     },
-    schemaFilters() {
-      const schemaNames = Object.keys(this.searcher?.searchables) ?? [];
-      return schemaNames
-        .map((sn) => {
-          const schema = fyo.schemaMap[sn];
-          const value = sn;
-          const label = schema.label;
+    schemaFilters(): SchemaFilters {
+      const searchables = this.searcher?.searchables ?? {};
+
+      const schemaNames = Object.keys(searchables);
+      const filters = schemaNames
+        .map((value) => {
+          const schema = fyo.schemaMap[value];
+          if (!schema) {
+            return;
+          }
+
           let index = 1;
           if (schema.isSubmittable) {
             index = 0;
           } else if (schema.isChild) {
             index = 2;
           }
-          return { value, label, index };
+
+          return { value, label: schema.label, index };
         })
-        .sort((a, b) => a.index - b.index);
+        .filter(Boolean) as SchemaFilters;
+
+      return filters.sort((a, b) => a.index - b.index);
     },
-    groupColorMap() {
+    groupColorMap(): Record<SearchGroup, string> {
       return {
         Docs: 'blue',
         Create: 'green',
@@ -364,13 +390,13 @@ export default {
         Page: 'orange',
       };
     },
-    groupColorClassMap() {
+    groupColorClassMap(): Record<SearchGroup, string> {
       return searchGroups.reduce((map, g) => {
         map[g] = getBgTextColorClass(this.groupColorMap[g]);
         return map;
-      }, {});
+      }, {} as Record<SearchGroup, string>);
     },
-    suggestions() {
+    suggestions(): SearchItems {
       if (!this.searcher) {
         return [];
       }
@@ -383,7 +409,7 @@ export default {
       return suggestions.slice(0, this.limit);
     },
   },
-};
+});
 </script>
 <style scoped>
 input[type='search']::-webkit-search-decoration,
