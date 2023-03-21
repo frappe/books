@@ -119,10 +119,9 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
-import { handleErrorWithDialog } from 'src/errorHandling';
 import { getErrorMessage } from 'src/utils';
 import { docsPathMap } from 'src/utils/misc';
-import { docsPathRef, focusedDocsRef } from 'src/utils/refs';
+import { docsPathRef } from 'src/utils/refs';
 import { ActionGroup, UIGroupedFields } from 'src/utils/types';
 import {
   commonDocSubmit,
@@ -173,7 +172,6 @@ export default defineComponent({
     }
 
     await this.setDoc();
-    focusedDocsRef.add(this.docOrNull);
     this.updateGroupedFields();
     if (this.groupedFields) {
       this.activeTab = [...this.groupedFields.keys()][0];
@@ -182,13 +180,9 @@ export default defineComponent({
   },
   activated(): void {
     docsPathRef.value = docsPathMap[this.schemaName] ?? '';
-    focusedDocsRef.add(this.docOrNull);
   },
   deactivated(): void {
     docsPathRef.value = '';
-    if (this.docOrNull) {
-      focusedDocsRef.delete(this.doc);
-    }
   },
   computed: {
     hasDoc(): boolean {

@@ -96,8 +96,8 @@ export async function handleError(
 export async function handleErrorWithDialog(
   error: unknown,
   doc?: Doc,
-  reportError?: false,
-  dontThrow?: false
+  reportError?: boolean,
+  dontThrow?: boolean
 ) {
   if (!(error instanceof Error)) {
     return;

@@ -114,13 +114,12 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { getQuickEditWidget } from 'src/utils/quickEditWidgets';
-import { focusedDocsRef } from 'src/utils/refs';
 import {
-  commonDocSubmit,
-  commonDocSync,
-  focusOrSelectFormControl,
-  getActionsForDoc,
-  openQuickEdit,
+commonDocSubmit,
+commonDocSync,
+focusOrSelectFormControl,
+getActionsForDoc,
+openQuickEdit
 } from 'src/utils/ui';
 
 export default {
@@ -170,20 +169,10 @@ export default {
 
     await this.fetchFieldsAndDoc();
     focusOrSelectFormControl(this.doc, this.$refs.titleControl, false);
-    focusedDocsRef.add(this.doc);
 
     if (fyo.store.isDevelopment) {
       window.qef = this;
     }
-  },
-  activated() {
-    focusedDocsRef.add(this.doc);
-  },
-  deactivated() {
-    focusedDocsRef.delete(this.doc);
-  },
-  unmounted() {
-    focusedDocsRef.delete(this.doc);
   },
   computed: {
     isChild() {
