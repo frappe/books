@@ -74,9 +74,9 @@ export default defineComponent({
     return {
       shortcuts: inject(shortcutsKey),
       list: ref<InstanceType<typeof List> | null>(null),
-      filterDropdown: ref<InstanceType<typeof FilterDropdown> | null>(null),
       makeNewDocButton: ref<InstanceType<typeof Button> | null>(null),
       exportButton: ref<InstanceType<typeof Button> | null>(null),
+      filterDropdown: ref<InstanceType<typeof FilterDropdown> | null>(null),
     };
   },
   components: {
