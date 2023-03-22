@@ -20,7 +20,7 @@
               v-for="(s, i) in g.shortcuts"
               :key="g.label + ' ' + i"
               class="grid gap-4 items-start"
-              style="grid-template-columns: 6rem auto"
+              style="grid-template-columns: 8rem auto"
             >
               <ShortcutKeys class="text-base" :keys="s.shortcut" />
               <div class="whitespace-normal text-base">{{ s.description }}</div>
@@ -69,7 +69,7 @@ export default defineComponent({
             description: t`Open Quick Search`,
           },
           {
-            shortcut: [ShortcutKey.delete],
+            shortcut: [ShortcutKey.shift, ShortcutKey.delete],
             description: t`Go back to the previous page`,
           },
           {
