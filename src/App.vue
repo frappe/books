@@ -57,9 +57,9 @@ import { checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
 import { updatePrintTemplates } from './utils/printTemplates';
 import { Search } from './utils/search';
-import { setGlobalShortcuts } from './utils/shortcuts';
+import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
-import { Shortcuts, useKeys } from './utils/vueUtils';
+import { useKeys } from './utils/vueUtils';
 
 enum Screen {
   Desk = 'Desk',
@@ -102,7 +102,7 @@ export default defineComponent({
     WindowsTitleBar,
   },
   async mounted() {
-    setGlobalShortcuts(this.shortcuts as Shortcuts);
+    // setGlobalShortcuts(this.shortcuts as Shortcuts);
     this.setInitialScreen();
   },
   watch: {
