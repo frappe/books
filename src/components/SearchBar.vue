@@ -213,6 +213,8 @@ import { defineComponent, inject, nextTick } from 'vue';
 import Button from './Button.vue';
 import Modal from './Modal.vue';
 
+const COMPONENT_NAME = 'SearchBar';
+
 type SchemaFilters = { value: string; label: string; index: number }[];
 
 export default defineComponent({
@@ -247,7 +249,7 @@ export default defineComponent({
     this.openModal = false;
   },
   deactivated() {
-    this.shortcuts!.delete(this);
+    this.shortcuts?.delete(COMPONENT_NAME);
   },
   methods: {
     openDocs() {
@@ -287,7 +289,7 @@ export default defineComponent({
     },
     setShortcuts() {
       for (const { shortcut, callback } of this.getShortcuts()) {
-        this.shortcuts!.pmod.set(this, [shortcut], callback);
+        this.shortcuts!.pmod.set(COMPONENT_NAME, [shortcut], callback);
       }
     },
     modKeyText(key: string): string {

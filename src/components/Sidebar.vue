@@ -190,6 +190,8 @@ import Icon from './Icon.vue';
 import Modal from './Modal.vue';
 import ShortcutsHelper from './ShortcutsHelper.vue';
 
+const COMPONENT_NAME = 'Sidebar';
+
 export default defineComponent({
   emits: ['change-db-file'],
   setup() {
@@ -231,15 +233,15 @@ export default defineComponent({
       this.setActiveGroup();
     });
 
-    this.shortcuts?.shift.set(this, ['KeyH'], () => {
+    this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyH'], () => {
       if (document.body === document.activeElement) {
         this.toggleSidebar();
       }
     });
-    this.shortcuts?.set(this, ['F1'], () => this.openDocumentation());
+    this.shortcuts?.set(COMPONENT_NAME, ['F1'], () => this.openDocumentation());
   },
   unmounted() {
-    this.shortcuts?.delete(this);
+    this.shortcuts?.delete(COMPONENT_NAME);
   },
   methods: {
     routeTo,

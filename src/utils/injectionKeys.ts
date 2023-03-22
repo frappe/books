@@ -1,6 +1,7 @@
-import { InjectionKey, Ref } from 'vue';
-import { Search } from './search';
-import type { Shortcuts, useKeys } from './vueUtils';
+import type { InjectionKey, Ref } from 'vue';
+import type { Search } from './search';
+import type { Shortcuts } from './shortcuts';
+import type { useKeys } from './vueUtils';
 
 export const languageDirectionKey = Symbol('languageDirection') as InjectionKey<
   Ref<'ltr' | 'rtl'>

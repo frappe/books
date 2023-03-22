@@ -88,15 +88,21 @@
 <script>
 import { Report } from 'reports/Report';
 import { isNumeric } from 'src/utils';
+import { languageDirectionKey } from 'src/utils/injectionKeys';
 import { defineComponent } from 'vue';
 import Paginator from '../Paginator.vue';
 import WithScroll from '../WithScroll.vue';
+import { inject } from 'vue';
 
 export default defineComponent({
   props: {
     report: Report,
   },
-  inject: ['languageDirection'],
+  setup() {
+    return {
+      languageDirection: inject(languageDirectionKey),
+    };
+  },
   data() {
     return {
       wconst: 8,

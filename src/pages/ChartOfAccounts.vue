@@ -146,18 +146,25 @@ import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
+import { languageDirectionKey } from 'src/utils/injectionKeys';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { openQuickEdit } from 'src/utils/ui';
 import { getMapFromList, removeAtIndex } from 'utils/index';
 import { nextTick } from 'vue';
 import Button from '../components/Button.vue';
+import { inject } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
   components: {
     Button,
     PageHeader,
+  },
+  setup() {
+    return {
+      languageDirection: inject(languageDirectionKey),
+    };
   },
   data() {
     return {
@@ -172,7 +179,6 @@ export default {
       refetchTotals: false,
     };
   },
-  inject: ['languageDirection'],
   async mounted() {
     await this.setTotalDebitAndCredit();
     fyo.doc.observer.on('sync:AccountingLedgerEntry', () => {

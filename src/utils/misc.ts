@@ -163,3 +163,7 @@ export function getCreateFiltersFromListViewFilters(filters: QueryFilter) {
 
   return createFilters;
 }
+
+export function getIsMac() {
+  return navigator.userAgent.indexOf('Mac') !== -1;
+}

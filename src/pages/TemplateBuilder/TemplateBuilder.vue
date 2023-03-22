@@ -246,6 +246,8 @@ import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
 import { inject } from 'vue';
 
+const COMPONENT_NAME = 'TemplateBuilder';
+
 export default defineComponent({
   props: { name: String },
   components: {
@@ -313,7 +315,7 @@ export default defineComponent({
   },
   deactivated(): void {
     docsPathRef.value = '';
-    this.shortcuts?.delete(this);
+    this.shortcuts?.delete(COMPONENT_NAME);
   },
   methods: {
     setShortcuts() {
@@ -321,13 +323,13 @@ export default defineComponent({
         return;
       }
 
-      this.shortcuts.ctrl.set(this, ['Enter'], this.setTemplate);
-      this.shortcuts.ctrl.set(this, ['KeyE'], this.toggleEditMode);
-      this.shortcuts.ctrl.set(this, ['KeyH'], this.toggleShowHints);
-      this.shortcuts.ctrl.set(this, ['Equal'], () =>
+      this.shortcuts.ctrl.set(COMPONENT_NAME, ['Enter'], this.setTemplate);
+      this.shortcuts.ctrl.set(COMPONENT_NAME, ['KeyE'], this.toggleEditMode);
+      this.shortcuts.ctrl.set(COMPONENT_NAME, ['KeyH'], this.toggleShowHints);
+      this.shortcuts.ctrl.set(COMPONENT_NAME, ['Equal'], () =>
         this.setScale(this.scale + 0.1)
       );
-      this.shortcuts.ctrl.set(this, ['Minus'], () =>
+      this.shortcuts.ctrl.set(COMPONENT_NAME, ['Minus'], () =>
         this.setScale(this.scale - 0.1)
       );
     },

@@ -54,3 +54,15 @@ export type PropertyEnum<T extends Record<string, any>> = {
 };
 
 export type TemplateFile = { file: string; template: string; modified: string };
+
+export interface Keys extends ModMap {
+  pressed: Set<string>;
+}
+
+interface ModMap {
+  alt: boolean;
+  ctrl: boolean;
+  meta: boolean;
+  shift: boolean;
+  repeat: boolean;
+}
