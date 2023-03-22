@@ -122,18 +122,18 @@
     </template>
   </Popover>
 </template>
-
-<script>
+<script lang="ts">
 import { t } from 'fyo';
-import { FieldTypeEnum } from 'schemas/types';
+import { Field, FieldTypeEnum } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
-import Button from './Button';
+import Button from './Button.vue';
 import FormControl from './Controls/FormControl.vue';
-import Icon from './Icon';
-import Popover from './Popover';
+import Icon from './Icon.vue';
+import Popover from './Popover.vue';
+import { defineComponent } from 'vue';
 
-let conditions = [
+const conditions = [
   { label: t`Is`, value: '=' },
   { label: t`Is Not`, value: '!=' },
   { label: t`Contains`, value: 'like' },
@@ -142,9 +142,18 @@ let conditions = [
   { label: t`Less Than`, value: '<' },
   { label: t`Is Empty`, value: 'is null' },
   { label: t`Is Not Empty`, value: 'is not null' },
-];
+] as const;
 
-export default {
+type Condition = typeof conditions[number]['value'];
+
+type Filter = {
+  fieldname: string;
+  condition: Condition;
+  value: string;
+  implicit: boolean;
+};
+
+export default defineComponent({
   name: 'FilterDropdown',
   components: {
     Popover,
@@ -152,19 +161,19 @@ export default {
     Icon,
     FormControl,
   },
-  props: { schemaName: String },
+  props: { schemaName: { type: String, required: true } },
   emits: ['change'],
   data() {
     return {
       filters: [],
-    };
+    } as { filters: Filter[] };
   },
   created() {
     this.addNewFilter();
   },
   methods: {
     getRandomString,
-    addNewFilter() {
+    addNewFilter(): void {
       const df = this.fields[0];
       if (!df) {
         return;
@@ -172,13 +181,18 @@ export default {
 
       this.addFilter(df.fieldname, 'like', '', false);
     },
-    addFilter(fieldname, condition, value, implicit) {
+    addFilter(
+      fieldname: string,
+      condition: Condition,
+      value: string,
+      implicit?: boolean
+    ): void {
       this.filters.push({ fieldname, condition, value, implicit: !!implicit });
     },
-    removeFilter(filter) {
+    removeFilter(filter: Filter): void {
       this.filters = this.filters.filter((f) => f !== filter);
     },
-    setFilter(filters, implicit) {
+    setFilter(filters: Record<string, Filter>, implicit?: boolean): void {
       this.filters = [];
 
       Object.keys(filters).map((fieldname) => {
@@ -198,49 +212,59 @@ export default {
 
       this.emitFilterChange();
     },
-    emitFilterChange() {
-      let filters = this.filters.reduce((acc, filter) => {
-        if (filter.value === '' && filter.condition) {
-          return acc;
+    emitFilterChange(): void {
+      const filters: Record<string, [Condition, string]> = {};
+      for (const { condition, value, fieldname } of this.filters) {
+        if (value === '' && condition) {
+          continue;
         }
-        acc[filter.fieldname] = [filter.condition, filter.value];
-        return acc;
-      }, {});
+
+        filters[fieldname] = [condition, value];
+      }
 
       this.$emit('change', filters);
     },
   },
   computed: {
-    fields() {
-      const excludedFieldsTypes = [
+    fields(): Field[] {
+      const excludedFieldsTypes: string[] = [
         FieldTypeEnum.Table,
+        FieldTypeEnum.Attachment,
         FieldTypeEnum.AttachImage,
       ];
-      return fyo.schemaMap[this.schemaName].fields.filter(
-        (f) =>
-          f.filter ||
-          (!f.computed &&
-            !excludedFieldsTypes.includes(f.fieldtype) &&
-            !f.meta &&
-            !f.readOnly)
-      );
+      const fields = fyo.schemaMap[this.schemaName]?.fields ?? [];
+      return fields.filter((f) => {
+        if (f.filter) {
+          return true;
+        }
+
+        if (excludedFieldsTypes.includes(f.fieldtype)) {
+          return false;
+        }
+
+        if (f.computed || f.meta || f.readOnly) {
+          return false;
+        }
+
+        return true;
+      });
     },
-    fieldOptions() {
+    fieldOptions(): { label: string; value: string }[] {
       return this.fields.map((df) => ({
         label: df.label,
         value: df.fieldname,
       }));
     },
-    conditions() {
+    conditions(): typeof conditions {
       return conditions;
     },
-    explicitFilters() {
+    explicitFilters(): Filter[] {
       return this.filters.filter((f) => !f.implicit);
     },
-    activeFilterCount() {
+    activeFilterCount(): number {
       return this.explicitFilters.filter((filter) => filter.value).length;
     },
-    filterAppliedMessage() {
+    filterAppliedMessage(): string {
       if (this.activeFilterCount === 1) {
         return this.t`1 filter applied`;
       }
@@ -248,5 +272,5 @@ export default {
       return this.t`${this.activeFilterCount} filters applied`;
     },
   },
-};
+});
 </script>
