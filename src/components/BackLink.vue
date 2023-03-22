@@ -1,5 +1,6 @@
 <template>
   <a
+    ref="backlink"
     class="
       cursor-pointer
       font-semibold
@@ -16,6 +17,26 @@
   </a>
 </template>
 <script lang="ts">
+import { shortcutsKey } from 'src/utils/injectionKeys';
+import { ref, inject } from 'vue';
 import { defineComponent } from 'vue';
-export default defineComponent({});
+
+const COMPONENT_NAME = 'BackLink';
+
+export default defineComponent({
+  setup() {
+    return {
+      backlink: ref<HTMLAnchorElement | null>(null),
+      shortcuts: inject(shortcutsKey),
+    };
+  },
+  activated() {
+    this.shortcuts?.shift.set(COMPONENT_NAME, ['Backspace'], () => {
+      this.backlink?.click();
+    });
+  },
+  deactivated() {
+    this.shortcuts?.delete(COMPONENT_NAME);
+  },
+});
 </script>
