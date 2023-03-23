@@ -1,7 +1,6 @@
 import { Keys } from 'utils/types';
 import { watch } from 'vue';
 import { getIsMac } from './misc';
-import { useKeys } from './vueUtils';
 
 interface ModMap {
   alt: boolean;
@@ -40,32 +39,40 @@ const mods: Readonly<Mod[]> = ['alt', 'ctrl', 'meta', 'repeat', 'shift'];
 export class Shortcuts {
   keys: Keys;
   isMac: boolean;
-  contextStack: Context[];
   shortcuts: ShortcutMap;
   modMap: Partial<Record<Mod, boolean>>;
+  keySet: Set<string>;
 
-  constructor(keys?: Keys) {
-    this.contextStack = [];
+  constructor(keys: Keys) {
     this.modMap = {};
-    this.keys = keys ?? useKeys();
+    this.keySet = new Set();
+    this.keys = keys;
     this.shortcuts = new Map();
     this.isMac = getIsMac();
 
     watch(this.keys, (keys) => {
-      this.#trigger(keys);
+      const key = this.getKey(Array.from(keys.pressed), keys);
+      if (!key) {
+        return false;
+      }
+
+      if (!key || !this.keySet.has(key)) {
+        return;
+      }
+
+      this.#trigger(key);
     });
   }
 
-  #trigger(keys: Keys) {
-    const key = this.getKey(Array.from(keys.pressed), keys);
-    for (const context of this.contextStack.reverse()) {
-      const obj = this.shortcuts.get(context)?.get(key);
-      if (!obj) {
-        continue;
-      }
+  #trigger(key: string) {
+    const configList = Array.from(this.shortcuts.keys())
+      .map((cxt) => this.shortcuts.get(cxt)?.get(key))
+      .filter(Boolean)
+      .reverse() as ShortcutConfig[];
 
-      obj.callback();
-      if (!obj.propagate) {
+    for (const config of configList) {
+      config.callback();
+      if (!config.propagate) {
         break;
       }
     }
@@ -74,7 +81,6 @@ export class Shortcuts {
   /**
    * Check if a context is present or if a shortcut
    * is present in a context.
-   *
    *
    * @param context context in which the shortcut is to be checked
    * @param shortcut shortcut that is to be checked
@@ -91,6 +97,10 @@ export class Shortcuts {
     }
 
     const key = this.getKey(shortcut);
+    if (!key) {
+      return false;
+    }
+
     return contextualShortcuts.has(key);
   }
 
@@ -110,18 +120,30 @@ export class Shortcuts {
     propagate: boolean = false,
     removeIfSet: boolean = true
   ): void {
-    if (!this.shortcuts.has(context)) {
-      this.shortcuts.set(context, new Map());
+    const key = this.getKey(shortcut);
+    if (!key) {
+      return;
     }
 
-    const key = this.getKey(shortcut);
-    const contextualShortcuts = this.shortcuts.get(context)!;
+    let contextualShortcuts = this.shortcuts.get(context);
+
+    /**
+     * Maintain context order.
+     */
+    if (!contextualShortcuts) {
+      contextualShortcuts = new Map();
+    } else {
+      this.shortcuts.delete(contextualShortcuts);
+    }
+
     if (contextualShortcuts.has(key) && !removeIfSet) {
+      this.shortcuts.set(context, contextualShortcuts);
       throw new Error(`Shortcut ${key} already exists.`);
     }
 
-    this.#pushContext(context);
+    this.keySet.add(key);
     contextualShortcuts.set(key, { callback, propagate });
+    this.shortcuts.set(context, contextualShortcuts);
   }
 
   /**
@@ -134,7 +156,6 @@ export class Shortcuts {
    */
   delete(context: Context, shortcut?: string[]): boolean {
     if (!shortcut) {
-      this.#removeContext(context);
       return this.shortcuts.delete(context);
     }
 
@@ -144,6 +165,10 @@ export class Shortcuts {
     }
 
     const key = this.getKey(shortcut);
+    if (!key) {
+      return false;
+    }
+
     return contextualShortcuts.delete(key);
   }
 
@@ -155,7 +180,7 @@ export class Shortcuts {
    * @param modMap boolean map of mod keys to be used
    * @returns string to be used as the shortcut Map key
    */
-  getKey(shortcut: string[], modMap?: Partial<ModMap>): string {
+  getKey(shortcut: string[], modMap?: Partial<ModMap>): string | null {
     const _modMap = modMap || this.modMap;
     this.modMap = {};
 
@@ -173,24 +198,7 @@ export class Shortcuts {
       return modString;
     }
 
-    return '';
-  }
-
-  #pushContext(context: Context) {
-    this.#removeContext(context);
-    this.contextStack.push(context);
-  }
-
-  #removeContext(context: Context) {
-    const index = this.contextStack.indexOf(context);
-    if (index === -1) {
-      return;
-    }
-
-    this.contextStack = [
-      this.contextStack.slice(0, index),
-      this.contextStack.slice(index + 1),
-    ].flat();
+    return null;
   }
 
   /**
