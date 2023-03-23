@@ -34,11 +34,16 @@
     />
   </div>
 </template>
-<script>
+<script lang="ts">
 import { getColorClass } from 'src/utils/colors';
+import { ToastDuration, ToastType } from 'src/utils/types';
+import { toastDurationMap } from 'src/utils/ui';
+import { defineComponent, PropType } from 'vue';
 import FeatherIcon from './FeatherIcon.vue';
 
-export default {
+type TimeoutId = ReturnType<typeof setTimeout>;
+
+export default defineComponent({
   components: {
     FeatherIcon,
   },
@@ -46,16 +51,21 @@ export default {
     return {
       opacity: 0,
       show: true,
-      opacityTimeoutId: -1,
-      cleanupTimeoutId: -1,
+      opacityTimeoutId: null,
+      cleanupTimeoutId: null,
+    } as {
+      opacity: number;
+      show: boolean;
+      opacityTimeoutId: null | TimeoutId;
+      cleanupTimeoutId: null | TimeoutId;
     };
   },
   props: {
     message: { type: String, required: true },
     action: { type: Function, default: () => {} },
     actionText: { type: String, default: '' },
-    type: { type: String, default: 'info' },
-    duration: { type: Number, default: 5000 },
+    type: { type: String as PropType<ToastType>, default: 'info' },
+    duration: { type: String as PropType<ToastDuration>, default: 'long' },
   },
   computed: {
     iconName() {
@@ -77,22 +87,23 @@ export default {
       }[this.type];
     },
     iconColor() {
-      return getColorClass(this.color, 'text', 400);
+      return getColorClass(this.color ?? 'gray', 'text', 400);
     },
   },
   mounted() {
+    const duration = toastDurationMap[this.duration];
     setTimeout(() => {
       this.opacity = 1;
     }, 50);
 
     this.opacityTimeoutId = setTimeout(() => {
       this.opacity = 0;
-    }, this.duration);
+    }, duration);
 
     this.cleanupTimeoutId = setTimeout(() => {
       this.show = false;
       this.cleanup();
-    }, this.duration + 300);
+    }, duration + 300);
   },
   methods: {
     actionClicked() {
@@ -100,8 +111,12 @@ export default {
       this.closeToast();
     },
     closeToast() {
-      clearTimeout(this.opacityTimeoutId);
-      clearTimeout(this.cleanupTimeoutId);
+      if (this.opacityTimeoutId != null) {
+        clearTimeout(this.opacityTimeoutId);
+      }
+      if (this.cleanupTimeoutId != null) {
+        clearTimeout(this.cleanupTimeoutId);
+      }
 
       this.opacity = 0;
       setTimeout(() => {
@@ -110,11 +125,16 @@ export default {
       }, 300);
     },
     cleanup() {
-      Array.from(this.$el.parentElement?.children ?? [])
+      const element = this.$el;
+      if (!(element instanceof Element)) {
+        return;
+      }
+
+      Array.from(element.parentElement?.children ?? [])
         .filter((el) => !el.innerHTML)
         .splice(1)
         .forEach((el) => el.remove());
     },
   },
-};
+});
 </script>
