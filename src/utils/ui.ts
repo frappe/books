@@ -172,11 +172,11 @@ export async function deleteDocWithPrompt(doc: Doc) {
   }
 
   return await showMessageDialog({
-    message: t`Delete ${schemaLabel} ${doc.name!}?`,
+    message: t`Delete ${getActionLabel(doc)}?`,
     detail,
     buttons: [
       {
-        label: t`Delete`,
+        label: t`Yes`,
         async action() {
           try {
             await doc.delete();
@@ -196,7 +196,7 @@ export async function deleteDocWithPrompt(doc: Doc) {
         },
       },
       {
-        label: t`Cancel`,
+        label: t`No`,
         action() {
           return false;
         },
@@ -237,9 +237,8 @@ export async function cancelDocWithPrompt(doc: Doc) {
     }
   }
 
-  const schemaLabel = fyo.schemaMap[doc.schemaName]!.label;
   return await showMessageDialog({
-    message: t`Cancel ${schemaLabel} ${doc.name!}?`,
+    message: t`Cancel ${getActionLabel(doc)}?`,
     detail,
     buttons: [
       {
@@ -622,7 +621,7 @@ export async function commonDocSubmit(doc: Doc): Promise<boolean> {
 }
 
 async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
-  const label = doc.schema.label ?? doc.schemaName;
+  const label = getActionLabel(doc);
   let message = t`Submit ${label}?`;
   if (type === 'sync') {
     message = t`Save ${label}?`;
@@ -657,7 +656,7 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
 }
 
 function showActionToast(doc: Doc, type: 'sync' | 'cancel' | 'delete') {
-  const label = getToastLabel(doc);
+  const label = getActionLabel(doc);
   const message = {
     sync: t`${label} saved`,
     cancel: t`${label} cancelled`,
@@ -668,7 +667,7 @@ function showActionToast(doc: Doc, type: 'sync' | 'cancel' | 'delete') {
 }
 
 function showSubmitToast(doc: Doc) {
-  const label = getToastLabel(doc);
+  const label = getActionLabel(doc);
   const message = t`${label} submitted`;
   const toastOption: ToastOptions = {
     type: 'success',
@@ -707,7 +706,7 @@ function getSubmitSuccessToastAction(doc: Doc) {
 }
 
 export function showCannotSaveOrSubmitToast(doc: Doc) {
-  const label = getToastLabel(doc);
+  const label = getActionLabel(doc);
   let message = t`${label} already saved`;
 
   if (doc.schema.isSubmittable && doc.isSubmitted) {
@@ -718,7 +717,7 @@ export function showCannotSaveOrSubmitToast(doc: Doc) {
 }
 
 export function showCannotCancelOrDeleteToast(doc: Doc) {
-  const label = getToastLabel(doc);
+  const label = getActionLabel(doc);
   let message = t`${label} cannot be deleted`;
   if (doc.schema.isSubmittable && !doc.isCancelled) {
     message = t`${label} cannot be cancelled`;
@@ -727,7 +726,7 @@ export function showCannotCancelOrDeleteToast(doc: Doc) {
   showToast({ type: 'warning', message, duration: 'short' });
 }
 
-function getToastLabel(doc: Doc) {
+function getActionLabel(doc: Doc) {
   const label = doc.schema.label || doc.schemaName;
   if (doc.schema.naming === 'random') {
     return label;

@@ -32,9 +32,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { shortcutsKey } from 'src/utils/injectionKeys';
+import { defineComponent, inject } from 'vue';
 
 export default defineComponent({
+  setup() {
+    return { shortcuts: inject(shortcutsKey) };
+  },
   props: {
     openModal: {
       default: false,
@@ -49,19 +53,17 @@ export default defineComponent({
   watch: {
     openModal(value: boolean) {
       if (value) {
-        document.addEventListener('keyup', this.escapeEventListener);
+        this.shortcuts?.set(this.context, ['Escape'], () => {
+          this.$emit('closemodal');
+        });
       } else {
-        document.removeEventListener('keyup', this.escapeEventListener);
+        this.shortcuts?.delete(this.context);
       }
     },
   },
-  methods: {
-    escapeEventListener(event: KeyboardEvent) {
-      if (event.code !== 'Escape') {
-        return;
-      }
-
-      this.$emit('closemodal');
+  computed: {
+    context(): string {
+      return `Modal-` + Math.random().toString(36).slice(2, 6);
     },
   },
 });

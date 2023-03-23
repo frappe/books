@@ -53,7 +53,13 @@ export function useKeys() {
   const keyupListener = (e: KeyboardEvent) => {
     const { code } = e;
     if (code.startsWith('Meta') && isMac) {
-      return keys.pressed.clear();
+      keys.alt = false;
+      keys.ctrl = false;
+      keys.meta = false;
+      keys.shift = false;
+      keys.repeat = false;
+      keys.pressed.clear();
+      return;
     }
 
     keys.pressed.delete(code);
