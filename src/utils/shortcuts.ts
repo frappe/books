@@ -23,6 +23,20 @@ type ShortcutMap = Map<Context, Map<string, ShortcutConfig>>;
 
 const mods: Readonly<Mod[]> = ['alt', 'ctrl', 'meta', 'repeat', 'shift'];
 
+/**
+ * Used to add shortcuts based on **context**.
+ *
+ * **Context** is a identifier for where the shortcut belongs. For instance
+ * a _Form_ component having shortcuts for _Submit Form_.
+ *
+ * In the above example an app can have multiple instances of the _Form_
+ * component active at the same time, so the passed context should be a
+ * unique identifier such as the component object.
+ *
+ * If only one instance of a component is meant to be active at a time
+ * (for example a _Sidebar_ component) then do not use objects, use some
+ * primitive datatype (`string`).
+ */
 export class Shortcuts {
   keys: Keys;
   isMac: boolean;
@@ -64,9 +78,9 @@ export class Shortcuts {
    *
    * @param context context in which the shortcut is to be checked
    * @param shortcut shortcut that is to be checked
-   * @returns
+   * @returns boolean indicating presence
    */
-  has(context: Context, shortcut?: string[]) {
+  has(context: Context, shortcut?: string[]): boolean {
     if (!shortcut) {
       return this.shortcuts.has(context);
     }
@@ -86,7 +100,7 @@ export class Shortcuts {
    * @param context context object to which the shortcut belongs
    * @param shortcut keyboard event codes used as shortcut chord
    * @param callback function to be called when the shortcut is pressed
-   * @param propagate whether to check and executs shortcuts in parent contexts
+   * @param propagate whether to check and execute shortcuts in earlier contexts
    * @param removeIfSet whether to delete the set shortcut
    */
   set(
@@ -95,18 +109,14 @@ export class Shortcuts {
     callback: ShortcutFunction,
     propagate: boolean = false,
     removeIfSet: boolean = true
-  ) {
+  ): void {
     if (!this.shortcuts.has(context)) {
       this.shortcuts.set(context, new Map());
     }
-    const contextualShortcuts = this.shortcuts.get(context)!;
 
     const key = this.getKey(shortcut);
-    if (removeIfSet) {
-      contextualShortcuts.delete(key);
-    }
-
-    if (contextualShortcuts.has(key)) {
+    const contextualShortcuts = this.shortcuts.get(context)!;
+    if (contextualShortcuts.has(key) && !removeIfSet) {
       throw new Error(`Shortcut ${key} already exists.`);
     }
 
