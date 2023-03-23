@@ -1,6 +1,23 @@
 import { Keys } from 'utils/types';
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import {
+  onActivated,
+  onDeactivated,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+} from 'vue';
 import { getIsMac } from './misc';
+import { Shortcuts } from './shortcuts';
+import { DocRef } from './types';
+import {
+  commonDocCancel,
+  commonDocSubmit,
+  commonDocSync,
+  commongDocDelete,
+  showCannotCancelOrDeleteToast,
+  showCannotSaveOrSubmitToast,
+} from './ui';
 
 export function useKeys() {
   const isMac = getIsMac();
@@ -71,4 +88,61 @@ export function useMouseLocation() {
   });
 
   return loc;
+}
+
+export function useDocShortcuts(
+  shortcuts: Shortcuts,
+  docRef: DocRef,
+  name: string,
+  isMultiple: boolean = true
+) {
+  let context = name;
+  if (isMultiple) {
+    context = name + '-' + Math.random().toString(36).slice(2, 6);
+  }
+
+  const syncOrSubmitCallback = () => {
+    const doc = docRef.value;
+    if (!doc) {
+      return;
+    }
+
+    if (doc.canSave) {
+      return commonDocSync(doc, true);
+    }
+
+    if (doc.canSubmit) {
+      return commonDocSubmit(doc);
+    }
+
+    showCannotSaveOrSubmitToast(doc);
+  };
+
+  const cancelOrDeleteCallback = () => {
+    const doc = docRef.value;
+    if (!doc) {
+      return;
+    }
+
+    if (doc.canCancel) {
+      return commonDocCancel(doc);
+    }
+
+    if (doc.canDelete) {
+      return commongDocDelete(doc);
+    }
+
+    showCannotCancelOrDeleteToast(doc);
+  };
+
+  onActivated(() => {
+    shortcuts.pmod.set(context, ['KeyS'], syncOrSubmitCallback, false);
+    shortcuts.pmod.set(context, ['Backspace'], cancelOrDeleteCallback, false);
+  });
+
+  onDeactivated(() => {
+    shortcuts.delete(context);
+  });
+
+  return context;
 }

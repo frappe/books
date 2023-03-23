@@ -228,7 +228,7 @@ import {
   getPrintTemplatePropValues,
 } from 'src/utils/printTemplates';
 import { docsPathRef, showSidebar } from 'src/utils/refs';
-import { PrintValues } from 'src/utils/types';
+import { DocRef, PrintValues } from 'src/utils/types';
 import {
   focusOrSelectFormControl,
   getActionsForDoc,
@@ -239,14 +239,12 @@ import {
   showMessageDialog,
   showToast,
 } from 'src/utils/ui';
+import { useDocShortcuts } from 'src/utils/vueUtils';
 import { getMapFromList } from 'utils/index';
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, inject, ref } from 'vue';
 import PrintContainer from './PrintContainer.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
-import { inject } from 'vue';
-
-const COMPONENT_NAME = 'TemplateBuilder';
 
 export default defineComponent({
   props: { name: String },
@@ -262,8 +260,18 @@ export default defineComponent({
     ShortcutKeys,
   },
   setup() {
+    const doc = ref(null) as DocRef<PrintTemplate>;
+    const shortcuts = inject(shortcutsKey);
+
+    let context = 'TemplateBuilder';
+    if (shortcuts) {
+      context = useDocShortcuts(shortcuts, doc, context, false);
+    }
+
     return {
-      shortcuts: inject(shortcutsKey),
+      doc,
+      context,
+      shortcuts,
     };
   },
   provide() {
@@ -271,7 +279,6 @@ export default defineComponent({
   },
   data() {
     return {
-      doc: null,
       editMode: false,
       showHints: false,
       hints: undefined,
@@ -290,7 +297,6 @@ export default defineComponent({
       showHints: boolean;
       hints?: Record<string, unknown>;
       values: null | PrintValues;
-      doc: PrintTemplate | null;
       displayDoc: PrintTemplate | null;
       scale: number;
       panelWidth: number;
@@ -311,25 +317,27 @@ export default defineComponent({
   },
   async activated(): Promise<void> {
     docsPathRef.value = docsPathMap.PrintTemplate ?? '';
-    this.setShortcuts;
+    this.setShortcuts();
   },
   deactivated(): void {
     docsPathRef.value = '';
-    this.shortcuts?.delete(COMPONENT_NAME);
   },
   methods: {
     setShortcuts() {
+      /**
+       * Node: Doc Save and Delete shortcuts are in the setup.
+       */
       if (!this.shortcuts) {
         return;
       }
 
-      this.shortcuts.ctrl.set(COMPONENT_NAME, ['Enter'], this.setTemplate);
-      this.shortcuts.ctrl.set(COMPONENT_NAME, ['KeyE'], this.toggleEditMode);
-      this.shortcuts.ctrl.set(COMPONENT_NAME, ['KeyH'], this.toggleShowHints);
-      this.shortcuts.ctrl.set(COMPONENT_NAME, ['Equal'], () =>
+      this.shortcuts.ctrl.set(this.context, ['Enter'], this.setTemplate);
+      this.shortcuts.ctrl.set(this.context, ['KeyE'], this.toggleEditMode);
+      this.shortcuts.ctrl.set(this.context, ['KeyH'], this.toggleShowHints);
+      this.shortcuts.ctrl.set(this.context, ['Equal'], () =>
         this.setScale(this.scale + 0.1)
       );
-      this.shortcuts.ctrl.set(COMPONENT_NAME, ['Minus'], () =>
+      this.shortcuts.ctrl.set(this.context, ['Minus'], () =>
         this.setScale(this.scale - 0.1)
       );
     },
@@ -385,7 +393,7 @@ export default defineComponent({
 
       let message = this.t`Please set a Display Doc`;
       if (!this.displayDoc) {
-        return showToast({ type: 'warning', message, duration: 1000 });
+        return showToast({ type: 'warning', message, duration: 'short' });
       }
 
       this.editMode = !this.editMode;

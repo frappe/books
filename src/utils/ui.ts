@@ -33,6 +33,8 @@ import {
   UIGroupedFields,
 } from './types';
 
+export const toastDurationMap = { short: 2_500, long: 5_000 } as const;
+
 export async function openQuickEdit({
   doc,
   schemaName,
@@ -318,12 +320,7 @@ function getCancelAction(doc: Doc): Action {
     },
     condition: (doc: Doc) => doc.canCancel,
     async action() {
-      const res = await cancelDocWithPrompt(doc);
-      if (!res) {
-        return;
-      }
-
-      showActionToast(doc, 'cancel');
+      await commonDocCancel(doc);
     },
   };
 }
@@ -336,13 +333,7 @@ function getDeleteAction(doc: Doc): Action {
     },
     condition: (doc: Doc) => doc.canDelete,
     async action() {
-      const res = await deleteDocWithPrompt(doc);
-      if (!res) {
-        return;
-      }
-
-      showActionToast(doc, 'delete');
-      router.back();
+      await commongDocDelete(doc);
     },
   };
 }
@@ -569,11 +560,39 @@ export function getShortcutKeyMap(
   };
 }
 
-export async function commonDocSync(doc: Doc): Promise<boolean> {
-  try {
-    await doc.sync();
-  } catch (error) {
-    handleErrorWithDialog(error, doc);
+export async function commongDocDelete(doc: Doc): Promise<boolean> {
+  const res = await deleteDocWithPrompt(doc);
+  if (!res) {
+    return false;
+  }
+
+  showActionToast(doc, 'delete');
+  router.back();
+  return true;
+}
+
+export async function commonDocCancel(doc: Doc): Promise<boolean> {
+  const res = await cancelDocWithPrompt(doc);
+  if (!res) {
+    return false;
+  }
+
+  showActionToast(doc, 'cancel');
+  return true;
+}
+
+export async function commonDocSync(
+  doc: Doc,
+  useDialog: boolean = false
+): Promise<boolean> {
+  let success: boolean;
+  if (useDialog) {
+    success = !!(await showSubmitOrSyncDialog(doc, 'sync'));
+  } else {
+    success = await syncWithoutDialog(doc);
+  }
+
+  if (!success) {
     return false;
   }
 
@@ -581,8 +600,19 @@ export async function commonDocSync(doc: Doc): Promise<boolean> {
   return true;
 }
 
+async function syncWithoutDialog(doc: Doc): Promise<boolean> {
+  try {
+    await doc.sync();
+  } catch (error) {
+    handleErrorWithDialog(error, doc);
+    return false;
+  }
+
+  return true;
+}
+
 export async function commonDocSubmit(doc: Doc): Promise<boolean> {
-  const success = await showSubmitDialog(doc);
+  const success = await showSubmitOrSyncDialog(doc, 'submit');
   if (!success) {
     return false;
   }
@@ -591,12 +621,16 @@ export async function commonDocSubmit(doc: Doc): Promise<boolean> {
   return true;
 }
 
-async function showSubmitDialog(doc: Doc) {
+async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
   const label = doc.schema.label ?? doc.schemaName;
-  const message = t`Submit ${label}?`;
+  let message = t`Submit ${label}?`;
+  if (type === 'sync') {
+    message = t`Save ${label}?`;
+  }
+
   const yesAction = async () => {
     try {
-      await doc.submit();
+      await doc[type]();
     } catch (error) {
       handleErrorWithDialog(error, doc);
       return false;
@@ -630,7 +664,7 @@ function showActionToast(doc: Doc, type: 'sync' | 'cancel' | 'delete') {
     delete: t`${label} deleted`,
   }[type];
 
-  showToast({ type: 'success', message, duration: 2500 });
+  showToast({ type: 'success', message, duration: 'short' });
 }
 
 function showSubmitToast(doc: Doc) {
@@ -639,19 +673,10 @@ function showSubmitToast(doc: Doc) {
   const toastOption: ToastOptions = {
     type: 'success',
     message,
-    duration: 5000,
+    duration: 'long',
     ...getSubmitSuccessToastAction(doc),
   };
   showToast(toastOption);
-}
-
-function getToastLabel(doc: Doc) {
-  const label = doc.schema.label ?? doc.schemaName;
-  if (doc.schema.naming === 'random') {
-    return label;
-  }
-
-  return doc.name ?? label;
 }
 
 function getSubmitSuccessToastAction(doc: Doc) {
@@ -679,4 +704,34 @@ function getSubmitSuccessToastAction(doc: Doc) {
   }
 
   return {};
+}
+
+export function showCannotSaveOrSubmitToast(doc: Doc) {
+  const label = getToastLabel(doc);
+  let message = t`${label} already saved`;
+
+  if (doc.schema.isSubmittable && doc.isSubmitted) {
+    message = t`${label} already submitted`;
+  }
+
+  showToast({ type: 'warning', message, duration: 'short' });
+}
+
+export function showCannotCancelOrDeleteToast(doc: Doc) {
+  const label = getToastLabel(doc);
+  let message = t`${label} cannot be deleted`;
+  if (doc.schema.isSubmittable && !doc.isCancelled) {
+    message = t`${label} cannot be cancelled`;
+  }
+
+  showToast({ type: 'warning', message, duration: 'short' });
+}
+
+function getToastLabel(doc: Doc) {
+  const label = doc.schema.label || doc.schemaName;
+  if (doc.schema.naming === 'random') {
+    return label;
+  }
+
+  return doc.name || label;
 }

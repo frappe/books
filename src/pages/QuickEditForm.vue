@@ -113,14 +113,17 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
+import { shortcutsKey } from 'src/utils/injectionKeys';
 import { getQuickEditWidget } from 'src/utils/quickEditWidgets';
 import {
-commonDocSubmit,
-commonDocSync,
-focusOrSelectFormControl,
-getActionsForDoc,
-openQuickEdit
+  commonDocSubmit,
+  commonDocSync,
+  focusOrSelectFormControl,
+  getActionsForDoc,
+  openQuickEdit,
 } from 'src/utils/ui';
+import { useDocShortcuts } from 'src/utils/vueUtils';
+import { ref, inject } from 'vue';
 
 export default {
   name: 'QuickEditForm',
@@ -146,6 +149,21 @@ export default {
     DropdownWithActions,
   },
   emits: ['close'],
+  setup() {
+    const doc = ref(null);
+    const shortcuts = inject(shortcutsKey);
+
+    let context = 'QuickEditForm';
+    if (shortcuts) {
+      context = useDocShortcuts(shortcuts, doc, context, true);
+    }
+
+    return {
+      doc,
+      context,
+      shortcuts,
+    };
+  },
   provide() {
     return {
       schemaName: this.schemaName,
@@ -155,12 +173,16 @@ export default {
   },
   data() {
     return {
-      doc: null,
       values: null,
       titleField: null,
       imageField: null,
       statusText: null,
     };
+  },
+  activated() {
+    this.shortcuts.set(this.context, ['Escape'], () => {
+      this.routeToPrevious();
+    });
   },
   async mounted() {
     if (this.defaults) {

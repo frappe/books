@@ -116,7 +116,7 @@ export default defineComponent({
   },
   deactivated() {
     docsPathRef.value = '';
-    this.shortcuts?.delete(this);
+    this.shortcuts?.delete(this.context);
   },
   methods: {
     setShortcuts() {
@@ -124,10 +124,10 @@ export default defineComponent({
         return;
       }
 
-      this.shortcuts.pmod.set(this, ['KeyN'], () =>
+      this.shortcuts.pmod.set(this.context, ['KeyN'], () =>
         this.makeNewDocButton?.$el.click()
       );
-      this.shortcuts.pmod.set(this, ['KeyE'], () =>
+      this.shortcuts.pmod.set(this.context, ['KeyE'], () =>
         this.exportButton?.$el.click()
       );
     },
@@ -194,6 +194,9 @@ export default defineComponent({
     },
   },
   computed: {
+    context(): string {
+      return 'ListView-' + this.schemaName;
+    },
     title(): string {
       if (this.pageTitle) {
         return this.pageTitle;

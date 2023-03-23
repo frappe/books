@@ -21,7 +21,8 @@
         "
       />
       <Button
-        v-if="!doc.isCancelled && !doc.dirty"
+        v-if="canPrint"
+        ref="printButton"
         :icon="true"
         @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
       >
@@ -313,6 +314,7 @@ import FormHeader from 'src/components/FormHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import LinkedEntryWidget from 'src/components/Widgets/LinkedEntryWidget.vue';
 import { fyo } from 'src/initFyo';
+import { shortcutsKey } from 'src/utils/injectionKeys';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import {
@@ -321,7 +323,8 @@ import {
   getGroupedActionsForDoc,
   routeTo,
 } from 'src/utils/ui';
-import { nextTick } from 'vue';
+import { useDocShortcuts } from 'src/utils/vueUtils';
+import { inject, nextTick, ref } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 import QuickEditForm from './QuickEditForm.vue';
 
@@ -341,6 +344,22 @@ export default {
     LinkedEntryWidget,
     Barcode,
   },
+  setup() {
+    const doc = ref(null);
+    const shortcuts = inject(shortcutsKey);
+
+    let context = 'InvoiceForm';
+    if (shortcuts) {
+      context = useDocShortcuts(shortcuts, doc, context, true);
+    }
+
+    return {
+      doc,
+      context,
+      shortcuts,
+      printButton: null,
+    };
+  },
   provide() {
     return {
       schemaName: this.schemaName,
@@ -351,7 +370,6 @@ export default {
   data() {
     return {
       chstatus: false,
-      doc: null,
       quickEditDoc: null,
       quickEditFields: [],
       color: null,
@@ -364,6 +382,9 @@ export default {
     this.chstatus = !this.chstatus;
   },
   computed: {
+    canPrint() {
+      return !this.doc.isCancelled && !this.doc.dirty;
+    },
     stockTransferText() {
       if (!this.fyo.singles.AccountingSettings.enableInventory) {
         return '';
@@ -458,6 +479,13 @@ export default {
   },
   activated() {
     docsPathRef.value = docsPathMap[this.schemaName];
+    this.shortcuts?.pmod.set(this.context, ['KeyP'], () => {
+      if (!this.canPrint) {
+        return;
+      }
+
+      this.printButton?.$el.click();
+    });
   },
   deactivated() {
     docsPathRef.value = '';
