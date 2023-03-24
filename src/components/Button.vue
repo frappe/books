@@ -1,13 +1,6 @@
 <template>
   <button
-    class="
-      focus:outline-none
-      rounded-md
-      flex
-      justify-center
-      items-center
-      text-sm
-    "
+    class="rounded-md flex justify-center items-center text-sm"
     :class="_class"
     v-bind="$attrs"
   >
