@@ -10,7 +10,7 @@ import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
 import { MessageDialogOptions, ToastOptions } from './utils/types';
-import { showMessageDialog, showToast } from './utils/ui';
+import { showMessageDialog } from './utils/ui';
 
 function shouldNotStore(error: Error) {
   const shouldLog = (error as BaseError).shouldStore ?? true;
@@ -90,6 +90,7 @@ export async function handleError(
 
   await sendError(errorLogObj);
   const toastProps = getToastProps(errorLogObj);
+  const { showToast } = await import('src/utils/interactive');
   await showToast(toastProps);
 }
 

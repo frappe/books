@@ -98,3 +98,16 @@ export type PrintValues = {
   print: Record<string, unknown>;
   doc: Record<string, unknown>;
 };
+
+export interface DialogOptions {
+  title: string;
+  description?: string;
+  buttons?: DialogButton[];
+}
+
+export type DialogButton = {
+  label: string;
+  handler: () => any;
+  isPrimary?: boolean;
+  isEscape?: boolean;
+};

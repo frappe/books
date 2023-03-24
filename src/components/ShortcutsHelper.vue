@@ -102,6 +102,10 @@ export default defineComponent({
               t`A submittable entry is deleted only if it is in the cancelled state.`,
             ].join(' '),
           },
+          {
+            shortcut: [ShortcutKey.pmod, 'P'],
+            description: t`Open Print View if Print is available.`,
+          },
         ],
       },
       {

@@ -5,7 +5,6 @@ import { fyo } from 'src/initFyo';
 import { IPC_ACTIONS } from 'utils/messages';
 import { reloadWindow } from './ipcCalls';
 import { systemLanguageRef } from './refs';
-import { showToast } from './ui';
 
 // Language: Language Code in books/translations
 export const languageCodeMap: Record<string, string> = {
@@ -72,6 +71,7 @@ async function fetchAndSetLanguageMap(code: string) {
   );
 
   if (!success) {
+    const { showToast } = await import('src/utils/interactive');
     showToast({ type: 'error', message });
   } else {
     setLanguageMapOnTranslationString(languageMap);

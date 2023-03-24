@@ -1,22 +1,7 @@
 <template>
   <Transition>
     <div
-      class="
-        fixed
-        top-0
-        start-0
-        w-screen
-        h-screen
-        z-20
-        flex
-        justify-center
-        items-center
-      "
-      :style="
-        useBackdrop
-          ? 'background: rgba(0, 0, 0, 0.1); backdrop-filter: blur(2px)'
-          : ''
-      "
+      class="backdrop z-20 flex justify-center items-center"
       @click="$emit('closemodal')"
       v-if="openModal"
     >
@@ -37,15 +22,12 @@ import { defineComponent, inject } from 'vue';
 
 export default defineComponent({
   setup() {
-    return { shortcuts: inject(shortcutsKey) };
+    const context = `Modal-` + Math.random().toString(36).slice(2, 6);
+    return { shortcuts: inject(shortcutsKey), context };
   },
   props: {
     openModal: {
       default: false,
-      type: Boolean,
-    },
-    useBackdrop: {
-      default: true,
       type: Boolean,
     },
   },
@@ -59,11 +41,6 @@ export default defineComponent({
       } else {
         this.shortcuts?.delete(this.context);
       }
-    },
-  },
-  computed: {
-    context(): string {
-      return `Modal-` + Math.random().toString(36).slice(2, 6);
     },
   },
 });

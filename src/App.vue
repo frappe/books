@@ -102,7 +102,6 @@ export default defineComponent({
     WindowsTitleBar,
   },
   async mounted() {
-    // setGlobalShortcuts(this.shortcuts as Shortcuts);
     this.setInitialScreen();
   },
   watch: {
