@@ -7,8 +7,9 @@ import { BaseError } from 'fyo/utils/errors';
 import { BackendResponse } from 'utils/ipc/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { SelectFileOptions, SelectFileReturn, TemplateFile } from 'utils/types';
+import { showToast } from './interactive';
 import { setLanguageMap } from './language';
-import { showMessageDialog, showToast } from './ui';
+import { showMessageDialog } from './ui';
 
 export function reloadWindow() {
   return ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);

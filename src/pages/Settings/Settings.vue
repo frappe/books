@@ -82,7 +82,7 @@ import { reloadWindow } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { UIGroupedFields } from 'src/utils/types';
-import { showToast } from 'src/utils/ui';
+import { showToast } from 'src/utils/interactive';
 import { computed, defineComponent } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
 
