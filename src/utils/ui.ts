@@ -18,10 +18,10 @@ import { fyo } from 'src/initFyo';
 import router from 'src/router';
 import { IPC_ACTIONS } from 'utils/messages';
 import { SelectFileOptions } from 'utils/types';
-import { App, createApp, h } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
 import { evaluateHidden } from './doc';
+import { showToast } from './interactive';
 import { selectFile } from './ipcCalls';
 import { showSidebar } from './refs';
 import {
@@ -121,32 +121,6 @@ export async function showMessageDialog({
   }
 
   return await button.action();
-}
-
-export async function showToast(options: ToastOptions) {
-  const Toast = (await import('src/components/Toast.vue')).default;
-  const toast = createApp({
-    render() {
-      return h(Toast, { ...options });
-    },
-  });
-  replaceAndAppendMount(toast, 'toast-target');
-}
-
-function replaceAndAppendMount(app: App<Element>, replaceId: string) {
-  const fragment = document.createDocumentFragment();
-  const target = document.getElementById(replaceId);
-  if (target === null) {
-    return;
-  }
-
-  const parent = target.parentElement;
-  const clone = target.cloneNode();
-
-  // @ts-ignore
-  app.mount(fragment);
-  target.replaceWith(fragment);
-  parent!.append(clone);
 }
 
 export async function openSettings(tab: SettingsTab) {
