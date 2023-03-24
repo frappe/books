@@ -79,12 +79,6 @@ export default defineComponent({
 
     this.focusButton();
   },
-  unmounted() {
-    console.log('unmounted');
-  },
-  deactivated() {
-    console.log('deactivated');
-  },
   methods: {
     focusButton() {
       let button = this.primary?.[0];

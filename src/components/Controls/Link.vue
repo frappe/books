@@ -121,8 +121,8 @@ export default {
             value: () => this.value,
             linkValue: () => this.linkValue,
             isNewValue: () => {
-              let values = this.suggestions.map((d) => d.value);
-              return this.value && !values.includes(this.value);
+              const values = this.suggestions.map((d) => d.label);
+              return this.linkValue && !values.includes(this.linkValue);
             },
           },
           components: { Badge },
