@@ -49,7 +49,7 @@
         <div
           v-for="(si, i) in suggestions"
           :key="`${i}-${si.label}`"
-          ref="suggestions"
+          :data-index="`search-suggestion-${i}`"
           class="hover:bg-gray-50 cursor-pointer"
           :class="idx === i ? 'border-blue-500 bg-gray-50 border-s-4' : ''"
           @click="select(i)"
@@ -332,14 +332,9 @@ export default defineComponent({
       this.close();
     },
     scrollToHighlighted(): void {
-      const suggestionRefs = this.$refs.suggestions;
-      if (!Array.isArray(suggestionRefs)) {
-        return;
-      }
-      const el = suggestionRefs[this.idx];
-      if (el instanceof HTMLElement) {
-        el.scrollIntoView({ block: 'nearest' });
-      }
+      const query = `[data-index="search-suggestion-${this.idx}"]`;
+      const element = document.querySelectorAll(query)?.[0];
+      element?.scrollIntoView({ block: 'nearest' });
     },
     getGroupFilterButtonClass(g: SearchGroup): string {
       if (!this.searcher) {
