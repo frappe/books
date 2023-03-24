@@ -34,11 +34,7 @@ export async function showDialog<DO extends DialogOptions>(options: DO) {
       },
     });
 
-    const fragment = document.createDocumentFragment();
-
-    // @ts-ignore
-    dialogApp.mount(fragment);
-    document.body.append(fragment);
+    fragmentMountComponent(dialogApp);
   }) as DialogReturn<DO>;
 }
 
@@ -49,40 +45,13 @@ export async function showToast(options: ToastOptions) {
     },
   });
 
-  replaceAndAppendMount(toastApp, 'toast-target');
+  fragmentMountComponent(toastApp);
 }
 
-function replaceAndAppendMount(app: App<Element>, replaceId: string) {
+function fragmentMountComponent(app: App<Element>) {
   const fragment = document.createDocumentFragment();
-  const target = document.getElementById(replaceId);
-  if (target === null) {
-    return;
-  }
-
-  const parent = target.parentElement;
-  const clone = target.cloneNode();
 
   // @ts-ignore
   app.mount(fragment);
-  target.replaceWith(fragment);
-  parent!.append(clone);
+  document.body.append(fragment);
 }
-
-// @ts-ignore
-window.st = () => showToast({ message: 'peace' });
-
-// @ts-ignore
-window.sd = async function () {
-  const options = {
-    title: 'Do This?',
-    description: 'Give me confirmation, should I do this?',
-    buttons: [
-      { label: 'Yes', handler: () => 'do it', isPrimary: true },
-      { label: 'No', handler: () => 'dont do it' },
-    ],
-  };
-
-  const ret = await showDialog(options);
-  console.log(ret);
-  return ret;
-};
