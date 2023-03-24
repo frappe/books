@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { showToast } from 'src/utils/ui';
+import { showToast } from 'src/utils/interactive';
 import { defineComponent } from 'vue';
 export default defineComponent({
   emits: ['item-selected'],
