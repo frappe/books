@@ -91,7 +91,11 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 .w-dialog {
-  width: 300px;
+  width: 24rem;
+}
+
+.w-toast {
+  width: 24rem;
 }
 
 .w-quick-edit {

@@ -30,10 +30,8 @@
     <div
       id="toast-container"
       class="absolute bottom-0 flex flex-col items-end mb-3 pe-6"
-      style="width: 100%"
-    >
-      <div id="toast-target" />
-    </div>
+      style="width: 100%; pointer-events: none"
+    ></div>
   </div>
 </template>
 <script lang="ts">
