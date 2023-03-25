@@ -4,8 +4,8 @@ import { DateTime } from 'luxon';
 import { ModelNameEnum } from 'models/types';
 import { codeStateMap } from 'regional/in';
 import { ExportExtention } from 'reports/types';
+import { showDialog } from 'src/utils/interactive';
 import { getSavePath } from 'src/utils/ipcCalls';
-import { showMessageDialog } from 'src/utils/ui';
 import { invertMap } from 'utils';
 import { getCsvData, saveExportData } from '../commonExporter';
 import { BaseGSTR } from './BaseGSTR';
@@ -175,9 +175,10 @@ async function getCanExport(report: BaseGSTR) {
     return true;
   }
 
-  showMessageDialog({
-    message: 'Cannot Export',
-    detail: 'Please set GSTIN in General Settings.',
+  showDialog({
+    title: report.fyo.t`Cannot Export`,
+    detail: report.fyo.t`Please set GSTIN in General Settings.`,
+    type: 'error',
   });
 
   return false;

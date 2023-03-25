@@ -1,36 +1,38 @@
+import { t } from 'fyo';
 import Dialog from 'src/components/Dialog.vue';
 import Toast from 'src/components/Toast.vue';
-import { t } from 'fyo';
 import { App, createApp, h } from 'vue';
-import { DialogButton, DialogOptions, ToastOptions } from './types';
+import { getColorClass } from './colors';
+import { DialogButton, DialogOptions, ToastOptions, ToastType } from './types';
 
 type DialogReturn<DO extends DialogOptions> = DO['buttons'] extends {
-  handler: () => Promise<infer O> | infer O;
+  action: () => Promise<infer O> | infer O;
 }[]
   ? O
   : void;
 
 export async function showDialog<DO extends DialogOptions>(options: DO) {
-  const { title, description } = options;
-
   const preWrappedButtons: DialogButton[] = options.buttons ?? [
-    { label: t`Okay`, handler: () => {} },
+    { label: t`Okay`, action: () => {}, isEscape: true },
   ];
 
-  return new Promise(async (resolve) => {
-    const buttons = preWrappedButtons!.map(({ label, handler, isPrimary }) => {
+  return new Promise(async (resolve, reject) => {
+    const buttons = preWrappedButtons!.map((config) => {
       return {
-        label,
-        handler: async () => {
-          resolve(await handler());
+        ...config,
+        action: async () => {
+          try {
+            resolve(await config.action());
+          } catch (error) {
+            reject(error);
+          }
         },
-        isPrimary,
       };
     });
 
     const dialogApp = createApp({
       render() {
-        return h(Dialog, { title, description, buttons });
+        return h(Dialog, { ...options, buttons });
       },
     });
 
@@ -54,4 +56,24 @@ function fragmentMountComponent(app: App<Element>) {
   // @ts-ignore
   app.mount(fragment);
   document.body.append(fragment);
+}
+
+export function getIconConfig(type: ToastType) {
+  let iconName = 'alert-circle';
+  if (type === 'warning') {
+    iconName = 'alert-triangle';
+  } else if (type === 'success') {
+    iconName = 'check-circle';
+  }
+
+  const color = {
+    info: 'blue',
+    warning: 'orange',
+    error: 'red',
+    success: 'green',
+  }[type];
+
+  const iconColor = getColorClass(color ?? 'gray', 'text', 400);
+
+  return { iconName, color, iconColor };
 }

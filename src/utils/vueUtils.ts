@@ -5,7 +5,7 @@ import {
   onMounted,
   onUnmounted,
   reactive,
-  ref,
+  ref
 } from 'vue';
 import { getIsMac } from './misc';
 import { Shortcuts } from './shortcuts';
@@ -16,7 +16,7 @@ import {
   commonDocSync,
   commongDocDelete,
   showCannotCancelOrDeleteToast,
-  showCannotSaveOrSubmitToast,
+  showCannotSaveOrSubmitToast
 } from './ui';
 
 export function useKeys() {
@@ -107,35 +107,35 @@ export function useDocShortcuts(
     context = name + '-' + Math.random().toString(36).slice(2, 6);
   }
 
-  const syncOrSubmitCallback = () => {
+  const syncOrSubmitCallback = async () => {
     const doc = docRef.value;
     if (!doc) {
       return;
     }
 
     if (doc.canSave) {
-      return commonDocSync(doc, true);
+      return await commonDocSync(doc, true);
     }
 
     if (doc.canSubmit) {
-      return commonDocSubmit(doc);
+      return await commonDocSubmit(doc);
     }
 
     showCannotSaveOrSubmitToast(doc);
   };
 
-  const cancelOrDeleteCallback = () => {
+  const cancelOrDeleteCallback = async () => {
     const doc = docRef.value;
     if (!doc) {
       return;
     }
 
     if (doc.canCancel) {
-      return commonDocCancel(doc);
+      return await commonDocCancel(doc);
     }
 
     if (doc.canDelete) {
-      return commongDocDelete(doc);
+      return await commongDocDelete(doc);
     }
 
     showCannotCancelOrDeleteToast(doc);

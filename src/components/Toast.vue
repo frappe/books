@@ -20,9 +20,9 @@
         style="pointer-events: auto"
       >
         <feather-icon
-          :name="iconName"
+          :name="config.iconName"
           class="w-6 h-6 me-3"
-          :class="iconColor"
+          :class="config.iconColor"
         />
         <div @click="actionClicked" :class="actionText ? 'cursor-pointer' : ''">
           <p class="text-base">{{ message }}</p>
@@ -51,6 +51,7 @@
 </template>
 <script lang="ts">
 import { getColorClass } from 'src/utils/colors';
+import { getIconConfig } from 'src/utils/interactive';
 import { ToastDuration, ToastType } from 'src/utils/types';
 import { toastDurationMap } from 'src/utils/ui';
 import { defineComponent, nextTick, PropType } from 'vue';
@@ -73,26 +74,8 @@ export default defineComponent({
     duration: { type: String as PropType<ToastDuration>, default: 'long' },
   },
   computed: {
-    iconName() {
-      switch (this.type) {
-        case 'warning':
-          return 'alert-triangle';
-        case 'success':
-          return 'check-circle';
-        default:
-          return 'alert-circle';
-      }
-    },
-    color() {
-      return {
-        info: 'blue',
-        warning: 'orange',
-        error: 'red',
-        success: 'green',
-      }[this.type];
-    },
-    iconColor() {
-      return getColorClass(this.color ?? 'gray', 'text', 400);
+    config() {
+      return getIconConfig(this.type);
     },
   },
   async mounted() {

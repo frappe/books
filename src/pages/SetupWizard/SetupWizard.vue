@@ -76,11 +76,9 @@ import Button from 'src/components/Button.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import { getErrorMessage } from 'src/utils';
+import { showDialog } from 'src/utils/interactive';
 import { getSetupWizardDoc } from 'src/utils/misc';
-import {
-  getFieldsGroupedByTabAndSection,
-  showMessageDialog,
-} from 'src/utils/ui';
+import { getFieldsGroupedByTabAndSection } from 'src/utils/ui';
 import { computed, defineComponent } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
 
@@ -155,8 +153,10 @@ export default defineComponent({
       }
 
       if (!this.areAllValuesFilled) {
-        return await showMessageDialog({
-          message: this.t`Please fill all values`,
+        return await showDialog({
+          title: this.t`Mandatory Error`,
+          detail: this.t`Please fill all values`,
+          type: 'error',
         });
       }
 

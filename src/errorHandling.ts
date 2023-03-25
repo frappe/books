@@ -5,12 +5,12 @@ import { Doc } from 'fyo/model/doc';
 import { BaseError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
 import { truncate } from 'lodash';
+import { showDialog } from 'src/utils/interactive';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
-import { MessageDialogOptions, ToastOptions } from './utils/types';
-import { showMessageDialog } from './utils/ui';
+import { DialogOptions, ToastOptions } from './utils/types';
 
 function shouldNotStore(error: Error) {
   const shouldLog = (error as BaseError).shouldStore ?? true;
@@ -108,9 +108,10 @@ export async function handleErrorWithDialog(
   await handleError(false, error, { errorMessage, doc });
 
   const label = getErrorLabel(error);
-  const options: MessageDialogOptions = {
-    message: label,
+  const options: DialogOptions = {
+    title: label,
     detail: errorMessage,
+    type: 'error',
   };
 
   if (reportError) {
@@ -121,12 +122,13 @@ export async function handleErrorWithDialog(
         action() {
           reportIssue(getErrorLogObject(error, { errorMessage }));
         },
+        isPrimary: true,
       },
-      { label: t`Cancel`, action() {} },
+      { label: t`Cancel`, action() {}, isEscape: true },
     ];
   }
 
-  await showMessageDialog(options);
+  await showDialog(options);
   if (dontThrow) {
     if (fyo.store.isDevelopment) {
       console.error(error);
