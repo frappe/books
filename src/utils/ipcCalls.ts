@@ -7,9 +7,8 @@ import { BaseError } from 'fyo/utils/errors';
 import { BackendResponse } from 'utils/ipc/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { SelectFileOptions, SelectFileReturn, TemplateFile } from 'utils/types';
-import { showToast } from './interactive';
+import { showDialog, showToast } from './interactive';
 import { setLanguageMap } from './language';
-import { showMessageDialog } from './ui';
 
 export function reloadWindow() {
   return ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
@@ -41,19 +40,22 @@ export async function deleteDb(filePath: string) {
   )) as BackendResponse;
 
   if (error?.code === 'EBUSY') {
-    showMessageDialog({
-      message: t`Delete Failed`,
+    showDialog({
+      title: t`Delete Failed`,
       detail: t`Please restart and try again`,
+      type: 'error',
     });
   } else if (error?.code === 'ENOENT') {
-    showMessageDialog({
-      message: t`Delete Failed`,
+    showDialog({
+      title: t`Delete Failed`,
       detail: t`File ${filePath} does not exist`,
+      type: 'error',
     });
   } else if (error?.code === 'EPERM') {
-    showMessageDialog({
-      message: t`Cannot Delete`,
+    showDialog({
+      title: t`Cannot Delete`,
       detail: t`Close Frappe Books and try manually`,
+      type: 'error',
     });
   } else if (error) {
     const err = new BaseError(500, error.message);
