@@ -101,13 +101,14 @@ export type PrintValues = {
 
 export interface DialogOptions {
   title: string;
-  description?: string;
+  type?: ToastType;
+  detail?: string;
   buttons?: DialogButton[];
 }
 
 export type DialogButton = {
   label: string;
-  handler: () => any;
+  action: () => any;
   isPrimary?: boolean;
   isEscape?: boolean;
 };

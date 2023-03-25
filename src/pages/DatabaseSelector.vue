@@ -223,9 +223,9 @@ import FeatherIcon from 'src/components/FeatherIcon.vue';
 import Loading from 'src/components/Loading.vue';
 import Modal from 'src/components/Modal.vue';
 import { fyo } from 'src/initFyo';
+import { showDialog } from 'src/utils/interactive';
 import { deleteDb, getSavePath } from 'src/utils/ipcCalls';
 import { updateConfigFiles } from 'src/utils/misc';
-import { showMessageDialog } from 'src/utils/ui';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
@@ -264,9 +264,10 @@ export default {
       const file = this.files[i];
       const vm = this;
 
-      await showMessageDialog({
-        message: t`Delete ${file.companyName}?`,
+      await showDialog({
+        title: t`Delete ${file.companyName}?`,
         detail: t`Database file: ${file.dbPath}`,
+        type: 'warning',
         buttons: [
           {
             label: this.t`Yes`,
@@ -274,10 +275,12 @@ export default {
               await deleteDb(file.dbPath);
               await vm.setFiles();
             },
+            isPrimary: true,
           },
           {
             label: this.t`No`,
             action() {},
+            isEscape: true,
           },
         ],
       });

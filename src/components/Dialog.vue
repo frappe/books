@@ -18,9 +18,16 @@
             inner
           "
         >
-          <h1 class="font-semibold">{{ title }}</h1>
-          <p v-if="description" class="text-base">{{ description }}</p>
-          <div class="flex justify-end gap-2">
+          <div class="flex justify-between items-center">
+            <h1 class="font-semibold">{{ title }}</h1>
+            <FeatherIcon
+              :name="config.iconName"
+              class="w-6 h-6"
+              :class="config.iconColor"
+            />
+          </div>
+          <p v-if="detail" class="text-base">{{ detail }}</p>
+          <div class="flex justify-end gap-4 mt-4">
             <Button
               v-for="(b, index) of buttons"
               :ref="b.isPrimary ? 'primary' : 'secondary'"
@@ -38,9 +45,11 @@
   </Teleport>
 </template>
 <script lang="ts">
-import { DialogButton } from 'src/utils/types';
+import { getIconConfig } from 'src/utils/interactive';
+import { DialogButton, ToastType } from 'src/utils/types';
 import { defineComponent, nextTick, PropType, ref } from 'vue';
 import Button from './Button.vue';
+import FeatherIcon from './FeatherIcon.vue';
 
 export default defineComponent({
   setup() {
@@ -53,8 +62,9 @@ export default defineComponent({
     return { open: false };
   },
   props: {
+    type: { type: String as PropType<ToastType>, default: 'info' },
     title: { type: String, required: true },
-    description: {
+    detail: {
       type: String,
       required: false,
     },
@@ -78,6 +88,11 @@ export default defineComponent({
     });
 
     this.focusButton();
+  },
+  computed: {
+    config() {
+      return getIconConfig(this.type);
+    },
   },
   methods: {
     focusButton() {
@@ -104,10 +119,7 @@ export default defineComponent({
         return this.handleClick(0);
       }
 
-      const index = this.buttons.findIndex(
-        ({ isPrimary, isEscape }) =>
-          isEscape || (this.buttons.length === 2 && !isPrimary)
-      );
+      const index = this.buttons.findIndex(({ isEscape }) => isEscape);
 
       if (index === -1) {
         return;
@@ -117,11 +129,11 @@ export default defineComponent({
     },
     handleClick(index: number) {
       const button = this.buttons[index];
-      button.handler();
+      button.action();
       this.open = false;
     },
   },
-  components: { Button },
+  components: { Button, FeatherIcon },
 });
 </script>
 <style scoped>
