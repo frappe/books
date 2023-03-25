@@ -220,7 +220,7 @@ import PageHeader from 'src/components/PageHeader.vue';
 import ShortcutKeys from 'src/components/ShortcutKeys.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { shortcutsKey } from 'src/utils/injectionKeys';
-import { showToast } from 'src/utils/interactive';
+import { showDialog, showToast } from 'src/utils/interactive';
 import { getSavePath } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import {
@@ -237,7 +237,6 @@ import {
   openSettings,
   selectTextFile,
   ShortcutKey,
-  showMessageDialog,
 } from 'src/utils/ui';
 import { useDocShortcuts } from 'src/utils/vueUtils';
 import { getMapFromList } from 'utils/index';
@@ -460,10 +459,11 @@ export default defineComponent({
       const name = names[0]?.name;
       if (!name) {
         const label = this.fyo.schemaMap[schemaName]?.label ?? schemaName;
-        await showMessageDialog({
-          message: this.t`No Display Entries Found`,
+        await showDialog({
+          title: this.t`No Display Entries Found`,
           detail: this
             .t`Please create a ${label} entry to view Template Preview`,
+          type: 'warning',
         });
 
         return;

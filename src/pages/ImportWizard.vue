@@ -383,10 +383,11 @@ import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { getColumnLabel, Importer, TemplateField } from 'src/importer';
 import { fyo } from 'src/initFyo';
+import { showDialog } from 'src/utils/interactive';
 import { getSavePath, saveData, selectFile } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
-import { selectTextFile, showMessageDialog } from 'src/utils/ui';
+import { selectTextFile } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import Loading from '../components/Loading.vue';
 
@@ -780,10 +781,11 @@ export default defineComponent({
       await saveData(template, filePath);
     },
     async preImportValidations(): Promise<boolean> {
-      const message = this.t`Cannot Import`;
+      const title = this.t`Cannot Import`;
       if (this.errorMessage.length) {
-        await showMessageDialog({
-          message,
+        await showDialog({
+          title,
+          type: 'error',
           detail: this.errorMessage,
         });
         return false;
@@ -791,8 +793,9 @@ export default defineComponent({
 
       const cellErrors = this.importer.checkCellErrors();
       if (cellErrors.length) {
-        await showMessageDialog({
-          message,
+        await showDialog({
+          title,
+          type: 'error',
           detail: this.t`Following cells have errors: ${cellErrors.join(', ')}`,
         });
         return false;
@@ -800,8 +803,9 @@ export default defineComponent({
 
       const absentLinks = await this.importer.checkLinks();
       if (absentLinks.length) {
-        await showMessageDialog({
-          message,
+        await showDialog({
+          title,
+          type: 'error',
           detail: this.t`Following links do not exist: ${absentLinks
             .map((l) => `(${l.schemaLabel}, ${l.name})`)
             .join(', ')}`,
@@ -851,18 +855,22 @@ export default defineComponent({
       }
 
       let shouldSubmit = false;
-      await showMessageDialog({
-        message: this.t`Should entries be submitted after syncing?`,
+      await showDialog({
+        title: this.t`Submit entries?`,
+        type: 'info',
+        details: this.t`Should entries be submitted after syncing?`,
         buttons: [
           {
             label: this.t`Yes`,
             action() {
               shouldSubmit = true;
             },
+            isPrimary: true,
           },
           {
             label: this.t`No`,
             action() {},
+            isEscape: true,
           },
         ],
       });
@@ -916,9 +924,10 @@ export default defineComponent({
 
       const isValid = this.importer.selectFile(text);
       if (!isValid) {
-        await showMessageDialog({
-          message: this.t`Bad import data`,
-          detail: this.t`Could not read file`,
+        await showDialog({
+          title: this.t`Cannot read file`,
+          detail: this.t`Bad import data, could not read file`,
+          type: 'error',
         });
         return;
       }

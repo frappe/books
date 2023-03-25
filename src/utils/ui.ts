@@ -2,7 +2,6 @@
  * Utils to do UI stuff such as opening dialogs, toasts, etc.
  * Basically anything that may directly or indirectly import a Vue file.
  */
-import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import type { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
@@ -16,17 +15,16 @@ import { Schema } from 'schemas/types';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import router from 'src/router';
-import { IPC_ACTIONS } from 'utils/messages';
 import { SelectFileOptions } from 'utils/types';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
 import { evaluateHidden } from './doc';
-import { showToast } from './interactive';
+import { showDialog, showToast } from './interactive';
 import { selectFile } from './ipcCalls';
 import { showSidebar } from './refs';
 import {
   ActionGroup,
-  MessageDialogOptions,
+  DialogButton,
   QuickEditOptions,
   SettingsTab,
   ToastOptions,
@@ -96,33 +94,6 @@ export async function openQuickEdit({
   });
 }
 
-// @ts-ignore
-window.openqe = openQuickEdit;
-
-export async function showMessageDialog({
-  message,
-  detail,
-  buttons = [],
-}: MessageDialogOptions) {
-  const options = {
-    message,
-    detail,
-    buttons: buttons.map((a) => a.label),
-  };
-
-  const { response } = (await ipcRenderer.invoke(
-    IPC_ACTIONS.GET_DIALOG_RESPONSE,
-    options
-  )) as { response: number };
-
-  const button = buttons[response];
-  if (!button?.action) {
-    return null;
-  }
-
-  return await button.action();
-}
-
 export async function openSettings(tab: SettingsTab) {
   await routeTo({ path: '/settings', query: { tab } });
 }
@@ -145,21 +116,22 @@ export async function deleteDocWithPrompt(doc: Doc) {
     detail = t`This action is permanent and will delete associated ledger entries.`;
   }
 
-  return await showMessageDialog({
-    message: t`Delete ${getActionLabel(doc)}?`,
+  return await showDialog({
+    title: t`Delete ${getActionLabel(doc)}?`,
     detail,
+    type: 'warning',
     buttons: [
       {
         label: t`Yes`,
         async action() {
           try {
             await doc.delete();
-            return true;
           } catch (err) {
             if (getDbError(err as Error) === LinkValidationError) {
-              showMessageDialog({
-                message: t`Delete Failed`,
+              showDialog({
+                title: t`Delete Failed`,
                 detail: t`Cannot delete ${schemaLabel} ${doc.name!} because of linked entries.`,
+                type: 'error',
               });
             } else {
               handleErrorWithDialog(err as Error, doc);
@@ -167,13 +139,17 @@ export async function deleteDocWithPrompt(doc: Doc) {
 
             return false;
           }
+
+          return true;
         },
+        isPrimary: true,
       },
       {
         label: t`No`,
         action() {
           return false;
         },
+        isEscape: true,
       },
     ],
   });
@@ -211,27 +187,31 @@ export async function cancelDocWithPrompt(doc: Doc) {
     }
   }
 
-  return await showMessageDialog({
-    message: t`Cancel ${getActionLabel(doc)}?`,
+  return await showDialog({
+    title: t`Cancel ${getActionLabel(doc)}?`,
     detail,
+    type: 'warning',
     buttons: [
       {
         label: t`Yes`,
         async action() {
           try {
             await doc.cancel();
-            return true;
           } catch (err) {
             handleErrorWithDialog(err as Error, doc);
             return false;
           }
+
+          return true;
         },
+        isPrimary: true,
       },
       {
         label: t`No`,
         action() {
           return false;
         },
+        isEscape: true,
       },
     ],
   });
@@ -596,9 +576,14 @@ export async function commonDocSubmit(doc: Doc): Promise<boolean> {
 
 async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
   const label = getActionLabel(doc);
-  let message = t`Submit ${label}?`;
+  let title = t`Submit ${label}?`;
   if (type === 'sync') {
-    message = t`Save ${label}?`;
+    title = t`Save ${label}?`;
+  }
+
+  let detail = t`Mark ${doc.schema.label} as submitted`;
+  if (type === 'sync') {
+    detail = t`Save ${doc.schema.label} to database`;
   }
 
   const yesAction = async () => {
@@ -612,19 +597,22 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
     return true;
   };
 
-  const buttons = [
+  const buttons: DialogButton[] = [
     {
       label: t`Yes`,
       action: yesAction,
+      isPrimary: true,
     },
     {
       label: t`No`,
       action: () => false,
+      isEscape: true,
     },
   ];
 
-  return await showMessageDialog({
-    message,
+  return await showDialog({
+    title,
+    detail,
     buttons,
   });
 }
