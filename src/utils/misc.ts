@@ -49,12 +49,12 @@ export function getDatesAndPeriodList(period: PeriodKey): {
   };
 }
 
-export async function getSetupWizardDoc() {
+export function getSetupWizardDoc() {
   /**
    * This is used cause when setup wizard is running
    * the database isn't yet initialized.
    */
-  return await fyo.doc.getNewDoc(
+  return fyo.doc.getNewDoc(
     'SetupWizard',
     {},
     false,
@@ -115,6 +115,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   [ModelNameEnum.Party]: 'entries/party',
   [ModelNameEnum.Item]: 'entries/items',
   [ModelNameEnum.Tax]: 'entries/taxes',
+  [ModelNameEnum.PrintTemplate]: 'miscellaneous/print-templates',
 
   // Miscellaneous
   Search: 'miscellaneous/search',

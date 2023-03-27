@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :title="df.label">
     <div :class="labelClasses" v-if="showLabel">
       {{ df.label }}
     </div>
@@ -13,11 +13,14 @@
         :value="value"
         :placeholder="inputPlaceholder"
         :readonly="isReadOnly"
+        :step="step"
         :max="df.maxvalue"
         :min="df.minvalue"
+        :style="containerStyles"
         @blur="(e) => !isReadOnly && triggerChange(e.target.value)"
         @focus="(e) => !isReadOnly && $emit('focus', e)"
         @input="(e) => !isReadOnly && $emit('input', e)"
+        :tabindex="isReadOnly ? '-1' : '0'"
       />
     </div>
   </div>
@@ -32,6 +35,7 @@ export default {
   name: 'Base',
   props: {
     df: Object,
+    step: { type: Number, default: 1 },
     value: [String, Number, Boolean, Object],
     inputClass: [Function, String, Object],
     border: { type: Boolean, default: false },
@@ -39,6 +43,7 @@ export default {
     size: String,
     showLabel: Boolean,
     autofocus: Boolean,
+    containerStyles: { type: Object, default: () => ({}) },
     textRight: { type: [null, Boolean], default: null },
     readOnly: { type: [null, Boolean], default: null },
     required: { type: [null, Boolean], default: null },
@@ -127,11 +132,17 @@ export default {
       return '';
     },
     borderClasses() {
-      if (this.border) {
-        return 'bg-gray-50 border border-gray-200';
+      if (!this.border) {
+        return '';
       }
 
-      return '';
+      const border = 'border border-gray-200';
+      let background = 'bg-gray-25';
+      if (this.isReadOnly) {
+        background = 'bg-gray-50';
+      }
+
+      return border + ' ' + background;
     },
     inputPlaceholder() {
       return this.placeholder || this.df.placeholder || this.df.label;

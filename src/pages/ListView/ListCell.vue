@@ -4,26 +4,52 @@
     <component v-else :is="customRenderer" />
   </div>
 </template>
-<script>
+<script lang="ts">
+import { ColumnConfig, RenderData } from 'fyo/model/types';
+import { Field } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
+import { defineComponent, PropType } from 'vue';
 
-export default {
+type Column = ColumnConfig | Field;
+
+function isField(column: ColumnConfig | Field): column is Field {
+  if ((column as ColumnConfig).display || (column as ColumnConfig).render) {
+    return false;
+  }
+
+  return true;
+}
+
+export default defineComponent({
   name: 'ListCell',
-  props: ['doc', 'column'],
+  props: {
+    row: { type: Object as PropType<RenderData>, required: true },
+    column: { type: Object as PropType<Column>, required: true },
+  },
   computed: {
-    columnValue() {
-      let { column, doc } = this;
-      let value = doc[column.fieldname];
-      return fyo.format(value, column, doc);
+    columnValue(): string {
+      const column = this.column;
+      const value = this.row[this.column.fieldname];
+
+      if (isField(column)) {
+        return fyo.format(value, column);
+      }
+
+      return column.display?.(value, fyo) ?? '';
     },
     customRenderer() {
-      if (!this.column.render) return;
-      return this.column.render(this.doc);
+      const { render } = this.column as ColumnConfig;
+
+      if (!render) {
+        return;
+      }
+
+      return render(this.row);
     },
     cellClass() {
       return isNumeric(this.column.fieldtype) ? 'justify-end' : '';
     },
   },
-};
+});
 </script>

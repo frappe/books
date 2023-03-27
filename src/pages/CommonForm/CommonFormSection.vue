@@ -2,14 +2,15 @@
   <div v-if="(fields ?? []).length > 0">
     <div
       v-if="showTitle && title"
-      class="flex justify-between items-center cursor-pointer select-none"
-      :class="collapsed ? '' : 'mb-4'"
-      @click="collapsed = !collapsed"
+      class="flex justify-between items-center select-none"
+      :class="[collapsed ? '' : 'mb-4', collapsible ? 'cursor-pointer' : '']"
+      @click="toggleCollapsed"
     >
       <h2 class="text-base text-gray-900 font-semibold">
         {{ title }}
       </h2>
       <feather-icon
+        v-if="collapsible"
         :name="collapsed ? 'chevron-up' : 'chevron-down'"
         class="w-4 h-4 text-gray-600"
       />
@@ -44,6 +45,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import { focusOrSelectFormControl } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
@@ -53,6 +55,7 @@ export default defineComponent({
     errors: Object as PropType<Record<string, string>>,
     showTitle: Boolean,
     doc: { type: Object as PropType<Doc>, required: true },
+    collapsible: { type: Boolean, default: true },
     fields: Array as PropType<Field[]>,
   },
   data() {
@@ -61,25 +64,15 @@ export default defineComponent({
     };
   },
   mounted() {
-    this.focusOnNameField();
+    focusOrSelectFormControl(this.doc, this.$refs.nameField);
   },
   methods: {
-    focusOnNameField() {
-      const naming = this.fyo.schemaMap[this.doc.schemaName]?.naming;
-      if (naming !== 'manual' || this.doc.inserted) {
+    toggleCollapsed() {
+      if (!this.collapsible) {
         return;
       }
 
-      const nameField = (
-        this.$refs.nameField as { focus: Function; clear: Function }[]
-      )?.[0];
-
-      if (!nameField) {
-        return;
-      }
-
-      nameField.clear();
-      nameField.focus();
+      this.collapsed = !this.collapsed;
     },
   },
   components: { FormControl },

@@ -3,6 +3,7 @@ import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 
 export class Defaults extends Doc {
+  // Number Series
   salesInvoiceNumberSeries?: string;
   purchaseInvoiceNumberSeries?: string;
   journalEntryNumberSeries?: string;
@@ -11,12 +12,23 @@ export class Defaults extends Doc {
   shipmentNumberSeries?: string;
   purchaseReceiptNumberSeries?: string;
 
+  // Terms
   salesInvoiceTerms?: string;
   purchaseInvoiceTerms?: string;
   shipmentTerms?: string;
   purchaseReceiptTerms?: string;
 
+  // Print Templates
+  salesInvoicePrintTemplate?: string;
+  purchaseInvoicePrintTemplate?: string;
+  journalEntryPrintTemplate?: string;
+  paymentPrintTemplate?: string;
+  shipmentPrintTemplate?: string;
+  purchaseReceiptPrintTemplate?: string;
+  stockMovementPrintTemplate?: string;
+
   static commonFilters = {
+    // Number Series
     salesInvoiceNumberSeries: () => ({
       referenceType: ModelNameEnum.SalesInvoice,
     }),
@@ -38,6 +50,18 @@ export class Defaults extends Doc {
     purchaseReceiptNumberSeries: () => ({
       referenceType: ModelNameEnum.PurchaseReceipt,
     }),
+    // Print Templates
+    salesInvoicePrintTemplate: () => ({ type: ModelNameEnum.SalesInvoice }),
+    purchaseInvoicePrintTemplate: () => ({
+      type: ModelNameEnum.PurchaseInvoice,
+    }),
+    journalEntryPrintTemplate: () => ({ type: ModelNameEnum.JournalEntry }),
+    paymentPrintTemplate: () => ({ type: ModelNameEnum.Payment }),
+    shipmentPrintTemplate: () => ({ type: ModelNameEnum.Shipment }),
+    purchaseReceiptPrintTemplate: () => ({
+      type: ModelNameEnum.PurchaseReceipt,
+    }),
+    stockMovementPrintTemplate: () => ({ type: ModelNameEnum.StockMovement }),
   };
 
   static filters: FiltersMap = this.commonFilters;
@@ -53,6 +77,9 @@ export class Defaults extends Doc {
     purchaseReceiptNumberSeries: this.getInventoryHidden(),
     shipmentTerms: this.getInventoryHidden(),
     purchaseReceiptTerms: this.getInventoryHidden(),
+    shipmentPrintTemplate: this.getInventoryHidden(),
+    purchaseReceiptPrintTemplate: this.getInventoryHidden(),
+    stockMovementPrintTemplate: this.getInventoryHidden(),
   };
 }
 

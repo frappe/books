@@ -2,11 +2,12 @@ import Account from './app/Account.json';
 import AccountingLedgerEntry from './app/AccountingLedgerEntry.json';
 import AccountingSettings from './app/AccountingSettings.json';
 import Address from './app/Address.json';
+import Batch from './app/Batch.json';
 import Color from './app/Color.json';
-import CompanySettings from './app/CompanySettings.json';
 import Currency from './app/Currency.json';
 import Defaults from './app/Defaults.json';
 import GetStarted from './app/GetStarted.json';
+import InventorySettings from './app/inventory/InventorySettings.json';
 import Location from './app/inventory/Location.json';
 import PurchaseReceipt from './app/inventory/PurchaseReceipt.json';
 import PurchaseReceiptItem from './app/inventory/PurchaseReceiptItem.json';
@@ -17,9 +18,11 @@ import StockMovement from './app/inventory/StockMovement.json';
 import StockMovementItem from './app/inventory/StockMovementItem.json';
 import StockTransfer from './app/inventory/StockTransfer.json';
 import StockTransferItem from './app/inventory/StockTransferItem.json';
+import UOMConversionItem from './app/inventory/UOMConversionItem.json';
 import Invoice from './app/Invoice.json';
 import InvoiceItem from './app/InvoiceItem.json';
 import Item from './app/Item.json';
+import ItemPrice from './app/inventory/ItemPrice.json';
 import JournalEntry from './app/JournalEntry.json';
 import JournalEntryAccount from './app/JournalEntryAccount.json';
 import Misc from './app/Misc.json';
@@ -27,7 +30,9 @@ import NumberSeries from './app/NumberSeries.json';
 import Party from './app/Party.json';
 import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
+import PriceList from './app/inventory/PriceList.json';
 import PrintSettings from './app/PrintSettings.json';
+import PrintTemplate from './app/PrintTemplate.json';
 import PurchaseInvoice from './app/PurchaseInvoice.json';
 import PurchaseInvoiceItem from './app/PurchaseInvoiceItem.json';
 import SalesInvoice from './app/SalesInvoice.json';
@@ -37,7 +42,6 @@ import Tax from './app/Tax.json';
 import TaxDetail from './app/TaxDetail.json';
 import TaxSummary from './app/TaxSummary.json';
 import UOM from './app/UOM.json';
-import UOMConversionItem from './app/inventory/UOMConversionItem.json';
 import PatchRun from './core/PatchRun.json';
 import SingleValue from './core/SingleValue.json';
 import SystemSettings from './core/SystemSettings.json';
@@ -46,10 +50,6 @@ import child from './meta/child.json';
 import submittable from './meta/submittable.json';
 import tree from './meta/tree.json';
 import { Schema, SchemaStub } from './types';
-import InventorySettings from './app/inventory/InventorySettings.json';
-import Batch from './app/Batch.json';
-import PriceList from './app/inventory/PriceList.json';
-import ItemPrice from './app/inventory/ItemPrice.json';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -68,6 +68,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Misc as Schema,
   SetupWizard as Schema,
   GetStarted as Schema,
+  PrintTemplate as Schema,
 
   Color as Schema,
   Currency as Schema,
@@ -75,7 +76,6 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   NumberSeries as Schema,
 
   PrintSettings as Schema,
-  CompanySettings as Schema,
 
   Account as Schema,
   AccountingSettings as Schema,

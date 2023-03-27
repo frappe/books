@@ -289,6 +289,11 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           route: '/import-wizard',
         },
         {
+          label: t`Print Templates`,
+          name: 'print-template',
+          route: `/list/PrintTemplate/${t`Print Templates`}`,
+        },
+        {
           label: t`Settings`,
           name: 'settings',
           route: '/settings',

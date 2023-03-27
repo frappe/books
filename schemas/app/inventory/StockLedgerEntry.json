@@ -1,6 +1,7 @@
 {
   "name": "StockLedgerEntry",
   "label": "Stock Ledger Entry",
+  "create": false,
   "isSingle": false,
   "isChild": false,
   "naming": "autoincrement",

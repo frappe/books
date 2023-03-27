@@ -62,6 +62,7 @@
           type="checkbox"
           :checked="value"
           :readonly="isReadOnly"
+          :tabindex="isReadOnly ? '-1' : '0'"
           @change="(e) => !isReadOnly && triggerChange(e.target.checked)"
           @focus="(e) => $emit('focus', e)"
         />

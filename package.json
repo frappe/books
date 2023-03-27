@@ -1,6 +1,6 @@
 {
   "name": "frappe-books",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Simple book-keeping app for everyone",
   "main": "background.js",
   "author": {
@@ -20,8 +20,11 @@
     "test": "scripts/test.sh"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.4.2",
+    "@codemirror/lang-vue": "^0.1.1",
     "@popperjs/core": "^2.10.2",
     "better-sqlite3": "^7.5.3",
+    "codemirror": "^6.0.1",
     "core-js": "^3.19.0",
     "electron-store": "^8.0.1",
     "feather-icons": "^4.28.0",
@@ -77,7 +80,7 @@
     "tslib": "^2.3.1",
     "typescript": "^4.6.2",
     "vue-cli-plugin-electron-builder": "https://github.com/nklayman/vue-cli-plugin-electron-builder#ebb9183f4913f927d4e4f4eb1fbab61a960f7a09",
-    "webpack": "^5.66.0"
+    "webpack": "^5.76.0"
   },
   "resolutions": {
     "electron-builder": "24.0.0-alpha.12"

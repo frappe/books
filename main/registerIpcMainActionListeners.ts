@@ -10,6 +10,7 @@ import { DatabaseMethod } from '../utils/db/types';
 import { IPC_ACTIONS } from '../utils/messages';
 import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
+import { getTemplates } from './getPrintTemplates';
 import {
   getConfigFilesWithModified,
   getErrorHandledReponse,
@@ -117,7 +118,7 @@ export default function registerIpcMainActionListeners(main: Main) {
   );
 
   ipcMain.handle(IPC_ACTIONS.GET_CREDS, async (event) => {
-    return await getUrlAndTokenString();
+    return getUrlAndTokenString();
   });
 
   ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath) => {
@@ -135,6 +136,10 @@ export default function registerIpcMainActionListeners(main: Main) {
       platform: process.platform,
       version: app.getVersion(),
     };
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_TEMPLATES, async () => {
+    return getTemplates();
   });
 
   /**

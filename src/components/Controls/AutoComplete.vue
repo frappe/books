@@ -13,6 +13,7 @@
       </div>
       <div
         class="flex items-center justify-between pe-2 rounded"
+        :style="containerStyles"
         :class="containerClasses"
       >
         <input
@@ -33,6 +34,7 @@
           @keydown.enter="selectHighlightedItem"
           @keydown.tab="toggleDropdown(false)"
           @keydown.esc="toggleDropdown(false)"
+          :tabindex="isReadOnly ? '-1' : '0'"
         />
         <svg
           v-if="!isReadOnly && !canLink"

@@ -94,11 +94,15 @@ export async function handleError(
 }
 
 export async function handleErrorWithDialog(
-  error: Error,
+  error: unknown,
   doc?: Doc,
   reportError?: false,
   dontThrow?: false
 ) {
+  if (!(error instanceof Error)) {
+    return;
+  }
+
   const errorMessage = getErrorMessage(error, doc);
   await handleError(false, error, { errorMessage, doc });
 

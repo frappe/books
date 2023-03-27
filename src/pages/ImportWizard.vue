@@ -386,7 +386,7 @@ import { fyo } from 'src/initFyo';
 import { getSavePath, saveData, selectFile } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
-import { showMessageDialog } from 'src/utils/ui';
+import { selectTextFile, showMessageDialog } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import Loading from '../components/Loading.vue';
 
@@ -906,27 +906,14 @@ export default defineComponent({
         : '';
     },
     async selectFile(): Promise<void> {
-      const options = {
-        title: this.t`Select File`,
-        filters: [{ name: 'CSV', extensions: ['csv'] }],
-      };
+      const { text, name, filePath } = await selectTextFile([
+        { name: 'CSV', extensions: ['csv'] },
+      ]);
 
-      const { success, canceled, filePath, data, name } = await selectFile(
-        options
-      );
-
-      if (!success && !canceled) {
-        await showMessageDialog({
-          message: this.t`File selection failed.`,
-        });
+      if (!text) {
         return;
       }
 
-      if (!success || canceled) {
-        return;
-      }
-
-      const text = new TextDecoder().decode(data);
       const isValid = this.importer.selectFile(text);
       if (!isValid) {
         await showMessageDialog({

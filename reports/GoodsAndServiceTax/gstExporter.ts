@@ -162,7 +162,7 @@ async function exportReport(extention: ExportExtention, report: BaseGSTR) {
     return;
   }
 
-  await saveExportData(data, filePath, report.fyo);
+  await saveExportData(data, filePath);
   report.fyo.telemetry.log(Verb.Exported, report.reportName, { extention });
 }
 
