@@ -14,23 +14,22 @@
       "label": "Price List",
       "fieldtype": "Link",
       "target": "PriceList",
-      "create": true
+      "create": true,
+      "required": true
     },
     {
       "fieldname": "buying",
       "label": "Buying",
       "fieldtype": "Check",
       "placeholder": "Buying",
-      "default": false,
-      "required": true
+      "default": false
     },
     {
       "fieldname": "selling",
       "label": "Selling",
       "fieldtype": "Check",
       "placeholder": "Selling",
-      "default": false,
-      "required": true
+      "default": false
     },
     {
       "fieldname": "party",
@@ -58,7 +57,8 @@
     {
       "fieldname": "rate",
       "label": "Rate",
-      "fieldtype": "Currency"
+      "fieldtype": "Currency",
+      "required": true
     },
     {
       "fieldname": "batch",
@@ -84,9 +84,9 @@
   ],
   "quickEditFields": [
     "enabled",
-    "priceList",
     "buying",
     "selling",
+    "priceList",
     "party",
     "item",
     "unit",

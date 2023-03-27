@@ -1,4 +1,3 @@
-import { Fyo } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -16,8 +15,8 @@ export async function getPriceListRate(doc: Doc, isSales: boolean) {
     new Date(),
     isSales,
     doc.party as string,
-    doc.unit as string,
-    ''
+    doc.transferUnit as string,
+    doc.batch as string
   )) as string;
 
   if (!itemPriceName.length) return false;

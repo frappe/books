@@ -3,6 +3,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { HiddenMap, ListViewSettings, ValidationMap } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
+import { getPriceListStatusColumn } from './helpers';
 
 export class ItemPrice extends Doc {
   item?: string;
@@ -12,8 +13,6 @@ export class ItemPrice extends Doc {
   selling?: boolean;
   buying?: boolean;
   priceList?: string;
-  validFrom?: Date;
-  validUpto?: Date;
 
   validations: ValidationMap = {
     item: async (value: DocValue) => {
@@ -27,9 +26,7 @@ export class ItemPrice extends Doc {
         isSales,
         this.party!,
         this.unit!,
-        this.batch,
-        this.validFrom,
-        this.validUpto
+        this.batch
       );
 
       if (itemExist) {
@@ -46,7 +43,7 @@ export class ItemPrice extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: ['item', 'priceList'],
+      columns: ['item', 'priceList', getPriceListStatusColumn()],
     };
   }
 }

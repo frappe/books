@@ -332,9 +332,7 @@ export class DatabaseHandler extends DatabaseBase {
     isSales: boolean,
     party: string,
     unit: string,
-    batch?: string,
-    validFrom?: Date,
-    validUpto?: Date
+    batch?: string
   ) {
     return await this.#demux.callBespoke(
       'getItemPrice',
@@ -344,9 +342,7 @@ export class DatabaseHandler extends DatabaseBase {
       isSales,
       party,
       unit,
-      batch,
-      validFrom,
-      validUpto
+      batch
     );
   }
 

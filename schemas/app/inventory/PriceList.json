@@ -37,10 +37,5 @@
       "default": false
     }
   ],
-  "quickEditFields": [
-    "enabled",
-    "buying",
-    "selling",
-    "isUomDependent"
-  ]
+  "quickEditFields": ["enabled", "buying", "selling", "isUomDependent"]
 }

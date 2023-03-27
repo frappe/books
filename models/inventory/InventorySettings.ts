@@ -12,7 +12,6 @@ export class InventorySettings extends Doc {
   enableBarcodes?: boolean;
   enableBatches?: boolean;
   enableUomConversions?: boolean;
-  enablePriceList?: boolean;
 
   static filters: FiltersMap = {
     stockInHand: () => ({
@@ -38,9 +37,6 @@ export class InventorySettings extends Doc {
     },
     enableUomConversions: () => {
       return !!this.enableUomConversions;
-    },
-    enablePriceList: () => {
-      return !!this.enablePriceList;
-    },
+    }
   };
 }

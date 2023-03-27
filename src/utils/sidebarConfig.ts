@@ -96,18 +96,6 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
           name: 'stock-balance',
           route: '/report/StockBalance',
         },
-        {
-          label: t`Price List`,
-          name: 'price-list',
-          route: '/list/PriceList',
-          schemaName: 'PriceList',
-        },
-        {
-          label: t`Item Price`,
-          name: 'item-price',
-          route: '/list/ItemPrice',
-          schemaName: 'ItemPrice',
-        }
       ],
     },
   ];
@@ -256,6 +244,22 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           route: `/list/Item/${t`Items`}`,
           schemaName: 'Item',
           filters: { for: 'Both' },
+        },
+        {
+          label: t`Price List`,
+          name: 'price-list',
+          route: '/list/PriceList',
+          schemaName: 'PriceList',
+          hidden: () =>
+            !fyo.singles.AccountingSettings?.enablePriceList as boolean,
+        },
+        {
+          label: t`Item Price`,
+          name: 'item-price',
+          route: '/list/ItemPrice',
+          schemaName: 'ItemPrice',
+          hidden: () =>
+            !fyo.singles.AccountingSettings?.enablePriceList as boolean,
         },
       ],
     },

@@ -68,12 +68,6 @@
       "label": "Enable UOM Conversion",
       "fieldtype": "Check",
       "section": "Feature Flags"
-    },
-    {
-      "fieldname": "enablePriceList",
-      "label": "Enable Price List",
-      "fieldtype": "Check",
-      "section": "Feature Flags"
     }
   ]
 }

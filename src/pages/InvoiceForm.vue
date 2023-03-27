@@ -461,7 +461,7 @@ export default {
       return fyo.singles.SystemSettings.currency;
     },
     enablePriceList() {
-      return fyo.singles.InventorySettings.enablePriceList;
+      return fyo.singles.AccountingSettings.enablePriceList;
     },
   },
   activated() {

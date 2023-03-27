@@ -176,16 +176,9 @@ export class BespokeQueries {
     isSales: boolean,
     party: string,
     unit?: string,
-    batch?: string,
-    validFrom?: Date,
-    validUpto?: Date
+    batch?: string
   ): Promise<string | boolean> {
-    if (
-      !priceList ||
-      !item ||
-      !party ||
-      (!date && (!validFrom || !validUpto))
-    ) {
+    if (!priceList || !item || !date) {
       return false;
     }
 
@@ -198,35 +191,36 @@ export class BespokeQueries {
       ? priceListQuery.andWhere('selling', true)
       : priceListQuery.andWhere('buying', true);
 
-    if (!(await priceListQuery)) return false;
+    if (!(await priceListQuery).length) return false;
 
     const { isUomDependent } = Object.values(await priceListQuery)[0];
 
-    const itemPriceQuery = db.knex!(ModelNameEnum.ItemPrice)
-      .select(['name'])
-      .where('item', item)
-      .andWhere('priceList', priceList)
-      .andWhereRaw('datetime(validFrom) <= datetime(?)', [
-        date ? date.toISOString() : validFrom?.toISOString(),
-      ])
-      .andWhereRaw('datetime(validUpto) >= datetime(?)', [
-        date ? date.toISOString() : validUpto?.toISOString(),
-      ]);
-
-    isSales
-      ? itemPriceQuery.andWhere('selling', true)
-      : itemPriceQuery.andWhere('buying', true);
+      const itemPriceQuery = db.knex!(ModelNameEnum.ItemPrice)
+        .select(['name', 'party'])
+        .where('enabled', true)
+        .andWhere('item', item)
+        .andWhere('priceList', priceList)
+        .andWhere('batch', batch ?? null)
+        .andWhereRaw('datetime(validFrom) <= datetime(?)', [date.toISOString()])
+        .andWhereRaw('datetime(validUpto) >= datetime(?)', [date.toISOString()]);
 
     if (isUomDependent) {
       itemPriceQuery.andWhere('unit', unit);
     }
 
-    if (batch) {
-      itemPriceQuery.andWhere('batch', batch);
-    }
+    isSales
+      ? itemPriceQuery.andWhere('selling', true)
+      : itemPriceQuery.andWhere('buying', true);
 
     if (!(await itemPriceQuery).length) return false;
 
-    return Object.values(await itemPriceQuery)[0]['name'];
+    const itemPrice = Object.values(await itemPriceQuery)[0]['name'];
+    const itemPriceParty = Object.values(await itemPriceQuery)[0]['party'];
+
+    if (itemPriceParty) {
+      if (itemPriceParty !== party) return false;
+    }
+
+    return itemPrice;
   }
 }

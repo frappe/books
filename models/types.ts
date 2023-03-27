@@ -1,4 +1,5 @@
 export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid';
+export type PriceListStatus = 'Enabled' | 'Disabled' | 'Expired';
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',
