@@ -145,8 +145,9 @@
       </button>
 
       <p
-        v-if="!fyo.store.isDevelopment"
-        class="text-xs text-gray-500 select-none"
+        v-if="showDevMode"
+        class="text-xs text-gray-500 select-none cursor-pointer"
+        @click="showDevMode = false"
       >
         dev mode
       </p>
@@ -206,11 +207,13 @@ export default defineComponent({
       groups: [],
       viewShortcuts: false,
       activeGroup: null,
+      showDevMode: false,
     } as {
       companyName: string;
       groups: SidebarConfig;
       viewShortcuts: boolean;
       activeGroup: null | SidebarRoot;
+      showDevMode: boolean;
     };
   },
   computed: {
@@ -239,6 +242,8 @@ export default defineComponent({
       }
     });
     this.shortcuts?.set(COMPONENT_NAME, ['F1'], () => this.openDocumentation());
+
+    this.showDevMode = this.fyo.store.isDevelopment;
   },
   unmounted() {
     this.shortcuts?.delete(COMPONENT_NAME);
