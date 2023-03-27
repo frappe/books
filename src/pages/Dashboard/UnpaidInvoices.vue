@@ -4,14 +4,7 @@
     <SectionHeader>
       <template #title>{{ title }}</template>
       <template #action>
-        <PeriodSelector
-          v-if="hasData"
-          :value="period"
-          @change="(value) => (period = value)"
-        />
-        <Button v-else :icon="true" type="primary" @click="newInvoice()">
-          <feather-icon name="plus" class="w-4 h-4 text-white" />
-        </Button>
+        <PeriodSelector :value="period" @change="(value) => (period = value)" />
       </template>
     </SectionHeader>
 
@@ -22,7 +15,12 @@
         <!-- Paid -->
         <div
           class="text-sm font-medium"
-          :class="{ 'bg-gray-200 text-gray-200 rounded': !count }"
+          :class="{
+            'bg-gray-200 text-gray-200 rounded': !count,
+            'cursor-pointer': paidCount > 0,
+          }"
+          @click="() => routeToInvoices('paid')"
+          :title="paidCount > 0 ? t`View Paid Invoices` : ''"
         >
           {{ fyo.format(paid, 'Currency') }}
           <span :class="{ 'text-gray-900 font-normal': count }">{{
@@ -33,7 +31,12 @@
         <!-- Unpaid -->
         <div
           class="text-sm font-medium"
-          :class="{ 'bg-gray-200 text-gray-200 rounded': !count }"
+          :class="{
+            'bg-gray-200 text-gray-200 rounded': !count,
+            'cursor-pointer': unpaidCount > 0,
+          }"
+          @click="() => routeToInvoices('unpaid')"
+          :title="unpaidCount > 0 ? t`View Unpaid Invoices` : ''"
         >
           {{ fyo.format(unpaid, 'Currency') }}
           <span :class="{ 'text-gray-900 font-normal': count }">{{
@@ -79,7 +82,6 @@
 import { t } from 'fyo';
 import { DateTime } from 'luxon';
 import { ModelNameEnum } from 'models/types';
-import Button from 'src/components/Button.vue';
 import MouseFollower from 'src/components/MouseFollower.vue';
 import { fyo } from 'src/initFyo';
 import { uicolors } from 'src/utils/colors';
@@ -98,7 +100,6 @@ export default defineComponent({
   components: {
     PeriodSelector,
     SectionHeader,
-    Button,
     MouseFollower,
   },
   props: {
@@ -158,10 +159,32 @@ export default defineComponent({
       barWidth: number;
     };
   },
-  activated() {
-    this.setData();
+  async activated() {
+    await this.setData();
   },
   methods: {
+    async routeToInvoices(type: 'paid' | 'unpaid') {
+      if (type === 'paid' && !this.paidCount) {
+        return;
+      }
+
+      if (type === 'unpaid' && !this.unpaidCount) {
+        return;
+      }
+
+      const zero = this.fyo.pesa(0).store;
+      const filters = { outstandingAmount: ['=', zero] };
+      const schemaLabel = fyo.schemaMap[this.schemaName]?.label ?? '';
+      let label = t`Paid ${schemaLabel}`;
+      if (type === 'unpaid') {
+        filters.outstandingAmount[0] = '!=';
+        label = t`Unpaid ${schemaLabel}`;
+      }
+
+      const path = `/list/${this.schemaName}/${label}`;
+      const query = { filters: JSON.stringify(filters) };
+      await routeTo({ path, query });
+    },
     async setData() {
       const { fromDate, toDate } = getDatesAndPeriodList(this.period);
 
