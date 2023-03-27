@@ -8,6 +8,9 @@ import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { getItem } from './helpers';
 import { getDefaultMetaFieldValueMap } from 'backend/helpers';
+import { getItemRate, getPriceListRate } from 'models/baseModels/helpers';
+import { Invoice } from 'models/baseModels/Invoice/Invoice';
+import { ItemPrice } from '../ItemPrice';
 
 const fyo = getTestFyo();
 
@@ -90,11 +93,83 @@ const priceListMap = {
 
 const itemPriceMap = {
   itemPriceOne: {
+    name: '000000001',
     enabled: true,
     item: itemMap.Pen.name,
+    rate: 101,
+    priceList: priceListMap.PN_SELL.name,
+    buying: false,
+    selling: true,
+    party: partyMap.partyOne.name,
+    validFrom: '2023-03-01T05:49:49.678Z',
+    validUpto: '2023-03-31T05:49:49.678Z',
+    ...getDefaultMetaFieldValueMap(),
+  },
+  itemPriceTwo: {
+    name: '000000002',
+    enabled: true,
+    item: itemMap.Pen.name,
+    rate: 102,
+    priceList: priceListMap.PN_BUY.name,
+    buying: true,
+    selling: false,
+    party: partyMap.partyOne.name,
+    validFrom: '2023-03-01T05:49:49.678Z',
+    validUpto: '2023-03-31T05:49:49.678Z',
+    ...getDefaultMetaFieldValueMap(),
+  },
+  itemPriceThree: {
+    name: '000000003',
+    enabled: true,
+    item: itemMap.Pen.name,
+    rate: 103,
+    priceList: priceListMap.PN_SB.name,
     buying: true,
     selling: true,
     party: partyMap.partyOne.name,
+    validFrom: '2023-03-01T05:49:49.678Z',
+    validUpto: '2023-03-31T05:49:49.678Z',
+    ...getDefaultMetaFieldValueMap(),
+  },
+  itemPriceFour: {
+    name: '000000004',
+    enabled: true,
+    item: itemMap.Pen.name,
+    rate: 104,
+    priceList: priceListMap.PN_SB.name,
+    batch: batchMap.batchOne.name,
+    buying: true,
+    selling: true,
+    party: partyMap.partyOne.name,
+    validFrom: '2023-03-01T05:49:49.678Z',
+    validUpto: '2023-03-31T05:49:49.678Z',
+    ...getDefaultMetaFieldValueMap(),
+  },
+  itemPriceFive: {
+    name: '000000005',
+    enabled: true,
+    item: itemMap.Pen.name,
+    rate: 104,
+    priceList: priceListMap.PN_D.name,
+    buying: true,
+    selling: true,
+    party: partyMap.partyOne.name,
+    validFrom: '2023-03-01T05:49:49.678Z',
+    validUpto: '2023-03-31T05:49:49.678Z',
+    ...getDefaultMetaFieldValueMap(),
+  },
+  itemPriceSix: {
+    name: '000000006',
+    enabled: false,
+    item: itemMap.Pen.name,
+    rate: 104,
+    priceList: priceListMap.PN_SB.name,
+    buying: true,
+    selling: true,
+    party: partyMap.partyOne.name,
+    validFrom: '2023-02-01T05:49:49.678Z',
+    validUpto: '2023-02-31T05:49:49.678Z',
+    ...getDefaultMetaFieldValueMap(),
   },
 };
 
@@ -130,37 +205,120 @@ test('create Price Lists', async (t) => {
     await fyo.doc.getNewDoc(ModelNameEnum.PriceList, priceListItem).sync();
     t.ok(
       await fyo.db.exists(ModelNameEnum.PriceList, priceListItem.name),
-      `Price List: ${priceListItem.name} exists`
+      `Price List ${priceListItem.name} exists`
     );
   }
 });
 
-test('create ItemPrices', async (t) => {
+test('create Item Prices', async (t) => {
   for (const itemPrice of Object.values(itemPriceMap)) {
-    t.ok(await fyo.doc.getNewDoc(ModelNameEnum.PriceList, itemPrice).sync());
+    await fyo.db.insert(ModelNameEnum.ItemPrice, itemPrice);
+
+    t.ok(
+      fyo.db.exists(ModelNameEnum.ItemPrice, itemPrice.name),
+      `item price ${itemPrice.name} exists`
+    );
   }
 });
 
-test('price list enabled : create Sales Invoice', async (t) => {
-  const invoiceItems: FieldValueMap[] = [
-    {
-      item: itemMap.Pen.name,
-      quantity: 1,
-      rate: 0,
-      amount: 0,
-    },
-  ];
-  const invoice = {
-    date: '2022-01-21',
-    party: partyMap.partyOne.name,
-    account: 'Debtors',
-    priceList: priceListMap.PN_SELL.name,
-    items: invoiceItems,
-  };
+test('check item price', async (t) => {
+  // check selling enabled item price
+  const sellEnabled = await fyo.db.getItemPrice(
+    itemMap.Pen.name,
+    priceListMap.PN_SELL.name,
+    new Date(itemPriceMap.itemPriceOne.validFrom),
+    true,
+    partyMap.partyOne.name,
+    'Unit',
+    undefined
+  );
 
-  await (
-    await fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, invoice).sync()
-  ).submit();
+  t.equal(sellEnabled, itemPriceMap.itemPriceOne.name);
+
+  // check buying enabled item price
+  const buyEnabled = await fyo.db.getItemPrice(
+    itemMap.Pen.name,
+    priceListMap.PN_BUY.name,
+    new Date(itemPriceMap.itemPriceTwo.validFrom),
+    false,
+    partyMap.partyOne.name,
+    'Unit',
+    undefined
+  );
+  t.equal(buyEnabled, itemPriceMap.itemPriceTwo.name);
+
+  // check buying & selling enabled item price
+  const sbEnabled = await fyo.db.getItemPrice(
+    itemMap.Pen.name,
+    priceListMap.PN_SB.name,
+    new Date(itemPriceMap.itemPriceThree.validFrom),
+    true,
+    partyMap.partyOne.name,
+    'Unit',
+    undefined
+  );
+  t.equal(sbEnabled, itemPriceMap.itemPriceThree.name);
+
+  // check sell batch enabled
+  const sellBatchEnabled = await fyo.db.getItemPrice(
+    itemMap.Pen.name,
+    priceListMap.PN_SB.name,
+    new Date(),
+    true,
+    partyMap.partyOne.name,
+    'Unit',
+    batchMap.batchOne.name
+  );
+
+  t.equal(sellBatchEnabled, itemPriceMap.itemPriceFour.name);
+
+  // false returns
+
+  const sbEnabledInk = await fyo.db.getItemPrice(
+    itemMap.Ink.name,
+    priceListMap.PN_SB.name,
+    new Date(itemPriceMap.itemPriceFour.validFrom),
+    true,
+    partyMap.partyOne.name,
+    'Unit',
+    batchMap.batchOne.name
+  );
+
+  t.equal(
+    sbEnabledInk,
+    false,
+    'itemPrice of non-existent item in price list returns false'
+  );
+
+  const sbDisabled = await fyo.db.getItemPrice(
+    itemMap.Pen.name,
+    priceListMap.PN_D.name,
+    new Date(itemPriceMap.itemPriceFive.validFrom),
+    true,
+    partyMap.partyOne.name,
+    'Unit',
+    undefined
+  );
+  t.equal(
+    sbDisabled,
+    false,
+    'price list disabled, itemPrice enabled returns false'
+  );
+
+  const sbItemPriceDisabled = await fyo.db.getItemPrice(
+    itemMap.Pen.name,
+    priceListMap.PN_SB.name,
+    new Date(itemPriceMap.itemPriceSix.validFrom),
+    true,
+    partyMap.partyOne.name,
+    'Unit',
+    undefined
+  );
+  t.equal(
+    sbItemPriceDisabled,
+    false,
+    'price list enabled, itemPrice disabled returns false'
+  );
 });
 
 test.onFinish(async () => {
