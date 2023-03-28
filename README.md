@@ -109,7 +109,7 @@ So to build for linux you could use the `--linux` flag like so: `yarn electron:b
 
 ## Contributions and Community
 
-There are many ways you can contribute even if you don't code:
+If you want to contribute to Frappe Books, please check our [Contribution Guidelines](https://github.com/frappe/books/blob/master/.github/CONTRIBUTING.md). There are many ways you can contribute even if you don't code:
 
 1. If you find any issues, no matter how small (even typos), you can [raise an issue](https://github.com/frappe/books/issues/new) to inform us.
 2. You can help us with language support by [contributing translations](https://github.com/frappe/books/wiki/Contributing-Translations).
