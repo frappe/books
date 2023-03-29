@@ -69,7 +69,7 @@ export abstract class StockTransfer extends Transfer {
     }),
     numberSeries: (doc: Doc) => ({ referenceType: doc.schemaName }),
     backReference: () => ({
-      stockNotTransferred: true,
+      stockNotTransferred: ['!=', 0],
       submitted: true,
       cancelled: false,
     }),
