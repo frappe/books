@@ -20,7 +20,6 @@
       "label": "Back Reference",
       "fieldtype": "Link",
       "target": "PurchaseInvoice",
-      "readOnly": true,
       "section": "References"
     },
     {
