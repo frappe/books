@@ -29,7 +29,7 @@
           <template v-else>
             <div
               v-for="(d, index) in dropdownItems"
-              :key="index + d.label"
+              :key="`key-${index}`"
               ref="items"
             >
               <div
