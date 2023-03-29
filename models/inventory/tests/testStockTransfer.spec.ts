@@ -8,6 +8,7 @@ import { RawValue } from 'schemas/types';
 import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { InventorySettings } from '../InventorySettings';
+import { Shipment } from '../Shipment';
 import { StockTransfer } from '../StockTransfer';
 import { ValuationMethod } from '../types';
 import { getALEs, getItem, getSLEs, getStockTransfer } from './helpers';
@@ -534,6 +535,54 @@ test('Cancel and Delete Sales Invoice with cancelled Shipments', async (t) => {
       `linked Shipment ${name} deleted`
     );
   }
+});
+
+test('Create Shipment from manually set Back Ref', async (t) => {
+  const rate = (testDocs['Item'][item].rate as number) ?? 0;
+  const totalQuantity = 10;
+  const prec = await getStockTransfer(
+    ModelNameEnum.PurchaseReceipt,
+    party,
+    new Date('2022-01-08'),
+    [
+      {
+        item,
+        location,
+        quantity: totalQuantity,
+        rate,
+      },
+    ],
+    fyo
+  );
+  await (await prec.sync()).submit();
+
+  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice) as Invoice;
+  const quantity = 5;
+  await sinv.set({
+    party,
+    date: new Date('2022-01-09'),
+    account: 'Debtors',
+  });
+  await sinv.append('items', { item, quantity, rate });
+  await (await sinv.sync()).submit();
+
+  t.equal(sinv.stockNotTransferred, quantity, "stock hasn't been transferred");
+
+  const shpm = fyo.doc.getNewDoc(ModelNameEnum.Shipment) as Shipment;
+  await shpm.set('backReference', sinv.name);
+  await shpm.set('date', new Date('2022-01-10'));
+  shpm.items?.[0].set('location', location);
+
+  t.equal(shpm.party, sinv.party, 'party set');
+
+  await (await shpm.sync()).submit();
+  t.equal(
+    await fyo.db.getStockQuantity(item, location),
+    totalQuantity - quantity,
+    'quantity shipped'
+  );
+
+  t.equal(sinv.stockNotTransferred, 0, 'stock has been transferred');
 });
 
 closeTestFyo(fyo, __filename);

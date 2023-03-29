@@ -3,6 +3,7 @@ import { Attachment } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
   Action,
+  ChangeArg,
   DefaultMap,
   FiltersMap,
   FormulaMap,
@@ -15,6 +16,7 @@ import { addItem, getLedgerLinkAction, getNumberSeries } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
+import { TargetField } from 'schemas/types';
 import { validateBatch } from './helpers';
 import { StockTransferItem } from './StockTransferItem';
 import { Transfer } from './Transfer';
@@ -66,6 +68,11 @@ export abstract class StockTransfer extends Transfer {
       role: ['in', [doc.isSales ? 'Customer' : 'Supplier', 'Both']],
     }),
     numberSeries: (doc: Doc) => ({ referenceType: doc.schemaName }),
+    backReference: () => ({
+      stockNotTransferred: ['!=', 0],
+      submitted: true,
+      cancelled: false,
+    }),
   };
 
   override _getTransferDetails() {
@@ -256,5 +263,38 @@ export abstract class StockTransfer extends Transfer {
 
   async addItem(name: string) {
     return await addItem(name, this);
+  }
+
+  override async change({ doc, changed }: ChangeArg): Promise<void> {
+    if (doc.name === this.name && changed === 'backReference') {
+      await this.setFieldsFromBackReference();
+    }
+  }
+
+  async setFieldsFromBackReference() {
+    const backReference = this.backReference;
+    const { target } = this.fyo.getField(
+      this.schemaName,
+      'backReference'
+    ) as TargetField;
+
+    if (!backReference || !target) {
+      return;
+    }
+
+    const brDoc = await this.fyo.doc.getDoc(target, backReference);
+    if (!(brDoc instanceof Invoice)) {
+      return;
+    }
+
+    const stDoc = await brDoc.getStockTransfer();
+    if (!stDoc) {
+      return;
+    }
+
+    await this.set('party', stDoc.party);
+    await this.set('terms', stDoc.terms);
+    await this.set('date', stDoc.date);
+    await this.set('items', stDoc.items);
   }
 }
