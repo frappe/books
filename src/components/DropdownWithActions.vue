@@ -2,7 +2,7 @@
   <Dropdown
     v-if="actions && actions.length"
     class="text-xs"
-    :items="actions"
+    :items="items"
     :doc="doc"
     right
   >
@@ -16,23 +16,46 @@
   </Dropdown>
 </template>
 
-<script>
-import Button from 'src/components/Button';
-import Dropdown from 'src/components/Dropdown';
+<script lang="ts">
+import { Doc } from 'fyo/model/doc';
+import { Action } from 'fyo/model/types';
+import Button from 'src/components/Button.vue';
+import Dropdown from 'src/components/Dropdown.vue';
+import { DropdownItem } from 'src/utils/types';
+import { defineComponent, PropType } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'DropdownWithActions',
   props: {
-    actions: { default: [] },
+    actions: { type: Array as PropType<Action[]>, default: () => [] },
     type: { type: String, default: 'secondary' },
     icon: { type: Boolean, default: true },
   },
   inject: {
-    doc: { default: null },
+    injectedDoc: { from: 'doc' },
   },
   components: {
     Dropdown,
     Button,
   },
-};
+  computed: {
+    doc() {
+      // @ts-ignore
+      const doc = this.injectedDoc;
+      if (doc instanceof Doc) {
+        return doc;
+      }
+
+      return undefined;
+    },
+    items(): DropdownItem[] {
+      return this.actions.map(({ label, group, component, action }) => ({
+        label,
+        group,
+        action,
+        component,
+      }));
+    },
+  },
+});
 </script>

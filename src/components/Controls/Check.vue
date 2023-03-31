@@ -12,7 +12,7 @@
         :class="isReadOnly ? 'cursor-default' : 'cursor-pointer'"
       >
         <svg
-          v-if="checked"
+          v-if="value"
           width="14"
           height="14"
           viewBox="0 0 14 14"
@@ -60,10 +60,10 @@
         <input
           ref="input"
           type="checkbox"
-          :checked="value"
+          :checked="getChecked(value)"
           :readonly="isReadOnly"
           :tabindex="isReadOnly ? '-1' : '0'"
-          @change="(e) => !isReadOnly && triggerChange(e.target.checked)"
+          @change="onChange"
           @focus="(e) => $emit('focus', e)"
         />
       </div>
@@ -73,10 +73,11 @@
     </label>
   </div>
 </template>
-<script>
-import Base from './Base';
+<script lang="ts">
+import { defineComponent } from 'vue';
+import Base from './Base.vue';
 
-export default {
+export default defineComponent({
   name: 'Check',
   extends: Base,
   emits: ['focus'],
@@ -106,11 +107,25 @@ export default {
 
       return 'text-gray-600 text-base';
     },
-    checked() {
-      return this.value;
+  },
+  methods: {
+    getChecked(value: unknown) {
+      return Boolean(value);
+    },
+    onChange(e: Event) {
+      if (this.isReadOnly) {
+        return;
+      }
+
+      const target = e.target;
+      if (!(target instanceof HTMLInputElement)) {
+        return;
+      }
+
+      this.triggerChange(target.checked);
     },
   },
-};
+});
 </script>
 
 <style scoped>

@@ -116,9 +116,6 @@ export default {
     Row,
     TableRow,
   },
-  inject: {
-    doc: { default: null },
-  },
   watch: {
     value() {
       this.setMaxHeight();

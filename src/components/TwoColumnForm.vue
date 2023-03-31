@@ -81,13 +81,6 @@ export default {
       errors: {},
     };
   },
-  provide() {
-    return {
-      schemaName: this.doc.schemaName,
-      name: this.doc.name,
-      doc: this.doc,
-    };
-  },
   components: {
     FormControl,
     Table,
