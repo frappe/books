@@ -1,7 +1,9 @@
-<script>
-import Data from "./Data.vue";
+<script lang="ts">
+import Data from './Data.vue';
+import { defineComponent } from 'vue';
+import { safeParseInt } from 'utils/index';
 
-export default {
+export default defineComponent({
   name: 'Int',
   extends: Data,
   computed: {
@@ -10,10 +12,9 @@ export default {
     },
   },
   methods: {
-    parse(value) {
-      const parsedValue = parseInt(value, 10);
-      return isNaN(parsedValue) ? 0 : parsedValue;
+    parse(value: unknown): number {
+      return safeParseInt(value);
     },
   },
-};
+});
 </script>

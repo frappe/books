@@ -9,7 +9,7 @@
       class="text-end"
       :class="[inputClasses, containerClasses]"
       :type="inputType"
-      :value="value?.round()"
+      :value="round(value)"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
       :tabindex="isReadOnly ? '-1' : '0'"
@@ -29,13 +29,16 @@
     </div>
   </div>
 </template>
-
-<script>
+<script lang="ts">
+// @ts-nocheck
+import { isPesa } from 'fyo/utils';
+import { Money } from 'pesa';
 import { fyo } from 'src/initFyo';
-import { nextTick } from 'vue';
+import { safeParseFloat } from 'utils/index';
+import { defineComponent, nextTick } from 'vue';
 import Float from './Float.vue';
 
-export default {
+export default defineComponent({
   name: 'Currency',
   extends: Float,
   emits: ['input', 'focus'],
@@ -51,17 +54,44 @@ export default {
       this.showInput = true;
       this.$emit('focus', e);
     },
-    parse(value) {
-      return fyo.pesa(value);
+    round(v: unknown) {
+      if (!isPesa(v)) {
+        v = this.parse(v);
+      }
+
+      if (isPesa(v)) {
+        return v.round();
+      }
+
+      return fyo.pesa(0).round();
     },
-    onBlur(e) {
-      let { value } = e.target;
-      if (value !== 0 && !value) {
-        value = fyo.pesa(0).round();
+    parse(value: unknown): Money {
+      if (isPesa(value)) {
+        return value;
+      }
+
+      if (typeof value === 'string') {
+        value = safeParseFloat(value);
+      }
+
+      if (typeof value === 'number') {
+        return fyo.pesa(value);
+      }
+
+      if (typeof value === 'bigint') {
+        return fyo.pesa(value);
+      }
+
+      return fyo.pesa(0);
+    },
+    onBlur(e: FocusEvent) {
+      const target = e.target;
+      if (!(target instanceof HTMLInputElement)) {
+        return;
       }
 
       this.showInput = false;
-      this.triggerChange(value);
+      this.triggerChange(target.value);
     },
     activateInput() {
       if (this.isReadOnly) {
@@ -79,5 +109,5 @@ export default {
       return fyo.format(this.value ?? fyo.pesa(0), this.df, this.doc);
     },
   },
-};
+});
 </script>
