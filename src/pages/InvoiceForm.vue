@@ -362,8 +362,6 @@ export default {
   },
   provide() {
     return {
-      schemaName: this.schemaName,
-      name: this.name,
       doc: computed(() => this.doc),
     };
   },

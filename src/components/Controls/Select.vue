@@ -20,7 +20,7 @@
           'text-gray-500': !value,
         }"
         :value="value"
-        @change="(e) => triggerChange(e.target.value)"
+        @change="onChange"
         @focus="(e) => $emit('focus', e)"
       >
         <option
@@ -61,31 +61,33 @@
   </div>
 </template>
 
-<script>
-import Base from './Base';
+<script lang="ts">
+import Base from './Base.vue';
 
-export default {
+import { defineComponent } from 'vue';
+import { SelectOption } from 'schemas/types';
+export default defineComponent({
   name: 'Select',
   extends: Base,
   emits: ['focus'],
   methods: {
-    map(v) {
-      if (this.df.map) {
-        return this.df.map[v] ?? v;
+    onChange(e: Event) {
+      const target = e.target;
+      if (!(target instanceof HTMLInputElement)) {
+        return;
       }
-      return v;
+
+      this.triggerChange(target.value);
     },
   },
   computed: {
-    options() {
-      let options = this.df.options;
-      return options.map((o) => {
-        if (typeof o === 'string') {
-          return { label: this.map(o), value: o };
-        }
-        return o;
-      });
+    options(): SelectOption[] {
+      if (this.df.fieldtype !== 'Select') {
+        return [];
+      }
+
+      return this.df.options;
     },
   },
-};
+});
 </script>

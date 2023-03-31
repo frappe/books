@@ -9,8 +9,7 @@ import {
   DuplicateEntryError,
   LinkValidationError,
 } from 'fyo/utils/errors';
-import { Money } from 'pesa';
-import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
+import { Field, FieldType, FieldTypeEnum, NumberField } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 
 export function stringifyCircular(
@@ -112,7 +111,13 @@ export function getErrorMessage(e: Error, doc?: Doc): string {
   return errorMessage;
 }
 
-export function isNumeric(fieldtype: Field | FieldType): boolean {
+export function isNumeric(
+  fieldtype: FieldType
+): fieldtype is NumberField['fieldtype'];
+export function isNumeric(fieldtype: Field): fieldtype is NumberField;
+export function isNumeric(
+  fieldtype: Field | FieldType
+): fieldtype is NumberField | NumberField['fieldtype'] {
   if (typeof fieldtype !== 'string') {
     fieldtype = fieldtype?.fieldtype;
   }
