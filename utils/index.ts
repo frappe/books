@@ -180,11 +180,11 @@ function safeParseNumber(value: unknown, parser: (v: string) => number) {
 }
 
 export function safeParseFloat(value: unknown): number {
-  return safeParseNumber(value, parseFloat);
+  return safeParseNumber(value, Number);
 }
 
 export function safeParseInt(value: unknown): number {
-  return safeParseNumber(value, parseInt);
+  return safeParseNumber(value, (v: string) => Math.trunc(Number(v)));
 }
 
 export function joinMapLists<A, B>(
