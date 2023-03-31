@@ -68,7 +68,7 @@ export interface Action {
   group?: string;
   type?: 'primary' | 'secondary';
   component?: {
-    template?: string;
+    template: string;
   };
 }
 

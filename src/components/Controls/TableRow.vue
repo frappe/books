@@ -60,7 +60,7 @@
 import { Doc } from 'fyo/model/doc';
 import Row from 'src/components/Row.vue';
 import { getErrorMessage } from 'src/utils';
-import { nextTick } from 'vue';
+import { computed, nextTick } from 'vue';
 import Button from '../Button.vue';
 import FormControl from './FormControl.vue';
 
@@ -90,9 +90,7 @@ export default {
   },
   provide() {
     return {
-      schemaName: this.row.schemaName,
-      name: this.row.name,
-      doc: this.row,
+      doc: computed(() => this.row),
     };
   },
   computed: {

@@ -90,6 +90,15 @@ export type ActionGroup = {
   actions: Action[];
 };
 
+export type DropdownItem = {
+  label: string;
+  value?: string;
+  action?: Function;
+  group?: string;
+  component?: { template: string };
+  isGroup?: boolean;
+};
+
 export type UIGroupedFields = Map<string, Map<string, Field[]>>;
 export type ExportFormat = 'csv' | 'json';
 export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month';

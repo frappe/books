@@ -96,9 +96,6 @@ export default {
       },
     },
   },
-  inject: {
-    doc: { default: null },
-  },
   mounted() {
     const value = this.linkValue || this.value;
     this.setLinkValue(this.getLinkValue(value));
