@@ -1,13 +1,14 @@
-<script>
-import Base from './Base';
+<script lang="ts">
+import Base from './Base.vue';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'Data',
   extends: Base,
   computed: {
     inputType() {
       return 'text';
-    }
-  }
-};
+    },
+  },
+});
 </script>

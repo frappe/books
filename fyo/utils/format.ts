@@ -1,9 +1,9 @@
 import { Fyo } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { DateTime } from 'luxon';
-import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
 import { getIsNullOrUndef, safeParseFloat, titleCase } from 'utils';
+import { isPesa } from '.';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_DATE_FORMAT,
@@ -138,8 +138,8 @@ function formatNumber(value: unknown, fyo: Fyo): string {
     value = fyo.pesa(value.toFixed(20));
   }
 
-  if ((value as Money).round) {
-    const floatValue = safeParseFloat((value as Money).round());
+  if (isPesa(value)) {
+    const floatValue = safeParseFloat(value.round());
     return numberFormatter.format(floatValue);
   }
 
