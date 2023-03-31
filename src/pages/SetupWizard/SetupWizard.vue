@@ -98,8 +98,6 @@ export default defineComponent({
   },
   provide() {
     return {
-      schemaName: computed(() => this.docOrNull?.schemaName),
-      name: computed(() => this.docOrNull?.name),
       doc: computed(() => this.docOrNull),
     };
   },

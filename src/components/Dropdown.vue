@@ -77,17 +77,9 @@
 import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 import { fyo } from 'src/initFyo';
+import { DropdownItem } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
 import Popover from './Popover.vue';
-
-type DropdownItem = {
-  label: string;
-  value?: string;
-  action?: Function;
-  group?: string;
-  component?: { template: string };
-  isGroup?: boolean;
-};
 
 export default defineComponent({
   name: 'Dropdown',

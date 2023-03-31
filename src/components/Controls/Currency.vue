@@ -30,11 +30,10 @@
   </div>
 </template>
 <script lang="ts">
-// @ts-nocheck
 import { isPesa } from 'fyo/utils';
 import { Money } from 'pesa';
 import { fyo } from 'src/initFyo';
-import { safeParseFloat } from 'utils/index';
+import { safeParsePesa } from 'utils/index';
 import { defineComponent, nextTick } from 'vue';
 import Float from './Float.vue';
 
@@ -49,8 +48,13 @@ export default defineComponent({
     };
   },
   methods: {
-    onFocus(e) {
-      e.target.select();
+    onFocus(e: FocusEvent) {
+      const target = e.target;
+      if (!(target instanceof HTMLInputElement)) {
+        return;
+      }
+
+      target.select();
       this.showInput = true;
       this.$emit('focus', e);
     },
@@ -66,23 +70,7 @@ export default defineComponent({
       return fyo.pesa(0).round();
     },
     parse(value: unknown): Money {
-      if (isPesa(value)) {
-        return value;
-      }
-
-      if (typeof value === 'string') {
-        value = safeParseFloat(value);
-      }
-
-      if (typeof value === 'number') {
-        return fyo.pesa(value);
-      }
-
-      if (typeof value === 'bigint') {
-        return fyo.pesa(value);
-      }
-
-      return fyo.pesa(0);
+      return safeParsePesa(value, this.fyo);
     },
     onBlur(e: FocusEvent) {
       const target = e.target;
@@ -106,7 +94,8 @@ export default defineComponent({
   },
   computed: {
     formattedValue() {
-      return fyo.format(this.value ?? fyo.pesa(0), this.df, this.doc);
+      const value = this.parse(this.value);
+      return fyo.format(value, this.df, this.doc);
     },
   },
 });
