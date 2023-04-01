@@ -76,8 +76,26 @@ input[type='number']::-webkit-inner-spin-button {
   --h-app: 800px;
 }
 
+.backdrop {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2px);
+}
+
 .w-form {
   width: 600px;
+}
+
+.w-dialog {
+  width: 24rem;
+}
+
+.w-toast {
+  width: 24rem;
 }
 
 .w-quick-edit {

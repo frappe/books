@@ -1,98 +1,87 @@
 <template>
-  <div
-    class="
-      text-gray-900
-      shadow-lg
-      px-3
-      py-2
-      flex
-      items-center
-      mb-3
-      w-96
-      z-30
-      bg-white
-      rounded-lg
-    "
-    style="transition: opacity 150ms ease-in"
-    :style="{ opacity }"
-    v-if="show"
-  >
-    <feather-icon :name="iconName" class="w-6 h-6 me-3" :class="iconColor" />
-    <div @click="actionClicked" :class="actionText ? 'cursor-pointer' : ''">
-      <p class="text-base">{{ message }}</p>
-      <button
-        v-if="actionText"
-        class="text-sm text-gray-700 hover:text-gray-800"
+  <Teleport to="#toast-container">
+    <Transition>
+      <div
+        v-if="open"
+        class="
+          inner
+          text-gray-900
+          shadow-lg
+          px-3
+          py-2
+          flex
+          items-center
+          mb-3
+          w-toast
+          z-30
+          bg-white
+          rounded-lg
+        "
+        style="pointer-events: auto"
       >
-        {{ actionText }}
-      </button>
-    </div>
-    <feather-icon
-      name="x"
-      class="w-4 h-4 ms-auto text-gray-600 cursor-pointer hover:text-gray-800"
-      @click="closeToast"
-    />
-  </div>
+        <feather-icon
+          :name="config.iconName"
+          class="w-6 h-6 me-3"
+          :class="config.iconColor"
+        />
+        <div @click="actionClicked" :class="actionText ? 'cursor-pointer' : ''">
+          <p class="text-base">{{ message }}</p>
+          <button
+            v-if="actionText"
+            class="text-sm text-gray-700 hover:text-gray-800"
+          >
+            {{ actionText }}
+          </button>
+        </div>
+        <feather-icon
+          name="x"
+          class="
+            w-4
+            h-4
+            ms-auto
+            text-gray-600
+            cursor-pointer
+            hover:text-gray-800
+          "
+          @click="closeToast"
+        />
+      </div>
+    </Transition>
+  </Teleport>
 </template>
-<script>
+<script lang="ts">
 import { getColorClass } from 'src/utils/colors';
+import { getIconConfig } from 'src/utils/interactive';
+import { ToastDuration, ToastType } from 'src/utils/types';
+import { toastDurationMap } from 'src/utils/ui';
+import { defineComponent, nextTick, PropType } from 'vue';
 import FeatherIcon from './FeatherIcon.vue';
 
-export default {
+export default defineComponent({
   components: {
     FeatherIcon,
   },
   data() {
     return {
-      opacity: 0,
-      show: true,
-      opacityTimeoutId: -1,
-      cleanupTimeoutId: -1,
+      open: false,
     };
   },
   props: {
     message: { type: String, required: true },
     action: { type: Function, default: () => {} },
     actionText: { type: String, default: '' },
-    type: { type: String, default: 'info' },
-    duration: { type: Number, default: 5000 },
+    type: { type: String as PropType<ToastType>, default: 'info' },
+    duration: { type: String as PropType<ToastDuration>, default: 'long' },
   },
   computed: {
-    iconName() {
-      switch (this.type) {
-        case 'warning':
-          return 'alert-triangle';
-        case 'success':
-          return 'check-circle';
-        default:
-          return 'alert-circle';
-      }
-    },
-    color() {
-      return {
-        info: 'blue',
-        warning: 'orange',
-        error: 'red',
-        success: 'green',
-      }[this.type];
-    },
-    iconColor() {
-      return getColorClass(this.color, 'text', 400);
+    config() {
+      return getIconConfig(this.type);
     },
   },
-  mounted() {
-    setTimeout(() => {
-      this.opacity = 1;
-    }, 50);
-
-    this.opacityTimeoutId = setTimeout(() => {
-      this.opacity = 0;
-    }, this.duration);
-
-    this.cleanupTimeoutId = setTimeout(() => {
-      this.show = false;
-      this.cleanup();
-    }, this.duration + 300);
+  async mounted() {
+    const duration = toastDurationMap[this.duration];
+    await nextTick(() => (this.open = true));
+    setTimeout(this.closeToast, duration);
   },
   methods: {
     actionClicked() {
@@ -100,21 +89,24 @@ export default {
       this.closeToast();
     },
     closeToast() {
-      clearTimeout(this.opacityTimeoutId);
-      clearTimeout(this.cleanupTimeoutId);
-
-      this.opacity = 0;
-      setTimeout(() => {
-        this.show = false;
-        this.cleanup();
-      }, 300);
-    },
-    cleanup() {
-      Array.from(this.$el.parentElement?.children ?? [])
-        .filter((el) => !el.innerHTML)
-        .splice(1)
-        .forEach((el) => el.remove());
+      this.open = false;
     },
   },
-};
+});
 </script>
+<style scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: all 150ms ease-out;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.v-enter-to,
+.v-leave-from {
+  opacity: 1;
+}
+</style>

@@ -5,7 +5,8 @@
     </template>
     <template #header v-if="hasDoc">
       <Button
-        v-if="!doc.isCancelled && !doc.dirty && isPrintable"
+        v-if="canPrint"
+        ref="printButton"
         :icon="true"
         @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
       >
@@ -119,11 +120,10 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
-import { handleErrorWithDialog } from 'src/errorHandling';
 import { getErrorMessage } from 'src/utils';
 import { docsPathMap } from 'src/utils/misc';
-import { docsPathRef, focusedDocsRef } from 'src/utils/refs';
-import { ActionGroup, UIGroupedFields } from 'src/utils/types';
+import { docsPathRef } from 'src/utils/refs';
+import { ActionGroup, DocRef, UIGroupedFields } from 'src/utils/types';
 import {
   commonDocSubmit,
   commonDocSync,
@@ -136,11 +136,30 @@ import {
 import { computed, defineComponent, nextTick } from 'vue';
 import QuickEditForm from '../QuickEditForm.vue';
 import CommonFormSection from './CommonFormSection.vue';
+import { inject } from 'vue';
+import { shortcutsKey } from 'src/utils/injectionKeys';
+import { ref } from 'vue';
+import { useDocShortcuts } from 'src/utils/vueUtils';
 
 export default defineComponent({
   props: {
     name: { type: String, default: '' },
     schemaName: { type: String, default: ModelNameEnum.SalesInvoice },
+  },
+  setup() {
+    const shortcuts = inject(shortcutsKey);
+    const docOrNull = ref(null) as DocRef;
+    let context = 'CommonForm';
+    if (shortcuts) {
+      context = useDocShortcuts(shortcuts, docOrNull, 'CommonForm', true);
+    }
+
+    return {
+      docOrNull,
+      shortcuts,
+      context,
+      printButton: ref<InstanceType<typeof Button> | null>(null),
+    };
   },
   provide() {
     return {
@@ -152,14 +171,12 @@ export default defineComponent({
   data() {
     return {
       errors: {},
-      docOrNull: null,
       activeTab: this.t`Default`,
       groupedFields: null,
       quickEditDoc: null,
       isPrintable: false,
     } as {
       errors: Record<string, string>;
-      docOrNull: null | Doc;
       activeTab: string;
       groupedFields: null | UIGroupedFields;
       quickEditDoc: null | Doc;
@@ -173,7 +190,6 @@ export default defineComponent({
     }
 
     await this.setDoc();
-    focusedDocsRef.add(this.docOrNull);
     this.updateGroupedFields();
     if (this.groupedFields) {
       this.activeTab = [...this.groupedFields.keys()][0];
@@ -182,20 +198,30 @@ export default defineComponent({
   },
   activated(): void {
     docsPathRef.value = docsPathMap[this.schemaName] ?? '';
-    focusedDocsRef.add(this.docOrNull);
+    this.shortcuts?.pmod.set(this.context, ['KeyP'], () => {
+      if (!this.canPrint) {
+        return;
+      }
+
+      this.printButton?.$el.click();
+    });
   },
   deactivated(): void {
     docsPathRef.value = '';
-    if (this.docOrNull) {
-      focusedDocsRef.delete(this.doc);
-    }
   },
   computed: {
+    canPrint(): boolean {
+      if (!this.hasDoc) {
+        return false;
+      }
+
+      return !this.doc.isCancelled && !this.doc.dirty && this.isPrintable;
+    },
     hasDoc(): boolean {
-      return !!this.docOrNull;
+      return this.docOrNull instanceof Doc;
     },
     hasQeDoc(): boolean {
-      return !!this.quickEditDoc;
+      return this.quickEditDoc instanceof Doc;
     },
     status(): string {
       if (!this.hasDoc) {
@@ -271,8 +297,8 @@ export default defineComponent({
         this.doc
       );
     },
-    async sync() {
-      if (await commonDocSync(this.doc)) {
+    async sync(useDialog?: boolean) {
+      if (await commonDocSync(this.doc, useDialog)) {
         this.updateGroupedFields();
       }
     },

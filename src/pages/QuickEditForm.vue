@@ -113,14 +113,17 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
+import { shortcutsKey } from 'src/utils/injectionKeys';
 import { getQuickEditWidget } from 'src/utils/quickEditWidgets';
-import { focusedDocsRef } from 'src/utils/refs';
 import {
   commonDocSubmit,
   commonDocSync,
+  focusOrSelectFormControl,
   getActionsForDoc,
   openQuickEdit,
 } from 'src/utils/ui';
+import { useDocShortcuts } from 'src/utils/vueUtils';
+import { ref, inject } from 'vue';
 
 export default {
   name: 'QuickEditForm',
@@ -146,6 +149,21 @@ export default {
     DropdownWithActions,
   },
   emits: ['close'],
+  setup() {
+    const doc = ref(null);
+    const shortcuts = inject(shortcutsKey);
+
+    let context = 'QuickEditForm';
+    if (shortcuts) {
+      context = useDocShortcuts(shortcuts, doc, context, true);
+    }
+
+    return {
+      doc,
+      context,
+      shortcuts,
+    };
+  },
   provide() {
     return {
       schemaName: this.schemaName,
@@ -155,12 +173,16 @@ export default {
   },
   data() {
     return {
-      doc: null,
       values: null,
       titleField: null,
       imageField: null,
       statusText: null,
     };
+  },
+  activated() {
+    this.shortcuts.set(this.context, ['Escape'], () => {
+      this.routeToPrevious();
+    });
   },
   async mounted() {
     if (this.defaults) {
@@ -168,20 +190,11 @@ export default {
     }
 
     await this.fetchFieldsAndDoc();
-    focusedDocsRef.add(this.doc);
+    focusOrSelectFormControl(this.doc, this.$refs.titleControl, false);
 
     if (fyo.store.isDevelopment) {
       window.qef = this;
     }
-  },
-  activated() {
-    focusedDocsRef.add(this.doc);
-  },
-  deactivated() {
-    focusedDocsRef.delete(this.doc);
-  },
-  unmounted() {
-    focusedDocsRef.delete(this.doc);
   },
   computed: {
     isChild() {
@@ -243,36 +256,10 @@ export default {
       this.imageField = fyo.getField(this.schemaName, 'image');
 
       await this.fetchDoc();
-
-      // setup the title field
-      this.setTitleField();
-
       // set default values
       if (this.values) {
         this.doc?.set(this.values);
       }
-    },
-    setTitleField() {
-      const { fieldname, readOnly } = this.titleField;
-      if (!this.doc?.notInserted || !this?.doc[fieldname]) {
-        return;
-      }
-
-      const isManual = this.schema.naming === 'manual';
-      const isNumberSeries = fyo.getField(this.schemaName, 'numberSeries');
-      if (readOnly && (!this?.doc[fieldname] || isNumberSeries)) {
-        this.doc.set(fieldname, t`New ${this.schema.label}`);
-      }
-
-      if (this?.doc[fieldname] && !isManual) {
-        return;
-      }
-
-      this.doc.set(fieldname, '');
-
-      setTimeout(() => {
-        this.$refs.titleControl?.focus();
-      }, 300);
     },
     async fetchDoc() {
       if (this.sourceDoc) {

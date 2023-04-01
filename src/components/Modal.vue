@@ -1,22 +1,7 @@
 <template>
   <Transition>
     <div
-      class="
-        fixed
-        top-0
-        start-0
-        w-screen
-        h-screen
-        z-20
-        flex
-        justify-center
-        items-center
-      "
-      :style="
-        useBackdrop
-          ? 'background: rgba(0, 0, 0, 0.1); backdrop-filter: blur(2px)'
-          : ''
-      "
+      class="backdrop z-20 flex justify-center items-center"
       @click="$emit('closemodal')"
       v-if="openModal"
     >
@@ -32,16 +17,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { shortcutsKey } from 'src/utils/injectionKeys';
+import { defineComponent, inject } from 'vue';
 
 export default defineComponent({
+  setup() {
+    const context = `Modal-` + Math.random().toString(36).slice(2, 6);
+    return { shortcuts: inject(shortcutsKey), context };
+  },
   props: {
     openModal: {
       default: false,
-      type: Boolean,
-    },
-    useBackdrop: {
-      default: true,
       type: Boolean,
     },
   },
@@ -49,19 +35,12 @@ export default defineComponent({
   watch: {
     openModal(value: boolean) {
       if (value) {
-        document.addEventListener('keyup', this.escapeEventListener);
+        this.shortcuts?.set(this.context, ['Escape'], () => {
+          this.$emit('closemodal');
+        });
       } else {
-        document.removeEventListener('keyup', this.escapeEventListener);
+        this.shortcuts?.delete(this.context);
       }
-    },
-  },
-  methods: {
-    escapeEventListener(event: KeyboardEvent) {
-      if (event.code !== 'Escape') {
-        return;
-      }
-
-      this.$emit('closemodal');
     },
   },
 });

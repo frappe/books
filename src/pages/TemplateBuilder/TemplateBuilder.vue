@@ -149,7 +149,15 @@
         </div>
         <div
           v-if="templateChanged"
-          class="flex gap-2 p-2 text-sm text-gray-600 items-center mt-auto border-t"
+          class="
+            flex
+            gap-2
+            p-2
+            text-sm text-gray-600
+            items-center
+            mt-auto
+            border-t
+          "
         >
           <ShortcutKeys :keys="applyChangesShortcut" :simple="true" />
           {{ t` to apply changes` }}
@@ -211,6 +219,8 @@ import HorizontalResizer from 'src/components/HorizontalResizer.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import ShortcutKeys from 'src/components/ShortcutKeys.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
+import { shortcutsKey } from 'src/utils/injectionKeys';
+import { showDialog, showToast } from 'src/utils/interactive';
 import { getSavePath } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import {
@@ -218,8 +228,8 @@ import {
   getPrintTemplatePropHints,
   getPrintTemplatePropValues,
 } from 'src/utils/printTemplates';
-import { docsPathRef, focusedDocsRef, showSidebar } from 'src/utils/refs';
-import { PrintValues } from 'src/utils/types';
+import { docsPathRef, showSidebar } from 'src/utils/refs';
+import { DocRef, PrintValues } from 'src/utils/types';
 import {
   focusOrSelectFormControl,
   getActionsForDoc,
@@ -227,12 +237,10 @@ import {
   openSettings,
   selectTextFile,
   ShortcutKey,
-  showMessageDialog,
-  showToast,
 } from 'src/utils/ui';
-import { Shortcuts } from 'src/utils/vueUtils';
+import { useDocShortcuts } from 'src/utils/vueUtils';
 import { getMapFromList } from 'utils/index';
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, inject, ref } from 'vue';
 import PrintContainer from './PrintContainer.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
@@ -250,13 +258,26 @@ export default defineComponent({
     TemplateBuilderHint,
     ShortcutKeys,
   },
-  inject: { shortcutManager: { from: 'shortcuts' } },
+  setup() {
+    const doc = ref(null) as DocRef<PrintTemplate>;
+    const shortcuts = inject(shortcutsKey);
+
+    let context = 'TemplateBuilder';
+    if (shortcuts) {
+      context = useDocShortcuts(shortcuts, doc, context, false);
+    }
+
+    return {
+      doc,
+      context,
+      shortcuts,
+    };
+  },
   provide() {
     return { doc: computed(() => this.doc) };
   },
   data() {
     return {
-      doc: null,
       editMode: false,
       showHints: false,
       hints: undefined,
@@ -275,7 +296,6 @@ export default defineComponent({
       showHints: boolean;
       hints?: Record<string, unknown>;
       values: null | PrintValues;
-      doc: PrintTemplate | null;
       displayDoc: PrintTemplate | null;
       scale: number;
       panelWidth: number;
@@ -289,7 +309,6 @@ export default defineComponent({
   },
   async mounted() {
     await this.initialize();
-    focusedDocsRef.add(this.doc);
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore
       window.tb = this;
@@ -297,24 +316,30 @@ export default defineComponent({
   },
   async activated(): Promise<void> {
     docsPathRef.value = docsPathMap.PrintTemplate ?? '';
-    this.shortcuts.ctrl.set(['Enter'], this.setTemplate);
-    this.shortcuts.ctrl.set(['KeyE'], this.toggleEditMode);
-    this.shortcuts.ctrl.set(['KeyH'], this.toggleShowHints);
-    this.shortcuts.ctrl.set(['Equal'], () => this.setScale(this.scale + 0.1));
-    this.shortcuts.ctrl.set(['Minus'], () => this.setScale(this.scale - 0.1));
+    this.setShortcuts();
   },
   deactivated(): void {
     docsPathRef.value = '';
-    if (this.doc instanceof Doc) {
-      focusedDocsRef.delete(this.doc);
-    }
-    this.shortcuts.ctrl.delete(['Enter']);
-    this.shortcuts.ctrl.delete(['KeyE']);
-    this.shortcuts.ctrl.delete(['KeyH']);
-    this.shortcuts.ctrl.delete(['Equal']);
-    this.shortcuts.ctrl.delete(['Minus']);
   },
   methods: {
+    setShortcuts() {
+      /**
+       * Node: Doc Save and Delete shortcuts are in the setup.
+       */
+      if (!this.shortcuts) {
+        return;
+      }
+
+      this.shortcuts.ctrl.set(this.context, ['Enter'], this.setTemplate);
+      this.shortcuts.ctrl.set(this.context, ['KeyE'], this.toggleEditMode);
+      this.shortcuts.ctrl.set(this.context, ['KeyH'], this.toggleShowHints);
+      this.shortcuts.ctrl.set(this.context, ['Equal'], () =>
+        this.setScale(this.scale + 0.1)
+      );
+      this.shortcuts.ctrl.set(this.context, ['Minus'], () =>
+        this.setScale(this.scale - 0.1)
+      );
+    },
     async initialize() {
       await this.setDoc();
       if (this.doc?.type) {
@@ -367,7 +392,7 @@ export default defineComponent({
 
       let message = this.t`Please set a Display Doc`;
       if (!this.displayDoc) {
-        return showToast({ type: 'warning', message, duration: 1000 });
+        return showToast({ type: 'warning', message, duration: 'short' });
       }
 
       this.editMode = !this.editMode;
@@ -434,10 +459,11 @@ export default defineComponent({
       const name = names[0]?.name;
       if (!name) {
         const label = this.fyo.schemaMap[schemaName]?.label ?? schemaName;
-        await showMessageDialog({
-          message: this.t`No Display Entries Found`,
+        await showDialog({
+          title: this.t`No Display Entries Found`,
           detail: this
             .t`Please create a ${label} entry to view Template Preview`,
+          type: 'warning',
         });
 
         return;
@@ -575,17 +601,6 @@ export default defineComponent({
       }
 
       return null;
-    },
-
-    shortcuts(): Shortcuts {
-      // @ts-ignore
-      const shortcutManager = this.shortcutManager;
-      if (shortcutManager instanceof Shortcuts) {
-        return shortcutManager;
-      }
-
-      // no-op (hopefully)
-      throw Error('Shortcuts Not Found');
     },
     maxWidth() {
       return window.innerWidth - 12 * 16 - 100;

@@ -10,7 +10,6 @@ import AutoComplete from './AutoComplete.vue';
 export default {
   name: 'Link',
   extends: AutoComplete,
-  emits: ['new-doc'],
   data() {
     return { results: [] };
   },
@@ -35,22 +34,13 @@ export default {
 
       const value = newValue ?? this.value;
       const { fieldname, target } = this.df ?? {};
-      const displayField = fyo.schemaMap[target ?? '']?.linkDisplayField;
-
-      if (!displayField) {
+      const linkDisplayField = fyo.schemaMap[target ?? '']?.linkDisplayField;
+      if (!linkDisplayField) {
         return (this.linkValue = value);
       }
 
-      let displayValue = this.docs?.links?.[fieldname]?.get(displayField);
-      if (!displayValue) {
-        displayValue = await fyo.getValue(
-          target,
-          this.value ?? '',
-          displayField
-        );
-      }
-
-      this.linkValue = displayValue;
+      const linkDoc = await this.doc?.loadAndGetLink(fieldname);
+      this.linkValue = linkDoc?.get(linkDisplayField) ?? '';
     },
     getTargetSchemaName() {
       return this.df.target;
@@ -131,8 +121,8 @@ export default {
             value: () => this.value,
             linkValue: () => this.linkValue,
             isNewValue: () => {
-              let values = this.suggestions.map((d) => d.value);
-              return this.value && !values.includes(this.value);
+              const values = this.suggestions.map((d) => d.label);
+              return this.linkValue && !values.includes(this.linkValue);
             },
           },
           components: { Badge },
@@ -141,7 +131,7 @@ export default {
     },
     async openNewDoc() {
       const schemaName = this.df.target;
-      const doc = fyo.doc.getNewDoc(schemaName);
+      const linkDoc = fyo.doc.getNewDoc(schemaName);
 
       const filters = await this.getCreateFilters();
 
@@ -149,17 +139,16 @@ export default {
 
       openQuickEdit({
         schemaName,
-        name: doc.name,
+        name: linkDoc.name,
         defaults: Object.assign({}, filters, {
           name: this.linkValue,
         }),
       });
 
-      doc.once('afterSync', () => {
-        this.$emit('new-doc', doc);
+      linkDoc.once('afterSync', () => {
         this.$router.back();
         this.results = [];
-        this.triggerChange(doc.name);
+        this.triggerChange(linkDoc.name);
       });
     },
     async getCreateFilters() {

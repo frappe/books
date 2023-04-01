@@ -1,8 +1,15 @@
 import type { Doc } from 'fyo/model/doc';
 import type { Action } from 'fyo/model/types';
-import { ModelNameEnum } from 'models/types';
+import type { ModelNameEnum } from 'models/types';
 import type { Field, FieldType } from 'schemas/types';
 import type { QueryFilter } from 'utils/db/types';
+import type { Ref } from 'vue';
+import type { toastDurationMap } from './ui';
+
+export type DocRef<D extends Doc = Doc> = Ref<D | null>;
+
+export type ToastType = 'info' | 'warning' | 'error' | 'success';
+export type ToastDuration = keyof typeof toastDurationMap;
 
 export interface MessageDialogButton {
   label: string;
@@ -17,8 +24,8 @@ export interface MessageDialogOptions {
 
 export interface ToastOptions {
   message: string;
-  type?: 'info' | 'warning' | 'error' | 'success';
-  duration?: number;
+  type?: ToastType;
+  duration?: ToastDuration;
   action?: () => void;
   actionText?: string;
 }
@@ -59,6 +66,7 @@ export interface SidebarItem {
   route: string;
   schemaName?: string;
   hidden?: () => boolean;
+  filters?: QueryFilter;
 }
 
 export interface ExportField {
@@ -89,4 +97,18 @@ export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month';
 export type PrintValues = {
   print: Record<string, unknown>;
   doc: Record<string, unknown>;
+};
+
+export interface DialogOptions {
+  title: string;
+  type?: ToastType;
+  detail?: string;
+  buttons?: DialogButton[];
+}
+
+export type DialogButton = {
+  label: string;
+  action: () => any;
+  isPrimary?: boolean;
+  isEscape?: boolean;
 };

@@ -1,7 +1,7 @@
 import { t } from 'fyo';
 import { routeFilters } from 'src/utils/filters';
 import { fyo } from '../initFyo';
-import { SidebarConfig, SidebarRoot } from './types';
+import { SidebarConfig, SidebarItem, SidebarRoot } from './types';
 
 export async function getSidebarConfig(): Promise<SidebarConfig> {
   const sideBar = await getCompleteSidebar();
@@ -182,7 +182,7 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           schemaName: 'Item',
           filters: routeFilters.SalesItems,
         },
-      ],
+      ] as SidebarItem[],
     },
     {
       label: t`Purchases`,
@@ -217,7 +217,7 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           schemaName: 'Item',
           filters: routeFilters.PurchaseItems,
         },
-      ],
+      ] as SidebarItem[],
     },
     {
       label: t`Common`,
@@ -261,7 +261,7 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           hidden: () =>
             !fyo.singles.AccountingSettings?.enablePriceList as boolean,
         },
-      ],
+      ] as SidebarItem[],
     },
     await getReportSidebar(),
     await getInventorySidebar(),
@@ -298,7 +298,7 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           name: 'settings',
           route: '/settings',
         },
-      ],
+      ] as SidebarItem[],
     },
   ].flat();
 }

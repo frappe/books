@@ -20,7 +20,7 @@
               v-for="(s, i) in g.shortcuts"
               :key="g.label + ' ' + i"
               class="grid gap-4 items-start"
-              style="grid-template-columns: 6rem auto"
+              style="grid-template-columns: 8rem auto"
             >
               <ShortcutKeys class="text-base" :keys="s.shortcut" />
               <div class="whitespace-normal text-base">{{ s.description }}</div>
@@ -69,7 +69,7 @@ export default defineComponent({
             description: t`Open Quick Search`,
           },
           {
-            shortcut: [ShortcutKey.delete],
+            shortcut: [ShortcutKey.shift, ShortcutKey.delete],
             description: t`Go back to the previous page`,
           },
           {
@@ -83,24 +83,43 @@ export default defineComponent({
         ],
       },
       {
-        label: t`Doc`,
-        description: t`Applicable when a Doc is open in the Form view or Quick Edit view`,
+        label: t`Entry`,
+        description: t`Applicable when a entry is open in the Form view or Quick Edit view`,
         collapsed: false,
         shortcuts: [
           {
             shortcut: [ShortcutKey.pmod, 'S'],
             description: [
-              t`Save or Submit a doc.`,
-              t`A doc is submitted only if it is submittable and is in the saved state.`,
+              t`Save or Submit an entry.`,
+              t`An entry is submitted only if it is submittable and is in the saved state.`,
             ].join(' '),
           },
           {
             shortcut: [ShortcutKey.pmod, ShortcutKey.delete],
             description: [
-              t`Cancel or Delete a doc.`,
-              t`A doc is cancelled only if it is in the submitted state.`,
-              t`A submittable doc is deleted only if it is in the cancelled state.`,
+              t`Cancel or Delete an entry.`,
+              t`An entry is cancelled only if it is in the submitted state.`,
+              t`A submittable entry is deleted only if it is in the cancelled state.`,
             ].join(' '),
+          },
+          {
+            shortcut: [ShortcutKey.pmod, 'P'],
+            description: t`Open Print View if Print is available.`,
+          },
+        ],
+      },
+      {
+        label: t`List View`,
+        description: t`Applicable when the List View of an entry type is open`,
+        collapsed: false,
+        shortcuts: [
+          {
+            shortcut: [ShortcutKey.pmod, 'N'],
+            description: t`Create a new entry of the same type as the List View`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, 'E'],
+            description: t`Open the Export Wizard modal`,
           },
         ],
       },

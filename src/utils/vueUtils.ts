@@ -1,127 +1,23 @@
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-
-interface ModMap {
-  alt: boolean;
-  ctrl: boolean;
-  meta: boolean;
-  shift: boolean;
-  repeat: boolean;
-}
-
-type Mod = keyof ModMap;
-
-interface Keys extends ModMap {
-  pressed: Set<string>;
-}
-
-type ShortcutFunction = () => void;
-
-const mods: Readonly<Mod[]> = ['alt', 'ctrl', 'meta', 'repeat', 'shift'];
-
-export class Shortcuts {
-  keys: Keys;
-  isMac: boolean;
-  shortcuts: Map<string, ShortcutFunction>;
-  modMap: Partial<Record<Mod, boolean>>;
-
-  constructor(keys?: Keys) {
-    this.modMap = {};
-    this.keys = keys ?? useKeys();
-    this.shortcuts = new Map();
-    this.isMac = getIsMac();
-
-    watch(this.keys, (keys) => {
-      this.#trigger(keys);
-    });
-  }
-
-  #trigger(keys: Keys) {
-    const key = this.getKey(Array.from(keys.pressed), keys);
-    this.shortcuts.get(key)?.();
-  }
-
-  has(shortcut: string[]) {
-    const key = this.getKey(shortcut);
-    return this.shortcuts.has(key);
-  }
-
-  set(
-    shortcut: string[],
-    callback: ShortcutFunction,
-    removeIfSet: boolean = true
-  ) {
-    const key = this.getKey(shortcut);
-
-    if (removeIfSet) {
-      this.shortcuts.delete(key);
-    }
-
-    if (this.shortcuts.has(key)) {
-      throw new Error(`Shortcut ${key} already exists.`);
-    }
-
-    this.shortcuts.set(key, callback);
-  }
-
-  delete(shortcut: string[]) {
-    const key = this.getKey(shortcut);
-    this.shortcuts.delete(key);
-  }
-
-  getKey(shortcut: string[], modMap?: Partial<ModMap>): string {
-    const _modMap = modMap || this.modMap;
-    this.modMap = {};
-
-    const shortcutString = shortcut.sort().join('+');
-    const modString = mods.filter((k) => _modMap[k]).join('+');
-    if (shortcutString && modString) {
-      return modString + '+' + shortcutString;
-    }
-
-    if (!modString) {
-      return shortcutString;
-    }
-
-    if (!shortcutString) {
-      return modString;
-    }
-
-    return '';
-  }
-
-  get alt() {
-    this.modMap['alt'] = true;
-    return this;
-  }
-
-  get ctrl() {
-    this.modMap['ctrl'] = true;
-    return this;
-  }
-
-  get meta() {
-    this.modMap['meta'] = true;
-    return this;
-  }
-
-  get shift() {
-    this.modMap['shift'] = true;
-    return this;
-  }
-
-  get repeat() {
-    this.modMap['repeat'] = true;
-    return this;
-  }
-
-  get pmod() {
-    if (this.isMac) {
-      return this.meta;
-    } else {
-      return this.ctrl;
-    }
-  }
-}
+import { Keys } from 'utils/types';
+import {
+  onActivated,
+  onDeactivated,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref
+} from 'vue';
+import { getIsMac } from './misc';
+import { Shortcuts } from './shortcuts';
+import { DocRef } from './types';
+import {
+  commonDocCancel,
+  commonDocSubmit,
+  commonDocSync,
+  commongDocDelete,
+  showCannotCancelOrDeleteToast,
+  showCannotSaveOrSubmitToast
+} from './ui';
 
 export function useKeys() {
   const isMac = getIsMac();
@@ -157,7 +53,13 @@ export function useKeys() {
   const keyupListener = (e: KeyboardEvent) => {
     const { code } = e;
     if (code.startsWith('Meta') && isMac) {
-      return keys.pressed.clear();
+      keys.alt = false;
+      keys.ctrl = false;
+      keys.meta = false;
+      keys.shift = false;
+      keys.repeat = false;
+      keys.pressed.clear();
+      return;
     }
 
     keys.pressed.delete(code);
@@ -194,6 +96,59 @@ export function useMouseLocation() {
   return loc;
 }
 
-function getIsMac() {
-  return navigator.userAgent.indexOf('Mac') !== -1;
+export function useDocShortcuts(
+  shortcuts: Shortcuts,
+  docRef: DocRef,
+  name: string,
+  isMultiple: boolean = true
+) {
+  let context = name;
+  if (isMultiple) {
+    context = name + '-' + Math.random().toString(36).slice(2, 6);
+  }
+
+  const syncOrSubmitCallback = async () => {
+    const doc = docRef.value;
+    if (!doc) {
+      return;
+    }
+
+    if (doc.canSave) {
+      return await commonDocSync(doc, true);
+    }
+
+    if (doc.canSubmit) {
+      return await commonDocSubmit(doc);
+    }
+
+    showCannotSaveOrSubmitToast(doc);
+  };
+
+  const cancelOrDeleteCallback = async () => {
+    const doc = docRef.value;
+    if (!doc) {
+      return;
+    }
+
+    if (doc.canCancel) {
+      return await commonDocCancel(doc);
+    }
+
+    if (doc.canDelete) {
+      return await commongDocDelete(doc);
+    }
+
+    showCannotCancelOrDeleteToast(doc);
+  };
+
+  onActivated(() => {
+    shortcuts.pmod.set(context, ['KeyS'], syncOrSubmitCallback, false);
+    shortcuts.pmod.set(context, ['Backspace'], cancelOrDeleteCallback, false);
+  });
+
+  onDeactivated(() => {
+    shortcuts.delete(context);
+  });
+
+  return context;
 }

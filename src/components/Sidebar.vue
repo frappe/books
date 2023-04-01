@@ -35,7 +35,7 @@
               ? 'bg-gray-100 border-s-4 border-blue-500'
               : ''
           "
-          @click="onGroupClick(group)"
+          @click="routeToSidebarItem(group)"
         >
           <Icon
             class="flex-shrink-0"
@@ -72,7 +72,7 @@
                 ? 'bg-gray-100 text-blue-600 border-s-4 border-blue-500'
                 : ''
             "
-            @click="onItemClick(item)"
+            @click="routeToSidebarItem(item)"
           >
             <p :style="isItemActive(item) ? 'margin-left: -4px' : ''">
               {{ item.label }}
@@ -145,8 +145,9 @@
       </button>
 
       <p
-        v-if="!fyo.store.isDevelopment"
-        class="text-xs text-gray-500 select-none"
+        v-if="showDevMode"
+        class="text-xs text-gray-500 select-none cursor-pointer"
+        @click="showDevMode = false"
       >
         dev mode
       </p>
@@ -175,29 +176,44 @@
     </Modal>
   </div>
 </template>
-<script>
-import Button from 'src/components/Button.vue';
+<script lang="ts">
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
+import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
 import { openLink } from 'src/utils/ipcCalls';
 import { docsPathRef } from 'src/utils/refs';
 import { getSidebarConfig } from 'src/utils/sidebarConfig';
+import { SidebarConfig, SidebarItem, SidebarRoot } from 'src/utils/types';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
+import { defineComponent, inject } from 'vue';
 import router from '../router';
 import Icon from './Icon.vue';
 import Modal from './Modal.vue';
 import ShortcutsHelper from './ShortcutsHelper.vue';
 
-export default {
-  components: [Button],
-  inject: ['languageDirection', 'shortcuts'],
+const COMPONENT_NAME = 'Sidebar';
+
+export default defineComponent({
   emits: ['change-db-file'],
+  setup() {
+    return {
+      languageDirection: inject(languageDirectionKey),
+      shortcuts: inject(shortcutsKey),
+    };
+  },
   data() {
     return {
       companyName: '',
       groups: [],
       viewShortcuts: false,
       activeGroup: null,
+      showDevMode: false,
+    } as {
+      companyName: string;
+      groups: SidebarConfig;
+      viewShortcuts: boolean;
+      activeGroup: null | SidebarRoot;
+      showDevMode: boolean;
     };
   },
   computed: {
@@ -212,7 +228,7 @@ export default {
   },
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
-    this.companyName = companyName;
+    this.companyName = companyName as string;
     this.groups = await getSidebarConfig();
 
     this.setActiveGroup();
@@ -220,16 +236,17 @@ export default {
       this.setActiveGroup();
     });
 
-    this.shortcuts.shift.set(['KeyH'], () => {
+    this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyH'], () => {
       if (document.body === document.activeElement) {
         this.toggleSidebar();
       }
     });
-    this.shortcuts.set(['F1'], () => this.openDocumentation());
+    this.shortcuts?.set(COMPONENT_NAME, ['F1'], () => this.openDocumentation());
+
+    this.showDevMode = this.fyo.store.isDevelopment;
   },
   unmounted() {
-    this.shortcuts.alt.delete(['KeyH']);
-    this.shortcuts.delete(['F1']);
+    this.shortcuts?.delete(COMPONENT_NAME);
   },
   methods: {
     routeTo,
@@ -241,31 +258,30 @@ export default {
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;
       const fallBackGroup = this.activeGroup;
-      this.activeGroup = this.groups.find((g) => {
-        if (fullPath.startsWith(g.route) && g.route !== '/') {
-          return true;
-        }
-
-        if (g.route === fullPath) {
-          return true;
-        }
-
-        if (g.items) {
-          let activeItem = g.items.filter(
-            ({ route }) => route === fullPath || fullPath.startsWith(route)
-          );
-
-          if (activeItem.length) {
+      this.activeGroup =
+        this.groups.find((g) => {
+          if (fullPath.startsWith(g.route) && g.route !== '/') {
             return true;
           }
-        }
-      });
 
-      if (!this.activeGroup) {
-        this.activeGroup = fallBackGroup || this.groups[0];
-      }
+          if (g.route === fullPath) {
+            return true;
+          }
+
+          if (g.items) {
+            let activeItem = g.items.filter(
+              ({ route }) => route === fullPath || fullPath.startsWith(route)
+            );
+
+            if (activeItem.length) {
+              return true;
+            }
+          }
+        }) ??
+        fallBackGroup ??
+        this.groups[0];
     },
-    isItemActive(item) {
+    isItemActive(item: SidebarItem) {
       const { path: currentRoute, params } = this.$route;
       const routeMatch = currentRoute === item.route;
 
@@ -279,28 +295,13 @@ export default {
 
       return isMatch;
     },
-    isGroupActive(group) {
+    isGroupActive(group: SidebarRoot) {
       return this.activeGroup && group.label === this.activeGroup.label;
     },
-    onGroupClick(group) {
-      if (group.action) {
-        group.action();
-      }
-
-      if (group.route) {
-        routeTo(this.getPath(group));
-      }
+    routeToSidebarItem(item: SidebarItem | SidebarRoot) {
+      routeTo(this.getPath(item));
     },
-    onItemClick(item) {
-      if (item.action) {
-        item.action();
-      }
-
-      if (item.route) {
-        routeTo(this.getPath(item));
-      }
-    },
-    getPath(item) {
+    getPath(item: SidebarItem | SidebarRoot) {
       const { route: path, filters } = item;
       if (!filters) {
         return path;
@@ -309,5 +310,5 @@ export default {
       return { path, query: { filters: JSON.stringify(filters) } };
     },
   },
-};
+});
 </script>

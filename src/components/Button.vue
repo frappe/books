@@ -1,21 +1,16 @@
 <template>
   <button
-    class="
-      focus:outline-none
-      rounded-md
-      flex
-      justify-center
-      items-center
-      text-sm
-    "
+    class="rounded-md flex justify-center items-center text-sm"
     :class="_class"
     v-bind="$attrs"
   >
     <slot></slot>
   </button>
 </template>
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   name: 'Button',
   props: {
     type: {
@@ -53,7 +48,7 @@ export default {
       };
     },
   },
-};
+});
 </script>
 <style scoped>
 button:focus {
