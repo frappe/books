@@ -1,16 +1,8 @@
-import {
-  assertDoesNotThrow,
-  assertThrows,
-} from 'backend/database/tests/helpers';
-import { FieldValueMap } from 'backend/database/types';
 import { ModelNameEnum } from 'models/types';
 import test from 'tape';
-import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
+import { getTestFyo, setupTestFyo } from 'tests/helpers';
 import { getItem } from './helpers';
 import { getDefaultMetaFieldValueMap } from 'backend/helpers';
-import { getItemRate, getPriceListRate } from 'models/baseModels/helpers';
-import { Invoice } from 'models/baseModels/Invoice/Invoice';
-import { ItemPrice } from '../ItemPrice';
 
 const fyo = getTestFyo();
 
@@ -20,6 +12,7 @@ const itemMap = {
   Pen: {
     name: 'Pen',
     rate: 100,
+    hasBatch: true,
   },
   Ink: {
     name: 'Ink',
@@ -232,7 +225,6 @@ test('check item price', async (t) => {
     'Unit',
     undefined
   );
-
   t.equal(sellEnabled, itemPriceMap.itemPriceOne.name);
 
   // check buying enabled item price
@@ -263,13 +255,12 @@ test('check item price', async (t) => {
   const sellBatchEnabled = await fyo.db.getItemPrice(
     itemMap.Pen.name,
     priceListMap.PN_SB.name,
-    new Date(),
+    new Date(itemPriceMap.itemPriceFour.validFrom),
     true,
     partyMap.partyOne.name,
     'Unit',
     batchMap.batchOne.name
   );
-
   t.equal(sellBatchEnabled, itemPriceMap.itemPriceFour.name);
 
   // false returns
@@ -287,7 +278,7 @@ test('check item price', async (t) => {
   t.equal(
     sbEnabledInk,
     false,
-    'itemPrice of non-existent item in price list returns false'
+    'itemPrice of non-existing item in price list returns false'
   );
 
   const sbDisabled = await fyo.db.getItemPrice(

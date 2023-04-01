@@ -195,14 +195,14 @@ export class BespokeQueries {
 
     const { isUomDependent } = Object.values(await priceListQuery)[0];
 
-      const itemPriceQuery = db.knex!(ModelNameEnum.ItemPrice)
-        .select(['name', 'party'])
-        .where('enabled', true)
-        .andWhere('item', item)
-        .andWhere('priceList', priceList)
-        .andWhere('batch', batch ?? null)
-        .andWhereRaw('datetime(validFrom) <= datetime(?)', [date.toISOString()])
-        .andWhereRaw('datetime(validUpto) >= datetime(?)', [date.toISOString()]);
+    const itemPriceQuery = db.knex!(ModelNameEnum.ItemPrice)
+      .select(['name', 'party'])
+      .where('enabled', true)
+      .andWhere('item', item)
+      .andWhere('priceList', priceList)
+      .andWhere('batch', batch ?? null)
+      .andWhereRaw('datetime(validFrom) <= datetime(?)', [date.toISOString()])
+      .andWhereRaw('datetime(validUpto) >= datetime(?)', [date.toISOString()]);
 
     if (isUomDependent) {
       itemPriceQuery.andWhere('unit', unit);
