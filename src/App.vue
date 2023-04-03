@@ -50,7 +50,11 @@ import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
 import setupInstance from './setup/setupInstance';
 import { SetupWizardOptions } from './setup/types';
 import './styles/index.css';
-import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
+import {
+  connectToDatabase,
+  dbErrorActionSymbols,
+  handleDatabaseConnectionError,
+} from './utils/db';
 import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
 import { checkForUpdates } from './utils/ipcCalls';
@@ -191,19 +195,56 @@ export default defineComponent({
         return await this.handleConnectionFailed(error, actionSymbol);
       }
 
-      const setupComplete = await fyo.getValue(
-        ModelNameEnum.AccountingSettings,
-        'setupComplete'
-      );
+      const setupComplete = await this.getSetupComplete(filePath);
+      if (typeof setupComplete === 'object') {
+        return await this.handleConnectionFailed(
+          setupComplete.error,
+          setupComplete.actionSymbol
+        );
+      }
 
       if (!setupComplete) {
         this.activeScreen = Screen.SetupWizard;
         return;
       }
 
-      await initializeInstance(filePath, false, countryCode, fyo);
+      await this.initializeInstanceWithErrorHandling(filePath, countryCode);
       await updatePrintTemplates(fyo);
       await this.setDesk(filePath);
+    },
+    async getSetupComplete(dbPath: string) {
+      try {
+        return (await fyo.getValue(
+          ModelNameEnum.AccountingSettings,
+          'setupComplete'
+        )) as boolean;
+      } catch (error) {
+        if (!(error instanceof Error)) {
+          throw error;
+        }
+
+        return {
+          error,
+          actionSymbol: await handleDatabaseConnectionError(error, dbPath),
+        };
+      }
+    },
+    async initializeInstanceWithErrorHandling(
+      dbPath: string,
+      countryCode: string
+    ) {
+      try {
+        return await initializeInstance(dbPath, false, countryCode, fyo);
+      } catch (error) {
+        if (!(error instanceof Error)) {
+          throw error;
+        }
+
+        this.handleConnectionFailed(
+          error,
+          await handleDatabaseConnectionError(error, dbPath)
+        );
+      }
     },
     async handleConnectionFailed(error: Error, actionSymbol: symbol) {
       await this.showDbSelector();
