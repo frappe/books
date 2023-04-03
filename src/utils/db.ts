@@ -7,6 +7,7 @@ export const dbErrorActionSymbols = {
 
 const dbErrors = {
   DirectoryDoesNotExist: 'directory does not exist',
+  UnableToAcquireConnection: 'Unable to acquire a connection',
 } as const;
 
 type Conn = {
@@ -27,26 +28,52 @@ export async function connectToDatabase(
       throw error;
     }
 
-    const actionSymbol = await handleDatabaseConnectionError(error, dbPath);
-
-    return { countryCode: '', error, actionSymbol };
+    return {
+      countryCode: '',
+      error,
+      actionSymbol: await handleDatabaseConnectionError(error, dbPath),
+    };
   }
 }
 
-async function handleDatabaseConnectionError(error: Error, dbPath: string) {
-  if (error.message?.includes(dbErrors.DirectoryDoesNotExist)) {
+export async function handleDatabaseConnectionError(
+  error: Error,
+  dbPath: string
+) {
+  const message = error.message;
+  if (typeof message !== 'string') {
+    throw error;
+  }
+
+  if (message.includes(dbErrors.DirectoryDoesNotExist)) {
     return await handleDirectoryDoesNotExist(dbPath);
+  }
+
+  if (message.includes(dbErrors.UnableToAcquireConnection)) {
+    return await handleUnableToAcquireConnection(dbPath);
   }
 
   throw error;
 }
 
+async function handleUnableToAcquireConnection(dbPath: string) {
+  return await showDbErrorDialog(
+    t`Could not connect to database file ${dbPath}, please select the file manually`
+  );
+}
+
 async function handleDirectoryDoesNotExist(dbPath: string) {
+  return await showDbErrorDialog(
+    t`Directory for database file ${dbPath} does not exist, please select the file manually`
+  );
+}
+
+async function showDbErrorDialog(detail: string) {
   const { showDialog } = await import('src/utils/interactive');
   return await showDialog({
     type: 'error',
     title: t`Cannot Open File`,
-    detail: t`Directory for file ${dbPath} does not exist`,
+    detail,
     buttons: [
       {
         label: t`Select File`,
