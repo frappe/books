@@ -17,6 +17,7 @@
       @change-db-file="showDbSelector"
     />
     <DatabaseSelector
+      ref="databaseSelector"
       v-if="activeScreen === 'DatabaseSelector'"
       @file-selected="fileSelected"
     />
@@ -49,6 +50,7 @@ import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
 import setupInstance from './setup/setupInstance';
 import { SetupWizardOptions } from './setup/types';
 import './styles/index.css';
+import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
 import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
 import { checkForUpdates } from './utils/ipcCalls';
@@ -80,7 +82,17 @@ export default defineComponent({
     provide(injectionKeys.shortcutsKey, shortcuts);
     provide(injectionKeys.languageDirectionKey, languageDirection);
 
-    return { keys, searcher, shortcuts, languageDirection };
+    const databaseSelector = ref<InstanceType<typeof DatabaseSelector> | null>(
+      null
+    );
+
+    return {
+      keys,
+      searcher,
+      shortcuts,
+      languageDirection,
+      databaseSelector,
+    };
   },
   data() {
     return {
@@ -170,7 +182,15 @@ export default defineComponent({
       await this.setDesk(filePath);
     },
     async showSetupWizardOrDesk(filePath: string): Promise<void> {
-      const countryCode = await fyo.db.connectToDatabase(filePath);
+      const { countryCode, error, actionSymbol } = await connectToDatabase(
+        this.fyo,
+        filePath
+      );
+
+      if (!countryCode && error && actionSymbol) {
+        return await this.handleConnectionFailed(error, actionSymbol);
+      }
+
       const setupComplete = await fyo.getValue(
         ModelNameEnum.AccountingSettings,
         'setupComplete'
@@ -184,6 +204,19 @@ export default defineComponent({
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
       await this.setDesk(filePath);
+    },
+    async handleConnectionFailed(error: Error, actionSymbol: symbol) {
+      await this.showDbSelector();
+
+      if (actionSymbol === dbErrorActionSymbols.CancelSelection) {
+        return;
+      }
+
+      if (actionSymbol === dbErrorActionSymbols.SelectFile) {
+        return await this.databaseSelector?.existingDatabase();
+      }
+
+      throw error;
     },
     async setDeskRoute(): Promise<void> {
       const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
