@@ -1,3 +1,5 @@
+import type { ConfigFile } from "fyo/core/types";
+
 export type UnknownMap = Record<string, unknown>;
 export type Translation = { translation: string; context?: string };
 export type LanguageMap = Record<string, Translation>;
@@ -65,4 +67,8 @@ interface ModMap {
   meta: boolean;
   shift: boolean;
   repeat: boolean;
+}
+
+export interface ConfigFilesWithModified extends ConfigFile {
+  modified: string;
 }

@@ -32,7 +32,7 @@
               v-for="(b, index) of buttons"
               :ref="b.isPrimary ? 'primary' : 'secondary'"
               :key="b.label"
-              class="w-20"
+              style="min-width: 5rem"
               :type="b.isPrimary ? 'primary' : 'secondary'"
               @click="() => handleClick(index)"
             >

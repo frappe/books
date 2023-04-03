@@ -5,10 +5,7 @@ import { Main } from 'main';
 import config from 'utils/config';
 import { BackendResponse } from 'utils/ipc/types';
 import { IPC_CHANNELS } from 'utils/messages';
-
-interface ConfigFilesWithModified extends ConfigFile {
-  modified: string;
-}
+import type { ConfigFilesWithModified } from 'utils/types';
 
 export async function setAndGetCleanedConfigFiles() {
   const files = config.get(ConfigKeys.Files, []) as ConfigFile[];

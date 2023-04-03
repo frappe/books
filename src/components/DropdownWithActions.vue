@@ -32,7 +32,10 @@ export default defineComponent({
     icon: { type: Boolean, default: true },
   },
   inject: {
-    injectedDoc: { from: 'doc' },
+    injectedDoc: {
+      from: 'doc',
+      default: undefined,
+    },
   },
   components: {
     Dropdown,
