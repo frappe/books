@@ -36,6 +36,12 @@ export class StockTransferItem extends Doc {
     return this.schemaName === ModelNameEnum.ShipmentItem;
   }
 
+  parentdoc?: StockTransfer;
+
+  get isSales() {
+    return this.schemaName === ModelNameEnum.ShipmentItem;
+  }
+
   formulas: FormulaMap = {
     description: {
       formula: async () =>
@@ -206,6 +212,7 @@ export class StockTransferItem extends Doc {
   static filters: FiltersMap = {
     item: (doc: Doc) => {
       let itemNotFor = 'Sales';
+      console.log(doc.schemaName, doc.isSales);
       if (doc.isSales) {
         itemNotFor = 'Purchases';
       }
