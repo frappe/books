@@ -214,6 +214,7 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.Address,
     ModelNameEnum.AccountingLedgerEntry,
     ModelNameEnum.Currency,
+    ModelNameEnum.NumberSeries,
   ];
 
   const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;

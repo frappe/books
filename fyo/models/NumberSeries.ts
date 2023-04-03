@@ -1,4 +1,5 @@
 import { Doc } from 'fyo/model/doc';
+import { ReadOnlyMap } from 'fyo/model/types';
 
 function getPaddedName(prefix: string, next: number, padZeros: number): string {
   return prefix + next.toString().padStart(padZeros ?? 4, '0');
@@ -46,4 +47,10 @@ export default class NumberSeries extends Doc {
   getPaddedName(next: number): string {
     return getPaddedName(this.name as string, next, this.padZeros as number);
   }
+
+  readOnly: ReadOnlyMap = {
+    referenceType: () => this.inserted,
+    padZeros: () => this.inserted,
+    start: () => this.inserted,
+  };
 }
