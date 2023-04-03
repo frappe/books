@@ -123,7 +123,7 @@
             :border="true"
             :key="index"
             :df="gridColumnTitleDf"
-            :value="importer.assignedTemplateFields[index]"
+            :value="importer.assignedTemplateFields[index]!"
             @change="(value: string | null) => importer.setTemplateField(index, value)"
           />
         </div>
@@ -160,6 +160,7 @@
                 v-if="!importer.assignedTemplateFields[cidx]"
                 :title="getFieldTitle(val)"
                 :df="{
+                  fieldtype: 'Data',
                   fieldname: 'tempField',
                   label: t`Temporary`,
                   placeholder: t`Select column`,
@@ -244,6 +245,7 @@
             >
               <Check
                 :df="{
+                  fieldtype: 'Check',
                   fieldname: tf.fieldname,
                   label: tf.label,
                 }"
@@ -367,7 +369,7 @@
 </template>
 <script lang="ts">
 import { DocValue } from 'fyo/core/types';
-import { Action as BaseAction } from 'fyo/model/types';
+import { Action } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { OptionField, RawValue, SelectOption } from 'schemas/types';
@@ -390,10 +392,6 @@ import { docsPathRef } from 'src/utils/refs';
 import { selectTextFile } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import Loading from '../components/Loading.vue';
-
-type Action = Pick<BaseAction, 'condition' | 'component'> & {
-  action: Function;
-};
 
 type ImportWizardData = {
   showColumnPicker: boolean;
@@ -612,6 +610,7 @@ export default defineComponent({
 
       if (this.canImportData) {
         actions.push({
+          label: selectFileLabel,
           component: {
             template: `<span>{{ "${selectFileLabel}" }}</span>`,
           },
@@ -620,6 +619,7 @@ export default defineComponent({
       }
 
       const pickColumnsAction = {
+        label: this.t`Pick Import Columns`,
         component: {
           template: '<span>{{ t`Pick Import Columns` }}</span>',
         },
@@ -627,6 +627,7 @@ export default defineComponent({
       };
 
       const cancelAction = {
+        label: this.t`Cancel`,
         component: {
           template: '<span class="text-red-700" >{{ t`Cancel` }}</span>',
         },
