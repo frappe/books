@@ -1,5 +1,11 @@
 import { Fyo, t } from 'fyo';
 
+type Conn = {
+  countryCode: string;
+  error?: Error;
+  actionSymbol?: typeof dbErrorActionSymbols[keyof typeof dbErrorActionSymbols];
+};
+
 export const dbErrorActionSymbols = {
   SelectFile: Symbol('select-file'),
   CancelSelection: Symbol('cancel-selection'),
@@ -9,12 +15,6 @@ const dbErrors = {
   DirectoryDoesNotExist: 'directory does not exist',
   UnableToAcquireConnection: 'Unable to acquire a connection',
 } as const;
-
-type Conn = {
-  countryCode: string;
-  error?: Error;
-  actionSymbol?: typeof dbErrorActionSymbols[keyof typeof dbErrorActionSymbols];
-};
 
 export async function connectToDatabase(
   fyo: Fyo,

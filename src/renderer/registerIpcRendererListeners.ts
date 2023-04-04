@@ -7,11 +7,22 @@ export default function registerIpcRendererListeners() {
   ipcRenderer.on(
     IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR,
     async (_, error, more) => {
-      if (fyo.store.isDevelopment) {
-        console.error(error);
+      if (!(error instanceof Error)) {
+        throw error;
       }
 
-      await handleError(true, error as Error, more);
+      if (!more) {
+        more = {};
+      }
+
+      if (typeof more !== 'object') {
+        more = { more };
+      }
+
+      more.isMainProcess = true;
+      more.notifyUser ??= true;
+
+      await handleError(true, error, more, more.notifyUser);
     }
   );
 
