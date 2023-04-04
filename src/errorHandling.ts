@@ -76,7 +76,8 @@ export function getErrorLogObject(
 export async function handleError(
   logToConsole: boolean,
   error: Error,
-  more?: Record<string, unknown>
+  more: Record<string, unknown> = {},
+  notifyUser: boolean = true
 ) {
   if (logToConsole) {
     console.error(error);
@@ -86,12 +87,14 @@ export async function handleError(
     return;
   }
 
-  const errorLogObj = getErrorLogObject(error, more ?? {});
-
+  const errorLogObj = getErrorLogObject(error, more);
   await sendError(errorLogObj);
-  const toastProps = getToastProps(errorLogObj);
-  const { showToast } = await import('src/utils/interactive');
-  await showToast(toastProps);
+
+  if (notifyUser) {
+    const toastProps = getToastProps(errorLogObj);
+    const { showToast } = await import('src/utils/interactive');
+    await showToast(toastProps);
+  }
 }
 
 export async function handleErrorWithDialog(
