@@ -299,7 +299,7 @@ export default {
       }
 
       if (account == null) {
-        account = parentAccount.children.find((ch) => ch.name === name);
+        account = parentAccount.children.find((ch) => ch?.name === name);
       }
 
       if (account == null) {
