@@ -1,4 +1,4 @@
-import { getDefaultMetaFieldValueMap } from '../helpers';
+import { emitMainProcessError, getDefaultMetaFieldValueMap } from '../helpers';
 import { DatabaseManager } from './manager';
 import { FieldValueMap, Patch } from './types';
 
@@ -14,9 +14,13 @@ export async function runPatches(patches: Patch[], dm: DatabaseManager) {
 async function runPatch(patch: Patch, dm: DatabaseManager): Promise<boolean> {
   try {
     await patch.patch.execute(dm);
-  } catch (err) {
-    console.error('PATCH FAILED: ', patch.name);
-    console.error(err);
+  } catch (error) {
+    if (!(error instanceof Error)) {
+      return false;
+    }
+
+    error.message = `Patch Failed: ${patch.name}\n${error.message}`;
+    emitMainProcessError(error, { patchName: patch.name, notifyUser: false });
     return false;
   }
 

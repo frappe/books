@@ -205,7 +205,6 @@ export class StockTransferItem extends Doc {
   static filters: FiltersMap = {
     item: (doc: Doc) => {
       let itemNotFor = 'Sales';
-      console.log(doc.schemaName, doc.isSales);
       if (doc.isSales) {
         itemNotFor = 'Purchases';
       }
