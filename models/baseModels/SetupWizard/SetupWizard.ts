@@ -5,16 +5,17 @@ import { validateEmail } from 'fyo/model/validationFunction';
 import { DateTime } from 'luxon';
 import { getCountryInfo, getFiscalYear } from 'utils/misc';
 
-export function getCurrencyList(): ({ countryCode: string; name: string; })[] {
-  const result: ({ countryCode: string; name: string; })[] = [];
-  Object.values(getCountryInfo()).map(elm => {
-    if (typeof (elm?.currency) == 'string' && typeof (elm?.code) == 'string') {
-      result.push({
-        countryCode: elm.code,
-        name: elm.currency
-      });
+function getCurrencyList(): { countryCode: string; name: string }[] {
+  const result: { countryCode: string; name: string }[] = [];
+  const countryInfo = getCountryInfo();
+  for (const info of Object.values(countryInfo)) {
+    const { currency, code } = info ?? {};
+    if (typeof currency !== 'string' || typeof code !== 'string') {
+      continue;
     }
-  });
+
+    result.push({ name: currency, countryCode: code });
+  }
   return result;
 }
 
@@ -109,21 +110,26 @@ export class SetupWizard extends Doc {
     },
     currency: {
       formula: async () => {
-        const country = this.get('country') as string | undefined;
-        if (country === undefined) {
+        const country = this.get('country');
+        if (typeof country !== 'string') {
           return;
         }
+
         const countryInfo = getCountryInfo();
-        const code = (countryInfo[country] as undefined | { code: string })
-          ?.code;
-        if (code === undefined) {
+        const { code } = countryInfo[country] ?? {};
+        if (!code) {
           return;
         }
-        const currList = getCurrencyList();
-        const currency = currList.find(({ countryCode }) => countryCode === code);
+
+        const currencyList = getCurrencyList();
+        const currency = currencyList.find(
+          ({ countryCode }) => countryCode === code
+        );
+
         if (currency === undefined) {
-          return currList[0].name;
+          return currencyList[0].name;
         }
+
         return currency.name;
       },
       dependsOn: ['country'],
@@ -136,19 +142,7 @@ export class SetupWizard extends Doc {
         }
 
         const countryInfo = getCountryInfo();
-        const code = (countryInfo[country] as undefined | { code: string })
-          ?.code;
-        if (code === undefined) {
-          return;
-        }
-
-        const coaList = getCOAList();
-        const coa = coaList.find(({ countryCode }) => countryCode === code);
-
-        if (coa === undefined) {
-          return coaList[0].name;
-        }
-        return coa.name;
+        return countryInfo[country]?.currency;
       },
       dependsOn: ['country'],
     },
