@@ -44,7 +44,7 @@
     {
       "fieldname": "currency",
       "label": "Currency",
-      "fieldtype": "Data",
+      "fieldtype": "AutoComplete",
       "placeholder": "Currency",
       "section": "Locale",
       "required": true
