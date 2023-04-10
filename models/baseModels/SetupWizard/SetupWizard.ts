@@ -5,6 +5,19 @@ import { validateEmail } from 'fyo/model/validationFunction';
 import { DateTime } from 'luxon';
 import { getCountryInfo, getFiscalYear } from 'utils/misc';
 
+export function getCurrencyList(): ({ countryCode: string; name: string; })[] {
+  const result: ({ countryCode: string; name: string; })[] = [];
+  Object.values(getCountryInfo()).map(elm => {
+    if (typeof (elm?.currency) == 'string' && typeof (elm?.code) == 'string') {
+      result.push({
+        countryCode: elm.code,
+        name: elm.currency
+      });
+    }
+  });
+  return result;
+}
+
 export function getCOAList() {
   return [
     { name: t`Standard Chart of Accounts`, countryCode: '' },
@@ -96,11 +109,22 @@ export class SetupWizard extends Doc {
     },
     currency: {
       formula: async () => {
-        if (!this.country) {
+        const country = this.get('country') as string | undefined;
+        if (country === undefined) {
           return;
         }
         const countryInfo = getCountryInfo();
-        return countryInfo[this.country as string]?.currency;
+        const code = (countryInfo[country] as undefined | { code: string })
+          ?.code;
+        if (code === undefined) {
+          return;
+        }
+        const currList = getCurrencyList();
+        const currency = currList.find(({ countryCode }) => countryCode === code);
+        if (currency === undefined) {
+          return currList[0].name;
+        }
+        return currency.name;
       },
       dependsOn: ['country'],
     },
@@ -136,6 +160,7 @@ export class SetupWizard extends Doc {
 
   static lists: ListsMap = {
     country: () => Object.keys(getCountryInfo()),
+    currency: () => getCurrencyList().map(({ name }) => name),
     chartOfAccounts: () => getCOAList().map(({ name }) => name),
   };
 }
