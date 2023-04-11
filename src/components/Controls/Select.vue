@@ -73,7 +73,10 @@ export default defineComponent({
   methods: {
     onChange(e: Event) {
       const target = e.target;
-      if (!(target instanceof HTMLInputElement)) {
+      if (
+        !(target instanceof HTMLSelectElement) &&
+        !(target instanceof HTMLInputElement)
+      ) {
         return;
       }
 
