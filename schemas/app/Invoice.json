@@ -11,13 +11,13 @@
       "fieldname": "name",
       "fieldtype": "Data",
       "required": true,
-      "readOnly": true
+      "readOnly": true,
+      "hidden": true
     },
     {
-      "fieldname": "date",
-      "label": "Date",
-      "fieldtype": "Date",
-      "required": true
+      "abstract": true,
+      "fieldname": "numberSeries",
+      "section": "Default"
     },
     {
       "fieldname": "party",
@@ -25,7 +25,8 @@
       "fieldtype": "Link",
       "target": "Party",
       "create": true,
-      "required": true
+      "required": true,
+      "section": "Default"
     },
     {
       "fieldname": "account",
@@ -36,73 +37,66 @@
       "required": true
     },
     {
-      "fieldname": "currency",
-      "label": "Customer Currency",
-      "fieldtype": "Link",
-      "target": "Currency"
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Default"
     },
     {
-      "fieldname": "exchangeRate",
-      "label": "Exchange Rate",
-      "fieldtype": "Float",
-      "default": 1,
-      "readOnly": true
+      "abstract": true,
+      "fieldname": "items",
+      "section": "Items"
     },
     {
       "fieldname": "netTotal",
       "label": "Net Total",
       "fieldtype": "Currency",
-      "readOnly": true
+      "readOnly": true,
+      "section": "Items"
     },
     {
       "fieldname": "taxes",
       "label": "Taxes",
       "fieldtype": "Table",
       "target": "TaxSummary",
-      "readOnly": true
-    },
-    {
-      "fieldname": "grandTotal",
-      "label": "Grand Total",
-      "fieldtype": "Currency",
-      "readOnly": true
+      "readOnly": true,
+      "section": "Tax and Totals"
     },
     {
       "fieldname": "baseGrandTotal",
       "label": "Base Grand Total",
       "fieldtype": "Currency",
-      "readOnly": true
+      "readOnly": true,
+      "section": "Tax and Totals"
     },
     {
-      "fieldname": "outstandingAmount",
-      "label": "Outstanding Amount",
+      "fieldname": "grandTotal",
+      "label": "Grand Total",
       "fieldtype": "Currency",
-      "readOnly": true
+      "readOnly": true,
+      "section": "Tax and Totals"
     },
     {
       "fieldname": "setDiscountAmount",
       "label": "Set Discount Amount",
       "fieldtype": "Check",
-      "default": false
+      "default": false,
+      "hidden": true
     },
     {
       "fieldname": "discountAmount",
       "label": "Discount Amount",
       "fieldtype": "Currency",
-      "readOnly": false
+      "readOnly": false,
+      "hidden": true
     },
     {
       "fieldname": "discountPercent",
       "label": "Discount Percent",
       "fieldtype": "Float",
-      "readOnly": false
-    },
-    {
-      "fieldname": "discountAfterTax",
-      "label": "Discount After Tax",
-      "fieldtype": "Check",
-      "default": false,
-      "readOnly": false
+      "readOnly": false,
+      "hidden": true
     },
     {
       "fieldname": "entryCurrency",
@@ -118,25 +112,59 @@
           "label": "Company"
         }
       ],
-      "default": "Party"
+      "default": "Party",
+      "section": "Settings"
     },
     {
-      "fieldname": "terms",
-      "label": "Notes",
-      "placeholder": "Add invoice terms",
-      "fieldtype": "Text"
+      "fieldname": "currency",
+      "label": "Customer Currency",
+      "fieldtype": "Link",
+      "target": "Currency",
+      "section": "Settings"
     },
     {
-      "fieldname": "attachment",
-      "placeholder": "Add attachment",
-      "label": "Attachment",
-      "fieldtype": "Attachment"
+      "fieldname": "exchangeRate",
+      "label": "Exchange Rate",
+      "fieldtype": "Float",
+      "default": 1,
+      "readOnly": true,
+      "section": "Settings"
+    },
+    {
+      "fieldname": "discountAfterTax",
+      "label": "Discount After Tax",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false,
+      "section": "Settings"
+    },
+    {
+      "fieldname": "outstandingAmount",
+      "label": "Outstanding Amount",
+      "fieldtype": "Currency",
+      "readOnly": true,
+      "section": "Outstanding"
     },
     {
       "fieldname": "stockNotTransferred",
       "label": "Stock Not Transferred",
       "fieldtype": "Float",
-      "readOnly": true
+      "readOnly": true,
+      "section": "Outstanding"
+    },
+    {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add invoice terms",
+      "fieldtype": "Text",
+      "section": "References"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment",
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]
