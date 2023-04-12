@@ -12,7 +12,7 @@
       "fieldtype": "Data",
       "required": true,
       "readOnly": true,
-      "section": "Default"
+      "hidden": true
     },
     {
       "fieldname": "numberSeries",
