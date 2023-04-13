@@ -16,7 +16,6 @@
     >
       <input
         type="number"
-        ref="toValue"
         :value="isSwapped ? fromValue / exchangeRate : exchangeRate * fromValue"
         :disabled="disabled"
         min="0"
@@ -34,7 +33,7 @@
     </button>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { safeParseFloat } from 'utils/index';
 import { defineComponent } from 'vue';
 
@@ -53,9 +52,9 @@ export default defineComponent({
     swap() {
       this.isSwapped = !this.isSwapped;
     },
-    rightChange(e) {
-      let value = this.$refs.toValue.value;
-      if (e) {
+    rightChange(e: Event) {
+      let value: string | number = 1;
+      if (e.target instanceof HTMLInputElement) {
         value = e.target.value;
       }
 
@@ -70,14 +69,14 @@ export default defineComponent({
     },
   },
   computed: {
-    left() {
+    left(): string {
       if (this.isSwapped) {
         return this.toCurrency;
       }
 
       return this.fromCurrency;
     },
-    right() {
+    right(): string {
       if (this.isSwapped) {
         return this.fromCurrency;
       }
