@@ -248,6 +248,7 @@ export default defineComponent({
   },
   deactivated(): void {
     docsPathRef.value = '';
+    this.showLinks = false;
   },
   computed: {
     canShowBarcode(): boolean {
