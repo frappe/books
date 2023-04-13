@@ -1,5 +1,6 @@
 <template>
   <div class="w-quick-edit bg-white border-l">
+    <!-- Page Header -->
     <div
       class="
         flex
@@ -10,6 +11,7 @@
         sticky
         top-0
         border-b
+        bg-white
       "
       style="z-index: 1"
     >
@@ -22,18 +24,290 @@
         </p>
       </div>
     </div>
+
+    <!-- Linked Entry List -->
+    <div
+      class="w-full overflow-y-auto custom-scroll"
+      style="height: calc(100vh - var(--h-row-largest) - 1px)"
+    >
+      <div v-for="sn of sequence" :key="sn" class="border-b p-4">
+        <!-- Header with count and schema label -->
+        <div
+          class="flex justify-between cursor-pointer"
+          :class="entries[sn].collapsed ? '' : 'pb-4'"
+          @click="entries[sn].collapsed = !entries[sn].collapsed"
+        >
+          <h2 class="text-base text-gray-600 font-semibold select-none">
+            {{ fyo.schemaMap[sn]?.label ?? sn
+            }}<span class="font-normal">{{
+              ` – ${entries[sn].details.length}`
+            }}</span>
+          </h2>
+          <feather-icon
+            :name="entries[sn].collapsed ? 'chevron-up' : 'chevron-down'"
+            class="w-4 h-4 text-gray-600"
+          />
+        </div>
+
+        <!-- Entry list -->
+        <div
+          v-show="!entries[sn].collapsed"
+          class="entry-container rounded-md border overflow-hidden"
+        >
+          <!-- Entry -->
+          <div
+            v-for="e of entries[sn].details"
+            :key="String(e.name) + sn"
+            class="
+              entry
+              p-2
+              text-sm
+              cursor-pointer
+              hover:bg-gray-50
+              grid grid-cols-2
+              gap-1
+            "
+            @click="routeTo(sn, String(e.name))"
+          >
+            <!-- Name -->
+            <p class="font-semibold">
+              {{ e.name }}
+            </p>
+
+            <!-- Date -->
+            <p v-if="e.date" class="text-xs text-gray-600">
+              {{ fyo.format(e.date, 'Date') }}
+            </p>
+
+            <!-- Credit or Debit (GLE) -->
+            <p
+              v-if="isPesa(e.credit) && e.credit.isPositive()"
+              class="pill"
+              :class="colorClass('gray')"
+            >
+              {{ t`Cr. ${fyo.format(e.credit, 'Currency')}` }}
+            </p>
+            <p
+              v-else-if="isPesa(e.debit) && e.debit.isPositive()"
+              class="pill"
+              :class="colorClass('gray')"
+            >
+              {{ t`Dr. ${fyo.format(e.debit, 'Currency')}` }}
+            </p>
+
+            <!-- Party or EntryType or Account -->
+            <p
+              v-if="e.party || e.entryType || e.account"
+              class="pill"
+              :class="colorClass('gray')"
+            >
+              {{ e.party || e.entryType || e.account }}
+            </p>
+
+            <p v-if="e.item" class="pill" :class="colorClass('gray')">
+              {{ e.item }}
+            </p>
+            <p v-if="e.location" class="pill" :class="colorClass('gray')">
+              {{ e.location }}
+            </p>
+
+            <!-- Amounts -->
+            <p
+              v-if="
+                isPesa(e.outstandingAmount) && e.outstandingAmount.isPositive()
+              "
+              class="pill no-scrollbar"
+              :class="colorClass('orange')"
+            >
+              {{ t`Unpaid ${fyo.format(e.outstandingAmount, 'Currency')}` }}
+            </p>
+            <p
+              v-else-if="isPesa(e.grandTotal) && e.grandTotal.isPositive()"
+              class="pill no-scrollbar"
+              :class="colorClass('green')"
+            >
+              {{ fyo.format(e.grandTotal, 'Currency') }}
+            </p>
+            <p
+              v-else-if="isPesa(e.amount) && e.amount.isPositive()"
+              class="pill no-scrollbar"
+              :class="colorClass('green')"
+            >
+              {{ fyo.format(e.amount, 'Currency') }}
+            </p>
+
+            <!-- Quantities -->
+            <p
+              v-if="e.stockNotTransferred"
+              class="pill no-scrollbar"
+              :class="colorClass('orange')"
+            >
+              {{
+                t`Pending qty. ${fyo.format(e.stockNotTransferred, 'Float')}`
+              }}
+            </p>
+            <p
+              v-else-if="typeof e.quantity === 'number' && e.quantity"
+              class="pill no-scrollbar"
+              :class="colorClass('gray')"
+            >
+              {{ t`Qty. ${fyo.format(e.quantity, 'Float')}` }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import { Doc } from 'fyo/model/doc';
+import { isPesa } from 'fyo/utils';
+import { MovementType } from 'models/inventory/types';
+import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
-import { defineComponent } from 'vue';
-import { PropType } from 'vue';
+import { getBgColorClass, getBgTextColorClass } from 'src/utils/colors';
+import { getLinkedEntries } from 'src/utils/doc';
+import { getFormRoute, routeTo } from 'src/utils/ui';
+import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
   emits: ['close'],
   props: { doc: { type: Object as PropType<Doc>, required: true } },
-  mounted() {},
+  data() {
+    return { entries: {} } as {
+      entries: Record<
+        string,
+        { collapsed: boolean; details: Record<string, unknown>[] }
+      >;
+    };
+  },
+  async mounted() {
+    await this.setLinkedEntries();
+  },
+  computed: {
+    sequence(): string[] {
+      const seq: string[] = linkSequence.filter(
+        (s) => !!this.entries[s]?.details?.length
+      );
+
+      for (const s in this.entries) {
+        if (seq.includes(s)) {
+          continue;
+        }
+        seq.push(s);
+      }
+
+      return seq;
+    },
+  },
+  methods: {
+    isPesa,
+    colorClass: getBgTextColorClass,
+    async routeTo(schemaName: string, name: string) {
+      const route = getFormRoute(schemaName, name);
+      await routeTo(route);
+    },
+    async setLinkedEntries() {
+      const linkedEntries = await getLinkedEntries(this.doc);
+      for (const key in linkedEntries) {
+        const collapsed = false;
+        const entryNames = linkedEntries[key];
+        if (!entryNames.length) {
+          continue;
+        }
+
+        const fields = linkEntryDisplayFields[key] ?? ['name'];
+        const details = await this.fyo.db.getAll(key, {
+          fields,
+          filters: { name: ['in', entryNames] },
+        });
+
+        this.entries[key] = {
+          collapsed,
+          details,
+        };
+      }
+    },
+  },
   components: { Button },
 });
+
+const linkSequence = [
+  // Invoices
+  ModelNameEnum.SalesInvoice,
+  ModelNameEnum.PurchaseInvoice,
+  // Stock Transfers
+  ModelNameEnum.Shipment,
+  ModelNameEnum.PurchaseReceipt,
+  // Other Transactional
+  ModelNameEnum.Payment,
+  ModelNameEnum.JournalEntry,
+  ModelNameEnum.StockMovement,
+  // Non Transfers
+  ModelNameEnum.Party,
+  ModelNameEnum.Item,
+  ModelNameEnum.Account,
+  ModelNameEnum.Location,
+  // Ledgers
+  ModelNameEnum.AccountingLedgerEntry,
+  ModelNameEnum.StockLedgerEntry,
+];
+
+const linkEntryDisplayFields: Record<string, string[]> = {
+  // Invoices
+  [ModelNameEnum.SalesInvoice]: [
+    'name',
+    'date',
+    'party',
+    'grandTotal',
+    'outstandingAmount',
+    'stockNotTransferred',
+  ],
+  [ModelNameEnum.PurchaseInvoice]: [
+    'name',
+    'date',
+    'party',
+    'grandTotal',
+    'outstandingAmount',
+    'stockNotTransferred',
+  ],
+  // Stock Transfers
+  [ModelNameEnum.Shipment]: ['name', 'date', 'party', 'grandTotal'],
+  [ModelNameEnum.PurchaseReceipt]: ['name', 'date', 'party', 'grandTotal'],
+  // Other Transactional
+  [ModelNameEnum.Payment]: ['name', 'date', 'party', 'amount'],
+  [ModelNameEnum.JournalEntry]: ['name', 'date', 'entryType'],
+  [ModelNameEnum.StockMovement]: ['name', 'date', 'amount'],
+  // Ledgers
+  [ModelNameEnum.AccountingLedgerEntry]: [
+    'name',
+    'date',
+    'account',
+    'credit',
+    'debit',
+  ],
+  [ModelNameEnum.StockLedgerEntry]: [
+    'name',
+    'date',
+    'item',
+    'location',
+    'quantity',
+  ],
+};
 </script>
+<style scoped>
+.entry-container > div {
+  @apply border-b;
+}
+.entry-container > div:last-child {
+  @apply border-0;
+}
+.entry > *:nth-child(even) {
+  @apply ms-auto;
+}
+
+.pill {
+  @apply py-0.5 px-1.5 rounded-md  text-xs;
+  width: fit-content;
+}
+</style>
