@@ -32,6 +32,7 @@
           :value="doc[field.fieldname]"
           @editrow="(doc: Doc) => $emit('editrow', doc)"
           @change="(value: DocValue) => $emit('value-change', field, value)"
+          @row-change="(field:Field, value:DocValue, parentfield:Field) => $emit('row-change',field, value, parentfield)"
         />
         <div v-if="errors?.[field.fieldname]" class="text-sm text-red-600 mt-1">
           {{ errors[field.fieldname] }}
@@ -49,7 +50,7 @@ import { focusOrSelectFormControl } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
-  emits: ['editrow', 'value-change'],
+  emits: ['editrow', 'value-change', 'row-change'],
   props: {
     title: String,
     errors: Object as PropType<Record<string, string>>,
