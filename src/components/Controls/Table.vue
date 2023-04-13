@@ -39,8 +39,9 @@
           :key="row.name"
           v-bind="{ row, tableFields, size, ratio, isNumeric }"
           :read-only="isReadOnly"
-          @remove="removeRow(row)"
           :can-edit-row="canEditRow"
+          @remove="removeRow(row)"
+          @change="(field, value) => $emit('row-change', field, value, this.df)"
         />
       </div>
 
@@ -95,7 +96,7 @@ import TableRow from './TableRow.vue';
 
 export default {
   name: 'Table',
-  emits: ['editrow'],
+  emits: ['editrow', 'row-change'],
   extends: Base,
   props: {
     value: { type: Array, default: () => [] },

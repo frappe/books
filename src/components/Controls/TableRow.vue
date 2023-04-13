@@ -1,16 +1,8 @@
 <template>
   <Row
     :ratio="ratio"
-    class="
-      w-full
-      px-2
-      hover:bg-gray-25
-      group
-      flex
-      items-center
-      justify-center
-      h-row-mid
-    "
+    class="w-full px-2 group flex items-center justify-center h-row-mid"
+    :class="readOnly ? '' : 'hover:bg-gray-25'"
   >
     <!-- Index or Remove button -->
     <div class="flex items-center ps-2 text-gray-600">
@@ -78,7 +70,7 @@ export default {
       default: false,
     },
   },
-  emits: ['remove'],
+  emits: ['remove', 'change'],
   components: {
     Row,
     FormControl,
@@ -106,6 +98,7 @@ export default {
 
       try {
         await this.row.set(fieldname, value);
+        this.$emit('change', df, value);
       } catch (e) {
         this.errors[fieldname] = getErrorMessage(e, this.row);
         this.row[fieldname] = '';
