@@ -245,6 +245,13 @@ export default defineComponent({
 
       this.printButton?.$el.click();
     });
+    this.shortcuts?.pmod.set(this.context, ['KeyL'], () => {
+      if (!this.canShowLinks && !this.showLinks) {
+        return;
+      }
+
+      this.showLinks = !this.showLinks;
+    });
   },
   deactivated(): void {
     docsPathRef.value = '';
@@ -298,7 +305,7 @@ export default defineComponent({
       return !this.doc.isCancelled && !this.doc.dirty && this.isPrintable;
     },
     canShowLinks(): boolean {
-      if (!this.hasDoc || this.hasQeDoc || this.showLinks) {
+      if (!this.hasDoc || this.hasQeDoc) {
         return false;
       }
 

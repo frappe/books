@@ -113,14 +113,15 @@
         }
       ],
       "default": "Party",
-      "section": "Settings"
+      "hidden": true
     },
     {
       "fieldname": "currency",
       "label": "Customer Currency",
       "fieldtype": "Link",
       "target": "Currency",
-      "section": "Settings"
+      "readOnly": true,
+      "tab": "Settings"
     },
     {
       "fieldname": "exchangeRate",
@@ -128,7 +129,7 @@
       "fieldtype": "Float",
       "default": 1,
       "readOnly": true,
-      "section": "Settings"
+      "tab": "Settings"
     },
     {
       "fieldname": "discountAfterTax",
@@ -136,7 +137,7 @@
       "fieldtype": "Check",
       "default": false,
       "readOnly": false,
-      "section": "Settings"
+      "tab": "Settings"
     },
     {
       "fieldname": "outstandingAmount",
