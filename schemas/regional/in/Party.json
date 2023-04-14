@@ -2,11 +2,6 @@
   "name": "Party",
   "fields": [
     {
-      "fieldname": "gstin",
-      "label": "GSTIN No.",
-      "fieldtype": "Data"
-    },
-    {
       "fieldname": "gstType",
       "label": "GST Registration",
       "placeholder": "GST Registration",
@@ -25,7 +20,14 @@
           "value": "Consumer",
           "label": "Consumer"
         }
-      ]
+      ],
+      "section": "Billing"
+    },
+    {
+      "fieldname": "gstin",
+      "label": "GSTIN No.",
+      "fieldtype": "Data",
+      "section": "Billing"
     }
   ],
   "quickEditFields": [
