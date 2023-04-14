@@ -28,7 +28,7 @@
 
       <!-- Data Rows -->
       <div
-        class="overflow-auto"
+        class="overflow-auto custom-scroll"
         :style="{ 'max-height': maxHeight }"
         v-if="value"
       >

@@ -178,9 +178,7 @@ export default {
     };
   },
   activated() {
-    this.shortcuts.set(this.context, ['Escape'], () => {
-      this.routeToPrevious();
-    });
+    this.setShortcuts();
   },
   async mounted() {
     if (this.defaults) {
@@ -193,6 +191,8 @@ export default {
     if (fyo.store.isDevelopment) {
       window.qef = this;
     }
+
+    this.setShortcuts();
   },
   computed: {
     isChild() {
@@ -244,6 +244,15 @@ export default {
     },
   },
   methods: {
+    setShortcuts() {
+      if (this.shortcuts.has(this.context, ['Escape'])) {
+        return;
+      }
+
+      this.shortcuts.set(this.context, ['Escape'], () => {
+        this.routeToPrevious();
+      });
+    },
     async fetchFieldsAndDoc() {
       if (!this.schema) {
         return;

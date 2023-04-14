@@ -162,15 +162,20 @@
 <script lang="ts">
 import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
-import { MovementType } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
-import { getBgColorClass, getBgTextColorClass } from 'src/utils/colors';
+import { getBgTextColorClass } from 'src/utils/colors';
 import { getLinkedEntries } from 'src/utils/doc';
+import { shortcutsKey } from 'src/utils/injectionKeys';
 import { getFormRoute, routeTo } from 'src/utils/ui';
-import { defineComponent, PropType } from 'vue';
+import { PropType, defineComponent, inject } from 'vue';
+
+const COMPONENT_NAME = 'LinkedEntries';
 
 export default defineComponent({
+  setup() {
+    return { shortcuts: inject(shortcutsKey) };
+  },
   emits: ['close'],
   props: { doc: { type: Object as PropType<Doc>, required: true } },
   data() {
@@ -183,6 +188,10 @@ export default defineComponent({
   },
   async mounted() {
     await this.setLinkedEntries();
+    this.shortcuts?.set(COMPONENT_NAME, ['Escape'], () => this.$emit('close'));
+  },
+  unmounted() {
+    this.shortcuts?.delete(COMPONENT_NAME);
   },
   computed: {
     sequence(): string[] {

@@ -5,7 +5,7 @@ import {
   onMounted,
   onUnmounted,
   reactive,
-  ref
+  ref,
 } from 'vue';
 import { getIsMac } from './misc';
 import { Shortcuts } from './shortcuts';
@@ -16,7 +16,7 @@ import {
   commonDocSync,
   commongDocDelete,
   showCannotCancelOrDeleteToast,
-  showCannotSaveOrSubmitToast
+  showCannotSaveOrSubmitToast,
 } from './ui';
 
 export function useKeys() {
