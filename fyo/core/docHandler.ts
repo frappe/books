@@ -74,7 +74,7 @@ export class DocHandler {
 
     doc = this.getNewDoc(schemaName, { name }, false);
     await doc.load();
-    this.#addToCache(doc);
+    this.#addToCache(doc, false);
 
     return doc;
   }
@@ -101,7 +101,7 @@ export class DocHandler {
     const doc = new Model!(schema, data, this.fyo, isRawValueMap);
     doc.name ??= this.getTemporaryName(schema);
     if (cacheDoc) {
-      this.#addToCache(doc);
+      this.#addToCache(doc, true);
     }
 
     return doc;
@@ -131,7 +131,7 @@ export class DocHandler {
    * Cache operations
    */
 
-  #addToCache(doc: Doc) {
+  #addToCache(doc: Doc, isNew: boolean) {
     if (!doc.name) {
       return;
     }
@@ -144,7 +144,9 @@ export class DocHandler {
       this.#setCacheUpdationListeners(schemaName);
     }
 
-    this.docs.get(schemaName)![name] = doc;
+    if (!isNew) {
+      this.docs.get(schemaName)![name] = doc;
+    }
 
     // singles available as first level objects too
     if (schemaName === doc.name) {
@@ -157,12 +159,12 @@ export class DocHandler {
     });
 
     doc.on('afterSync', () => {
-      if (doc.name === name) {
+      if (doc.name === name && this.#cacheHas(schemaName, name)) {
         return;
       }
 
       this.#removeFromCache(doc.schemaName, name);
-      this.#addToCache(doc);
+      this.#addToCache(doc, false);
     });
   }
 
@@ -180,7 +182,7 @@ export class DocHandler {
         }
 
         this.#removeFromCache(schemaName, names.oldName);
-        this.#addToCache(doc);
+        this.#addToCache(doc, false);
       }
     );
   }
@@ -193,5 +195,9 @@ export class DocHandler {
   #getFromCache(schemaName: string, name: string): Doc | undefined {
     const docMap = this.docs.get(schemaName);
     return docMap?.[name];
+  }
+
+  #cacheHas(schemaName: string, name: string): boolean {
+    return !!this.#getFromCache(schemaName, name);
   }
 }
