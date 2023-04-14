@@ -384,22 +384,7 @@ export function getFormRoute(
     return route;
   }
 
-  if (
-    [
-      ModelNameEnum.SalesInvoice,
-      ModelNameEnum.PurchaseInvoice,
-      ModelNameEnum.JournalEntry,
-      ModelNameEnum.Shipment,
-      ModelNameEnum.PurchaseReceipt,
-      ModelNameEnum.StockMovement,
-      ModelNameEnum.Payment,
-      ModelNameEnum.Item,
-    ].includes(schemaName as ModelNameEnum)
-  ) {
-    return `/edit/${schemaName}/${name}`;
-  }
-
-  return `/list/${schemaName}?edit=1&schemaName=${schemaName}&name=${name}`;
+  return `/edit/${schemaName}/${name}`;
 }
 
 export async function getDocFromNameIfExistsElseNew(

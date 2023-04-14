@@ -104,7 +104,6 @@ export class StockMovement extends Transfer {
     };
 
     return {
-      formRoute: (name) => `/edit/StockMovement/${name}`,
       columns: [
         'name',
         getDocStatusListColumn(),
