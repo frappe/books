@@ -96,12 +96,8 @@
       :fields="fields"
       :column-ratio="[1.1, 2]"
     />
-
-    <!-- QuickEdit Widgets -->
-    <component v-if="quickEditWidget" :is="quickEditWidget" />
   </div>
 </template>
-
 <script>
 import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
@@ -114,7 +110,6 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { shortcutsKey } from 'src/utils/injectionKeys';
-import { getQuickEditWidget } from 'src/utils/quickEditWidgets';
 import {
   commonDocSubmit,
   commonDocSync,
@@ -123,7 +118,7 @@ import {
   openQuickEdit,
 } from 'src/utils/ui';
 import { useDocShortcuts } from 'src/utils/vueUtils';
-import { ref, inject } from 'vue';
+import { inject, ref } from 'vue';
 
 export default {
   name: 'QuickEditForm',
@@ -136,8 +131,6 @@ export default {
     showName: { type: Boolean, default: true },
     showSave: { type: Boolean, default: true },
     sourceDoc: { type: Doc, default: null },
-    loadOnClose: { type: Boolean, default: true },
-    sourceFields: { type: Array, default: () => [] },
     hideFields: { type: Array, default: () => [] },
     showFields: { type: Array, default: () => [] },
   },
@@ -205,10 +198,6 @@ export default {
       return getDocStatus(this.doc);
     },
     fields() {
-      if (this.sourceFields?.length) {
-        return this.sourceFields;
-      }
-
       if (!this.schema) {
         return [];
       }
@@ -229,18 +218,6 @@ export default {
     },
     actions() {
       return getActionsForDoc(this.doc);
-    },
-    quickEditWidget() {
-      if (this.doc?.notInserted ?? true) {
-        return null;
-      }
-
-      const widget = getQuickEditWidget(this.schemaName);
-      if (widget === null) {
-        return null;
-      }
-
-      return widget(this.doc);
     },
   },
   methods: {
@@ -316,7 +293,7 @@ export default {
       }, 300);
     },
     routeToPrevious() {
-      if (this.loadOnClose && this.doc.dirty && !this.doc.notInserted) {
+      if (this.doc.dirty && !this.doc.notInserted) {
         this.doc.load();
       }
 
