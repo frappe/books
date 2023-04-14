@@ -4,7 +4,6 @@ import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
 import ImportWizard from 'src/pages/ImportWizard.vue';
-import InvoiceForm from 'src/pages/InvoiceForm.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
 import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
@@ -15,6 +14,8 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 function getCommonFormItems(): RouteRecordRaw[] {
   return [
+    ModelNameEnum.SalesInvoice,
+    ModelNameEnum.PurchaseInvoice,
     ModelNameEnum.Shipment,
     ModelNameEnum.PurchaseReceipt,
     ModelNameEnum.JournalEntry,
@@ -53,18 +54,6 @@ const routes: RouteRecordRaw[] = [
     component: GetStarted,
   },
   ...getCommonFormItems(),
-  {
-    path: '/edit/:schemaName/:name',
-    name: 'InvoiceForm',
-    components: {
-      default: InvoiceForm,
-      edit: QuickEditForm,
-    },
-    props: {
-      default: true,
-      edit: (route) => route.query,
-    },
-  },
   {
     path: '/list/:schemaName/:pageTitle?',
     name: 'ListView',
