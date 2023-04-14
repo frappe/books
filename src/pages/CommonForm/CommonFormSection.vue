@@ -21,11 +21,13 @@
         :key="field.fieldname"
         :class="[
           field.fieldtype === 'Table' ? 'col-span-2 text-base' : '',
+          field.fieldtype === 'AttachImage' ? 'row-span-2' : '',
           field.fieldtype === 'Check' ? 'mt-auto' : 'mb-auto',
         ]"
       >
         <FormControl
           :ref="field.fieldname === 'name' ? 'nameField' : 'fields'"
+          :size="field.fieldtype === 'AttachImage' ? 'form' : undefined"
           :show-label="true"
           :border="true"
           :df="field"
