@@ -104,74 +104,50 @@ function getCreateList(fyo: Fyo): SearchItem[] {
 
   const filteredCreateList = [
     {
-      label: t`Sales Payments`,
+      label: t`Sales Payment`,
       schemaName: ModelNameEnum.Payment,
       create: createFilters.SalesPayments,
     },
     {
-      label: t`Purchase Payments`,
+      label: t`Purchase Payment`,
       schemaName: ModelNameEnum.Payment,
       create: createFilters.PurchasePayments,
     },
     {
-      label: t`Customers`,
+      label: t`Customer`,
       schemaName: ModelNameEnum.Party,
       create: createFilters.Customers,
-      filter: routeFilters.Customers,
     },
     {
-      label: t`Suppliers`,
+      label: t`Supplier`,
       schemaName: ModelNameEnum.Party,
       create: createFilters.Suppliers,
-      filter: routeFilters.Suppliers,
     },
     {
       label: t`Party`,
       schemaName: ModelNameEnum.Party,
       create: createFilters.Party,
-      filter: routeFilters.Party,
     },
     {
-      label: t`Sales Items`,
+      label: t`Sales Item`,
       schemaName: ModelNameEnum.Item,
       create: createFilters.SalesItems,
     },
     {
-      label: t`Purchase Items`,
+      label: t`Purchase Item`,
       schemaName: ModelNameEnum.Item,
       create: createFilters.PurchaseItems,
     },
     {
-      label: t`Items`,
+      label: t`Item`,
       schemaName: ModelNameEnum.Item,
       create: createFilters.Items,
     },
-  ].map(({ label, filter, create, schemaName }) => {
-    let action: Function;
-    if (!filter) {
-      action = getCreateAction(fyo, schemaName, create);
-    } else {
-      const route = {
-        path: `/list/${schemaName}/${label}`,
-        query: { filters: JSON.stringify(filter) },
-      };
-
-      action = async () => {
-        await routeTo(route);
-        const doc = fyo.doc.getNewDoc(schemaName, create);
-        const { openQuickEdit } = await import('src/utils/ui');
-        await openQuickEdit({
-          schemaName,
-          name: doc.name as string,
-          listFilters: filter,
-        });
-      };
-    }
-
+  ].map(({ label, create, schemaName }) => {
     return {
       label,
       group: 'Create',
-      action,
+      action: getCreateAction(fyo, schemaName, create),
     } as SearchItem;
   });
 

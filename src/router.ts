@@ -12,38 +12,6 @@ import Settings from 'src/pages/Settings/Settings.vue';
 import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-function getCommonFormItems(): RouteRecordRaw[] {
-  return [
-    ModelNameEnum.SalesInvoice,
-    ModelNameEnum.PurchaseInvoice,
-    ModelNameEnum.Shipment,
-    ModelNameEnum.PurchaseReceipt,
-    ModelNameEnum.JournalEntry,
-    ModelNameEnum.Payment,
-    ModelNameEnum.StockMovement,
-    ModelNameEnum.Item,
-  ].map((schemaName) => {
-    return {
-      path: `/edit/${schemaName}/:name`,
-      name: `${schemaName}Form`,
-      components: {
-        default: CommonForm,
-        edit: QuickEditForm,
-      },
-      props: {
-        default: (route) => {
-          route.params.schemaName = schemaName;
-          return {
-            schemaName,
-            name: route.params.name,
-          };
-        },
-        edit: (route) => route.query,
-      },
-    };
-  });
-}
-
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -53,7 +21,23 @@ const routes: RouteRecordRaw[] = [
     path: '/get-started',
     component: GetStarted,
   },
-  ...getCommonFormItems(),
+  {
+    path: `/edit/:schemaName/:name`,
+    name: `CommonForm`,
+    components: {
+      default: CommonForm,
+      edit: QuickEditForm,
+    },
+    props: {
+      default: (route) => {
+        return {
+          schemaName: route.params.schemaName,
+          name: route.params.name,
+        };
+      },
+      edit: (route) => route.query,
+    },
+  },
   {
     path: '/list/:schemaName/:pageTitle?',
     name: 'ListView',
