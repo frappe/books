@@ -194,7 +194,6 @@ export abstract class Invoice extends Transactional {
         account: string;
         rate: number;
         amount: Money;
-        [key: string]: DocValue;
       }
     > = {};
 
@@ -223,11 +222,23 @@ export abstract class Invoice extends Transactional {
       }
     }
 
-    return Object.keys(taxes)
-      .map((account) => {
-        return taxes[account];
-      })
-      .filter((tax) => !tax.amount.isZero());
+    type Summary = typeof taxes[string] & { idx: number };
+    const taxArr: Summary[] = [];
+    let idx = 0;
+    for (const account in taxes) {
+      const tax = taxes[account];
+      if (tax.amount.isZero()) {
+        continue;
+      }
+
+      taxArr.push({
+        ...tax,
+        idx,
+      });
+      idx += 1;
+    }
+
+    return taxArr;
   }
 
   async getTax(tax: string) {
@@ -419,6 +430,19 @@ export abstract class Invoice extends Transactional {
     discountPercent: () =>
       true || !(this.enableDiscounting && !this.setDiscountAmount),
     discountAfterTax: () => !this.enableDiscounting,
+    taxes: () => !this.taxes?.length,
+    baseGrandTotal: () =>
+      this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
+    grandTotal: () => !this.taxes?.length,
+    entryCurrency: () => !this.isMultiCurrency,
+    currency: () => !this.isMultiCurrency,
+    exchangeRate: () => !this.isMultiCurrency,
+    stockNotTransferred: () => !this.stockNotTransferred,
+    outstandingAmount: () =>
+      !!this.outstandingAmount?.isZero() || !this.isSubmitted,
+    terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
+    attachment: () =>
+      !(this.attachment || !(this.isSubmitted || this.isCancelled)),
   };
 
   static defaults: DefaultMap = {

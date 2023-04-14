@@ -106,6 +106,10 @@ export default defineComponent({
             shortcut: [ShortcutKey.pmod, 'P'],
             description: t`Open Print View if Print is available.`,
           },
+          {
+            shortcut: [ShortcutKey.pmod, 'L'],
+            description: t`Toggle Linked Entries widget, not available in Quick Edit view.`,
+          },
         ],
       },
       {
