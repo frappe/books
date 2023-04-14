@@ -142,7 +142,13 @@ export class SetupWizard extends Doc {
         }
 
         const countryInfo = getCountryInfo();
-        return countryInfo[country]?.currency;
+        const code = countryInfo[country]?.code;
+        if (!code) {
+          return;
+        }
+        const coaList = getCOAList();
+        const coa = coaList.find(({ countryCode }) => countryCode === code);
+        return coa?.name ?? coaList[0].name;
       },
       dependsOn: ['country'],
     },

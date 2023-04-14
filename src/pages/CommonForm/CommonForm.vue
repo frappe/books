@@ -2,15 +2,43 @@
   <FormContainer>
     <template #header-left v-if="hasDoc">
       <StatusBadge :status="status" class="h-8" />
+      <Barcode
+        class="h-8"
+        v-if="canShowBarcode"
+        @item-selected="(name:string) => {
+          // @ts-ignore
+          doc?.addItem(name);
+        }"
+      />
+      <ExchangeRate
+        v-if="hasDoc && doc.isMultiCurrency"
+        :disabled="doc?.isSubmitted || doc?.isCancelled"
+        :from-currency="fromCurrency"
+        :to-currency="toCurrency"
+        :exchange-rate="exchangeRate"
+        @change="
+          async (exchangeRate: number) =>
+            await doc.set('exchangeRate', exchangeRate)
+        "
+      />
     </template>
     <template #header v-if="hasDoc">
+      <Button
+        v-if="canShowLinks"
+        :icon="true"
+        @click="showLinks = true"
+        :title="t`View linked entries`"
+      >
+        <feather-icon name="link" class="w-4 h-4"></feather-icon>
+      </Button>
       <Button
         v-if="canPrint"
         ref="printButton"
         :icon="true"
         @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
+        :title="t`Open Print View`"
       >
-        {{ t`Print` }}
+        <feather-icon name="printer" class="w-4 h-4"></feather-icon>
       </Button>
       <DropdownWithActions
         v-for="group of groupedActions"
@@ -53,6 +81,7 @@
           :doc="doc"
           :errors="errors"
           @value-change="onValueChange"
+          @row-change="updateGroupedFields"
         />
       </div>
 
@@ -105,6 +134,13 @@
           @close="() => toggleQuickEditDoc(null)"
         />
       </Transition>
+      <Transition name="quickedit">
+        <LinkedEntries
+          v-if="showLinks && !hasQeDoc"
+          :doc="doc"
+          @close="showLinks = false"
+        />
+      </Transition>
     </template>
   </FormContainer>
 </template>
@@ -140,6 +176,10 @@ import { inject } from 'vue';
 import { shortcutsKey } from 'src/utils/injectionKeys';
 import { ref } from 'vue';
 import { useDocShortcuts } from 'src/utils/vueUtils';
+import Barcode from 'src/components/Controls/Barcode.vue';
+import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
+import ExchangeRate from 'src/components/Controls/ExchangeRate.vue';
+import LinkedEntries from './LinkedEntries.vue';
 
 export default defineComponent({
   props: {
@@ -173,12 +213,14 @@ export default defineComponent({
       groupedFields: null,
       quickEditDoc: null,
       isPrintable: false,
+      showLinks: false,
     } as {
       errors: Record<string, string>;
       activeTab: string;
       groupedFields: null | UIGroupedFields;
       quickEditDoc: null | Doc;
       isPrintable: boolean;
+      showLinks: boolean;
     };
   },
   async mounted() {
@@ -203,17 +245,75 @@ export default defineComponent({
 
       this.printButton?.$el.click();
     });
+    this.shortcuts?.pmod.set(this.context, ['KeyL'], () => {
+      if (!this.canShowLinks && !this.showLinks) {
+        return;
+      }
+
+      this.showLinks = !this.showLinks;
+    });
   },
   deactivated(): void {
     docsPathRef.value = '';
+    this.showLinks = false;
   },
   computed: {
+    canShowBarcode(): boolean {
+      if (!this.fyo.singles.InventorySettings?.enableBarcodes) {
+        return false;
+      }
+
+      if (!this.hasDoc) {
+        return false;
+      }
+
+      if (this.doc.isSubmitted || this.doc.isCancelled) {
+        return false;
+      }
+
+      // @ts-ignore
+      return typeof this.doc?.addItem === 'function';
+    },
+    exchangeRate(): number {
+      if (!this.hasDoc || typeof this.doc.exchangeRate !== 'number') {
+        return 1;
+      }
+
+      return this.doc.exchangeRate;
+    },
+    fromCurrency(): string {
+      const currency = this.doc?.currency;
+      if (typeof currency !== 'string') {
+        return this.toCurrency;
+      }
+
+      return currency;
+    },
+    toCurrency(): string {
+      const currency = this.fyo.singles.SystemSettings?.currency;
+      if (typeof currency !== 'string') {
+        return DEFAULT_CURRENCY;
+      }
+
+      return currency;
+    },
     canPrint(): boolean {
       if (!this.hasDoc) {
         return false;
       }
 
       return !this.doc.isCancelled && !this.doc.dirty && this.isPrintable;
+    },
+    canShowLinks(): boolean {
+      if (!this.hasDoc || this.hasQeDoc) {
+        return false;
+      }
+
+      if (this.doc.schema.isSubmittable && !this.doc.isSubmitted) {
+        return false;
+      }
+
+      return this.doc.inserted;
     },
     hasDoc(): boolean {
       return this.docOrNull instanceof Doc;
@@ -321,6 +421,11 @@ export default defineComponent({
         await nextTick();
       }
 
+      if (doc && this.showLinks) {
+        this.showLinks = false;
+        await nextTick();
+      }
+
       this.quickEditDoc = doc;
     },
     async onValueChange(field: Field, value: DocValue) {
@@ -348,6 +453,9 @@ export default defineComponent({
     Button,
     DropdownWithActions,
     QuickEditForm,
+    Barcode,
+    ExchangeRate,
+    LinkedEntries,
   },
 });
 </script>

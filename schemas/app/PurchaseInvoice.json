@@ -6,21 +6,23 @@
   "showTitle": true,
   "fields": [
     {
-      "fieldname": "items",
-      "label": "Items",
-      "fieldtype": "Table",
-      "target": "PurchaseInvoiceItem",
-      "required": true,
-      "edit": true
-    },
-    {
       "fieldname": "numberSeries",
       "label": "Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
       "create": true,
       "required": true,
-      "default": "PINV-"
+      "default": "PINV-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "PurchaseInvoiceItem",
+      "required": true,
+      "edit": true,
+      "section": "Items"
     }
   ],
   "keywordFields": ["name", "party"]

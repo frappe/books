@@ -320,6 +320,9 @@ export default defineComponent({
   },
   deactivated(): void {
     docsPathRef.value = '';
+    if (this.editMode) {
+      this.disableEditMode();
+    }
   },
   methods: {
     setShortcuts() {

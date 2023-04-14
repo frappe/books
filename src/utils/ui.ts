@@ -327,7 +327,7 @@ export function getFieldsGroupedByTabAndSection(
 ): UIGroupedFields {
   const grouped: UIGroupedFields = new Map();
   for (const field of schema?.fields ?? []) {
-    const tab = field.tab ?? 'Default';
+    const tab = field.tab ?? 'Main';
     const section = field.section ?? 'Default';
     if (!grouped.has(tab)) {
       grouped.set(tab, new Map());
@@ -347,6 +347,26 @@ export function getFieldsGroupedByTabAndSection(
     }
 
     tabbed.get(section)!.push(field);
+  }
+
+  // Delete empty tabs and sections
+  for (const tkey of grouped.keys()) {
+    const section = grouped.get(tkey);
+    if (!section) {
+      grouped.delete(tkey);
+      continue;
+    }
+
+    for (const skey of section.keys()) {
+      const fields = section.get(skey);
+      if (!fields || !fields.length) {
+        section.delete(skey);
+      }
+    }
+
+    if (!section?.size) {
+      grouped.delete(tkey);
+    }
   }
 
   return grouped;

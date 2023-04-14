@@ -1,5 +1,5 @@
 import { getMoneyMaker, MoneyMaker } from 'pesa';
-import { Field } from 'schemas/types';
+import { Field, FieldType } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import { markRaw } from 'vue';
 import { AuthHandler } from './core/authHandler';
@@ -88,7 +88,7 @@ export class Fyo {
     return this.db.fieldMap;
   }
 
-  format(value: unknown, field: string | Field, doc?: Doc) {
+  format(value: unknown, field: FieldType | Field, doc?: Doc) {
     return format(value, field, doc ?? null, this);
   }
 
