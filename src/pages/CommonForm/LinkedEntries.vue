@@ -27,6 +27,7 @@
 
     <!-- Linked Entry List -->
     <div
+      v-if="sequence.length"
       class="w-full overflow-y-auto custom-scroll"
       style="height: calc(100vh - var(--h-row-largest) - 1px)"
     >
@@ -58,105 +59,104 @@
           <div
             v-for="e of entries[sn].details"
             :key="String(e.name) + sn"
-            class="
-              entry
-              p-2
-              text-sm
-              cursor-pointer
-              hover:bg-gray-50
-              grid grid-cols-2
-              gap-1
-            "
+            class="p-2 text-sm cursor-pointer hover:bg-gray-50"
             @click="routeTo(sn, String(e.name))"
           >
-            <!-- Name -->
-            <p class="font-semibold">
-              {{ e.name }}
-            </p>
+            <div class="flex justify-between">
+              <!-- Name -->
+              <p class="font-semibold">
+                {{ e.name }}
+              </p>
 
-            <!-- Date -->
-            <p v-if="e.date" class="text-xs text-gray-600">
-              {{ fyo.format(e.date, 'Date') }}
-            </p>
+              <!-- Date -->
+              <p v-if="e.date" class="text-xs text-gray-600">
+                {{ fyo.format(e.date, 'Date') }}
+              </p>
+            </div>
+            <div class="flex gap-2 mt-1 pill-container flex-wrap">
+              <!-- Credit or Debit (GLE) -->
+              <p
+                v-if="isPesa(e.credit) && e.credit.isPositive()"
+                class="pill"
+                :class="colorClass('gray')"
+              >
+                {{ t`Cr. ${fyo.format(e.credit, 'Currency')}` }}
+              </p>
+              <p
+                v-else-if="isPesa(e.debit) && e.debit.isPositive()"
+                class="pill"
+                :class="colorClass('gray')"
+              >
+                {{ t`Dr. ${fyo.format(e.debit, 'Currency')}` }}
+              </p>
 
-            <!-- Credit or Debit (GLE) -->
-            <p
-              v-if="isPesa(e.credit) && e.credit.isPositive()"
-              class="pill"
-              :class="colorClass('gray')"
-            >
-              {{ t`Cr. ${fyo.format(e.credit, 'Currency')}` }}
-            </p>
-            <p
-              v-else-if="isPesa(e.debit) && e.debit.isPositive()"
-              class="pill"
-              :class="colorClass('gray')"
-            >
-              {{ t`Dr. ${fyo.format(e.debit, 'Currency')}` }}
-            </p>
+              <!-- Party or EntryType or Account -->
+              <p
+                v-if="e.party || e.entryType || e.account"
+                class="pill"
+                :class="colorClass('gray')"
+              >
+                {{ e.party || e.entryType || e.account }}
+              </p>
 
-            <!-- Party or EntryType or Account -->
-            <p
-              v-if="e.party || e.entryType || e.account"
-              class="pill"
-              :class="colorClass('gray')"
-            >
-              {{ e.party || e.entryType || e.account }}
-            </p>
+              <p v-if="e.item" class="pill" :class="colorClass('gray')">
+                {{ e.item }}
+              </p>
+              <p v-if="e.location" class="pill" :class="colorClass('gray')">
+                {{ e.location }}
+              </p>
 
-            <p v-if="e.item" class="pill" :class="colorClass('gray')">
-              {{ e.item }}
-            </p>
-            <p v-if="e.location" class="pill" :class="colorClass('gray')">
-              {{ e.location }}
-            </p>
+              <!-- Amounts -->
+              <p
+                v-if="
+                  isPesa(e.outstandingAmount) &&
+                  e.outstandingAmount.isPositive()
+                "
+                class="pill no-scrollbar"
+                :class="colorClass('orange')"
+              >
+                {{ t`Unpaid ${fyo.format(e.outstandingAmount, 'Currency')}` }}
+              </p>
+              <p
+                v-else-if="isPesa(e.grandTotal) && e.grandTotal.isPositive()"
+                class="pill no-scrollbar"
+                :class="colorClass('green')"
+              >
+                {{ fyo.format(e.grandTotal, 'Currency') }}
+              </p>
+              <p
+                v-else-if="isPesa(e.amount) && e.amount.isPositive()"
+                class="pill no-scrollbar"
+                :class="colorClass('green')"
+              >
+                {{ fyo.format(e.amount, 'Currency') }}
+              </p>
 
-            <!-- Amounts -->
-            <p
-              v-if="
-                isPesa(e.outstandingAmount) && e.outstandingAmount.isPositive()
-              "
-              class="pill no-scrollbar"
-              :class="colorClass('orange')"
-            >
-              {{ t`Unpaid ${fyo.format(e.outstandingAmount, 'Currency')}` }}
-            </p>
-            <p
-              v-else-if="isPesa(e.grandTotal) && e.grandTotal.isPositive()"
-              class="pill no-scrollbar"
-              :class="colorClass('green')"
-            >
-              {{ fyo.format(e.grandTotal, 'Currency') }}
-            </p>
-            <p
-              v-else-if="isPesa(e.amount) && e.amount.isPositive()"
-              class="pill no-scrollbar"
-              :class="colorClass('green')"
-            >
-              {{ fyo.format(e.amount, 'Currency') }}
-            </p>
-
-            <!-- Quantities -->
-            <p
-              v-if="e.stockNotTransferred"
-              class="pill no-scrollbar"
-              :class="colorClass('orange')"
-            >
-              {{
-                t`Pending qty. ${fyo.format(e.stockNotTransferred, 'Float')}`
-              }}
-            </p>
-            <p
-              v-else-if="typeof e.quantity === 'number' && e.quantity"
-              class="pill no-scrollbar"
-              :class="colorClass('gray')"
-            >
-              {{ t`Qty. ${fyo.format(e.quantity, 'Float')}` }}
-            </p>
+              <!-- Quantities -->
+              <p
+                v-if="e.stockNotTransferred"
+                class="pill no-scrollbar"
+                :class="colorClass('orange')"
+              >
+                {{
+                  t`Pending qty. ${fyo.format(e.stockNotTransferred, 'Float')}`
+                }}
+              </p>
+              <p
+                v-else-if="typeof e.quantity === 'number' && e.quantity"
+                class="pill no-scrollbar"
+                :class="colorClass('gray')"
+              >
+                {{ t`Qty. ${fyo.format(e.quantity, 'Float')}` }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <p v-else class="p-4 text-sm text-gray-600">
+      {{ t`No linked entries found` }}
+    </p>
   </div>
 </template>
 <script lang="ts">
@@ -311,12 +311,13 @@ const linkEntryDisplayFields: Record<string, string[]> = {
 .entry-container > div:last-child {
   @apply border-0;
 }
-.entry > *:nth-child(even) {
-  @apply ms-auto;
-}
 
 .pill {
   @apply py-0.5 px-1.5 rounded-md  text-xs;
   width: fit-content;
+}
+
+.pill-container:empty {
+  display: none;
 }
 </style>
