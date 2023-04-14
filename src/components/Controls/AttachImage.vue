@@ -1,19 +1,13 @@
 <template>
   <div
-    class="
-      relative
-      bg-white
-      border
-      rounded-full
-      flex-center
-      overflow-hidden
-      group
-    "
+    class="relative bg-white border flex-center overflow-hidden group"
     :class="{
-      'w-20 h-20': size !== 'small',
-      'w-12 h-12': size === 'small',
+      'rounded': size === 'form',
+      'w-20 h-20 rounded-full': size !== 'small' && size !== 'form',
+      'w-12 h-12 rounded-full': size === 'small',
     }"
     :title="df?.label"
+    :style="imageSizeStyle"
   >
     <img :src="value" v-if="value" />
     <div :class="[!isReadOnly ? 'group-hover:opacity-90' : '']" v-else>
@@ -113,6 +107,12 @@ export default defineComponent({
     },
   },
   computed: {
+    imageSizeStyle() {
+      if (this.size === 'form') {
+        return { width: '135px', height: '135px' };
+      }
+      return {};
+    },
     shouldClear() {
       return !!this.value;
     },
