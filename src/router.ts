@@ -1,4 +1,3 @@
-import { ModelNameEnum } from 'models/types';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
@@ -29,12 +28,10 @@ const routes: RouteRecordRaw[] = [
       edit: QuickEditForm,
     },
     props: {
-      default: (route) => {
-        return {
-          schemaName: route.params.schemaName,
-          name: route.params.name,
-        };
-      },
+      default: (route) => ({
+        schemaName: route.params.schemaName,
+        name: route.params.name,
+      }),
       edit: (route) => route.query,
     },
   },
@@ -62,9 +59,7 @@ const routes: RouteRecordRaw[] = [
           pageTitle,
         };
       },
-      edit: (route) => {
-        return route.query;
-      },
+      edit: (route) => route.query,
     },
   },
   {
@@ -117,5 +112,4 @@ const routes: RouteRecordRaw[] = [
 ];
 
 const router = createRouter({ routes, history: createWebHistory() });
-
 export default router;
