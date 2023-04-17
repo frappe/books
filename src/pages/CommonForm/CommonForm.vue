@@ -70,7 +70,7 @@
       <div v-if="hasDoc" class="overflow-auto custom-scroll">
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
-          @editrow="(doc: Doc) => toggleQuickEditDoc(doc)"
+          @editrow="(doc: Doc) => showRowEditForm(doc)"
           :key="name + idx"
           ref="section"
           class="p-4"
@@ -121,24 +121,21 @@
     </template>
     <template #quickedit>
       <Transition name="quickedit">
-        <QuickEditForm
-          v-if="hasQeDoc"
-          :name="qeDoc.name"
-          :show-name="false"
-          :show-save="false"
-          :source-doc="qeDoc"
-          :schema-name="qeDoc.schemaName"
-          :white="true"
-          :route-back="false"
-          :load-on-close="false"
-          @close="() => toggleQuickEditDoc(null)"
+        <LinkedEntries
+          v-if="showLinks && canShowLinks"
+          :doc="doc"
+          @close="showLinks = false"
         />
       </Transition>
       <Transition name="quickedit">
-        <LinkedEntries
-          v-if="showLinks && !hasQeDoc"
+        <RowEditForm
+          v-if="row && !showLinks"
           :doc="doc"
-          @close="showLinks = false"
+          :fieldname="row.fieldname"
+          :index="row.index"
+          @previous="(i:number) => row!.index = i"
+          @next="(i:number) => row!.index = i"
+          @close="() => (row = null)"
         />
       </Transition>
     </template>
@@ -147,16 +144,20 @@
 <script lang="ts">
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
+import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { getDocStatus } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { Field, Schema } from 'schemas/types';
 import Button from 'src/components/Button.vue';
+import Barcode from 'src/components/Controls/Barcode.vue';
+import ExchangeRate from 'src/components/Controls/ExchangeRate.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import { getErrorMessage } from 'src/utils';
+import { shortcutsKey } from 'src/utils/injectionKeys';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { ActionGroup, DocRef, UIGroupedFields } from 'src/utils/types';
@@ -169,17 +170,11 @@ import {
   isPrintable,
   routeTo,
 } from 'src/utils/ui';
-import { computed, defineComponent, nextTick } from 'vue';
-import QuickEditForm from '../QuickEditForm.vue';
-import CommonFormSection from './CommonFormSection.vue';
-import { inject } from 'vue';
-import { shortcutsKey } from 'src/utils/injectionKeys';
-import { ref } from 'vue';
 import { useDocShortcuts } from 'src/utils/vueUtils';
-import Barcode from 'src/components/Controls/Barcode.vue';
-import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
-import ExchangeRate from 'src/components/Controls/ExchangeRate.vue';
+import { computed, defineComponent, inject, nextTick, ref } from 'vue';
+import CommonFormSection from './CommonFormSection.vue';
 import LinkedEntries from './LinkedEntries.vue';
+import RowEditForm from './RowEditForm.vue';
 
 export default defineComponent({
   props: {
@@ -211,16 +206,16 @@ export default defineComponent({
       errors: {},
       activeTab: this.t`Default`,
       groupedFields: null,
-      quickEditDoc: null,
       isPrintable: false,
       showLinks: false,
+      row: null,
     } as {
       errors: Record<string, string>;
       activeTab: string;
       groupedFields: null | UIGroupedFields;
-      quickEditDoc: null | Doc;
       isPrintable: boolean;
       showLinks: boolean;
+      row: null | { index: number; fieldname: string };
     };
   },
   async mounted() {
@@ -256,6 +251,7 @@ export default defineComponent({
   deactivated(): void {
     docsPathRef.value = '';
     this.showLinks = false;
+    this.row = null;
   },
   computed: {
     canShowBarcode(): boolean {
@@ -305,7 +301,7 @@ export default defineComponent({
       return !this.doc.isCancelled && !this.doc.dirty && this.isPrintable;
     },
     canShowLinks(): boolean {
-      if (!this.hasDoc || this.hasQeDoc) {
+      if (!this.hasDoc) {
         return false;
       }
 
@@ -318,9 +314,6 @@ export default defineComponent({
     hasDoc(): boolean {
       return this.docOrNull instanceof Doc;
     },
-    hasQeDoc(): boolean {
-      return this.quickEditDoc instanceof Doc;
-    },
     status(): string {
       if (!this.hasDoc) {
         return '';
@@ -330,15 +323,6 @@ export default defineComponent({
     },
     doc(): Doc {
       const doc = this.docOrNull as Doc | null;
-      if (!doc) {
-        throw new ValidationError(
-          this.t`Doc ${this.schema.label} ${this.name} not set`
-        );
-      }
-      return doc;
-    },
-    qeDoc(): Doc {
-      const doc = this.quickEditDoc as Doc | null;
       if (!doc) {
         throw new ValidationError(
           this.t`Doc ${this.schema.label} ${this.name} not set`
@@ -415,18 +399,18 @@ export default defineComponent({
         this.name
       );
     },
-    async toggleQuickEditDoc(doc: Doc | null) {
-      if (this.quickEditDoc && doc) {
-        this.quickEditDoc = null;
-        await nextTick();
-      }
-
-      if (doc && this.showLinks) {
+    async showRowEditForm(doc: Doc) {
+      if (this.showLinks) {
         this.showLinks = false;
         await nextTick();
       }
 
-      this.quickEditDoc = doc;
+      const index = doc.idx;
+      const fieldname = doc.parentFieldname;
+
+      if (typeof index === 'number' && typeof fieldname === 'string') {
+        this.row = { index, fieldname };
+      }
     },
     async onValueChange(field: Field, value: DocValue) {
       const { fieldname } = field;
@@ -452,10 +436,10 @@ export default defineComponent({
     StatusBadge,
     Button,
     DropdownWithActions,
-    QuickEditForm,
     Barcode,
     ExchangeRate,
     LinkedEntries,
+    RowEditForm,
   },
 });
 </script>

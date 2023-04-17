@@ -6,15 +6,15 @@
           <AutoComplete
             v-if="templateList.length"
             :df="{
+              fieldtype: 'AutoComplete',
               fieldname: 'templateName',
               label: t`Template Name`,
-              target: 'PrintTemplate',
-              options: templateList,
+              options: templateList.map((n) => ({ label: n, value: n })),
             }"
             input-class="text-base py-0 h-8"
             class="w-56"
             :border="true"
-            :value="templateName"
+            :value="templateName ?? ''"
             @change="onTemplateNameChange"
           />
         </template>

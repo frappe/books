@@ -38,13 +38,10 @@ export type SettingsTab =
   | ModelNameEnum.SystemSettings;
 
 export interface QuickEditOptions {
-  doc?: Doc;
-  schemaName?: string;
-  name?: string;
+  doc: Doc;
   hideFields?: string[];
   showFields?: string[];
   defaults?: Record<string, unknown>;
-  listFilters?: QueryFilter;
 }
 
 export type SidebarConfig = SidebarRoot[];

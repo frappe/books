@@ -35,63 +35,26 @@ export const toastDurationMap = { short: 2_500, long: 5_000 } as const;
 
 export async function openQuickEdit({
   doc,
-  schemaName,
-  name,
   hideFields = [],
   showFields = [],
-  defaults = {},
-  listFilters = {},
 }: QuickEditOptions) {
-  if (doc) {
-    schemaName = doc.schemaName;
-    name = doc.name;
+  const { schemaName, name } = doc;
+  if (!name) {
+    throw new ValueError(t`Quick edit error: ${schemaName} entry has no name.`);
   }
 
-  if (!doc && (!schemaName || !name)) {
-    throw new ValueError(t`Schema Name or Name not passed to Open Quick Edit`);
-  }
-
-  const currentRoute = router.currentRoute.value;
-  const query = currentRoute.query;
-  let method: 'push' | 'replace' = 'push';
-
-  if (query.edit && query.schemaName === schemaName) {
-    method = 'replace';
-  }
-
-  if (query.name === name) {
+  if (router.currentRoute.value.query.name === name) {
     return;
   }
 
-  const forWhat = (defaults?.for ?? []) as string[];
-  if (forWhat[0] === 'not in') {
-    const purpose = forWhat[1]?.[0];
-
-    defaults = Object.assign({
-      for:
-        purpose === 'Sales'
-          ? 'Purchases'
-          : purpose === 'Purchases'
-          ? 'Sales'
-          : 'Both',
-    });
-  }
-
-  if (forWhat[0] === 'not in' && forWhat[1] === 'Sales') {
-    defaults = Object.assign({ for: 'Purchases' });
-  }
-
-  router[method]({
-    query: {
-      edit: 1,
-      schemaName,
-      name,
-      showFields,
-      hideFields,
-      defaults: stringifyCircular(defaults),
-      filters: JSON.stringify(listFilters),
-    },
-  });
+  const query = {
+    edit: 1,
+    name,
+    schemaName,
+    showFields,
+    hideFields,
+  };
+  router.push({ query });
 }
 
 export async function openSettings(tab: SettingsTab) {
@@ -384,22 +347,7 @@ export function getFormRoute(
     return route;
   }
 
-  if (
-    [
-      ModelNameEnum.SalesInvoice,
-      ModelNameEnum.PurchaseInvoice,
-      ModelNameEnum.JournalEntry,
-      ModelNameEnum.Shipment,
-      ModelNameEnum.PurchaseReceipt,
-      ModelNameEnum.StockMovement,
-      ModelNameEnum.Payment,
-      ModelNameEnum.Item,
-    ].includes(schemaName as ModelNameEnum)
-  ) {
-    return `/edit/${schemaName}/${name}`;
-  }
-
-  return `/list/${schemaName}?edit=1&schemaName=${schemaName}&name=${name}`;
+  return `/edit/${schemaName}/${name}`;
 }
 
 export async function getDocFromNameIfExistsElseNew(
