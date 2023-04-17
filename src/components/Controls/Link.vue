@@ -131,24 +131,17 @@ export default {
     },
     async openNewDoc() {
       const schemaName = this.df.target;
-      const linkDoc = fyo.doc.getNewDoc(schemaName);
-
+      const name = this.linkValue;
       const filters = await this.getCreateFilters();
-
       const { openQuickEdit } = await import('src/utils/ui');
 
-      openQuickEdit({
-        schemaName,
-        name: linkDoc.name,
-        defaults: Object.assign({}, filters, {
-          name: this.linkValue,
-        }),
-      });
+      const doc = fyo.doc.getNewDoc(schemaName, { name, ...filters });
+      openQuickEdit({ doc });
 
-      linkDoc.once('afterSync', () => {
+      doc.once('afterSync', () => {
         this.$router.back();
         this.results = [];
-        this.triggerChange(linkDoc.name);
+        this.triggerChange(doc.name);
       });
     },
     async getCreateFilters() {
