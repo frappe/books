@@ -120,20 +120,7 @@
       </div>
     </template>
     <template #quickedit>
-      <Transition name="quickedit">
-        <QuickEditForm
-          v-if="hasQeDoc"
-          :name="qeDoc.name"
-          :show-name="false"
-          :show-save="false"
-          :source-doc="qeDoc"
-          :schema-name="qeDoc.schemaName"
-          :white="true"
-          :route-back="false"
-          :load-on-close="false"
-          @close="() => toggleQuickEditDoc(null)"
-        />
-      </Transition>
+      <Transition name="quickedit"> </Transition>
       <Transition name="quickedit">
         <LinkedEntries
           v-if="showLinks && !hasQeDoc"
@@ -452,7 +439,6 @@ export default defineComponent({
     StatusBadge,
     Button,
     DropdownWithActions,
-    QuickEditForm,
     Barcode,
     ExchangeRate,
     LinkedEntries,
