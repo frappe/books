@@ -22,12 +22,10 @@ import { toggleSidebar } from 'src/utils/ui';
       <router-view name="edit" v-slot="{ Component, route }">
         <Transition name="quickedit">
           <div v-if="route?.query?.edit">
-            <keep-alive>
-              <component
-                :is="Component"
-                :key="route.query.schemaName + route.query.name"
-              />
-            </keep-alive>
+            <component
+              :is="Component"
+              :key="route.query.schemaName + route.query.name"
+            />
           </div>
         </Transition>
       </router-view>
