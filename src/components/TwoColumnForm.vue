@@ -1,5 +1,5 @@
 <template>
-  <div class="text-sm border-t">
+  <div class="text-sm">
     <template v-for="df in formFields">
       <!-- Table Field Form (Eg: PaymentFor) -->
       <Table
