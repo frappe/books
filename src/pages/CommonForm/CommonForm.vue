@@ -1,7 +1,6 @@
 <template>
   <FormContainer>
     <template #header-left v-if="hasDoc">
-      <StatusBadge :status="status" class="h-8" />
       <Barcode
         class="h-8"
         v-if="canShowBarcode"
@@ -11,7 +10,7 @@
         }"
       />
       <ExchangeRate
-        v-if="hasDoc && doc.isMultiCurrency"
+        v-if="canShowExchangeRate"
         :disabled="doc?.isSubmitted || doc?.isCancelled"
         :from-currency="fromCurrency"
         :to-currency="toCurrency"
@@ -21,6 +20,12 @@
             await doc.set('exchangeRate', exchangeRate)
         "
       />
+      <p
+        v-if="schema.label && !(canShowBarcode || canShowExchangeRate)"
+        class="text-xl font-semibold items-center text-gray-600"
+      >
+        {{ schema.label }}
+      </p>
     </template>
     <template #header v-if="hasDoc">
       <Button
@@ -59,11 +64,8 @@
       }}</Button>
     </template>
     <template #body>
-      <FormHeader
-        :form-title="title"
-        :form-sub-title="schema.label"
-        class="sticky top-0 bg-white border-b"
-      >
+      <FormHeader :form-title="title" class="sticky top-0 bg-white border-b">
+        <StatusPill v-if="hasDoc" :doc="doc" />
       </FormHeader>
 
       <!-- Section Container -->
@@ -155,7 +157,7 @@ import ExchangeRate from 'src/components/Controls/ExchangeRate.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
-import StatusBadge from 'src/components/StatusBadge.vue';
+import StatusPill from 'src/components/StatusPill.vue';
 import { getErrorMessage } from 'src/utils';
 import { shortcutsKey } from 'src/utils/injectionKeys';
 import { docsPathMap } from 'src/utils/misc';
@@ -269,6 +271,9 @@ export default defineComponent({
 
       // @ts-ignore
       return typeof this.doc?.addItem === 'function';
+    },
+    canShowExchangeRate(): boolean {
+      return this.hasDoc && !!this.doc.isMultiCurrency;
     },
     exchangeRate(): number {
       if (!this.hasDoc || typeof this.doc.exchangeRate !== 'number') {
@@ -433,13 +438,13 @@ export default defineComponent({
     FormContainer,
     FormHeader,
     CommonFormSection,
-    StatusBadge,
     Button,
     DropdownWithActions,
     Barcode,
     ExchangeRate,
     LinkedEntries,
     RowEditForm,
+    StatusPill,
   },
 });
 </script>
