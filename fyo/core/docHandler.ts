@@ -74,7 +74,7 @@ export class DocHandler {
 
     doc = this.getNewDoc(schemaName, { name }, false);
     await doc.load();
-    this.#addToCache(doc, false);
+    this.#addToCache(doc);
 
     return doc;
   }
@@ -101,7 +101,7 @@ export class DocHandler {
     const doc = new Model!(schema, data, this.fyo, isRawValueMap);
     doc.name ??= this.getTemporaryName(schema);
     if (cacheDoc) {
-      this.#addToCache(doc, true);
+      this.#addToCache(doc);
     }
 
     return doc;
@@ -131,7 +131,7 @@ export class DocHandler {
    * Cache operations
    */
 
-  #addToCache(doc: Doc, isNew: boolean) {
+  #addToCache(doc: Doc) {
     if (!doc.name) {
       return;
     }
@@ -144,9 +144,7 @@ export class DocHandler {
       this.#setCacheUpdationListeners(schemaName);
     }
 
-    if (!isNew) {
-      this.docs.get(schemaName)![name] = doc;
-    }
+    this.docs.get(schemaName)![name] = doc;
 
     // singles available as first level objects too
     if (schemaName === doc.name) {
@@ -163,14 +161,14 @@ export class DocHandler {
         return;
       }
 
-      this.#removeFromCache(doc.schemaName, name);
-      this.#addToCache(doc, false);
+      this.removeFromCache(doc.schemaName, name);
+      this.#addToCache(doc);
     });
   }
 
   #setCacheUpdationListeners(schemaName: string) {
     this.fyo.db.observer.on(`delete:${schemaName}`, (name: string) => {
-      this.#removeFromCache(schemaName, name);
+      this.removeFromCache(schemaName, name);
     });
 
     this.fyo.db.observer.on(
@@ -181,13 +179,13 @@ export class DocHandler {
           return;
         }
 
-        this.#removeFromCache(schemaName, names.oldName);
-        this.#addToCache(doc, false);
+        this.removeFromCache(schemaName, names.oldName);
+        this.#addToCache(doc);
       }
     );
   }
 
-  #removeFromCache(schemaName: string, name: string) {
+  removeFromCache(schemaName: string, name: string) {
     const docMap = this.docs.get(schemaName);
     delete docMap?.[name];
   }
