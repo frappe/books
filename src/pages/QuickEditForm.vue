@@ -16,19 +16,12 @@
       style="z-index: 1"
     >
       <!-- Close Button and Status Text -->
-      <div class="flex items-center">
-        <Button :icon="true" @click="routeToPrevious">
-          <feather-icon name="x" class="w-4 h-4" />
-        </Button>
-        <span v-if="statusText" class="ms-2 text-base text-gray-600">{{
-          statusText
-        }}</span>
-      </div>
+      <Button :icon="true" @click="routeToPrevious">
+        <feather-icon name="x" class="w-4 h-4" />
+      </Button>
 
       <!-- Actions, Badge and Status Change Buttons -->
       <div class="flex items-stretch gap-2">
-        <StatusBadge :status="status" />
-        <DropdownWithActions :actions="actions" />
         <Button
           :icon="true"
           @click="sync"
@@ -99,14 +92,9 @@
 import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
-import { DocStatus } from 'fyo/model/types';
-import { getDocStatus } from 'models/helpers';
-import { InvoiceStatus } from 'models/types';
 import { Field, Schema } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
-import DropdownWithActions from 'src/components/DropdownWithActions.vue';
-import StatusBadge from 'src/components/StatusBadge.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { shortcutsKey } from 'src/utils/injectionKeys';
@@ -115,7 +103,6 @@ import {
   commonDocSubmit,
   commonDocSync,
   focusOrSelectFormControl,
-  getActionsForDoc,
 } from 'src/utils/ui';
 import { useDocShortcuts } from 'src/utils/vueUtils';
 import { defineComponent, inject, ref } from 'vue';
@@ -131,9 +118,7 @@ export default defineComponent({
   components: {
     Button,
     FormControl,
-    StatusBadge,
     TwoColumnForm,
-    DropdownWithActions,
   },
   emits: ['close'],
   setup() {
@@ -161,19 +146,15 @@ export default defineComponent({
     return {
       titleField: null,
       imageField: null,
-      statusText: '',
     } as {
       titleField: null | Field;
       imageField: null | Field;
-      statusText: string;
     };
   },
   activated() {
-    console.log('act');
     this.setShortcuts();
   },
   async mounted() {
-    console.log('mou');
     await this.initialize();
 
     if (fyo.store.isDevelopment) {
@@ -200,13 +181,6 @@ export default defineComponent({
     schema(): Schema {
       return fyo.schemaMap[this.schemaName]!;
     },
-    status(): DocStatus | InvoiceStatus {
-      if (!this.doc) {
-        return 'Draft';
-      }
-
-      return getDocStatus(this.doc);
-    },
     fields() {
       if (!this.schema) {
         return [];
@@ -226,20 +200,9 @@ export default defineComponent({
 
       return fieldnames.map((f) => fyo.getField(this.schemaName, f));
     },
-    actions() {
-      if (!this.doc) {
-        return [];
-      }
-
-      return getActionsForDoc(this.doc);
-    },
   },
   methods: {
     setShortcuts() {
-      if (this.shortcuts?.has(this.context, ['Escape'])) {
-        return;
-      }
-
       this.shortcuts?.set(this.context, ['Escape'], () => {
         this.routeToPrevious();
       });
@@ -277,22 +240,14 @@ export default defineComponent({
         return;
       }
 
-      this.statusText = t`Saving`;
       await commonDocSync(this.doc);
-      setTimeout(() => {
-        this.statusText = '';
-      }, 300);
     },
     async submit() {
       if (!this.doc) {
         return;
       }
 
-      this.statusText = t`Submitting`;
       await commonDocSubmit(this.doc);
-      setTimeout(() => {
-        this.statusText = '';
-      }, 300);
     },
     async routeToPrevious() {
       if (this.doc?.dirty && this.doc?.inserted) {
