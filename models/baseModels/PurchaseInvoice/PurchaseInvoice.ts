@@ -37,7 +37,6 @@ export class PurchaseInvoice extends Invoice {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      formRoute: (name) => `/edit/PurchaseInvoice/${name}`,
       columns: [
         'name',
         getTransactionStatusColumn(),

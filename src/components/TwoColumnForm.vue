@@ -1,5 +1,5 @@
 <template>
-  <div class="text-sm border-t">
+  <div class="text-sm">
     <template v-for="df in formFields">
       <!-- Table Field Form (Eg: PaymentFor) -->
       <Table
@@ -8,7 +8,7 @@
         ref="controls"
         size="small"
         :df="df"
-        :value="doc[df.fieldname]"
+        :value="(doc[df.fieldname] ?? []) as unknown[]"
         @change="async (value) => await onChange(df, value)"
       />
 
@@ -52,21 +52,25 @@
     </template>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { Doc } from 'fyo/model/doc';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import { fyo } from 'src/initFyo';
 import { getErrorMessage } from 'src/utils';
 import { evaluateHidden } from 'src/utils/doc';
 import Table from './Controls/Table.vue';
+import { defineComponent } from 'vue';
+import { Field } from 'schemas/types';
+import { PropType } from 'vue';
+import { DocValue } from 'fyo/core/types';
 
-export default {
+export default defineComponent({
   name: 'TwoColumnForm',
   props: {
-    doc: Doc,
-    fields: { type: Array, default: () => [] },
+    doc: { type: Doc, required: true },
+    fields: { type: Array as PropType<Field[]>, default: () => [] },
     columnRatio: {
-      type: Array,
+      type: Array as PropType<number[]>,
       default: () => [1, 1],
     },
   },
@@ -79,7 +83,7 @@ export default {
     return {
       formFields: [],
       errors: {},
-    };
+    } as { formFields: Field[]; errors: Record<string, string> };
   },
   components: {
     FormControl,
@@ -88,22 +92,23 @@ export default {
   mounted() {
     this.setFormFields();
     if (fyo.store.isDevelopment) {
+      // @ts-ignore
       window.tcf = this;
     }
   },
   methods: {
-    getFieldHeight(df) {
-      if (['AttachImage', 'Text'].includes(df.fieldtype)) {
+    getFieldHeight(field: Field) {
+      if (['AttachImage', 'Text'].includes(field.fieldtype)) {
         return 'calc((var(--h-row-mid) + 1px) * 2)';
       }
 
-      if (this.errors[df.fieldname]) {
+      if (this.errors[field.fieldname]) {
         return 'calc((var(--h-row-mid) + 1px) * 2)';
       }
 
       return 'calc(var(--h-row-mid) + 1px)';
     },
-    async onChange(field, value) {
+    async onChange(field: Field, value: DocValue) {
       const { fieldname } = field;
       delete this.errors[fieldname];
 
@@ -148,5 +153,5 @@ export default {
       };
     },
   },
-};
+});
 </script>

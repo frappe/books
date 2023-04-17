@@ -8,7 +8,6 @@ export class Shipment extends StockTransfer {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      formRoute: (name) => `/edit/Shipment/${name}`,
       columns: [
         'name',
         getTransactionStatusColumn(),

@@ -42,7 +42,6 @@
   </div>
 </template>
 <script lang="ts">
-import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import ExportWizard from 'src/components/ExportWizard.vue';
@@ -50,17 +49,15 @@ import FilterDropdown from 'src/components/FilterDropdown.vue';
 import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
-import { getRouteData } from 'src/utils/filters';
 import { shortcutsKey } from 'src/utils/injectionKeys';
 import {
   docsPathMap,
   getCreateFiltersFromListViewFilters,
 } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
-import { openQuickEdit, routeTo } from 'src/utils/ui';
+import { getFormRoute, routeTo } from 'src/utils/ui';
 import { QueryFilter } from 'utils/db/types';
 import { defineComponent, inject, ref } from 'vue';
-import { RouteLocationRaw } from 'vue-router';
 import List from './List.vue';
 
 export default defineComponent({
@@ -135,18 +132,8 @@ export default defineComponent({
       this.listFilters = listFilters;
     },
     async openDoc(name: string) {
-      const doc = await this.fyo.doc.getDoc(this.schemaName, name);
-
-      if (this.listConfig?.formRoute) {
-        return await routeTo(this.listConfig.formRoute(name));
-      }
-
-      const { routeFilter } = getRouteData({ doc });
-
-      openQuickEdit({
-        doc,
-        listFilters: routeFilter,
-      });
+      const route = getFormRoute(this.schemaName, name);
+      await routeTo(route);
     },
     async makeNewDoc() {
       if (!this.canCreate) {
@@ -155,42 +142,16 @@ export default defineComponent({
 
       const filters = getCreateFiltersFromListViewFilters(this.filters ?? {});
       const doc = fyo.doc.getNewDoc(this.schemaName, filters);
-      const path = this.getFormPath(doc);
+      const route = getFormRoute(this.schemaName, doc.name!);
+      await routeTo(route);
 
-      await routeTo(path);
       doc.on('afterSync', () => {
-        const path = this.getFormPath(doc);
-        this.$router.replace(path);
+        const route = getFormRoute(this.schemaName, doc.name!);
+        this.$router.replace(route);
       });
     },
     applyFilter(filters: QueryFilter) {
       this.list?.updateData(filters);
-    },
-    getFormPath(doc: Doc) {
-      const { label, routeFilter } = getRouteData({ doc });
-      const currentPath = this.$router.currentRoute.value.path;
-
-      // Maintain filters
-      let path = `/list/${this.schemaName}/${label}`;
-      if (currentPath.startsWith(path)) {
-        path = currentPath;
-      }
-
-      let route: RouteLocationRaw = {
-        path,
-        query: {
-          edit: 1,
-          schemaName: this.schemaName,
-          name: doc.name,
-          filters: JSON.stringify(routeFilter),
-        },
-      };
-
-      if (this.listConfig?.formRoute) {
-        route = this.listConfig.formRoute(doc.name!);
-      }
-
-      return route;
     },
   },
   computed: {

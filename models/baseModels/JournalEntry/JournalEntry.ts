@@ -65,7 +65,6 @@ export class JournalEntry extends Transactional {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      formRoute: (name) => `/edit/JournalEntry/${name}`,
       columns: [
         'name',
         {
