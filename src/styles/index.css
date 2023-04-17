@@ -200,3 +200,9 @@ input[type='number']::-webkit-inner-spin-button {
 [dir='rtl'] .custom-scroll::-webkit-scrollbar-track:vertical {
   border-right: solid 1px theme('colors.gray.200');
 }
+
+.pill {
+  @apply py-0.5 px-1.5 rounded-md  text-xs;
+  width: fit-content;
+  height: fit-content;
+}
