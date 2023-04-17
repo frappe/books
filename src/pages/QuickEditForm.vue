@@ -15,37 +15,35 @@
       "
       style="z-index: 1"
     >
-      <!-- Close Button and Status Text -->
+      <!-- Close Button  -->
       <Button :icon="true" @click="routeToPrevious">
         <feather-icon name="x" class="w-4 h-4" />
       </Button>
 
-      <!-- Actions, Badge and Status Change Buttons -->
-      <div class="flex items-stretch gap-2">
-        <Button
-          :icon="true"
-          @click="sync"
-          type="primary"
-          v-if="doc?.canSave"
-          class="text-white text-xs"
-        >
-          {{ t`Save` }}
-        </Button>
-        <Button
-          :icon="true"
-          @click="submit"
-          type="primary"
-          v-else-if="doc?.canSubmit"
-          class="text-white text-xs"
-        >
-          {{ t`Submit` }}
-        </Button>
-      </div>
+      <!-- Save & Submit Buttons -->
+      <Button
+        :icon="true"
+        @click="sync"
+        type="primary"
+        v-if="doc?.canSave"
+        class="text-white text-xs"
+      >
+        {{ t`Save` }}
+      </Button>
+      <Button
+        :icon="true"
+        @click="submit"
+        type="primary"
+        v-else-if="doc?.canSubmit"
+        class="text-white text-xs"
+      >
+        {{ t`Submit` }}
+      </Button>
     </div>
 
     <!-- Name and image -->
     <div
-      class="items-center"
+      class="items-center border-b"
       :class="imageField ? 'grid' : 'flex justify-center'"
       :style="{
         height: `calc(var(--h-row-mid) * ${!!imageField ? '2 + 1px' : '1'})`,
