@@ -54,14 +54,22 @@
             stroke-linejoin="round"
           />
         </svg>
+
         <button
           v-if="canLink"
           class="p-0.5 rounded -me1 bg-transparent"
+          @mouseenter="showQuickView = true"
+          @mouseleave="showQuickView = false"
           @click="routeToLinkedDoc"
         >
-          <FeatherIcon name="chevron-right" class="w-4 h-4 text-gray-600" />
+          <feather-icon name="chevron-right" class="w-4 h-4 text-gray-600" />
         </button>
       </div>
+      <Popover v-if="canLink" :show-popup="showQuickView" placement="bottom">
+        <template #content>
+          <QuickView :schema-name="linkSchemaName" :name="value" />
+        </template>
+      </Popover>
     </template>
   </Dropdown>
 </template>
@@ -71,7 +79,9 @@ import { FieldTypeEnum } from 'schemas/types';
 import Dropdown from 'src/components/Dropdown.vue';
 import { fuzzyMatch } from 'src/utils';
 import { getFormRoute, routeTo } from 'src/utils/ui';
+import Popover from '../Popover.vue';
 import Base from './Base.vue';
+import QuickView from '../QuickView.vue';
 
 export default {
   name: 'AutoComplete',
@@ -79,9 +89,12 @@ export default {
   extends: Base,
   components: {
     Dropdown,
+    Popover,
+    QuickView,
   },
   data() {
     return {
+      showQuickView: false,
       linkValue: '',
       isLoading: false,
       suggestions: [],
@@ -100,7 +113,23 @@ export default {
     const value = this.linkValue || this.value;
     this.setLinkValue(this.getLinkValue(value));
   },
+  unmounted() {
+    this.showQuickView = false;
+  },
+  deactivated() {
+    this.showQuickView = false;
+  },
   computed: {
+    linkSchemaName() {
+      let schemaName = this.df?.target;
+
+      if (!schemaName) {
+        const references = this.df?.references ?? '';
+        schemaName = this.doc?.[references];
+      }
+
+      return schemaName;
+    },
     options() {
       if (!this.df) {
         return [];
@@ -139,19 +168,12 @@ export default {
   },
   methods: {
     async routeToLinkedDoc() {
-      let schemaName = this.df?.target;
       const name = this.value;
-
-      if (!schemaName) {
-        const references = this.df?.references ?? '';
-        schemaName = this.doc?.[references];
-      }
-
-      if (!schemaName || !name) {
+      if (!this.linkSchemaName || !name) {
         return;
       }
 
-      const route = getFormRoute(schemaName, name);
+      const route = getFormRoute(this.linkSchemaName, name);
       await routeTo(route);
     },
     setLinkValue(value) {
