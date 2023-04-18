@@ -312,11 +312,6 @@ const linkEntryDisplayFields: Record<string, string[]> = {
   @apply border-0;
 }
 
-.pill {
-  @apply py-0.5 px-1.5 rounded-md  text-xs;
-  width: fit-content;
-}
-
 .pill-container:empty {
   display: none;
 }

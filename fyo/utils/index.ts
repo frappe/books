@@ -41,6 +41,26 @@ export function isPesa(value: unknown): value is Money {
   return value instanceof Money;
 }
 
+export function isFalsy(value: unknown): boolean {
+  if (!value) {
+    return true;
+  }
+
+  if (isPesa(value) && value.isZero()) {
+    return true;
+  }
+
+  if (Array.isArray(value) && value.length === 0) {
+    return true;
+  }
+
+  if (typeof value === 'object' && Object.keys(value).length === 0) {
+    return true;
+  }
+
+  return false;
+}
+
 export function getActions(doc: Doc): Action[] {
   const Model = doc.fyo.models[doc.schemaName];
   if (Model === undefined) {
