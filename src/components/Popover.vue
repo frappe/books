@@ -15,7 +15,7 @@
           bg-white
           rounded-md
           border
-          shadow-xl
+          shadow-lg
           popover-container
           relative
           z-10
