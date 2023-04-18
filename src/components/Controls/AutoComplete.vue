@@ -62,14 +62,23 @@
           @mouseleave="showQuickView = false"
           @click="routeToLinkedDoc"
         >
-          <feather-icon name="chevron-right" class="w-4 h-4 text-gray-600" />
+          <Popover
+            :show-popup="showQuickView"
+            :entry-delay="300"
+            placement="bottom"
+          >
+            <template #target>
+              <feather-icon
+                name="chevron-right"
+                class="w-4 h-4 text-gray-600"
+              />
+            </template>
+            <template #content>
+              <QuickView :schema-name="linkSchemaName" :name="value" />
+            </template>
+          </Popover>
         </button>
       </div>
-      <Popover v-if="canLink" :show-popup="showQuickView" placement="bottom">
-        <template #content>
-          <QuickView :schema-name="linkSchemaName" :name="value" />
-        </template>
-      </Popover>
     </template>
   </Dropdown>
 </template>

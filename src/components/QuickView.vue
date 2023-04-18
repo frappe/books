@@ -4,8 +4,13 @@
       class="p-2 flex justify-between"
       :class="values.length ? 'border-b' : ''"
     >
-      <p class="font-semibold text-base text-gray-900">{{ name }}</p>
-      <p class="font-semibold text-sm text-gray-600">
+      <p
+        class="font-semibold text-base text-gray-900"
+        v-if="schema?.naming !== 'random' && !schema?.isChild"
+      >
+        {{ name }}
+      </p>
+      <p class="font-semibold text-base text-gray-600">
         {{ schema?.label ?? '' }}
       </p>
     </div>
