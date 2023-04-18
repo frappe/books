@@ -17,7 +17,6 @@ import { fyo } from 'src/initFyo';
 import router from 'src/router';
 import { SelectFileOptions } from 'utils/types';
 import { RouteLocationRaw } from 'vue-router';
-import { stringifyCircular } from './';
 import { evaluateHidden } from './doc';
 import { showDialog, showToast } from './interactive';
 import { selectFile } from './ipcCalls';
