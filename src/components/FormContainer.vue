@@ -27,6 +27,7 @@
           overflow-auto
           mb-4
           bg-white
+          mx-4
         "
       >
         <slot name="body" />
