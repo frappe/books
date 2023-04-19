@@ -758,6 +758,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
   }
 
+  async runFormulas() {
+    await this._applyFormula();
+  }
+
   async _applyFormula(
     changedFieldname?: string,
     retriggerChildDocApplyChange?: boolean
