@@ -128,7 +128,7 @@ function getRawOptionList(field: Field, doc: Doc | undefined | null) {
     return [];
   }
 
-  return getList(doc!);
+  return getList(doc);
 }
 
 export function getEmptyValuesByFieldTypes(

@@ -689,3 +689,11 @@ function getActionLabel(doc: Doc) {
 
   return doc.name || label;
 }
+
+export function getEventValue(e: Event) {
+  if (e.target instanceof HTMLInputElement) {
+    return e.target.value;
+  }
+
+  return null;
+}

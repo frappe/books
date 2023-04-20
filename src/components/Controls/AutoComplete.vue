@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :items="suggestions" :is-loading="isLoading" :df="df" :doc="doc">
+  <Dropdown ref="dropdown" :items="suggestions" :df="df" :doc="doc">
     <template
       v-slot="{
         toggleDropdown,
@@ -22,12 +22,12 @@
           :class="inputClasses"
           class="bg-transparent"
           type="text"
-          :value="linkValue"
+          :value="label"
           :placeholder="inputPlaceholder"
           :readonly="isReadOnly"
-          @focus="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
-          @click="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
-          @blur="(e) => !isReadOnly && onBlur(e.target.value)"
+          @focus="(e) => !isReadOnly && onFocus(e)"
+          @click="(e) => !isReadOnly && onFocus(e)"
+          @blur="(e) => !isReadOnly && onBlur(e)"
           @input="onInput"
           @keydown.up="highlightItemUp"
           @keydown.down="highlightItemDown"
@@ -37,7 +37,7 @@
           :tabindex="isReadOnly ? '-1' : '0'"
         />
         <svg
-          v-if="!isReadOnly && !canLink"
+          v-if="!isReadOnly"
           class="w-3 h-3"
           style="background: inherit; margin-right: -3px"
           viewBox="0 0 5 10"
@@ -54,142 +54,72 @@
             stroke-linejoin="round"
           />
         </svg>
-
-        <button
-          v-if="canLink"
-          class="p-0.5 rounded -me1 bg-transparent"
-          @mouseenter="showQuickView = true"
-          @mouseleave="showQuickView = false"
-          @click="routeToLinkedDoc"
-        >
-          <Popover
-            :show-popup="showQuickView"
-            :entry-delay="300"
-            placement="bottom"
-          >
-            <template #target>
-              <feather-icon
-                name="chevron-right"
-                class="w-4 h-4 text-gray-600"
-              />
-            </template>
-            <template #content>
-              <QuickView :schema-name="linkSchemaName" :name="value" />
-            </template>
-          </Popover>
-        </button>
       </div>
     </template>
   </Dropdown>
 </template>
-<script>
+<script lang="ts">
 import { getOptionList } from 'fyo/utils';
-import { FieldTypeEnum } from 'schemas/types';
+import { SelectOption } from 'schemas/types';
 import Dropdown from 'src/components/Dropdown.vue';
-import { fuzzyMatch } from 'src/utils';
-import { getFormRoute, routeTo } from 'src/utils/ui';
-import Popover from '../Popover.vue';
+import { fuzzyFilter } from 'src/utils';
+import { getEventValue } from 'src/utils/ui';
+import { defineComponent, ref } from 'vue';
 import Base from './Base.vue';
-import QuickView from '../QuickView.vue';
 
-export default {
+type Suggestion = SelectOption & {
+  action?: Function;
+};
+
+export default defineComponent({
   name: 'AutoComplete',
   emits: ['focus'],
   extends: Base,
   components: {
     Dropdown,
-    Popover,
-    QuickView,
+  },
+  setup() {
+    return { dropdown: ref<InstanceType<typeof Dropdown> | null>(null) };
   },
   data() {
     return {
-      showQuickView: false,
-      linkValue: '',
-      isLoading: false,
+      label: '',
       suggestions: [],
-      highlightedIndex: -1,
+    } as {
+      label: string | null;
+      suggestions: Suggestion[];
     };
   },
   watch: {
     value: {
       immediate: true,
       handler(newValue) {
-        this.setLinkValue(this.getLinkValue(newValue));
+        this.label = this.getLabel(newValue);
       },
     },
   },
   mounted() {
-    const value = this.linkValue || this.value;
-    this.setLinkValue(this.getLinkValue(value));
-  },
-  unmounted() {
-    this.showQuickView = false;
-  },
-  deactivated() {
-    this.showQuickView = false;
+    let label = null;
+    if (this.label) {
+      this.label = this.getLabel(this.label);
+    } else if (typeof this.value === 'string') {
+      this.label = this.getLabel(this.value);
+    }
+
+    this.label = label;
   },
   computed: {
-    linkSchemaName() {
-      let schemaName = this.df?.target;
-
-      if (!schemaName) {
-        const references = this.df?.references ?? '';
-        schemaName = this.doc?.[references];
-      }
-
-      return schemaName;
-    },
-    options() {
+    options(): SelectOption[] {
       if (!this.df) {
         return [];
       }
 
       return getOptionList(this.df, this.doc);
     },
-    canLink() {
-      if (!this.value || !this.df) {
-        return false;
-      }
-
-      const fieldtype = this.df?.fieldtype;
-      const isLink = fieldtype === FieldTypeEnum.Link;
-      const isDynamicLink = fieldtype === FieldTypeEnum.DynamicLink;
-
-      if (!isLink && !isDynamicLink) {
-        return false;
-      }
-
-      if (isLink && this.df.target) {
-        return true;
-      }
-
-      const references = this.df.references;
-      if (!references) {
-        return false;
-      }
-
-      if (!this.doc?.[references]) {
-        return false;
-      }
-
-      return true;
-    },
   },
   methods: {
-    async routeToLinkedDoc() {
-      const name = this.value;
-      if (!this.linkSchemaName || !name) {
-        return;
-      }
-
-      const route = getFormRoute(this.linkSchemaName, name);
-      await routeTo(route);
-    },
-    setLinkValue(value) {
-      this.linkValue = value;
-    },
-    getLinkValue(value) {
-      const oldValue = this.linkValue;
+    getLabel(value: string): string | null {
+      const oldValue = this.label;
       let option = this.options.find((o) => o.value === value);
       if (option === undefined) {
         option = this.options.find((o) => o.label === value);
@@ -201,88 +131,62 @@ export default {
 
       return option?.label ?? oldValue;
     },
-    async updateSuggestions(keyword) {
+    select(suggestion: Suggestion): void {
+      if (suggestion) {
+        this.label = suggestion.label;
+        this.triggerChange(suggestion.value);
+      }
+
+      this.dropdown?.toggleDropdown(false);
+    },
+    updateSuggestions(keyword?: string): void {
       if (typeof keyword === 'string') {
-        this.setLinkValue(keyword, true);
+        this.label = keyword;
       }
 
-      this.isLoading = true;
-      const suggestions = await this.getSuggestions(keyword);
-      this.suggestions = this.setSetSuggestionAction(suggestions);
-      this.isLoading = false;
+      this.suggestions = this.getSuggestions(keyword).map((s) => ({
+        ...s,
+        action: () => this.select(s),
+      }));
     },
-
-    setSetSuggestionAction(suggestions) {
-      for (const option of suggestions) {
-        if (option.action) {
-          continue;
-        }
-
-        option.action = () => {
-          this.setSuggestion(option);
-        };
-      }
-
-      return suggestions;
-    },
-    async getSuggestions(keyword = '') {
+    getSuggestions(keyword = ''): SelectOption[] {
       keyword = keyword.toLowerCase();
       if (!keyword) {
         return this.options;
       }
 
-      return this.options
-        .map((item) => ({ ...fuzzyMatch(keyword, item.label), item }))
-        .filter(({ isMatch }) => isMatch)
-        .sort((a, b) => a.distance - b.distance)
-        .map(({ item }) => item);
+      return fuzzyFilter(this.options, 'label', keyword);
     },
-    setSuggestion(suggestion) {
-      if (suggestion?.actionOnly) {
-        this.setLinkValue(this.value);
-        return;
-      }
-
-      if (suggestion) {
-        this.setLinkValue(suggestion.label);
-        this.triggerChange(suggestion.value);
-      }
-
-      this.toggleDropdown(false);
-    },
-    onFocus(e, toggleDropdown) {
-      this.toggleDropdown = toggleDropdown;
-      this.toggleDropdown(true);
-      this.updateSuggestions();
-      this.$emit('focus', e);
-    },
-    async onBlur(label) {
-      if (!label) {
-        this.triggerChange('');
-        return;
-      }
-
-      if (label && this.suggestions.length === 0) {
-        this.triggerChange(label);
-        return;
-      }
-
-      if (
-        label &&
-        !this.suggestions.map(({ label }) => label).includes(label)
-      ) {
-        const suggestions = await this.getSuggestions(label);
-        this.setSuggestion(suggestions[0]);
-      }
-    },
-    onInput(e) {
+    onInput(e: Event): void {
       if (this.isReadOnly) {
         return;
       }
 
-      this.toggleDropdown(true);
-      this.updateSuggestions(e.target.value);
+      const value = getEventValue(e);
+      this.dropdown?.toggleDropdown(true);
+      this.updateSuggestions(value ?? undefined);
+    },
+    onFocus(e: FocusEvent): void {
+      this.dropdown?.toggleDropdown(true);
+      this.updateSuggestions();
+      this.$emit('focus', e);
+    },
+    onBlur(e: FocusEvent): void {
+      const value = getEventValue(e);
+      if (!value) {
+        return this.triggerChange('');
+      }
+
+      if (this.suggestions.length === 0) {
+        return this.triggerChange(value);
+      }
+
+      const labels = this.suggestions.map(({ label }) => label);
+      if (!labels.includes(value)) {
+        const suggestions = this.getSuggestions(value);
+        this.select(suggestions[0]);
+      }
     },
   },
-};
+});
 </script>

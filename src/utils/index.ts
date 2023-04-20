@@ -44,6 +44,18 @@ export function stringifyCircular(
   });
 }
 
+export function fuzzyFilter<T extends Record<K, string>, K extends keyof T>(
+  items: T[],
+  prop: K,
+  filterString: string
+): T[] {
+  return items
+    .map((item) => ({ ...fuzzyMatch(filterString, item[prop]), item }))
+    .filter(({ isMatch }) => isMatch)
+    .sort((a, b) => a.distance - b.distance)
+    .map(({ item }) => item);
+}
+
 export function fuzzyMatch(input: string, target: string) {
   const keywordLetters = [...input];
   const candidateLetters = [...target];

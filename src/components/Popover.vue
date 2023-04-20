@@ -46,7 +46,6 @@ export default defineComponent({
   emits: ['open', 'close'],
   props: {
     showPopup: Boolean as PropType<boolean | null>,
-    right: Boolean,
     entryDelay: { type: Number, default: 0 },
     exitDelay: { type: Number, default: 0 },
     placement: {
@@ -139,6 +138,7 @@ export default defineComponent({
       if (this.isOpen) {
         return;
       }
+
       this.isOpen = true;
       nextTick(() => {
         this.setupPopper();
@@ -149,6 +149,7 @@ export default defineComponent({
       if (!this.isOpen) {
         return;
       }
+
       this.isOpen = false;
       this.$emit('close');
     },
