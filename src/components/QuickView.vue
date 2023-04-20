@@ -35,36 +35,54 @@ export default defineComponent({
   data() {
     return { values: [] } as { values: { label: string; value: string }[] };
   },
+  watch: {
+    async name(v1, v2) {
+      if (v1 === v2) {
+        return;
+      }
+
+      await this.setValues();
+    },
+  },
   async mounted() {
-    const fields: Field[] = (this.schema?.fields ?? []).filter(
-      (f) =>
-        f &&
-        f.fieldtype !== 'Table' &&
-        f.fieldtype !== 'AttachImage' &&
-        f.fieldtype !== 'Attachment' &&
-        f.fieldname !== 'name' &&
-        !f.hidden &&
-        !f.meta &&
-        !f.abstract
-    );
+    await this.setValues();
+  },
+  methods: {
+    async setValues() {
+      const fields: Field[] = (this.schema?.fields ?? []).filter(
+        (f) =>
+          f &&
+          f.fieldtype !== 'Table' &&
+          f.fieldtype !== 'AttachImage' &&
+          f.fieldtype !== 'Attachment' &&
+          f.fieldname !== 'name' &&
+          !f.hidden &&
+          !f.meta &&
+          !f.abstract &&
+          !f.computed
+      );
 
-    const data = (
-      await this.fyo.db.getAll(this.schemaName, {
-        fields: fields.map((f) => f.fieldname),
-        filters: { name: this.name },
-      })
-    )[0];
+      const data = (
+        await this.fyo.db.getAll(this.schemaName, {
+          fields: fields.map((f) => f.fieldname),
+          filters: { name: this.name },
+        })
+      )[0];
 
-    this.values = fields
-      .map((f) => {
-        const value = data[f.fieldname];
-        if (isFalsy(value)) {
-          return { value: '', label: '' };
-        }
+      this.values = fields
+        .map((f) => {
+          const value = data[f.fieldname];
+          if (isFalsy(value)) {
+            return { value: '', label: '' };
+          }
 
-        return { value: this.fyo.format(data[f.fieldname], f), label: f.label };
-      })
-      .filter((i) => !!i.value);
+          return {
+            value: this.fyo.format(data[f.fieldname], f),
+            label: f.label,
+          };
+        })
+        .filter((i) => !!i.value);
+    },
   },
   computed: {
     schema() {
