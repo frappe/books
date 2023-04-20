@@ -47,7 +47,7 @@ export abstract class Invoice extends Transactional {
 
   submitted?: boolean;
   cancelled?: boolean;
-  makeQuickPayment?: boolean;
+  makeAutoPayment?: boolean;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
@@ -91,7 +91,7 @@ export abstract class Invoice extends Transactional {
     return !this.baseGrandTotal?.eq(this.outstandingAmount!);
   }
 
-  get quickPaymentAccount(): string | null {
+  get autoPaymentAccount(): string | null {
     const fieldname = this.isSales
       ? 'salesPaymentAccount'
       : 'purchasePaymentAccount';
@@ -130,7 +130,7 @@ export abstract class Invoice extends Transactional {
     const party = (await this.fyo.doc.getDoc('Party', this.party!)) as Party;
     await party.updateOutstandingAmount();
 
-    if (this.makeQuickPayment && this.quickPaymentAccount) {
+    if (this.makeAutoPayment && this.autoPaymentAccount) {
       const payment = this.getPayment();
       await payment?.sync();
       await payment?.submit();
@@ -409,8 +409,8 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['items'],
     },
-    makeQuickPayment: {
-      formula: () => !!this.quickPaymentAccount,
+    makeAutoPayment: {
+      formula: () => !!this.autoPaymentAccount,
       dependsOn: [],
     },
   };
@@ -448,12 +448,12 @@ export abstract class Invoice extends Transactional {
   }
 
   hidden: HiddenMap = {
-    makeQuickPayment: () => {
+    makeAutoPayment: () => {
       if (this.submitted) {
         return true;
       }
 
-      if (!this.quickPaymentAccount) {
+      if (!this.autoPaymentAccount) {
         return true;
       }
 
@@ -481,8 +481,8 @@ export abstract class Invoice extends Transactional {
   };
 
   static defaults: DefaultMap = {
-    makeQuickPayment: (doc) =>
-      doc instanceof Invoice && !!doc.quickPaymentAccount,
+    makeAutoPayment: (doc) =>
+      doc instanceof Invoice && !!doc.autoPaymentAccount,
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
     terms: (doc) => {
       const defaults = doc.fyo.singles.Defaults as Defaults | undefined;
@@ -563,9 +563,9 @@ export abstract class Invoice extends Transactional {
       ],
     };
 
-    if (this.makeQuickPayment && this.quickPaymentAccount) {
-      const quickPaymentAccount = this.isSales ? 'paymentAccount' : 'account';
-      data[quickPaymentAccount] = this.quickPaymentAccount;
+    if (this.makeAutoPayment && this.autoPaymentAccount) {
+      const autoPaymentAccount = this.isSales ? 'paymentAccount' : 'account';
+      data[autoPaymentAccount] = this.autoPaymentAccount;
     }
 
     return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
