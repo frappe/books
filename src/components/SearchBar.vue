@@ -305,7 +305,7 @@ export default defineComponent({
       this.searcher?.updateKeywords();
 
       nextTick(() => {
-        (this.$refs.input as HTMLInputElement).focus();
+        (this.$refs.input as HTMLInputElement)?.focus();
       });
     },
     close(): void {

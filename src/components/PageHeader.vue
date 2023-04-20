@@ -10,10 +10,13 @@
       <div
         v-if="!showSidebar && platform === 'Mac' && languageDirection !== 'rtl'"
         class="h-full"
-        :class="showSidebar ? '' : 'w-tl me-4 border-e'"
+        :class="spacerClass"
       />
     </Transition>
-    <h1 class="text-xl font-semibold select-none" v-if="title">
+    <h1
+      class="text-xl font-semibold select-none whitespace-nowrap"
+      v-if="title"
+    >
       {{ title }}
     </h1>
     <div class="flex items-stretch window-no-drag gap-2">
@@ -52,6 +55,17 @@ export default defineComponent({
   computed: {
     showBorder() {
       return !!this.$slots.default && this.searchborder;
+    },
+    spacerClass() {
+      if (this.showSidebar) {
+        return '';
+      }
+
+      if (this.border) {
+        return 'w-tl me-4 border-e';
+      }
+
+      return 'w-tl me-4';
     },
   },
 });
