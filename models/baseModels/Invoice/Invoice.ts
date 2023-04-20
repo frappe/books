@@ -129,6 +129,13 @@ export abstract class Invoice extends Transactional {
 
     const party = (await this.fyo.doc.getDoc('Party', this.party!)) as Party;
     await party.updateOutstandingAmount();
+
+    if (this.makeQuickPayment && this.quickPaymentAccount) {
+      const payment = this.getPayment();
+      await payment?.sync();
+      await payment?.submit();
+      await this.load();
+    }
   }
 
   async afterCancel() {
@@ -555,6 +562,11 @@ export abstract class Invoice extends Transactional {
         },
       ],
     };
+
+    if (this.makeQuickPayment && this.quickPaymentAccount) {
+      const quickPaymentAccount = this.isSales ? 'paymentAccount' : 'account';
+      data[quickPaymentAccount] = this.quickPaymentAccount;
+    }
 
     return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
   }
