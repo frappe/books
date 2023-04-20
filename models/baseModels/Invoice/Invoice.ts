@@ -47,6 +47,7 @@ export abstract class Invoice extends Transactional {
 
   submitted?: boolean;
   cancelled?: boolean;
+  makeAutoPayment?: boolean;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
@@ -90,6 +91,18 @@ export abstract class Invoice extends Transactional {
     return !this.baseGrandTotal?.eq(this.outstandingAmount!);
   }
 
+  get autoPaymentAccount(): string | null {
+    const fieldname = this.isSales
+      ? 'salesPaymentAccount'
+      : 'purchasePaymentAccount';
+    const value = this.fyo.singles.Defaults?.[fieldname];
+    if (typeof value === 'string' && value.length) {
+      return value;
+    }
+
+    return null;
+  }
+
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super(schema, data, fyo);
     this._setGetCurrencies();
@@ -116,6 +129,13 @@ export abstract class Invoice extends Transactional {
 
     const party = (await this.fyo.doc.getDoc('Party', this.party!)) as Party;
     await party.updateOutstandingAmount();
+
+    if (this.makeAutoPayment && this.autoPaymentAccount) {
+      const payment = this.getPayment();
+      await payment?.sync();
+      await payment?.submit();
+      await this.load();
+    }
   }
 
   async afterCancel() {
@@ -389,6 +409,10 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['items'],
     },
+    makeAutoPayment: {
+      formula: () => !!this.autoPaymentAccount,
+      dependsOn: [],
+    },
   };
 
   getStockTransferred() {
@@ -424,6 +448,17 @@ export abstract class Invoice extends Transactional {
   }
 
   hidden: HiddenMap = {
+    makeAutoPayment: () => {
+      if (this.submitted) {
+        return true;
+      }
+
+      if (!this.autoPaymentAccount) {
+        return true;
+      }
+
+      return false;
+    },
     setDiscountAmount: () => true || !this.enableDiscounting,
     discountAmount: () =>
       true || !(this.enableDiscounting && !!this.setDiscountAmount),
@@ -446,6 +481,8 @@ export abstract class Invoice extends Transactional {
   };
 
   static defaults: DefaultMap = {
+    makeAutoPayment: (doc) =>
+      doc instanceof Invoice && !!doc.autoPaymentAccount,
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
     terms: (doc) => {
       const defaults = doc.fyo.singles.Defaults as Defaults | undefined;
@@ -525,6 +562,11 @@ export abstract class Invoice extends Transactional {
         },
       ],
     };
+
+    if (this.makeAutoPayment && this.autoPaymentAccount) {
+      const autoPaymentAccount = this.isSales ? 'paymentAccount' : 'account';
+      data[autoPaymentAccount] = this.autoPaymentAccount;
+    }
 
     return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
   }

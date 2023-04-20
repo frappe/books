@@ -61,20 +61,31 @@ export function getMakePaymentAction(fyo: Fyo): Action {
     group: fyo.t`Create`,
     condition: (doc: Doc) =>
       doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
-    action: async (doc: Doc) => {
+    action: async (doc, router) => {
       const payment = (doc as Invoice).getPayment();
       if (!payment) {
         return;
       }
 
+      const currentRoute = router.currentRoute.value.fullPath;
       payment.once('afterSync', async () => {
         await payment.submit();
+        await doc.load();
+        await router.push(currentRoute);
       });
 
+      const hideFields = ['party', 'paymentType', 'for'];
+      if (doc.schemaName === ModelNameEnum.SalesInvoice) {
+        hideFields.push('account');
+      } else {
+        hideFields.push('paymentAccount');
+      }
+
+      await payment.runFormulas();
       const { openQuickEdit } = await import('src/utils/ui');
       await openQuickEdit({
         doc: payment,
-        hideFields: ['party', 'paymentType', 'for'],
+        hideFields,
       });
     },
   };
