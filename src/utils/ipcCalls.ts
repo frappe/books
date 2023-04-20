@@ -42,19 +42,19 @@ export async function deleteDb(filePath: string) {
   if (error?.code === 'EBUSY') {
     showDialog({
       title: t`Delete Failed`,
-      detail: t`Please restart and try again`,
+      detail: t`Please restart and try again.`,
       type: 'error',
     });
   } else if (error?.code === 'ENOENT') {
     showDialog({
       title: t`Delete Failed`,
-      detail: t`File ${filePath} does not exist`,
+      detail: t`File ${filePath} does not exist.`,
       type: 'error',
     });
   } else if (error?.code === 'EPERM') {
     showDialog({
       title: t`Cannot Delete`,
-      detail: t`Close Frappe Books and try manually`,
+      detail: t`Close Frappe Books and try manually.`,
       type: 'error',
     });
   } else if (error) {

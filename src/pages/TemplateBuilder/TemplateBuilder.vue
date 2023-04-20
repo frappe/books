@@ -465,7 +465,7 @@ export default defineComponent({
         await showDialog({
           title: this.t`No Display Entries Found`,
           detail: this
-            .t`Please create a ${label} entry to view Template Preview`,
+            .t`Please create a ${label} entry to view Template Preview.`,
           type: 'warning',
         });
 
