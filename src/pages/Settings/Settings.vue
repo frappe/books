@@ -78,16 +78,24 @@ import FormHeader from 'src/components/FormHeader.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { getErrorMessage } from 'src/utils';
 import { evaluateHidden } from 'src/utils/doc';
+import { showToast } from 'src/utils/interactive';
 import { reloadWindow } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { UIGroupedFields } from 'src/utils/types';
-import { showToast } from 'src/utils/interactive';
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, inject } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
+import { shortcutsKey } from 'src/utils/injectionKeys';
+
+const COMPONENT_NAME = 'Settings';
 
 export default defineComponent({
   components: { FormContainer, Button, FormHeader, CommonFormSection },
+  setup() {
+    return {
+      shortcuts: inject(shortcutsKey),
+    };
+  },
   data() {
     return {
       errors: {},
@@ -119,10 +127,17 @@ export default defineComponent({
     }
 
     docsPathRef.value = docsPathMap.Settings ?? '';
+    this.shortcuts?.pmod.set(COMPONENT_NAME, ['KeyS'], () => {
+      if (!this.canSave) {
+        return;
+      }
+
+      this.sync();
+    });
   },
   async deactivated(): Promise<void> {
     docsPathRef.value = '';
-
+    this.shortcuts?.delete(COMPONENT_NAME);
     if (!this.canSave) {
       return;
     }
