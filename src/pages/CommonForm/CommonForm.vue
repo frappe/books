@@ -357,9 +357,8 @@ export default defineComponent({
 
       const group = this.groupedFields.get(this.activeTab);
       if (!group) {
-        throw new ValidationError(
-          `Tab group ${this.activeTab} has no value set`
-        );
+        const tab = [...this.groupedFields.keys()][0];
+        return this.groupedFields.get(tab) ?? new Map();
       }
 
       return group;
