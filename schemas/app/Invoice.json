@@ -133,8 +133,17 @@
     },
     {
       "fieldname": "discountAfterTax",
-      "label": "Discount After Tax",
+      "label": "Apply Discount After Tax",
       "fieldtype": "Check",
+      "default": false,
+      "readOnly": false,
+      "tab": "Settings"
+    },
+    {
+      "fieldname": "makeQuickPayment",
+      "label": "Make Payment On Submit",
+      "fieldtype": "Check",
+      "computed": true,
       "default": false,
       "readOnly": false,
       "tab": "Settings"

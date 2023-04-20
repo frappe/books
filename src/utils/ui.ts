@@ -7,6 +7,8 @@ import type { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
 import { getDbError, LinkValidationError, ValueError } from 'fyo/utils/errors';
+import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { getLedgerLink } from 'models/helpers';
 import { Transfer } from 'models/inventory/Transfer';
 import { Transactional } from 'models/Transactional/Transactional';
@@ -92,7 +94,7 @@ export async function deleteDocWithPrompt(doc: Doc) {
             if (getDbError(err as Error) === LinkValidationError) {
               showDialog({
                 title: t`Delete Failed`,
-                detail: t`Cannot delete ${schemaLabel} ${doc.name!} because of linked entries.`,
+                detail: t`Cannot delete ${schemaLabel} "${doc.name!}" because of linked entries.`,
                 type: 'error',
               });
             } else {
@@ -548,9 +550,9 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
     title = t`Save ${label}?`;
   }
 
-  let detail = t`Mark ${doc.schema.label} as submitted`;
-  if (type === 'sync') {
-    detail = t`Save ${doc.schema.label} to database`;
+  let detail = t`Save ${doc.schema.label} to database.`;
+  if (type === 'submit') {
+    detail = getDocSubmitMessage(doc);
   }
 
   const yesAction = async () => {
@@ -582,6 +584,30 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
     detail,
     buttons,
   });
+}
+
+function getDocSubmitMessage(doc: Doc): string {
+  const details = [t`Mark ${doc.schema.label} as submitted?`];
+
+  if (doc instanceof SalesInvoice && doc.makeQuickPayment) {
+    const toAccount = doc.quickPaymentAccount!;
+    const fromAccount = doc.account!;
+    const amount = fyo.format(doc.outstandingAmount, 'Currency');
+
+    details.push(
+      t`Payment of ${amount} will be made from account "${fromAccount}" to account "${toAccount}" on Submit.`
+    );
+  } else if (doc instanceof PurchaseInvoice && doc.makeQuickPayment) {
+    const fromAccount = doc.quickPaymentAccount!;
+    const toAccount = doc.account!;
+    const amount = fyo.format(doc.outstandingAmount, 'Currency');
+
+    details.push(
+      t`Payment of ${amount} will be made from account "${fromAccount}" to account "${toAccount}" on Submit.`
+    );
+  }
+
+  return details.join(' ');
 }
 
 function showActionToast(doc: Doc, type: 'sync' | 'cancel' | 'delete') {

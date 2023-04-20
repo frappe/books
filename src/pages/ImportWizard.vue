@@ -797,7 +797,7 @@ export default defineComponent({
         await showDialog({
           title,
           type: 'error',
-          detail: this.t`Following cells have errors: ${cellErrors.join(', ')}`,
+          detail: this.t`Following cells have errors: ${cellErrors.join(', ')}.`,
         });
         return false;
       }
@@ -809,7 +809,7 @@ export default defineComponent({
           type: 'error',
           detail: this.t`Following links do not exist: ${absentLinks
             .map((l) => `(${l.schemaLabel}, ${l.name})`)
-            .join(', ')}`,
+            .join(', ')}.`,
         });
         return false;
       }
@@ -927,7 +927,7 @@ export default defineComponent({
       if (!isValid) {
         await showDialog({
           title: this.t`Cannot read file`,
-          detail: this.t`Bad import data, could not read file`,
+          detail: this.t`Bad import data, could not read file.`,
           type: 'error',
         });
         return;

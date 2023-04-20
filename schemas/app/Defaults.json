@@ -5,6 +5,22 @@
   "isChild": false,
   "fields": [
     {
+      "fieldname": "salesPaymentAccount",
+      "label": "Sales Payment Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "section": "Quick Payments"
+    },
+    {
+      "fieldname": "purchasePaymentAccount",
+      "label": "Purchase Payment Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "section": "Quick Payments"
+    },
+    {
       "fieldname": "salesInvoiceNumberSeries",
       "label": "Sales Invoice Number Series",
       "fieldtype": "Link",
