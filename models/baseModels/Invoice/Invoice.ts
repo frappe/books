@@ -47,6 +47,7 @@ export abstract class Invoice extends Transactional {
 
   submitted?: boolean;
   cancelled?: boolean;
+  makeQuickPayment?: boolean;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
@@ -88,6 +89,18 @@ export abstract class Invoice extends Transactional {
     }
 
     return !this.baseGrandTotal?.eq(this.outstandingAmount!);
+  }
+
+  get quickPaymentAccount(): string | null {
+    const fieldname = this.isSales
+      ? 'salesPaymentAccount'
+      : 'purchasePaymentAccount';
+    const value = this.fyo.singles.Defaults?.[fieldname];
+    if (typeof value === 'string' && value.length) {
+      return value;
+    }
+
+    return null;
   }
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
@@ -389,6 +402,10 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['items'],
     },
+    makeQuickPayment: {
+      formula: () => !!this.quickPaymentAccount,
+      dependsOn: [],
+    },
   };
 
   getStockTransferred() {
@@ -424,6 +441,17 @@ export abstract class Invoice extends Transactional {
   }
 
   hidden: HiddenMap = {
+    makeQuickPayment: () => {
+      if (this.submitted) {
+        return true;
+      }
+
+      if (!this.quickPaymentAccount) {
+        return true;
+      }
+
+      return false;
+    },
     setDiscountAmount: () => true || !this.enableDiscounting,
     discountAmount: () =>
       true || !(this.enableDiscounting && !!this.setDiscountAmount),
@@ -446,6 +474,8 @@ export abstract class Invoice extends Transactional {
   };
 
   static defaults: DefaultMap = {
+    makeQuickPayment: (doc) =>
+      doc instanceof Invoice && !!doc.quickPaymentAccount,
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
     terms: (doc) => {
       const defaults = doc.fyo.singles.Defaults as Defaults | undefined;
