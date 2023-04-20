@@ -10,7 +10,7 @@
       "fieldtype": "Link",
       "target": "Account",
       "create": true,
-      "section": "Quick Payments"
+      "section": "Auto Payments"
     },
     {
       "fieldname": "purchasePaymentAccount",
@@ -18,7 +18,7 @@
       "fieldtype": "Link",
       "target": "Account",
       "create": true,
-      "section": "Quick Payments"
+      "section": "Auto Payments"
     },
     {
       "fieldname": "salesInvoiceNumberSeries",

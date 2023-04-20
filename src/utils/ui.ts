@@ -589,16 +589,16 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
 function getDocSubmitMessage(doc: Doc): string {
   const details = [t`Mark ${doc.schema.label} as submitted?`];
 
-  if (doc instanceof SalesInvoice && doc.makeQuickPayment) {
-    const toAccount = doc.quickPaymentAccount!;
+  if (doc instanceof SalesInvoice && doc.makeAutoPayment) {
+    const toAccount = doc.autoPaymentAccount!;
     const fromAccount = doc.account!;
     const amount = fyo.format(doc.outstandingAmount, 'Currency');
 
     details.push(
       t`Payment of ${amount} will be made from account "${fromAccount}" to account "${toAccount}" on Submit.`
     );
-  } else if (doc instanceof PurchaseInvoice && doc.makeQuickPayment) {
-    const fromAccount = doc.quickPaymentAccount!;
+  } else if (doc instanceof PurchaseInvoice && doc.makeAutoPayment) {
+    const fromAccount = doc.autoPaymentAccount!;
     const toAccount = doc.account!;
     const amount = fyo.format(doc.outstandingAmount, 'Currency');
 

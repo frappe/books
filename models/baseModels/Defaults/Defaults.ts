@@ -3,7 +3,7 @@ import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 
 export class Defaults extends Doc {
-  // Quick Payments
+  // Auto Payments
   salesPaymentAccount?: string;
   purchasePaymentAccount?: string;
 
@@ -32,7 +32,7 @@ export class Defaults extends Doc {
   stockMovementPrintTemplate?: string;
 
   static commonFilters = {
-    // Quick Payments
+    // Auto Payments
     salesPaymentAccount: () => ({ isGroup: false, accountType: 'Cash' }),
     purchasePaymentAccount: () => ({ isGroup: false, accountType: 'Cash' }),
     // Number Series
