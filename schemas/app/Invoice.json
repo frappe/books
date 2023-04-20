@@ -140,7 +140,7 @@
       "tab": "Settings"
     },
     {
-      "fieldname": "makeQuickPayment",
+      "fieldname": "makeAutoPayment",
       "label": "Make Payment On Submit",
       "fieldtype": "Check",
       "computed": true,
