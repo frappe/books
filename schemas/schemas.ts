@@ -6,6 +6,7 @@ import Batch from './app/Batch.json';
 import Color from './app/Color.json';
 import Currency from './app/Currency.json';
 import Defaults from './app/Defaults.json';
+import DeliveryNote from './app/inventory/DeliveryNote.json';
 import GetStarted from './app/GetStarted.json';
 import InventorySettings from './app/inventory/InventorySettings.json';
 import Location from './app/inventory/Location.json';
@@ -103,6 +104,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   TaxDetail as Schema,
   TaxSummary as Schema,
 
+  DeliveryNote as Schema,
   InventorySettings as Schema,
   Location as Schema,
   StockLedgerEntry as Schema,

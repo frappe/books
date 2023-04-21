@@ -32,6 +32,10 @@
       "fieldtype": "Select",
       "options": [
         {
+          "value": "DeliveryNote",
+          "label": "Delivery Note"
+        },
+        {
           "value": "SalesInvoice",
           "label": "Sales Invoice"
         },

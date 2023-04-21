@@ -1,4 +1,5 @@
 export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid';
+export type DeliveryNoteStatus = 'Paid' | 'ToBill' | 'ReturnIssued' | 'Completed';
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',
@@ -31,6 +32,7 @@ export enum ModelNameEnum {
   TaxSummary = 'TaxSummary',
   PatchRun = 'PatchRun',
   SingleValue = 'SingleValue',
+  DeliveryNote= 'DeliveryNote',
   InventorySettings = 'InventorySettings',
   SystemSettings = 'SystemSettings',
   StockMovement = 'StockMovement',

@@ -18,6 +18,7 @@ import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
+import { DeliveryNote } from './inventory/DeliveryNote';
 import { Batch } from './inventory/Batch';
 import { InventorySettings } from './inventory/InventorySettings';
 import { Location } from './inventory/Location';
@@ -53,6 +54,7 @@ export const models = {
   Tax,
   TaxSummary,
   // Inventory Models
+  DeliveryNote,
   InventorySettings,
   StockMovement,
   StockMovementItem,

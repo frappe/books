@@ -1,0 +1,118 @@
+{
+  "name": "DeliveryNote",
+  "label": "Delivery Note",
+  "extends": "StockTransfer",
+  "naming": "numberSeries",
+  "showTitle": true,
+  "fields": [
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "DN-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "billingAddress",
+      "label": "Billing Address",
+      "fieldtype": "Link",
+      "target": "Address",
+      "create": true,
+      "section": "Address & Contact"
+    },
+    {
+      "fieldname": "shippingAddress",
+      "label": "Shipping Address",
+      "fieldtype": "Link",
+      "target": "Address",
+      "create": true,
+      "section": "Address & Contact"
+    },
+    {
+      "fieldname": "modeOfTransport",
+      "label": "Mode of Transport",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Road",
+          "label": "Road"
+        },
+        {
+          "value": "Air",
+          "label": "Air"
+        },
+        {
+          "value": "Rail",
+          "label": "Rail"
+        },
+        {
+          "value": "Ship",
+          "label": "Ship"
+        }
+      ],
+      "required": true,
+      "section": "Transporter Info"
+    },
+    {
+      "fieldname": "driver",
+      "label": "Driver Name",
+      "fieldtype": "Data",
+      "section": "Transporter Info"
+    },
+    {
+      "fieldname": "vehicleNo",
+      "label": "Vehicle No",
+      "fieldtype": "Data",
+      "section": "Transporter Info"
+    },
+    {
+      "fieldname": "distance",
+      "label": "Distance (in km)",
+      "placeholder": "Distance",
+      "fieldtype": "Data",
+      "section": "Transporter Info"
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "ShipmentItem",
+      "required": true,
+      "edit": true,
+      "section": "Items"
+    },
+    {
+      "fieldname": "isReturn",
+      "label": "Is Return",
+      "fieldtype": "Check",
+      "required": true,
+      "default": false,
+      "section": "Return"
+    },
+    {
+      "fieldname": "backReference",
+      "label": "Back Reference",
+      "fieldtype": "Link",
+      "target": "SalesInvoice",
+      "section": "References"
+    },
+    {
+      "fieldname": "perReturned",
+      "label": "% Returned",
+      "fieldtype": "Float",
+      "default": 0,
+      "section": "Return"
+    },
+    {
+      "fieldname": "perBilled",
+      "label": "% Returned",
+      "fieldtype": "Float",
+      "default": 0,
+      "section": "Return"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

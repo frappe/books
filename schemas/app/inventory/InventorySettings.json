@@ -68,6 +68,12 @@
       "label": "Enable UOM Conversion",
       "fieldtype": "Check",
       "section": "Feature Flags"
+    },
+    {
+      "fieldname": "enableDeliveryNote",
+      "label": "Enable Delivery Note",
+      "fieldtype": "Check",
+      "section": "Feature Flags"
     }
   ]
 }
