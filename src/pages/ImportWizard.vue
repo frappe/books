@@ -492,7 +492,17 @@ export default defineComponent({
 
       const assigned = new Set(this.importer.assignedTemplateFields);
       return [...this.importer.templateFieldsMap.values()]
-        .filter((f) => f.required && !assigned.has(f.fieldKey))
+        .filter((f) => {
+          if (assigned.has(f.fieldKey) || !f.required) {
+            return false;
+          }
+
+          if (f.parentSchemaChildField && !f.parentSchemaChildField.required) {
+            return false;
+          }
+
+          return f.required;
+        })
         .map((f) => getColumnLabel(f));
     },
     errorMessage(): string {
@@ -797,7 +807,9 @@ export default defineComponent({
         await showDialog({
           title,
           type: 'error',
-          detail: this.t`Following cells have errors: ${cellErrors.join(', ')}.`,
+          detail: this.t`Following cells have errors: ${cellErrors.join(
+            ', '
+          )}.`,
         });
         return false;
       }
