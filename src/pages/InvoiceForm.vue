@@ -108,6 +108,18 @@
             @change="(value) => doc.set('attachment', value)"
             :read-only="doc?.submitted"
           />
+          <FormControl
+            v-if="
+              doc.schemaName == 'SalesInvoice' ||
+              !(doc.isSubmitted || doc.isCancelled)
+            "
+            :border="true"
+            :df="getField('isReturn')"
+            :value="doc.isReturn"
+            @change="(value) => doc.set('isReturn', value)"
+            :read-only="doc?.submitted"
+            showLabel
+          />
         </div>
         <hr />
 

@@ -17,6 +17,11 @@ import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
+import { openEdit } from 'src/utils/ui';
+import { handleErrorWithDialog } from 'src/errorHandling';
+import { DocValueMap, RawValueMap } from 'fyo/core/types';
+import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
+import { RawValue } from 'schemas/types';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -24,6 +29,7 @@ export function getInvoiceActions(
 ): Action[] {
   return [
     getMakePaymentAction(fyo),
+    createCreditNoteAction(fyo),
     getMakeStockTransferAction(fyo, schemaName),
     getLedgerLinkAction(fyo),
   ];
@@ -76,6 +82,51 @@ export function getMakePaymentAction(fyo: Fyo): Action {
         doc: payment,
         hideFields: ['party', 'paymentType', 'for'],
       });
+    },
+  };
+}
+
+export function createCreditNoteAction(fyo: Fyo): Action {
+  return {
+    label: fyo.t`Return / Credit Note`,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) =>
+      doc.schema.name === ModelNameEnum.SalesInvoice && doc.isSubmitted,
+    action: async (doc: Doc) => {
+      try {
+        const updateMap = doc.getValidDict(true, true);
+        updateMap.isReturn = true;
+        updateMap.returnAgainst = updateMap.name;
+        updateMap.netTotal = (updateMap.netTotal as Money).neg();
+        updateMap.grandTotal = (updateMap.grandTotal as Money).neg();
+        updateMap.outstandingAmount = 0;
+
+        for (const field in updateMap) {
+          const value = updateMap[field];
+          if (!Array.isArray(value)) {
+            continue;
+          }
+
+          for (const row of value) {
+            row.quantity = -1 * (row.quantity as number);
+            row.amount = (row.amount as Money).neg();
+
+            delete row.name;
+          }
+        }
+        delete updateMap.name;
+
+        const rawUpdateMap = doc.fyo.db.converter.toRawValueMap(
+          doc.schemaName,
+          updateMap
+        ) as RawValueMap;
+
+        const dupe = doc.fyo.doc.getNewDoc(doc.schemaName, rawUpdateMap, true);
+
+        await openEdit(dupe);
+      } catch (err) {
+        handleErrorWithDialog(err as Error, doc);
+      }
     },
   };
 }
@@ -148,6 +199,8 @@ export const statusColor: Record<
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
+  CreditNoteIssued: 'gray',
+  Return: 'gray',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -166,6 +219,10 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Paid`;
     case 'Unpaid':
       return t`Unpaid`;
+    case 'CreditNoteIssued':
+      return t`Credit Note Issued`;
+    case 'Return':
+      return t`Return`;
     default:
       return '';
   }
@@ -214,6 +271,14 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
 }
 
 export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
+  if (doc.isReturn) {
+    return 'Return';
+  }
+
+  if (doc.isCreditNoteIssued) {
+    return 'CreditNoteIssued';
+  }
+
   if (
     doc.submitted &&
     !doc.cancelled &&

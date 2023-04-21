@@ -21,6 +21,24 @@
       "create": true,
       "required": true,
       "default": "SINV-"
+    },
+    {
+      "fieldname": "isReturn",
+      "label": "Is Return",
+      "placeholder": "Is Return",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "isCreditNoteIssued",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "returnAgainst",
+      "label": "Return Against",
+      "fieldtype": "Link",
+      "target": "SalesInvoice"
     }
   ],
   "keywordFields": ["name", "party"]

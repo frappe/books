@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import { Action, ListViewSettings } from 'fyo/model/types';
+import { Action, HiddenMap, ListViewSettings, ReadOnlyMap } from 'fyo/model/types';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { getInvoiceActions, getTransactionStatusColumn } from '../../helpers';
@@ -8,14 +8,30 @@ import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 
 export class SalesInvoice extends Invoice {
   items?: SalesInvoiceItem[];
+  isReturn?: boolean;
 
   async getPosting() {
     const exchangeRate = this.exchangeRate ?? 1;
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
-    await posting.debit(this.account!, this.baseGrandTotal!);
+
+    if (this.isReturn) {
+      if (!this.outstandingAmount?.isZero) {
+        await posting.debit(this.account!, this.baseGrandTotal?.mul(-1)!);
+      }
+      await posting.credit(this.account!, this.baseGrandTotal?.mul(-1)!);
+    } else {
+      await posting.debit(this.account!, this.baseGrandTotal!);
+    }
 
     for (const item of this.items!) {
-      await posting.credit(item.account!, item.amount!.mul(exchangeRate));
+      if (this.isReturn) {
+        await posting.debit(
+          item.account!,
+          item.amount!.mul(exchangeRate).mul(-1)
+        );
+      } else {
+        await posting.credit(item.account!, item.amount!.mul(exchangeRate));
+      }
     }
 
     if (this.taxes) {
@@ -35,6 +51,20 @@ export class SalesInvoice extends Invoice {
     return posting;
   }
 
+  async afterSubmit(): Promise<void> {
+    await super.afterSubmit();
+    if (this.isReturn) {
+      this.fyo.db.update(ModelNameEnum.SalesInvoice, {
+        name: this.returnAgainst as string,
+        isCreditNoteIssued: true,
+      });
+    }
+  }
+
+  static hidden: HiddenMap = {
+    isReturn: () => true,
+  };
+
   static getListViewSettings(): ListViewSettings {
     return {
       formRoute: (name) => `/edit/SalesInvoice/${name}`,
@@ -43,6 +73,7 @@ export class SalesInvoice extends Invoice {
         getTransactionStatusColumn(),
         'party',
         'date',
+        'isReturn',
         'baseGrandTotal',
         'outstandingAmount',
       ],
