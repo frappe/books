@@ -111,7 +111,7 @@ export abstract class InvoiceItem extends Doc {
     rate: {
       formula: async (fieldname) => {
         const rate =
-          (await getPriceListRate(this, this.isSales)) ||
+          (await getPriceListRate(this)) ||
           (await getItemRate(this));
 
         if (!rate?.float && this.rate?.float) {
@@ -151,6 +151,7 @@ export abstract class InvoiceItem extends Doc {
         return rateFromTotals ?? rate ?? this.fyo.pesa(0);
       },
       dependsOn: [
+        'date',
         'priceList',
         'transferUnit',
         'transferQuantity',

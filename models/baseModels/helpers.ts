@@ -6,14 +6,14 @@ export async function getItemRate(doc: Doc) {
   return (await doc.fyo.getValue('Item', doc.item as string, 'rate')) as Money;
 }
 
-export async function getPriceListRate(doc: Doc, isSales: boolean) {
+export async function getPriceListRate(doc: Doc) {
   if (!doc.priceList || !doc.party) return false;
 
   const itemPriceName = (await doc.fyo.db.getItemPrice(
     doc.item as string,
     doc.priceList as string,
-    new Date(),
-    isSales,
+    doc.date as Date,
+    doc.isSales as boolean,
     doc.party as string,
     doc.transferUnit as string,
     doc.batch as string
