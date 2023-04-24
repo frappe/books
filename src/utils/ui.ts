@@ -31,6 +31,7 @@ import {
   ToastOptions,
   UIGroupedFields,
 } from './types';
+import { Invoice } from 'models/baseModels/Invoice/Invoice';
 
 export const toastDurationMap = { short: 2_500, long: 5_000 } as const;
 
@@ -81,7 +82,7 @@ export async function deleteDocWithPrompt(doc: Doc) {
   }
 
   return await showDialog({
-    title: t`Delete ${getActionLabel(doc)}?`,
+    title: t`Delete ${getDocReferenceLabel(doc)}?`,
     detail,
     type: 'warning',
     buttons: [
@@ -152,7 +153,7 @@ export async function cancelDocWithPrompt(doc: Doc) {
   }
 
   return await showDialog({
-    title: t`Cancel ${getActionLabel(doc)}?`,
+    title: t`Cancel ${getDocReferenceLabel(doc)}?`,
     detail,
     type: 'warning',
     buttons: [
@@ -544,19 +545,17 @@ export async function commonDocSubmit(doc: Doc): Promise<boolean> {
 }
 
 async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
-  const label = getActionLabel(doc);
-  let title = t`Submit ${label}?`;
-  if (type === 'sync') {
-    title = t`Save ${label}?`;
+  const label = getDocReferenceLabel(doc);
+  let title = t`Save ${label}?`;
+  if (type === 'submit') {
+    title = t`Submit ${label}?`;
   }
 
-  let detail = t`Create new ${doc.schema.label} entry.`;
-  if (type === 'sync' && doc.inserted) {
-    detail = t`Save changes made to ${label}.`;
-  }
-
+  let detail: string;
   if (type === 'submit') {
     detail = getDocSubmitMessage(doc);
+  } else {
+    detail = getDocSyncMessage(doc);
   }
 
   const yesAction = async () => {
@@ -590,6 +589,24 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
   });
 }
 
+function getDocSyncMessage(doc: Doc): string {
+  const label = getDocReferenceLabel(doc);
+  const detail = t`Create new ${doc.schema.label} entry?`;
+  if (doc.inserted) {
+    return t`Save changes made to ${label}?`;
+  }
+
+  if (doc instanceof Invoice && doc.grandTotal?.isZero()) {
+    const gt = doc.fyo.format(doc.grandTotal ?? doc.fyo.pesa(0), 'Currency');
+    return [
+      detail,
+      t`Entry has Grand Total ${gt}. Please verify amounts.`,
+    ].join(' ');
+  }
+
+  return detail;
+}
+
 function getDocSubmitMessage(doc: Doc): string {
   const details = [t`Mark ${doc.schema.label} as submitted?`];
 
@@ -615,7 +632,7 @@ function getDocSubmitMessage(doc: Doc): string {
 }
 
 function showActionToast(doc: Doc, type: 'sync' | 'cancel' | 'delete') {
-  const label = getActionLabel(doc);
+  const label = getDocReferenceLabel(doc);
   const message = {
     sync: t`${label} saved`,
     cancel: t`${label} cancelled`,
@@ -626,7 +643,7 @@ function showActionToast(doc: Doc, type: 'sync' | 'cancel' | 'delete') {
 }
 
 function showSubmitToast(doc: Doc) {
-  const label = getActionLabel(doc);
+  const label = getDocReferenceLabel(doc);
   const message = t`${label} submitted`;
   const toastOption: ToastOptions = {
     type: 'success',
@@ -665,7 +682,7 @@ function getSubmitSuccessToastAction(doc: Doc) {
 }
 
 export function showCannotSaveOrSubmitToast(doc: Doc) {
-  const label = getActionLabel(doc);
+  const label = getDocReferenceLabel(doc);
   let message = t`${label} already saved`;
 
   if (doc.schema.isSubmittable && doc.isSubmitted) {
@@ -676,7 +693,7 @@ export function showCannotSaveOrSubmitToast(doc: Doc) {
 }
 
 export function showCannotCancelOrDeleteToast(doc: Doc) {
-  const label = getActionLabel(doc);
+  const label = getDocReferenceLabel(doc);
   let message = t`${label} cannot be deleted`;
   if (doc.schema.isSubmittable && !doc.isCancelled) {
     message = t`${label} cannot be cancelled`;
@@ -685,7 +702,7 @@ export function showCannotCancelOrDeleteToast(doc: Doc) {
   showToast({ type: 'warning', message, duration: 'short' });
 }
 
-function getActionLabel(doc: Doc) {
+function getDocReferenceLabel(doc: Doc) {
   const label = doc.schema.label || doc.schemaName;
   if (doc.schema.naming === 'random') {
     return label;

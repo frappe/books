@@ -191,6 +191,7 @@
                 :rows="1"
                 :border="true"
                 :value="val.error ? null : val.value"
+                :read-only="false"
                 @change="(value: DocValue)=> {
                     importer.valueMatrix[ridx][cidx]!.error = false
                     importer.valueMatrix[ridx][cidx]!.value = value
