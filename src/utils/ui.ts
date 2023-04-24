@@ -550,7 +550,11 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
     title = t`Save ${label}?`;
   }
 
-  let detail = t`Save ${doc.schema.label} to database.`;
+  let detail = t`Create new ${doc.schema.label} entry.`;
+  if (type === 'sync' && doc.inserted) {
+    detail = t`Save changes made to ${label}.`;
+  }
+
   if (type === 'submit') {
     detail = getDocSubmitMessage(doc);
   }

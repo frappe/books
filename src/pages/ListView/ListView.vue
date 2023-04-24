@@ -144,11 +144,6 @@ export default defineComponent({
       const doc = fyo.doc.getNewDoc(this.schemaName, filters);
       const route = getFormRoute(this.schemaName, doc.name!);
       await routeTo(route);
-
-      doc.on('afterSync', () => {
-        const route = getFormRoute(this.schemaName, doc.name!);
-        this.$router.replace(route);
-      });
     },
     applyFilter(filters: QueryFilter) {
       this.list?.updateData(filters);
