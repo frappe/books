@@ -141,12 +141,37 @@ export function useDocShortcuts(
     showCannotCancelOrDeleteToast(doc);
   };
 
+  onMounted(() => {
+    if (isMultiple && shortcuts.has(context)) {
+      return;
+    }
+
+    shortcuts.pmod.set(context, ['KeyS'], syncOrSubmitCallback, false);
+    shortcuts.pmod.set(context, ['Backspace'], cancelOrDeleteCallback, false);
+  });
+
   onActivated(() => {
+    if (isMultiple && shortcuts.has(context)) {
+      return;
+    }
+
     shortcuts.pmod.set(context, ['KeyS'], syncOrSubmitCallback, false);
     shortcuts.pmod.set(context, ['Backspace'], cancelOrDeleteCallback, false);
   });
 
   onDeactivated(() => {
+    if (!shortcuts.has(context)) {
+      return;
+    }
+
+    shortcuts.delete(context);
+  });
+
+  onUnmounted(() => {
+    if (!shortcuts.has(context)) {
+      return;
+    }
+
     shortcuts.delete(context);
   });
 
