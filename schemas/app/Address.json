@@ -55,24 +55,28 @@
       "fieldname": "emailAddress",
       "label": "Email Address",
       "placeholder": "Email Address",
-      "fieldtype": "Data"
+      "fieldtype": "Data",
+      "section": "Contacts"
     },
     {
       "fieldname": "phone",
       "label": "Phone",
       "placeholder": "Phone",
-      "fieldtype": "Data"
+      "fieldtype": "Data",
+      "section": "Contacts"
     },
     {
       "fieldname": "fax",
       "label": "Fax",
-      "fieldtype": "Data"
+      "fieldtype": "Data",
+      "section": "Contacts"
     },
     {
       "fieldname": "addressDisplay",
       "fieldtype": "Text",
       "label": "Address Display",
-      "readOnly": true
+      "readOnly": true,
+      "section": "Miscellaneous"
     }
   ],
   "quickEditFields": [

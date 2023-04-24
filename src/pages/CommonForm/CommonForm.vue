@@ -168,6 +168,7 @@ import {
   commonDocSync,
   getDocFromNameIfExistsElseNew,
   getFieldsGroupedByTabAndSection,
+  getFormRoute,
   getGroupedActionsForDoc,
   isPrintable,
   routeTo,
@@ -227,6 +228,7 @@ export default defineComponent({
     }
 
     await this.setDoc();
+    this.replacePathAfterSync();
     this.updateGroupedFields();
     if (this.groupedFields) {
       this.activeTab = [...this.groupedFields.keys()][0];
@@ -340,7 +342,7 @@ export default defineComponent({
         return this.t`New Entry`;
       }
 
-      return this.docOrNull?.name! ?? this.t`New Entry`;
+      return this.docOrNull?.name || this.t`New Entry`;
     },
     schema(): Schema {
       const schema = this.fyo.schemaMap[this.schemaName];
@@ -402,6 +404,16 @@ export default defineComponent({
         this.schemaName,
         this.name
       );
+    },
+    async replacePathAfterSync() {
+      if (!this.hasDoc || this.doc.inserted) {
+        return;
+      }
+
+      this.doc.once('afterSync', () => {
+        const route = getFormRoute(this.schemaName, this.doc.name!);
+        this.$router.replace(route);
+      });
     },
     async showRowEditForm(doc: Doc) {
       if (this.showLinks) {
