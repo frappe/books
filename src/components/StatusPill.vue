@@ -39,6 +39,7 @@ export default defineComponent({
         Outstanding: this.t`Outstanding`,
         NotTransferred: this.t`Not Transferred`,
         NotSaved: this.t`Not Saved`,
+        NotSubmitted: this.t`Not Submitted`,
         Paid: this.t`Paid`,
         Saved: this.t`Saved`,
         Submitted: this.t`Submitted`,
@@ -56,6 +57,7 @@ const statusColorMap: Record<Status, UIColors> = {
   Outstanding: 'orange',
   NotTransferred: 'orange',
   NotSaved: 'orange',
+  NotSubmitted: 'orange',
   Paid: 'green',
   Saved: 'blue',
   Submitted: 'blue',
@@ -87,15 +89,23 @@ function getSubmittableStatus(doc: Doc) {
   }
 
   const isInvoice = doc instanceof Invoice;
-  if (isInvoice && doc.outstandingAmount?.isZero() !== true) {
+  if (
+    doc.isSubmitted &&
+    isInvoice &&
+    doc.outstandingAmount?.isZero() !== true
+  ) {
     return 'Outstanding';
   }
 
-  if (isInvoice && (doc.stockNotTransferred ?? 0) > 0) {
+  if (doc.isSubmitted && isInvoice && (doc.stockNotTransferred ?? 0) > 0) {
     return 'NotTransferred';
   }
 
-  if (isInvoice && doc.outstandingAmount?.isZero() === true) {
+  if (
+    doc.isSubmitted &&
+    isInvoice &&
+    doc.outstandingAmount?.isZero() === true
+  ) {
     return 'Paid';
   }
 
@@ -103,7 +113,6 @@ function getSubmittableStatus(doc: Doc) {
     return 'Submitted';
   }
 
-  // no-op
-  return 'NotSaved';
+  return 'NotSubmitted';
 }
 </script>
