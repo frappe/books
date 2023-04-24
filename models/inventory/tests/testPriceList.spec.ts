@@ -24,25 +24,13 @@ const partyMap = {
   partyOne: {
     name: 'John Whoe',
     email: 'john@whoe.com',
-  },
-  partyTwo: {
-    name: 'Don Whoe',
-    email: 'don@whoe.com',
-  },
+  }
 };
 
 const batchMap = {
   batchOne: {
     name: 'PN-AB001',
     manufactureDate: '2022-11-03T09:57:04.528',
-  },
-  batchTwo: {
-    name: 'PN-AB002',
-    manufactureDate: '2022-10-03T09:57:04.528',
-  },
-  batchThree: {
-    name: 'PN-AB003',
-    manufactureDate: '2022-10-03T09:57:04.528',
   },
 };
 
@@ -67,13 +55,6 @@ const priceListMap = {
     selling: true,
     buying: true,
     isUomDependent: false,
-  },
-  PN_SB_UOM_DEP: {
-    name: 'PN_SB_UOM_DEP',
-    enabled: true,
-    buying: true,
-    selling: true,
-    isUomDependent: true,
   },
   PN_D: {
     name: 'PN_D',
