@@ -70,14 +70,14 @@
       "label": "Enable Discount Accounting",
       "fieldtype": "Check",
       "default": false,
-      "section": "Feature Flags"
+      "section": "Features"
     },
     {
       "fieldname": "enableInventory",
       "label": "Enable Inventory",
       "fieldtype": "Check",
       "default": false,
-      "section": "Feature Flags"
+      "section": "Features"
     },
     {
       "fieldname": "fiscalYearStart",

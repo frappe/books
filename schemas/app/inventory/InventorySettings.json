@@ -55,19 +55,19 @@
       "fieldname": "enableBarcodes",
       "label": "Enable Barcodes",
       "fieldtype": "Check",
-      "section": "Feature Flags"
+      "section": "Features"
     },
     {
       "fieldname": "enableBatches",
       "label": "Enable Batches",
       "fieldtype": "Check",
-      "section": "Feature Flags"
+      "section": "Features"
     },
     {
       "fieldname": "enableUomConversions",
       "label": "Enable UOM Conversion",
       "fieldtype": "Check",
-      "section": "Feature Flags"
+      "section": "Features"
     }
   ]
 }
