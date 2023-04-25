@@ -23,6 +23,7 @@ export interface SMTransferDetails {
   rate: Money;
   quantity: number;
   batch?: string;
+  serialNo?: string;
   fromLocation?: string;
   toLocation?: string;
 }
