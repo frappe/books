@@ -1,6 +1,6 @@
 {
   "name": "frappe-books",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Simple book-keeping app for everyone",
   "main": "background.js",
   "author": {
