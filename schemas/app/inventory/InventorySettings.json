@@ -64,6 +64,12 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableSerialNo",
+      "label": "Enable Serial No",
+      "fieldtype": "Check",
+      "section": "Features"
+    },
+    {
       "fieldname": "enableUomConversions",
       "label": "Enable UOM Conversion",
       "fieldtype": "Check",
