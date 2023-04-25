@@ -19,6 +19,7 @@ export async function getRawStockLedgerEntries(fyo: Fyo) {
     'date',
     'item',
     'batch',
+    'serialNo',
     'rate',
     'quantity',
     'location',
@@ -49,6 +50,7 @@ export function getStockLedgerEntries(
     const rate = safeParseFloat(sle.rate);
     const { item, location, quantity, referenceName, referenceType } = sle;
     const batch = sle.batch ?? '';
+    const serialNo = sle.serialNo ?? '';
 
     if (quantity === 0) {
       continue;
@@ -88,6 +90,7 @@ export function getStockLedgerEntries(
       item,
       location,
       batch,
+      serialNo,
 
       quantity,
       balanceQuantity,

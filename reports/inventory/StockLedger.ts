@@ -28,6 +28,7 @@ export class StockLedger extends Report {
   item?: string;
   location?: string;
   batch?: string;
+  serialNo?: string;
   fromDate?: string;
   toDate?: string;
   ascending?: boolean;
@@ -39,6 +40,11 @@ export class StockLedger extends Report {
   get hasBatches(): boolean {
     return !!(this.fyo.singles.InventorySettings as InventorySettings)
       .enableBatches;
+  }
+
+  get hasSerialNos(): boolean {
+    return !!(this.fyo.singles.InventorySettings as InventorySettings)
+      .enableSerialNo;
   }
 
   constructor(fyo: Fyo) {
@@ -274,6 +280,11 @@ export class StockLedger extends Report {
       ...(this.hasBatches
         ? ([
             { fieldname: 'batch', label: 'Batch', fieldtype: 'Link' },
+          ] as ColumnField[])
+        : []),
+      ...(this.hasSerialNos
+        ? ([
+            { fieldname: 'serialNo', label: 'Serial No', fieldtype: 'Data' },
           ] as ColumnField[])
         : []),
       {
