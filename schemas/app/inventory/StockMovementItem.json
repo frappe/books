@@ -58,6 +58,11 @@
       "create": true
     },
     {
+      "fieldname": "serialNo",
+      "label": "Serial No",
+      "fieldtype": "Text"
+    },
+    {
       "fieldname": "quantity",
       "label": "Quantity",
       "fieldtype": "Float",
@@ -94,6 +99,7 @@
     "transferQuantity",
     "transferUnit",
     "batch",
+    "serialNo",
     "quantity",
     "unit",
     "unitConversionFactor",

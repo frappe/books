@@ -4,6 +4,7 @@ import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { StockLedgerEntry } from './StockLedgerEntry';
 import { SMDetails, SMIDetails, SMTransferDetails } from './types';
+import { getSerialNumbers } from './helpers';
 
 export class StockManager {
   /**
@@ -133,15 +134,33 @@ export class StockManager {
     const date = details.date.toISOString();
     const formattedDate = this.fyo.format(details.date, 'Datetime');
     const batch = details.batch || undefined;
+    const serialNo = details.serialNo || undefined;
+    let quantityBefore = 0;
 
-    let quantityBefore =
-      (await this.fyo.db.getStockQuantity(
-        details.item,
-        details.fromLocation,
-        undefined,
-        date,
-        batch
-      )) ?? 0;
+    if (serialNo) {
+      const serialNos = getSerialNumbers(serialNo);
+      for (const serialNo of serialNos) {
+        quantityBefore +=
+          (await this.fyo.db.getStockQuantity(
+            details.item,
+            details.fromLocation,
+            undefined,
+            date,
+            batch,
+            serialNo
+          )) ?? 0;
+      }
+    } else {
+      quantityBefore =
+        (await this.fyo.db.getStockQuantity(
+          details.item,
+          details.fromLocation,
+          undefined,
+          date,
+          batch,
+          serialNo
+        )) ?? 0;
+    }
 
     if (this.isCancelled) {
       quantityBefore += details.quantity;
@@ -167,7 +186,8 @@ export class StockManager {
       details.fromLocation,
       details.date.toISOString(),
       undefined,
-      batch
+      batch,
+      serialNo
     );
 
     if (quantityAfter === null) {
@@ -211,6 +231,7 @@ class StockManagerItem {
   fromLocation?: string;
   toLocation?: string;
   batch?: string;
+  serialNo?: string;
 
   stockLedgerEntries?: StockLedgerEntry[];
 
@@ -226,6 +247,7 @@ class StockManagerItem {
     this.referenceName = details.referenceName;
     this.referenceType = details.referenceType;
     this.batch = details.batch;
+    this.serialNo = details.serialNo;
 
     this.fyo = fyo;
   }
@@ -260,7 +282,27 @@ class StockManagerItem {
 
   #moveStockForSingleLocation(location: string, isOutward: boolean) {
     let quantity = this.quantity!;
+    const serialNo = this.serialNo;
     if (quantity === 0) {
+      return;
+    }
+
+    if (serialNo) {
+      const serialNos = getSerialNumbers(serialNo!);
+      if (isOutward) {
+        quantity = -1;
+      } else {
+        quantity = 1;
+      }
+
+      for (const serialNo of serialNos) {
+        const stockLedgerEntry = this.#getStockLedgerEntry(
+          location,
+          quantity,
+          serialNo!
+        );
+        this.stockLedgerEntries?.push(stockLedgerEntry);
+      }
       return;
     }
 
@@ -273,12 +315,13 @@ class StockManagerItem {
     this.stockLedgerEntries?.push(stockLedgerEntry);
   }
 
-  #getStockLedgerEntry(location: string, quantity: number) {
+  #getStockLedgerEntry(location: string, quantity: number, serialNo?: string) {
     return this.fyo.doc.getNewDoc(ModelNameEnum.StockLedgerEntry, {
       date: this.date,
       item: this.item,
       rate: this.rate,
       batch: this.batch || null,
+      serialNo: serialNo || null,
       quantity,
       location,
       referenceName: this.referenceName,

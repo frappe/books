@@ -139,6 +139,13 @@
       "section": "Inventory"
     },
     {
+      "fieldname": "hasSerialNo",
+      "label": "Has Serial No",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Inventory"
+    },
+    {
       "fieldname": "uomConversions",
       "label": "UOM Conversions",
       "fieldtype": "Table",

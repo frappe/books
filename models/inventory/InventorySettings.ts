@@ -11,6 +11,7 @@ export class InventorySettings extends Doc {
   costOfGoodsSold?: string;
   enableBarcodes?: boolean;
   enableBatches?: boolean;
+  enableSerialNo?: boolean;
   enableUomConversions?: boolean;
 
   static filters: FiltersMap = {
@@ -34,6 +35,9 @@ export class InventorySettings extends Doc {
     },
     enableBatches: () => {
       return !!this.enableBatches;
+    },
+    enableSerialNo: () => {
+      return !!this.enableSerialNo;
     },
     enableUomConversions: () => {
       return !!this.enableUomConversions;
