@@ -134,33 +134,17 @@ export class StockManager {
     const date = details.date.toISOString();
     const formattedDate = this.fyo.format(details.date, 'Datetime');
     const batch = details.batch || undefined;
-    const serialNo = details.serialNo || undefined;
-    let quantityBefore = 0;
+    const serialNumbers = getSerialNumbers(details.serialNumber ?? '');
 
-    if (serialNo) {
-      const serialNos = getSerialNumbers(serialNo);
-      for (const serialNo of serialNos) {
-        quantityBefore +=
-          (await this.fyo.db.getStockQuantity(
-            details.item,
-            details.fromLocation,
-            undefined,
-            date,
-            batch,
-            serialNo
-          )) ?? 0;
-      }
-    } else {
-      quantityBefore =
-        (await this.fyo.db.getStockQuantity(
-          details.item,
-          details.fromLocation,
-          undefined,
-          date,
-          batch,
-          serialNo
-        )) ?? 0;
-    }
+    let quantityBefore =
+      (await this.fyo.db.getStockQuantity(
+        details.item,
+        details.fromLocation,
+        undefined,
+        date,
+        batch,
+        serialNumbers
+      )) ?? 0;
 
     if (this.isCancelled) {
       quantityBefore += details.quantity;
@@ -187,7 +171,7 @@ export class StockManager {
       details.date.toISOString(),
       undefined,
       batch,
-      serialNo
+      serialNumbers
     );
 
     if (quantityAfter === null) {
@@ -231,7 +215,7 @@ class StockManagerItem {
   fromLocation?: string;
   toLocation?: string;
   batch?: string;
-  serialNo?: string;
+  serialNumber?: string;
 
   stockLedgerEntries?: StockLedgerEntry[];
 
@@ -247,7 +231,7 @@ class StockManagerItem {
     this.referenceName = details.referenceName;
     this.referenceType = details.referenceType;
     this.batch = details.batch;
-    this.serialNo = details.serialNo;
+    this.serialNumber = details.serialNumber;
 
     this.fyo = fyo;
   }
@@ -281,28 +265,20 @@ class StockManagerItem {
   }
 
   #moveStockForSingleLocation(location: string, isOutward: boolean) {
-    let quantity = this.quantity!;
-    const serialNo = this.serialNo;
+    let quantity: number = this.quantity;
     if (quantity === 0) {
       return;
     }
 
-    if (serialNo) {
-      const serialNos = getSerialNumbers(serialNo!);
-      if (isOutward) {
-        quantity = -1;
-      } else {
-        quantity = 1;
-      }
+    const serialNumbers = getSerialNumbers(this.serialNumber ?? '');
+    if (serialNumbers.length) {
+      const snStockLedgerEntries = this.#getSerialNumberedStockLedgerEntries(
+        location,
+        isOutward,
+        serialNumbers
+      );
 
-      for (const serialNo of serialNos) {
-        const stockLedgerEntry = this.#getStockLedgerEntry(
-          location,
-          quantity,
-          serialNo!
-        );
-        this.stockLedgerEntries?.push(stockLedgerEntry);
-      }
+      this.stockLedgerEntries?.push(...snStockLedgerEntries);
       return;
     }
 
@@ -310,18 +286,36 @@ class StockManagerItem {
       quantity = -quantity;
     }
 
-    // Stock Ledger Entry
     const stockLedgerEntry = this.#getStockLedgerEntry(location, quantity);
     this.stockLedgerEntries?.push(stockLedgerEntry);
   }
 
-  #getStockLedgerEntry(location: string, quantity: number, serialNo?: string) {
+  #getSerialNumberedStockLedgerEntries(
+    location: string,
+    isOutward: boolean,
+    serialNumbers: string[]
+  ): StockLedgerEntry[] {
+    let quantity = 1;
+    if (isOutward) {
+      quantity = -1;
+    }
+
+    return serialNumbers.map((sn) =>
+      this.#getStockLedgerEntry(location, quantity, sn)
+    );
+  }
+
+  #getStockLedgerEntry(
+    location: string,
+    quantity: number,
+    serialNumber?: string
+  ): StockLedgerEntry {
     return this.fyo.doc.getNewDoc(ModelNameEnum.StockLedgerEntry, {
       date: this.date,
       item: this.item,
       rate: this.rate,
       batch: this.batch || null,
-      serialNo: serialNo || null,
+      serialNumber: serialNumber || null,
       quantity,
       location,
       referenceName: this.referenceName,

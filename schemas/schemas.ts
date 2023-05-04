@@ -11,7 +11,7 @@ import InventorySettings from './app/inventory/InventorySettings.json';
 import Location from './app/inventory/Location.json';
 import PurchaseReceipt from './app/inventory/PurchaseReceipt.json';
 import PurchaseReceiptItem from './app/inventory/PurchaseReceiptItem.json';
-import SerialNo from './app/inventory/SerialNo.json';
+import SerialNumber from './app/inventory/SerialNumber.json';
 import Shipment from './app/inventory/Shipment.json';
 import ShipmentItem from './app/inventory/ShipmentItem.json';
 import StockLedgerEntry from './app/inventory/StockLedgerEntry.json';
@@ -118,5 +118,5 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   PurchaseReceiptItem as Schema,
 
   Batch as Schema,
-  SerialNo as Schema,
+  SerialNumber as Schema,
 ];

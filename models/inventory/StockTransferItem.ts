@@ -28,7 +28,7 @@ export class StockTransferItem extends Doc {
   description?: string;
   hsnCode?: number;
   batch?: string;
-  serialNo?: string;
+  serialNumber?: string;
 
   parentdoc?: StockTransfer;
 
@@ -216,7 +216,7 @@ export class StockTransferItem extends Doc {
 
   override hidden: HiddenMap = {
     batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
-    serialNo: () => !this.fyo.singles.InventorySettings?.enableSerialNo,
+    serialNumber: () => !this.fyo.singles.InventorySettings?.enableSerialNumber,
     transferUnit: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
     transferQuantity: () =>

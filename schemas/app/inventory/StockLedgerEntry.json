@@ -38,10 +38,10 @@
       "section": "Details"
     },
     {
-      "fieldname": "serialNo",
-      "label": "Serial No",
+      "fieldname": "serialNumber",
+      "label": "Serial Number",
       "fieldtype": "Link",
-      "target": "SerialNo",
+      "target": "SerialNumber",
       "readOnly": true,
       "section": "Details"
     },

@@ -10,16 +10,22 @@ import {
   HiddenMap,
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
+import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { Defaults } from 'models/baseModels/Defaults/Defaults';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { addItem, getLedgerLinkAction, getNumberSeries } from 'models/helpers';
-import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { TargetField } from 'schemas/types';
-import { validateBatch, validateSerialNo } from './helpers';
 import { StockTransferItem } from './StockTransferItem';
 import { Transfer } from './Transfer';
+import {
+  getSerialNumberFromDoc,
+  updateSerialNumbers,
+  validateBatch,
+  validateSerialNumber,
+} from './helpers';
+import { SerialNumber } from './SerialNumber';
 
 export abstract class StockTransfer extends Transfer {
   name?: string;
@@ -91,7 +97,7 @@ export abstract class StockTransfer extends Transfer {
         rate: row.rate!,
         quantity: row.quantity!,
         batch: row.batch!,
-        serialNo: row.serialNo!,
+        serialNumber: row.serialNumber!,
         fromLocation,
         toLocation,
       };
@@ -163,7 +169,8 @@ export abstract class StockTransfer extends Transfer {
   override async validate(): Promise<void> {
     await super.validate();
     await validateBatch(this);
-    await validateSerialNo(this);
+    await validateSerialNumber(this);
+    await validateSerialNumberStatus(this);
   }
 
   static getActions(fyo: Fyo): Action[] {
@@ -172,11 +179,13 @@ export abstract class StockTransfer extends Transfer {
 
   async afterSubmit() {
     await super.afterSubmit();
+    await updateSerialNumbers(this, false);
     await this._updateBackReference();
   }
 
   async afterCancel(): Promise<void> {
     await super.afterCancel();
+    await updateSerialNumbers(this, true);
     await this._updateBackReference();
   }
 
@@ -298,5 +307,35 @@ export abstract class StockTransfer extends Transfer {
     await this.set('terms', stDoc.terms);
     await this.set('date', stDoc.date);
     await this.set('items', stDoc.items);
+  }
+}
+
+async function validateSerialNumberStatus(doc: StockTransfer) {
+  for (const serialNumber of getSerialNumberFromDoc(doc)) {
+    const snDoc = await doc.fyo.doc.getDoc(
+      ModelNameEnum.SerialNumber,
+      serialNumber
+    );
+
+    if (!(snDoc instanceof SerialNumber)) {
+      continue;
+    }
+
+    const status = snDoc.status ?? 'Inactive';
+
+    if (
+      doc.schemaName === ModelNameEnum.PurchaseReceipt &&
+      status !== 'Inactive'
+    ) {
+      throw new ValidationError(
+        t`Serial Number ${serialNumber} is not Inactive`
+      );
+    }
+
+    if (doc.schemaName === ModelNameEnum.Shipment && status !== 'Active') {
+      throw new ValidationError(
+        t`Serial Number ${serialNumber} is not Active.`
+      );
+    }
   }
 }

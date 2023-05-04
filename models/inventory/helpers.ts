@@ -1,15 +1,14 @@
-import { t } from 'fyo';
-import { Doc } from 'fyo/model/doc';
-import { DocValueMap } from 'fyo/core/types';
+import { Fyo, t } from 'fyo';
 import { ValidationError } from 'fyo/utils/errors';
-import { Invoice } from 'models/baseModels/Invoice/Invoice';
-import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
+import type { Invoice } from 'models/baseModels/Invoice/Invoice';
+import type { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { ModelNameEnum } from 'models/types';
-import { ShipmentItem } from './ShipmentItem';
-import { StockMovement } from './StockMovement';
-import { StockMovementItem } from './StockMovementItem';
-import { StockTransfer } from './StockTransfer';
-import { StockTransferItem } from './StockTransferItem';
+import { SerialNumber } from './SerialNumber';
+import type { StockMovement } from './StockMovement';
+import type { StockMovementItem } from './StockMovementItem';
+import type { StockTransfer } from './StockTransfer';
+import type { StockTransferItem } from './StockTransferItem';
+import type { SerialNumberStatus } from './types';
 
 export async function validateBatch(
   doc: StockMovement | StockTransfer | Invoice
@@ -22,7 +21,7 @@ export async function validateBatch(
 async function validateItemRowBatch(
   doc: StockMovementItem | StockTransferItem | InvoiceItem
 ) {
-  const idx = doc.idx ?? 0 + 1;
+  const idx = doc.idx ?? 0;
   const item = doc.item;
   const batch = doc.batch;
   if (!item) {
@@ -34,7 +33,7 @@ async function validateItemRowBatch(
   if (!hasBatch && batch) {
     throw new ValidationError(
       [
-        doc.fyo.t`Batch set for row ${idx}.`,
+        doc.fyo.t`Batch set for row ${idx + 1}.`,
         doc.fyo.t`Item ${item} is not a batched item`,
       ].join(' ')
     );
@@ -43,217 +42,200 @@ async function validateItemRowBatch(
   if (hasBatch && !batch) {
     throw new ValidationError(
       [
-        doc.fyo.t`Batch not set for row ${idx}.`,
+        doc.fyo.t`Batch not set for row ${idx + 1}.`,
         doc.fyo.t`Item ${item} is a batched item`,
       ].join(' ')
     );
   }
 }
 
-export async function validateSerialNo(
-  doc: StockMovement | StockTransfer | Invoice
-) {
+export async function validateSerialNumber(doc: StockMovement | StockTransfer) {
   for (const row of doc.items ?? []) {
-    await validateItemRowSerialNo(row, doc.movementType as string);
+    await validateItemRowSerialNumber(row);
   }
 }
 
-async function validateItemRowSerialNo(
-  doc: StockMovementItem | StockTransferItem | InvoiceItem,
-  movementType: string
+async function validateItemRowSerialNumber(
+  row: StockMovementItem | StockTransferItem
 ) {
-  const idx = doc.idx ?? 0 + 1;
-  const item = doc.item;
+  const idx = row.idx ?? 0;
+  const item = row.item;
 
   if (!item) {
     return;
   }
 
-  if (doc.parentdoc?.cancelled) {
+  if (row.parentdoc?.cancelled) {
     return;
   }
 
-  const hasSerialNo = await doc.fyo.getValue(
+  const hasSerialNumber = await row.fyo.getValue(
     ModelNameEnum.Item,
     item,
-    'hasSerialNo'
+    'hasSerialNumber'
   );
 
-  if (hasSerialNo && !doc.serialNo) {
+  if (hasSerialNumber && !row.serialNumber) {
     throw new ValidationError(
       [
-        doc.fyo.t`Serial No not set for row ${idx}.`,
-        doc.fyo.t`Serial No is enabled for Item ${item}`,
+        row.fyo.t`Serial Number not set for row ${idx + 1}.`,
+        row.fyo.t`Serial Number is enabled for Item ${item}`,
       ].join(' ')
     );
   }
 
-  if (!hasSerialNo && doc.serialNo) {
+  if (!hasSerialNumber && row.serialNumber) {
     throw new ValidationError(
       [
-        doc.fyo.t`Serial No set for row ${idx}.`,
-        doc.fyo.t`Serial No is not enabled for Item ${item}`,
+        row.fyo.t`Serial Number set for row ${idx + 1}.`,
+        row.fyo.t`Serial Number is not enabled for Item ${item}`,
       ].join(' ')
     );
   }
 
-  if (!hasSerialNo) return;
+  const serialNumber = row.serialNumber;
+  if (!hasSerialNumber || typeof serialNumber !== 'string') {
+    return;
+  }
 
-  const serialNos = getSerialNumbers(doc.serialNo as string);
+  const serialNumbers = getSerialNumbers(serialNumber);
+  for (const serialNumber of serialNumbers) {
+    if (await row.fyo.db.exists(ModelNameEnum.SerialNumber, serialNumber)) {
+      continue;
+    }
 
-  if (serialNos.length !== doc.quantity) {
+    throw new ValidationError(t`Serial Number ${serialNumber} does not exist.`);
+  }
+
+  const quantity = row.quantity ?? 0;
+  if (serialNumbers.length !== quantity) {
     throw new ValidationError(
-      t`${doc.quantity!} Serial Numbers required for ${doc.item!}. You have provided ${
-        serialNos.length
-      }.`
+      t`Additional ${
+        quantity - serialNumbers.length
+      } Serial Numbers required for ${quantity} quantity of ${item}.`
     );
   }
 
-  for (const serialNo of serialNos) {
-    const { name, status, item } = await doc.fyo.db.get(
-      ModelNameEnum.SerialNo,
-      serialNo,
-      ['name', 'status', 'item']
+  for (const serialNumber of serialNumbers) {
+    const snDoc = await row.fyo.doc.getDoc(
+      ModelNameEnum.SerialNumber,
+      serialNumber
     );
 
-    if (movementType == 'MaterialIssue') {
-      await validateSNMaterialIssue(
-        doc,
-        name as string,
-        item as string,
-        serialNo,
-        status as string
+    if (!(snDoc instanceof SerialNumber)) {
+      continue;
+    }
+
+    if (snDoc.item !== item) {
+      throw new ValidationError(
+        t`Serial Number ${serialNumber} does not belong to the item ${item}.`
       );
     }
 
-    if (movementType == 'MaterialReceipt') {
-      await validateSNMaterialReceipt(
-        doc,
-        name as string,
-        serialNo,
-        status as string
+    const status = snDoc.status ?? 'Inactive';
+    const schemaName = row.parentSchemaName;
+
+    if (schemaName === 'PurchaseReceipt' && status !== 'Inactive') {
+      throw new ValidationError(
+        t`Serial Number ${serialNumber} is not Inactive`
       );
     }
 
-    if (movementType === 'Shipment') {
-      await validateSNShipment(doc, serialNo);
-    }
-
-    if (doc.parentSchemaName === 'PurchaseReceipt') {
-      await validateSNPurchaseReceipt(
-        doc,
-        name as string,
-        serialNo,
-        status as string
+    if (schemaName === 'Shipment' && status !== 'Active') {
+      throw new ValidationError(
+        t`Serial Number ${serialNumber} is not Active.`
       );
     }
   }
 }
 
-export const getSerialNumbers = (serialNo: string): string[] => {
-  return serialNo ? serialNo.split('\n') : [];
-};
+export function getSerialNumbers(serialNumber: string): string[] {
+  if (!serialNumber) {
+    return [];
+  }
 
-export const updateSerialNoStatus = async (
-  doc: Doc,
-  items: StockMovementItem[] | ShipmentItem[],
-  newStatus: string
-) => {
-  for (const item of items) {
-    const serialNos = getSerialNumbers(item.serialNo!);
-    if (!serialNos.length) break;
+  return serialNumber.split('\n').map((s) => s.trim());
+}
 
-    for (const serialNo of serialNos) {
-      await doc.fyo.db.update(ModelNameEnum.SerialNo, {
-        name: serialNo,
-        status: newStatus,
-      });
+export function getSerialNumberFromDoc(doc: StockTransfer | StockMovement) {
+  if (!doc.items?.length) {
+    return [];
+  }
+
+  return doc.items
+    .map((item) => getSerialNumbers(item.serialNumber ?? ''))
+    .flat()
+    .filter(Boolean);
+}
+
+export async function updateSerialNumbers(
+  doc: StockTransfer | StockMovement,
+  isCancel: boolean
+) {
+  for (const row of doc.items ?? []) {
+    if (!row.serialNumber) {
+      continue;
     }
+
+    const status = getSerialNumberStatus(doc, isCancel, row.quantity ?? 0);
+    await updateSerialNumberStatus(status, row.serialNumber, doc.fyo);
   }
-};
+}
 
-
-const validateSNMaterialReceipt = async (
-  doc: Doc,
-  name: string,
-  serialNo: string,
-  status: string
-) => {
-  if (name === undefined) {
-    const values = {
-      name: serialNo,
-      item: doc.item,
-      party: doc.parentdoc?.party as string,
-    };
-    (
-      await doc.fyo.doc
-        .getNewDoc(ModelNameEnum.SerialNo, values as DocValueMap)
-        .sync()
-    ).submit();
+async function updateSerialNumberStatus(
+  status: SerialNumberStatus,
+  serialNumber: string,
+  fyo: Fyo
+) {
+  for (const name of getSerialNumbers(serialNumber)) {
+    await fyo.db.update(ModelNameEnum.SerialNumber, {
+      name,
+      status,
+    });
   }
+}
 
-  if (status && status !== 'Inactive') {
-    throw new ValidationError(t`SerialNo ${serialNo} status is not Inactive`);
-  }
-};
-
-const validateSNPurchaseReceipt = async (
-  doc: Doc,
-  name: string,
-  serialNo: string,
-  status: string
-) => {
-  if (name === undefined) {
-    const values = {
-      name: serialNo,
-      item: doc.item,
-      party: doc.parentdoc?.party as string,
-      status: 'Inactive',
-    };
-    (
-      await doc.fyo.doc
-        .getNewDoc(ModelNameEnum.SerialNo, values as DocValueMap)
-        .sync()
-    ).submit();
+function getSerialNumberStatus(
+  doc: StockTransfer | StockMovement,
+  isCancel: boolean,
+  quantity: number
+): SerialNumberStatus {
+  if (doc.schemaName === ModelNameEnum.Shipment) {
+    return isCancel ? 'Active' : 'Delivered';
   }
 
-  if (status && status !== 'Inactive') {
-    throw new ValidationError(t`SerialNo ${serialNo} status is not Inactive`);
+  if (doc.schemaName === ModelNameEnum.PurchaseReceipt) {
+    return isCancel ? 'Inactive' : 'Active';
   }
-};
 
-const validateSNMaterialIssue = async (
-  doc: Doc,
-  name: string,
-  item: string,
-  serialNo: string,
-  status: string
-) => {
-  if (doc.isCancelled) return;
-
-  if (!name)
-    throw new ValidationError(t`Serial Number ${serialNo} does not exist.`);
-
-  if (status !== 'Active')
-    throw new ValidationError(
-      t`Serial Number ${serialNo} status is not Active`
-    );
-  if (doc.item !== item) {
-    throw new ValidationError(
-      t`Serial Number ${serialNo} does not belong to the item ${
-        doc.item! as string
-      }`
-    );
-  }
-};
-
-const validateSNShipment = async (doc: Doc, serialNo: string) => {
-  const { status } = await doc.fyo.db.get(
-    ModelNameEnum.SerialNo,
-    serialNo,
-    'status'
+  return getSerialNumberStatusForStockMovement(
+    doc as StockMovement,
+    isCancel,
+    quantity
   );
+}
 
-  if (status !== 'Active')
-    throw new ValidationError(t`Serial No ${serialNo} status is not Active`);
-};
+function getSerialNumberStatusForStockMovement(
+  doc: StockMovement,
+  isCancel: boolean,
+  quantity: number
+): SerialNumberStatus {
+  if (doc.movementType === 'MaterialIssue') {
+    return isCancel ? 'Active' : 'Inactive';
+  }
+
+  if (doc.movementType === 'MaterialReceipt') {
+    return isCancel ? 'Inactive' : 'Active';
+  }
+
+  if (doc.movementType === 'MaterialTransfer') {
+    return 'Active';
+  }
+
+  // MovementType is Manufacture
+  if (quantity < 0) {
+    return isCancel ? 'Active' : 'Inactive';
+  }
+
+  return isCancel ? 'Inactive' : 'Active';
+}
