@@ -6,7 +6,7 @@ import { ModelNameEnum } from 'models/types';
 import { default as tape, default as test } from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { StockMovement } from '../StockMovement';
-import { MovementType } from '../types';
+import { MovementTypeEnum } from '../types';
 import { getItem, getSLEs, getStockMovement } from './helpers';
 
 const fyo = getTestFyo();
@@ -57,7 +57,7 @@ test('create stock movement, material receipt', async (t) => {
   const quantity = 2;
   const amount = rate * quantity;
   const stockMovement = await getStockMovement(
-    MovementType.MaterialReceipt,
+    MovementTypeEnum.MaterialReceipt,
     new Date('2022-11-03T09:57:04.528'),
     [
       {
@@ -95,7 +95,7 @@ test('create stock movement, material transfer', async (t) => {
   const quantity = 2;
 
   const stockMovement = await getStockMovement(
-    MovementType.MaterialTransfer,
+    MovementTypeEnum.MaterialTransfer,
     new Date('2022-11-03T09:58:04.528'),
     [
       {
@@ -141,7 +141,7 @@ test('create stock movement, material issue', async (t) => {
   const quantity = 2;
 
   const stockMovement = await getStockMovement(
-    MovementType.MaterialIssue,
+    MovementTypeEnum.MaterialIssue,
     new Date('2022-11-03T09:59:04.528'),
     [
       {
@@ -185,7 +185,7 @@ test('cancel stock movement', async (t) => {
       name
     )) as StockMovement;
 
-    if (doc.movementType === MovementType.MaterialTransfer) {
+    if (doc.movementType === MovementTypeEnum.MaterialTransfer) {
       t.equal(slesBefore.length, (doc.items?.length ?? 0) * 2);
     } else {
       t.equal(slesBefore.length, doc.items?.length ?? 0);
@@ -206,7 +206,7 @@ test('cancel stock movement', async (t) => {
 async function runEntries(
   item: string,
   entries: {
-    type: MovementType;
+    type: MovementTypeEnum;
     date: Date;
     valid: boolean;
     postQuantity: number;
@@ -241,7 +241,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
     item,
     [
       {
-        type: MovementType.MaterialReceipt,
+        type: MovementTypeEnum.MaterialReceipt,
         date: new Date('2022-11-03T09:58:04.528'),
         valid: true,
         postQuantity: quantity,
@@ -255,7 +255,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
         ],
       },
       {
-        type: MovementType.MaterialTransfer,
+        type: MovementTypeEnum.MaterialTransfer,
         date: new Date('2022-11-03T09:58:05.528'),
         valid: false,
         postQuantity: quantity,
@@ -270,7 +270,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
         ],
       },
       {
-        type: MovementType.MaterialIssue,
+        type: MovementTypeEnum.MaterialIssue,
         date: new Date('2022-11-03T09:58:06.528'),
         valid: false,
         postQuantity: quantity,
@@ -284,7 +284,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
         ],
       },
       {
-        type: MovementType.MaterialTransfer,
+        type: MovementTypeEnum.MaterialTransfer,
         date: new Date('2022-11-03T09:58:07.528'),
         valid: true,
         postQuantity: quantity,
@@ -299,7 +299,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
         ],
       },
       {
-        type: MovementType.MaterialIssue,
+        type: MovementTypeEnum.MaterialIssue,
         date: new Date('2022-11-03T09:58:08.528'),
         valid: true,
         postQuantity: 0,
@@ -324,7 +324,7 @@ test('create stock movements, invalid entries, out of sequence', async (t) => {
     item,
     [
       {
-        type: MovementType.MaterialReceipt,
+        type: MovementTypeEnum.MaterialReceipt,
         date: new Date('2022-11-15'),
         valid: true,
         postQuantity: quantity,
@@ -338,7 +338,7 @@ test('create stock movements, invalid entries, out of sequence', async (t) => {
         ],
       },
       {
-        type: MovementType.MaterialIssue,
+        type: MovementTypeEnum.MaterialIssue,
         date: new Date('2022-11-17'),
         valid: true,
         postQuantity: quantity - 5,
@@ -352,7 +352,7 @@ test('create stock movements, invalid entries, out of sequence', async (t) => {
         ],
       },
       {
-        type: MovementType.MaterialTransfer,
+        type: MovementTypeEnum.MaterialTransfer,
         date: new Date('2022-11-16'),
         valid: false,
         postQuantity: quantity - 5,

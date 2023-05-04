@@ -64,8 +64,8 @@
       "section": "Features"
     },
     {
-      "fieldname": "enableSerialNo",
-      "label": "Enable Serial No",
+      "fieldname": "enableSerialNumber",
+      "label": "Enable Serial Number.",
       "fieldtype": "Check",
       "section": "Features"
     },

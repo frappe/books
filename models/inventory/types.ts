@@ -5,12 +5,23 @@ export enum ValuationMethod {
   'MovingAverage' = 'MovingAverage',
 }
 
-export enum MovementType {
+export enum MovementTypeEnum {
   'MaterialIssue' = 'MaterialIssue',
   'MaterialReceipt' = 'MaterialReceipt',
   'MaterialTransfer' = 'MaterialTransfer',
   'Manufacture' = 'Manufacture',
 }
+
+export type MovementType =
+  | 'MaterialIssue'
+  | 'MaterialReceipt'
+  | 'MaterialTransfer'
+  | 'Manufacture';
+
+export type SerialNumberStatus =
+  | 'Inactive'
+  | 'Active'
+  | 'Delivered';
 
 export interface SMDetails {
   date: Date;
@@ -23,7 +34,7 @@ export interface SMTransferDetails {
   rate: Money;
   quantity: number;
   batch?: string;
-  serialNo?: string;
+  serialNumber?: string;
   fromLocation?: string;
   toLocation?: string;
 }

@@ -1,5 +1,4 @@
 export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid';
-export type SerialNoStatus = 'Inactive' | 'Active' | 'Delivered' | 'Expired';
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',
@@ -26,7 +25,7 @@ export enum ModelNameEnum {
   PurchaseInvoiceItem = 'PurchaseInvoiceItem',
   SalesInvoice = 'SalesInvoice',
   SalesInvoiceItem = 'SalesInvoiceItem',
-  SerialNo = 'SerialNo',
+  SerialNumber = 'SerialNumber',
   SetupWizard = 'SetupWizard',
   Tax = 'Tax',
   TaxDetail = 'TaxDetail',

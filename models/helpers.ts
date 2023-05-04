@@ -16,7 +16,7 @@ import {
 import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
-import { InvoiceStatus, SerialNoStatus, ModelNameEnum } from './types';
+import { InvoiceStatus, ModelNameEnum } from './types';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -248,15 +248,19 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   return 'Saved';
 }
 
-export function getSerialNoStatusColumn(): ColumnConfig {
+export function getSerialNumberStatusColumn(): ColumnConfig {
   return {
     label: t`Status`,
     fieldname: 'status',
     fieldtype: 'Select',
     render(doc) {
-      const status = doc.status as SerialNoStatus;
-      const color = serialNoStatusColor[status];
-      const label = getSerialNoStatusText(status as string);
+      let status = doc.status;
+      if (typeof status !== 'string') {
+        status = 'Inactive';
+      }
+
+      const color = serialNumberStatusColor[status] ?? 'gray';
+      const label = getSerialNumberStatusText(status);
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
@@ -265,14 +269,13 @@ export function getSerialNoStatusColumn(): ColumnConfig {
   };
 }
 
-export const serialNoStatusColor: Record<SerialNoStatus, string | undefined> = {
+export const serialNumberStatusColor: Record<string, string | undefined> = {
   Inactive: 'gray',
   Active: 'green',
-  Delivered: 'green',
-  Expired: 'red',
+  Delivered: 'blue',
 };
 
-export function getSerialNoStatusText(status: string): string {
+export function getSerialNumberStatusText(status: string): string {
   switch (status) {
     case 'Inactive':
       return t`Inactive`;
@@ -280,8 +283,6 @@ export function getSerialNoStatusText(status: string): string {
       return t`Active`;
     case 'Delivered':
       return t`Delivered`;
-    case 'Expired':
-      return t`Expired`;
     default:
       return t`Inactive`;
   }

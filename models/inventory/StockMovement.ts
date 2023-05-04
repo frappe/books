@@ -1,4 +1,5 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
+import type { Doc } from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,
@@ -7,23 +8,24 @@ import {
   ListViewSettings,
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
+import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import {
   addItem,
   getDocStatusListColumn,
   getLedgerLinkAction,
 } from 'models/helpers';
-import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import {
-  getSerialNumbers,
-  updateSerialNoStatus,
-  validateBatch,
-  validateSerialNo,
-} from './helpers';
+import { SerialNumber } from './SerialNumber';
 import { StockMovementItem } from './StockMovementItem';
 import { Transfer } from './Transfer';
-import { MovementType } from './types';
+import {
+  getSerialNumberFromDoc,
+  updateSerialNumbers,
+  validateBatch,
+  validateSerialNumber,
+} from './helpers';
+import { MovementType, MovementTypeEnum, SerialNumberStatus } from './types';
 
 export class StockMovement extends Transfer {
   name?: string;
@@ -57,11 +59,22 @@ export class StockMovement extends Transfer {
     await super.validate();
     this.validateManufacture();
     await validateBatch(this);
-    await validateSerialNo(this);
+    await validateSerialNumber(this);
+    await validateSerialNumberStatus(this);
+  }
+
+  async afterSubmit(): Promise<void> {
+    await super.afterSubmit();
+    await updateSerialNumbers(this, false);
+  }
+
+  async afterCancel(): Promise<void> {
+    await super.afterCancel();
+    await updateSerialNumbers(this, true);
   }
 
   validateManufacture() {
-    if (this.movementType !== MovementType.Manufacture) {
+    if (this.movementType !== MovementTypeEnum.Manufacture) {
       return;
     }
 
@@ -77,16 +90,6 @@ export class StockMovement extends Transfer {
     }
   }
 
-  async afterSubmit(): Promise<void> {
-    await super.afterSubmit();
-    await updateSerialNoStatus(this, this.items!, 'Active');
-  }
-
-  async afterCancel(): Promise<void> {
-    await super.afterCancel();
-    await updateSerialNoStatus(this, this.items!, 'Inactive');
-  }
-
   static filters: FiltersMap = {
     numberSeries: () => ({ referenceType: ModelNameEnum.StockMovement }),
   };
@@ -97,10 +100,10 @@ export class StockMovement extends Transfer {
 
   static getListViewSettings(fyo: Fyo): ListViewSettings {
     const movementTypeMap = {
-      [MovementType.MaterialIssue]: fyo.t`Material Issue`,
-      [MovementType.MaterialReceipt]: fyo.t`Material Receipt`,
-      [MovementType.MaterialTransfer]: fyo.t`Material Transfer`,
-      [MovementType.Manufacture]: fyo.t`Manufacture`,
+      [MovementTypeEnum.MaterialIssue]: fyo.t`Material Issue`,
+      [MovementTypeEnum.MaterialReceipt]: fyo.t`Material Receipt`,
+      [MovementTypeEnum.MaterialTransfer]: fyo.t`Material Transfer`,
+      [MovementTypeEnum.Manufacture]: fyo.t`Manufacture`,
     };
 
     return {
@@ -113,7 +116,7 @@ export class StockMovement extends Transfer {
           fieldname: 'movementType',
           fieldtype: 'Select',
           display(value): string {
-            return movementTypeMap[value as MovementType] ?? '';
+            return movementTypeMap[value as MovementTypeEnum] ?? '';
           },
         },
       ],
@@ -126,7 +129,7 @@ export class StockMovement extends Transfer {
       rate: row.rate!,
       quantity: row.quantity!,
       batch: row.batch!,
-      serialNo: row.serialNo!,
+      serialNumber: row.serialNumber!,
       fromLocation: row.fromLocation,
       toLocation: row.toLocation,
     }));
@@ -139,4 +142,52 @@ export class StockMovement extends Transfer {
   async addItem(name: string) {
     return await addItem(name, this);
   }
+}
+
+async function validateSerialNumberStatus(doc: StockMovement) {
+  for (const serialNumber of getSerialNumberFromDoc(doc)) {
+    const snDoc = await doc.fyo.doc.getDoc(
+      ModelNameEnum.SerialNumber,
+      serialNumber
+    );
+
+    if (!(snDoc instanceof SerialNumber)) {
+      continue;
+    }
+
+    const status = snDoc.status ?? 'Inactive';
+
+    if (doc.movementType === 'MaterialReceipt' && status !== 'Inactive') {
+      throw new ValidationError(
+        t`Active Serial Number ${serialNumber} cannot be used for Material Issue`
+      );
+    }
+
+    if (doc.movementType === 'MaterialIssue' && status !=='Active') {
+      validateMaterialIssueSerialNumber(serialNumber, status);
+      throw new ValidationError(
+        t`Inactive Serial Number ${serialNumber} cannot be used for Material Issue`
+      );
+    }
+  }
+}
+
+async function validateMaterialReceiptSerialNumber(
+  serialNumber: string,
+  status: string
+) {
+  if (status === 'Inactive') {
+    return;
+  }
+}
+
+async function validateMaterialIssueSerialNumber(
+  serialNumber: string,
+  status: SerialNumberStatus
+) {
+  if (status === 'Active') {
+    return;
+  }
+
+  throw new ValidationError(t`Serial Number ${serialNumber} is not Active.`);
 }
