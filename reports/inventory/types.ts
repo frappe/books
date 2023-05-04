@@ -6,6 +6,7 @@ export interface RawStockLedgerEntry {
   item: string;
   rate: string;
   batch: string | null;
+  serialNo: string | null;
   quantity: number;
   location: string;
   referenceName: string;
@@ -21,6 +22,7 @@ export interface ComputedStockLedgerEntry{
   item: string;
   location:string;
   batch: string;
+  serialNo: string;
 
   quantity: number;
   balanceQuantity: number;

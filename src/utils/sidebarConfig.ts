@@ -96,6 +96,13 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
           name: 'stock-balance',
           route: '/report/StockBalance',
         },
+        {
+          label: t`Serial No`,
+          name: 'serial-no',
+          route: `/list/SerialNo`,
+          schemaName: 'SerialNo',
+          hidden: () => !fyo.singles.InventorySettings?.enableSerialNo as boolean,
+        },
       ],
     },
   ];
