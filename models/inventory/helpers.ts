@@ -163,7 +163,10 @@ export function getSerialNumbers(serialNumber: string): string[] {
     return [];
   }
 
-  return serialNumber.split('\n').map((s) => s.trim());
+  return serialNumber
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export function getSerialNumberFromDoc(doc: StockTransfer | StockMovement) {
@@ -188,7 +191,7 @@ export async function createSerialNumbers(doc: Transfer) {
     .map((item) => {
       const serialNumbers = getSerialNumbers(item.serialNumber ?? '');
       return serialNumbers.map((serialNumber) => ({
-        item: item.name ?? '',
+        item: item.item ?? '',
         serialNumber,
         isIncoming: isSerialNumberIncoming(item),
       }));
@@ -255,10 +258,8 @@ async function updateSerialNumberStatus(
   fyo: Fyo
 ) {
   for (const name of getSerialNumbers(serialNumber)) {
-    await fyo.db.update(ModelNameEnum.SerialNumber, {
-      name,
-      status,
-    });
+    const doc = await fyo.doc.getDoc(ModelNameEnum.SerialNumber, name);
+    await doc.setAndSync('status', status);
   }
 }
 
@@ -288,7 +289,7 @@ function getSerialNumberStatusForStockMovement(
   isCancel: boolean
 ): SerialNumberStatus {
   if (doc.movementType === 'MaterialIssue') {
-    return isCancel ? 'Active' : 'Inactive';
+    return isCancel ? 'Active' : 'Delivered';
   }
 
   if (doc.movementType === 'MaterialReceipt') {
@@ -301,7 +302,7 @@ function getSerialNumberStatusForStockMovement(
 
   // MovementType is Manufacture
   if (item.fromLocation) {
-    return isCancel ? 'Active' : 'Inactive';
+    return isCancel ? 'Active' : 'Delivered';
   }
 
   return isCancel ? 'Inactive' : 'Active';
