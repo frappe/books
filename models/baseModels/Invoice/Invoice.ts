@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import { DocValue, DocValueMap } from 'fyo/core/types';
+import { DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
   CurrenciesMap,
@@ -10,10 +10,11 @@ import {
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
+import { Transactional } from 'models/Transactional/Transactional';
 import { addItem, getExchangeRate, getNumberSeries } from 'models/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
-import { Transactional } from 'models/Transactional/Transactional';
+import { validateBatch } from 'models/inventory/helpers';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
@@ -116,6 +117,7 @@ export abstract class Invoice extends Transactional {
     ) {
       throw new ValidationError(this.fyo.t`Discount Account is not set.`);
     }
+    await validateBatch(this);
   }
 
   async afterSubmit() {

@@ -2,7 +2,7 @@ import { assertThrows } from 'backend/database/tests/helpers';
 import { ModelNameEnum } from 'models/types';
 import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
-import { MovementType } from '../types';
+import { MovementTypeEnum } from '../types';
 import { getItem, getSLEs, getStockMovement } from './helpers';
 
 const fyo = getTestFyo();
@@ -65,7 +65,7 @@ test('create dummy items, locations & batches', async (t) => {
 test('batched item, create stock movement, material receipt', async (t) => {
   const { rate } = itemMap.Pen;
   const stockMovement = await getStockMovement(
-    MovementType.MaterialReceipt,
+    MovementTypeEnum.MaterialReceipt,
     new Date('2022-11-03T09:57:04.528'),
     [
       {
@@ -142,7 +142,7 @@ test('batched item, create stock movement, material issue', async (t) => {
   const batch = batchMap.batchOne.name;
 
   const stockMovement = await getStockMovement(
-    MovementType.MaterialIssue,
+    MovementTypeEnum.MaterialIssue,
     new Date('2022-11-03T10:00:00.528'),
     [
       {
@@ -188,7 +188,7 @@ test('batched item, create stock movement, material transfer', async (t) => {
   const batch = batchMap.batchTwo.name;
 
   const stockMovement = await getStockMovement(
-    MovementType.MaterialTransfer,
+    MovementTypeEnum.MaterialTransfer,
     new Date('2022-11-03T09:58:04.528'),
     [
       {
@@ -245,7 +245,7 @@ test('batched item, create invalid stock movements', async (t) => {
   }
 
   let stockMovement = await getStockMovement(
-    MovementType.MaterialIssue,
+    MovementTypeEnum.MaterialIssue,
     new Date('2022-11-03T09:59:04.528'),
     [
       {
@@ -265,7 +265,7 @@ test('batched item, create invalid stock movements', async (t) => {
   );
 
   stockMovement = await getStockMovement(
-    MovementType.MaterialIssue,
+    MovementTypeEnum.MaterialIssue,
     new Date('2022-11-03T09:59:04.528'),
     [
       {

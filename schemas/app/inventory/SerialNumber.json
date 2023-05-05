@@ -1,6 +1,6 @@
 {
-  "name": "SerialNo",
-  "label": "Serial No",
+  "name": "SerialNumber",
+  "label": "Serial Number",
   "naming": "manual",
   "fields": [
     {
@@ -27,10 +27,25 @@
     {
       "fieldname": "status",
       "label": "Status",
-      "fieldtype": "Data",
-      "default": "Inactive"
+      "fieldtype": "Select",
+      "default": "Inactive",
+      "readOnly": true,
+      "options": [
+        {
+          "value": "Inactive",
+          "label": "Inactive"
+        },
+        {
+          "value": "Active",
+          "label": "Active"
+        },
+        {
+          "value": "Delivered",
+          "label": "Delivered"
+        }
+      ]
     }
   ],
-  "quickEditFields": ["item", "description", "party"],
+  "quickEditFields": ["item", "description"],
   "keywordFields": ["name"]
 }

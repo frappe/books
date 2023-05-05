@@ -2,7 +2,7 @@ import { ModelNameEnum } from 'models/types';
 import test from 'tape';
 import { getItem } from './helpers';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
-import { MovementType } from '../types';
+import { MovementTypeEnum } from '../types';
 import {
   assertDoesNotThrow,
   assertThrows,
@@ -36,7 +36,7 @@ test('Stock Movement, Material Receipt', async (t) => {
 
   await sm.set({
     date: new Date('2022-01-01'),
-    movementType: MovementType.MaterialReceipt,
+    movementType: MovementTypeEnum.MaterialReceipt,
   });
 
   await sm.append('items', {
@@ -78,7 +78,7 @@ test('Stock Movement, Manufacture', async (t) => {
 
   await sm.set({
     date: new Date('2022-01-02'),
-    movementType: MovementType.Manufacture,
+    movementType: MovementTypeEnum.Manufacture,
   });
 
   await sm.append('items', {
