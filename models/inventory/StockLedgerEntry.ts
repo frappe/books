@@ -11,7 +11,7 @@ export class StockLedgerEntry extends Doc {
   referenceName?: string;
   referenceType?: string;
   batch?: string;
-  serialNo?: string;
+  serialNumber?: string;
 
   static override getListViewSettings(): ListViewSettings {
     return {

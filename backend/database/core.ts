@@ -348,16 +348,20 @@ export default class DatabaseCore extends DatabaseBase {
     }
   }
 
-  async #tableExists(schemaName: string) {
+  async #tableExists(schemaName: string): Promise<boolean> {
     return await this.knex!.schema.hasTable(schemaName);
   }
 
-  async #singleExists(singleSchemaName: string) {
+  async #singleExists(singleSchemaName: string): Promise<boolean> {
     const res = await this.knex!('SingleValue')
       .count('parent as count')
       .where('parent', singleSchemaName)
       .first();
-    return (res?.count ?? 0) > 0;
+    if (typeof res?.count === 'number') {
+      return res.count > 0;
+    }
+
+    return false;
   }
 
   async #dropColumns(schemaName: string, targetColumns: string[]) {

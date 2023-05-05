@@ -14,9 +14,10 @@ import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
 import { StockMovement } from './StockMovement';
-import { MovementType } from './types';
+import { MovementTypeEnum } from './types';
+import { TransferItem } from './TransferItem';
 
-export class StockMovementItem extends Doc {
+export class StockMovementItem extends TransferItem {
   name?: string;
   item?: string;
   fromLocation?: string;
@@ -30,24 +31,26 @@ export class StockMovementItem extends Doc {
 
   rate?: Money;
   amount?: Money;
-  parentdoc?: StockMovement;
+
   batch?: string;
-  serialNo?: string;
+  serialNumber?: string;
+
+  parentdoc?: StockMovement;
 
   get isIssue() {
-    return this.parentdoc?.movementType === MovementType.MaterialIssue;
+    return this.parentdoc?.movementType === MovementTypeEnum.MaterialIssue;
   }
 
   get isReceipt() {
-    return this.parentdoc?.movementType === MovementType.MaterialReceipt;
+    return this.parentdoc?.movementType === MovementTypeEnum.MaterialReceipt;
   }
 
   get isTransfer() {
-    return this.parentdoc?.movementType === MovementType.MaterialTransfer;
+    return this.parentdoc?.movementType === MovementTypeEnum.MaterialTransfer;
   }
 
   get isManufacture() {
-    return this.parentdoc?.movementType === MovementType.Manufacture;
+    return this.parentdoc?.movementType === MovementTypeEnum.Manufacture;
   }
 
   static filters: FiltersMap = {
@@ -237,7 +240,7 @@ export class StockMovementItem extends Doc {
 
   override hidden: HiddenMap = {
     batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
-    serialNo: () => !this.fyo.singles.InventorySettings?.enableSerialNo,
+    serialNumber: () => !this.fyo.singles.InventorySettings?.enableSerialNumber,
     transferUnit: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
     transferQuantity: () =>

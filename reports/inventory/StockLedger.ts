@@ -28,7 +28,7 @@ export class StockLedger extends Report {
   item?: string;
   location?: string;
   batch?: string;
-  serialNo?: string;
+  serialNumber?: string;
   fromDate?: string;
   toDate?: string;
   ascending?: boolean;
@@ -42,9 +42,9 @@ export class StockLedger extends Report {
       .enableBatches;
   }
 
-  get hasSerialNos(): boolean {
+  get hasSerialNumbers(): boolean {
     return !!(this.fyo.singles.InventorySettings as InventorySettings)
-      .enableSerialNo;
+      .enableSerialNumber;
   }
 
   constructor(fyo: Fyo) {
@@ -254,6 +254,26 @@ export class StockLedger extends Report {
   }
 
   getColumns(): ColumnField[] {
+    const batch: Field[] = [];
+    const serialNumber: Field[] = [];
+
+    if (this.hasBatches) {
+      batch.push({
+        fieldname: 'batch',
+        label: 'Batch',
+        fieldtype: 'Link',
+        target: 'Batch',
+      });
+    }
+
+    if (this.hasSerialNumbers) {
+      serialNumber.push({
+        fieldname: 'serialNumber',
+        label: 'Serial Number',
+        fieldtype: 'Data',
+      });
+    }
+
     return [
       {
         fieldname: 'name',
@@ -277,16 +297,8 @@ export class StockLedger extends Report {
         label: 'Location',
         fieldtype: 'Link',
       },
-      ...(this.hasBatches
-        ? ([
-            { fieldname: 'batch', label: 'Batch', fieldtype: 'Link' },
-          ] as ColumnField[])
-        : []),
-      ...(this.hasSerialNos
-        ? ([
-            { fieldname: 'serialNo', label: 'Serial No', fieldtype: 'Data' },
-          ] as ColumnField[])
-        : []),
+      ...batch,
+      ...serialNumber,
       {
         fieldname: 'quantity',
         label: 'Quantity',
