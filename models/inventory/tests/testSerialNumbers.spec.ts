@@ -5,10 +5,9 @@ import {
 import { ModelNameEnum } from 'models/types';
 import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
+import { getSerialNumbers } from '../helpers';
 import { MovementTypeEnum } from '../types';
 import { getItem, getStockMovement } from './helpers';
-import { getSerialNumbers } from '../helpers';
-import type { Doc } from 'fyo/model/doc';
 
 const fyo = getTestFyo();
 
@@ -409,6 +408,19 @@ test('Material Issue, status change of Serial Number', async (t) => {
     const status = await fyo.getValue(ModelNameEnum.SerialNumber, sn, 'status');
     t.equal(status, 'Delivered', `Serial Number ${sn} updated to Delivered`);
   }
+
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      locationMap.LocationOne,
+      undefined,
+      undefined,
+      undefined,
+      serialNumbers
+    ),
+    0,
+    'location one has quantity 0 of serialNumbers after issue'
+  );
 });
 
 closeTestFyo(fyo, __filename);
