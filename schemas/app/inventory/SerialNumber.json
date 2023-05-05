@@ -29,6 +29,7 @@
       "label": "Status",
       "fieldtype": "Select",
       "default": "Inactive",
+      "readOnly": true,
       "options": [
         {
           "value": "Inactive",

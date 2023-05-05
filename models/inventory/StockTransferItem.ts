@@ -12,8 +12,9 @@ import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
 import { StockTransfer } from './StockTransfer';
+import { TransferItem } from './TransferItem';
 
-export class StockTransferItem extends Doc {
+export class StockTransferItem extends TransferItem {
   item?: string;
   location?: string;
 
@@ -25,8 +26,10 @@ export class StockTransferItem extends Doc {
 
   rate?: Money;
   amount?: Money;
+
   description?: string;
   hsnCode?: number;
+
   batch?: string;
   serialNumber?: string;
 

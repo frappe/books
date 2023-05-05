@@ -1,5 +1,4 @@
 import { Fyo, t } from 'fyo';
-import type { Doc } from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,
@@ -20,13 +19,13 @@ import { SerialNumber } from './SerialNumber';
 import { StockMovementItem } from './StockMovementItem';
 import { Transfer } from './Transfer';
 import {
-  createSerialNumbers,
+  canValidateSerialNumber,
   getSerialNumberFromDoc,
   updateSerialNumbers,
   validateBatch,
-  validateSerialNumber,
+  validateSerialNumber
 } from './helpers';
-import { MovementType, MovementTypeEnum, SerialNumberStatus } from './types';
+import { MovementType, MovementTypeEnum } from './types';
 
 export class StockMovement extends Transfer {
   name?: string;
@@ -66,7 +65,6 @@ export class StockMovement extends Transfer {
 
   async afterSubmit(): Promise<void> {
     await super.afterSubmit();
-    await createSerialNumbers(this);
     await updateSerialNumbers(this, false);
   }
 
@@ -147,7 +145,12 @@ export class StockMovement extends Transfer {
 }
 
 async function validateSerialNumberStatus(doc: StockMovement) {
-  for (const serialNumber of getSerialNumberFromDoc(doc)) {
+  for (const { serialNumber, item } of getSerialNumberFromDoc(doc)) {
+    const cannotValidate = !(await canValidateSerialNumber(item, serialNumber));
+    if (cannotValidate) {
+      continue;
+    }
+
     const snDoc = await doc.fyo.doc.getDoc(
       ModelNameEnum.SerialNumber,
       serialNumber
@@ -161,35 +164,26 @@ async function validateSerialNumberStatus(doc: StockMovement) {
 
     if (doc.movementType === 'MaterialReceipt' && status !== 'Inactive') {
       throw new ValidationError(
-        t`Active Serial Number ${serialNumber} cannot be used for Material Issue`
+        t`Non Inactive Serial Number ${serialNumber} cannot be used for Material Receipt`
       );
     }
 
     if (doc.movementType === 'MaterialIssue' && status !== 'Active') {
-      validateMaterialIssueSerialNumber(serialNumber, status);
       throw new ValidationError(
-        t`Inactive Serial Number ${serialNumber} cannot be used for Material Issue`
+        t`Non Active Serial Number ${serialNumber} cannot be used for Material Issue`
+      );
+    }
+
+    if (doc.movementType === 'MaterialTransfer' && status !== 'Active') {
+      throw new ValidationError(
+        t`Non Active Serial Number ${serialNumber} cannot be used for Material Transfer`
+      );
+    }
+
+    if (item.fromLocation && status !== 'Active') {
+      throw new ValidationError(
+        t`Non Active Serial Number ${serialNumber} cannot be used as Manufacture raw material`
       );
     }
   }
-}
-
-async function validateMaterialReceiptSerialNumber(
-  serialNumber: string,
-  status: string
-) {
-  if (status === 'Inactive') {
-    return;
-  }
-}
-
-async function validateMaterialIssueSerialNumber(
-  serialNumber: string,
-  status: SerialNumberStatus
-) {
-  if (status === 'Active') {
-    return;
-  }
-
-  throw new ValidationError(t`Serial Number ${serialNumber} is not Active.`);
 }

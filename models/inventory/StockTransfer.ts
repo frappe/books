@@ -17,15 +17,16 @@ import { addItem, getLedgerLinkAction, getNumberSeries } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { TargetField } from 'schemas/types';
+import { SerialNumber } from './SerialNumber';
 import { StockTransferItem } from './StockTransferItem';
 import { Transfer } from './Transfer';
 import {
+  canValidateSerialNumber,
   getSerialNumberFromDoc,
   updateSerialNumbers,
   validateBatch,
   validateSerialNumber,
 } from './helpers';
-import { SerialNumber } from './SerialNumber';
 
 export abstract class StockTransfer extends Transfer {
   name?: string;
@@ -311,7 +312,12 @@ export abstract class StockTransfer extends Transfer {
 }
 
 async function validateSerialNumberStatus(doc: StockTransfer) {
-  for (const serialNumber of getSerialNumberFromDoc(doc)) {
+  for (const { serialNumber, item } of getSerialNumberFromDoc(doc)) {
+    const cannotValidate = !(await canValidateSerialNumber(item, serialNumber));
+    if (cannotValidate) {
+      continue;
+    }
+
     const snDoc = await doc.fyo.doc.getDoc(
       ModelNameEnum.SerialNumber,
       serialNumber
