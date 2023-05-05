@@ -1,9 +1,14 @@
-import { assertThrows } from 'backend/database/tests/helpers';
+import {
+  assertDoesNotThrow,
+  assertThrows,
+} from 'backend/database/tests/helpers';
 import { ModelNameEnum } from 'models/types';
 import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { MovementTypeEnum } from '../types';
 import { getItem, getStockMovement } from './helpers';
+import { getSerialNumbers } from '../helpers';
+import type { Doc } from 'fyo/model/doc';
 
 const fyo = getTestFyo();
 
@@ -155,13 +160,22 @@ test('serialNumber enabled item, create stock movement, material receipt', async
     null,
     'non transacted item has no quantity'
   );
+
+  const statusOne = await fyo.getValue(
+    ModelNameEnum.SerialNumber,
+    serialNumberMap.serialOne.name,
+    'status'
+  );
+  t.equal(statusOne, 'Active', `serialNumber one is Active`);
+
+  const statusTwo = await fyo.getValue(
+    ModelNameEnum.SerialNumber,
+    serialNumberMap.serialOne.name,
+    'status'
+  );
+
+  t.equal(statusTwo, 'Active', 'serialNumber two is Active');
 });
-
-/**
-
-// FIXME: fix this failing test
-// Test serial number state change
-// Test below fails cause serial number is inactive, it should be active
 
 test('serialNumber enabled item, create stock movement, material issue', async (t) => {
   const { rate } = itemMap.Pen;
@@ -315,6 +329,86 @@ test('serialNumber enabled item, create invalid stock movements', async (t) => {
   );
   t.equal(await fyo.db.getStockQuantity(name), 1, 'item still has quantity');
 });
- */
+
+test('Material Receipt, auto creation of Serial Number', async (t) => {
+  const serialNumber = `001\n002\n003`;
+  const serialNumbers = getSerialNumbers(serialNumber);
+  for (const sn of serialNumbers) {
+    t.equal(
+      await fyo.db.exists(ModelNameEnum.SerialNumber, sn),
+      false,
+      `Serial Number${sn} does not exist`
+    );
+  }
+
+  const doc = await getStockMovement(
+    MovementTypeEnum.MaterialReceipt,
+    new Date('2022-11-04T09:59:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        to: locationMap.LocationOne,
+        quantity: 3,
+        rate: 100,
+        serialNumber,
+      },
+    ],
+    fyo
+  );
+
+  await (await doc.sync()).submit();
+  for (const sn of serialNumbers) {
+    await assertDoesNotThrow(async () => {
+      const sndoc = await fyo.doc.getDoc(ModelNameEnum.SerialNumber, sn);
+      t.equal(sndoc.status, 'Active', `Serial Number ${sn} updated to Active`);
+    }, `SerialNumber ${sn} exists`);
+  }
+
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      locationMap.LocationOne,
+      undefined,
+      undefined,
+      undefined,
+      serialNumbers
+    ),
+    3,
+    'location one has quantity 3 of incoming serialNumbers'
+  );
+});
+
+test('Material Issue, status change of Serial Number', async (t) => {
+  const serialNumber = `001\n002\n003`;
+  const serialNumbers = getSerialNumbers(serialNumber);
+  for (const sn of serialNumbers) {
+    t.equal(
+      await fyo.db.exists(ModelNameEnum.SerialNumber, sn),
+      true,
+      `Serial Number${sn} exists`
+    );
+  }
+
+  const doc = await getStockMovement(
+    MovementTypeEnum.MaterialIssue,
+    new Date('2022-11-05T09:59:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        from: locationMap.LocationOne,
+        quantity: 3,
+        rate: 100,
+        serialNumber,
+      },
+    ],
+    fyo
+  );
+
+  await (await doc.sync()).submit();
+  for (const sn of serialNumbers) {
+    const status = await fyo.getValue(ModelNameEnum.SerialNumber, sn, 'status');
+    t.equal(status, 'Delivered', `Serial Number ${sn} updated to Delivered`);
+  }
+});
 
 closeTestFyo(fyo, __filename);
