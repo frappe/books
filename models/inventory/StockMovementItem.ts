@@ -15,8 +15,9 @@ import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
 import { StockMovement } from './StockMovement';
 import { MovementTypeEnum } from './types';
+import { TransferItem } from './TransferItem';
 
-export class StockMovementItem extends Doc {
+export class StockMovementItem extends TransferItem {
   name?: string;
   item?: string;
   fromLocation?: string;
@@ -30,9 +31,11 @@ export class StockMovementItem extends Doc {
 
   rate?: Money;
   amount?: Money;
-  parentdoc?: StockMovement;
+
   batch?: string;
   serialNumber?: string;
+
+  parentdoc?: StockMovement;
 
   get isIssue() {
     return this.parentdoc?.movementType === MovementTypeEnum.MaterialIssue;

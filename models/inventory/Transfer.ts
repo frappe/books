@@ -1,9 +1,12 @@
 import { Transactional } from 'models/Transactional/Transactional';
 import { StockManager } from './StockManager';
-import { SMTransferDetails } from './types';
+import type { SMTransferDetails } from './types';
+import type { TransferItem } from './TransferItem';
+import { createSerialNumbers } from './helpers';
 
 export abstract class Transfer extends Transactional {
   date?: Date;
+  items?: TransferItem[];
 
   async beforeSubmit(): Promise<void> {
     await super.beforeSubmit();
@@ -13,6 +16,7 @@ export abstract class Transfer extends Transactional {
 
   async afterSubmit(): Promise<void> {
     await super.afterSubmit();
+    await createSerialNumbers(this);
     const transferDetails = this._getTransferDetails();
     await this._getStockManager().createTransfers(transferDetails);
   }

@@ -8,8 +8,9 @@ import type { StockMovement } from './StockMovement';
 import type { StockMovementItem } from './StockMovementItem';
 import type { StockTransfer } from './StockTransfer';
 import type { StockTransferItem } from './StockTransferItem';
+import { Transfer } from './Transfer';
+import { TransferItem } from './TransferItem';
 import type { SerialNumberStatus } from './types';
-import type { PurchaseReceipt } from './PurchaseReceipt';
 
 export async function validateBatch(
   doc: StockMovement | StockTransfer | Invoice
@@ -171,14 +172,17 @@ export function getSerialNumberFromDoc(doc: StockTransfer | StockMovement) {
   }
 
   return doc.items
-    .map((item) => getSerialNumbers(item.serialNumber ?? ''))
+    .map((item) =>
+      getSerialNumbers(item.serialNumber ?? '').map((serialNumber) => ({
+        serialNumber,
+        item,
+      }))
+    )
     .flat()
     .filter(Boolean);
 }
 
-export async function createSerialNumbers(
-  doc: PurchaseReceipt | StockMovement
-) {
+export async function createSerialNumbers(doc: Transfer) {
   const items = doc.items ?? [];
   const serialNumberCreateList = items
     .map((item) => {
@@ -208,7 +212,7 @@ export async function createSerialNumbers(
   }
 }
 
-function isSerialNumberIncoming(item: StockTransferItem | StockMovementItem) {
+function isSerialNumberIncoming(item: TransferItem) {
   if (item.parentdoc?.schemaName === ModelNameEnum.Shipment) {
     return false;
   }
@@ -218,6 +222,17 @@ function isSerialNumberIncoming(item: StockTransferItem | StockMovementItem) {
   }
 
   return !!item.toLocation && !item.fromLocation;
+}
+
+export async function canValidateSerialNumber(
+  item: StockTransferItem | StockMovementItem,
+  serialNumber: string
+) {
+  if (!isSerialNumberIncoming(item)) {
+    return true;
+  }
+
+  return await item.fyo.db.exists(ModelNameEnum.SerialNumber, serialNumber);
 }
 
 export async function updateSerialNumbers(
