@@ -20,6 +20,7 @@ import { SerialNumber } from './SerialNumber';
 import { StockMovementItem } from './StockMovementItem';
 import { Transfer } from './Transfer';
 import {
+  createSerialNumbers,
   getSerialNumberFromDoc,
   updateSerialNumbers,
   validateBatch,
@@ -65,6 +66,7 @@ export class StockMovement extends Transfer {
 
   async afterSubmit(): Promise<void> {
     await super.afterSubmit();
+    await createSerialNumbers(this);
     await updateSerialNumbers(this, false);
   }
 
@@ -163,7 +165,7 @@ async function validateSerialNumberStatus(doc: StockMovement) {
       );
     }
 
-    if (doc.movementType === 'MaterialIssue' && status !=='Active') {
+    if (doc.movementType === 'MaterialIssue' && status !== 'Active') {
       validateMaterialIssueSerialNumber(serialNumber, status);
       throw new ValidationError(
         t`Inactive Serial Number ${serialNumber} cannot be used for Material Issue`
