@@ -121,7 +121,7 @@
       "fieldtype": "Link",
       "target": "Currency",
       "readOnly": true,
-      "tab": "Settings"
+      "hidden": true
     },
     {
       "fieldname": "exchangeRate",
@@ -129,7 +129,7 @@
       "fieldtype": "Float",
       "default": 1,
       "readOnly": true,
-      "tab": "Settings"
+      "hidden": true
     },
     {
       "fieldname": "discountAfterTax",
