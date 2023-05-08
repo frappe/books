@@ -384,6 +384,7 @@ export abstract class Invoice extends Transactional {
 
         return await this.getExchangeRate();
       },
+      dependsOn: ['party', 'currency'],
     },
     netTotal: { formula: async () => this.getSum('items', 'amount', false) },
     taxes: { formula: async () => await this.getTaxSummary() },
@@ -391,6 +392,7 @@ export abstract class Invoice extends Transactional {
     baseGrandTotal: {
       formula: async () =>
         (this.grandTotal as Money).mul(this.exchangeRate! ?? 1),
+      dependsOn: ['grandTotal', 'exchangeRate'],
     },
     outstandingAmount: {
       formula: async () => {
@@ -471,9 +473,6 @@ export abstract class Invoice extends Transactional {
     baseGrandTotal: () =>
       this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
     grandTotal: () => !this.taxes?.length,
-    entryCurrency: () => !this.isMultiCurrency,
-    currency: () => !this.isMultiCurrency,
-    exchangeRate: () => !this.isMultiCurrency,
     stockNotTransferred: () => !this.stockNotTransferred,
     outstandingAmount: () =>
       !!this.outstandingAmount?.isZero() || !this.isSubmitted,

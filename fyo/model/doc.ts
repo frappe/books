@@ -20,6 +20,7 @@ import { isPesa } from '../utils/index';
 import { getDbSyncError } from './errorHelpers';
 import {
   areDocValuesEqual,
+  getFormulaSequence,
   getMissingMandatoryMessage,
   getPreDefaultValues,
   setChildDocIdx,
@@ -815,9 +816,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _applyFormulaForFields(doc: Doc, fieldname?: string) {
-    const formulaFields = this.schema.fields.filter(
-      ({ fieldname }) => this.formulas?.[fieldname]
-    );
+    const formulaFields = getFormulaSequence(this.formulas)
+      .map((f) => this.fyo.getField(this.schemaName, f))
+      .filter(Boolean);
 
     let changed = false;
     for (const field of formulaFields) {
