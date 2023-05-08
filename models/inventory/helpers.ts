@@ -52,6 +52,10 @@ async function validateItemRowBatch(
 }
 
 export async function validateSerialNumber(doc: StockMovement | StockTransfer) {
+  if (doc.isCancelled) {
+    return;
+  }
+
   for (const row of doc.items ?? []) {
     await validateItemRowSerialNumber(row);
   }
