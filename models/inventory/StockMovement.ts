@@ -145,6 +145,10 @@ export class StockMovement extends Transfer {
 }
 
 async function validateSerialNumberStatus(doc: StockMovement) {
+  if (doc.isCancelled) {
+    return;
+  }
+
   for (const { serialNumber, item } of getSerialNumberFromDoc(doc)) {
     const cannotValidate = !(await canValidateSerialNumber(item, serialNumber));
     if (cannotValidate) {

@@ -312,6 +312,10 @@ export abstract class StockTransfer extends Transfer {
 }
 
 async function validateSerialNumberStatus(doc: StockTransfer) {
+  if (doc.isCancelled) {
+    return;
+  }
+
   for (const { serialNumber, item } of getSerialNumberFromDoc(doc)) {
     const cannotValidate = !(await canValidateSerialNumber(item, serialNumber));
     if (cannotValidate) {
