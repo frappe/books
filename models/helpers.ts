@@ -16,7 +16,7 @@ import {
 import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
-import { InvoiceStatus, ModelNameEnum } from './types';
+import { InvoiceStatus, ModelNameEnum, PriceListStatus } from './types';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -405,3 +405,71 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
 
   await item.set('item', name);
 }
+
+export async function getItemRate(doc: Doc) {
+  return (await doc.fyo.getValue('Item', doc.item as string, 'rate')) as Money;
+}
+
+export async function getRateFromPriceList(doc: Doc) {
+  if (!doc.item || !doc.priceList || !doc.unit || !doc.party) {
+    return false;
+  }
+
+  const itemPriceName = (await doc.fyo.db.getItemPrice(
+    doc.item as string,
+    doc.priceList as string,
+    doc.date as Date,
+    doc.date as Date,
+    doc.party as string,
+    doc.transferUnit as string,
+    doc.batch as string
+  )) as string;
+
+  if (!itemPriceName) {
+    return false;
+  }
+
+  return (await doc.fyo.getValue(
+    ModelNameEnum.ItemPrice,
+    itemPriceName as string,
+    'rate'
+  )) as Money;
+}
+
+export function getPriceListStatusColumn(): ColumnConfig {
+  return {
+    label: t`Status`,
+    fieldname: 'status',
+    fieldtype: 'Select',
+    render(doc) {
+      const status = getPriceListStatus(doc) as PriceListStatus;
+      const color = priceListStatusColor[status];
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
+      };
+    },
+  };
+}
+
+export function getPriceListStatus(doc: RenderData | Doc): PriceListStatus {
+  if (doc.validUpto) {
+    const today = new Date(new Date().setHours(0, 0, 0));
+    if ((doc.validUpto as Date) < today) {
+      return 'Expired';
+    }
+  }
+
+  if (doc.enabled) {
+    return 'Enabled';
+  }
+
+  return 'Disabled';
+}
+
+export const priceListStatusColor: Record<PriceListStatus, string | undefined> =
+  {
+    Enabled: 'green',
+    Disabled: 'gray',
+    Expired: 'red',
+  };

@@ -172,4 +172,52 @@ export class BespokeQueries {
 
     return value[0][Object.keys(value[0])[0]];
   }
+
+  static async getItemPrice(
+    db: DatabaseCore,
+    item: string,
+    priceList: string,
+    validFrom: Date,
+    validUpto: Date,
+    party: string,
+    unit?: string,
+    batch?: string
+  ): Promise<string | boolean> {
+    const priceListQuery = await db.knex!(ModelNameEnum.PriceList)
+      .select('isUomDependent')
+      .where('name', priceList)
+      .andWhere('enabled', true);
+
+    if (!priceListQuery.length) {
+      return false;
+    }
+
+    const itemPriceQuery = db.knex!(ModelNameEnum.ItemPrice)
+      .select(['name', 'party'])
+      .where('enabled', true)
+      .andWhere('item', item)
+      .andWhere('priceList', priceList)
+      .andWhere('party', party ?? null)
+      .andWhere('batch', batch ?? null)
+      .andWhereRaw(
+        'datetime(validFrom) <= datetime(?)',
+        new Date(validFrom).toISOString()
+      )
+      .andWhereRaw(
+        'datetime(validUpto) >= datetime(?)',
+        new Date(validUpto).toISOString()
+      );
+
+      const isUomDependent = Object.values(priceListQuery)[0]['isUomDependent'];
+      
+      if (isUomDependent) {
+        itemPriceQuery.andWhere('unit', unit);
+      }
+      
+      if (!(await itemPriceQuery).length) {
+        return false;
+      }
+
+    return Object.values(await itemPriceQuery)[0]['name'];
+  }
 }

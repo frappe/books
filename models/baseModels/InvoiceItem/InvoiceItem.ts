@@ -16,6 +16,7 @@ import { FieldTypeEnum, Schema } from 'schemas/types';
 import { safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
+import { getItemRate, getRateFromPriceList } from 'models/helpers';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -39,6 +40,14 @@ export abstract class InvoiceItem extends Doc {
   itemDiscountPercent?: number;
   itemDiscountedTotal?: Money;
   itemTaxedTotal?: Money;
+
+  get party() {
+    return this.parentdoc?.party;
+  }
+
+  get date() {
+    return this.parentdoc?.date;
+  }
 
   get isSales() {
     return this.schemaName === 'SalesInvoiceItem';
@@ -66,6 +75,10 @@ export abstract class InvoiceItem extends Doc {
 
   get isMultiCurrency() {
     return this.parentdoc?.isMultiCurrency ?? false;
+  }
+
+  get priceList() {
+    return this.parentdoc?.priceList ?? undefined;
   }
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
@@ -97,11 +110,8 @@ export abstract class InvoiceItem extends Doc {
     },
     rate: {
       formula: async (fieldname) => {
-        const rate = (await this.fyo.getValue(
-          'Item',
-          this.item as string,
-          'rate'
-        )) as undefined | Money;
+        const priceListRate = await getRateFromPriceList(this);
+        const rate = priceListRate || (await getItemRate(this));
 
         if (!rate?.float && this.rate?.float) {
           return this.rate;
@@ -140,7 +150,11 @@ export abstract class InvoiceItem extends Doc {
         return rateFromTotals ?? rate ?? this.fyo.pesa(0);
       },
       dependsOn: [
+        'date',
+        'priceList',
+        'batch',
         'party',
+        'transferUnit',
         'exchangeRate',
         'item',
         'itemTaxedTotal',

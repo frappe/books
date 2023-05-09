@@ -1,4 +1,5 @@
 export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid';
+export type PriceListStatus = 'Enabled' | 'Disabled' | 'Expired';
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',
@@ -10,6 +11,7 @@ export enum ModelNameEnum {
   GetStarted = 'GetStarted',
   Defaults = 'Defaults',
   Item = 'Item',
+  ItemPrice = 'ItemPrice',
   UOM = 'UOM',
   UOMConversionItem = 'UOMConversionItem',
   JournalEntry = 'JournalEntry',
@@ -19,6 +21,7 @@ export enum ModelNameEnum {
   Party = 'Party',
   Payment = 'Payment',
   PaymentFor = 'PaymentFor',
+  PriceList = 'PriceList',
   PrintSettings = 'PrintSettings',
   PrintTemplate = 'PrintTemplate',
   PurchaseInvoice = 'PurchaseInvoice',
