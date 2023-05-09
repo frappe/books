@@ -55,7 +55,7 @@ export default {
       }
     },
     select() {
-      this.$refs.control.$refs?.input?.select()
+      this.$refs.control.$refs?.input?.select();
     },
     focus() {
       this.$refs.control.focus();
