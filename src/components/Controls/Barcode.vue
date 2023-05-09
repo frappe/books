@@ -35,9 +35,11 @@ export default defineComponent({
     return {
       timerId: null,
       barcode: '',
+      cooldown: '',
     } as {
-      timerId: null | ReturnType<typeof setInterval>;
+      timerId: null | ReturnType<typeof setTimeout>;
       barcode: string;
+      cooldown: string;
     };
   },
   mounted() {
@@ -63,6 +65,17 @@ export default defineComponent({
       if (!/\d{12,}/.test(barcode)) {
         return this.error(this.t`Invalid barcode value ${barcode}.`);
       }
+
+      /**
+       * Between two entries of the same item, this adds
+       * a cooldown period of 100ms. This is to prevent
+       * double entry.
+       */
+      if (this.cooldown === barcode) {
+        return;
+      }
+      this.cooldown = barcode;
+      setTimeout(() => (this.cooldown = ''), 100);
 
       const items = (await this.fyo.db.getAll('Item', {
         filters: { barcode },
@@ -97,12 +110,10 @@ export default defineComponent({
         return await this.setItemFromBarcode();
       }
 
-      if (this.timerId !== null) {
-        clearInterval(this.timerId);
-      }
+      this.clearInterval();
 
       this.barcode += key;
-      this.timerId = setInterval(async () => {
+      this.timerId = setTimeout(async () => {
         await this.setItemFromBarcode();
         this.barcode = '';
       }, 20);
@@ -115,9 +126,15 @@ export default defineComponent({
       await this.selectItem(this.barcode);
 
       this.barcode = '';
-      if (this.timerId !== null) {
-        clearInterval(this.timerId);
+      this.clearInterval();
+    },
+    clearInterval() {
+      if (this.timerId === null) {
+        return;
       }
+
+      clearInterval(this.timerId);
+      this.timerId = null;
     },
     error(message: string) {
       showToast({ type: 'error', message });
