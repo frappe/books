@@ -1,12 +1,8 @@
 <template>
   <div>
     <!-- Search Bar Button -->
-    <Button @click="open" class="px-2" :padding="false">
-      <feather-icon name="search" class="w-4 h-4 me-1 text-gray-800" />
-      <p>{{ t`Search` }}</p>
-      <div class="text-gray-500 px-1 ms-4 text-sm whitespace-nowrap">
-        {{ modKeyText('k') }}
-      </div>
+    <Button @click="open" class="px-3 py-2 rounded-r-none" :padding="false">
+      <feather-icon name="search" class="w-4 h-4 text-gray-700" />
     </Button>
   </div>
 
@@ -291,14 +287,6 @@ export default defineComponent({
       for (const { shortcut, callback } of this.getShortcuts()) {
         this.shortcuts!.pmod.set(COMPONENT_NAME, [shortcut], callback);
       }
-    },
-    modKeyText(key: string): string {
-      key = key.toUpperCase();
-      if (this.platform === 'Mac') {
-        return `⌘ ${key}`;
-      }
-
-      return `Ctrl ${key}`;
     },
     open(): void {
       this.openModal = true;
