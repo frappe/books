@@ -5,6 +5,7 @@ node_modules
 
 # local env files
 .env
+.env.publish
 .env.local
 .env.*.local
 
@@ -24,4 +25,5 @@ yarn-error.log*
 
 #Electron-builder output
 /dist_electron
+/build_publish
 log_creds.txt
