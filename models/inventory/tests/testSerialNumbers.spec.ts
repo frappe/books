@@ -421,6 +421,55 @@ test('Material Issue, status change of Serial Number', async (t) => {
     0,
     'location one has quantity 0 of serialNumbers after issue'
   );
+
+  await doc.cancel();
+  for (const sn of serialNumbers) {
+    const status = await fyo.getValue(ModelNameEnum.SerialNumber, sn, 'status');
+    t.equal(
+      status,
+      'Active',
+      `Serial Number ${sn} updated to Active post cancel`
+    );
+  }
+});
+
+test('Material Receipt cancellation, Serial Number status update', async (t) => {
+  const serialNumber = `004\n005\n006`;
+  const serialNumbers = getSerialNumbers(serialNumber);
+  const doc = await getStockMovement(
+    MovementTypeEnum.MaterialReceipt,
+    new Date('2022-11-04T09:59:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        to: locationMap.LocationOne,
+        quantity: 3,
+        rate: 100,
+        serialNumber,
+      },
+    ],
+    fyo
+  );
+
+  await (await doc.sync()).submit();
+  for (const sn of serialNumbers) {
+    const status = await fyo.getValue(ModelNameEnum.SerialNumber, sn, 'status');
+    t.equal(
+      status,
+      'Active',
+      `Serial Number ${sn} updated to Active after submit`
+    );
+  }
+
+  await doc.cancel();
+  for (const sn of serialNumbers) {
+    const status = await fyo.getValue(ModelNameEnum.SerialNumber, sn, 'status');
+    t.equal(
+      status,
+      'Inactive',
+      `Serial Number ${sn} updated to InActive after cancel`
+    );
+  }
 });
 
 closeTestFyo(fyo, __filename);
