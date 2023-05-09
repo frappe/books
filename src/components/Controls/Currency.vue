@@ -19,7 +19,7 @@
     />
     <div
       v-show="!showInput"
-      class="whitespace-nowrap overflow-x-auto"
+      class="whitespace-nowrap overflow-x-auto no-scrollbar"
       :class="[inputClasses, containerClasses, ,]"
       @click="activateInput"
       @focus="activateInput"
