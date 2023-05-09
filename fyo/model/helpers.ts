@@ -1,11 +1,11 @@
 import { Fyo } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { isPesa } from 'fyo/utils';
-import { isEqual } from 'lodash';
-import { Money } from 'pesa';
+import { cloneDeep, isEqual } from 'lodash';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import { Doc } from './doc';
+import { FormulaMap } from './types';
 
 export function areDocValuesEqual(
   dvOne: DocValue | Doc[],
@@ -148,4 +148,43 @@ export function setChildDocIdx(childDocs: Doc[]) {
   for (const idx in childDocs) {
     childDocs[idx].idx = +idx;
   }
+}
+
+export function getFormulaSequence(formulas: FormulaMap) {
+  const depMap = Object.keys(formulas).reduce((acc, k) => {
+    acc[k] = formulas[k]?.dependsOn;
+    return acc;
+  }, {} as Record<string, string[] | undefined>);
+  return sequenceDependencies(cloneDeep(depMap));
+}
+
+function sequenceDependencies(
+  depMap: Record<string, string[] | undefined>
+): string[] {
+  /**
+   * Sufficiently okay algo to sequence dependents after
+   * their dependencies
+   */
+  const keys = Object.keys(depMap);
+
+  const independent = keys.filter((k) => !depMap[k]?.length);
+  const dependent = keys.filter((k) => depMap[k]?.length);
+
+  const keyset = new Set(independent);
+
+  for (const k of dependent) {
+    const deps = depMap[k] ?? [];
+    deps.push(k);
+
+    while (deps.length) {
+      const d = deps.shift()!;
+      if (keyset.has(d)) {
+        continue;
+      }
+
+      keyset.add(d);
+    }
+  }
+
+  return Array.from(keyset).filter((k) => k in depMap);
 }

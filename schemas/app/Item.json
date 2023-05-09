@@ -140,7 +140,7 @@
     },
     {
       "fieldname": "hasSerialNumber",
-      "label": "Has Serial Number.",
+      "label": "Has Serial Number",
       "fieldtype": "Check",
       "default": false,
       "section": "Inventory"

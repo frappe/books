@@ -131,7 +131,8 @@ export default {
     },
     async openNewDoc() {
       const schemaName = this.df.target;
-      const name = this.linkValue;
+      const name =
+        this.linkValue || fyo.doc.getTemporaryName(fyo.schemaMap[schemaName]);
       const filters = await this.getCreateFilters();
       const { openQuickEdit } = await import('src/utils/ui');
 

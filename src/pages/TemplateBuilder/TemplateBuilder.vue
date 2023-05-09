@@ -18,7 +18,7 @@
         {{ t`Save as PDF` }}
       </Button>
       <Button
-        v-if="doc && displayDoc"
+        v-if="doc && doc.isCustom && displayDoc"
         :title="t`Toggle Edit Mode`"
         :icon="true"
         @click="toggleEditMode"
@@ -315,6 +315,7 @@ export default defineComponent({
     }
   },
   async activated(): Promise<void> {
+    await this.initialize();
     docsPathRef.value = docsPathMap.PrintTemplate ?? '';
     this.setShortcuts();
   },
@@ -323,6 +324,11 @@ export default defineComponent({
     if (this.editMode) {
       this.disableEditMode();
     }
+
+    if (this.doc?.dirty) {
+      return;
+    }
+    this.reset();
   },
   methods: {
     setShortcuts() {
@@ -356,6 +362,10 @@ export default defineComponent({
       }
 
       await this.setDisplayInitialDoc();
+    },
+    reset() {
+      this.doc = null;
+      this.displayDoc = null;
     },
     getTemplateEditorState() {
       const fallback = this.doc?.template ?? '';

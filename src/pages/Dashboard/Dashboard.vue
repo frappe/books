@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-hidden h-screen" style="width: var(--w-desk)">
+  <div class="h-screen" style="width: var(--w-desk)">
     <PageHeader :title="t`Dashboard`">
       <div
         class="
@@ -20,11 +20,11 @@
       </div>
     </PageHeader>
 
-    <div class="no-scrollbar overflow-auto h-full">
-      <div
-        style="min-width: var(--w-desk-fixed); min-height: var(--h-app)"
-        class="overflow-auto"
-      >
+    <div
+      class="no-scrollbar overflow-auto"
+      style="height: calc(100vh - var(--h-row-largest) - 1px)"
+    >
+      <div style="min-width: var(--w-desk-fixed)" class="overflow-auto">
         <Cashflow
           class="p-4"
           :common-period="period"
