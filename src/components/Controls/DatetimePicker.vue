@@ -2,7 +2,13 @@
   <div>
     <!-- Datetime header -->
     <div class="flex justify-between items-center text-sm px-4 pt-4">
-      <div class="text-blue-500">
+      <div
+        v-if="viewMonth !== month || viewYear !== year"
+        class="text-gray-900"
+      >
+        {{ `${months[viewMonth]}, ${viewYear}` }}
+      </div>
+      <div v-else class="text-blue-500">
         {{ datetimeString }}
       </div>
 

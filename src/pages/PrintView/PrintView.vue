@@ -91,21 +91,20 @@ export default defineComponent({
     };
   },
   async mounted() {
-    this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
-    await this.setTemplateList();
+    await this.initialize();
     if (fyo.store.isDevelopment) {
       // @ts-ignore
       window.pv = this;
     }
-
-    await this.setTemplateFromDefault();
-    if (!this.templateDoc && this.templateList.length) {
-      await this.onTemplateNameChange(this.templateList[0]);
-    }
-
-    if (this.doc) {
-      this.values = await getPrintTemplatePropValues(this.doc as Doc);
-    }
+  },
+  async activated() {
+    await this.initialize();
+  },
+  unmounted() {
+    this.reset();
+  },
+  deactivated() {
+    this.reset();
   },
   computed: {
     helperMessage() {
@@ -191,6 +190,24 @@ export default defineComponent({
     },
   },
   methods: {
+    async initialize() {
+      this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
+      await this.setTemplateList();
+      await this.setTemplateFromDefault();
+      if (!this.templateDoc && this.templateList.length) {
+        await this.onTemplateNameChange(this.templateList[0]);
+      }
+
+      if (this.doc) {
+        this.values = await getPrintTemplatePropValues(this.doc as Doc);
+      }
+    },
+    reset() {
+      this.doc = null;
+      this.values = null;
+      this.templateList = [];
+      this.templateDoc = null;
+    },
     async onTemplateNameChange(value: string | null): Promise<void> {
       if (!value) {
         this.templateDoc = null;
