@@ -80,6 +80,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enablePriceList",
+      "label": "Enable Price List",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",
