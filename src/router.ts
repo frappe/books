@@ -9,7 +9,9 @@ import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
 import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
+import { reactive } from 'vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { historyState } from './utils/refs';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -112,4 +114,10 @@ const routes: RouteRecordRaw[] = [
 ];
 
 const router = createRouter({ routes, history: createWebHistory() });
+
+router.afterEach(() => {
+  historyState.forward = !!history.state.forward;
+  historyState.back = !!history.state.back;
+});
+
 export default router;
