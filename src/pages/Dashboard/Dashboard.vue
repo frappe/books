@@ -21,7 +21,7 @@
     </PageHeader>
 
     <div
-      class="custom-scroll overflow-auto"
+      class="no-scrollbar overflow-auto"
       style="height: calc(100vh - var(--h-row-largest) - 1px)"
     >
       <div style="min-width: var(--w-desk-fixed)" class="overflow-auto">
