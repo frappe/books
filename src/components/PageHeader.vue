@@ -13,23 +13,32 @@
         :class="spacerClass"
       />
     </Transition>
-    <h1
-      class="text-xl font-semibold select-none whitespace-nowrap"
-      v-if="title"
+
+    <div
+      class="flex items-center window-no-drag gap-4 me-auto"
+      :class="platform === 'Mac' && languageDirection === 'rtl' ? 'me-18' : ''"
     >
-      {{ title }}
-    </h1>
-    <div class="flex items-stretch window-no-drag gap-2">
-      <slot name="left" />
+      <!-- Nav Group -->
+      <PageHeaderNavGroup />
+      <h1
+        class="text-xl font-semibold select-none whitespace-nowrap"
+        v-if="title"
+      >
+        {{ title }}
+      </h1>
+
+      <!-- Left Slot -->
+      <div class="flex items-stretch window-no-drag gap-4">
+        <slot name="left" />
+      </div>
     </div>
+
+    <!-- Right (regular) Slot -->
     <div
       class="flex items-stretch window-no-drag gap-2 ms-auto"
       :class="platform === 'Mac' && languageDirection === 'rtl' ? 'me-18' : ''"
     >
       <slot />
-      <div class="border-e" v-if="showBorder" />
-      <BackLink v-if="backLink" class="window-no-drag rtl-rotate-180" />
-      <SearchBar v-if="!hideSearch" />
     </div>
   </div>
 </template>
@@ -37,18 +46,15 @@
 import { languageDirectionKey } from 'src/utils/injectionKeys';
 import { showSidebar } from 'src/utils/refs';
 import { defineComponent, inject, Transition } from 'vue';
-import BackLink from './BackLink.vue';
-import SearchBar from './SearchBar.vue';
+import PageHeaderNavGroup from './PageHeaderNavGroup.vue';
 
 export default defineComponent({
   props: {
     title: { type: String, default: '' },
-    backLink: { type: Boolean, default: true },
-    hideSearch: { type: Boolean, default: false },
     border: { type: Boolean, default: true },
     searchborder: { type: Boolean, default: true },
   },
-  components: { BackLink, SearchBar, Transition },
+  components: { Transition, PageHeaderNavGroup },
   setup() {
     return { showSidebar, languageDirection: inject(languageDirectionKey) };
   },

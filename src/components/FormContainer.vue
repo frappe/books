@@ -14,7 +14,7 @@
         <slot name="header" />
       </PageHeader>
 
-      <!-- Invoice Form -->
+      <!-- Common Form -->
       <div
         class="
           border
