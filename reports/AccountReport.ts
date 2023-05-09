@@ -286,7 +286,7 @@ export abstract class AccountReport extends LedgerReport {
         this.fromYear!,
         this.fyo
       );
-      toDate = fy.toDate;
+      toDate = DateTime.fromISO(fy.toDate).plus({ days: 1 }).toISODate();
       fromDate = fy.fromDate;
     }
 

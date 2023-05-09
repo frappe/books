@@ -324,6 +324,10 @@ export default defineComponent({
     if (this.editMode) {
       this.disableEditMode();
     }
+
+    if (this.doc?.dirty) {
+      return;
+    }
     this.reset();
   },
   methods: {
