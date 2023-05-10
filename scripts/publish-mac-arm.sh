@@ -31,12 +31,16 @@ echo $ERR_LOG_SECRET >> log_creds.txt
 echo $ERR_LOG_URL >> log_creds.txt
 echo $TELEMETRY_URL >> log_creds.txt
 
-# Enable Code Signing
-CSC_IDENTITY_AUTO_DISCOVERY=true
 
-# Build
+# Install Dependencies
 yarn install
+
+# Set .env and build
 export GH_TOKEN=$GH_PUBLISH_TOKEN &&
+ export CSC_IDENTITY_AUTO_DISCOVERY=true &&
+ export APPLE_ID=$APPLE_ID &&
+ export APPLE_TEAM_ID=$APPLE_TEAM_ID &&
+ export APPLE_APP_SPECIFIC_PASSWORD=$APPLE_APP_SPECIFIC_PASSWORD &&
  yarn electron:build --mac --publish=always
 
 cd ../../
