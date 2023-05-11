@@ -109,6 +109,9 @@ export default defineComponent({
   },
   async mounted() {
     this.docOrNull = getSetupWizardDoc();
+    if (!this.fyo.db.isConnected) {
+      await this.fyo.db.init();
+    }
 
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore

@@ -78,14 +78,14 @@ import FormHeader from 'src/components/FormHeader.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { getErrorMessage } from 'src/utils';
 import { evaluateHidden } from 'src/utils/doc';
-import { showToast } from 'src/utils/interactive';
+import { shortcutsKey } from 'src/utils/injectionKeys';
+import { showDialog } from 'src/utils/interactive';
 import { reloadWindow } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { UIGroupedFields } from 'src/utils/types';
 import { computed, defineComponent, inject } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
-import { shortcutsKey } from 'src/utils/injectionKeys';
 
 const COMPONENT_NAME = 'Settings';
 
@@ -165,11 +165,22 @@ export default defineComponent({
       }
 
       this.update();
-      await showToast({
-        message: this.t`Changes will be visible on reload`,
-        actionText: this.t`Reload App`,
+      showDialog({
+        title: this.t`Reload Frappe Books?`,
+        detail: this.t`Changes made to settings will be visible on reload.`,
         type: 'info',
-        action: reloadWindow,
+        buttons: [
+          {
+            label: this.t`Yes`,
+            isPrimary: true,
+            action: reloadWindow,
+          },
+          {
+            label: this.t`No`,
+            action() {},
+            isEscape: true,
+          },
+        ],
       });
     },
     async syncDoc(doc: Doc): Promise<void> {

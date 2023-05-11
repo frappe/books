@@ -167,7 +167,7 @@ export class Fyo {
   }
 
   getField(schemaName: string, fieldname: string) {
-    return this.fieldMap[schemaName][fieldname];
+    return this.fieldMap[schemaName]?.[fieldname];
   }
 
   async getValue(
