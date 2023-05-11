@@ -17,6 +17,7 @@ fi
 source .env.publish
 
 # Create folder for the publish build
+cd ../
 rm -rf build_publish
 mkdir build_publish
 cd build_publish
@@ -36,11 +37,11 @@ echo $TELEMETRY_URL >> log_creds.txt
 yarn install
 
 # Set .env and build
-export GH_TOKEN=$GH_PUBLISH_TOKEN &&
+export GH_TOKEN=$GH_TOKEN &&
  export CSC_IDENTITY_AUTO_DISCOVERY=true &&
  export APPLE_ID=$APPLE_ID &&
  export APPLE_TEAM_ID=$APPLE_TEAM_ID &&
  export APPLE_APP_SPECIFIC_PASSWORD=$APPLE_APP_SPECIFIC_PASSWORD &&
  yarn electron:build --mac --publish=always
 
-cd ../../
+cd ../books
