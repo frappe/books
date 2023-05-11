@@ -180,14 +180,13 @@ export class StockManager {
     }
 
     const quantityRemaining = quantityBefore - details.quantity;
-    if (quantityAfter < quantityRemaining) {
+    const futureQuantity = quantityRemaining + quantityAfter;
+    if (futureQuantity < 0) {
       throw new ValidationError(
         [
           t`Insufficient Quantity.`,
           t`Transfer will cause future entries to have negative stock.`,
-          t`Additional quantity (${
-            quantityAfter - quantityRemaining
-          }) required${batchMessage} to make outward transfer of item ${
+          t`Additional quantity (${-futureQuantity}) required${batchMessage} to make outward transfer of item ${
             details.item
           } from ${details.fromLocation} on ${formattedDate}`,
         ].join('\n')
