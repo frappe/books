@@ -26,6 +26,7 @@ import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
+import { find } from 'lodash';
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
@@ -49,6 +50,7 @@ export abstract class Invoice extends Transactional {
   submitted?: boolean;
   cancelled?: boolean;
   makeAutoPayment?: boolean;
+  returnAgainst?: string;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
@@ -138,12 +140,40 @@ export abstract class Invoice extends Transactional {
       await payment?.submit();
       await this.load();
     }
+
+    if (this.isReturn && this.returnAgainst) {
+      if (!this.outstandingAmount) {
+        return;
+      }
+
+      const invoiceDoc = await this.fyo.doc.getDoc(
+        this.schemaName,
+        this.returnAgainst as string
+      );
+
+      const invoiceOutstandingAmount = invoiceDoc.outstandingAmount as Money;
+
+      if (invoiceOutstandingAmount.isZero()) {
+        return;
+      }
+
+      const outstandingAmount = invoiceOutstandingAmount.sub(
+        this.outstandingAmount.abs(),
+        this.currency
+      );
+
+      await this.fyo.db.update(this.schemaName, {
+        name: this.returnAgainst as string,
+        outstandingAmount,
+      });
+    }
   }
 
   async afterCancel() {
     await super.afterCancel();
     await this._cancelPayments();
     await this._updatePartyOutStanding();
+    await this._updateReturnCompleteStatus();
   }
 
   async _cancelPayments() {
@@ -164,6 +194,17 @@ export abstract class Invoice extends Transactional {
     )) as Party;
 
     await partyDoc.updateOutstandingAmount();
+  }
+
+  async _updateReturnCompleteStatus() {
+    if (!this.isReturn && !this.returnAgainst) {
+      return;
+    }
+ 
+    await this.fyo.db.update(this.schemaName, {
+      name: this.returnAgainst,
+      returnCompleted: false,
+    });
   }
 
   async afterDelete() {
@@ -479,6 +520,8 @@ export abstract class Invoice extends Transactional {
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
+    isReturn: () => !this.isSubmitted && !this.isReturn,
+    returnAgainst: () => !this.isReturn,
   };
 
   static defaults: DefaultMap = {
