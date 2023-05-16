@@ -23,6 +23,13 @@
       "required": true,
       "edit": true,
       "section": "Items"
+    },
+    {
+      "fieldname": "returnAgainst",
+      "label": "Return Against",
+      "fieldtype": "Link",
+      "target": "PurchaseInvoice",
+      "section": "Return"
     }
   ],
   "keywordFields": ["name", "party"]

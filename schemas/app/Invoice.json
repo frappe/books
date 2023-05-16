@@ -174,6 +174,20 @@
       "label": "Attachment",
       "fieldtype": "Attachment",
       "section": "References"
+    },
+    {
+      "fieldname": "isReturn",
+      "label": "Is Return",
+      "placeholder": "Is Return",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Return"
+    },
+    {
+      "fieldname": "returnCompleted",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
     }
   ],
   "keywordFields": ["name", "party"]
