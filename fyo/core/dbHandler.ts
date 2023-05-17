@@ -327,6 +327,19 @@ export class DatabaseHandler extends DatabaseBase {
     )) as number | null;
   }
 
+  async getInvoiceReturnedItemQty(
+    schemaName: string,
+    item: string,
+    invoice: string
+  ): Promise<number> {
+    return (await this.#demux.callBespoke(
+      'getInvoiceReturnedItemQty',
+      schemaName,
+      item,
+      invoice
+    )) as number;
+  }
+
   /**
    * Internal methods
    */

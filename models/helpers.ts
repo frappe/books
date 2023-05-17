@@ -16,7 +16,10 @@ import {
 import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
+import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
+import { openEdit } from 'src/utils/ui';
 import { InvoiceStatus, ModelNameEnum } from './types';
+import { DocValueMap } from 'fyo/core/types';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -24,6 +27,8 @@ export function getInvoiceActions(
 ): Action[] {
   return [
     getMakePaymentAction(fyo),
+    getMakeCreditNoteAction(fyo, schemaName),
+    getMakeDebitNoteAction(fyo, schemaName),
     getMakeStockTransferAction(fyo, schemaName),
     getLedgerLinkAction(fyo),
   ];
@@ -60,7 +65,7 @@ export function getMakePaymentAction(fyo: Fyo): Action {
     label: fyo.t`Payment`,
     group: fyo.t`Create`,
     condition: (doc: Doc) =>
-      doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
+      doc.isSubmitted && !doc.isReturn && !(doc.outstandingAmount as Money).isZero(),
     action: async (doc, router) => {
       const payment = (doc as Invoice).getPayment();
       if (!payment) {
@@ -130,6 +135,146 @@ export function getLedgerLink(
   };
 }
 
+function getMakeCreditNoteAction(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
+): Action {
+  return {
+    label: fyo.t`Return / Credit Note`,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) =>
+      schemaName === ModelNameEnum.SalesInvoice &&
+      doc.isSubmitted &&
+      !doc.isReturn &&
+      !doc.returnCompleted,
+    action: async (doc: Doc) => {
+      const salesInvoice = doc.getValidDict(true, true) as DocValueMap;
+      const rawCreditNote = (await createReturnDoc(
+        salesInvoice,
+        ModelNameEnum.SalesInvoice,
+        fyo
+      )) as DocValueMap;
+
+      const rawCreditNoteDoc = doc.fyo.doc.getNewDoc(
+        doc.schemaName,
+        rawCreditNote,
+        true
+      ) as Invoice;
+
+      rawCreditNoteDoc.once('afterSubmit', async () => {
+        await updateReturnCompleteStatus(rawCreditNoteDoc);
+      });
+      return openEdit(rawCreditNoteDoc);
+    },
+  };
+}
+
+async function updateReturnCompleteStatus(doc: Invoice) {
+  if (!doc.items) {
+    return;
+  }
+
+  for (const item of doc.items) {
+    if (!item.item) {
+      return;
+    }
+    const invoiceItem = await doc.fyo.db.getAll(`${doc.schemaName}Item`, {
+      filters: {
+        item: item.item,
+        parent: doc.returnAgainst as string,
+      },
+      fields: ['quantity'],
+    });
+
+    if (!invoiceItem) {
+      return;
+    }
+
+    const invoiceItemQty = (invoiceItem[0].quantity as number) ?? 0;
+
+    const returnedItemQty = await doc.fyo.db.getInvoiceReturnedItemQty(
+      doc.schemaName,
+      item.item,
+      doc.returnAgainst as string
+    );
+    if (returnedItemQty !== invoiceItemQty) {
+      return;
+    }
+  }
+  doc.fyo.db.update(doc.schemaName, {
+    name: doc.returnAgainst,
+    returnCompleted: true,
+  });
+}
+
+function getMakeDebitNoteAction(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
+): Action {
+  return {
+    label: fyo.t`Return / Debit Note`,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) =>
+      schemaName === ModelNameEnum.PurchaseInvoice &&
+      doc.isSubmitted &&
+      !doc.isReturn &&
+      !doc.returnCompleted,
+    action: async (doc: Doc) => {
+      const purchaseInvoice = doc.getValidDict(true, true) as DocValueMap;
+      const rawDebitNote = (await createReturnDoc(
+        purchaseInvoice,
+        ModelNameEnum.SalesInvoice,
+        fyo
+      )) as DocValueMap;
+
+      const rawDebitNoteDoc = doc.fyo.doc.getNewDoc(
+        doc.schemaName,
+        rawDebitNote,
+        true
+      ) as Invoice;
+
+      rawDebitNoteDoc.once('afterSubmit', async () => {
+        await updateReturnCompleteStatus(rawDebitNoteDoc);
+      });
+      return openEdit(rawDebitNoteDoc);
+    },
+  };
+}
+
+async function createReturnDoc(
+  doc: DocValueMap,
+  schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice,
+  fyo: Fyo
+): Promise<DocValueMap> {
+  doc.isReturn = true;
+  doc.returnAgainst = doc.name;
+  doc.netTotal = (doc.netTotal as Money).neg();
+  doc.baseGrandTotal = (doc.baseGrandTotal as Money).neg();
+  doc.grandTotal = (doc.grandTotal as Money).neg();
+  doc.outstandingAmount = 0;
+  delete doc.name;
+
+  for (const item of doc.items as InvoiceItem[]) {
+    if (!item.item || !item.quantity) {
+      continue;
+    }
+
+    const returnedQty =
+      (await fyo.db.getInvoiceReturnedItemQty(
+        schemaName,
+        item.item,
+        doc.returnAgainst as string
+      )) ?? 0;
+
+    delete item.name;
+    item.amount = (item.amount as Money).neg();
+    item.quantity = -1 * (item.quantity - returnedQty);
+    item.transferQuantity = -1 * (item.transferQuantity as number);
+  }
+
+  return doc;
+}
+
 export function getTransactionStatusColumn(): ColumnConfig {
   return {
     label: t`Status`,
@@ -159,6 +304,10 @@ export const statusColor: Record<
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
+  Return: 'gray',
+  CreditNoteIssued: 'gray',
+  DebitNoteIssued: 'gray',
+  PartlyPaid: 'orange',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -177,6 +326,14 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Paid`;
     case 'Unpaid':
       return t`Unpaid`;
+    case 'Return':
+      return t`Return`;
+    case 'CreditNoteIssued':
+      return t`Credit Note Issued`;
+    case 'DebitNoteIssued':
+      return t`Debit Note Issued`;
+    case 'PartlyPaid':
+      return t`Partly Paid`;
     default:
       return '';
   }
@@ -226,11 +383,39 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
 
 export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   if (
+    doc.schema.name === ModelNameEnum.SalesInvoice &&
+    doc.returnCompleted &&
+    !doc.cancelled
+  ) {
+    return 'CreditNoteIssued';
+  }
+
+  if (
+    doc.schema.name === ModelNameEnum.PurchaseInvoice &&
+    doc.returnCompleted &&
+    !doc.cancelled
+  ) {
+    return 'DebitNoteIssued';
+  }
+
+  if (doc.submitted && !doc.cancelled && doc.isReturn) {
+    return 'Return';
+  }
+
+  if (
     doc.submitted &&
     !doc.cancelled &&
     (doc.outstandingAmount as Money).isZero()
   ) {
     return 'Paid';
+  }
+
+  if (
+    doc.submitted &&
+    !doc.cancelled &&
+    (doc.outstandingAmount as Money) < (doc.grandTotal as Money)
+  ) {
+    return 'PartlyPaid';
   }
 
   if (
@@ -246,6 +431,37 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   }
 
   return 'Saved';
+}
+
+export async function updateReturnInvoiceOutstanding(doc: Invoice) {
+  if (!doc.isReturn && !doc.returnAgainst) {
+    return;
+  }
+
+  if (!doc.outstandingAmount) {
+    return;
+  }
+
+  const invoiceDoc = await doc.fyo.doc.getDoc(
+    doc.schemaName,
+    doc.returnAgainst as string
+  );
+
+  const invoiceOutstandingAmount = invoiceDoc.outstandingAmount as Money;
+
+  if (invoiceOutstandingAmount.isZero()) {
+    return;
+  }
+
+  const outstandingAmount = invoiceOutstandingAmount.sub(
+    doc.outstandingAmount.abs(),
+    doc.currency
+  );
+
+  await doc.fyo.db.update(doc.schemaName, {
+    name: doc.returnAgainst as string,
+    outstandingAmount,
+  });
 }
 
 export function getSerialNumberStatusColumn(): ColumnConfig {

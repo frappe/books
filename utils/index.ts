@@ -182,7 +182,11 @@ function safeParseNumber(value: unknown, parser: (v: string) => number) {
   return parsed;
 }
 
-export function safeParseFloat(value: unknown): number {
+
+export function safeParseFloat(value: unknown, getAbsolute?: boolean): number {
+  if (getAbsolute) {
+    return Math.abs(safeParseNumber(value, Number));
+  }
   return safeParseNumber(value, Number);
 }
 

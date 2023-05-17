@@ -11,7 +11,12 @@ import {
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { Transactional } from 'models/Transactional/Transactional';
-import { addItem, getExchangeRate, getNumberSeries } from 'models/helpers';
+import {
+  addItem,
+  getExchangeRate,
+  getNumberSeries,
+  updateReturnInvoiceOutstanding,
+} from 'models/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -49,6 +54,7 @@ export abstract class Invoice extends Transactional {
   submitted?: boolean;
   cancelled?: boolean;
   makeAutoPayment?: boolean;
+  returnAgainst?: string;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
@@ -138,12 +144,16 @@ export abstract class Invoice extends Transactional {
       await payment?.submit();
       await this.load();
     }
+
+    await updateReturnInvoiceOutstanding(this);
   }
 
   async afterCancel() {
     await super.afterCancel();
     await this._cancelPayments();
     await this._updatePartyOutStanding();
+    await this._updateReturnInvoiceOutStanding();
+    await this._updateReturnCompleteStatus();
   }
 
   async _cancelPayments() {
@@ -164,6 +174,42 @@ export abstract class Invoice extends Transactional {
     )) as Party;
 
     await partyDoc.updateOutstandingAmount();
+  }
+
+  async _updateReturnInvoiceOutStanding() {
+    if (!this.isReturn && !this.returnAgainst) {
+      return;
+    }
+
+    const invoiceOutstandingAmount = Object.values(
+      await this.fyo.db.get(
+        this.schema.name,
+        this.returnAgainst as string,
+        'outstandingAmount'
+      )
+    )[0] as Money;
+
+    const returnInvoiceOutstanding = (this.outstandingAmount as Money).neg();
+
+    const outstandingAmount = invoiceOutstandingAmount.add(
+      returnInvoiceOutstanding
+    );
+
+    this.fyo.db.update(this.schema.name, {
+      name: this.returnAgainst,
+      outstandingAmount,
+    });
+  }
+
+  async _updateReturnCompleteStatus() {
+    if (!this.isReturn && !this.returnAgainst) {
+      return;
+    }
+
+    this.fyo.db.update(this.schemaName, {
+      name: this.returnAgainst,
+      returnCompleted: false,
+    });
   }
 
   async afterDelete() {
@@ -417,6 +463,9 @@ export abstract class Invoice extends Transactional {
       formula: () => !!this.autoPaymentAccount,
       dependsOn: [],
     },
+    returnCompleted: {
+      formula: () => false,
+    },
   };
 
   getStockTransferred() {
@@ -479,6 +528,8 @@ export abstract class Invoice extends Transactional {
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
+    isReturn: () => !this.isSubmitted || !this.isReturn,
+    returnAgainst: () => !this.isReturn,
   };
 
   static defaults: DefaultMap = {
