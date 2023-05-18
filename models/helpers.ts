@@ -17,7 +17,6 @@ import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
-import { openEdit } from 'src/utils/ui';
 import { InvoiceStatus, ModelNameEnum } from './types';
 import { DocValueMap } from 'fyo/core/types';
 
@@ -65,7 +64,9 @@ export function getMakePaymentAction(fyo: Fyo): Action {
     label: fyo.t`Payment`,
     group: fyo.t`Create`,
     condition: (doc: Doc) =>
-      doc.isSubmitted && !doc.isReturn && !(doc.outstandingAmount as Money).isZero(),
+      doc.isSubmitted &&
+      !doc.isReturn &&
+      !(doc.outstandingAmount as Money).isZero(),
     action: async (doc, router) => {
       const payment = (doc as Invoice).getPayment();
       if (!payment) {
@@ -164,7 +165,9 @@ function getMakeCreditNoteAction(
       rawCreditNoteDoc.once('afterSubmit', async () => {
         await updateReturnCompleteStatus(rawCreditNoteDoc);
       });
-      return openEdit(rawCreditNoteDoc);
+
+      const { openEdit } = await import('src/utils/ui');
+      await openEdit(rawCreditNoteDoc);
     },
   };
 }
@@ -236,7 +239,9 @@ function getMakeDebitNoteAction(
       rawDebitNoteDoc.once('afterSubmit', async () => {
         await updateReturnCompleteStatus(rawDebitNoteDoc);
       });
-      return openEdit(rawDebitNoteDoc);
+
+      const { openEdit } = await import('src/utils/ui');
+      await openEdit(rawDebitNoteDoc);
     },
   };
 }

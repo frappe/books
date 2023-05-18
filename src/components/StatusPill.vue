@@ -31,7 +31,7 @@ export default defineComponent({
       ) {
         return 'Partly Paid';
       }
-      
+
       const hasOutstanding = isPesa(this.doc.outstandingAmount);
       if (hasOutstanding && this.status === 'Outstanding') {
         const amt = this.fyo.format(this.doc.outstandingAmount, 'Currency');
