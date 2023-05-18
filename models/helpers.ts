@@ -238,7 +238,7 @@ function getMakeDebitNoteAction(
   };
 }
 
-async function createReturnDoc(
+export async function createReturnDoc(
   doc: DocValueMap,
   schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice,
   fyo: Fyo

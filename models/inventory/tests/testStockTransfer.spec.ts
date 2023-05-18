@@ -12,6 +12,8 @@ import { Shipment } from '../Shipment';
 import { StockTransfer } from '../StockTransfer';
 import { ValuationMethod } from '../types';
 import { getALEs, getItem, getSLEs, getStockTransfer } from './helpers';
+import { createReturnDoc } from 'models/helpers';
+import { DocValueMap } from 'fyo/core/types';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -583,6 +585,69 @@ test('Create Shipment from manually set Back Ref', async (t) => {
   );
 
   t.equal(sinv.stockNotTransferred, 0, 'stock has been transferred');
+});
+
+test('Create Sales Invoice then create Credit Note against it', async (t) => {
+  const rate = testDocs.Item[item].rate as number;
+  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice) as Invoice;
+
+  await sinv.set({
+    party,
+    date: new Date('2023-05-18'),
+    account: 'Debtors',
+  });
+  await sinv.append('items', { item, quantity: 3, rate });
+  await sinv.sync();
+  await sinv.submit();
+
+  t.equal(sinv.name, 'SINV-1003', 'SINV name matches');
+
+  const rawCreditNote = (await createReturnDoc(
+    sinv.getValidDict(true, true),
+    ModelNameEnum.SalesInvoice,
+    fyo
+  )) as DocValueMap;
+
+  const creditNoteDoc = fyo.doc.getNewDoc(
+    ModelNameEnum.SalesInvoice,
+    rawCreditNote,
+    true
+  ) as Invoice;
+
+  await creditNoteDoc.sync();
+  await creditNoteDoc.submit();
+
+  t.equal('SINV-1004', creditNoteDoc.name, 'Credit Note name matches');
+
+  const creditNoteAle = await fyo.db.getAllRaw(
+    ModelNameEnum.AccountingLedgerEntry,
+    {
+      fields: ['name', 'account', 'credit', 'debit'],
+      filters: { referenceName: creditNoteDoc.name! },
+    }
+  );
+
+  t.equal(
+    creditNoteAle[0]['debit'],
+    '0.00000000000',
+    'Credit Note *not Debited from Debtors'
+  );
+  t.equal(
+    creditNoteAle[0]['account'],
+    'Debtors',
+    'Credit Note Credited to Debtors'
+  );
+
+  t.equal(
+    creditNoteAle[1]['credit'],
+    '0.00000000000',
+    'Credit Note *not credited to Sales'
+  );
+  t.equal(
+    creditNoteAle[1]['account'],
+    'Sales',
+    'Credit Note debited from Sales'
+  );
 });
 
 closeTestFyo(fyo, __filename);
