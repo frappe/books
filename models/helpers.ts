@@ -162,18 +162,13 @@ function getMakeCreditNoteAction(
         true
       ) as Invoice;
 
-      rawCreditNoteDoc.once('afterSubmit', async () => {
-        await updateReturnCompleteStatus(rawCreditNoteDoc);
-      });
-
       const { openEdit } = await import('src/utils/ui');
       await openEdit(rawCreditNoteDoc);
     },
   };
 }
-
-async function updateReturnCompleteStatus(doc: Invoice) {
-  if (!doc.items) {
+export async function updateReturnCompleteStatus(doc: Invoice) {
+  if ((!doc.isReturn && !doc.returnAgainst) || !doc.items) {
     return;
   }
 
@@ -181,6 +176,7 @@ async function updateReturnCompleteStatus(doc: Invoice) {
     if (!item.item) {
       return;
     }
+
     const invoiceItem = await doc.fyo.db.getAll(`${doc.schemaName}Item`, {
       filters: {
         item: item.item,
@@ -226,7 +222,7 @@ function getMakeDebitNoteAction(
       const purchaseInvoice = doc.getValidDict(true, true) as DocValueMap;
       const rawDebitNote = (await createReturnDoc(
         purchaseInvoice,
-        ModelNameEnum.SalesInvoice,
+        ModelNameEnum.PurchaseInvoice,
         fyo
       )) as DocValueMap;
 
@@ -235,10 +231,6 @@ function getMakeDebitNoteAction(
         rawDebitNote,
         true
       ) as Invoice;
-
-      rawDebitNoteDoc.once('afterSubmit', async () => {
-        await updateReturnCompleteStatus(rawDebitNoteDoc);
-      });
 
       const { openEdit } = await import('src/utils/ui');
       await openEdit(rawDebitNoteDoc);
@@ -272,11 +264,10 @@ async function createReturnDoc(
       )) ?? 0;
 
     delete item.name;
-    item.amount = (item.amount as Money).neg();
-    item.quantity = -1 * (item.quantity - returnedQty);
-    item.transferQuantity = -1 * (item.transferQuantity as number);
+    item.quantity = -1 * safeParseFloat(item.quantity - returnedQty);
+    item.transferQuantity = -1 * safeParseFloat(item.transferQuantity);
+    item.amount = item.rate?.mul(item.quantity);
   }
-
   return doc;
 }
 
@@ -436,37 +427,6 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   }
 
   return 'Saved';
-}
-
-export async function updateReturnInvoiceOutstanding(doc: Invoice) {
-  if (!doc.isReturn && !doc.returnAgainst) {
-    return;
-  }
-
-  if (!doc.outstandingAmount) {
-    return;
-  }
-
-  const invoiceDoc = await doc.fyo.doc.getDoc(
-    doc.schemaName,
-    doc.returnAgainst as string
-  );
-
-  const invoiceOutstandingAmount = invoiceDoc.outstandingAmount as Money;
-
-  if (invoiceOutstandingAmount.isZero()) {
-    return;
-  }
-
-  const outstandingAmount = invoiceOutstandingAmount.sub(
-    doc.outstandingAmount.abs(),
-    doc.currency
-  );
-
-  await doc.fyo.db.update(doc.schemaName, {
-    name: doc.returnAgainst as string,
-    outstandingAmount,
-  });
 }
 
 export function getSerialNumberStatusColumn(): ColumnConfig {

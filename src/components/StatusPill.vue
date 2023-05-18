@@ -26,8 +26,12 @@ export default defineComponent({
     },
     text() {
       if (
-        !(this.doc.outstandingAmount as Money).isZero &&
-        (this.doc.outstandingAmount as Money) < (this.doc.grandTotal as Money)
+        isPesa(this.doc.outstandingAmount) &&
+        isPesa(this.doc.grandTotal) &&
+        this.doc.isSubmitted &&
+        !this.doc.isReturn &&
+        !this.doc.outstandingAmount.isZero() &&
+        this.doc.outstandingAmount < this.doc.grandTotal
       ) {
         return 'Partly Paid';
       }

@@ -15,7 +15,7 @@ import {
   addItem,
   getExchangeRate,
   getNumberSeries,
-  updateReturnInvoiceOutstanding,
+  updateReturnCompleteStatus,
 } from 'models/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
@@ -145,7 +145,8 @@ export abstract class Invoice extends Transactional {
       await this.load();
     }
 
-    await updateReturnInvoiceOutstanding(this);
+    await this._updateReturnInvoiceOutStanding();
+    await updateReturnCompleteStatus(this);
   }
 
   async afterCancel() {
@@ -177,23 +178,30 @@ export abstract class Invoice extends Transactional {
   }
 
   async _updateReturnInvoiceOutStanding() {
-    if (!this.isReturn && !this.returnAgainst) {
+    if ((!this.isReturn && !this.returnAgainst) || !this.grandTotal) {
       return;
     }
 
-    const invoiceOutstandingAmount = Object.values(
-      await this.fyo.db.get(
-        this.schema.name,
-        this.returnAgainst as string,
-        'outstandingAmount'
-      )
-    )[0] as Money;
+    const invoiceOutstandingAmount = (
+      Object.values(
+        await this.fyo.db.get(
+          this.schema.name,
+          this.returnAgainst as string,
+          'outstandingAmount'
+        )
+      )[0] as Money
+    ).abs();
 
-    const returnInvoiceOutstanding = (this.outstandingAmount as Money).neg();
+    const returnInvoiceGrandTotal = this.grandTotal.abs();
+    let outstandingAmount;
 
-    const outstandingAmount = invoiceOutstandingAmount.add(
-      returnInvoiceOutstanding
-    );
+    if (this.isSubmitted) {
+      outstandingAmount = invoiceOutstandingAmount.sub(returnInvoiceGrandTotal);
+    }
+
+    if (this.isCancelled) {
+      outstandingAmount = invoiceOutstandingAmount.add(returnInvoiceGrandTotal);
+    }
 
     this.fyo.db.update(this.schema.name, {
       name: this.returnAgainst,
@@ -693,6 +701,7 @@ export abstract class Invoice extends Transactional {
   async beforeCancel(): Promise<void> {
     await super.beforeCancel();
     await this._validateStockTransferCancelled();
+    await this._validateHasLinkedReturnInvoices();
   }
 
   async beforeDelete(): Promise<void> {
@@ -738,6 +747,34 @@ export abstract class Invoice extends Transactional {
       filters: { backReference: this.name!, cancelled },
     })) as { name: string }[];
     return transfers;
+  }
+
+  async _validateHasLinkedReturnInvoices() {
+    const returnInvoices = await this._getLinkedReturnInvoiceNames();
+
+    if (!returnInvoices?.length) {
+      return;
+    }
+
+    const names = returnInvoices.map(({ name }) => name).join(', ');
+    const label =
+      this.fyo.schemaMap[this.schema.name]?.label ?? this.schema.name;
+    throw new ValidationError(
+      this.fyo.t`Cannot cancel ${this.schema.label} ${this
+        .name!} because of the following ${label}: ${names}`
+    );
+  }
+
+  async _getLinkedReturnInvoiceNames() {
+    if (!this.name) {
+      throw new ValidationError(`Name not found for ${this.schema.label}`);
+    }
+
+    const returnInvoices = (await this.fyo.db.getAllRaw(this.schema.name, {
+      fields: ['name'],
+      filters: { returnAgainst: this.name, submitted: true, cancelled: false },
+    })) as { name: string }[];
+    return returnInvoices;
   }
 
   async getLinkedPayments() {
