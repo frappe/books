@@ -16,6 +16,7 @@ import { createReturnDoc } from 'models/helpers';
 import { DocValueMap } from 'fyo/core/types';
 import { Money } from 'pesa';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -591,7 +592,7 @@ test('Create Shipment from manually set Back Ref', async (t) => {
 
 test('Create Sales Invoice then create Credit Note against it', async (t) => {
   const rate = testDocs.Item[item].rate as number;
-  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice) as Invoice;
+  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice) as SalesInvoice;
 
   await sinv.set({
     party,
@@ -634,18 +635,26 @@ test('Create Sales Invoice then create Credit Note against it', async (t) => {
       t.equal(
         ale.credit,
         '0.00000000000',
-        'Credit Note *not credited to Sales'
+        `Credit Note *not credited to ${ale.account}`
       );
-      t.equal(ale.debit, '-300.00000000000', 'Credit Note debited from Sales');
+      t.equal(
+        ale.debit,
+        '-300.00000000000',
+        `Credit Note debited from ${ale.account}`
+      );
     }
 
     if (ale.account === 'Debtors') {
       t.equal(
         ale.debit,
         '0.00000000000',
-        'Credit Note *not debited from Sales'
+        `Credit Note *not debited from ${ale.account}`
       );
-      t.equal(ale.credit, '-300.00000000000', 'Credit Note credited to Sales');
+      t.equal(
+        ale.credit,
+        '-300.00000000000',
+        `Credit Note credited to ${ale.account}`
+      );
     }
   }
 
@@ -658,6 +667,88 @@ test('Create Sales Invoice then create Credit Note against it', async (t) => {
   )[0] as Money;
 
   t.true(invoiceOutStanding.isZero(), 'Sales Invoice outstanding is Zero');
+});
+
+test('Create Purchase Invoice then create Debit Note against it', async (t) => {
+  const rate = testDocs.Item[item].rate as number;
+  const pinv = fyo.doc.getNewDoc(
+    ModelNameEnum.PurchaseInvoice
+  ) as PurchaseInvoice;
+
+  const date = new Date('2022-01-04');
+  await pinv.set({
+    date,
+    party,
+    account: 'Creditors',
+  });
+  await pinv.append('items', { item, quantity: 3, rate });
+  await pinv.sync();
+  await pinv.submit();
+
+  t.equal(pinv.name, 'PINV-1002', 'PINV name matches');
+
+  const rawDebitNote = (await createReturnDoc(
+    pinv.getValidDict(true, true),
+    ModelNameEnum.PurchaseInvoice,
+    fyo
+  )) as DocValueMap;
+
+  const debitNoteDoc = fyo.doc.getNewDoc(
+    ModelNameEnum.PurchaseInvoice,
+    rawDebitNote,
+    true
+  ) as PurchaseInvoice;
+
+  await debitNoteDoc.sync();
+  await debitNoteDoc.submit();
+
+  t.equal('PINV-1003', debitNoteDoc.name, 'Debit Note name matches');
+
+  const debitNoteAles = await fyo.db.getAllRaw(
+    ModelNameEnum.AccountingLedgerEntry,
+    {
+      fields: ['name', 'account', 'credit', 'debit'],
+      filters: { referenceName: debitNoteDoc.name! },
+    }
+  );
+
+  for (const ale of debitNoteAles) {
+    if (ale.account === 'Stock Received But Not Billed') {
+      t.equal(
+        ale.debit,
+        '0.00000000000',
+        `Debit Note *not debited from ${ale.account}`
+      );
+      t.equal(
+        ale.credit,
+        '-300.00000000000',
+        `Debit Note credited to ${ale.account}`
+      );
+    }
+
+    if (ale.account === 'Creditors') {
+      t.equal(
+        ale.credit,
+        '0.00000000000',
+        `Debit Note *not credited to ${ale.account}`
+      );
+      t.equal(
+        ale.debit,
+        '-300.00000000000',
+        `Debit Note debited from ${ale.account}`
+      );
+    }
+  }
+
+  const invoiceOutStanding = Object.values(
+    await fyo.db.get(
+      ModelNameEnum.PurchaseInvoice,
+      pinv.name!,
+      'outstandingAmount'
+    )
+  )[0] as Money;
+
+  t.true(invoiceOutStanding.isZero(), 'Purchase Invoice outstanding is Zero');
 });
 
 closeTestFyo(fyo, __filename);
