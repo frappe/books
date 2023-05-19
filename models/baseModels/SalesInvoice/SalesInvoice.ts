@@ -40,7 +40,11 @@ export class SalesInvoice extends Invoice {
     const discountAccount = this.fyo.singles.AccountingSettings
       ?.discountAccount as string | undefined;
     if (discountAccount && discountAmount.isPositive()) {
-      await posting.debit(discountAccount, discountAmount.mul(exchangeRate));
+      if (this.isReturn) {
+        await posting.credit(discountAccount, discountAmount.mul(exchangeRate));
+      } else {
+        await posting.debit(discountAccount, discountAmount.mul(exchangeRate));
+      }
     }
 
     await posting.makeRoundOffEntry();
