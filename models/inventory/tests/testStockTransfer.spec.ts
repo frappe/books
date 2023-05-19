@@ -14,6 +14,8 @@ import { ValuationMethod } from '../types';
 import { getALEs, getItem, getSLEs, getStockTransfer } from './helpers';
 import { createReturnDoc } from 'models/helpers';
 import { DocValueMap } from 'fyo/core/types';
+import { Money } from 'pesa';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -612,14 +614,14 @@ test('Create Sales Invoice then create Credit Note against it', async (t) => {
     ModelNameEnum.SalesInvoice,
     rawCreditNote,
     true
-  ) as Invoice;
+  ) as SalesInvoice;
 
   await creditNoteDoc.sync();
   await creditNoteDoc.submit();
 
   t.equal('SINV-1004', creditNoteDoc.name, 'Credit Note name matches');
 
-  const creditNoteAle = await fyo.db.getAllRaw(
+  const creditNoteAles = await fyo.db.getAllRaw(
     ModelNameEnum.AccountingLedgerEntry,
     {
       fields: ['name', 'account', 'credit', 'debit'],
@@ -627,27 +629,35 @@ test('Create Sales Invoice then create Credit Note against it', async (t) => {
     }
   );
 
-  t.equal(
-    creditNoteAle[0]['debit'],
-    '0.00000000000',
-    'Credit Note *not Debited from Debtors'
-  );
-  t.equal(
-    creditNoteAle[0]['account'],
-    'Debtors',
-    'Credit Note Credited to Debtors'
-  );
+  for (const ale of creditNoteAles) {
+    if (ale.account === 'Sales') {
+      t.equal(
+        ale.credit,
+        '0.00000000000',
+        'Credit Note *not credited to Sales'
+      );
+      t.equal(ale.debit, '-300.00000000000', 'Credit Note debited from Sales');
+    }
 
-  t.equal(
-    creditNoteAle[1]['credit'],
-    '0.00000000000',
-    'Credit Note *not credited to Sales'
-  );
-  t.equal(
-    creditNoteAle[1]['account'],
-    'Sales',
-    'Credit Note debited from Sales'
-  );
+    if (ale.account === 'Debtors') {
+      t.equal(
+        ale.debit,
+        '0.00000000000',
+        'Credit Note *not debited from Sales'
+      );
+      t.equal(ale.credit, '-300.00000000000', 'Credit Note credited to Sales');
+    }
+  }
+
+  const invoiceOutStanding = Object.values(
+    await fyo.db.get(
+      ModelNameEnum.SalesInvoice,
+      sinv.name!,
+      'outstandingAmount'
+    )
+  )[0] as Money;
+
+  t.true(invoiceOutStanding.isZero(), 'Sales Invoice outstanding is Zero');
 });
 
 closeTestFyo(fyo, __filename);
