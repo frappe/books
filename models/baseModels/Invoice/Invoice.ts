@@ -178,7 +178,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async _updateReturnInvoiceOutStanding() {
-    if ((!this.isReturn && !this.returnAgainst) || !this.grandTotal) {
+    if (!this.isReturn || !this.returnAgainst || !this.grandTotal) {
       return;
     }
 
@@ -196,6 +196,9 @@ export abstract class Invoice extends Transactional {
     let outstandingAmount;
 
     if (this.isSubmitted) {
+      if (invoiceOutstandingAmount.isZero()) {
+        return;
+      }
       outstandingAmount = invoiceOutstandingAmount.sub(returnInvoiceGrandTotal);
     }
 
@@ -536,7 +539,6 @@ export abstract class Invoice extends Transactional {
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
-    isReturn: () => !this.isSubmitted || !this.isReturn,
     returnAgainst: () => !this.isReturn,
   };
 

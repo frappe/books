@@ -168,7 +168,7 @@ function getMakeCreditNoteAction(
   };
 }
 export async function updateReturnCompleteStatus(doc: Invoice) {
-  if ((!doc.isReturn && !doc.returnAgainst) || !doc.items) {
+  if (!doc.isReturn || !doc.returnAgainst || !doc.items) {
     return;
   }
 

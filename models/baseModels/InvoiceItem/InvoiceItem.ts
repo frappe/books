@@ -68,6 +68,10 @@ export abstract class InvoiceItem extends Doc {
     return this.parentdoc?.isMultiCurrency ?? false;
   }
 
+  get isReturn() {
+    return !!this.parentdoc?.isReturn;
+  }
+
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super(schema, data, fyo);
     this._setGetCurrencies();
@@ -194,6 +198,15 @@ export abstract class InvoiceItem extends Doc {
         const unitDoc = itemDoc.getLink('uom');
 
         let quantity: number = this.quantity ?? 1;
+
+        if (this.isReturn && quantity > 0) {
+          quantity *= -1;
+        }
+
+        if (!this.isReturn && quantity < 0) {
+          quantity *= -1;
+        }
+
         if (fieldname === 'transferQuantity') {
           quantity = this.transferQuantity! * this.unitConversionFactor!;
         }
@@ -209,6 +222,7 @@ export abstract class InvoiceItem extends Doc {
         'transferQuantity',
         'transferUnit',
         'unitConversionFactor',
+        'isReturn',
       ],
     },
     unitConversionFactor: {
@@ -251,7 +265,7 @@ export abstract class InvoiceItem extends Doc {
     },
     amount: {
       formula: () => (this.rate as Money).mul(this.quantity as number),
-      dependsOn: ['item', 'rate', 'quantity'],
+      dependsOn: ['item', 'rate', 'quantity', 'isReturn'],
     },
     hsnCode: {
       formula: async () =>
