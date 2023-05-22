@@ -566,6 +566,12 @@ export abstract class Invoice extends Transactional {
       accountType: doc.isSales ? 'Receivable' : 'Payable',
     }),
     numberSeries: (doc: Doc) => ({ referenceType: doc.schemaName }),
+    returnAgainst: (doc: Doc) => ({
+      submitted: true,
+      isReturn: false,
+      cancelled: false,
+      returnCompleted: false,
+    }),
   };
 
   static createFilters: FiltersMap = {
