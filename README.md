@@ -130,7 +130,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Language           | Contributors                                                                                                                  |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
 | French             | [DeepL](https://www.deepl.com/), [mael-chouteau](https://github.com/mael-chouteau), [joandreux](https://github.com/joandreux) |
-| German             | [DeepL](https://www.deepl.com/), [barredterra](https://github.com/barredterra)                                                |
+| German             | [DeepL](https://www.deepl.com/), [barredterra](https://github.com/barredterra), [promexio](https://github.com/promexio)       |
 | Portuguese         | [DeepL](https://www.deepl.com/)                                                                                               |
 | Arabic             | [taha2002](https://github.com/taha2002), [Faridget](https://github.com/faridget)                                              |
 | Catalan            | Dídac E. Jiménez                                                                                                              |
