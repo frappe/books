@@ -63,10 +63,7 @@ export function getMakePaymentAction(fyo: Fyo): Action {
   return {
     label: fyo.t`Payment`,
     group: fyo.t`Create`,
-    condition: (doc: Doc) =>
-      doc.isSubmitted &&
-      !doc.isReturn &&
-      !(doc.outstandingAmount as Money).isZero(),
+    condition: (doc: Doc) => doc.isSubmitted && !doc.isReturn,
     action: async (doc, router) => {
       const payment = (doc as Invoice).getPayment();
       if (!payment) {
