@@ -223,6 +223,7 @@ export abstract class InvoiceItem extends Doc {
         'transferUnit',
         'unitConversionFactor',
         'isReturn',
+        'item',
       ],
     },
     unitConversionFactor: {
