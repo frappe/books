@@ -658,7 +658,7 @@ test('Create Sales Invoice then create Credit Note against it', async (t) => {
     }
   }
 
-  const invoiceOutStanding = Object.values(
+  const invoiceOutstanding = Object.values(
     await fyo.db.get(
       ModelNameEnum.SalesInvoice,
       sinv.name!,
@@ -666,7 +666,30 @@ test('Create Sales Invoice then create Credit Note against it', async (t) => {
     )
   )[0] as Money;
 
-  t.true(invoiceOutStanding.isZero(), 'Sales Invoice outstanding is Zero');
+  t.true(invoiceOutstanding.isZero(), 'Sales Invoice outstanding is Zero');
+
+  await assertThrows(
+    async () => await sinv.cancel(),
+    'can not cancel a SINV when a credit note is created against it'
+  );
+
+  await assertDoesNotThrow(
+    async () => await creditNoteDoc.cancel(),
+    'credit note cancelled'
+  );
+
+  const updatedInvoiceOutstanding = Object.values(
+    await fyo.db.get(
+      ModelNameEnum.SalesInvoice,
+      sinv.name!,
+      'outstandingAmount'
+    )
+  )[0] as Money;
+
+  t.ok(
+    updatedInvoiceOutstanding.eq(sinv.outstandingAmount as Money),
+    'outstandingAmount updated after credit note is cancelled'
+  );
 });
 
 test('Create Purchase Invoice then create Debit Note against it', async (t) => {
@@ -740,7 +763,7 @@ test('Create Purchase Invoice then create Debit Note against it', async (t) => {
     }
   }
 
-  const invoiceOutStanding = Object.values(
+  const invoiceOutstanding = Object.values(
     await fyo.db.get(
       ModelNameEnum.PurchaseInvoice,
       pinv.name!,
@@ -748,7 +771,30 @@ test('Create Purchase Invoice then create Debit Note against it', async (t) => {
     )
   )[0] as Money;
 
-  t.true(invoiceOutStanding.isZero(), 'Purchase Invoice outstanding is Zero');
+  t.true(invoiceOutstanding.isZero(), 'Purchase Invoice outstanding is Zero');
+
+  await assertThrows(
+    async () => await pinv.cancel(),
+    'can not cancel a PINV when a debit note is created against it'
+  );
+
+  await assertDoesNotThrow(
+    async () => await debitNoteDoc.cancel(),
+    'debit note cancelled'
+  );
+
+  const updatedInvoiceOutstanding = Object.values(
+    await fyo.db.get(
+      ModelNameEnum.PurchaseInvoice,
+      pinv.name!,
+      'outstandingAmount'
+    )
+  )[0] as Money;
+
+  t.ok(
+    updatedInvoiceOutstanding.eq(pinv.outstandingAmount as Money),
+    'outstandingAmount updated after debit note is cancelled'
+  );
 });
 
 closeTestFyo(fyo, __filename);
