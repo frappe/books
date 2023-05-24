@@ -240,6 +240,7 @@ export async function createReturnDoc(
   schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice,
   fyo: Fyo
 ): Promise<DocValueMap> {
+  doc.date= new Date().toISOString();
   doc.isReturn = true;
   doc.returnAgainst = doc.name;
   doc.netTotal = (doc.netTotal as Money).neg();
