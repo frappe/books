@@ -41,6 +41,38 @@ export default {
 
       return schemaName;
     },
+    async getOptions() {
+      this.results = [];
+      const schemaName = this.getTargetSchemaName();
+      if (!schemaName) {
+        return [];
+      }
+
+      if (this.results?.length) {
+        return this.results;
+      }
+
+      const schema = fyo.schemaMap[schemaName];
+      const filters = await this.getFilters();
+
+      const fields = [
+        ...new Set(['name', schema.titleField, this.df.groupBy]),
+      ].filter(Boolean);
+
+      const results = await fyo.db.getAll(schemaName, {
+        filters,
+        fields,
+      });
+      return (this.results = results
+        .map((r) => {
+          const option = { label: r[schema.titleField], value: r.name };
+          if (this.df.groupBy) {
+            option.group = r[this.df.groupBy];
+          }
+          return option;
+        })
+        .filter(Boolean));
+    },
   },
 };
 </script>
