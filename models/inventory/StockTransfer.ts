@@ -101,6 +101,7 @@ export abstract class StockTransfer extends Transfer {
         serialNumber: row.serialNumber!,
         fromLocation,
         toLocation,
+        isReturn: !!row.parentdoc?.isReturn,
       };
     });
   }

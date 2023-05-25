@@ -11,6 +11,13 @@ import type { StockTransferItem } from './StockTransferItem';
 import { Transfer } from './Transfer';
 import { TransferItem } from './TransferItem';
 import type { SerialNumberStatus } from './types';
+import { Action } from 'fyo/model/types';
+import { Money } from 'pesa';
+import { Doc } from 'fyo/model/doc';
+import { DocValueMap } from 'fyo/core/types';
+import { ShipmentItem } from './ShipmentItem';
+import { safeParseFloat } from 'utils/index';
+import { Shipment } from './Shipment';
 
 export async function validateBatch(
   doc: StockMovement | StockTransfer | Invoice
@@ -310,4 +317,144 @@ function getSerialNumberStatusForStockMovement(
   }
 
   return isCancel ? 'Inactive' : 'Active';
+}
+
+export function getShipmentActions(fyo: Fyo): Action[] {
+  return [getMakeSalesReturnAction(fyo)];
+}
+
+export function getMakeSalesReturnAction(fyo: Fyo): Action {
+  return {
+    label: fyo.t`Sales Return`,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) =>
+      doc.isSubmitted && !doc.isReturn && !doc.returnCompleted,
+    action: async (doc) => {
+      const shipment = doc.getValidDict(true, true) as DocValueMap;
+
+      const rawShipmentReturn = (await createShipmentReturnDoc(
+        shipment,
+        fyo
+      )) as DocValueMap;
+
+      const rawShipmentReturnDoc = doc.fyo.doc.getNewDoc(
+        doc.schemaName,
+        rawShipmentReturn,
+        true
+      ) as Shipment;
+
+      const { openEdit } = await import('src/utils/ui');
+      await openEdit(rawShipmentReturnDoc);
+    },
+  };
+}
+
+async function createShipmentReturnDoc(
+  doc: DocValueMap,
+  fyo: Fyo
+): Promise<DocValueMap> {
+  doc.date = new Date().toISOString();
+  doc.isReturn = true;
+  doc.returnAgainst = doc.name;
+  doc.grandTotal = (doc.grandTotal as Money).neg();
+  delete doc.name;
+
+  for (const item of doc.items as ShipmentItem[]) {
+    if (!item.item || !item.quantity) {
+      continue;
+    }
+
+    item.amount = (item.amount as Money).neg();
+
+    const returnedQty =
+      (await fyo.db.getReturnedItemQty(
+        ModelNameEnum.Shipment,
+        item.item,
+        doc.returnAgainst as string
+      )) ?? 0;
+
+    item.quantity = -1 * safeParseFloat(item.quantity - returnedQty);
+    item.transferQuantity = -1 * safeParseFloat(item.transferQuantity);
+    item.amount = item.rate?.mul(item.quantity);
+    delete item.name;
+  }
+
+  return doc;
+}
+
+export async function updateReturnCompleteStatus(doc: Shipment) {
+  if (!doc.isReturn || !doc.returnAgainst || !doc.items) {
+    return;
+  }
+
+  if (doc.cancelled) {
+    await doc.fyo.db.update(doc.schemaName, {
+      name: doc.returnAgainst,
+      returnCompleted: false,
+    });
+    return;
+  }
+
+  for (const item of doc.items) {
+    if (!item.item) {
+      return;
+    }
+
+    const shipmentItem = await doc.fyo.db.getAll(`${doc.schemaName}Item`, {
+      filters: {
+        item: item.item,
+        parent: doc.returnAgainst as string,
+      },
+      fields: ['quantity'],
+    });
+
+    if (!shipmentItem) {
+      return;
+    }
+
+    const invoiceItemQty = (shipmentItem[0].quantity as number) ?? 0;
+
+    const returnedItemQty = await doc.fyo.db.getReturnedItemQty(
+      doc.schemaName,
+      item.item,
+      doc.returnAgainst as string
+    );
+    if (returnedItemQty !== invoiceItemQty) {
+      return;
+    }
+  }
+  doc.fyo.db.update(doc.schemaName, {
+    name: doc.returnAgainst,
+    returnCompleted: true,
+  });
+}
+
+export async function validateHasLinkedReturnInvoices(doc: Doc) {
+  const returnInvoices = await getLinkedReturnInvoiceNames(doc);
+
+  if (!returnInvoices?.length) {
+    return;
+  }
+
+  const names = returnInvoices.map(({ name }) => name).join(', ');
+  const label = doc.fyo.schemaMap[doc.schema.name]?.label ?? doc.schema.name;
+  
+  throw new ValidationError(
+    doc.fyo.t`Cannot cancel ${
+      doc.schema.label
+    } ${doc.name!} because of the following ${label}: ${names}`
+  );
+}
+
+export async function getLinkedReturnInvoiceNames(doc: Doc) {
+  if (!doc.name) {
+    throw new ValidationError(`Name not found for ${doc.schema.label}`);
+  }
+
+  const returnInvoices = (await doc.fyo.db.getAllRaw(doc.schema.name, {
+    fields: ['name'],
+    filters: { returnAgainst: doc.name, submitted: true, cancelled: false },
+  })) as { name: string }[];
+
+  return returnInvoices;
 }

@@ -16,7 +16,7 @@ import {
 import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
-import { InvoiceStatus, ModelNameEnum } from './types';
+import { InvoiceStatus, ModelNameEnum, ShipmentStatus } from './types';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -148,7 +148,7 @@ export function getTransactionStatusColumn(): ColumnConfig {
 }
 
 export const statusColor: Record<
-  DocStatus | InvoiceStatus,
+  DocStatus | InvoiceStatus | ShipmentStatus,
   string | undefined
 > = {
   '': 'gray',
@@ -159,9 +159,13 @@ export const statusColor: Record<
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
+  Return: 'gray',
+  ReturnIssued: 'gray',
 };
 
-export function getStatusText(status: DocStatus | InvoiceStatus): string {
+export function getStatusText(
+  status: DocStatus | InvoiceStatus | ShipmentStatus
+): string {
   switch (status) {
     case 'Draft':
       return t`Draft`;
@@ -177,6 +181,10 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Paid`;
     case 'Unpaid':
       return t`Unpaid`;
+    case 'Return':
+      return t`Return`;
+    case 'ReturnIssued':
+      return t`Return Issued`;
     default:
       return '';
   }
@@ -184,7 +192,7 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
 
 export function getDocStatus(
   doc?: RenderData | Doc
-): DocStatus | InvoiceStatus {
+): DocStatus | InvoiceStatus | ShipmentStatus {
   if (!doc) {
     return '';
   }
@@ -211,6 +219,10 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
     )
   ) {
     return getInvoiceStatus(doc);
+  }
+
+  if (doc.schema.name === ModelNameEnum.Shipment) {
+    return getShipmentStatus(doc);
   }
 
   if (!!doc.submitted && !doc.cancelled) {
@@ -243,6 +255,26 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
 
   if (doc.cancelled) {
     return 'Cancelled';
+  }
+
+  return 'Saved';
+}
+
+export function getShipmentStatus(doc: RenderData | Doc): ShipmentStatus {
+  if (doc.cancelled) {
+    return 'Cancelled';
+  }
+
+  if (doc.submitted && doc.returnCompleted && !doc.backReference) {
+    return 'ReturnIssued';
+  }
+
+  if (doc.isReturn && doc.submitted) {
+    return 'Return';
+  }
+
+  if (doc.submitted) {
+    return 'Submitted';
   }
 
   return 'Saved';

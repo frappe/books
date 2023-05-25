@@ -6,6 +6,7 @@ import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/baseModels/Party/Party';
+import { Shipment } from 'models/inventory/Shipment';
 import { getBgTextColorClass } from 'src/utils/colors';
 import { defineComponent } from 'vue';
 
@@ -43,6 +44,8 @@ export default defineComponent({
         Paid: this.t`Paid`,
         Saved: this.t`Saved`,
         Submitted: this.t`Submitted`,
+        Return: this.t`Return`,
+        ReturnIssued: this.t`Return Issued`,
       }[this.status];
     },
     color(): UIColors {
@@ -53,6 +56,8 @@ export default defineComponent({
 
 const statusColorMap: Record<Status, UIColors> = {
   Draft: 'gray',
+  Return: 'gray',
+  ReturnIssued: 'gray',
   Cancelled: 'red',
   Outstanding: 'orange',
   NotTransferred: 'orange',
@@ -107,6 +112,21 @@ function getSubmittableStatus(doc: Doc) {
     doc.outstandingAmount?.isZero() === true
   ) {
     return 'Paid';
+  }
+
+  const isShipment = doc instanceof Shipment;
+
+  if (doc.isSubmitted && isShipment && doc.isReturn) {
+    return 'Return';
+  }
+
+  if (
+    doc.isSubmitted &&
+    isShipment &&
+    !doc.backReference &&
+    doc.returnCompleted
+  ) {
+    return 'ReturnIssued';
   }
 
   if (doc.isSubmitted) {

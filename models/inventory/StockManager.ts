@@ -56,12 +56,13 @@ export class StockManager {
 
   async validateCancel(transferDetails: SMTransferDetails[]) {
     const reverseTransferDetails = transferDetails.map(
-      ({ item, rate, quantity, fromLocation, toLocation }) => ({
+      ({ item, rate, quantity, fromLocation, toLocation, isReturn }) => ({
         item,
         rate,
         quantity,
         fromLocation: toLocation,
         toLocation: fromLocation,
+        isReturn,
       })
     );
     await this.validateTransfers(reverseTransferDetails);
@@ -93,6 +94,10 @@ export class StockManager {
   #validateQuantity(details: SMIDetails) {
     if (!details.quantity) {
       throw new ValidationError(t`Quantity needs to be set`);
+    }
+    
+    if (details.isReturn) {
+      return;
     }
 
     if (details.quantity <= 0) {

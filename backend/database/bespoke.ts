@@ -1,3 +1,4 @@
+import { safeParseFloat } from 'utils/index';
 import { ModelNameEnum } from '../../models/types';
 import DatabaseCore from './core';
 import { BespokeFunction } from './types';
@@ -171,5 +172,36 @@ export class BespokeQueries {
     }
 
     return value[0][Object.keys(value[0])[0]];
+  }
+
+  static async getReturnedItemQty(
+    db: DatabaseCore,
+    schemaName:
+      | ModelNameEnum.SalesInvoice
+      | ModelNameEnum.PurchaseInvoice
+      | ModelNameEnum.Shipment,
+    item: string,
+    name: string
+  ): Promise<number> {
+    const returnDocsQuery = await db.knex!(schemaName)
+      .select('name')
+      .where('returnAgainst', name);
+
+    if (!returnDocsQuery.length) {
+      return 0;
+    }
+
+    const returnDocNames = returnDocsQuery.map((i) => i.name);
+
+    const returnedItemQtyQuery = db.knex!(`${schemaName}Item`)
+      .sum({ quantity: 'quantity' })
+      .where('item', item)
+      .whereIn('parent', returnDocNames);
+
+    if (!(await returnedItemQtyQuery).length) {
+      return 0;
+    }
+
+    return safeParseFloat((await returnedItemQtyQuery)[0].quantity, true);
   }
 }
