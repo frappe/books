@@ -349,6 +349,7 @@ export function getFormRoute(
     return route;
   }
 
+  // Use `encodeURIComponent` if more name issues
   return `/edit/${schemaName}/${name.replaceAll('/', '%2F')}`;
 }
 
