@@ -349,7 +349,7 @@ export function getFormRoute(
     return route;
   }
 
-  return `/edit/${schemaName}/${name}`;
+  return `/edit/${schemaName}/${name.replaceAll('/', '%2F')}`;
 }
 
 export async function getDocFromNameIfExistsElseNew(
