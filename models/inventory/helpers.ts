@@ -349,7 +349,7 @@ export function getMakeSalesReturnAction(fyo: Fyo): Action {
   };
 }
 
-async function createShipmentReturnDoc(
+export async function createShipmentReturnDoc(
   doc: DocValueMap,
   fyo: Fyo
 ): Promise<DocValueMap> {

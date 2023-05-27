@@ -12,6 +12,8 @@ import { Shipment } from '../Shipment';
 import { StockTransfer } from '../StockTransfer';
 import { ValuationMethod } from '../types';
 import { getALEs, getItem, getSLEs, getStockTransfer } from './helpers';
+import { createShipmentReturnDoc } from '../helpers';
+import { DocValueMap } from 'fyo/core/types';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -201,8 +203,6 @@ test('Shipment, invalid', async (t) => {
     'ales not created'
   );
 });
-
-// Shipment Return
 
 test('Stock Transfer, invalid cancellation', async (t) => {
   const { name } =
@@ -585,6 +585,63 @@ test('Create Shipment from manually set Back Ref', async (t) => {
   );
 
   t.equal(sinv.stockNotTransferred, 0, 'stock has been transferred');
+});
+
+test('Shipment return, create Shipment then create Shipment return', async (t) => {
+  const shipmentDoc = await fyo.doc.getDoc(ModelNameEnum.Shipment, 'SHPM-1005');
+  const rawShipmentReturn = (await createShipmentReturnDoc(
+    shipmentDoc.getValidDict(true, true),
+    fyo
+  )) as DocValueMap;
+
+  const shipmentReturnDoc = fyo.doc.getNewDoc(
+    ModelNameEnum.Shipment,
+    rawShipmentReturn,
+    true
+  ) as Shipment;
+
+  await shipmentReturnDoc.sync();
+
+  await assertDoesNotThrow(async () => {
+    await shipmentReturnDoc.submit();
+  }, 'Shipment Return Submit does not throw');
+
+  t.ok(
+    shipmentReturnDoc.grandTotal?.isNegative(),
+    'Shipment return doc has negative grandTotal'
+  );
+
+  for (const item of shipmentReturnDoc.items!) {
+    t.ok(item.quantity! < 0, 'Shipment return item has negative quantity');
+  }
+
+  await assertThrows(async () => {
+    await shipmentDoc.cancel();
+  }, 'cancelling original Shipment should throw');
+
+  t.equal(shipmentReturnDoc.name, 'SHPM-1006', 'Return SHPM name matches');
+  t.equal(
+    shipmentReturnDoc.items?.[0].quantity,
+    -5,
+    'shpm transfers quantity -5'
+  );
+
+  const ales = await getALEs(
+    shipmentReturnDoc.name!,
+    ModelNameEnum.Shipment,
+    fyo
+  );
+
+  for (const ale of ales) {
+    t.equal(ale.party, party, 'party matches');
+    if (ale.account === 'Cost of Goods Sold') {
+      t.equal(parseFloat(ale.debit), 0);
+      t.equal(parseFloat(ale.credit), shipmentReturnDoc.grandTotal?.float);
+    } else {
+      t.equal(parseFloat(ale.debit), shipmentReturnDoc.grandTotal?.float);
+      t.equal(parseFloat(ale.credit), 0);
+    }
+  }
 });
 
 closeTestFyo(fyo, __filename);
