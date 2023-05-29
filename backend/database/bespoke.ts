@@ -176,10 +176,7 @@ export class BespokeQueries {
 
   static async getReturnedItemQty(
     db: DatabaseCore,
-    schemaName:
-      | ModelNameEnum.SalesInvoice
-      | ModelNameEnum.PurchaseInvoice
-      | ModelNameEnum.Shipment,
+    schemaName: ModelNameEnum.Shipment,
     item: string,
     name: string
   ): Promise<number> {
