@@ -69,6 +69,10 @@ export default defineComponent({
         })
       )[0];
 
+      if (!data) {
+        return;
+      }
+
       this.values = fields
         .map((f) => {
           const value = data[f.fieldname];
