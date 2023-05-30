@@ -19,11 +19,15 @@ export class Account extends Doc {
   parentAccount?: string;
 
   get isDebit() {
-    const debitAccounts = [
-      AccountRootTypeEnum.Asset,
-      AccountRootTypeEnum.Expense,
-    ] as AccountRootType[];
-    return debitAccounts.includes(this.rootType!);
+    if (this.rootType === AccountRootTypeEnum.Asset) {
+      return true;
+    }
+
+    if (this.rootType === AccountRootTypeEnum.Expense) {
+      return true;
+    }
+
+    return false;
   }
 
   get isCredit() {
@@ -100,7 +104,7 @@ export class Account extends Doc {
         isGroup: true,
       };
 
-      if (doc.rootType) {
+      if (doc?.rootType) {
         filter.rootType = doc.rootType as string;
       }
 
