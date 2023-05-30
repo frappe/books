@@ -115,8 +115,8 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({ routes, history: createWebHistory() });
 
 router.afterEach(() => {
-  historyState.forward = !!history.state.forward;
-  historyState.back = !!history.state.back;
+  historyState.forward = !!history.state?.forward;
+  historyState.back = !!history.state?.back;
 });
 
 export default router;

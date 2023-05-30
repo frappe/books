@@ -59,6 +59,7 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 :root {
+  --w-form: 600px;
   --w-app: 1200px;
   --w-sidebar: 12rem;
   --w-desk: calc(100vw - var(--w-sidebar));
@@ -87,7 +88,7 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 .w-form {
-  width: 600px;
+  width: var(--w-form);
 }
 
 .w-dialog {

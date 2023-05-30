@@ -21,7 +21,6 @@ import {
   initializeInstance,
   setCurrencySymbols,
 } from 'src/utils/initialization';
-import { updatePrintTemplates } from 'src/utils/printTemplates';
 import { getRandomString } from 'utils';
 import { getDefaultLocations, getDefaultUOMs } from 'utils/defaults';
 import { getCountryCodeFromCountry, getCountryInfo } from 'utils/misc';
@@ -49,7 +48,11 @@ export default async function setupInstance(
   await createDefaultEntries(fyo);
   await createDefaultNumberSeries(fyo);
   await updateInventorySettings(fyo);
-  await updatePrintTemplates(fyo);
+
+  if (fyo.isElectron) {
+    const { updatePrintTemplates } = await import('src/utils/printTemplates');
+    await updatePrintTemplates(fyo);
+  }
 
   await completeSetup(companyName, fyo);
   if (!Object.keys(fyo.currencySymbols).length) {
