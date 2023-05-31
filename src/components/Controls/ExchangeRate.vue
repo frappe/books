@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center bg-gray-50 rounded-md textsm px-1 border">
+  <div class="flex items-center bg-gray-50 rounded-md text-sm p-1 border">
     <div
       class="rate-container"
       :class="disabled ? 'bg-gray-100' : 'bg-gray-25'"
