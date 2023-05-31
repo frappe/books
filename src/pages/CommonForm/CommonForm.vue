@@ -233,6 +233,9 @@ export default defineComponent({
       row: null | { index: number; fieldname: string };
     };
   },
+  async beforeMount() {
+    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
+  },
   async mounted() {
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore
@@ -242,13 +245,13 @@ export default defineComponent({
     await this.setDoc();
     this.replacePathAfterSync();
     this.updateGroupedFields();
-    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
     if (this.groupedFields) {
       this.activeTab = [...this.groupedFields.keys()][0];
     }
     this.isPrintable = await isPrintable(this.schemaName);
   },
   activated(): void {
+    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
     docsPathRef.value = docsPathMap[this.schemaName] ?? '';
     this.shortcuts?.pmod.set(this.context, ['KeyP'], () => {
       if (!this.canPrint) {
