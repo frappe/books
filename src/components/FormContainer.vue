@@ -5,7 +5,7 @@
       <PageHeader
         v-if="showHeader"
         :title="title"
-        :border="false"
+        :border="useFullWidth"
         :searchborder="searchborder"
       >
         <template #left>
@@ -16,18 +16,11 @@
 
       <!-- Common Form -->
       <div
-        class="
-          border
-          rounded-lg
-          shadow-lg
-          flex flex-col
-          self-center
-          w-form
-          h-full
-          overflow-auto
-          mb-4
-          bg-white
-          mx-4
+        class="flex flex-col self-center h-full overflow-auto bg-white"
+        :class="
+          useFullWidth
+            ? 'w-full'
+            : 'w-form border rounded-lg shadow-lg mb-4 mx-4'
         "
       >
         <slot name="body" />
@@ -46,6 +39,7 @@ export default defineComponent({
   components: { PageHeader },
   props: {
     title: { type: String, default: '' },
+    useFullWidth: { type: Boolean, default: false },
     showHeader: { type: Boolean, default: true },
     searchborder: { type: Boolean, default: true },
   },
