@@ -8,6 +8,12 @@
       "fieldname": "openCount",
       "label": "Open Count",
       "fieldtype": "Int"
+    },
+    {
+      "fieldname": "useFullWidth",
+      "label": "Use Full Width",
+      "fieldtype": "Check",
+      "default": false
     }
   ]
 }

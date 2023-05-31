@@ -1,5 +1,5 @@
 <template>
-  <FormContainer>
+  <FormContainer :use-full-width="useFullWidth">
     <template #header-left v-if="hasDoc">
       <Barcode
         class="h-8"
@@ -44,6 +44,16 @@
         :title="t`Open Print View`"
       >
         <feather-icon name="printer" class="w-4 h-4"></feather-icon>
+      </Button>
+      <Button
+        :icon="true"
+        @click="toggleWidth"
+        :title="t`Toggle between form and full width`"
+      >
+        <feather-icon
+          :name="useFullWidth ? 'minimize' : 'maximize'"
+          class="w-4 h-4"
+        ></feather-icon>
       </Button>
       <DropdownWithActions
         v-for="group of groupedActions"
@@ -211,6 +221,7 @@ export default defineComponent({
       groupedFields: null,
       isPrintable: false,
       showLinks: false,
+      useFullWidth: false,
       row: null,
     } as {
       errors: Record<string, string>;
@@ -218,6 +229,7 @@ export default defineComponent({
       groupedFields: null | UIGroupedFields;
       isPrintable: boolean;
       showLinks: boolean;
+      useFullWidth: boolean;
       row: null | { index: number; fieldname: string };
     };
   },
@@ -230,6 +242,7 @@ export default defineComponent({
     await this.setDoc();
     this.replacePathAfterSync();
     this.updateGroupedFields();
+    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
     if (this.groupedFields) {
       this.activeTab = [...this.groupedFields.keys()][0];
     }
@@ -375,6 +388,11 @@ export default defineComponent({
   },
   methods: {
     routeTo,
+    async toggleWidth() {
+      const value = !this.useFullWidth;
+      await this.fyo.singles.Misc?.setAndSync('useFullWidth', value);
+      this.useFullWidth = value;
+    },
     updateGroupedFields(): void {
       if (!this.hasDoc) {
         return;
