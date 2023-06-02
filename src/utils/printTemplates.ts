@@ -20,8 +20,9 @@ const printSettingsFields = [
   'email',
   'phone',
   'address',
+  'companyName',
 ];
-const accountingSettingsFields = ['companyName', 'gstin'];
+const accountingSettingsFields = ['gstin'];
 
 export async function getPrintTemplatePropValues(
   doc: Doc
