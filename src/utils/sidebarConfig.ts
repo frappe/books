@@ -245,6 +245,13 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           schemaName: 'Item',
           filters: { for: 'Both' },
         },
+        {
+          label: t`Price List`,
+          name: 'price-list',
+          route: '/list/PriceList',
+          schemaName: 'PriceList',
+          hidden: () => !fyo.singles.AccountingSettings?.enablePriceList,
+        },
       ] as SidebarItem[],
     },
     await getReportSidebar(),

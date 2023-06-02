@@ -9,6 +9,8 @@ import Defaults from './app/Defaults.json';
 import GetStarted from './app/GetStarted.json';
 import InventorySettings from './app/inventory/InventorySettings.json';
 import Location from './app/inventory/Location.json';
+import PriceList from './app/PriceList.json';
+import ItemPrice from './app/ItemPrice.json';
 import PurchaseReceipt from './app/inventory/PurchaseReceipt.json';
 import PurchaseReceiptItem from './app/inventory/PurchaseReceiptItem.json';
 import SerialNumber from './app/inventory/SerialNumber.json';
@@ -99,6 +101,9 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   InvoiceItem as Schema,
   SalesInvoiceItem as SchemaStub,
   PurchaseInvoiceItem as SchemaStub,
+
+  PriceList as Schema,
+  ItemPrice as SchemaStub,
 
   Tax as Schema,
   TaxDetail as Schema,

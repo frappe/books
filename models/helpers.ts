@@ -17,6 +17,7 @@ import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
+import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -380,6 +381,77 @@ export function getDocStatusListColumn(): ColumnConfig {
       };
     },
   };
+}
+export async function getItemPrice(
+  doc: InvoiceItem
+): Promise<string | undefined> {
+  if (!doc.item || !doc.priceList || !doc.date) {
+    return undefined;
+  }
+
+  const isUomDependent = await doc.fyo.getValue(
+    ModelNameEnum.PriceList,
+    doc.priceList,
+    'isUomDependent'
+  );
+
+  const itemPriceQuery = Object.values(
+    await doc.fyo.db.getAll(ModelNameEnum.ItemPrice, {
+      filters: {
+        enabled: true,
+        item: doc.item,
+        ...(doc.isSales ? { selling: true } : { buying: true }),
+      },
+      fields: ['name', 'unit', 'party', 'batch', 'validFrom', 'validUpto'],
+    })
+  )[0];
+
+  if (!itemPriceQuery) {
+    return;
+  }
+
+  const { name, unit, party, batch, validFrom, validUpto } = itemPriceQuery;
+  const date = new Date(doc.date.setHours(0, 0, 0));
+
+  if (isUomDependent && unit !== doc.unit) {
+    return;
+  }
+
+  if (party && doc.party !== party) {
+    return;
+  }
+
+  if (batch && doc.batch !== batch) {
+    return;
+  }
+
+  if (validFrom && date < validFrom) {
+    return;
+  }
+
+  if (validUpto && date > validUpto) {
+    return;
+  }
+
+  return name as string;
+}
+
+export async function getPriceListRate(
+  doc: InvoiceItem
+): Promise<Money | undefined> {
+  const itemPrice = await getItemPrice(doc);
+
+  if (!itemPrice) {
+    return;
+  }
+
+  const itemPriceRate = (await doc.fyo.getValue(
+    ModelNameEnum.ItemPrice,
+    itemPrice,
+    'rate'
+  )) as Money;
+
+  return itemPriceRate;
 }
 
 type ModelsWithItems = Invoice | StockTransfer | StockMovement;

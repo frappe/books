@@ -46,6 +46,8 @@ export abstract class Invoice extends Transactional {
   discountAfterTax?: boolean;
   stockNotTransferred?: number;
 
+  priceList?: string;
+
   submitted?: boolean;
   cancelled?: boolean;
   makeAutoPayment?: boolean;
@@ -479,6 +481,7 @@ export abstract class Invoice extends Transactional {
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
+    priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
   };
 
   static defaults: DefaultMap = {
@@ -505,6 +508,10 @@ export abstract class Invoice extends Transactional {
       accountType: doc.isSales ? 'Receivable' : 'Payable',
     }),
     numberSeries: (doc: Doc) => ({ referenceType: doc.schemaName }),
+    priceList: (doc: Doc) => ({
+      enabled: true,
+      ...(doc.isSales ? { selling: true } : { buying: true }),
+    }),
   };
 
   static createFilters: FiltersMap = {
