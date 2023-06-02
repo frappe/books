@@ -1,6 +1,8 @@
 <template>
   <ScaledContainer
     :scale="Math.max(scale, 0.1)"
+    :width="width"
+    :height="height"
     ref="scaledContainer"
     class="mx-auto shadow-lg border"
   >
@@ -52,7 +54,6 @@ import { getPathAndMakePDF } from 'src/utils/printTemplates';
 import { PrintValues } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
 import ScaledContainer from './ScaledContainer.vue';
-import { VueElement } from 'vue';
 
 export const baseSafeTemplate = `<main class="h-full w-full bg-white">
   <p class="p-4 text-red-500">
@@ -70,6 +71,8 @@ export default defineComponent({
   props: {
     template: { type: String, required: true },
     scale: { type: Number, default: 0.65 },
+    width: { type: Number, default: 21 },
+    height: { type: Number, default: 29.7 },
     values: {
       type: Object as PropType<PrintValues>,
       required: true,
