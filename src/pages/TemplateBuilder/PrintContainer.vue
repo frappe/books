@@ -52,6 +52,7 @@ import { getPathAndMakePDF } from 'src/utils/printTemplates';
 import { PrintValues } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
 import ScaledContainer from './ScaledContainer.vue';
+import { VueElement } from 'vue';
 
 export const baseSafeTemplate = `<main class="h-full w-full bg-white">
   <p class="p-4 text-red-500">
@@ -165,7 +166,7 @@ export default defineComponent({
             return '';
           },
         },
-      };
+      } as {} /** to silence :is type check */;
     },
   },
   components: { ScaledContainer, ErrorBoundary },
