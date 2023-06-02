@@ -482,8 +482,8 @@ export abstract class Invoice extends Transactional {
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
-    priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
     backReference: () => !this.backReference,
+    priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
   };
 
   static defaults: DefaultMap = {
