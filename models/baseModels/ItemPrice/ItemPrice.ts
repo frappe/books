@@ -1,7 +1,7 @@
 import { t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { ValidationMap } from 'fyo/model/types';
+import { ReadOnlyMap, ValidationMap } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 
@@ -9,6 +9,14 @@ export class ItemPrice extends Doc {
   rate?: Money;
   validFrom?: Date;
   validUpto?: Date;
+
+  get isBuying() {
+    return !!this.parentdoc?.buying;
+  }
+
+  get isSelling() {
+    return !!this.parentdoc?.selling;
+  }
 
   validations: ValidationMap = {
     validUpto: async (value: DocValue) => {
@@ -21,5 +29,10 @@ export class ItemPrice extends Doc {
         );
       }
     },
+  };
+
+  readOnly: ReadOnlyMap = {
+    buying: () => !this.isBuying,
+    selling: () => !this.isSelling,
   };
 }
