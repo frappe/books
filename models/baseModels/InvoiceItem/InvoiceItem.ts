@@ -16,8 +16,8 @@ import { FieldTypeEnum, Schema } from 'schemas/types';
 import { safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
-import { getPriceListRate } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
+import { getPriceListRate } from 'models/helpers';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
