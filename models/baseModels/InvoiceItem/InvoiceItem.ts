@@ -18,7 +18,6 @@ import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { getPriceListRate } from 'models/helpers';
-import { StockTransfer } from 'models/inventory/StockTransfer';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
