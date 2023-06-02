@@ -82,7 +82,7 @@
       "section": "Validity"
     }
   ],
-  "tableFields": ["item", "rate", "enabled", "buying", "selling"],
+  "tableFields": ["item", "rate", "enabled"],
   "quickEditFields": [
     "enabled",
     "buying",

@@ -289,6 +289,33 @@ export function getSerialNumberStatusText(status: string): string {
   }
 }
 
+export function getPriceListStatusColumn(): ColumnConfig {
+  return {
+    label: t`Enabled For`,
+    fieldname: 'enabledFor',
+    fieldtype: 'Select',
+    render(doc) {
+      let status = 'None';
+
+      if (doc.buying && !doc.selling) {
+        status = 'Buying';
+      }
+
+      if (doc.selling && !doc.buying) {
+        status = 'Selling';
+      }
+
+      if (doc.buying && doc.selling) {
+        status = 'Buying & Selling';
+      }
+
+      return {
+        template: `<Badge class="text-xs" color="gray">${status}</Badge>`,
+      };
+    },
+  };
+}
+
 export async function getExchangeRate({
   fromCurrency,
   toCurrency,
