@@ -49,6 +49,8 @@
             :template="doc.template!"
             :values="values!"
             :scale="scale"
+            :height="doc.height"
+            :width="doc.width"
           />
         </div>
 
@@ -203,6 +205,13 @@
         </div>
       </div>
     </div>
+    <Modal
+      v-if="doc"
+      :open-modal="showSizeModal"
+      @closemodal="showSizeModal = !showSizeModal"
+    >
+      <SetPrintSize :doc="doc" @done="showSizeModal = !showSizeModal" />
+    </Modal>
   </div>
 </template>
 <script lang="ts">
@@ -216,6 +225,7 @@ import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import HorizontalResizer from 'src/components/HorizontalResizer.vue';
+import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import ShortcutKeys from 'src/components/ShortcutKeys.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
@@ -231,12 +241,12 @@ import {
 import { docsPathRef, showSidebar } from 'src/utils/refs';
 import { DocRef, PrintValues } from 'src/utils/types';
 import {
+  ShortcutKey,
   focusOrSelectFormControl,
   getActionsForDoc,
   getDocFromNameIfExistsElseNew,
   openSettings,
   selectTextFile,
-  ShortcutKey,
 } from 'src/utils/ui';
 import { useDocShortcuts } from 'src/utils/vueUtils';
 import { getMapFromList } from 'utils/index';
@@ -244,6 +254,7 @@ import { computed, defineComponent, inject, ref } from 'vue';
 import PrintContainer from './PrintContainer.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
+import SetPrintSize from './SetPrintSize.vue';
 
 export default defineComponent({
   props: { name: String },
@@ -257,6 +268,8 @@ export default defineComponent({
     FormControl,
     TemplateBuilderHint,
     ShortcutKeys,
+    Modal,
+    SetPrintSize,
   },
   setup() {
     const doc = ref(null) as DocRef<PrintTemplate>;
@@ -286,6 +299,7 @@ export default defineComponent({
       scale: 0.6,
       panelWidth: 22 /** rem */ * 16 /** px */,
       templateChanged: false,
+      showSizeModal: false,
       preEditMode: {
         scale: 0.6,
         showSidebar: true,
@@ -297,6 +311,7 @@ export default defineComponent({
       hints?: Record<string, unknown>;
       values: null | PrintValues;
       displayDoc: PrintTemplate | null;
+      showSizeModal: boolean;
       scale: number;
       panelWidth: number;
       templateChanged: boolean;
@@ -631,6 +646,14 @@ export default defineComponent({
           await openSettings(ModelNameEnum.PrintSettings);
         },
       });
+
+      if (this.doc.isCustom && !this.showSizeModal) {
+        actions.push({
+          label: this.t`Set Print Size`,
+          group: this.t`Action`,
+          action: () => (this.showSizeModal = true),
+        });
+      }
 
       if (this.doc.isCustom) {
         actions.push({

@@ -20,8 +20,9 @@ const printSettingsFields = [
   'email',
   'phone',
   'address',
+  'companyName',
 ];
-const accountingSettingsFields = ['companyName', 'gstin'];
+const accountingSettingsFields = ['gstin'];
 
 export async function getPrintTemplatePropValues(
   doc: Doc
@@ -212,14 +213,19 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
   return values;
 }
 
-export async function getPathAndMakePDF(name: string, innerHTML: string) {
+export async function getPathAndMakePDF(
+  name: string,
+  innerHTML: string,
+  width: number,
+  height: number
+) {
   const { filePath } = await getSavePath(name, 'pdf');
   if (!filePath) {
     return;
   }
 
   const html = constructPrintDocument(innerHTML);
-  await makePDF(html, filePath);
+  await makePDF(html, filePath, width, height);
 }
 
 function constructPrintDocument(innerHTML: string) {

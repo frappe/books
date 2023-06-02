@@ -7,6 +7,8 @@ import { Fyo } from 'fyo';
 export class PrintTemplate extends Doc {
   name?: string;
   type?: string;
+  width?: number;
+  height?: number;
   template?: string;
   isCustom?: boolean;
 
