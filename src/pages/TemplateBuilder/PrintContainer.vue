@@ -1,6 +1,8 @@
 <template>
   <ScaledContainer
     :scale="Math.max(scale, 0.1)"
+    :width="width"
+    :height="height"
     ref="scaledContainer"
     class="mx-auto shadow-lg border"
   >
@@ -69,6 +71,8 @@ export default defineComponent({
   props: {
     template: { type: String, required: true },
     scale: { type: Number, default: 0.65 },
+    width: { type: Number, default: 21 },
+    height: { type: Number, default: 29.7 },
     values: {
       type: Object as PropType<PrintValues>,
       required: true,
@@ -144,7 +148,12 @@ export default defineComponent({
         return;
       }
 
-      await getPathAndMakePDF(name ?? this.t`Entry`, innerHTML);
+      await getPathAndMakePDF(
+        name ?? this.t`Entry`,
+        innerHTML,
+        this.width,
+        this.height
+      );
     },
   },
   computed: {
@@ -165,7 +174,7 @@ export default defineComponent({
             return '';
           },
         },
-      };
+      } as {} /** to silence :is type check */;
     },
   },
   components: { ScaledContainer, ErrorBoundary },
