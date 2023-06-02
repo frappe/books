@@ -38,6 +38,8 @@
           :template="printProps.template"
           :values="printProps.values"
           :scale="scale"
+          :width="templateDoc?.width"
+          :height="templateDoc?.height"
         />
       </div>
     </div>

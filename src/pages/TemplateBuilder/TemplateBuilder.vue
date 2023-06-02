@@ -49,6 +49,8 @@
             :template="doc.template!"
             :values="values!"
             :scale="scale"
+            :height="doc.height"
+            :width="doc.width"
           />
         </div>
 

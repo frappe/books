@@ -213,6 +213,19 @@ export default defineComponent({
     return { size: 'A4', width: 21, height: 29.7 };
   },
   components: { Float, FormHeader, Select, Button },
+  mounted() {
+    this.width = this.doc.width ?? 21;
+    this.height = this.doc.height ?? 29.7;
+
+    this.size = '';
+    Object.entries(paperSizeMap).forEach(([name, { width, height }]) => {
+      if (this.width === width && this.height === height) {
+        this.size = name;
+      }
+    });
+
+    this.size ||= 'Custom';
+  },
   methods: {
     sizeChange(v: string) {
       const size = paperSizeMap[v as SizeName];
