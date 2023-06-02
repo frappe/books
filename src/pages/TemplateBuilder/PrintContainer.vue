@@ -148,7 +148,12 @@ export default defineComponent({
         return;
       }
 
-      await getPathAndMakePDF(name ?? this.t`Entry`, innerHTML);
+      await getPathAndMakePDF(
+        name ?? this.t`Entry`,
+        innerHTML,
+        this.width,
+        this.height
+      );
     },
   },
   computed: {

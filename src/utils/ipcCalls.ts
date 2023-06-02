@@ -69,15 +69,22 @@ export async function saveData(data: string, savePath: string) {
   await ipcRenderer.invoke(IPC_ACTIONS.SAVE_DATA, data, savePath);
 }
 
-export async function showItemInFolder(filePath: string) {
-  await ipcRenderer.send(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, filePath);
+export function showItemInFolder(filePath: string) {
+  ipcRenderer.send(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, filePath);
 }
 
-export async function makePDF(html: string, savePath: string) {
+export async function makePDF(
+  html: string,
+  savePath: string,
+  width: number,
+  height: number
+) {
   const success = await ipcRenderer.invoke(
     IPC_ACTIONS.SAVE_HTML_AS_PDF,
     html,
-    savePath
+    savePath,
+    width,
+    height
   );
 
   if (success) {
