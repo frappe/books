@@ -42,8 +42,8 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(
     IPC_ACTIONS.SAVE_HTML_AS_PDF,
-    async (event, html, savePath) => {
-      return await saveHtmlAsPdf(html, savePath, app);
+    async (event, html, savePath, width: number, height: number) => {
+      return await saveHtmlAsPdf(html, savePath, app, width, height);
     }
   );
 

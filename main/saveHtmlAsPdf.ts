@@ -2,18 +2,12 @@ import { App, BrowserWindow } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
 
-const PRINT_OPTIONS = {
-  marginsType: 1, // no margin
-  pageSize: 'A4',
-  printBackground: true,
-  printBackgrounds: true,
-  printSelectionOnly: false,
-};
-
 export async function saveHtmlAsPdf(
   html: string,
   savePath: string,
-  app: App
+  app: App,
+  width: number, // centimeters
+  height: number // centimeters
 ): Promise<boolean> {
   /**
    * Store received html as a file in a tempdir,
@@ -24,7 +18,17 @@ export async function saveHtmlAsPdf(
   const htmlPath = path.join(tempRoot, `${filename}.html`);
   await fs.writeFile(htmlPath, html, { encoding: 'utf-8' });
 
-  const printWindow = getInitializedPrintWindow(htmlPath);
+  const printWindow = getInitializedPrintWindow(htmlPath, width, height);
+  const printOptions = {
+    marginsType: 1, // no margin
+    pageSize: {
+      height: height * 10_000, // micrometers
+      width: width * 10_000, // micrometers
+    },
+    printBackground: true,
+    printBackgrounds: true,
+    printSelectionOnly: false,
+  };
 
   /**
    * After the printWindow content is ready, save as pdf and
@@ -32,7 +36,7 @@ export async function saveHtmlAsPdf(
    */
   return await new Promise((resolve) => {
     printWindow.webContents.once('did-finish-load', () => {
-      printWindow.webContents.printToPDF(PRINT_OPTIONS).then((data) => {
+      printWindow.webContents.printToPDF(printOptions).then((data) => {
         fs.writeFile(savePath, data).then(() => {
           printWindow.close();
           fs.unlink(htmlPath).then(() => {
@@ -44,10 +48,14 @@ export async function saveHtmlAsPdf(
   });
 }
 
-function getInitializedPrintWindow(printFilePath: string) {
+function getInitializedPrintWindow(
+  printFilePath: string,
+  width: number,
+  height: number
+) {
   const printWindow = new BrowserWindow({
-    width: 595,
-    height: 842,
+    width: Math.floor(width * 28.333333), // pixels
+    height: Math.floor(height * 28.333333), // pixels
     show: false,
   });
 
