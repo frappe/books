@@ -26,6 +26,7 @@
       :schemaName="schemaName"
       :listConfig="listConfig"
       :filters="filters"
+      :canCreate="canCreate"
       class="flex-1 flex h-full"
       @openDoc="openDoc"
       @updatedData="updatedData"
