@@ -29,6 +29,17 @@ export function getInvoiceActions(
   ];
 }
 
+export function getStockTransferActions(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.Shipment | ModelNameEnum.PurchaseReceipt
+): Action[] {
+  return [
+    getMakeInvoiceAction(fyo, schemaName),
+    getLedgerLinkAction(fyo, false),
+    getLedgerLinkAction(fyo, true),
+  ];
+}
+
 export function getMakeStockTransferAction(
   fyo: Fyo,
   schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
@@ -50,6 +61,32 @@ export function getMakeStockTransferAction(
 
       const { routeTo } = await import('src/utils/ui');
       const path = `/edit/${transfer.schemaName}/${transfer.name}`;
+      await routeTo(path);
+    },
+  };
+}
+
+export function getMakeInvoiceAction(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.Shipment | ModelNameEnum.PurchaseReceipt
+): Action {
+  let label = fyo.t`Sales Invoice`;
+  if (schemaName === ModelNameEnum.PurchaseReceipt) {
+    label = fyo.t`Purchase Invoice`;
+  }
+
+  return {
+    label,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) => doc.isSubmitted && !doc.backReference,
+    action: async (doc: Doc) => {
+      const invoice = await (doc as StockTransfer).getInvoice();
+      if (!invoice) {
+        return;
+      }
+
+      const { routeTo } = await import('src/utils/ui');
+      const path = `/edit/${invoice.schemaName}/${invoice.name}`;
       await routeTo(path);
     },
   };
