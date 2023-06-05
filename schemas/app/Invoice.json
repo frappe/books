@@ -181,6 +181,11 @@
       "label": "Attachment",
       "fieldtype": "Attachment",
       "section": "References"
+    },
+    {
+      "abstract": true,
+      "fieldname": "backReference",
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]

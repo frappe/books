@@ -45,6 +45,7 @@ export abstract class Invoice extends Transactional {
   discountPercent?: number;
   discountAfterTax?: boolean;
   stockNotTransferred?: number;
+  backReference?: string;
 
   priceList?: string;
 
@@ -482,6 +483,7 @@ export abstract class Invoice extends Transactional {
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
+    backReference: () => !this.backReference,
   };
 
   static defaults: DefaultMap = {
@@ -592,16 +594,20 @@ export abstract class Invoice extends Transactional {
 
     const defaults = (this.fyo.singles.Defaults as Defaults) ?? {};
     let terms;
+    let numberSeries;
     if (this.isSales) {
       terms = defaults.shipmentTerms ?? '';
+      numberSeries = defaults.shipmentNumberSeries ?? undefined;
     } else {
       terms = defaults.purchaseReceiptTerms ?? '';
+      numberSeries = defaults.purchaseReceiptNumberSeries ?? undefined;
     }
 
     const data = {
       party: this.party,
       date: new Date().toISOString(),
       terms,
+      numberSeries,
       backReference: this.name,
     };
 
@@ -620,6 +626,8 @@ export abstract class Invoice extends Transactional {
       const quantity = row.stockNotTransferred;
       const trackItem = itemDoc.trackItem;
       const batch = row.batch || null;
+      const description = row.description;
+      const hsnCode = row.hsnCode;
       let rate = row.rate as Money;
 
       if (this.exchangeRate && this.exchangeRate > 1) {
@@ -636,6 +644,8 @@ export abstract class Invoice extends Transactional {
         location,
         rate,
         batch,
+        description,
+        hsnCode,
       });
     }
 
