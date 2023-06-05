@@ -431,7 +431,7 @@ export async function getItemPrice(
         enabled: true,
         item: doc.item,
         ...(doc.isSales ? { selling: true } : { buying: true }),
-        ...(doc.batch ? { batch: doc.batch as string } : {}),
+        ...(doc.batch ? { batch: doc.batch as string } : { batch: null }),
       },
       fields: ['name', 'unit', 'party', 'batch', 'validFrom', 'validUpto'],
     })

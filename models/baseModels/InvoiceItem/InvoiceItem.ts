@@ -158,6 +158,7 @@ export abstract class InvoiceItem extends Doc {
       dependsOn: [
         'date',
         'priceList',
+        'batch',
         'party',
         'exchangeRate',
         'item',
