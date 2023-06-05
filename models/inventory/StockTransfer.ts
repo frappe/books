@@ -1,8 +1,7 @@
-import { Fyo, t } from 'fyo';
+import { t } from 'fyo';
 import { Attachment } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
-  Action,
   ChangeArg,
   DefaultMap,
   FiltersMap,
@@ -13,7 +12,7 @@ import { ValidationError } from 'fyo/utils/errors';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { Defaults } from 'models/baseModels/Defaults/Defaults';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
-import { addItem, getLedgerLinkAction, getNumberSeries } from 'models/helpers';
+import { addItem, getNumberSeries } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { TargetField } from 'schemas/types';
@@ -27,6 +26,7 @@ import {
   validateBatch,
   validateSerialNumber,
 } from './helpers';
+import { Item } from 'models/baseModels/Item/Item';
 
 export abstract class StockTransfer extends Transfer {
   name?: string;
@@ -40,6 +40,13 @@ export abstract class StockTransfer extends Transfer {
 
   get isSales() {
     return this.schemaName === ModelNameEnum.Shipment;
+  }
+
+  get invoiceSchemaName() {
+    if (this.isSales) {
+      return ModelNameEnum.SalesInvoice;
+    }
+    return ModelNameEnum.PurchaseInvoice;
   }
 
   formulas: FormulaMap = {
@@ -174,10 +181,6 @@ export abstract class StockTransfer extends Transfer {
     await validateSerialNumberStatus(this);
   }
 
-  static getActions(fyo: Fyo): Action[] {
-    return [getLedgerLinkAction(fyo, false), getLedgerLinkAction(fyo, true)];
-  }
-
   async afterSubmit() {
     await super.afterSubmit();
     await updateSerialNumbers(this, false);
@@ -308,6 +311,68 @@ export abstract class StockTransfer extends Transfer {
     await this.set('terms', stDoc.terms);
     await this.set('date', stDoc.date);
     await this.set('items', stDoc.items);
+  }
+
+  async getInvoice(): Promise<Invoice | null> {
+    if (!this.isSubmitted || this.backReference) {
+      return null;
+    }
+
+    const schemaName = this.invoiceSchemaName;
+
+    const defaults = (this.fyo.singles.Defaults as Defaults) ?? {};
+    let terms;
+    let numberSeries;
+    if (this.isSales) {
+      terms = defaults.salesInvoiceTerms ?? '';
+      numberSeries = defaults.salesInvoiceNumberSeries ?? undefined;
+    } else {
+      terms = defaults.purchaseInvoiceTerms ?? '';
+      numberSeries = defaults.purchaseInvoiceNumberSeries ?? undefined;
+    }
+
+    const data = {
+      party: this.party,
+      date: new Date().toISOString(),
+      terms,
+      numberSeries,
+      backReference: this.name,
+    };
+
+    const invoice = this.fyo.doc.getNewDoc(schemaName, data) as Invoice;
+    for (const row of this.items ?? []) {
+      if (!row.item) {
+        continue;
+      }
+
+      const item = row.item;
+      const unit = row.unit;
+      const quantity = row.quantity;
+      const batch = row.batch || null;
+      const rate = row.rate ?? this.fyo.pesa(0);
+      const description = row.description;
+      const hsnCode = row.hsnCode;
+
+      if (!quantity) {
+        continue;
+      }
+
+      await invoice.append('items', {
+        item,
+        quantity,
+        unit,
+        rate,
+        batch,
+        hsnCode,
+        description,
+      });
+    }
+
+    if (!invoice.items?.length) {
+      return null;
+    }
+
+    return invoice;
   }
 }
 

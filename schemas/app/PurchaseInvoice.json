@@ -16,6 +16,13 @@
       "section": "Default"
     },
     {
+      "fieldname": "backReference",
+      "label": "Back Reference",
+      "fieldtype": "Link",
+      "target": "PurchaseReceipt",
+      "section": "References"
+    },
+    {
       "fieldname": "items",
       "label": "Items",
       "fieldtype": "Table",
