@@ -16,6 +16,7 @@ import { FieldTypeEnum, Schema } from 'schemas/types';
 import { safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
+import { StockTransfer } from 'models/inventory/StockTransfer';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -23,6 +24,9 @@ export abstract class InvoiceItem extends Doc {
   amount?: Money;
   parentdoc?: Invoice;
   rate?: Money;
+
+  description?: string;
+  hsnCode?: number;
 
   unit?: string;
   transferUnit?: string;
@@ -347,7 +351,26 @@ export abstract class InvoiceItem extends Doc {
           return 0;
         }
 
-        return this.quantity;
+        const { backReference, stockTransferSchemaName } = this.parentdoc ?? {};
+        if (
+          !backReference ||
+          !stockTransferSchemaName ||
+          typeof this.quantity !== 'number'
+        ) {
+          return this.quantity;
+        }
+
+        const refdoc = (await this.fyo.doc.getDoc(
+          stockTransferSchemaName,
+          backReference
+        )) as StockTransfer;
+
+        const transferred =
+          refdoc.items
+            ?.filter((i) => i.item === this.item)
+            .reduce((acc, i) => i.quantity ?? 0 + acc, 0) ?? 0;
+
+        return Math.max(0, this.quantity - transferred);
       },
       dependsOn: ['item', 'quantity'],
     },
