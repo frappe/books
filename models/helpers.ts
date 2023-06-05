@@ -18,6 +18,7 @@ import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
+import { ItemPrice } from './baseModels/ItemPrice/ItemPrice';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -410,10 +411,12 @@ export function getDocStatusListColumn(): ColumnConfig {
   };
 }
 export async function getItemPrice(
-  doc: InvoiceItem
+  doc: InvoiceItem | ItemPrice,
+  validFrom?: Date,
+  validUpto?: Date
 ): Promise<string | undefined> {
-  if (!doc.item || !doc.priceList || !doc.date) {
-    return undefined;
+  if (!doc.item || !doc.priceList) {
+    return;
   }
 
   const isUomDependent = await doc.fyo.getValue(
@@ -428,6 +431,7 @@ export async function getItemPrice(
         enabled: true,
         item: doc.item,
         ...(doc.isSales ? { selling: true } : { buying: true }),
+        ...(doc.batch ? { batch: doc.batch as string } : {}),
       },
       fields: ['name', 'unit', 'party', 'batch', 'validFrom', 'validUpto'],
     })
@@ -437,8 +441,14 @@ export async function getItemPrice(
     return;
   }
 
-  const { name, unit, party, batch, validFrom, validUpto } = itemPriceQuery;
-  const date = new Date(doc.date.setHours(0, 0, 0));
+  const { name, unit, party } = itemPriceQuery;
+  const validFromDate = validFrom ?? itemPriceQuery.validFrom;
+  const validUptoDate = validFrom ?? itemPriceQuery.validUpto;
+  let date;
+
+  if (doc.date) {
+    date = new Date((doc.date as Date).setHours(0, 0, 0));
+  }
 
   if (isUomDependent && unit !== doc.unit) {
     return;
@@ -448,16 +458,24 @@ export async function getItemPrice(
     return;
   }
 
-  if (batch && doc.batch !== batch) {
-    return;
+  if (date instanceof Date) {
+    if (validFromDate && date < validFromDate) {
+      return;
+    }
+
+    if (validUptoDate && date > validUptoDate) {
+      return;
+    }
   }
 
-  if (validFrom && date < validFrom) {
-    return;
-  }
+  if (validFrom && validUpto) {
+    if (validFromDate && validFrom < validFromDate) {
+      return;
+    }
 
-  if (validUpto && date > validUpto) {
-    return;
+    if (validUptoDate && validFrom > validUptoDate) {
+      return;
+    }
   }
 
   return name as string;
