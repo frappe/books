@@ -14,6 +14,7 @@ import { getCountryInfo } from 'utils/misc';
 export class AccountingSettings extends Doc {
   enableDiscounting?: boolean;
   enableInventory?: boolean;
+  enablePriceList?: boolean;
 
   static filters: FiltersMap = {
     writeOffAccount: () => ({
