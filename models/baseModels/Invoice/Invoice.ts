@@ -35,6 +35,7 @@ export abstract class Invoice extends Transactional {
   party?: string;
   account?: string;
   currency?: string;
+  priceList?: string;
   netTotal?: Money;
   grandTotal?: Money;
   baseGrandTotal?: Money;
@@ -514,6 +515,7 @@ export abstract class Invoice extends Transactional {
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     backReference: () => !this.backReference,
+    priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
   };
 
   static defaults: DefaultMap = {
@@ -544,6 +546,10 @@ export abstract class Invoice extends Transactional {
       accountType: doc.isSales ? 'Receivable' : 'Payable',
     }),
     numberSeries: (doc: Doc) => ({ referenceType: doc.schemaName }),
+    priceList: (doc: Doc) => ({
+      enabled: true,
+      ...(doc.isSales ? { selling: true } : { buying: true }),
+    }),
   };
 
   static createFilters: FiltersMap = {

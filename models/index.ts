@@ -10,6 +10,8 @@ import { JournalEntryAccount } from './baseModels/JournalEntryAccount/JournalEnt
 import { Party } from './baseModels/Party/Party';
 import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
+import { PriceList } from './baseModels/PriceList/PriceList';
+import { ItemPrice } from './baseModels/ItemPrice/ItemPrice';
 import { PrintSettings } from './baseModels/PrintSettings/PrintSettings';
 import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
 import { PurchaseInvoiceItem } from './baseModels/PurchaseInvoiceItem/PurchaseInvoiceItem';
@@ -45,6 +47,8 @@ export const models = {
   Payment,
   PaymentFor,
   PrintSettings,
+  PriceList,
+  ItemPrice,
   PurchaseInvoice,
   PurchaseInvoiceItem,
   SalesInvoice,
