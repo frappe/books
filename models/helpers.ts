@@ -354,6 +354,26 @@ export function getPriceListStatusColumn(): ColumnConfig {
   };
 }
 
+export function getPriceListEnabledColumn(): ColumnConfig {
+  return {
+    label: t`Enabled`,
+    fieldname: 'enabled',
+    fieldtype: 'Data',
+    render(doc) {
+      let status = t`Unenabled`;
+      let color = 'orange';
+      if (doc.enabled) {
+        status = 'Enabled';
+        color = 'green';
+      }
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
+      };
+    },
+  };
+}
+
 export async function getItemPrice(
   doc: InvoiceItem | ItemPrice,
   validFrom?: Date,
