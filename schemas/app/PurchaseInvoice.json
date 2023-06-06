@@ -23,6 +23,14 @@
       "section": "References"
     },
     {
+      "fieldname": "makeAutoStockTransfer",
+      "label": "Make Purchase Receipt On Submit",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false,
+      "tab": "Settings"
+    },
+    {
       "fieldname": "items",
       "label": "Items",
       "fieldtype": "Table",
