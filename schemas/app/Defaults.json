@@ -21,7 +21,7 @@
       "section": "Auto Payments"
     },
     {
-      "fieldname": "defaultShipmentLocation",
+      "fieldname": "shipmentLocation",
       "label": "Shipment Location",
       "fieldtype": "Link",
       "target": "Location",
@@ -29,7 +29,7 @@
       "section": "Auto Stock Transfer"
     },
     {
-      "fieldname": "defaultPurchaseReceiptLocation",
+      "fieldname": "purchaseReceiptLocation",
       "label": "Purchase Receipt Location",
       "fieldtype": "Link",
       "target": "Location",

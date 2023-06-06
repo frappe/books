@@ -7,6 +7,10 @@ export class Defaults extends Doc {
   salesPaymentAccount?: string;
   purchasePaymentAccount?: string;
 
+  // Auto Stock Transfer
+  shipmentLocation?: string;
+  purchaseReceiptLocation?: string;
+
   // Number Series
   salesInvoiceNumberSeries?: string;
   purchaseInvoiceNumberSeries?: string;
