@@ -148,6 +148,11 @@
       "tab": "Settings"
     },
     {
+      "abstract": true,
+      "fieldname": "makeAutoStockTransfer",
+      "tab": "Settings"
+    },
+    {
       "fieldname": "outstandingAmount",
       "label": "Outstanding Amount",
       "fieldtype": "Currency",
