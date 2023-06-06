@@ -1,0 +1,48 @@
+{
+  "name": "PriceList",
+  "label": "Price List",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": true
+    },
+    {
+      "fieldname": "buying",
+      "label": "Buying",
+      "fieldtype": "Check",
+      "default": false,
+      "required": true
+    },
+    {
+      "fieldname": "selling",
+      "label": "Selling",
+      "fieldtype": "Check",
+      "default": false,
+      "required": true
+    },
+    {
+      "fieldname": "isUomDependent",
+      "label": "Is Price UOM Dependent",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "itemPrice",
+      "label": "Item Prices",
+      "fieldtype": "Table",
+      "target": "ItemPrice",
+      "edit": true,
+      "required": true,
+      "section": "Item Prices"
+    }
+  ]
+}
