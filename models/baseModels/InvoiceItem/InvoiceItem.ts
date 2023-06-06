@@ -17,6 +17,7 @@ import { safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
+import { getPriceListRate } from 'models/helpers';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -46,6 +47,18 @@ export abstract class InvoiceItem extends Doc {
 
   get isSales() {
     return this.schemaName === 'SalesInvoiceItem';
+  }
+
+  get date() {
+    return this.parentdoc?.date ?? undefined;
+  }
+
+  get party() {
+    return this.parentdoc?.party ?? undefined;
+  }
+
+  get priceList() {
+    return this.parentdoc?.priceList ?? undefined;
   }
 
   get discountAfterTax() {
@@ -101,11 +114,14 @@ export abstract class InvoiceItem extends Doc {
     },
     rate: {
       formula: async (fieldname) => {
-        const rate = (await this.fyo.getValue(
+        const priceListRate = await getPriceListRate(this);
+        const itemRate = (await this.fyo.getValue(
           'Item',
           this.item as string,
           'rate'
         )) as undefined | Money;
+
+        const rate = priceListRate instanceof Money ? priceListRate : itemRate;
 
         if (!rate?.float && this.rate?.float) {
           return this.rate;
@@ -144,6 +160,9 @@ export abstract class InvoiceItem extends Doc {
         return rateFromTotals ?? rate ?? this.fyo.pesa(0);
       },
       dependsOn: [
+        'date',
+        'priceList',
+        'batch',
         'party',
         'exchangeRate',
         'item',
