@@ -333,18 +333,18 @@ export function getPriceListStatusColumn(): ColumnConfig {
     fieldname: 'enabledFor',
     fieldtype: 'Select',
     render(doc) {
-      let status = 'None';
+      let status = `None`;
 
       if (doc.buying && !doc.selling) {
-        status = 'Buying';
+        status = `Buying`;
       }
 
       if (doc.selling && !doc.buying) {
-        status = 'Selling';
+        status = `Selling`;
       }
 
       if (doc.buying && doc.selling) {
-        status = 'Buying & Selling';
+        status = t`Buying & Selling`;
       }
 
       return {
