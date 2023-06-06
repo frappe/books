@@ -21,6 +21,22 @@
       "section": "Auto Payments"
     },
     {
+      "fieldname": "shipmentLocation",
+      "label": "Shipment Location",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true,
+      "section": "Auto Stock Transfer"
+    },
+    {
+      "fieldname": "purchaseReceiptLocation",
+      "label": "Purchase Receipt Location",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true,
+      "section": "Auto Stock Transfer"
+    },
+    {
       "fieldname": "salesInvoiceNumberSeries",
       "label": "Sales Invoice Number Series",
       "fieldtype": "Link",

@@ -50,6 +50,7 @@ export abstract class Invoice extends Transactional {
   submitted?: boolean;
   cancelled?: boolean;
   makeAutoPayment?: boolean;
+  makeAutoStockTransfer?: boolean;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
@@ -105,6 +106,18 @@ export abstract class Invoice extends Transactional {
     return null;
   }
 
+  get autoStockTransferLocation(): string | null {
+    const fieldname = this.isSales
+      ? 'shipmentLocation'
+      : 'purchaseReceiptLocation';
+    const value = this.fyo.singles.Defaults?.[fieldname];
+    if (typeof value === 'string' && value.length) {
+      return value;
+    }
+
+    return null;
+  }
+
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super(schema, data, fyo);
     this._setGetCurrencies();
@@ -137,6 +150,13 @@ export abstract class Invoice extends Transactional {
       const payment = this.getPayment();
       await payment?.sync();
       await payment?.submit();
+      await this.load();
+    }
+
+    if (this.makeAutoStockTransfer && this.autoStockTransferLocation) {
+      const stockTransfer = await this.getStockTransfer(true);
+      await stockTransfer?.sync();
+      await stockTransfer?.submit();
       await this.load();
     }
   }
@@ -418,6 +438,12 @@ export abstract class Invoice extends Transactional {
       formula: () => !!this.autoPaymentAccount,
       dependsOn: [],
     },
+    makeAutoStockTransfer: {
+      formula: () =>
+        !!this.fyo.singles.AccountingSettings?.enableInventory &&
+        !!this.autoStockTransferLocation,
+      dependsOn: [],
+    },
   };
 
   getStockTransferred() {
@@ -458,11 +484,18 @@ export abstract class Invoice extends Transactional {
         return true;
       }
 
-      if (!this.autoPaymentAccount) {
+      return !this.autoPaymentAccount;
+    },
+    makeAutoStockTransfer: () => {
+      if (this.submitted) {
         return true;
       }
 
-      return false;
+      if (!this.fyo.singles.AccountingSettings?.enableInventory) {
+        return true;
+      }
+
+      return !this.autoStockTransferLocation;
     },
     setDiscountAmount: () => true || !this.enableDiscounting,
     discountAmount: () =>
@@ -486,6 +519,10 @@ export abstract class Invoice extends Transactional {
   static defaults: DefaultMap = {
     makeAutoPayment: (doc) =>
       doc instanceof Invoice && !!doc.autoPaymentAccount,
+    makeAutoStockTransfer: (doc) =>
+      !!doc.fyo.singles.AccountingSettings?.enableInventory &&
+      doc instanceof Invoice &&
+      !!doc.autoStockTransferLocation,
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
     terms: (doc) => {
       const defaults = doc.fyo.singles.Defaults as Defaults | undefined;
@@ -574,7 +611,9 @@ export abstract class Invoice extends Transactional {
     return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
   }
 
-  async getStockTransfer(): Promise<StockTransfer | null> {
+  async getStockTransfer(
+    isAuto: boolean = false
+  ): Promise<StockTransfer | null> {
     if (!this.isSubmitted) {
       return null;
     }
@@ -604,9 +643,14 @@ export abstract class Invoice extends Transactional {
       backReference: this.name,
     };
 
-    const location =
-      (this.fyo.singles.InventorySettings as InventorySettings)
-        .defaultLocation ?? null;
+    let location = this.autoStockTransferLocation;
+    if (!location) {
+      location = this.fyo.singles.InventorySettings?.defaultLocation ?? null;
+    }
+
+    if (isAuto && !location) {
+      return null;
+    }
 
     const transfer = this.fyo.doc.getNewDoc(schemaName, data) as StockTransfer;
     for (const row of this.items ?? []) {
@@ -615,6 +659,10 @@ export abstract class Invoice extends Transactional {
       }
 
       const itemDoc = (await row.loadAndGetLink('item')) as Item;
+      if (isAuto && (itemDoc.hasBatch || itemDoc.hasSerialNumber)) {
+        continue;
+      }
+
       const item = row.item;
       const quantity = row.stockNotTransferred;
       const trackItem = itemDoc.trackItem;
@@ -629,6 +677,21 @@ export abstract class Invoice extends Transactional {
 
       if (!quantity || !trackItem) {
         continue;
+      }
+
+      if (isAuto) {
+        const stock =
+          (await this.fyo.db.getStockQuantity(
+            item,
+            location!,
+            undefined,
+            data.date
+          )) ?? 0;
+        console.log(quantity, stock);
+
+        if (stock < quantity) {
+          continue;
+        }
       }
 
       await transfer.append('items', {
