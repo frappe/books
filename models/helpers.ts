@@ -363,18 +363,21 @@ export async function getItemPrice(
     return;
   }
 
-  const isUomDependent = await doc.fyo.getValue(
+  const { isUomDependent, enabled, buying, selling } = await doc.fyo.doc.getDoc(
     ModelNameEnum.PriceList,
     doc.priceList,
-    'isUomDependent'
   );
+
+  if(!enabled || doc.isSales && !selling || !doc.isSales && !buying){
+    return
+  }
 
   const itemPriceQuery = Object.values(
     await doc.fyo.db.getAll(ModelNameEnum.ItemPrice, {
       filters: {
         enabled: true,
         item: doc.item,
-        ...(doc.isSales ? { selling: true } : { buying: true }),
+        // ...(doc.isSales ? { selling: true } : { buying: true }),
         ...(doc.batch ? { batch: doc.batch as string } : { batch: null }),
       },
       fields: ['name', 'unit', 'party', 'batch', 'validFrom', 'validUpto'],
