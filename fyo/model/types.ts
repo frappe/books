@@ -1,10 +1,14 @@
 import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
-import SystemSettings from 'fyo/models/SystemSettings';
+import type SystemSettings from 'fyo/models/SystemSettings';
 import { FieldType, Schema, SelectOption } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 import { RouteLocationRaw, Router } from 'vue-router';
 import { Doc } from './doc';
+import type { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
+import type { Defaults } from 'models/baseModels/Defaults/Defaults';
+import type { PrintSettings } from 'models/baseModels/PrintSettings/PrintSettings';
+import type { InventorySettings } from 'models/inventory/InventorySettings';
 
 /**
  * The functions below are used for dynamic evaluation
@@ -47,6 +51,10 @@ export type DocMap = Record<string, Doc | undefined>;
 
 export interface SinglesMap {
   SystemSettings?: SystemSettings;
+  AccountingSettings?: AccountingSettings;
+  InventorySettings?: InventorySettings;
+  PrintSettings?: PrintSettings;
+  Defaults?: Defaults;
   [key: string]: Doc | undefined;
 }
 
