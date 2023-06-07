@@ -27,5 +27,5 @@
       "section": "Item"
     }
   ],
-  "quickEditFields": ["item", "unit", "rate"]
+  "tableFields": ["item", "unit", "rate"]
 }
