@@ -12,7 +12,6 @@ import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { Transactional } from 'models/Transactional/Transactional';
 import { addItem, getExchangeRate, getNumberSeries } from 'models/helpers';
-import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
 import { ModelNameEnum } from 'models/types';
@@ -547,8 +546,8 @@ export abstract class Invoice extends Transactional {
     }),
     numberSeries: (doc: Doc) => ({ referenceType: doc.schemaName }),
     priceList: (doc: Doc) => ({
-      enabled: true,
-      ...(doc.isSales ? { selling: true } : { buying: true }),
+      isEnabled: true,
+      ...(doc.isSales ? { isSales: true } : { isPurchase: true }),
     }),
   };
 
