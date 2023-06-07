@@ -11,7 +11,7 @@ import { Party } from './baseModels/Party/Party';
 import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
 import { PriceList } from './baseModels/PriceList/PriceList';
-import { ItemPrice } from './baseModels/ItemPrice/ItemPrice';
+import { PriceListItem } from './baseModels/PriceList/PriceListItem';
 import { PrintSettings } from './baseModels/PrintSettings/PrintSettings';
 import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
 import { PurchaseInvoiceItem } from './baseModels/PurchaseInvoiceItem/PurchaseInvoiceItem';
@@ -21,11 +21,11 @@ import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
 import { Batch } from './inventory/Batch';
-import { SerialNumber } from './inventory/SerialNumber';
 import { InventorySettings } from './inventory/InventorySettings';
 import { Location } from './inventory/Location';
 import { PurchaseReceipt } from './inventory/PurchaseReceipt';
 import { PurchaseReceiptItem } from './inventory/PurchaseReceiptItem';
+import { SerialNumber } from './inventory/SerialNumber';
 import { Shipment } from './inventory/Shipment';
 import { ShipmentItem } from './inventory/ShipmentItem';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
@@ -48,7 +48,7 @@ export const models = {
   PaymentFor,
   PrintSettings,
   PriceList,
-  ItemPrice,
+  PriceListItem,
   PurchaseInvoice,
   PurchaseInvoiceItem,
   SalesInvoice,
