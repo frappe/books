@@ -17,7 +17,8 @@ import { safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
-import { getPriceListRate } from 'models/helpers';
+import { PriceList } from '../PriceList/PriceList';
+import { isPesa } from 'fyo/utils';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -114,15 +115,7 @@ export abstract class InvoiceItem extends Doc {
     },
     rate: {
       formula: async (fieldname) => {
-        const priceListRate = await getPriceListRate(this);
-        const itemRate = (await this.fyo.getValue(
-          'Item',
-          this.item as string,
-          'rate'
-        )) as undefined | Money;
-
-        const rate = priceListRate instanceof Money ? priceListRate : itemRate;
-
+        const rate = await getItemRate(this);
         if (!rate?.float && this.rate?.float) {
           return this.rate;
         }
@@ -527,6 +520,65 @@ export abstract class InvoiceItem extends Doc {
       this.getCurrencies[fieldname] ??= this._getCurrency.bind(this);
     }
   }
+}
+
+async function getItemRate(doc: InvoiceItem): Promise<Money | undefined> {
+  let priceListRate: Money | undefined;
+  if (doc.fyo.singles.AccountingSettings?.enablePriceList) {
+    priceListRate = await getItemRateFromPriceList(doc);
+  }
+
+  if (priceListRate) {
+    return priceListRate;
+  }
+
+  if (!doc.item) {
+    return;
+  }
+
+  const itemRate = await doc.fyo.getValue(ModelNameEnum.Item, doc.item, 'rate');
+  if (isPesa(itemRate)) {
+    return itemRate;
+  }
+
+  return;
+}
+
+async function getItemRateFromPriceList(
+  doc: InvoiceItem
+): Promise<Money | undefined> {
+  const priceListName = doc.parentdoc?.priceList;
+  const item = doc.item;
+  if (!priceListName || !item) {
+    return;
+  }
+
+  const priceList = await doc.fyo.doc.getDoc(
+    ModelNameEnum.PriceList,
+    priceListName
+  );
+
+  if (!(priceList instanceof PriceList)) {
+    return;
+  }
+
+  const unit = doc.unit;
+  const transferUnit = doc.transferUnit;
+  const plItem = priceList.priceListItem?.find((pli) => {
+    if (pli.item !== item) {
+      return false;
+    }
+
+    if (transferUnit && pli.unit !== transferUnit) {
+      return false;
+    } else if (unit && pli.unit !== unit) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return plItem?.rate;
 }
 
 function getDiscountedTotalBeforeTaxation(

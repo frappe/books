@@ -17,8 +17,6 @@ import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
-import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
-import { ItemPrice } from './baseModels/ItemPrice/ItemPrice';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -332,19 +330,15 @@ export function getPriceListStatusColumn(): ColumnConfig {
     label: t`Enabled For`,
     fieldname: 'enabledFor',
     fieldtype: 'Select',
-    render(doc) {
+    render({ isSales, isPurchase }) {
       let status = t`None`;
 
-      if (doc.buying && !doc.selling) {
-        status = t`Buying`;
-      }
-
-      if (doc.selling && !doc.buying) {
-        status = t`Selling`;
-      }
-
-      if (doc.buying && doc.selling) {
-        status = t`Buying & Selling`;
+      if (isSales && isPurchase) {
+        status = t`Sales and Purchase`;
+      } else if (isSales) {
+        status = t`Sales`;
+      } else if (isPurchase) {
+        status = t`Purchase`;
       }
 
       return {
@@ -360,9 +354,9 @@ export function getPriceListEnabledColumn(): ColumnConfig {
     fieldname: 'enabled',
     fieldtype: 'Data',
     render(doc) {
-      let status = t`Unenabled`;
+      let status = t`Disabled`;
       let color = 'orange';
-      if (doc.enabled) {
+      if (doc.isEnabled) {
         status = t`Enabled`;
         color = 'green';
       }
@@ -372,98 +366,6 @@ export function getPriceListEnabledColumn(): ColumnConfig {
       };
     },
   };
-}
-
-export async function getItemPrice(
-  doc: InvoiceItem | ItemPrice,
-  validFrom?: Date,
-  validUpto?: Date
-): Promise<string | undefined> {
-  if (!doc.item || !doc.priceList) {
-    return;
-  }
-
-  const { isUomDependent, enabled, buying, selling } = await doc.fyo.doc.getDoc(
-    ModelNameEnum.PriceList,
-    doc.priceList,
-  );
-
-  if(!enabled || doc.isSales && !selling || !doc.isSales && !buying){
-    return
-  }
-
-  const itemPriceQuery = Object.values(
-    await doc.fyo.db.getAll(ModelNameEnum.ItemPrice, {
-      filters: {
-        enabled: true,
-        item: doc.item,
-        // ...(doc.isSales ? { selling: true } : { buying: true }),
-        ...(doc.batch ? { batch: doc.batch as string } : { batch: null }),
-      },
-      fields: ['name', 'unit', 'party', 'batch', 'validFrom', 'validUpto'],
-    })
-  )[0];
-
-  if (!itemPriceQuery) {
-    return;
-  }
-
-  const { name, unit, party } = itemPriceQuery;
-  const validFromDate = validFrom ?? itemPriceQuery.validFrom;
-  const validUptoDate = validFrom ?? itemPriceQuery.validUpto;
-  let date;
-
-  if (doc.date) {
-    date = new Date((doc.date as Date).setHours(0, 0, 0));
-  }
-
-  if (isUomDependent && unit !== doc.unit) {
-    return;
-  }
-
-  if (party && doc.party !== party) {
-    return;
-  }
-
-  if (date instanceof Date) {
-    if (validFromDate && date < validFromDate) {
-      return;
-    }
-
-    if (validUptoDate && date > validUptoDate) {
-      return;
-    }
-  }
-
-  if (validFrom && validUpto) {
-    if (validFromDate && validFrom < validFromDate) {
-      return;
-    }
-
-    if (validUptoDate && validFrom > validUptoDate) {
-      return;
-    }
-  }
-
-  return name as string;
-}
-
-export async function getPriceListRate(
-  doc: InvoiceItem
-): Promise<Money | undefined> {
-  const itemPrice = await getItemPrice(doc);
-
-  if (!itemPrice) {
-    return;
-  }
-
-  const itemPriceRate = (await doc.fyo.getValue(
-    ModelNameEnum.ItemPrice,
-    itemPrice,
-    'rate'
-  )) as Money;
-
-  return itemPriceRate;
 }
 
 export async function getExchangeRate({
