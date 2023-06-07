@@ -10,36 +10,30 @@
       "required": true
     },
     {
-      "fieldname": "enabled",
-      "label": "Enabled",
+      "fieldname": "isEnabled",
+      "label": "Is Price List Enabled",
       "fieldtype": "Check",
       "default": true
     },
     {
-      "fieldname": "buying",
-      "label": "Buying",
+      "fieldname": "isSales",
+      "label": "For Sales",
+      "fieldtype": "Check",
+      "default": true,
+      "required": true
+    },
+    {
+      "fieldname": "isPurchase",
+      "label": "For Purchase",
       "fieldtype": "Check",
       "default": false,
       "required": true
     },
     {
-      "fieldname": "selling",
-      "label": "Selling",
-      "fieldtype": "Check",
-      "default": false,
-      "required": true
-    },
-    {
-      "fieldname": "isUomDependent",
-      "label": "Is Price UOM Dependent",
-      "fieldtype": "Check",
-      "default": false
-    },
-    {
-      "fieldname": "itemPrice",
+      "fieldname": "priceListItem",
       "label": "Item Prices",
       "fieldtype": "Table",
-      "target": "ItemPrice",
+      "target": "PriceListItem",
       "edit": true,
       "required": true,
       "section": "Item Prices"

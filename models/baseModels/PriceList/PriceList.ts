@@ -1,14 +1,13 @@
 import { Doc } from 'fyo/model/doc';
 import { ListViewSettings } from 'fyo/model/types';
-import { ItemPrice } from '../ItemPrice/ItemPrice';
+import { PriceListItem } from './PriceListItem';
 import { getPriceListEnabledColumn, getPriceListStatusColumn } from 'models/helpers';
 
 export class PriceList extends Doc {
-  enabled?: boolean;
-  buying?: boolean;
-  selling?: boolean;
-  isUomDependent?: boolean;
-  priceListItem?: ItemPrice[];
+  isEnabled?: boolean;
+  isSales?: boolean;
+  isPurchase?: boolean;
+  priceListItem?: PriceListItem[];
 
   static getListViewSettings(): ListViewSettings {
     return {
