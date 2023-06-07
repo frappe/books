@@ -194,8 +194,7 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.PrintTemplate,
   ];
 
-  const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;
-  if (hasInventory) {
+  if (fyo.doc.singles.AccountingSettings?.enableInventory) {
     schemaNames.push(
       ModelNameEnum.StockMovement,
       ModelNameEnum.Shipment,
@@ -205,9 +204,16 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     );
   }
 
-  const hasBatch = fyo.doc.singles.InventorySettings?.enableBatches;
-  if (hasBatch) {
+  if (fyo.doc.singles.AccountingSettings?.enablePriceList) {
+    schemaNames.push(ModelNameEnum.PriceList);
+  }
+
+  if (fyo.singles.InventorySettings?.enableBatches) {
     schemaNames.push(ModelNameEnum.Batch);
+  }
+
+  if (fyo.singles.InventorySettings?.enableSerialNumber) {
+    schemaNames.push(ModelNameEnum.SerialNumber);
   }
 
   if (fyo.store.isDevelopment) {
