@@ -19,15 +19,13 @@
       "fieldname": "isSales",
       "label": "For Sales",
       "fieldtype": "Check",
-      "default": true,
-      "required": true
+      "default": true
     },
     {
       "fieldname": "isPurchase",
       "label": "For Purchase",
       "fieldtype": "Check",
-      "default": false,
-      "required": true
+      "default": false
     },
     {
       "fieldname": "priceListItem",
