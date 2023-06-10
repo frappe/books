@@ -692,7 +692,6 @@ export abstract class Invoice extends Transactional {
             undefined,
             data.date
           )) ?? 0;
-        console.log(quantity, stock);
 
         if (stock < quantity) {
           continue;
