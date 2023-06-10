@@ -256,7 +256,7 @@ export abstract class Invoice extends Transactional {
         };
 
         let amount = item.amount!;
-        if (this.enableDiscounting && !this.discountAfterTax) {
+        if (this.enableDiscounting && !this.discountAfterTax && !item.itemDiscountedTotal?.isZero()) {
           amount = item.itemDiscountedTotal!;
         }
 
