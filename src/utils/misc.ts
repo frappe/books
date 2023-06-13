@@ -1,6 +1,5 @@
 import { Fyo } from 'fyo';
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
-import { Doc } from 'fyo/model/doc';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
 import { ModelNameEnum } from 'models/types';
@@ -9,6 +8,7 @@ import { Schema } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { QueryFilter } from 'utils/db/types';
 import { PeriodKey } from './types';
+import { reports } from 'reports/index';
 
 export function getDatesAndPeriodList(period: PeriodKey): {
   periodList: DateTime[];
@@ -166,4 +166,16 @@ export function getCreateFiltersFromListViewFilters(filters: QueryFilter) {
 
 export function getIsMac() {
   return navigator.userAgent.indexOf('Mac') !== -1;
+}
+
+export async function getReport(name: keyof typeof reports) {
+  const cachedReport = fyo.store.reports[name];
+  if (cachedReport) {
+    return cachedReport;
+  }
+
+  const report = new reports[name](fyo);
+  await report.initialize();
+  fyo.store.reports[name] = report;
+  return report;
 }
