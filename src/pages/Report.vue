@@ -48,7 +48,6 @@
 import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
 import { reports } from 'reports';
-import getGSTRExportActions from 'reports/GoodsAndServiceTax/gstExporter';
 import { Report } from 'reports/Report';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
@@ -56,13 +55,17 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import ListReport from 'src/components/Report/ListReport.vue';
 import { fyo } from 'src/initFyo';
+import { shortcutsKey } from 'src/utils/injectionKeys';
 import { docsPathMap, getReport } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { ActionGroup } from 'src/utils/types';
 import { routeTo } from 'src/utils/ui';
-import { PropType, defineComponent } from 'vue';
+import { PropType, defineComponent, inject } from 'vue';
 
 export default defineComponent({
+  setup() {
+    return { shortcuts: inject(shortcutsKey) };
+  },
   props: {
     reportClassName: {
       type: String as PropType<keyof typeof reports>,
@@ -110,9 +113,14 @@ export default defineComponent({
       // @ts-ignore
       window.rep = this;
     }
+
+    this.shortcuts?.pmod.set(this.reportClassName, ['KeyP'], () => {
+      routeTo(`/report-print/${this.reportClassName}`);
+    });
   },
   deactivated() {
     docsPathRef.value = '';
+    this.shortcuts?.delete(this.reportClassName);
   },
   computed: {
     title() {
