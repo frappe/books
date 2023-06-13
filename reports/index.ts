@@ -17,4 +17,4 @@ export const reports = {
   GSTR2,
   StockLedger,
   StockBalance,
-} as Record<string, typeof Report>;
+} as const;
