@@ -1,47 +1,45 @@
 <template>
-  <div class="flex">
-    <div class="flex flex-col flex-1 bg-gray-25">
-      <PageHeader :border="true">
-        <template #left>
-          <AutoComplete
-            v-if="templateList.length"
-            :df="{
-              fieldtype: 'AutoComplete',
-              fieldname: 'templateName',
-              label: t`Template Name`,
-              options: templateList.map((n) => ({ label: n, value: n })),
-            }"
-            input-class="text-base py-0 h-8"
-            class="w-56"
-            :border="true"
-            :value="templateName ?? ''"
-            @change="onTemplateNameChange"
-          />
-        </template>
-        <DropdownWithActions :actions="actions" :title="t`More`" />
-        <Button class="text-xs" type="primary" @click="savePDF">
-          {{ t`Save as PDF` }}
-        </Button>
-      </PageHeader>
-
-      <!-- Template Display Area -->
-      <div class="overflow-auto custom-scroll p-4">
-        <!-- Display Hints -->
-        <div v-if="helperMessage" class="text-sm text-gray-700">
-          {{ helperMessage }}
-        </div>
-
-        <!-- Template Container -->
-        <PrintContainer
-          ref="printContainer"
-          v-if="printProps"
-          :template="printProps.template"
-          :values="printProps.values"
-          :scale="scale"
-          :width="templateDoc?.width"
-          :height="templateDoc?.height"
+  <div class="flex flex-col flex-1 bg-gray-25">
+    <PageHeader :border="true">
+      <template #left>
+        <AutoComplete
+          v-if="templateList.length"
+          :df="{
+            fieldtype: 'AutoComplete',
+            fieldname: 'templateName',
+            label: t`Template Name`,
+            options: templateList.map((n) => ({ label: n, value: n })),
+          }"
+          input-class="text-base py-0 h-8"
+          class="w-56"
+          :border="true"
+          :value="templateName ?? ''"
+          @change="onTemplateNameChange"
         />
+      </template>
+      <DropdownWithActions :actions="actions" :title="t`More`" />
+      <Button class="text-xs" type="primary" @click="savePDF">
+        {{ t`Save as PDF` }}
+      </Button>
+    </PageHeader>
+
+    <!-- Template Display Area -->
+    <div class="overflow-auto custom-scroll p-4">
+      <!-- Display Hints -->
+      <div v-if="helperMessage" class="text-sm text-gray-700">
+        {{ helperMessage }}
       </div>
+
+      <!-- Template Container -->
+      <PrintContainer
+        ref="printContainer"
+        v-if="printProps"
+        :template="printProps.template"
+        :values="printProps.values"
+        :scale="scale"
+        :width="templateDoc?.width"
+        :height="templateDoc?.height"
+      />
     </div>
   </div>
 </template>
@@ -61,6 +59,7 @@ import { PrintValues } from 'src/utils/types';
 import { getFormRoute, openSettings, routeTo } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import PrintContainer from '../TemplateBuilder/PrintContainer.vue';
+import { showSidebar } from 'src/utils/refs';
 
 export default defineComponent({
   name: 'PrintView',
@@ -204,11 +203,22 @@ export default defineComponent({
         this.values = await getPrintTemplatePropValues(this.doc as Doc);
       }
     },
+    setScale() {
+      this.scale = 1;
+      const width = (this.templateDoc?.width ?? 21) * 37.8;
+      let containerWidth = window.innerWidth - 32;
+      if (showSidebar.value) {
+        containerWidth -= 12 * 16;
+      }
+
+      this.scale = Math.min(containerWidth / width, 1);
+    },
     reset() {
       this.doc = null;
       this.values = null;
       this.templateList = [];
       this.templateDoc = null;
+      this.scale = 1;
     },
     async onTemplateNameChange(value: string | null): Promise<void> {
       if (!value) {
@@ -225,6 +235,7 @@ export default defineComponent({
       } catch (error) {
         await handleErrorWithDialog(error);
       }
+      this.setScale();
     },
     async setTemplateList(): Promise<void> {
       const list = (await this.fyo.db.getAllRaw(ModelNameEnum.PrintTemplate, {

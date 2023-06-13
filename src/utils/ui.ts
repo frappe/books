@@ -711,3 +711,162 @@ function getDocReferenceLabel(doc: Doc) {
 
   return doc.name || label;
 }
+
+export const printSizes = [
+  'A0',
+  'A1',
+  'A2',
+  'A3',
+  'A4',
+  'A5',
+  'A6',
+  'A7',
+  'A8',
+  'A9',
+  'B0',
+  'B1',
+  'B2',
+  'B3',
+  'B4',
+  'B5',
+  'B6',
+  'B7',
+  'B8',
+  'B9',
+  'Letter',
+  'Legal',
+  'Executive',
+  'C5E',
+  'Comm10',
+  'DLE',
+  'Folio',
+  'Ledger',
+  'Tabloid',
+  'Custom',
+] as const;
+
+export const paperSizeMap: Record<
+  typeof printSizes[number],
+  { width: number; height: number }
+> = {
+  A0: {
+    width: 84.1,
+    height: 118.9,
+  },
+  A1: {
+    width: 59.4,
+    height: 84.1,
+  },
+  A2: {
+    width: 42,
+    height: 59.4,
+  },
+  A3: {
+    width: 29.7,
+    height: 42,
+  },
+  A4: {
+    width: 21,
+    height: 29.7,
+  },
+  A5: {
+    width: 14.8,
+    height: 21,
+  },
+  A6: {
+    width: 10.5,
+    height: 14.8,
+  },
+  A7: {
+    width: 7.4,
+    height: 10.5,
+  },
+  A8: {
+    width: 5.2,
+    height: 7.4,
+  },
+  A9: {
+    width: 3.7,
+    height: 5.2,
+  },
+  B0: {
+    width: 100,
+    height: 141.4,
+  },
+  B1: {
+    width: 70.7,
+    height: 100,
+  },
+  B2: {
+    width: 50,
+    height: 70.7,
+  },
+  B3: {
+    width: 35.3,
+    height: 50,
+  },
+  B4: {
+    width: 25,
+    height: 35.3,
+  },
+  B5: {
+    width: 17.6,
+    height: 25,
+  },
+  B6: {
+    width: 12.5,
+    height: 17.6,
+  },
+  B7: {
+    width: 8.8,
+    height: 12.5,
+  },
+  B8: {
+    width: 6.2,
+    height: 8.8,
+  },
+  B9: {
+    width: 4.4,
+    height: 6.2,
+  },
+  Letter: {
+    width: 21.59,
+    height: 27.94,
+  },
+  Legal: {
+    width: 21.59,
+    height: 35.56,
+  },
+  Executive: {
+    width: 19.05,
+    height: 25.4,
+  },
+  C5E: {
+    width: 16.3,
+    height: 22.9,
+  },
+  Comm10: {
+    width: 10.5,
+    height: 24.1,
+  },
+  DLE: {
+    width: 11,
+    height: 22,
+  },
+  Folio: {
+    width: 21,
+    height: 33,
+  },
+  Ledger: {
+    width: 43.2,
+    height: 27.9,
+  },
+  Tabloid: {
+    width: 27.9,
+    height: 43.2,
+  },
+  Custom: {
+    width: -1,
+    height: -1,
+  },
+};
