@@ -11,7 +11,12 @@
       >
         {{ group.group }}
       </DropdownWithActions>
-      <Button ref="printButton" :icon="true" :title="t`Open Report Print View`">
+      <Button
+        ref="printButton"
+        :icon="true"
+        :title="t`Open Report Print View`"
+        @click="routeTo(`/report-print/${reportClassName}`)"
+      >
         <feather-icon name="printer" class="w-4 h-4"></feather-icon>
       </Button>
     </PageHeader>
@@ -43,6 +48,7 @@
 import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
 import { reports } from 'reports';
+import getGSTRExportActions from 'reports/GoodsAndServiceTax/gstExporter';
 import { Report } from 'reports/Report';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
@@ -50,9 +56,10 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import ListReport from 'src/components/Report/ListReport.vue';
 import { fyo } from 'src/initFyo';
-import { docsPathMap } from 'src/utils/misc';
+import { docsPathMap, getReport } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { ActionGroup } from 'src/utils/types';
+import { routeTo } from 'src/utils/ui';
 import { PropType, defineComponent } from 'vue';
 
 export default defineComponent({
@@ -133,12 +140,10 @@ export default defineComponent({
     },
   },
   methods: {
+    routeTo,
     async setReportData() {
-      const Report = reports[this.reportClassName];
-
       if (this.report === null) {
-        this.report = new Report(fyo);
-        await this.report.initialize();
+        this.report = await getReport(this.reportClassName);
       }
 
       if (!this.report.reportData.length) {
