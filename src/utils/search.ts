@@ -157,7 +157,8 @@ function getCreateList(fyo: Fyo): SearchItem[] {
 function getReportList(fyo: Fyo): SearchItem[] {
   const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
   const hasInventory = !!fyo.singles?.AccountingSettings?.enableInventory;
-  return Object.keys(reports)
+  const reportNames = Object.keys(reports) as (keyof typeof reports)[];
+  return reportNames
     .filter((r) => {
       const report = reports[r];
       if (report.isInventory && !hasInventory) {

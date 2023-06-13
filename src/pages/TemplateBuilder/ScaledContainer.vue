@@ -1,6 +1,9 @@
 <template>
   <div class="overflow-hidden" :style="outerContainerStyle">
-    <div :style="innerContainerStyle">
+    <div
+      :style="innerContainerStyle"
+      :class="showOverflow ? 'overflow-auto no-scrollbar' : ''"
+    >
       <slot></slot>
     </div>
   </div>
@@ -21,6 +24,7 @@ export default defineComponent({
     height: { type: Number, default: 29.7 },
     width: { type: Number, default: 21 },
     scale: { type: Number, default: 0.65 },
+    showOverflow: { type: Boolean, default: false },
   },
   computed: {
     innerContainerStyle(): Record<string, string> {

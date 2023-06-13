@@ -19,6 +19,8 @@ import * as errors from './utils/errors';
 import { format } from './utils/format';
 import { t, T } from './utils/translation';
 import { ErrorLog } from './utils/types';
+import type { reports } from 'reports/index';
+import type { Report } from 'reports/Report';
 
 export class Fyo {
   t = t;
@@ -234,6 +236,7 @@ export class Fyo {
     deviceId: '',
     openCount: -1,
     appFlags: {} as Record<string, boolean>,
+    reports: {} as Record<keyof typeof reports, Report | undefined>,
   };
 }
 
