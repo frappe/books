@@ -11,6 +11,9 @@
       >
         {{ group.group }}
       </DropdownWithActions>
+      <Button ref="printButton" :icon="true" :title="t`Open Report Print View`">
+        <feather-icon name="printer" class="w-4 h-4"></feather-icon>
+      </Button>
     </PageHeader>
 
     <!-- Filters -->
@@ -28,7 +31,7 @@
         :df="field"
         :value="report.get(field.fieldname)"
         :read-only="loading"
-        @change="async (value) => await report.set(field.fieldname, value)"
+        @change="async (value) => await report?.set(field.fieldname, value)"
       />
     </div>
 
@@ -36,10 +39,12 @@
     <ListReport v-if="report" :report="report" class="" />
   </div>
 </template>
-<script>
+<script lang="ts">
 import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
 import { reports } from 'reports';
+import { Report } from 'reports/Report';
+import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import PageHeader from 'src/components/PageHeader.vue';
@@ -47,11 +52,15 @@ import ListReport from 'src/components/Report/ListReport.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
-import { defineComponent } from 'vue';
+import { ActionGroup } from 'src/utils/types';
+import { PropType, defineComponent } from 'vue';
 
 export default defineComponent({
   props: {
-    reportClassName: String,
+    reportClassName: {
+      type: String as PropType<keyof typeof reports>,
+      required: true,
+    },
     defaultFilters: {
       type: String,
       default: '{}',
@@ -60,7 +69,7 @@ export default defineComponent({
   data() {
     return {
       loading: false,
-      report: null,
+      report: null as null | Report,
     };
   },
   provide() {
@@ -68,22 +77,30 @@ export default defineComponent({
       report: computed(() => this.report),
     };
   },
-  components: { PageHeader, FormControl, ListReport, DropdownWithActions },
+  components: {
+    PageHeader,
+    FormControl,
+    ListReport,
+    DropdownWithActions,
+    Button,
+  },
   async activated() {
-    docsPathRef.value = docsPathMap[this.reportClassName] ?? docsPathMap.Reports;
+    docsPathRef.value =
+      docsPathMap[this.reportClassName] ?? docsPathMap.Reports!;
     await this.setReportData();
 
     const filters = JSON.parse(this.defaultFilters);
     const filterKeys = Object.keys(filters);
     for (const key of filterKeys) {
-      await this.report.set(key, filters[key]);
+      await this.report?.set(key, filters[key]);
     }
 
     if (filterKeys.length) {
-      await this.report.updateData();
+      await this.report?.updateData();
     }
 
     if (fyo.store.isDevelopment) {
+      // @ts-ignore
       window.rep = this;
     }
   },
@@ -104,13 +121,13 @@ export default defineComponent({
         acc[ac.group] ??= {
           group: ac.group,
           label: ac.label ?? '',
-          e: ac.type,
+          type: ac.type ?? 'secondary',
           actions: [],
         };
 
         acc[ac.group].actions.push(ac);
         return acc;
-      }, {});
+      }, {} as Record<string, ActionGroup>);
 
       return Object.values(actionsMap);
     },
