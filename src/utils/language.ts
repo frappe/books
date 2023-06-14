@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+const { ipcRenderer } = require('electron');
 import { DEFAULT_LANGUAGE } from 'fyo/utils/consts';
 import { setLanguageMapOnTranslationString } from 'fyo/utils/translation';
 import { fyo } from 'src/initFyo';

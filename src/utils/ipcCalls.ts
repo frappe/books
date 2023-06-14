@@ -1,7 +1,7 @@
 /**
  * Utils that make ipcRenderer calls.
  */
-import { ipcRenderer } from 'electron';
+const { ipcRenderer } = require('electron');
 import { t } from 'fyo';
 import { BaseError } from 'fyo/utils/errors';
 import { BackendResponse } from 'utils/ipc/types';

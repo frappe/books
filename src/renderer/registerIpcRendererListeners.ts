@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+const { ipcRenderer } = require('electron');
 import { handleError } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { IPC_CHANNELS } from 'utils/messages';
