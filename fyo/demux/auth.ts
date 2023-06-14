@@ -1,7 +1,7 @@
-import { ipcRenderer } from 'electron';
 import { AuthDemuxBase } from 'utils/auth/types';
 import { IPC_ACTIONS } from 'utils/messages';
 import { Creds } from 'utils/types';
+const { ipcRenderer } = require('electron');
 
 export class AuthDemux extends AuthDemuxBase {
   #isElectron: boolean = false;

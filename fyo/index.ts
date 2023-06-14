@@ -96,8 +96,7 @@ export class Fyo {
 
   async setIsElectron() {
     try {
-      const { ipcRenderer } = await import('electron');
-      this.isElectron = Boolean(ipcRenderer);
+      this.isElectron = Boolean(require('electron'));
     } catch {
       this.isElectron = false;
     }

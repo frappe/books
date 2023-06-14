@@ -214,7 +214,7 @@
 </template>
 <script lang="ts">
 import { setupDummyInstance } from 'dummy';
-import { ipcRenderer } from 'electron';
+const { ipcRenderer } = require('electron');
 import { t } from 'fyo';
 import { DateTime } from 'luxon';
 import Button from 'src/components/Button.vue';

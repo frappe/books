@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
@@ -11,6 +10,7 @@ import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
 import { DialogOptions, ToastOptions } from './utils/types';
+const { ipcRenderer } = require('electron');
 
 function shouldNotStore(error: Error) {
   const shouldLog = (error as BaseError).shouldStore ?? true;

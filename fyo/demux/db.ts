@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+const { ipcRenderer } = require('electron');
 import { DatabaseError, NotImplemented } from 'fyo/utils/errors';
 import { SchemaMap } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';

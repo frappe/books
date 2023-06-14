@@ -1,55 +1,41 @@
-import config from 'utils/config';
+import type Store from 'electron-store';
 
 export class Config {
-  #useElectronConfig: boolean;
-  fallback: Map<string, unknown> = new Map();
+  config: Map<string, unknown> | Store;
   constructor(isElectron: boolean) {
-    this.#useElectronConfig = isElectron;
+    this.config = new Map();
+    if (isElectron) {
+      const Config: typeof Store = require('electron-store');
+      this.config = new Config();
+    }
   }
 
-  get store(): Record<string, unknown> {
-    if (this.#useElectronConfig) {
-      return config.store;
-    } else {
+  get store() {
+    if (this.config instanceof Map) {
       const store: Record<string, unknown> = {};
-
-      for (const key of this.fallback.keys()) {
-        store[key] = this.fallback.get(key);
+      for (const key of this.config.keys()) {
+        store[key] = this.config.get(key);
       }
 
       return store;
+    } else {
+      return this.config;
     }
   }
 
   get(key: string, defaultValue?: unknown): unknown {
-    if (this.#useElectronConfig) {
-      return config.get(key, defaultValue);
-    } else {
-      return this.fallback.get(key) ?? defaultValue;
-    }
+    return this.config.get(key) ?? defaultValue;
   }
 
   set(key: string, value: unknown) {
-    if (this.#useElectronConfig) {
-      config.set(key, value);
-    } else {
-      this.fallback.set(key, value);
-    }
+    this.config.set(key, value);
   }
 
   delete(key: string) {
-    if (this.#useElectronConfig) {
-      config.delete(key);
-    } else {
-      this.fallback.delete(key);
-    }
+    this.config.delete(key);
   }
 
   clear() {
-    if (this.#useElectronConfig) {
-      config.clear();
-    } else {
-      this.fallback.clear();
-    }
+    this.config.clear();
   }
 }

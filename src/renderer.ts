@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+const { ipcRenderer } = require('electron');
 import { ConfigKeys } from 'fyo/core/types';
 import { DateTime } from 'luxon';
 import { CUSTOM_EVENTS, IPC_ACTIONS } from 'utils/messages';
