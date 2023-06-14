@@ -25,7 +25,7 @@
   </svg>
 </template>
 <script>
-import Base from '../base';
+import Base from '../base.vue';
 export default {
   name: 'IconInventory',
   extends: Base,

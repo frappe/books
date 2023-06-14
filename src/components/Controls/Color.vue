@@ -55,9 +55,9 @@
 </template>
 
 <script>
-import Popover from 'src/components/Popover';
-import Row from 'src/components/Row';
-import Base from './Base';
+import Popover from 'src/components/Popover.vue';
+import Row from 'src/components/Row.vue';
+import Base from './Base.vue';
 
 export default {
   name: 'Color',
