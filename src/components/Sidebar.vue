@@ -41,8 +41,8 @@
             class="flex-shrink-0"
             :name="group.icon"
             :size="group.iconSize || '18'"
-            :height="group.iconHeight"
-            :active="isGroupActive(group)"
+            :height="group.iconHeight ?? 0"
+            :active="!!isGroupActive(group)"
             :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"
           />
           <div

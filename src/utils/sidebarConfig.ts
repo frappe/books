@@ -140,7 +140,7 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
       route: '/get-started',
       icon: 'general',
       iconSize: '24',
-      iconHeight: '5',
+      iconHeight: 5,
       hidden: () => fyo.singles.SystemSettings!.hideGetStarted as boolean,
     },
     {
