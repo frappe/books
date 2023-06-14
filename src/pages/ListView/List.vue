@@ -80,7 +80,7 @@
       v-if="!data?.length"
       class="flex flex-col items-center justify-center my-auto"
     >
-      <img src="src/assets/img/list-empty-state.svg" alt="" class="w-24" />
+      <img src="../../assets/img/list-empty-state.svg" alt="" class="w-24" />
       <p class="my-3 text-gray-800">{{ t`No entries found` }}</p>
       <Button type="primary" class="text-white" @click="$emit('makeNewDoc')" v-if="canCreate">
         {{ t`Make Entry` }}
