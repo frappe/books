@@ -70,9 +70,9 @@
 </template>
 
 <script>
-import Button from 'src/components/Button';
-import Icon from 'src/components/Icon';
-import PageHeader from 'src/components/PageHeader';
+import Button from 'src/components/Button.vue';
+import Icon from 'src/components/Icon.vue';
+import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { getGetStartedConfig } from 'src/utils/getStartedConfig';
 import { openLink } from 'src/utils/ipcCalls';

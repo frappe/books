@@ -37,8 +37,8 @@ import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getValueMapFromList } from 'utils';
 import DashboardChartBase from './BaseDashboardChart.vue';
-import PeriodSelector from './PeriodSelector';
-import SectionHeader from './SectionHeader';
+import PeriodSelector from './PeriodSelector.vue';
+import SectionHeader from './SectionHeader.vue';
 
 export default {
   name: 'ProfitAndLoss',

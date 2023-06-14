@@ -80,7 +80,7 @@
       v-if="!data?.length"
       class="flex flex-col items-center justify-center my-auto"
     >
-      <img src="@/assets/img/list-empty-state.svg" alt="" class="w-24" />
+      <img src="src/assets/img/list-empty-state.svg" alt="" class="w-24" />
       <p class="my-3 text-gray-800">{{ t`No entries found` }}</p>
       <Button type="primary" class="text-white" @click="$emit('makeNewDoc')" v-if="canCreate">
         {{ t`Make Entry` }}
@@ -90,14 +90,14 @@
 </template>
 <script>
 import { clone } from 'lodash';
-import Button from 'src/components/Button';
+import Button from 'src/components/Button.vue';
 import Paginator from 'src/components/Paginator.vue';
-import Row from 'src/components/Row';
+import Row from 'src/components/Row.vue';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
 import { objectForEach } from 'utils/index';
 import { defineComponent, toRaw } from 'vue';
-import ListCell from './ListCell';
+import ListCell from './ListCell.vue';
 
 export default defineComponent({
   name: 'List',
