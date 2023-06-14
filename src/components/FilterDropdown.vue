@@ -55,11 +55,12 @@
                     {{ i + 1 }}
                   </span>
                 </div>
-                <FormControl
+                <Select
                   :border="true"
                   size="small"
                   class="w-24"
                   :df="{
+                    label: t`Field`,
                     placeholder: t`Field`,
                     fieldname: 'fieldname',
                     fieldtype: 'Select',
@@ -68,11 +69,12 @@
                   :value="filter.fieldname"
                   @change="(value) => (filter.fieldname = value)"
                 />
-                <FormControl
+                <Select
                   :border="true"
                   size="small"
                   class="w-24"
                   :df="{
+                    label: t`Condition`,
                     placeholder: t`Condition`,
                     fieldname: 'condition',
                     fieldtype: 'Select',
@@ -81,11 +83,12 @@
                   :value="filter.condition"
                   @change="(value) => (filter.condition = value)"
                 />
-                <FormControl
+                <Data
                   :border="true"
                   size="small"
                   class="w-24"
                   :df="{
+                    label: t`Value`,
                     placeholder: t`Value`,
                     fieldname: 'value',
                     fieldtype: 'Data',
@@ -124,14 +127,16 @@
 </template>
 <script lang="ts">
 import { t } from 'fyo';
-import { Field, FieldTypeEnum } from 'schemas/types';
+import { Field, FieldTypeEnum, SelectOption } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
+import { defineComponent } from 'vue';
 import Button from './Button.vue';
-import FormControl from './Controls/FormControl.vue';
+import Data from './Controls/Data.vue';
+import Select from './Controls/Select.vue';
 import Icon from './Icon.vue';
 import Popover from './Popover.vue';
-import { defineComponent } from 'vue';
+import { cloneDeep } from 'lodash';
 
 const conditions = [
   { label: t`Is`, value: '=' },
@@ -159,7 +164,8 @@ export default defineComponent({
     Popover,
     Button,
     Icon,
-    FormControl,
+    Select,
+    Data,
   },
   props: { schemaName: { type: String, required: true } },
   emits: ['change'],
@@ -255,8 +261,8 @@ export default defineComponent({
         value: df.fieldname,
       }));
     },
-    conditions(): typeof conditions {
-      return conditions;
+    conditions(): { label: string; value: string }[] {
+      return [...conditions];
     },
     explicitFilters(): Filter[] {
       return this.filters.filter((f) => !f.implicit);

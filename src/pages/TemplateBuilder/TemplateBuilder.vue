@@ -84,7 +84,7 @@
           />
 
           <!-- Display Doc -->
-          <FormControl
+          <Link
             v-if="doc.type"
             :title="displayDocField.label"
             class="w-40 border-r flex-shrink-0"
@@ -223,6 +223,7 @@ import { saveExportData } from 'reports/commonExporter';
 import { Field, TargetField } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import Link from 'src/components/Controls/Link.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import HorizontalResizer from 'src/components/HorizontalResizer.vue';
 import Modal from 'src/components/Modal.vue';
@@ -252,9 +253,9 @@ import { useDocShortcuts } from 'src/utils/vueUtils';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent, inject, ref } from 'vue';
 import PrintContainer from './PrintContainer.vue';
+import SetPrintSize from './SetPrintSize.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
-import SetPrintSize from './SetPrintSize.vue';
 
 export default defineComponent({
   props: { name: String },
@@ -268,6 +269,7 @@ export default defineComponent({
     FormControl,
     TemplateBuilderHint,
     ShortcutKeys,
+    Link,
     Modal,
     SetPrintSize,
   },

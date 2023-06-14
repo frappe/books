@@ -51,11 +51,11 @@
       }"
       v-if="doc && (titleField || imageField)"
     >
-      <FormControl
+      <AttachImage
         v-if="imageField"
         class="ms-4"
         :df="imageField"
-        :value="doc[imageField.fieldname]"
+        :value="String(doc[imageField.fieldname] ?? '')"
         @change="(value) => valueChange(imageField as Field, value)"
         :letter-placeholder="letterPlaceHolder"
       />
@@ -92,6 +92,7 @@ import { t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { Field, Schema } from 'schemas/types';
 import Button from 'src/components/Button.vue';
+import AttachImage from 'src/components/Controls/AttachImage.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
@@ -117,6 +118,7 @@ export default defineComponent({
     Button,
     FormControl,
     TwoColumnForm,
+    AttachImage,
   },
   emits: ['close'],
   setup() {

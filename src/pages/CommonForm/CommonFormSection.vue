@@ -25,7 +25,19 @@
           field.fieldtype === 'Check' ? 'mt-auto' : 'mb-auto',
         ]"
       >
+        <Table
+          v-if="field.fieldtype === 'Table'"
+          ref="fields"
+          :show-label="true"
+          :border="true"
+          :df="field"
+          :value="tableValue(doc[field.fieldname])"
+          @editrow="(doc: Doc) => $emit('editrow', doc)"
+          @change="(value: DocValue) => $emit('value-change', field, value)"
+          @row-change="(field:Field, value:DocValue, parentfield:Field) => $emit('row-change',field, value, parentfield)"
+        />
         <FormControl
+          v-else
           :ref="field.fieldname === 'name' ? 'nameField' : 'fields'"
           :size="field.fieldtype === 'AttachImage' ? 'form' : undefined"
           :show-label="true"
@@ -48,6 +60,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import Table from 'src/components/Controls/Table.vue';
 import { focusOrSelectFormControl } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 
@@ -70,6 +83,13 @@ export default defineComponent({
     focusOrSelectFormControl(this.doc, this.$refs.nameField);
   },
   methods: {
+    tableValue(value: unknown): unknown[] {
+      if (Array.isArray(value)) {
+        return value;
+      }
+
+      return [];
+    },
     toggleCollapsed() {
       if (!this.collapsible) {
         return;
@@ -78,6 +98,6 @@ export default defineComponent({
       this.collapsed = !this.collapsed;
     },
   },
-  components: { FormControl },
+  components: { FormControl, Table },
 });
 </script>
