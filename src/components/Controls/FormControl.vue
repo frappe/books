@@ -14,7 +14,6 @@ import Float from './Float.vue';
 import Int from './Int.vue';
 import Link from './Link.vue';
 import Select from './Select.vue';
-import Table from './Table.vue';
 import Text from './Text.vue';
 
 const components = {
@@ -26,7 +25,6 @@ const components = {
   Link,
   Date,
   Datetime,
-  Table,
   AutoComplete,
   DynamicLink,
   Int,
