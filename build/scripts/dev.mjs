@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { excludeVendorFromSourceMap } from './plugins.mjs';
 
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 process.env['NODE_ENV'] = 'development';
 process.env['VITE_HOST'] = '0.0.0.0';
 process.env['VITE_PORT'] = 6969;
