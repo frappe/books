@@ -8,9 +8,12 @@ import {
   BrowserWindow,
   BrowserWindowConstructorOptions,
   protocol,
+  ProtocolRequest,
+  ProtocolResponse,
 } from 'electron';
 import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
+import fs from 'fs';
 import path from 'path';
 import registerAppLifecycleListeners from './main/registerAppLifecycleListeners';
 import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
@@ -122,15 +125,20 @@ export class Main {
     this.mainWindow = new BrowserWindow(options);
 
     if (this.isDevelopment) {
-      this.loadDevServerURL();
+      this.setViteServerURL();
     } else {
-      this.loadAppUrl();
+      this.registerAppProtocol();
+    }
+
+    this.mainWindow!.loadURL(this.winURL);
+    if (this.isDevelopment && !this.isTest) {
+      this.mainWindow!.webContents.openDevTools();
     }
 
     this.setMainWindowListeners();
   }
 
-  loadDevServerURL() {
+  setViteServerURL() {
     let port = 6969;
     let host = '0.0.0.0';
 
@@ -141,18 +149,13 @@ export class Main {
 
     // Load the url of the dev server if in development mode
     this.winURL = `http://${host}:${port}/`;
-    this.mainWindow!.loadURL(this.winURL);
-
-    if (this.isDevelopment && !this.isTest) {
-      this.mainWindow!.webContents.openDevTools();
-    }
   }
 
-  loadAppUrl() {
-    // createProtocol('app');
-    // Load the index.html when not in development
-    // this.winURL = 'app://./index.html';
-    // this.mainWindow!.loadURL(this.winURL);
+  registerAppProtocol() {
+    protocol.registerBufferProtocol('app', bufferProtocolCallback);
+
+    // Use the registered protocol url to load the files.
+    this.winURL = 'app://./index.html';
   }
 
   setMainWindowListeners() {
@@ -168,6 +171,38 @@ export class Main {
       this.mainWindow!.loadURL(this.winURL);
     });
   }
+}
+
+/**
+ * Callback used to register the custom app protocol,
+ * during prod, files are read and served by using this
+ * protocol.
+ */
+function bufferProtocolCallback(
+  request: ProtocolRequest,
+  callback: (response: ProtocolResponse) => void
+) {
+  const { pathname, host } = new URL(request.url);
+  const filePath = path.join(
+    __dirname,
+    'src',
+    decodeURI(host),
+    decodeURI(pathname)
+  );
+
+  fs.readFile(filePath, (_, data) => {
+    const extension = path.extname(filePath).toLowerCase();
+    const mimeType =
+      {
+        '.js': 'text/javascript',
+        '.css': 'text/css',
+        '.html': 'text/html',
+        '.svg': 'image/svg+xml',
+        '.json': 'application/json',
+      }[extension] ?? '';
+
+    callback({ mimeType, data });
+  });
 }
 
 export default new Main();

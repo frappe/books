@@ -3,7 +3,7 @@ import esbuild from 'esbuild';
 import { $ } from 'execa';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { excludeVendorFromSourceMap } from './plugins.mjs';
+import { getMainProcessCommonConfig } from './helpers.mjs';
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 process.env['NODE_ENV'] = 'development';
@@ -45,16 +45,8 @@ if (!process.argv.includes('--no-renderer')) {
  * to [re]build the main process code
  */
 const ctx = await esbuild.context({
-  entryPoints: [path.join(root, 'main.ts')],
-  bundle: true,
-  sourcemap: true,
-  sourcesContent: false,
-  platform: 'node',
-  target: 'node16',
-  outfile: path.join(root, 'dist', 'dev', 'main.js'),
-  external: ['knex', 'electron', 'better-sqlite3'],
-  plugins: [excludeVendorFromSourceMap],
-  write: true,
+  ...getMainProcessCommonConfig(root),
+  outfile: path.join(root, 'dist_electron', 'dev', 'main.js'),
 });
 
 /**
@@ -135,7 +127,7 @@ async function handleResult(result) {
 function runElectron() {
   const electronProcess = $$`npx electron --inspect=5858 ${path.join(
     root,
-    'dist',
+    'dist_electron',
     'dev',
     'main.js'
   )}`;
