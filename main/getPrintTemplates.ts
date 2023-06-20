@@ -29,7 +29,7 @@ async function getPrintTemplatePaths(): Promise<{
     const files = await fs.readdir(root);
     return { files, root };
   } catch {
-    root = path.join(__dirname, `../templates`);
+    root = path.join(__dirname, '..', '..', `templates`);
   }
 
   try {

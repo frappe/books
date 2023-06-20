@@ -2,11 +2,15 @@ import vue from '@vitejs/plugin-vue';
 import path from 'path';
 import { defineConfig } from 'vite';
 
-/**
- * This is a work in progress vite config. Currently only dev works.
- */
 
-// https://vitejs.dev/config/
+/**
+ * This vite config file is used only for dev mode, i.e.
+ * to create a serve build modules of the source code
+ * which will be rendered by electron.
+ * 
+ * For building the project, vite is used programmatically
+ * see build/scripts/build.mjs for this.
+ */
 export default () => {
   let port = 6969;
   let host = '0.0.0.0';
