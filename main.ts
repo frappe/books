@@ -1,4 +1,7 @@
-'use strict';
+require('source-map-support').install({
+  handleUncaughtException: false,
+  environment: 'node',
+});
 
 import {
   app,
@@ -9,7 +12,6 @@ import {
 import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import registerAppLifecycleListeners from './main/registerAppLifecycleListeners';
 import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
@@ -21,7 +23,6 @@ export class Main {
   icon: string;
 
   winURL: string = '';
-  isWebpackUrl: boolean = false;
   checkedForUpdate = false;
   mainWindow: BrowserWindow | null = null;
 
@@ -57,7 +58,7 @@ export class Main {
   }
 
   get isDevelopment() {
-    return process.env.NODE_ENV !== 'production';
+    return process.env.NODE_ENV === 'development';
   }
 
   get isTest() {
@@ -120,9 +121,8 @@ export class Main {
     const options = this.getOptions();
     this.mainWindow = new BrowserWindow(options);
 
-    this.isWebpackUrl = !!process.env.WEBPACK_DEV_SERVER_URL;
-    if (this.isWebpackUrl) {
-      this.loadWebpackDevServerURL();
+    if (this.isDevelopment) {
+      this.loadDevServerURL();
     } else {
       this.loadAppUrl();
     }
@@ -130,9 +130,17 @@ export class Main {
     this.setMainWindowListeners();
   }
 
-  loadWebpackDevServerURL() {
+  loadDevServerURL() {
+    let port = 6969;
+    let host = '0.0.0.0';
+
+    if (process.env.VITE_PORT && process.env.VITE_HOST) {
+      port = Number(process.env.VITE_PORT);
+      host = process.env.VITE_HOST;
+    }
+
     // Load the url of the dev server if in development mode
-    this.winURL = process.env.WEBPACK_DEV_SERVER_URL as string;
+    this.winURL = `http://${host}:${port}/`;
     this.mainWindow!.loadURL(this.winURL);
 
     if (this.isDevelopment && !this.isTest) {
@@ -141,10 +149,10 @@ export class Main {
   }
 
   loadAppUrl() {
-    createProtocol('app');
+    // createProtocol('app');
     // Load the index.html when not in development
-    this.winURL = 'app://./index.html';
-    this.mainWindow!.loadURL(this.winURL);
+    // this.winURL = 'app://./index.html';
+    // this.mainWindow!.loadURL(this.winURL);
   }
 
   setMainWindowListeners() {

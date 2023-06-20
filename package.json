@@ -2,13 +2,14 @@
   "name": "frappe-books",
   "version": "0.16.0",
   "description": "Simple book-keeping app for everyone",
-  "main": "background.js",
   "author": {
     "name": "Frappe Technologies Pvt. Ltd.",
     "email": "hello@frappe.io"
   },
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "dev": "node build/scripts/dev.mjs",
+    "dev:main": "node build/scripts/dev.mjs --no-renderer",
+    "dev:renderer": "yarn vite",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "release": "scripts/publish-mac-arm.sh",
@@ -34,6 +35,7 @@
     "luxon": "^2.5.2",
     "node-fetch": "2",
     "pesa": "^1.1.12",
+    "source-map-support": "^0.5.21",
     "vue": "^3.2.40",
     "vue-router": "^4.0.12"
   },
@@ -50,6 +52,7 @@
     "@types/tape": "^4.13.2",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
+    "@vitejs/plugin-vue": "^4.2.3",
     "@vue/cli-plugin-babel": "^4.5.0",
     "@vue/cli-plugin-eslint": "^5.0.0-beta.7",
     "@vue/cli-plugin-router": "^4.5.0",
@@ -58,6 +61,7 @@
     "@vue/eslint-config-typescript": "^7.0.0",
     "autoprefixer": "^9",
     "babel-loader": "^8.2.3",
+    "chokidar": "^3.5.3",
     "dotenv": "^16.0.0",
     "electron": "18.3.7",
     "electron-builder": "24.0.0-alpha.12",
@@ -68,6 +72,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^7.0.0",
+    "execa": "^7.1.1",
     "lint-staged": "^11.2.6",
     "postcss": "^8",
     "prettier": "^2.4.1",
@@ -80,7 +85,9 @@
     "tsconfig-paths": "^3.14.1",
     "tslib": "^2.3.1",
     "typescript": "^4.6.2",
+    "vite": "^4.3.9",
     "vue-cli-plugin-electron-builder": "https://github.com/nklayman/vue-cli-plugin-electron-builder#ebb9183f4913f927d4e4f4eb1fbab61a960f7a09",
+    "vue-tsc": "^1.6.5",
     "webpack": "^5.76.0"
   },
   "resolutions": {
@@ -92,9 +99,6 @@
     "trailingComma": "es5"
   },
   "engineStrict": true,
-  "engines": {
-    "node": ">=16.13.1 <17"
-  },
   "gitHooks": {
     "pre-commit": "lint-staged"
   },
