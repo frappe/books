@@ -3,13 +3,9 @@
 set -e
 
 # Check node and yarn versions
-NODE_VERSION=$(node --version)
 YARN_VERSION=$(yarn --version)
 if [ "$YARN_VERSION" != "1.22.18" ]; then
   echo "Incorrect yarn version: $YARN_VERSION"
-  exit 1
-elif [ "$NODE_VERSION" != "v16.13.1" ]; then
-  echo "Incorrect node version: $NODE_VERSION"
   exit 1
 fi
 

@@ -60,7 +60,7 @@ a local SQLite file as the database.
 ### Pre-requisites
 
 To get the dev environment up and running you need to first set up Node.js version
-16.13.1 and npm. For this, we suggest using
+16.14.0 and npm. For this, we suggest using
 [nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 Next, you will need to install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable).
