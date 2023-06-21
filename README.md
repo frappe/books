@@ -87,7 +87,7 @@ To run Frappe Books in development mode (with hot reload, etc):
 
 ```bash
 # start the electron app
-yarn electron:serve
+yarn dev
 ```
 
 #### Build
@@ -96,7 +96,7 @@ To build Frappe Books and create an installer:
 
 ```bash
 # start the electron app
-yarn electron:build
+yarn build
 ```
 
 **Note**
@@ -105,7 +105,7 @@ architecture. To build for other environments (example: for linux from a windows
 computer) check the _Building_ section at
 [electron.build/cli](https://www.electron.build/cli).
 
-So to build for linux you could use the `--linux` flag like so: `yarn electron:build --linux`.
+So to build for linux you could use the `--linux` flag like so: `yarn build --linux`.
 
 ## Contributions and Community
 

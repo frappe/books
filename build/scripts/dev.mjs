@@ -31,15 +31,11 @@ let isReload = false;
  */
 let electronProcess = null;
 
-/**
- * @type {null | import('execa').ExecaChildProcess<string>}
- */
-let viteProcess = null;
-
 console.log(`running Frappe Books in dev mode\nroot: ${root}`);
-if (!process.argv.includes('--no-renderer')) {
-  viteProcess = $$`yarn vite`;
-}
+/**
+ * @type {import('execa').ExecaChildProcess<string>}
+ */
+const viteProcess = $$`yarn vite`;
 /**
  * Create esbuild context that is used
  * to [re]build the main process code
