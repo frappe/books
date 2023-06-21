@@ -4,7 +4,7 @@ import path from 'path';
 /**
  * Common ESBuild config used for building main process source
  * code for both dev and production.
- * 
+ *
  * @param {string} root
  * @returns {import('esbuild').BuildOptions}
  */
@@ -16,7 +16,7 @@ export function getMainProcessCommonConfig(root) {
     sourcesContent: false,
     platform: 'node',
     target: 'node16',
-    external: ['knex', 'electron', 'better-sqlite3'],
+    external: ['knex', 'electron', 'better-sqlite3', 'electron-store'],
     plugins: [excludeVendorFromSourceMap],
     write: true,
   };
@@ -26,9 +26,9 @@ export function getMainProcessCommonConfig(root) {
  * ESBuild plugin used to prevent source maps from being generated for
  * packages inside node_modules, only first-party code source maps
  * are to be included.
- * 
+ *
  * Note, this is used only for the main process source code.
- * 
+ *
  * source: https://github.com/evanw/esbuild/issues/1685#issuecomment-944916409
  * @type {import('esbuild').Plugin}
  */
