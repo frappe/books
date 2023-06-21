@@ -1,26 +1,39 @@
 import vue from '@vitejs/plugin-vue';
+import builder from 'electron-builder';
 import esbuild from 'esbuild';
-import { $ } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { getMainProcessCommonConfig } from './helpers.mjs';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(dirname, '..', '..');
+const buildDirPath = path.join(root, 'dist_electron', 'build');
+const packageDirPath = path.join(root, 'dist_electron', 'bundled');
+const mainFileName = 'main.js';
+const commonConfig = getMainProcessCommonConfig(root);
 
-const $$ = $({ stdio: 'inherit' });
-await $$`rm -rf ${path.join(root, 'dist_electron', 'build')}`;
-
+updatePaths();
 await buildMainProcessSource();
 await buildRendererProcessSource();
+copyPackageJson();
+await packageApp();
+
+function updatePaths() {
+  fs.removeSync(buildDirPath);
+  fs.mkdirSync(buildDirPath);
+  fs.removeSync(packageDirPath);
+  fs.mkdirSync(packageDirPath);
+  fs.ensureDirSync(path.join(buildDirPath, 'node_modules'));
+}
 
 async function buildMainProcessSource() {
-  const commonConfig = getMainProcessCommonConfig(root);
   const result = await esbuild.build({
     ...commonConfig,
-    outfile: path.join(root, 'dist_electron', 'build', 'main.js'),
+    outfile: path.join(buildDirPath, mainFileName),
   });
 
   if (result.errors.length) {
@@ -32,7 +45,7 @@ async function buildMainProcessSource() {
 
 async function buildRendererProcessSource() {
   const base = 'app://';
-  const outDir = path.join(root, 'dist_electron', 'build', 'src');
+  const outDir = path.join(buildDirPath, 'src');
   await vite.build({
     base: `/${base}`,
     root: path.join(root, 'src'),
@@ -55,6 +68,80 @@ async function buildRendererProcessSource() {
     },
   });
   removeBaseLeadingSlash(outDir, base);
+}
+
+/**
+ * Copies the package.json file to the build folder with the
+ * following changes:
+ * - Irrelevant fields are removed.
+ * - Non-external deps (those that are bundled) and devDeps are removed.
+ * - Main file is updated to the bundled main process JS file.
+ */
+function copyPackageJson() {
+  const packageJsonText = fs.readFileSync(path.join(root, 'package.json'), {
+    encoding: 'utf-8',
+  });
+
+  const packageJson = JSON.parse(packageJsonText);
+  const keys = [
+    'name',
+    'version',
+    'description',
+    'author',
+    'homepage',
+    'repository',
+    'license',
+  ];
+  const modifiedPackageJson = {};
+  for (const key of keys) {
+    modifiedPackageJson[key] = packageJson[key];
+  }
+
+  modifiedPackageJson.main = mainFileName;
+  modifiedPackageJson.dependencies = {};
+
+  for (const dep of commonConfig.external) {
+    modifiedPackageJson.dependencies[dep] = packageJson.dependencies[dep];
+  }
+
+  fs.writeFileSync(
+    path.join(buildDirPath, 'package.json'),
+    JSON.stringify(modifiedPackageJson, null, 2),
+    {
+      encoding: 'utf-8',
+    }
+  );
+}
+
+/**
+ * Packages the app using electron builder.
+ *
+ * Note: this also handles signing and notarization if the
+ * appropriate flags are set. 
+ * 
+ * Electron builder cli [commands](https://www.electron.build/cli)
+ * are passed on as builderArgs.
+ */
+async function packageApp() {
+  const { configureBuildCommand } = await await import(
+    'electron-builder/out/builder.js'
+  );
+
+  const rawArgs = hideBin(process.argv);
+  const builderArgs = yargs(rawArgs)
+    .command(['build', '*'], 'Build', configureBuildCommand)
+    .parse();
+
+  const buildOptions = {
+    config: {
+      directories: { output: packageDirPath, app: buildDirPath },
+      files: ['**'],
+      extends: null,
+    },
+    ...builderArgs,
+  };
+
+  await builder.build(buildOptions);
 }
 
 /**

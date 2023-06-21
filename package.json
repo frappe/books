@@ -62,7 +62,7 @@
     "chokidar": "^3.5.3",
     "dotenv": "^16.0.0",
     "electron": "18.3.7",
-    "electron-builder": "24.0.0-alpha.12",
+    "electron-builder": "^24.4.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-rebuild": "^3.2.9",
     "electron-updater": "^5.2.1",
@@ -85,12 +85,9 @@
     "tslib": "^2.3.1",
     "typescript": "^4.6.2",
     "vite": "^4.3.9",
-    "vue-cli-plugin-electron-builder": "https://github.com/nklayman/vue-cli-plugin-electron-builder#ebb9183f4913f927d4e4f4eb1fbab61a960f7a09",
     "vue-tsc": "^1.6.5",
-    "webpack": "^5.76.0"
-  },
-  "resolutions": {
-    "electron-builder": "24.0.0-alpha.12"
+    "webpack": "^5.76.0",
+    "yargs": "^17.7.2"
   },
   "prettier": {
     "semi": true,
@@ -107,5 +104,6 @@
   },
   "repository": {
     "url": "https://github.com/frappe/books"
-  }
+  },
+  "license": "AGPL-3.0-only"
 }
