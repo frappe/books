@@ -24,9 +24,9 @@ await packageApp();
 
 function updatePaths() {
   fs.removeSync(buildDirPath);
-  fs.mkdirSync(buildDirPath);
+  fs.ensureDirSync(buildDirPath);
   fs.removeSync(packageDirPath);
-  fs.mkdirSync(packageDirPath);
+  fs.ensureDirSync(packageDirPath);
   fs.ensureDirSync(path.join(buildDirPath, 'node_modules'));
 }
 

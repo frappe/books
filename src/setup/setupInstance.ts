@@ -262,7 +262,7 @@ async function checkAndCreateDoc(
     return;
   }
 
-  const doc = await fyo.doc.getNewDoc(schemaName, docObject);
+  const doc = fyo.doc.getNewDoc(schemaName, docObject);
   return doc.sync();
 }
 

@@ -93,11 +93,12 @@ export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
 }
 
 function showHSN(doc: Doc): boolean {
-  if (!Array.isArray(doc.items)) {
+  const items = doc.items;
+  if (!Array.isArray(items)) {
     return false;
   }
 
-  return doc.items.map((i) => i.hsnCode).every(Boolean);
+  return items.map((i: Doc) => i.hsnCode).every(Boolean);
 }
 
 function formattedTotalDiscount(doc: Doc): string {
@@ -246,15 +247,14 @@ function constructPrintDocument(innerHTML: string) {
 }
 
 function getAllCSSAsStyleElem() {
-  const cssTexts = [];
+  const cssTexts: string[] = [];
   for (const sheet of document.styleSheets) {
     for (const rule of sheet.cssRules) {
       cssTexts.push(rule.cssText);
     }
 
-    // @ts-ignore
-    for (const rule of sheet.ownerRule ?? []) {
-      cssTexts.push(rule.cssText);
+    if (sheet.ownerRule) {
+      cssTexts.push(sheet.ownerRule.cssText);
     }
   }
 

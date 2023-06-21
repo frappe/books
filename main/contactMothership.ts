@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import path from 'path';
 import { Creds } from 'utils/types';
 import { rendererLog } from './helpers';
+import type { Main } from 'main';
 
 export function getUrlAndTokenString(): Creds {
   const inProduction = app.isPackaged;
@@ -42,7 +43,7 @@ export function getUrlAndTokenString(): Creds {
   };
 }
 
-export async function sendError(body: string) {
+export async function sendError(body: string, main: Main) {
   const { errorLogUrl, tokenString } = getUrlAndTokenString();
   const headers = {
     Authorization: tokenString,
@@ -51,6 +52,6 @@ export async function sendError(body: string) {
   };
 
   await fetch(errorLogUrl, { method: 'POST', headers, body }).catch((err) => {
-    rendererLog(err);
+    rendererLog(main, err);
   });
 }

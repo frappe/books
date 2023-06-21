@@ -58,7 +58,10 @@ export class AuthHandler {
     return { ...this.#config };
   }
 
-  init() {}
+  init() {
+    return null;
+  }
+
   async login(email: string, password: string) {
     if (email === 'Administrator') {
       this.#session.user = 'Administrator';
@@ -106,8 +109,6 @@ export class AuthHandler {
   async logout() {
     // TODO: Implement this with auth flow
   }
-
-  async purgeCache() {}
 
   #getServerURL() {
     return this.#config.serverURL || '';

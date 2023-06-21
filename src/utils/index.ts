@@ -14,8 +14,8 @@ import { fyo } from 'src/initFyo';
 
 export function stringifyCircular(
   obj: unknown,
-  ignoreCircular: boolean = false,
-  convertDocument: boolean = false
+  ignoreCircular = false,
+  convertDocument = false
 ) {
   const cacheKey: string[] = [];
   const cacheValue: unknown[] = [];

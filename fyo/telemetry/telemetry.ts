@@ -1,5 +1,4 @@
 import { Fyo } from 'fyo';
-import { ConfigKeys } from 'fyo/core/types';
 import { Noun, Telemetry, Verb } from './types';
 
 /**
@@ -28,8 +27,8 @@ import { Noun, Telemetry, Verb } from './types';
  */
 
 export class TelemetryManager {
-  #url: string = '';
-  #token: string = '';
+  #url = '';
+  #token = '';
   #started = false;
   fyo: Fyo;
 
@@ -108,16 +107,12 @@ export class TelemetryManager {
     noun: Noun,
     more?: Record<string, unknown>
   ): Telemetry {
-    const countryCode = this.fyo.singles.SystemSettings?.countryCode as
-      | string
-      | undefined;
-
+    const countryCode = this.fyo.singles.SystemSettings?.countryCode;
     return {
       country: countryCode ?? '',
       language: this.fyo.store.language,
       deviceId:
-        this.fyo.store.deviceId ||
-        (this.fyo.config.get(ConfigKeys.DeviceId) as string),
+        this.fyo.store.deviceId || (this.fyo.config.get('deviceId') ?? '-'),
       instanceId: this.fyo.store.instanceId,
       version: this.fyo.store.appVersion,
       openCount: this.fyo.store.openCount,

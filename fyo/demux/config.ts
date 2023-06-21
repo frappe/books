@@ -1,11 +1,12 @@
 import type Store from 'electron-store';
+import { ConfigMap } from 'fyo/core/types';
 
 export class Config {
   config: Map<string, unknown> | Store;
   constructor(isElectron: boolean) {
     this.config = new Map();
     if (isElectron) {
-      const Config: typeof Store = require('electron-store');
+      const Config = require('electron-store') as typeof Store;
       this.config = new Config();
     }
   }
@@ -23,15 +24,19 @@ export class Config {
     }
   }
 
-  get(key: string, defaultValue?: unknown): unknown {
-    return this.config.get(key) ?? defaultValue;
+  get<K extends keyof ConfigMap>(
+    key: K,
+    defaultValue?: ConfigMap[K]
+  ): ConfigMap[K] | undefined {
+    const value = this.config.get(key) as ConfigMap[K] | undefined;
+    return value ?? defaultValue;
   }
 
-  set(key: string, value: unknown) {
+  set<K extends keyof ConfigMap>(key: K, value: ConfigMap[K]) {
     this.config.set(key, value);
   }
 
-  delete(key: string) {
+  delete(key: keyof ConfigMap) {
     this.config.delete(key);
   }
 

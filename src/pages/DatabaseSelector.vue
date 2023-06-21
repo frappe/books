@@ -214,7 +214,6 @@
 </template>
 <script lang="ts">
 import { setupDummyInstance } from 'dummy';
-const { ipcRenderer } = require('electron');
 import { t } from 'fyo';
 import { DateTime } from 'luxon';
 import Button from 'src/components/Button.vue';
@@ -224,11 +223,12 @@ import Loading from 'src/components/Loading.vue';
 import Modal from 'src/components/Modal.vue';
 import { fyo } from 'src/initFyo';
 import { showDialog } from 'src/utils/interactive';
-import { deleteDb, getSavePath } from 'src/utils/ipcCalls';
+import { deleteDb, getSavePath, getSelectedFilePath } from 'src/utils/ipcCalls';
 import { updateConfigFiles } from 'src/utils/misc';
 import { IPC_ACTIONS } from 'utils/messages';
 import type { ConfigFilesWithModified } from 'utils/types';
 import { defineComponent } from 'vue';
+const { ipcRenderer } = require('electron');
 
 export default defineComponent({
   name: 'DatabaseSelector',
@@ -353,13 +353,7 @@ export default defineComponent({
         return;
       }
 
-      const filePath = (
-        await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, {
-          title: this.t`Select file`,
-          properties: ['openFile'],
-          filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
-        })
-      )?.filePaths?.[0];
+      const filePath = (await getSelectedFilePath())?.filePaths?.[0];
       this.emitFileSelected(filePath);
     },
     async selectFile(file: ConfigFilesWithModified) {

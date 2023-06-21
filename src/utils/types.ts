@@ -90,7 +90,7 @@ export type ActionGroup = {
 export type DropdownItem = {
   label: string;
   value?: string;
-  action?: Function;
+  action?: () => unknown;
   group?: string;
   component?: { template: string };
   isGroup?: boolean;

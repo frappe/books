@@ -346,8 +346,8 @@ export class Search {
    * - Marked indices are rebuilt when the modal is opened.
    */
 
-  _obsSet: boolean = false;
-  numSearches: number = 0;
+  _obsSet = false;
+  numSearches = 0;
   searchables: Record<string, Searchable>;
   keywords: Record<string, Keyword[]>;
   priorityMap: Record<string, number> = {
@@ -707,7 +707,7 @@ export class Search {
 
   _getDocSearchItemFromKeyword(keyword: Keyword): DocSearchItem {
     const schemaName = keyword.meta.schemaName as string;
-    const schemaLabel = this.fyo.schemaMap[schemaName]?.label!;
+    const schemaLabel = this.fyo.schemaMap[schemaName]?.label ?? schemaName;
     const route = this._getRouteFromKeyword(keyword);
     return {
       label: keyword.values[0],

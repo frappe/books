@@ -386,7 +386,7 @@ export function toggleSidebar(value?: boolean) {
 export function focusOrSelectFormControl(
   doc: Doc,
   ref: any,
-  clear: boolean = true
+  clear= true
 ) {
   if (!doc?.fyo) {
     return;
@@ -507,7 +507,7 @@ export async function commonDocCancel(doc: Doc): Promise<boolean> {
 
 export async function commonDocSync(
   doc: Doc,
-  useDialog: boolean = false
+  useDialog = false
 ): Promise<boolean> {
   let success: boolean;
   if (useDialog) {

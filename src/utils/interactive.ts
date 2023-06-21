@@ -13,7 +13,7 @@ type DialogReturn<DO extends DialogOptions> = DO['buttons'] extends {
 
 export async function showDialog<DO extends DialogOptions>(options: DO) {
   const preWrappedButtons: DialogButton[] = options.buttons ?? [
-    { label: t`Okay`, action: () => {}, isEscape: true },
+    { label: t`Okay`, action: () => null, isEscape: true },
   ];
 
   return new Promise(async (resolve, reject) => {

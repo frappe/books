@@ -1,5 +1,4 @@
 import { t } from 'fyo';
-import { ConfigKeys } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { BaseError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
@@ -10,6 +9,7 @@ import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
 import { DialogOptions, ToastOptions } from './utils/types';
+import { UnknownFunction } from 'utils/types';
 const { ipcRenderer } = require('electron');
 
 function shouldNotStore(error: Error) {
@@ -23,7 +23,7 @@ export async function sendError(errorLogObj: ErrorLog) {
   }
 
   errorLogObj.more ??= {};
-  errorLogObj.more!.path ??= router.currentRoute.value.fullPath;
+  errorLogObj.more.path ??= router.currentRoute.value.fullPath;
 
   const body = {
     error_name: errorLogObj.name,
@@ -77,7 +77,7 @@ export async function handleError(
   logToConsole: boolean,
   error: Error,
   more: Record<string, unknown> = {},
-  notifyUser: boolean = true
+  notifyUser = true
 ) {
   if (logToConsole) {
     console.error(error);
@@ -127,7 +127,13 @@ export async function handleErrorWithDialog(
         },
         isPrimary: true,
       },
-      { label: t`Cancel`, action() {}, isEscape: true },
+      {
+        label: t`Cancel`,
+        action() {
+          return null;
+        },
+        isEscape: true,
+      },
     ];
   }
 
@@ -152,7 +158,7 @@ export async function showErrorDialog(title?: string, content?: string) {
 
 // Wrapper Functions
 
-export function getErrorHandled(func: Function) {
+export function getErrorHandled(func: UnknownFunction) {
   return async function errorHandled(...args: unknown[]) {
     try {
       return await func(...args);
@@ -167,7 +173,7 @@ export function getErrorHandled(func: Function) {
   };
 }
 
-export function getErrorHandledSync(func: Function) {
+export function getErrorHandledSync(func: UnknownFunction) {
   return function errorHandledSync(...args: unknown[]) {
     try {
       return func(...args);
@@ -208,7 +214,7 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   body.push(`**Platform**: \`${fyo.store.platform}\``);
   body.push(`**Path**: \`${router.currentRoute.value.fullPath}\``);
 
-  body.push(`**Language**: \`${fyo.config.get(ConfigKeys.Language)}\``);
+  body.push(`**Language**: \`${fyo.config.get('language') ?? '-'}\``);
   if (fyo.singles.SystemSettings?.countryCode) {
     body.push(`**Country**: \`${fyo.singles.SystemSettings.countryCode}\``);
   }
