@@ -42,7 +42,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           yarn set version 1.22.18
-          yarn electron:build --mac --publish always
+          yarn build --mac --publish always
 
       - name: Tar files
         run: tar -cvf dist-macOS.tar dist_electron
@@ -86,7 +86,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           yarn set version 1.22.18
-          yarn electron:build --linux --publish always
+          yarn build --linux --publish always
 
       - name: Tar files
         run: tar -cvf dist-linux.tar dist_electron
@@ -132,7 +132,7 @@ jobs:
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: yarn electron:build --win --publish always
+        run: yarn build --win --publish always
 
       - name: Tar files
         run: tar -cvf dist-windows.tar dist_electron

@@ -42,6 +42,6 @@ export GH_TOKEN=$GH_TOKEN &&
  export APPLE_ID=$APPLE_ID &&
  export APPLE_TEAM_ID=$APPLE_TEAM_ID &&
  export APPLE_APP_SPECIFIC_PASSWORD=$APPLE_APP_SPECIFIC_PASSWORD &&
- yarn electron:build --mac --publish=always
+ yarn build --mac --publish=always
 
 cd ../books

@@ -9,8 +9,6 @@
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
     "build": "node build/scripts/build.mjs",
-    "dev:main": "node build/scripts/dev.mjs --no-renderer",
-    "dev:renderer": "yarn vite",
     "release": "scripts/publish-mac-arm.sh",
     "postinstall": "electron-rebuild",
     "postuninstall": "electron-rebuild",
@@ -80,10 +78,6 @@
     "semi": true,
     "singleQuote": true,
     "trailingComma": "es5"
-  },
-  "engineStrict": true,
-  "gitHooks": {
-    "pre-commit": "lint-staged"
   },
   "homepage": "https://frappebooks.com",
   "repository": {
