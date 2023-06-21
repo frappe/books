@@ -1,5 +1,4 @@
 const { ipcRenderer } = require('electron');
-import { ConfigKeys } from 'fyo/core/types';
 import { DateTime } from 'luxon';
 import { CUSTOM_EVENTS, IPC_ACTIONS } from 'utils/messages';
 import { UnexpectedLogObject } from 'utils/types';
@@ -16,7 +15,7 @@ import { stringifyCircular } from './utils';
 import { setLanguageMap } from './utils/language';
 
 (async () => {
-  const language = fyo.config.get(ConfigKeys.Language) as string;
+  const language = fyo.config.get('language') as string;
   if (language) {
     await setLanguageMap(language);
   }
@@ -74,7 +73,13 @@ function setErrorHandlers(app: VueApp) {
   };
 
   window.onunhandledrejection = (event: PromiseRejectionEvent) => {
-    const error = event.reason;
+    let error: Error;
+    if (event.reason instanceof Error) {
+      error = event.reason;
+    } else {
+      error = new Error(String(event.reason));
+    }
+
     handleError(true, error).catch((err) => console.error(err));
   };
 

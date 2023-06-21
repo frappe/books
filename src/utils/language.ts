@@ -25,7 +25,7 @@ export const languageCodeMap: Record<string, string> = {
 
 export async function setLanguageMap(
   initLanguage?: string,
-  dontReload: boolean = false
+  dontReload = false
 ) {
   const oldLanguage = fyo.config.get('language') as string;
   initLanguage ??= oldLanguage;

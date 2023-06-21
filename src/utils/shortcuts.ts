@@ -12,7 +12,7 @@ interface ModMap {
 
 type Mod = keyof ModMap;
 type Context = unknown;
-type ShortcutFunction = () => void;
+type ShortcutFunction = () => unknown;
 type ShortcutConfig = {
   callback: ShortcutFunction;
   propagate: boolean;
@@ -117,8 +117,8 @@ export class Shortcuts {
     context: Context,
     shortcut: string[],
     callback: ShortcutFunction,
-    propagate: boolean = false,
-    removeIfSet: boolean = true
+    propagate = false,
+    removeIfSet = true
   ): void {
     const key = this.getKey(shortcut);
     if (!key) {

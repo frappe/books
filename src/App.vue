@@ -36,7 +36,6 @@
   </div>
 </template>
 <script lang="ts">
-import { ConfigKeys } from 'fyo/core/types';
 import { RTL_LANGUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
 import { systemLanguageRef } from 'src/utils/refs';
@@ -126,10 +125,7 @@ export default defineComponent({
   },
   methods: {
     async setInitialScreen(): Promise<void> {
-      const lastSelectedFilePath = fyo.config.get(
-        ConfigKeys.LastSelectedFilePath,
-        null
-      );
+      const lastSelectedFilePath = fyo.config.get('lastSelectedFilePath', null);
 
       if (
         typeof lastSelectedFilePath !== 'string' ||
@@ -159,7 +155,7 @@ export default defineComponent({
       updateConfigFiles(fyo);
     },
     async fileSelected(filePath: string, isNew?: boolean): Promise<void> {
-      fyo.config.set(ConfigKeys.LastSelectedFilePath, filePath);
+      fyo.config.set('lastSelectedFilePath', filePath);
       if (isNew) {
         this.activeScreen = Screen.SetupWizard;
         return;
@@ -173,7 +169,7 @@ export default defineComponent({
       }
     },
     async setupComplete(setupWizardOptions: SetupWizardOptions): Promise<void> {
-      const filePath = fyo.config.get(ConfigKeys.LastSelectedFilePath);
+      const filePath = fyo.config.get('lastSelectedFilePath');
       if (typeof filePath !== 'string') {
         return;
       }

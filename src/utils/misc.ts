@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import { ConfigFile, ConfigKeys } from 'fyo/core/types';
+import { ConfigFile } from 'fyo/core/types';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
 import { ModelNameEnum } from 'models/types';
@@ -64,7 +64,7 @@ export function getSetupWizardDoc() {
 }
 
 export function updateConfigFiles(fyo: Fyo): ConfigFile {
-  const configFiles = fyo.config.get(ConfigKeys.Files, []) as ConfigFile[];
+  const configFiles = fyo.config.get('files', []) as ConfigFile[];
 
   const companyName = fyo.singles.AccountingSettings!.companyName as string;
   const id = fyo.singles.SystemSettings!.instanceId as string;
@@ -83,7 +83,7 @@ export function updateConfigFiles(fyo: Fyo): ConfigFile {
     newFile = configFiles[fileIndex];
   }
 
-  fyo.config.set(ConfigKeys.Files, configFiles);
+  fyo.config.set('files', configFiles);
   return newFile;
 }
 

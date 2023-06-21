@@ -100,7 +100,7 @@ export function useDocShortcuts(
   shortcuts: Shortcuts,
   docRef: DocRef,
   name: string,
-  isMultiple: boolean = true
+  isMultiple = true
 ) {
   let context = name;
   if (isMultiple) {

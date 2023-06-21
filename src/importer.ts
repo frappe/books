@@ -117,7 +117,7 @@ export class Importer {
     this.templateFieldsMap = new Map();
     this.templateFieldsPicked = new Map();
 
-    templateFields.forEach((f, i) => {
+    templateFields.forEach((f) => {
       this.templateFieldsMap.set(f.fieldKey, f);
       this.templateFieldsPicked.set(f.fieldKey, true);
     });

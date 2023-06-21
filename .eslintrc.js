@@ -1,23 +1,32 @@
 module.exports = {
   root: true,
-
   env: {
     node: true,
+    browser: true,
+    es2020: true,
   },
-
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-console': 'warn',
+    'no-debugger': 'warn',
     'arrow-body-style': 'off',
-    'prefer-arrow-callback': 'off',
+    'prefer-arrow-callback': 'warn',
     'vue/no-mutating-props': 'off',
     'vue/multi-word-component-names': 'off',
     'vue/no-useless-template-attributes': 'off',
+    'vue/one-component-per-file': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-floating-promises': 'off',
+    '@typescript-eslint/no-misused-promises': 'off',
   },
-
-  parserOptions: {
-    parser: '@typescript-eslint/parser',
-  },
-
-  extends: ['plugin:vue/vue3-essential', '@vue/typescript'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: { project: true, tsconfigRootDir: __dirname },
+  plugins: ['@typescript-eslint'],
+  extends: [
+    'plugin:vue/vue3-strongly-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+  ],
+  ignorePatterns: ['.eslintrc.js'],
 };

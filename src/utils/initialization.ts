@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import { ConfigFile, ConfigKeys } from 'fyo/core/types';
+import { ConfigFile } from 'fyo/core/types';
 import { getRegionalModels, models } from 'models/index';
 import { ModelNameEnum } from 'models/types';
 import { TargetField } from 'schemas/types';
@@ -68,7 +68,7 @@ async function checkSingleLinks(fyo: Fyo) {
     .flat()
     .filter((field) => field.fieldtype === 'Link' && field.target)
     .map((field) => ({
-      fieldKey: `${field.schemaName}.${field.fieldname}`,
+      fieldKey: `${field.schemaName!}.${field.fieldname}`,
       target: (field as TargetField).target,
     }));
   const linkFieldsMap = getMapFromList(linkFields, 'fieldKey');
@@ -126,10 +126,10 @@ async function setVersion(fyo: Fyo) {
 }
 
 function setDeviceId(fyo: Fyo) {
-  let deviceId = fyo.config.get(ConfigKeys.DeviceId) as string | undefined;
+  let deviceId = fyo.config.get('deviceId');
   if (deviceId === undefined) {
     deviceId = getRandomString();
-    fyo.config.set(ConfigKeys.DeviceId, deviceId);
+    fyo.config.set('deviceId', deviceId);
   }
 
   fyo.store.deviceId = deviceId;
@@ -176,7 +176,7 @@ async function setOpenCount(fyo: Fyo) {
 }
 
 function getOpenCountFromFiles(fyo: Fyo) {
-  const configFile = fyo.config.get(ConfigKeys.Files, []) as ConfigFile[];
+  const configFile = fyo.config.get('files', []) as ConfigFile[];
   for (const file of configFile) {
     if (file.id === fyo.singles.SystemSettings?.instanceId) {
       return file.openCount ?? 0;

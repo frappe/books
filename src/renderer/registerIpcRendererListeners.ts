@@ -36,7 +36,7 @@ export default function registerIpcRendererListeners() {
     }
   });
 
-  document.addEventListener('visibilitychange', function () {
+  document.addEventListener('visibilitychange', () => {
     const { visibilityState } = document;
     if (visibilityState === 'visible' && !fyo.telemetry.started) {
       fyo.telemetry.start();

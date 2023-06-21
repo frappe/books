@@ -20,11 +20,11 @@ export default function registerIpcMainMessageListeners(main: Main) {
     main.mainWindow!.reload();
   });
 
-  ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (_, link) => {
+  ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (_, link: string) => {
     shell.openExternal(link);
   });
 
-  ipcMain.on(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, (_, filePath) => {
+  ipcMain.on(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, (_, filePath: string) => {
     return shell.showItemInFolder(filePath);
   });
 }

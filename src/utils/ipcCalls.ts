@@ -9,9 +9,18 @@ import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { SelectFileOptions, SelectFileReturn, TemplateFile } from 'utils/types';
 import { showDialog, showToast } from './interactive';
 import { setLanguageMap } from './language';
+import type { OpenDialogReturnValue } from 'electron';
 
 export function reloadWindow() {
   return ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
+}
+
+export async function getSelectedFilePath(): Promise<OpenDialogReturnValue> {
+  return await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, {
+    title: this.t`Select file`,
+    properties: ['openFile'],
+    filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
+  });
 }
 
 export async function getTemplates(): Promise<TemplateFile[]> {

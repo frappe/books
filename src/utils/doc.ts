@@ -37,7 +37,7 @@ function evaluateFieldMeta(
   field: Field,
   doc?: Doc,
   meta?: 'required' | 'hidden' | 'readOnly',
-  defaultValue: boolean = false
+  defaultValue = false
 ) {
   if (meta === undefined) {
     return defaultValue;

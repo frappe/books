@@ -28,7 +28,7 @@ export class DocHandler {
     this.observer = new Observable();
   }
 
-  async purgeCache() {
+  purgeCache() {
     this.init();
   }
 
@@ -82,10 +82,10 @@ export class DocHandler {
   getNewDoc(
     schemaName: string,
     data: DocValueMap | RawValueMap = {},
-    cacheDoc: boolean = true,
+    cacheDoc = true,
     schema?: Schema,
     Model?: typeof Doc,
-    isRawValueMap: boolean = true
+    isRawValueMap = true
   ): Doc {
     if (!this.models[schemaName] && Model) {
       this.models[schemaName] = Model;
@@ -153,7 +153,7 @@ export class DocHandler {
 
     // propagate change to `docs`
     doc.on('change', (params: unknown) => {
-      this.docs!.trigger('change', params);
+      this.docs.trigger('change', params);
     });
 
     doc.on('afterSync', () => {

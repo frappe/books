@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 require('source-map-support').install({
   handleUncaughtException: false,
   environment: 'node',
@@ -22,10 +23,10 @@ import registerIpcMainMessageListeners from './main/registerIpcMainMessageListen
 import registerProcessListeners from './main/registerProcessListeners';
 
 export class Main {
-  title: string = 'Frappe Books';
+  title = 'Frappe Books';
   icon: string;
 
-  winURL: string = '';
+  winURL = '';
   checkedForUpdate = false;
   mainWindow: BrowserWindow | null = null;
 
@@ -130,9 +131,9 @@ export class Main {
       this.registerAppProtocol();
     }
 
-    this.mainWindow!.loadURL(this.winURL);
+    this.mainWindow.loadURL(this.winURL);
     if (this.isDevelopment && !this.isTest) {
-      this.mainWindow!.webContents.openDevTools();
+      this.mainWindow.webContents.openDevTools();
     }
 
     this.setMainWindowListeners();
