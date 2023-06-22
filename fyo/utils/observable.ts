@@ -3,7 +3,8 @@ enum EventType {
   OnceListeners = '_onceListeners',
 }
 
-type Listener = (...args: unknown[]) => unknown | Promise<unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Listener = (...args: any[]) => unknown | Promise<unknown>;
 
 export default class Observable<T> {
   [key: string]: unknown | T;
