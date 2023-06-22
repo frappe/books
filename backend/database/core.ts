@@ -90,9 +90,6 @@ export default class DatabaseCore extends DatabaseBase {
 
   async connect() {
     this.knex = knex(this.connectionParams);
-    this.knex.on('query-error', (error: Error) => {
-      error.cause = getDbError(error);
-    });
     await this.knex.raw('PRAGMA foreign_keys=ON');
   }
 
