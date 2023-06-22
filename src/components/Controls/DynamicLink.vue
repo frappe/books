@@ -73,6 +73,25 @@ export default {
         })
         .filter(Boolean));
     },
+    async openNewDoc() {
+      const schemaName = this.getTargetSchemaName();
+      if(!schemaName){
+        return
+      }
+      const name =
+        this.linkValue || fyo.doc.getTemporaryName(fyo.schemaMap[schemaName]);
+      const filters = await this.getCreateFilters();
+      const { openQuickEdit } = await import('src/utils/ui');
+
+      const doc = fyo.doc.getNewDoc(schemaName, { name, ...filters });
+      openQuickEdit({ doc });
+
+      doc.once('afterSync', () => {
+        this.$router.back();
+        this.results = [];
+        this.triggerChange(doc.name);
+      });
+    },
   },
 };
 </script>
