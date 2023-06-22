@@ -60,7 +60,7 @@ function toDatetime(value: unknown): DateTime | null {
   } else if (value instanceof Date) {
     return DateTime.fromJSDate(value);
   } else if (typeof value === 'number') {
-    return DateTime.fromSeconds(value as number);
+    return DateTime.fromSeconds(value);
   }
 
   return null;
@@ -120,7 +120,9 @@ function formatCurrency(
   try {
     valueString = formatNumber(value, fyo);
   } catch (err) {
-    (err as Error).message += ` value: '${value}', type: ${typeof value}`;
+    (err as Error).message += ` value: '${String(
+      value
+    )}', type: ${typeof value}`;
     throw err;
   }
 
@@ -148,7 +150,9 @@ function formatNumber(value: unknown, fyo: Fyo): string {
 
   if (formattedNumber === 'NaN') {
     throw Error(
-      `invalid value passed to formatNumber: '${value}' of type ${typeof value}`
+      `invalid value passed to formatNumber: '${String(
+        value
+      )}' of type ${typeof value}`
     );
   }
 

@@ -19,4 +19,5 @@ async function run() {
   await unlink(dbPath);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 run();

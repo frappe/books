@@ -13,7 +13,7 @@ import { getMapFromList } from 'utils';
 export class BalanceSheet extends AccountReport {
   static title = t`Balance Sheet`;
   static reportName = 'balance-sheet';
-  loading: boolean = false;
+  loading = false;
 
   get rootTypes(): AccountRootType[] {
     return [
@@ -54,15 +54,15 @@ export class BalanceSheet extends AccountReport {
       })
       .filter((row) => !!row.rootNode);
 
-    this.reportData = await this.getReportDataFromRows(
+    this.reportData = this.getReportDataFromRows(
       getMapFromList(rootTypeRows, 'rootType')
     );
     this.loading = false;
   }
 
-  async getReportDataFromRows(
+  getReportDataFromRows(
     rootTypeRows: Record<AccountRootType, RootTypeRow | undefined>
-  ): Promise<ReportData> {
+  ): ReportData {
     const typeNameList = [
       {
         rootType: AccountRootTypeEnum.Asset,
@@ -89,7 +89,7 @@ export class BalanceSheet extends AccountReport {
       reportData.push(...row.rows);
 
       if (row.rootNode) {
-        const totalNode = await this.getTotalNode(row.rootNode, totalName);
+        const totalNode = this.getTotalNode(row.rootNode, totalName);
         const totalRow = this.getRowFromAccountListNode(totalNode);
         reportData.push(totalRow);
       }

@@ -10,14 +10,14 @@ import { ColumnField, ReportData } from './types';
 export abstract class Report extends Observable<RawValue> {
   static title: string;
   static reportName: string;
-  static isInventory: boolean = false;
+  static isInventory = false;
 
   fyo: Fyo;
   columns: ColumnField[] = [];
   filters: Field[] = [];
   reportData: ReportData;
-  usePagination: boolean = false;
-  shouldRefresh: boolean = false;
+  usePagination = false;
+  shouldRefresh = false;
   abstract loading: boolean;
 
   constructor(fyo: Fyo) {
@@ -26,14 +26,12 @@ export abstract class Report extends Observable<RawValue> {
     this.reportData = [];
   }
 
-  get title() {
-    // @ts-ignore
-    return this.constructor.title;
+  get title(): string {
+    return (this.constructor as typeof Report).title;
   }
 
-  get reportName() {
-    // @ts-ignore
-    return this.constructor.reportName;
+  get reportName(): string {
+    return (this.constructor as typeof Report).reportName;
   }
 
   async initialize() {
@@ -61,7 +59,7 @@ export abstract class Report extends Observable<RawValue> {
     return filterMap;
   }
 
-  async set(key: string, value: DocValue, callPostSet: boolean = true) {
+  async set(key: string, value: DocValue, callPostSet = true) {
     const field = this.filters.find((f) => f.fieldname === key);
     if (field === undefined) {
       return;
@@ -95,7 +93,7 @@ export abstract class Report extends Observable<RawValue> {
    * Should first check if filter value is set
    * and update only if it is not set.
    */
-  async setDefaultFilters() {}
+  abstract setDefaultFilters(): void | Promise<void>;
   abstract getActions(): Action[];
   abstract getFilters(): Field[] | Promise<Field[]>;
   abstract getColumns(): ColumnField[] | Promise<ColumnField[]>;

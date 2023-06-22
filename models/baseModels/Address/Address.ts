@@ -1,10 +1,10 @@
-import { Fyo, t } from 'fyo';
+import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import {
   EmptyMessageMap,
   FormulaMap,
-  ListsMap,
   ListViewSettings,
+  ListsMap,
 } from 'fyo/model/types';
 import { codeStateMap } from 'regional/in';
 import { getCountryInfo } from 'utils/misc';
@@ -12,7 +12,7 @@ import { getCountryInfo } from 'utils/misc';
 export class Address extends Doc {
   formulas: FormulaMap = {
     addressDisplay: {
-      formula: async () => {
+      formula: () => {
         return [
           this.addressLine1,
           this.addressLine2,

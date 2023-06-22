@@ -188,7 +188,7 @@ export abstract class InvoiceItem extends Doc {
       dependsOn: ['item', 'unit'],
     },
     transferQuantity: {
-      formula: async (fieldname) => {
+      formula: (fieldname) => {
         if (fieldname === 'quantity' || this.unit === this.transferUnit) {
           return this.quantity;
         }
@@ -205,7 +205,7 @@ export abstract class InvoiceItem extends Doc {
 
         const itemDoc = await this.fyo.doc.getDoc(
           ModelNameEnum.Item,
-          this.item as string
+          this.item
         );
         const unitDoc = itemDoc.getLink('uom');
 
@@ -321,7 +321,7 @@ export abstract class InvoiceItem extends Doc {
       ],
     },
     itemTaxedTotal: {
-      formula: async (fieldname) => {
+      formula: async () => {
         const totalTaxRate = await this.getTotalTaxRate();
         const rate = this.rate ?? this.fyo.pesa(0);
         const quantity = this.quantity ?? 1;
@@ -389,7 +389,7 @@ export abstract class InvoiceItem extends Doc {
   };
 
   validations: ValidationMap = {
-    rate: async (value: DocValue) => {
+    rate: (value: DocValue) => {
       if ((value as Money).gte(0)) {
         return;
       }
@@ -401,7 +401,7 @@ export abstract class InvoiceItem extends Doc {
         )}) cannot be less zero.`
       );
     },
-    itemDiscountAmount: async (value: DocValue) => {
+    itemDiscountAmount: (value: DocValue) => {
       if ((value as Money).lte(this.amount!)) {
         return;
       }
@@ -416,7 +416,7 @@ export abstract class InvoiceItem extends Doc {
         )}).`
       );
     },
-    itemDiscountPercent: async (value: DocValue) => {
+    itemDiscountPercent: (value: DocValue) => {
       if ((value as number) < 100) {
         return;
       }
@@ -434,13 +434,14 @@ export abstract class InvoiceItem extends Doc {
 
       const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionItem, {
         fields: ['parent'],
-        filters: { uom: value as string, parent: this.item! },
+        filters: { uom: value as string, parent: this.item },
       });
 
       if (item.length < 1)
         throw new ValidationError(
-          t`Transfer Unit ${value as string} is not applicable for Item ${this
-            .item!}`
+          t`Transfer Unit ${value as string} is not applicable for Item ${
+            this.item
+          }`
         );
     },
   };

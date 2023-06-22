@@ -5,7 +5,7 @@ import { codeStateMap } from 'regional/in';
 export class Address extends BaseAddress {
   formulas: FormulaMap = {
     addressDisplay: {
-      formula: async () => {
+      formula: () => {
         return [
           this.addressLine1,
           this.addressLine2,
@@ -28,7 +28,7 @@ export class Address extends BaseAddress {
     },
 
     pos: {
-      formula: async () => {
+      formula: () => {
         const stateList = Object.values(codeStateMap).sort();
         const state = this.state as string;
         if (stateList.includes(state)) {

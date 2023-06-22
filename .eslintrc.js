@@ -28,5 +28,13 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
   ],
-  ignorePatterns: ['.eslintrc.js', 'tailwind.config.js'],
+  ignorePatterns: [
+    '.eslintrc.js',
+    'tailwind.config.js',
+    'node_modules',
+    'dist_electron',
+    '*.spec.ts',
+    'vite.config.ts',
+    'postcss.config.js',
+  ],
 };

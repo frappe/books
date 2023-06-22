@@ -153,6 +153,7 @@ export class DocHandler {
 
     // propagate change to `docs`
     doc.on('change', (params: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.docs.trigger('change', params);
     });
 
@@ -167,22 +168,24 @@ export class DocHandler {
   }
 
   #setCacheUpdationListeners(schemaName: string) {
-    this.fyo.db.observer.on(`delete:${schemaName}`, (name: string) => {
+    this.fyo.db.observer.on(`delete:${schemaName}`, (name) => {
+      if (typeof name !== 'string') {
+        return;
+      }
+
       this.removeFromCache(schemaName, name);
     });
 
-    this.fyo.db.observer.on(
-      `rename:${schemaName}`,
-      (names: { oldName: string; newName: string }) => {
-        const doc = this.#getFromCache(schemaName, names.oldName);
-        if (doc === undefined) {
-          return;
-        }
-
-        this.removeFromCache(schemaName, names.oldName);
-        this.#addToCache(doc);
+    this.fyo.db.observer.on(`rename:${schemaName}`, (names) => {
+      const { oldName } = names as { oldName: string };
+      const doc = this.#getFromCache(schemaName, oldName);
+      if (doc === undefined) {
+        return;
       }
-    );
+
+      this.removeFromCache(schemaName, oldName);
+      this.#addToCache(doc);
+    });
   }
 
   removeFromCache(schemaName: string, name: string) {

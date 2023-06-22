@@ -10,7 +10,7 @@ export const schemaTranslateables = [
   'tab',
 ];
 
-export function getIndexFormat(inp: string | string[]) {
+export function getIndexFormat(inp: string | string[] | unknown) {
   /**
    * converts:
    * ['This is an ', ,' interpolated ',' string.'] and
@@ -26,7 +26,7 @@ export function getIndexFormat(inp: string | string[]) {
   } else if (inp instanceof Array) {
     snippets = inp;
   } else {
-    throw new Error(`invalid input ${inp} of type ${typeof inp}`);
+    throw new Error(`invalid input ${String(inp)} of type ${typeof inp}`);
   }
 
   if (snippets === undefined) {
@@ -43,7 +43,7 @@ export function getIndexFormat(inp: string | string[]) {
       str += s;
       return;
     }
-    str += s + '${' + i + '}';
+    str += s + '${' + String(i) + '}';
   });
 
   return str;
@@ -70,5 +70,5 @@ export function getWhitespaceSanitized(str: string) {
 }
 
 export function getIndexList(str: string) {
-  return [...str.matchAll(/\${([^}]+)}/g)].map(([_, i]) => parseInt(i));
+  return [...str.matchAll(/\${([^}]+)}/g)].map(([, i]) => parseInt(i));
 }

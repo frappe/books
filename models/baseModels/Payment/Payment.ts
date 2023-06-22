@@ -84,9 +84,7 @@ export class Payment extends Transactional {
   updateAmountOnReferenceUpdate() {
     this.amount = this.fyo.pesa(0);
     for (const paymentReference of (this.for ?? []) as Doc[]) {
-      this.amount = (this.amount as Money).add(
-        paymentReference.amount as Money
-      );
+      this.amount = this.amount.add(paymentReference.amount as Money);
     }
   }
 
@@ -123,8 +121,9 @@ export class Payment extends Transactional {
 
       if (referenceName && referenceType && !refDoc) {
         throw new ValidationError(
-          t`${referenceType} of type ${this.fyo.schemaMap?.[referenceType]
-            ?.label!} does not exist`
+          t`${referenceType} of type ${
+            this.fyo.schemaMap?.[referenceType]?.label ?? referenceType
+          } does not exist`
         );
       }
 
@@ -241,8 +240,8 @@ export class Payment extends Transactional {
     const account = this.account as string;
     const amount = this.amount as Money;
 
-    await posting.debit(paymentAccount as string, amount);
-    await posting.credit(account as string, amount);
+    await posting.debit(paymentAccount, amount);
+    await posting.credit(account, amount);
 
     await this.applyWriteOffPosting(posting);
     return posting;
@@ -269,7 +268,7 @@ export class Payment extends Transactional {
   }
 
   async validateReferences() {
-    const forReferences = (this.for ?? []) as PaymentFor[];
+    const forReferences = this.for ?? [];
     if (forReferences.length === 0) {
       return;
     }
@@ -334,10 +333,10 @@ export class Payment extends Transactional {
   }
 
   async updateReferenceDocOutstanding() {
-    for (const row of (this.for ?? []) as PaymentFor[]) {
+    for (const row of this.for ?? []) {
       const referenceDoc = await this.fyo.doc.getDoc(
         row.referenceType!,
-        row.referenceName!
+        row.referenceName
       );
 
       const previousOutstandingAmount = referenceDoc.outstandingAmount as Money;
@@ -348,7 +347,7 @@ export class Payment extends Transactional {
 
   async afterCancel() {
     await super.afterCancel();
-    this.revertOutstandingAmount();
+    await this.revertOutstandingAmount();
   }
 
   async revertOutstandingAmount() {
@@ -357,10 +356,10 @@ export class Payment extends Transactional {
   }
 
   async _revertReferenceOutstanding() {
-    for (const ref of (this.for ?? []) as PaymentFor[]) {
+    for (const ref of this.for ?? []) {
       const refDoc = await this.fyo.doc.getDoc(
         ref.referenceType!,
-        ref.referenceName!
+        ref.referenceName
       );
 
       const outstandingAmount = (refDoc.outstandingAmount as Money).add(
@@ -374,7 +373,7 @@ export class Payment extends Transactional {
   async updatePartyOutstanding() {
     const partyDoc = (await this.fyo.doc.getDoc(
       ModelNameEnum.Party,
-      this.party!
+      this.party
     )) as Party;
     await partyDoc.updateOutstandingAmount();
   }
@@ -439,7 +438,7 @@ export class Payment extends Transactional {
       'referenceName'
     )) as Invoice | null;
 
-    return (refDoc?.account ?? null) as string | null;
+    return refDoc?.account ?? null;
   }
 
   formulas: FormulaMap = {
@@ -514,17 +513,17 @@ export class Payment extends Transactional {
       },
     },
     amount: {
-      formula: async () => this.getSum('for', 'amount', false),
+      formula: () => this.getSum('for', 'amount', false),
       dependsOn: ['for'],
     },
     amountPaid: {
-      formula: async () => this.amount!.sub(this.writeoff!),
+      formula: () => this.amount!.sub(this.writeoff!),
       dependsOn: ['amount', 'writeoff', 'for'],
     },
   };
 
   validations: ValidationMap = {
-    amount: async (value: DocValue) => {
+    amount: (value: DocValue) => {
       if ((value as Money).isNegative()) {
         throw new ValidationError(
           this.fyo.t`Payment amount cannot be less than zero.`
@@ -615,7 +614,7 @@ export class Payment extends Transactional {
     return [getLedgerLinkAction(fyo)];
   }
 
-  static getListViewSettings(fyo: Fyo): ListViewSettings {
+  static getListViewSettings(): ListViewSettings {
     return {
       columns: ['name', getDocStatusListColumn(), 'party', 'date', 'amount'],
     };

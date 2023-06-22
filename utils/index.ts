@@ -115,6 +115,7 @@ export function invertMap(map: Record<string, string>): Record<string, string> {
 }
 
 export function time<K, T>(func: (...args: K[]) => T, ...args: K[]): T {
+  /* eslint-disable no-console */
   const name = func.name;
   console.time(name);
   const stuff = func(...args);
@@ -126,6 +127,7 @@ export async function timeAsync<K, T>(
   func: (...args: K[]) => Promise<T>,
   ...args: K[]
 ): Promise<T> {
+  /* eslint-disable no-console */
   const name = func.name;
   console.time(name);
   const stuff = await func(...args);
@@ -255,19 +257,19 @@ export function removeAtIndex<T>(array: T[], index: number): T[] {
 
 export function objectForEach<T extends object | unknown>(
   obj: T,
-  func: Function
+  func: (arg: unknown) => unknown
 ) {
   if (typeof obj !== 'object' || obj === null) {
     return func(obj);
   }
 
+  const newObj: Record<string, unknown> = {};
   for (const key in obj) {
-    obj[key] = objectForEach(obj[key], func);
+    newObj[key] = objectForEach(obj[key], func);
   }
 
-  return func(obj);
+  return func(newObj);
 }
-
 
 /**
  * Asserts that `value` is of type T. Use with care.

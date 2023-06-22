@@ -99,23 +99,18 @@ async function getNotFoundDetailsIfDoesNotExists(
 ): Promise<NotFoundDetails | null> {
   const value = doc.get(field.fieldname);
   if (field.fieldtype === FieldTypeEnum.Link && value) {
-    return getNotFoundLinkDetails(field as TargetField, value as string, fyo);
+    return getNotFoundLinkDetails(field, value as string, fyo);
   }
 
   if (field.fieldtype === FieldTypeEnum.DynamicLink && value) {
-    return getNotFoundDynamicLinkDetails(
-      field as DynamicLinkField,
-      value as string,
-      fyo,
-      doc
-    );
+    return getNotFoundDynamicLinkDetails(field, value as string, fyo, doc);
   }
 
   if (
     field.fieldtype === FieldTypeEnum.Table &&
     (value as Doc[] | undefined)?.length
   ) {
-    return getNotFoundTableDetails(value as Doc[], fyo);
+    return await getNotFoundTableDetails(value as Doc[], fyo);
   }
 
   return null;
@@ -127,7 +122,7 @@ async function getNotFoundLinkDetails(
   fyo: Fyo
 ): Promise<NotFoundDetails | null> {
   const { target } = field;
-  const exists = await fyo.db.exists(target as string, value);
+  const exists = await fyo.db.exists(target, value);
   if (!exists) {
     return { label: field.label, value };
   }
@@ -160,7 +155,7 @@ async function getNotFoundTableDetails(
   fyo: Fyo
 ): Promise<NotFoundDetails | null> {
   for (const childDoc of value) {
-    const details = getNotFoundDetails(childDoc, fyo);
+    const details = await getNotFoundDetails(childDoc, fyo);
     if (details) {
       return details;
     }

@@ -66,6 +66,7 @@ export class TelemetryManager {
 
   log(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
     if (!this.#started && this.fyo.db.isConnected) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.start().then(() => this.#sendBeacon(verb, noun, more));
       return;
     }

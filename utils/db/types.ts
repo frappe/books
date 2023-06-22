@@ -93,3 +93,15 @@ export abstract class DatabaseDemuxBase {
 
   abstract callBespoke(method: string, ...args: unknown[]): Promise<unknown>;
 }
+
+// Return types of Bespoke Queries
+export type TopExpenses = { account: string; total: number }[];
+export type TotalOutstanding = { total: number; outstanding: number };
+export type Cashflow = { inflow: number; outflow: number; yearmonth: string }[];
+export type Balance = { balance: number; yearmonth: string }[];
+export type IncomeExpense = { income: Balance; expense: Balance };
+export type TotalCreditAndDebit = {
+  account: string;
+  totalCredit: number;
+  totalDebit: number;
+};

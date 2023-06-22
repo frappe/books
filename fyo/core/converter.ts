@@ -144,7 +144,7 @@ export class Converter {
             return this.#toRawValueMap(parentSchemaName, value.getValidDict());
           }
 
-          return this.#toRawValueMap(parentSchemaName, value as DocValueMap);
+          return this.#toRawValueMap(parentSchemaName, value);
         });
       } else {
         rawValueMap[fieldname] = Converter.toRawValue(
@@ -176,7 +176,7 @@ function toDocString(value: RawValue, field: Field) {
 }
 
 function toDocDate(value: RawValue, field: Field) {
-  if ((value as any) instanceof Date) {
+  if ((value as unknown) instanceof Date) {
     return value;
   }
 
@@ -286,7 +286,7 @@ function toDocAttachment(value: RawValue, field: Field): null | Attachment {
   }
 
   try {
-    return JSON.parse(value) || null;
+    return (JSON.parse(value) as Attachment) || null;
   } catch {
     throwError(value, field, 'doc');
   }
@@ -322,7 +322,7 @@ function toRawInt(value: DocValue, field: Field): number {
   }
 
   if (typeof value === 'number') {
-    return Math.floor(value as number);
+    return Math.floor(value);
   }
 
   throwError(value, field, 'raw');
@@ -363,7 +363,7 @@ function toRawDateTime(value: DocValue, field: Field): string | null {
   }
 
   if (value instanceof Date) {
-    return (value as Date).toISOString();
+    return value.toISOString();
   }
 
   if (value instanceof DateTime) {
@@ -431,8 +431,8 @@ function toRawAttachment(value: DocValue, field: Field): null | string {
 
 function throwError<T>(value: T, field: Field, type: 'raw' | 'doc'): never {
   throw new ValueError(
-    `invalid ${type} conversion '${value}' of type ${typeof value} found, field: ${JSON.stringify(
-      field
-    )}`
+    `invalid ${type} conversion '${String(
+      value
+    )}' of type ${typeof value} found, field: ${JSON.stringify(field)}`
   );
 }

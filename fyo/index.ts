@@ -164,7 +164,6 @@ export class Fyo {
 
   async close() {
     await this.db.close();
-    await this.auth.logout();
   }
 
   getField(schemaName: string, fieldname: string) {

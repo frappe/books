@@ -6,6 +6,7 @@ export class Party extends BaseParty {
   gstin?: string;
   gstType?: GSTType;
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async beforeSync() {
     const gstin = this.get('gstin') as string | undefined;
     const gstType = this.get('gstType') as GSTType;
