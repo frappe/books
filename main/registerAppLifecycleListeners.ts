@@ -2,6 +2,7 @@ import { app } from 'electron';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import { Main } from '../main';
 import { rendererLog } from './helpers';
+import { emitMainProcessError } from 'backend/helpers';
 
 export default function registerAppLifecycleListeners(main: Main) {
   app.on('window-all-closed', () => {
@@ -12,16 +13,16 @@ export default function registerAppLifecycleListeners(main: Main) {
 
   app.on('activate', () => {
     if (main.mainWindow === null) {
-      main.createWindow();
+      main.createWindow().catch((err) => emitMainProcessError(err));
     }
   });
 
-  app.on('ready', async () => {
+  app.on('ready', () => {
     if (main.isDevelopment && !main.isTest) {
-      await installDevTools(main);
+      installDevTools(main).catch((err) => emitMainProcessError(err));
     }
 
-    main.createWindow();
+    main.createWindow().catch((err) => emitMainProcessError(err));
   });
 }
 
