@@ -61,7 +61,7 @@ export class SetupWizard extends Doc {
 
   formulas: FormulaMap = {
     fiscalYearStart: {
-      formula: async (fieldname?: string) => {
+      formula: (fieldname?: string) => {
         if (
           fieldname === 'fiscalYearEnd' &&
           this.fiscalYearEnd &&
@@ -85,7 +85,7 @@ export class SetupWizard extends Doc {
       dependsOn: ['country', 'fiscalYearEnd'],
     },
     fiscalYearEnd: {
-      formula: async (fieldname?: string) => {
+      formula: (fieldname?: string) => {
         if (
           fieldname === 'fiscalYearStart' &&
           this.fiscalYearStart &&
@@ -109,7 +109,7 @@ export class SetupWizard extends Doc {
       dependsOn: ['country', 'fiscalYearStart'],
     },
     currency: {
-      formula: async () => {
+      formula: () => {
         const country = this.get('country');
         if (typeof country !== 'string') {
           return;
@@ -135,7 +135,7 @@ export class SetupWizard extends Doc {
       dependsOn: ['country'],
     },
     chartOfAccounts: {
-      formula: async () => {
+      formula: () => {
         const country = this.get('country') as string | undefined;
         if (country === undefined) {
           return;

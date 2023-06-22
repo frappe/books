@@ -19,12 +19,12 @@ export class SalesInvoice extends Invoice {
     }
 
     if (this.taxes) {
-      for (const tax of this.taxes!) {
+      for (const tax of this.taxes) {
         await posting.credit(tax.account!, tax.amount!.mul(exchangeRate));
       }
     }
 
-    const discountAmount = await this.getTotalDiscount();
+    const discountAmount = this.getTotalDiscount();
     const discountAccount = this.fyo.singles.AccountingSettings
       ?.discountAccount as string | undefined;
     if (discountAccount && discountAmount.isPositive()) {

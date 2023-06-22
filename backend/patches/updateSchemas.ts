@@ -30,9 +30,9 @@ async function execute(dm: DatabaseManager) {
 
   const sourceKnex = dm.db!.knex!;
   const version = (
-    await sourceKnex('SingleValue')
+    (await sourceKnex('SingleValue')
       .select('value')
-      .where({ fieldname: 'version' })
+      .where({ fieldname: 'version' })) as { value: string }[]
   )?.[0]?.value;
 
   /**
@@ -58,7 +58,7 @@ async function execute(dm: DatabaseManager) {
     await copyData(sourceKnex, destDm);
   } catch (err) {
     const destPath = destDm.db!.dbPath;
-    destDm.db!.close();
+    await destDm.db!.close();
     await fs.unlink(destPath);
     throw err;
   }
@@ -94,7 +94,7 @@ async function replaceDatabaseCore(
 async function copyData(sourceKnex: Knex, destDm: DatabaseManager) {
   const destKnex = destDm.db!.knex!;
   const schemaMap = destDm.getSchemaMap();
-  await destKnex!.raw('PRAGMA foreign_keys=OFF');
+  await destKnex.raw('PRAGMA foreign_keys=OFF');
   await copySingleValues(sourceKnex, destKnex, schemaMap);
   await copyParty(sourceKnex, destKnex, schemaMap[ModelNameEnum.Party]!);
   await copyItem(sourceKnex, destKnex, schemaMap[ModelNameEnum.Item]!);
@@ -111,7 +111,7 @@ async function copyData(sourceKnex: Knex, destDm: DatabaseManager) {
     destKnex,
     schemaMap[ModelNameEnum.NumberSeries]!
   );
-  await destKnex!.raw('PRAGMA foreign_keys=ON');
+  await destKnex.raw('PRAGMA foreign_keys=ON');
 }
 
 async function copyNumberSeries(
@@ -137,14 +137,14 @@ async function copyNumberSeries(
       continue;
     }
 
-    const indices = await sourceKnex.raw(
+    const indices = (await sourceKnex.raw(
       `
       select cast(substr(name, ??) as int) as idx
       from ?? 
       order by idx desc 
       limit 1`,
       [name.length + 1, referenceType]
-    );
+    )) as { idx: number }[];
 
     value.start = 1001;
     value.current = indices[0]?.idx ?? value.current ?? value.start;
@@ -358,7 +358,9 @@ async function getCountryCode(knex: Knex) {
    * Need to account for schema changes, in 0.4.3-beta.0
    */
   const country = (
-    await knex('SingleValue').select('value').where({ fieldname: 'country' })
+    (await knex('SingleValue')
+      .select('value')
+      .where({ fieldname: 'country' })) as { value: string }[]
   )?.[0]?.value;
 
   if (!country) {

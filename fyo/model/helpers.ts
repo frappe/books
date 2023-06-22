@@ -34,7 +34,7 @@ export function getPreDefaultValues(
     case FieldTypeEnum.Table:
       return [] as Doc[];
     case FieldTypeEnum.Currency:
-      return fyo.pesa!(0.0);
+      return fyo.pesa(0.0);
     case FieldTypeEnum.Int:
     case FieldTypeEnum.Float:
       return 0;
@@ -145,9 +145,9 @@ export function isDocValueTruthy(docValue: DocValue | Doc[]) {
 }
 
 export function setChildDocIdx(childDocs: Doc[]) {
-  for (const idx in childDocs) {
-    childDocs[idx].idx = +idx;
-  }
+  childDocs.forEach((cd, idx) => {
+    cd.idx = idx;
+  });
 }
 
 export function getFormulaSequence(formulas: FormulaMap) {

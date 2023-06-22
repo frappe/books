@@ -1,3 +1,10 @@
+import {
+  Cashflow,
+  IncomeExpense,
+  TopExpenses,
+  TotalCreditAndDebit,
+  TotalOutstanding,
+} from 'utils/db/types';
 import { ModelNameEnum } from '../../models/types';
 import DatabaseCore from './core';
 import { BespokeFunction } from './types';
@@ -43,7 +50,7 @@ export class BespokeQueries {
       .groupBy('account')
       .orderBy('total', 'desc')
       .limit(5);
-    return topExpenses;
+    return topExpenses as TopExpenses;
   }
 
   static async getTotalOutstanding(
@@ -52,13 +59,13 @@ export class BespokeQueries {
     fromDate: string,
     toDate: string
   ) {
-    return await db.knex!(schemaName)
+    return (await db.knex!(schemaName)
       .sum({ total: 'baseGrandTotal' })
       .sum({ outstanding: 'outstandingAmount' })
       .where('submitted', true)
       .where('cancelled', false)
       .whereBetween('date', [fromDate, toDate])
-      .first();
+      .first()) as TotalOutstanding;
   }
 
   static async getCashflow(db: DatabaseCore, fromDate: string, toDate: string) {
@@ -67,7 +74,7 @@ export class BespokeQueries {
       .where('accountType', 'in', ['Cash', 'Bank'])
       .andWhere('isGroup', false);
     const dateAsMonthYear = db.knex!.raw(`strftime('%Y-%m', ??)`, 'date');
-    return await db.knex!('AccountingLedgerEntry')
+    return (await db.knex!('AccountingLedgerEntry')
       .where('reverted', false)
       .sum({
         inflow: 'debit',
@@ -78,7 +85,7 @@ export class BespokeQueries {
       })
       .where('account', 'in', cashAndBankAccounts)
       .whereBetween('date', [fromDate, toDate])
-      .groupBy(dateAsMonthYear);
+      .groupBy(dateAsMonthYear)) as Cashflow;
   }
 
   static async getIncomeAndExpenses(
@@ -86,7 +93,7 @@ export class BespokeQueries {
     fromDate: string,
     toDate: string
   ) {
-    const income = await db.knex!.raw(
+    const income = (await db.knex!.raw(
       `
       select sum(cast(credit as real) - cast(debit as real)) as balance, strftime('%Y-%m', date) as yearmonth
       from AccountingLedgerEntry
@@ -100,9 +107,9 @@ export class BespokeQueries {
         )
       group by yearmonth`,
       [fromDate, toDate]
-    );
+    )) as IncomeExpense['income'];
 
-    const expense = await db.knex!.raw(
+    const expense = (await db.knex!.raw(
       `
       select sum(cast(debit as real) - cast(credit as real)) as balance, strftime('%Y-%m', date) as yearmonth
       from AccountingLedgerEntry
@@ -116,20 +123,20 @@ export class BespokeQueries {
         )
       group by yearmonth`,
       [fromDate, toDate]
-    );
+    )) as IncomeExpense['expense'];
 
     return { income, expense };
   }
 
   static async getTotalCreditAndDebit(db: DatabaseCore) {
-    return await db.knex!.raw(`
+    return (await db.knex!.raw(`
     select 
 	    account, 
       sum(cast(credit as real)) as totalCredit, 
       sum(cast(debit as real)) as totalDebit
     from AccountingLedgerEntry
     group by account
-    `);
+    `)) as unknown as TotalCreditAndDebit;
   }
 
   static async getStockQuantity(
@@ -141,6 +148,7 @@ export class BespokeQueries {
     batch?: string,
     serialNumbers?: string[]
   ): Promise<number | null> {
+    /* eslint-disable @typescript-eslint/no-floating-promises */
     const query = db.knex!(ModelNameEnum.StockLedgerEntry)
       .sum('quantity')
       .where('item', item);

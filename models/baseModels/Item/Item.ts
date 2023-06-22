@@ -71,7 +71,7 @@ export class Item extends Doc {
   };
 
   validations: ValidationMap = {
-    rate: async (value: DocValue) => {
+    rate: (value: DocValue) => {
       if ((value as Money).isNegative()) {
         throw new ValidationError(this.fyo.t`Rate can't be negative.`);
       }
@@ -85,13 +85,13 @@ export class Item extends Doc {
         label: fyo.t`Sales Invoice`,
         condition: (doc) => !doc.notInserted && doc.for !== 'Purchases',
         action: async (doc, router) => {
-          const invoice = await fyo.doc.getNewDoc('SalesInvoice');
+          const invoice = fyo.doc.getNewDoc('SalesInvoice');
           await invoice.append('items', {
             item: doc.name as string,
             rate: doc.rate as Money,
             tax: doc.tax as string,
           });
-          router.push(`/edit/SalesInvoice/${invoice.name}`);
+          await router.push(`/edit/SalesInvoice/${invoice.name!}`);
         },
       },
       {
@@ -99,13 +99,13 @@ export class Item extends Doc {
         label: fyo.t`Purchase Invoice`,
         condition: (doc) => !doc.notInserted && doc.for !== 'Sales',
         action: async (doc, router) => {
-          const invoice = await fyo.doc.getNewDoc('PurchaseInvoice');
+          const invoice = fyo.doc.getNewDoc('PurchaseInvoice');
           await invoice.append('items', {
             item: doc.name as string,
             rate: doc.rate as Money,
             tax: doc.tax as string,
           });
-          router.push(`/edit/PurchaseInvoice/${invoice.name}`);
+          await router.push(`/edit/PurchaseInvoice/${invoice.name!}`);
         },
       },
     ];
@@ -126,7 +126,9 @@ export class Item extends Doc {
     hasBatch: () =>
       !(this.fyo.singles.InventorySettings?.enableBatches && this.trackItem),
     hasSerialNumber: () =>
-      !(this.fyo.singles.InventorySettings?.enableSerialNumber && this.trackItem),
+      !(
+        this.fyo.singles.InventorySettings?.enableSerialNumber && this.trackItem
+      ),
     uomConversions: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
   };

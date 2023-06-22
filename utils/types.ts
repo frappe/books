@@ -51,6 +51,7 @@ export interface SelectFileReturn {
   canceled: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type PropertyEnum<T extends Record<string, any>> = {
   [key in keyof Required<T>]: key;
 };

@@ -18,7 +18,7 @@ export default class SystemSettings extends Doc {
   instanceId?: string;
 
   validations: ValidationMap = {
-    async displayPrecision(value: DocValue) {
+    displayPrecision(value: DocValue) {
       if ((value as number) >= 0 && (value as number) <= 9) {
         return;
       }
@@ -38,7 +38,7 @@ export default class SystemSettings extends Doc {
           (c) =>
             ({
               value: countryInfo[c]?.locale,
-              label: `${c} (${countryInfo[c]?.locale})`,
+              label: `${c} (${countryInfo[c]?.locale ?? t`Not Found`})`,
             } as SelectOption)
         );
     },

@@ -89,7 +89,7 @@ export class Party extends Doc {
       dependsOn: ['role'],
     },
     currency: {
-      formula: async () => {
+      formula: () => {
         if (!this.currency) {
           return this.fyo.singles.SystemSettings!.currency as string;
         }
@@ -132,12 +132,13 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
-          const doc = await fyo.doc.getNewDoc('PurchaseInvoice', {
+          const doc = fyo.doc.getNewDoc('PurchaseInvoice', {
             party: partyDoc.name,
             account: partyDoc.defaultAccount as string,
           });
-          router.push({
-            path: `/edit/PurchaseInvoice/${doc.name}`,
+
+          await router.push({
+            path: `/edit/PurchaseInvoice/${doc.name!}`,
             query: {
               schemaName: 'PurchaseInvoice',
               values: {
@@ -170,7 +171,7 @@ export class Party extends Doc {
           });
 
           await router.push({
-            path: `/edit/SalesInvoice/${doc.name}`,
+            path: `/edit/SalesInvoice/${doc.name!}`,
             query: {
               schemaName: 'SalesInvoice',
               values: {
@@ -186,7 +187,7 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
-          router.push({
+          await router.push({
             path: '/list/SalesInvoice',
             query: { filters: JSON.stringify({ party: partyDoc.name }) },
           });

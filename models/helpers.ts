@@ -9,10 +9,7 @@ import {
   AccountRootType,
   AccountRootTypeEnum,
 } from './baseModels/Account/types';
-import {
-  Defaults,
-  numberSeriesDefaultsMap,
-} from './baseModels/Defaults/Defaults';
+import { numberSeriesDefaultsMap } from './baseModels/Defaults/Defaults';
 import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
@@ -55,7 +52,7 @@ export function getMakeStockTransferAction(
     condition: (doc: Doc) => doc.isSubmitted && !!doc.stockNotTransferred,
     action: async (doc: Doc) => {
       const transfer = await (doc as Invoice).getStockTransfer();
-      if (!transfer) {
+      if (!transfer || !transfer.name) {
         return;
       }
 
@@ -81,7 +78,7 @@ export function getMakeInvoiceAction(
     condition: (doc: Doc) => doc.isSubmitted && !doc.backReference,
     action: async (doc: Doc) => {
       const invoice = await (doc as StockTransfer).getInvoice();
-      if (!invoice) {
+      if (!invoice || !invoice.name) {
         return;
       }
 
@@ -128,10 +125,7 @@ export function getMakePaymentAction(fyo: Fyo): Action {
   };
 }
 
-export function getLedgerLinkAction(
-  fyo: Fyo,
-  isStock: boolean = false
-): Action {
+export function getLedgerLinkAction(fyo: Fyo, isStock = false): Action {
   let label = fyo.t`Accounting Entries`;
   let reportClassName: 'GeneralLedger' | 'StockLedger' = 'GeneralLedger';
 
@@ -146,7 +140,7 @@ export function getLedgerLinkAction(
     condition: (doc: Doc) => doc.isSubmitted,
     action: async (doc: Doc, router: Router) => {
       const route = getLedgerLink(doc, reportClassName);
-      router.push(route);
+      await router.push(route);
     },
   };
 }
@@ -174,7 +168,7 @@ export function getTransactionStatusColumn(): ColumnConfig {
     fieldtype: 'Select',
     render(doc) {
       const status = getDocStatus(doc) as InvoiceStatus;
-      const color = statusColor[status];
+      const color = statusColor[status] ?? 'gray';
       const label = getStatusText(status);
 
       return {
@@ -389,9 +383,7 @@ export async function getExchangeRate({
 
   let exchangeRate = 0;
   if (localStorage) {
-    exchangeRate = safeParseFloat(
-      localStorage.getItem(cacheKey as string) as string
-    );
+    exchangeRate = safeParseFloat(localStorage.getItem(cacheKey) as string);
   }
 
   if (exchangeRate && exchangeRate !== 1) {
@@ -402,9 +394,14 @@ export async function getExchangeRate({
     const res = await fetch(
       `https://api.vatcomply.com/rates?date=${date}&base=${fromCurrency}&symbols=${toCurrency}`
     );
-    const data = await res.json();
+    const data = (await res.json()) as {
+      base: string;
+      data: string;
+      rates: Record<string, number>;
+    };
     exchangeRate = data.rates[toCurrency];
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
     exchangeRate ??= 1;
   }
@@ -439,7 +436,7 @@ export function getNumberSeries(schemaName: string, fyo: Fyo) {
     return undefined;
   }
 
-  const defaults = fyo.singles.Defaults as Defaults | undefined;
+  const defaults = fyo.singles.Defaults;
   const field = fyo.getField(schemaName, 'numberSeries');
   const value = defaults?.[numberSeriesKey] as string | undefined;
   return value ?? (field?.default as string | undefined);

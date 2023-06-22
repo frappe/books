@@ -40,7 +40,7 @@ export class StockManager {
     }
 
     for (const details of detailsList) {
-      await this.#createTransfer(details);
+      this.#createTransfer(details);
     }
 
     await this.#sync();
@@ -73,7 +73,7 @@ export class StockManager {
     }
   }
 
-  async #createTransfer(details: SMIDetails) {
+  #createTransfer(details: SMIDetails) {
     const item = new StockManagerItem(details, this.fyo);
     item.transferStock();
     this.items.push(item);

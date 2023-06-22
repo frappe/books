@@ -24,11 +24,11 @@ type ReferenceType =
 export class GeneralLedger extends LedgerReport {
   static title = t`General Ledger`;
   static reportName = 'general-ledger';
-  usePagination: boolean = true;
-  loading: boolean = false;
+  usePagination = true;
+  loading = false;
 
-  ascending: boolean = false;
-  reverted: boolean = false;
+  ascending = false;
+  reverted = false;
   referenceType: ReferenceType = 'All';
   groupBy: 'none' | 'party' | 'account' | 'referenceName' = 'none';
   _rawData: LedgerEntry[] = [];
@@ -37,7 +37,7 @@ export class GeneralLedger extends LedgerReport {
     super(fyo);
   }
 
-  async setDefaultFilters() {
+  setDefaultFilters() {
     if (!this.toDate) {
       this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
       this.fromDate = DateTime.now().minus({ years: 1 }).toISODate();
@@ -239,7 +239,7 @@ export class GeneralLedger extends LedgerReport {
     return { totalDebit, totalCredit };
   }
 
-  async _getQueryFilters(): Promise<QueryFilter> {
+  _getQueryFilters(): QueryFilter {
     const filters: QueryFilter = {};
     const stringFilters = ['account', 'party', 'referenceName'];
 
