@@ -3,7 +3,6 @@ import type { ConfigFile } from 'fyo/core/types';
 export type UnknownMap = Record<string, unknown>;
 export type Translation = { translation: string; context?: string };
 export type LanguageMap = Record<string, Translation>;
-export type UnknownFunction = (...args: unknown[]) => unknown;
 
 export type CountryInfoMap = Record<string, CountryInfo | undefined>;
 export interface CountryInfo {

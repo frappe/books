@@ -114,7 +114,7 @@ export interface DialogOptions {
 
 export type DialogButton = {
   label: string;
-  action: () => any;
+  action: () => unknown;
   isPrimary?: boolean;
   isEscape?: boolean;
 };

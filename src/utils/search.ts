@@ -24,7 +24,7 @@ interface SearchItem {
   label: string;
   group: Exclude<SearchGroup, 'Docs'>;
   route?: string;
-  action?: () => void;
+  action?: () => void | Promise<void>;
 }
 
 interface DocSearchItem extends Omit<SearchItem, 'group'> {
@@ -319,8 +319,8 @@ function getNonDocSearchList(fyo: Fyo) {
     .flat()
     .map((d) => {
       if (d.route && !d.action) {
-        d.action = () => {
-          routeTo(d.route!);
+        d.action = async () => {
+          await routeTo(d.route!);
         };
       }
       return d;

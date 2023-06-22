@@ -1,9 +1,7 @@
-const { ipcRenderer } = require('electron');
 import { DEFAULT_LANGUAGE } from 'fyo/utils/consts';
 import { setLanguageMapOnTranslationString } from 'fyo/utils/translation';
 import { fyo } from 'src/initFyo';
-import { IPC_ACTIONS } from 'utils/messages';
-import { reloadWindow } from './ipcCalls';
+import { getLanguageMap, reloadWindow } from './ipcCalls';
 import { systemLanguageRef } from './refs';
 
 // Language: Language Code in books/translations
@@ -65,17 +63,14 @@ function getLanguageCode(initLanguage: string, oldLanguage: string) {
 }
 
 async function fetchAndSetLanguageMap(code: string) {
-  const { success, message, languageMap } = await ipcRenderer.invoke(
-    IPC_ACTIONS.GET_LANGUAGE_MAP,
-    code
-  );
+  const { success, message, languageMap } = await getLanguageMap(code);
 
   if (!success) {
     const { showToast } = await import('src/utils/interactive');
     showToast({ type: 'error', message });
   } else {
     setLanguageMapOnTranslationString(languageMap);
-    fyo.db.translateSchemaMap(languageMap);
+    await fyo.db.translateSchemaMap(languageMap);
   }
 
   return success;
