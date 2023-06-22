@@ -21,6 +21,7 @@ export default function registerAutoUpdaterListeners(main: Main) {
     emitMainProcessError(error);
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   autoUpdater.on('update-available', async (info: UpdateInfo) => {
     const currentVersion = app.getVersion();
     const nextVersion = info.version;
@@ -46,6 +47,7 @@ export default function registerAutoUpdaterListeners(main: Main) {
     await autoUpdater.downloadUpdate();
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   autoUpdater.on('update-downloaded', async () => {
     const option = await dialog.showMessageBox({
       type: 'info',

@@ -79,8 +79,8 @@ export default function registerIpcMainActionListeners(main: Main) {
     }
   );
 
-  ipcMain.handle(IPC_ACTIONS.SEND_ERROR, (_, bodyJson: string) => {
-    sendError(bodyJson, main);
+  ipcMain.handle(IPC_ACTIONS.SEND_ERROR, async (_, bodyJson: string) => {
+    await sendError(bodyJson, main);
   });
 
   ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, async () => {

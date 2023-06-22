@@ -18,6 +18,7 @@ export function getUrlAndTokenString(): Creds {
   }
 
   if (!fs.existsSync(errLogCredsPath)) {
+    // eslint-disable-next-line no-console
     !inProduction && console.log(`${errLogCredsPath} doesn't exist, can't log`);
     return empty;
   }
@@ -30,7 +31,9 @@ export function getUrlAndTokenString(): Creds {
       .filter((f) => f.length);
   } catch (err) {
     if (!inProduction) {
+      // eslint-disable-next-line no-console
       console.log(`logging error using creds at: ${errLogCredsPath} failed`);
+      // eslint-disable-next-line no-console
       console.log(err);
     }
     return empty;

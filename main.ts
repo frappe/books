@@ -21,6 +21,7 @@ import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
+import { emitMainProcessError } from 'backend/helpers';
 
 export class Main {
   title = 'Frappe Books';
@@ -121,7 +122,7 @@ export class Main {
     return options;
   }
 
-  createWindow() {
+  async createWindow() {
     const options = this.getOptions();
     this.mainWindow = new BrowserWindow(options);
 
@@ -131,7 +132,7 @@ export class Main {
       this.registerAppProtocol();
     }
 
-    this.mainWindow.loadURL(this.winURL);
+    await this.mainWindow.loadURL(this.winURL);
     if (this.isDevelopment && !this.isTest) {
       this.mainWindow.webContents.openDevTools();
     }
@@ -169,7 +170,9 @@ export class Main {
     });
 
     this.mainWindow.webContents.on('did-fail-load', () => {
-      this.mainWindow!.loadURL(this.winURL);
+      this.mainWindow!.loadURL(this.winURL).catch((err) =>
+        emitMainProcessError(err)
+      );
     });
   }
 }
