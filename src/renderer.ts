@@ -6,7 +6,12 @@ import { App as VueApp, createApp } from 'vue';
 import App from './App.vue';
 import Badge from './components/Badge.vue';
 import FeatherIcon from './components/FeatherIcon.vue';
-import { getErrorHandled, handleError, sendError } from './errorHandling';
+import {
+  getErrorHandled,
+  getErrorHandledSync,
+  handleError,
+  sendError,
+} from './errorHandling';
 import { fyo } from './initFyo';
 import { outsideClickDirective } from './renderer/helpers';
 import registerIpcRendererListeners from './renderer/registerIpcRendererListeners';
@@ -14,6 +19,7 @@ import router from './router';
 import { stringifyCircular } from './utils';
 import { setLanguageMap } from './utils/language';
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   const language = fyo.config.get('language') as string;
   if (language) {
@@ -21,8 +27,8 @@ import { setLanguageMap } from './utils/language';
   }
   fyo.store.language = language || 'English';
 
-  ipcRenderer.send = getErrorHandled(ipcRenderer.send);
-  ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
+  ipcRenderer.send = getErrorHandledSync(ipcRenderer.send.bind(ipcRenderer));
+  ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke.bind(ipcRenderer));
 
   registerIpcRendererListeners();
   const { isDevelopment, platform, version } = (await ipcRenderer.invoke(
@@ -69,6 +75,7 @@ import { setLanguageMap } from './utils/language';
 function setErrorHandlers(app: VueApp) {
   window.onerror = (message, source, lineno, colno, error) => {
     error = error ?? new Error('triggered in window.onerror');
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     handleError(true, error, { message, source, lineno, colno });
   };
 
@@ -80,11 +87,13 @@ function setErrorHandlers(app: VueApp) {
       error = new Error(String(event.reason));
     }
 
+    // eslint-disable-next-line no-console
     handleError(true, error).catch((err) => console.error(err));
   };
 
   window.addEventListener(CUSTOM_EVENTS.LOG_UNEXPECTED, (event) => {
     const details = (event as CustomEvent)?.detail as UnexpectedLogObject;
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     sendError(details);
   });
 
@@ -100,7 +109,9 @@ function setErrorHandlers(app: VueApp) {
       more.props = stringifyCircular(vm.$props ?? {}, true, true);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     handleError(false, err as Error, more);
+    // eslint-disable-next-line no-console
     console.error(err, vm, info);
   };
 }

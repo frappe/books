@@ -16,11 +16,11 @@ export function stringifyCircular(
   obj: unknown,
   ignoreCircular = false,
   convertDocument = false
-) {
+): string {
   const cacheKey: string[] = [];
   const cacheValue: unknown[] = [];
 
-  return JSON.stringify(obj, (key, value) => {
+  return JSON.stringify(obj, (key: string, value: unknown) => {
     if (typeof value !== 'object' || value === null) {
       cacheKey.push(key);
       cacheValue.push(value);

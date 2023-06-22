@@ -8,7 +8,7 @@ export function getValueMapFromList<T, K extends keyof T, V extends keyof T>(
   list: T[],
   key: K,
   valueKey: V,
-  filterUndefined: boolean = true
+  filterUndefined = true
 ): Record<string, T[V]> {
   if (filterUndefined) {
     list = list.filter(
@@ -32,7 +32,7 @@ export function getRandomString(): string {
   return `${randomNumber}-${currentTime}`;
 }
 
-export async function sleep(durationMilliseconds: number = 1000) {
+export async function sleep(durationMilliseconds = 1000) {
   return new Promise((r) => setTimeout(() => r(null), durationMilliseconds));
 }
 
@@ -267,3 +267,9 @@ export function objectForEach<T extends object | unknown>(
 
   return func(obj);
 }
+
+
+/**
+ * Asserts that `value` is of type T. Use with care.
+ */
+export const assertIsType = <T>(value: unknown): value is T => true;

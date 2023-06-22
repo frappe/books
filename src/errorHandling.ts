@@ -9,7 +9,6 @@ import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
 import { DialogOptions, ToastOptions } from './utils/types';
-import { UnknownFunction } from 'utils/types';
 const { ipcRenderer } = require('electron');
 
 function shouldNotStore(error: Error) {
@@ -40,6 +39,7 @@ export async function sendError(errorLogObj: ErrorLog) {
   };
 
   if (fyo.store.isDevelopment) {
+    // eslint-disable-next-line no-console
     console.log('sendError', body);
   }
 
@@ -80,6 +80,7 @@ export async function handleError(
   notifyUser = true
 ) {
   if (logToConsole) {
+    // eslint-disable-next-line no-console
     console.error(error);
   }
 
@@ -93,7 +94,7 @@ export async function handleError(
   if (notifyUser) {
     const toastProps = getToastProps(errorLogObj);
     const { showToast } = await import('src/utils/interactive');
-    await showToast(toastProps);
+    showToast(toastProps);
   }
 }
 
@@ -140,6 +141,7 @@ export async function handleErrorWithDialog(
   await showDialog(options);
   if (dontThrow) {
     if (fyo.store.isDevelopment) {
+      // eslint-disable-next-line no-console
       console.error(error);
     }
     return;
@@ -156,12 +158,14 @@ export async function showErrorDialog(title?: string, content?: string) {
   await ipcRenderer.invoke(IPC_ACTIONS.SHOW_ERROR, { title, content });
 }
 
-// Wrapper Functions
-
-export function getErrorHandled(func: UnknownFunction) {
-  return async function errorHandled(...args: unknown[]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getErrorHandled<T extends (...args: any[]) => Promise<any>>(
+  func: T
+) {
+  type Return = ReturnType<T> extends Promise<infer P> ? P : true;
+  return async function errorHandled(...args: Parameters<T>): Promise<Return> {
     try {
-      return await func(...args);
+      return (await func(...args)) as Return;
     } catch (error) {
       await handleError(false, error as Error, {
         functionName: func.name,
@@ -173,16 +177,19 @@ export function getErrorHandled(func: UnknownFunction) {
   };
 }
 
-export function getErrorHandledSync(func: UnknownFunction) {
-  return function errorHandledSync(...args: unknown[]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getErrorHandledSync<T extends (...args: any[]) => any>(
+  func: T
+) {
+  type Return = ReturnType<T> extends Promise<infer P> ? P : ReturnType<T>;
+  return function errorHandledSync(...args: Parameters<T>) {
     try {
-      return func(...args);
+      return func(...args) as Return;
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       handleError(false, error as Error, {
         functionName: func.name,
         functionArgs: args,
-      }).then(() => {
-        throw error;
       });
     }
   };

@@ -70,7 +70,7 @@ async function handleDirectoryDoesNotExist(dbPath: string) {
 
 async function showDbErrorDialog(detail: string) {
   const { showDialog } = await import('src/utils/interactive');
-  return await showDialog({
+  return showDialog({
     type: 'error',
     title: t`Cannot Open File`,
     detail,
