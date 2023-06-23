@@ -191,6 +191,20 @@
       "abstract": true,
       "fieldname": "backReference",
       "section": "References"
+    },
+    {
+      "fieldname": "isReturn",
+      "label": "Is Return",
+      "placeholder": "Is Return",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Return"
+    },
+    {
+      "fieldname": "isItemsReturned",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
     }
   ],
   "keywordFields": ["name", "party"]
