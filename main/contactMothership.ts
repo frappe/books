@@ -14,7 +14,7 @@ export function getUrlAndTokenString(): Creds {
     '../creds/log_creds.txt'
   );
   if (!fs.existsSync(errLogCredsPath)) {
-    errLogCredsPath = path.join(__dirname, '../log_creds.txt');
+    errLogCredsPath = path.join(__dirname, '..', '..', 'log_creds.txt');
   }
 
   if (!fs.existsSync(errLogCredsPath)) {

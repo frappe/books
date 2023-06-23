@@ -14,7 +14,8 @@
     "postuninstall": "electron-rebuild",
     "script:translate": "scripts/runner.sh scripts/generateTranslations.ts",
     "script:profile": "scripts/profile.sh",
-    "test": "scripts/test.sh"
+    "test": "scripts/test.sh",
+    "lint": "eslint . --ext ts,vue"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.4.2",

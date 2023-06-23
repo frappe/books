@@ -10,7 +10,7 @@
       <p class="w-8 text-end me-4 text-gray-700">#</p>
       <Row
         class="flex-1 text-gray-700 h-row-mid"
-        :columnCount="columns.length"
+        :column-count="columns.length"
         gap="1rem"
       >
         <div
@@ -36,7 +36,7 @@
     <hr />
 
     <!-- Data Rows -->
-    <div class="overflow-y-auto custom-scroll" v-if="dataSlice.length !== 0">
+    <div v-if="dataSlice.length !== 0" class="overflow-y-auto custom-scroll">
       <div v-for="(row, i) in dataSlice" :key="row.name">
         <!-- Row Content -->
         <div class="flex hover:bg-gray-50 items-center">
@@ -46,8 +46,8 @@
           <Row
             gap="1rem"
             class="cursor-pointer text-gray-900 flex-1 h-row-mid"
+            :column-count="columns.length"
             @click="$emit('openDoc', row.name)"
-            :columnCount="columns.length"
           >
             <ListCell
               v-for="(column, c) in columns"
@@ -66,12 +66,12 @@
     </div>
 
     <!-- Pagination Footer -->
-    <div class="mt-auto" v-if="data?.length">
+    <div v-if="data?.length" class="mt-auto">
       <hr />
       <Paginator
         :item-count="data.length"
-        @index-change="setPageIndices"
         class="px-4"
+        @index-change="setPageIndices"
       />
     </div>
 
@@ -82,42 +82,42 @@
     >
       <img src="../../assets/img/list-empty-state.svg" alt="" class="w-24" />
       <p class="my-3 text-gray-800">{{ t`No entries found` }}</p>
-      <Button type="primary" class="text-white" @click="$emit('makeNewDoc')" v-if="canCreate">
+      <Button
+        v-if="canCreate"
+        type="primary"
+        class="text-white"
+        @click="$emit('makeNewDoc')"
+      >
         {{ t`Make Entry` }}
       </Button>
     </div>
   </div>
 </template>
 <script>
-import { clone } from 'lodash';
+import { cloneDeep } from 'lodash';
 import Button from 'src/components/Button.vue';
 import Paginator from 'src/components/Paginator.vue';
 import Row from 'src/components/Row.vue';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
-import { objectForEach } from 'utils/index';
-import { defineComponent, toRaw } from 'vue';
+import { defineComponent } from 'vue';
 import ListCell from './ListCell.vue';
 
 export default defineComponent({
   name: 'List',
-  props: { listConfig: Object, filters: Object, schemaName: String, canCreate: Boolean },
-  emits: ['openDoc', 'makeNewDoc', 'updatedData'],
   components: {
     Row,
     ListCell,
     Button,
     Paginator,
   },
-  watch: {
-    schemaName(oldValue, newValue) {
-      if (oldValue === newValue) {
-        return;
-      }
-
-      this.updateData();
-    },
+  props: {
+    listConfig: Object,
+    filters: Object,
+    schemaName: String,
+    canCreate: Boolean,
   },
+  emits: ['openDoc', 'makeNewDoc', 'updatedData'],
   data() {
     return {
       data: [],
@@ -149,6 +149,15 @@ export default defineComponent({
           return fyo.getField(this.schemaName, fieldname);
         })
         .filter(Boolean);
+    },
+  },
+  watch: {
+    schemaName(oldValue, newValue) {
+      if (oldValue === newValue) {
+        return;
+      }
+
+      this.updateData();
     },
   },
   async mounted() {
@@ -184,7 +193,8 @@ export default defineComponent({
         filters = { ...this.filters };
       }
 
-      filters = objectForEach(clone(filters), toRaw);
+      // Unproxy the filters
+      filters = cloneDeep(filters);
 
       const orderBy = ['created'];
       if (fyo.db.fieldMap[this.schemaName]['date']) {
