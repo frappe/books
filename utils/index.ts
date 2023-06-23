@@ -255,22 +255,6 @@ export function removeAtIndex<T>(array: T[], index: number): T[] {
   return [...array.slice(0, index), ...array.slice(index + 1)];
 }
 
-export function objectForEach<T extends object | unknown>(
-  obj: T,
-  func: (arg: unknown) => unknown
-) {
-  if (typeof obj !== 'object' || obj === null) {
-    return func(obj);
-  }
-
-  const newObj: Record<string, unknown> = {};
-  for (const key in obj) {
-    newObj[key] = objectForEach(obj[key], func);
-  }
-
-  return func(newObj);
-}
-
 /**
  * Asserts that `value` is of type T. Use with care.
  */

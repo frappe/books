@@ -53,6 +53,8 @@ const ctx = await esbuild.context({
 const fswatcher = chokidar.watch([
   path.join(root, 'main.ts'),
   path.join(root, 'main'),
+  path.join(root, 'backend'),
+  path.join(root, 'schemas'),
 ]);
 
 /**

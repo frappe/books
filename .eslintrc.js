@@ -15,6 +15,7 @@ module.exports = {
     'vue/multi-word-component-names': 'off',
     'vue/no-useless-template-attributes': 'off',
     'vue/one-component-per-file': 'off',
+    'vue/no-reserved-component-names': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
@@ -34,6 +35,7 @@ module.exports = {
     'plugin:vue/vue3-recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:prettier/recommended',
   ],
   ignorePatterns: [
     '*.mjs',

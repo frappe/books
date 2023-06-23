@@ -90,6 +90,22 @@ To run Frappe Books in development mode (with hot reload, etc):
 yarn dev
 ```
 
+**Note: First Boot**
+
+When you run `yarn dev` electron will run immediately but the UI will take a
+couple of seconds to render this because of how dev mode works. Each file is
+individually served by the dev server. And there are many files that have to be
+sent.
+
+
+**Note: Debug Electron Main Process**
+
+When in dev mode electron runs with the `--inspect` flag which allows an
+external debugger to connect to port 5858. You can use chrome for this by
+visiting `chrome://inspect` while Frappe Books is running in dev mode.
+
+See more [here](https://www.electronjs.org/docs/latest/tutorial/debugging-main-process#external-debuggers).
+
 #### Build
 
 To build Frappe Books and create an installer:
@@ -99,7 +115,7 @@ To build Frappe Books and create an installer:
 yarn build
 ```
 
-**Note**
+**Note: Build Target**
 By default the above command will build for your computer's operating system and
 architecture. To build for other environments (example: for linux from a windows
 computer) check the _Building_ section at
