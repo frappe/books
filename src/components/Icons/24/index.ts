@@ -1,5 +1,3 @@
-
-
 import General from './general.vue';
 import GreenCheck from './green-check.vue';
 import Invoice from './invoice.vue';
