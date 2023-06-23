@@ -3,25 +3,25 @@
     <!-- Header -->
     <PageHeader :title="t`Import Wizard`">
       <DropdownWithActions
-        :actions="actions"
         v-if="hasImporter"
+        :actions="actions"
         :disabled="isMakingEntries"
         :title="t`More`"
       />
       <Button
         v-if="hasImporter"
         :title="t`Add Row`"
-        @click="() => importer.addRow()"
         :disabled="isMakingEntries"
         :icon="true"
+        @click="() => importer.addRow()"
       >
         <feather-icon name="plus" class="w-4 h-4" />
       </Button>
       <Button
         v-if="hasImporter"
         :title="t`Save Template`"
-        @click="saveTemplate"
         :icon="true"
+        @click="saveTemplate"
       >
         <feather-icon name="download" class="w-4 h-4" />
       </Button>
@@ -29,8 +29,8 @@
         v-if="canImportData"
         :title="t`Import Data`"
         type="primary"
-        @click="importData"
         :disabled="errorMessage.length > 0 || isMakingEntries"
+        @click="importData"
       >
         {{ t`Import Data` }}
       </Button>
@@ -118,10 +118,10 @@
           <div class="index-cell">#</div>
           <Select
             v-for="index in columnIterator"
+            :key="index"
             class="flex-shrink-0"
             size="small"
             :border="true"
-            :key="index"
             :df="gridColumnTitleDf"
             :value="importer.assignedTemplateFields[index]!"
             @change="(value: string | null) => importer.setTemplateField(index, value)"
@@ -231,9 +231,9 @@
 
         <!-- Pick Column Checkboxes -->
         <div
-          class="p-4 max-h-80 overflow-auto custom-scroll"
           v-for="[key, value] of columnPickerFieldsMap.entries()"
           :key="key"
+          class="p-4 max-h-80 overflow-auto custom-scroll"
         >
           <h2 class="text-sm font-semibold text-gray-800">
             {{ key }}
@@ -436,28 +436,6 @@ export default defineComponent({
       percentLoading: 0,
       messageLoading: '',
     } as ImportWizardData;
-  },
-  mounted() {
-    if (fyo.store.isDevelopment) {
-      // @ts-ignore
-      window.iw = this;
-    }
-  },
-  watch: {
-    columnCount(val) {
-      if (!this.hasImporter) {
-        return;
-      }
-
-      const possiblyAssigned = this.importer.assignedTemplateFields.length;
-      if (val >= this.importer.assignedTemplateFields.length) {
-        return;
-      }
-
-      for (let i = val; i < possiblyAssigned; i++) {
-        this.importer.assignedTemplateFields[i] = null;
-      }
-    },
   },
   computed: {
     gridTemplateColumn(): string {
@@ -693,6 +671,28 @@ export default defineComponent({
         .filter(([_, picked]) => picked)
         .map(([key, _]) => key);
     },
+  },
+  watch: {
+    columnCount(val) {
+      if (!this.hasImporter) {
+        return;
+      }
+
+      const possiblyAssigned = this.importer.assignedTemplateFields.length;
+      if (val >= this.importer.assignedTemplateFields.length) {
+        return;
+      }
+
+      for (let i = val; i < possiblyAssigned; i++) {
+        this.importer.assignedTemplateFields[i] = null;
+      }
+    },
+  },
+  mounted() {
+    if (fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.iw = this;
+    }
   },
   activated(): void {
     docsPathRef.value = docsPathMap.ImportWizard ?? '';

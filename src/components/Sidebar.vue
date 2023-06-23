@@ -194,6 +194,11 @@ import ShortcutsHelper from './ShortcutsHelper.vue';
 const COMPONENT_NAME = 'Sidebar';
 
 export default defineComponent({
+  components: {
+    Icon,
+    Modal,
+    ShortcutsHelper,
+  },
   emits: ['change-db-file'],
   setup() {
     return {
@@ -220,11 +225,6 @@ export default defineComponent({
     appVersion() {
       return fyo.store.appVersion;
     },
-  },
-  components: {
-    Icon,
-    Modal,
-    ShortcutsHelper,
   },
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');

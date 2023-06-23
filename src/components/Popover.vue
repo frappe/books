@@ -3,12 +3,13 @@
     <div class="h-full">
       <slot
         name="target"
-        :togglePopover="togglePopover"
-        :handleBlur="handleBlur"
+        :toggle-popover="togglePopover"
+        :handle-blur="handleBlur"
       ></slot>
     </div>
     <Transition>
       <div
+        v-show="isOpen"
         ref="popover"
         :class="popoverClass"
         class="
@@ -21,9 +22,8 @@
           z-10
         "
         :style="{ 'transition-delay': `${isOpen ? entryDelay : exitDelay}ms` }"
-        v-show="isOpen"
       >
-        <slot name="content" :togglePopover="togglePopover"></slot>
+        <slot name="content" :toggle-popover="togglePopover"></slot>
       </div>
     </Transition>
   </div>
@@ -35,7 +35,6 @@ import { nextTick } from 'vue';
 
 export default {
   name: 'Popover',
-  emits: ['open', 'close'],
   props: {
     showPopup: {
       type: [Boolean, null],
@@ -50,6 +49,12 @@ export default {
     },
     popoverClass: [String, Object, Array],
   },
+  emits: ['open', 'close'],
+  data() {
+    return {
+      isOpen: false,
+    };
+  },
   watch: {
     showPopup(value) {
       if (value === true) {
@@ -59,11 +64,6 @@ export default {
         this.close();
       }
     },
-  },
-  data() {
-    return {
-      isOpen: false,
-    };
   },
   mounted() {
     this.listener = (e) => {

@@ -5,7 +5,7 @@
       <div class="font-semibold text-base">{{ t`Cashflow` }}</div>
 
       <!-- Chart Legend -->
-      <div class="flex text-base gap-8" v-if="hasData">
+      <div v-if="hasData" class="flex text-base gap-8">
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-sm inline-block bg-blue-500" />
           <span class="text-gray-900">{{ t`Inflow` }}</span>
@@ -18,18 +18,18 @@
       <div v-else class="w-16 h-5 bg-gray-200 rounded" />
 
       <PeriodSelector
-        :value="period"
-        @change="(value) => (period = value)"
-        :options="periodOptions"
         v-if="hasData"
+        :value="period"
+        :options="periodOptions"
+        @change="(value) => (period = value)"
       />
       <div v-else class="w-20 h-5 bg-gray-200 rounded" />
     </div>
 
     <!-- Line Chart -->
     <LineChart
-      class="mt-4"
       v-if="chartData.points.length"
+      class="mt-4"
       :aspect-ratio="4.15"
       :colors="chartData.colors"
       :points="chartData.points"
@@ -56,23 +56,17 @@ import PeriodSelector from './PeriodSelector.vue';
 
 export default {
   name: 'Cashflow',
-  extends: DashboardChartBase,
   components: {
     PeriodSelector,
     LineChart,
   },
+  extends: DashboardChartBase,
   data: () => ({
     data: [],
     periodList: [],
     periodOptions: ['This Year', 'This Quarter'],
     hasData: false,
   }),
-  async activated() {
-    await this.setData();
-    if (!this.hasData) {
-      await this.setHasData();
-    }
-  },
   computed: {
     chartData() {
       let data = this.data;
@@ -89,6 +83,12 @@ export default {
       const yMax = getYMax(points);
       return { points, xLabels, colors, format, yMax, formatX: formatXLabels };
     },
+  },
+  async activated() {
+    await this.setData();
+    if (!this.hasData) {
+      await this.setHasData();
+    }
   },
   methods: {
     async setData() {

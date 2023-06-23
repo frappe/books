@@ -12,13 +12,13 @@
     />
     <!-- Main Contents -->
     <Desk
-      class="flex-1"
       v-if="activeScreen === 'Desk'"
+      class="flex-1"
       @change-db-file="showDbSelector"
     />
     <DatabaseSelector
-      ref="databaseSelector"
       v-if="activeScreen === 'DatabaseSelector'"
+      ref="databaseSelector"
       @file-selected="fileSelected"
     />
     <SetupWizard
@@ -68,6 +68,12 @@ enum Screen {
 
 export default defineComponent({
   name: 'App',
+  components: {
+    Desk,
+    SetupWizard,
+    DatabaseSelector,
+    WindowsTitleBar,
+  },
   setup() {
     const keys = useKeys();
     const searcher: Ref<null | Search> = ref(null);
@@ -104,24 +110,18 @@ export default defineComponent({
       companyName: string;
     };
   },
-  components: {
-    Desk,
-    SetupWizard,
-    DatabaseSelector,
-    WindowsTitleBar,
-  },
-  async mounted() {
-    this.setInitialScreen();
+  computed: {
+    language(): string {
+      return systemLanguageRef.value;
+    },
   },
   watch: {
     language(value) {
       this.languageDirection = getLanguageDirection(value);
     },
   },
-  computed: {
-    language(): string {
-      return systemLanguageRef.value;
-    },
+  async mounted() {
+    this.setInitialScreen();
   },
   methods: {
     async setInitialScreen(): Promise<void> {

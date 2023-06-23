@@ -1,11 +1,11 @@
 <template>
   <div class="overflow-hidden flex flex-col h-full">
     <!-- Report Outer Container -->
-    <div class="overflow-hidden" v-if="dataSlice.length">
+    <div v-if="dataSlice.length" class="overflow-hidden">
       <!--Title Row -->
       <div
-        class="w-full overflow-x-hidden flex items-center border-b px-4"
         ref="titlerow"
+        class="w-full overflow-x-hidden flex items-center border-b px-4"
         :style="{
           height: `${hconst}px`,
           paddingRight: 'calc(var(--w-scrollbar) + 1rem)',
@@ -75,7 +75,7 @@
     </p>
 
     <!-- Pagination Footer -->
-    <div class="mt-auto flex-shrink-0" v-if="report.usePagination">
+    <div v-if="report.usePagination" class="mt-auto flex-shrink-0">
       <Paginator
         :item-count="report?.reportData?.length ?? 0"
         class="px-4"
@@ -95,6 +95,7 @@ import WithScroll from '../WithScroll.vue';
 import { inject } from 'vue';
 
 export default defineComponent({
+  components: { Paginator, WithScroll },
   props: {
     report: Report,
   },
@@ -221,6 +222,5 @@ export default defineComponent({
       return 'text-gray-900';
     },
   },
-  components: { Paginator, WithScroll },
 });
 </script>

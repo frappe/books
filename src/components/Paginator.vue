@@ -25,10 +25,10 @@
           type="number"
           class="w-7 text-end outline-none bg-transparent focus:text-gray-900"
           :value="pageNo"
-          @change="(e) => setPageNo(e.target.value)"
-          @input="(e) => setPageNo(e.target.value)"
           min="1"
           :max="maxPages"
+          @change="(e) => setPageNo(e.target.value)"
+          @input="(e) => setPageNo(e.target.value)"
         />
         <p class="text-gray-600">/</p>
         <p class="w-7">
@@ -49,18 +49,18 @@
 
     <!-- Count Selector -->
     <div
-      class="border border-gray-100 rounded flex justify-self-end"
       v-if="filteredCounts.length"
+      class="border border-gray-100 rounded flex justify-self-end"
     >
       <template v-for="c in filteredCounts" :key="c + '-count'">
         <button
-          @click="setCount(c)"
           class="w-9"
           :class="
             count === c || (count === itemCount && c === -1)
               ? 'bg-gray-100'
               : ''
           "
+          @click="setCount(c)"
         >
           {{ c === -1 ? t`All` : c }}
         </button>
@@ -72,20 +72,16 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  emits: ['index-change'],
   props: {
     itemCount: { type: Number, default: 0 },
     allowedCounts: { type: Array, default: () => [50, 100, 500, -1] },
   },
+  emits: ['index-change'],
   data() {
     return {
       pageNo: 1,
       count: 0,
     };
-  },
-  mounted() {
-    this.count = this.allowedCounts[0];
-    this.emitIndices();
   },
   computed: {
     maxPages() {
@@ -94,6 +90,10 @@ export default defineComponent({
     filteredCounts() {
       return this.allowedCounts.filter(this.filterCount);
     },
+  },
+  mounted() {
+    this.count = this.allowedCounts[0];
+    this.emitIndices();
   },
   methods: {
     filterCount(count) {

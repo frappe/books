@@ -10,6 +10,6 @@
 <script>
 import Base from '../base.vue';
 export default {
-  extends: Base
+  extends: Base,
 };
 </script>

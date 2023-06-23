@@ -15,7 +15,7 @@
         class="w-4 h-4 text-gray-600"
       />
     </div>
-    <div class="grid gap-4 gap-x-8 grid-cols-2" v-if="!collapsed">
+    <div v-if="!collapsed" class="grid gap-4 gap-x-8 grid-cols-2">
       <div
         v-for="field of fields"
         :key="field.fieldname"
@@ -65,7 +65,7 @@ import { focusOrSelectFormControl } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
-  emits: ['editrow', 'value-change', 'row-change'],
+  components: { FormControl, Table },
   props: {
     title: String,
     errors: Object as PropType<Record<string, string>>,
@@ -74,6 +74,7 @@ export default defineComponent({
     collapsible: { type: Boolean, default: true },
     fields: Array as PropType<Field[]>,
   },
+  emits: ['editrow', 'value-change', 'row-change'],
   data() {
     return { collapsed: false } as {
       collapsed: boolean;
@@ -98,6 +99,5 @@ export default defineComponent({
       this.collapsed = !this.collapsed;
     },
   },
-  components: { FormControl, Table },
 });
 </script>

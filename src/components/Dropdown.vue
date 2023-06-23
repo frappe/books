@@ -5,12 +5,12 @@
     :placement="right ? 'bottom-end' : 'bottom-start'"
   >
     <template #target>
-      <div class="h-full" v-on-outside-click="() => (isShown = false)">
+      <div v-on-outside-click="() => (isShown = false)" class="h-full">
         <slot
-          :toggleDropdown="toggleDropdown"
-          :highlightItemUp="highlightItemUp"
-          :highlightItemDown="highlightItemDown"
-          :selectHighlightedItem="selectHighlightedItem"
+          :toggle-dropdown="toggleDropdown"
+          :highlight-item-up="highlightItemUp"
+          :highlight-item-down="highlightItemDown"
+          :select-highlighted-item="selectHighlightedItem"
         ></slot>
       </div>
     </template>
@@ -63,7 +63,7 @@
                 @mousedown.prevent
                 @click="selectItem(d)"
               >
-                <component v-if="d.component" :is="d.component" />
+                <component :is="d.component" v-if="d.component" />
                 <template v-else>{{ d.label }}</template>
               </a>
             </div>
@@ -83,6 +83,9 @@ import Popover from './Popover.vue';
 
 export default defineComponent({
   name: 'Dropdown',
+  components: {
+    Popover,
+  },
   props: {
     items: {
       type: Array as PropType<DropdownItem[]>,
@@ -105,23 +108,11 @@ export default defineComponent({
       default: null,
     },
   },
-  components: {
-    Popover,
-  },
   data() {
     return {
       isShown: false,
       highlightedIndex: -1,
     };
-  },
-  watch: {
-    highlightedIndex() {
-      this.scrollToHighlighted();
-    },
-    dropdownItems() {
-      const maxed = Math.max(this.highlightedIndex, -1);
-      this.highlightedIndex = Math.min(maxed, this.dropdownItems.length - 1);
-    },
   },
   computed: {
     dropdownItems(): DropdownItem[] {
@@ -140,6 +131,15 @@ export default defineComponent({
       }
 
       return items;
+    },
+  },
+  watch: {
+    highlightedIndex() {
+      this.scrollToHighlighted();
+    },
+    dropdownItems() {
+      const maxed = Math.max(this.highlightedIndex, -1);
+      this.highlightedIndex = Math.min(maxed, this.dropdownItems.length - 1);
     },
   },
   methods: {

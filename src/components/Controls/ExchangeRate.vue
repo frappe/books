@@ -4,7 +4,7 @@
       class="rate-container"
       :class="disabled ? 'bg-gray-100' : 'bg-gray-25'"
     >
-      <input type="number" v-model="fromValue" :disabled="disabled" min="0" />
+      <input v-model="fromValue" type="number" :disabled="disabled" min="0" />
       <p>{{ left }}</p>
     </div>
 
@@ -25,9 +25,9 @@
     </div>
 
     <button
+      v-if="!disabled"
       class="bg-green100 px-2 ms-1 -me-0.5 h-full border-s"
       @click="swap"
-      v-if="!disabled"
     >
       <feather-icon name="refresh-cw" class="w-3 h-3 text-gray-600" />
     </button>
@@ -38,15 +38,31 @@ import { safeParseFloat } from 'utils/index';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  emits: ['change'],
   props: {
     disabled: { type: Boolean, default: false },
     fromCurrency: { type: String, default: 'USD' },
     toCurrency: { type: String, default: 'INR' },
     exchangeRate: { type: Number, default: 75 },
   },
+  emits: ['change'],
   data() {
     return { fromValue: 1, isSwapped: false };
+  },
+  computed: {
+    left(): string {
+      if (this.isSwapped) {
+        return this.toCurrency;
+      }
+
+      return this.fromCurrency;
+    },
+    right(): string {
+      if (this.isSwapped) {
+        return this.fromCurrency;
+      }
+
+      return this.toCurrency;
+    },
   },
   methods: {
     swap() {
@@ -66,22 +82,6 @@ export default defineComponent({
       }
 
       this.$emit('change', exchangeRate);
-    },
-  },
-  computed: {
-    left(): string {
-      if (this.isSwapped) {
-        return this.toCurrency;
-      }
-
-      return this.fromCurrency;
-    },
-    right(): string {
-      if (this.isSwapped) {
-        return this.fromCurrency;
-      }
-
-      return this.toCurrency;
     },
   },
 });

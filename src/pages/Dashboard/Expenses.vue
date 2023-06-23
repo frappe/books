@@ -7,14 +7,14 @@
       </template>
     </SectionHeader>
 
-    <div class="flex relative" v-show="hasData">
+    <div v-show="hasData" class="flex relative">
       <!-- Chart Legend -->
       <div class="w-1/2 flex flex-col gap-4 justify-center">
         <!-- Ledgend Item -->
         <div
-          class="flex items-center text-sm"
           v-for="(d, i) in expenses"
           :key="d.name"
+          class="flex items-center text-sm"
           @mouseover="active = i"
           @mouseleave="active = null"
         >
@@ -64,19 +64,16 @@ import SectionHeader from './SectionHeader.vue';
 
 export default {
   name: 'Expenses',
-  extends: DashboardChartBase,
   components: {
     DonutChart,
     PeriodSelector,
     SectionHeader,
   },
+  extends: DashboardChartBase,
   data: () => ({
     active: null,
     expenses: [],
   }),
-  activated() {
-    this.setData();
-  },
   computed: {
     totalExpense() {
       return this.expenses.reduce((sum, expense) => sum + expense.total, 0);
@@ -91,6 +88,9 @@ export default {
         value: total,
       }));
     },
+  },
+  activated() {
+    this.setData();
   },
   methods: {
     async setData() {

@@ -17,6 +17,6 @@
 import Base from '../base.vue';
 export default {
   name: 'IconInvoice',
-  extends: Base
+  extends: Base,
 };
 </script>

@@ -10,6 +10,6 @@
 import Base from '../base.vue';
 export default {
   name: 'IconSystem',
-  extends: Base
+  extends: Base,
 };
 </script>

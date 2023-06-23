@@ -11,9 +11,9 @@
       <Select
         :df="df"
         :value="size"
-        @change="sizeChange"
         :border="true"
         :show-label="true"
+        @change="sizeChange"
       />
       <div class="flex gap-4 w-full">
         <Float
@@ -53,11 +53,22 @@ import { defineComponent } from 'vue';
 
 type SizeName = typeof printSizes[number];
 export default defineComponent({
+  components: { Float, FormHeader, Select, Button },
   props: { doc: { type: PrintTemplate, required: true } },
   data() {
     return { size: 'A4', width: 21, height: 29.7 };
   },
-  components: { Float, FormHeader, Select, Button },
+  computed: {
+    df(): OptionField {
+      return {
+        label: 'Page Size',
+        fieldname: 'size',
+        fieldtype: 'Select',
+        options: printSizes.map((value) => ({ value, label: value })),
+        default: 'A4',
+      };
+    },
+  },
   mounted() {
     this.width = this.doc.width ?? 21;
     this.height = this.doc.height ?? 29.7;
@@ -93,17 +104,6 @@ export default defineComponent({
       this.doc.set('width', this.width);
       this.doc.set('height', this.height);
       this.$emit('done');
-    },
-  },
-  computed: {
-    df(): OptionField {
-      return {
-        label: 'Page Size',
-        fieldname: 'size',
-        fieldtype: 'Select',
-        options: printSizes.map((value) => ({ value, label: value })),
-        default: 'A4',
-      };
     },
   },
 });

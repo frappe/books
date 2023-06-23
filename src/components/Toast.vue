@@ -24,7 +24,7 @@
           class="w-6 h-6 me-3"
           :class="config.iconColor"
         />
-        <div @click="actionClicked" :class="actionText ? 'cursor-pointer' : ''">
+        <div :class="actionText ? 'cursor-pointer' : ''" @click="actionClicked">
           <p class="text-base">{{ message }}</p>
           <button
             v-if="actionText"
@@ -61,17 +61,17 @@ export default defineComponent({
   components: {
     FeatherIcon,
   },
-  data() {
-    return {
-      open: false,
-    };
-  },
   props: {
     message: { type: String, required: true },
     action: { type: Function, default: () => {} },
     actionText: { type: String, default: '' },
     type: { type: String as PropType<ToastType>, default: 'info' },
     duration: { type: String as PropType<ToastDuration>, default: 'long' },
+  },
+  data() {
+    return {
+      open: false,
+    };
   },
   computed: {
     config() {

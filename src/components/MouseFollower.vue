@@ -7,8 +7,8 @@ import { defineComponent } from 'vue';
 import Tooltip from './Tooltip.vue';
 
 export default defineComponent({
-  props: { show: { type: Boolean, default: false } },
   components: { Tooltip },
+  props: { show: { type: Boolean, default: false } },
   watch: {
     show(val) {
       if (val) {

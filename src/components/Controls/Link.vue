@@ -13,11 +13,6 @@ export default {
   data() {
     return { results: [] };
   },
-  mounted() {
-    if (this.value) {
-      this.setLinkValue();
-    }
-  },
   watch: {
     value: {
       immediate: true,
@@ -25,6 +20,11 @@ export default {
         this.setLinkValue(newValue);
       },
     },
+  },
+  mounted() {
+    if (this.value) {
+      this.setLinkValue();
+    }
   },
   methods: {
     async setLinkValue(newValue, isInput) {

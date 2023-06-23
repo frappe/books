@@ -17,6 +17,6 @@
 import Base from '../base.vue';
 export default {
   name: 'IconMail',
-  extends: Base
+  extends: Base,
 };
 </script>

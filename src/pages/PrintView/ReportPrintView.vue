@@ -13,8 +13,8 @@
       >
         <!-- Report Print Display Container -->
         <ScaledContainer
-          class="shadow-lg border bg-white"
           ref="scaledContainer"
+          class="shadow-lg border bg-white"
           :scale="scale"
           :width="size.width"
           :height="size.height"
@@ -57,7 +57,7 @@
       </div>
 
       <!-- Report Print Settings -->
-      <div class="border-l flex flex-col" v-if="report">
+      <div v-if="report" class="border-l flex flex-col">
         <p class="p-4 text-sm text-gray-600">
           {{
             [
@@ -128,8 +128,8 @@
           <div class="border rounded grid grid-cols-2 mt-1">
             <Check
               v-for="(col, i) of report?.columns"
-              :show-label="true"
               :key="col.fieldname"
+              :show-label="true"
               :df="{
                 label: col.label,
                 fieldname: col.fieldname,
@@ -161,6 +161,7 @@ import Select from 'src/components/Controls/Select.vue';
 import { showSidebar } from 'src/utils/refs';
 
 export default defineComponent({
+  components: { PageHeader, Button, Check, Int, ScaledContainer, Select },
   props: {
     reportName: {
       type: String as PropType<keyof typeof reports>,
@@ -177,17 +178,6 @@ export default defineComponent({
       report: null as null | Report,
       columnSelection: [] as boolean[],
     };
-  },
-  async mounted() {
-    this.report = await getReport(this.reportName);
-    this.limit = this.report.reportData.length;
-    this.columnSelection = this.report.columns.map(() => true);
-    this.setScale();
-  },
-  watch: {
-    size() {
-      this.setScale();
-    },
   },
   computed: {
     title(): string {
@@ -249,6 +239,17 @@ export default defineComponent({
       return { width: short, height: long };
     },
   },
+  watch: {
+    size() {
+      this.setScale();
+    },
+  },
+  async mounted() {
+    this.report = await getReport(this.reportName);
+    this.limit = this.report.reportData.length;
+    this.columnSelection = this.report.columns.map(() => true);
+    this.setScale();
+  },
   methods: {
     setScale() {
       const width = this.size.width * 37.2;
@@ -298,7 +299,6 @@ export default defineComponent({
       return classes;
     },
   },
-  components: { PageHeader, Button, Check, Int, ScaledContainer, Select },
 });
 </script>
 <style scoped>

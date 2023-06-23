@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="labelClasses" v-if="showLabel">
+    <div v-if="showLabel" :class="labelClasses">
       {{ df.label }}
     </div>
     <input
@@ -21,9 +21,9 @@
       v-show="!showInput"
       class="whitespace-nowrap overflow-x-auto no-scrollbar"
       :class="[inputClasses, containerClasses]"
+      tabindex="0"
       @click="activateInput"
       @focus="activateInput"
-      tabindex="0"
     >
       {{ formattedValue }}
     </div>
@@ -46,6 +46,12 @@ export default defineComponent({
       showInput: false,
       currencySymbol: '',
     };
+  },
+  computed: {
+    formattedValue() {
+      const value = this.parse(this.value);
+      return fyo.format(value, this.df, this.doc);
+    },
   },
   methods: {
     onFocus(e: FocusEvent) {
@@ -90,12 +96,6 @@ export default defineComponent({
       nextTick(() => {
         this.focus();
       });
-    },
-  },
-  computed: {
-    formattedValue() {
-      const value = this.parse(this.value);
-      return fyo.format(value, this.df, this.doc);
     },
   },
 });

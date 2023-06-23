@@ -2,7 +2,7 @@
   <Popover>
     <!-- Datetime Selected Display -->
     <template #target="{ togglePopover }">
-      <div :class="labelClasses" v-if="showLabel">
+      <div v-if="showLabel" :class="labelClasses">
         {{ df?.label }}
       </div>
       <div
@@ -11,9 +11,9 @@
         @click="() => !isReadOnly && togglePopover()"
       >
         <p
+          v-if="!isEmpty"
           :class="[baseInputClasses]"
           class="overflow-auto no-scrollbar whitespace-nowrap"
-          v-if="!isEmpty"
         >
           {{ formattedValue }}
         </p>
@@ -65,9 +65,9 @@ import Popover from '../Popover.vue';
 import Base from './Base.vue';
 
 export default defineComponent({
+  components: { Popover, FeatherIcon, DatetimePicker },
   extends: Base,
   props: { value: [Date, String], df: Object as PropType<Field> },
-  components: { Popover, FeatherIcon, DatetimePicker },
   data() {
     return { selectTime: true };
   },

@@ -1,9 +1,9 @@
 <template>
   <Transition>
     <div
+      v-if="openModal"
       class="backdrop z-20 flex justify-center items-center"
       @click="$emit('closemodal')"
-      v-if="openModal"
     >
       <div
         class="bg-white rounded-lg shadow-2xl border overflow-hidden inner"
@@ -21,10 +21,6 @@ import { shortcutsKey } from 'src/utils/injectionKeys';
 import { defineComponent, inject } from 'vue';
 
 export default defineComponent({
-  setup() {
-    const context = `Modal-` + Math.random().toString(36).slice(2, 6);
-    return { shortcuts: inject(shortcutsKey), context };
-  },
   props: {
     openModal: {
       default: false,
@@ -32,6 +28,10 @@ export default defineComponent({
     },
   },
   emits: ['closemodal'],
+  setup() {
+    const context = `Modal-` + Math.random().toString(36).slice(2, 6);
+    return { shortcuts: inject(shortcutsKey), context };
+  },
   watch: {
     openModal(value: boolean) {
       if (value) {
