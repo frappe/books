@@ -4,7 +4,7 @@
       class="flex items-center"
       :class="spaceBetween ? 'justify-between' : ''"
     >
-      <div class="me-3" :class="labelClasses" v-if="showLabel && !labelRight">
+      <div v-if="showLabel && !labelRight" class="me-3" :class="labelClasses">
         {{ df.label }}
       </div>
       <div
@@ -67,7 +67,7 @@
           @focus="(e) => $emit('focus', e)"
         />
       </div>
-      <div class="ms-3" :class="labelClasses" v-if="showLabel && labelRight">
+      <div v-if="showLabel && labelRight" class="ms-3" :class="labelClasses">
         {{ df.label }}
       </div>
     </label>
@@ -80,7 +80,6 @@ import Base from './Base.vue';
 export default defineComponent({
   name: 'Check',
   extends: Base,
-  emits: ['focus'],
   props: {
     spaceBetween: {
       default: false,
@@ -92,6 +91,7 @@ export default defineComponent({
     },
     labelClass: String,
   },
+  emits: ['focus'],
   data() {
     return {
       offBorderColor: 'rgba(17, 43, 66, 0.201322)',

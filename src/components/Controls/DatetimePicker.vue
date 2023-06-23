@@ -77,8 +77,8 @@
               cursor-pointer
               hover:bg-gray-100
             "
-            @click="select(item)"
             :class="getDayClass(item)"
+            @click="select(item)"
           >
             {{ item.day }}
           </div>
@@ -118,8 +118,8 @@
             type="number"
             min="1000"
             max="9999"
-            @change="(e) => change(e, 'year')"
             :value="year"
+            @change="(e) => change(e, 'year')"
           />
         </div>
       </div>
@@ -138,8 +138,8 @@
           type="number"
           min="0"
           max="23"
-          @change="(e) => change(e, 'hours')"
           :value="hours"
+          @change="(e) => change(e, 'hours')"
         />
       </div>
       <div>
@@ -149,8 +149,8 @@
           type="number"
           min="0"
           max="59"
-          @change="(e) => change(e, 'minutes')"
           :value="minutes"
+          @change="(e) => change(e, 'minutes')"
         />
       </div>
       <div>
@@ -160,8 +160,8 @@
           type="number"
           min="0"
           max="59"
-          @change="(e) => change(e, 'seconds')"
           :value="seconds"
+          @change="(e) => change(e, 'seconds')"
         />
       </div>
     </div>
@@ -207,17 +207,14 @@ type DatetimeValues = {
 };
 
 export default defineComponent({
-  emits: ['update:modelValue'],
+  components: { FeatherIcon },
   props: {
     modelValue: { type: Date },
     selectTime: { type: Boolean, default: true },
     showClear: { type: Boolean, default: true },
     formatValue: { type: Function as PropType<(value: Date | null) => string> },
   },
-  mounted() {
-    this.viewMonth = this.month;
-    this.viewYear = this.year;
-  },
+  emits: ['update:modelValue'],
   data() {
     return {
       selectedMonth: 0,
@@ -232,22 +229,6 @@ export default defineComponent({
       viewMonth: number;
       viewYear: number;
     };
-  },
-  watch: {
-    async selectMonthYear(value) {
-      if (!value) {
-        return;
-      }
-      await nextTick();
-      const monthDivs = this.$refs.monthDivs as HTMLDivElement[];
-      if (!monthDivs?.length) {
-        return;
-      }
-      monthDivs[this.month]?.scrollIntoView({
-        block: 'center',
-        inline: 'center',
-      });
-    },
   },
   computed: {
     today() {
@@ -335,6 +316,26 @@ export default defineComponent({
         this.t`Sa`,
       ];
     },
+  },
+  watch: {
+    async selectMonthYear(value) {
+      if (!value) {
+        return;
+      }
+      await nextTick();
+      const monthDivs = this.$refs.monthDivs as HTMLDivElement[];
+      if (!monthDivs?.length) {
+        return;
+      }
+      monthDivs[this.month]?.scrollIntoView({
+        block: 'center',
+        inline: 'center',
+      });
+    },
+  },
+  mounted() {
+    this.viewMonth = this.month;
+    this.viewYear = this.year;
   },
   methods: {
     getDayClass(item: WeekListItem) {
@@ -454,7 +455,6 @@ export default defineComponent({
       this.viewMonth = d.getMonth();
     },
   },
-  components: { FeatherIcon },
 });
 
 function getWeekdayList(startYear: number, startMonth: number): WeekListItem[] {

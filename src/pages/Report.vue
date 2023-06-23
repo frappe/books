@@ -3,8 +3,8 @@
     <PageHeader :title="title">
       <DropdownWithActions
         v-for="group of groupedActions"
-        :icon="false"
         :key="group.label"
+        :icon="false"
         :type="group.type"
         :actions="group.actions"
         class="text-xs"
@@ -28,11 +28,11 @@
     >
       <FormControl
         v-for="field in report.filters"
+        :key="field.fieldname + '-filter'"
         :border="true"
         size="small"
         :class="[field.fieldtype === 'Check' ? 'self-end' : '']"
         :show-label="true"
-        :key="field.fieldname + '-filter'"
         :df="field"
         :value="report.get(field.fieldname)"
         :read-only="loading"
@@ -45,7 +45,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed } from '@vue/reactivity';
+import { computed } from 'vue';
 import { t } from 'fyo';
 import { reports } from 'reports';
 import { Report } from 'reports/Report';
@@ -63,8 +63,17 @@ import { routeTo } from 'src/utils/ui';
 import { PropType, defineComponent, inject } from 'vue';
 
 export default defineComponent({
-  setup() {
-    return { shortcuts: inject(shortcutsKey) };
+  components: {
+    PageHeader,
+    FormControl,
+    ListReport,
+    DropdownWithActions,
+    Button,
+  },
+  provide() {
+    return {
+      report: computed(() => this.report),
+    };
   },
   props: {
     reportClassName: {
@@ -76,23 +85,39 @@ export default defineComponent({
       default: '{}',
     },
   },
+  setup() {
+    return { shortcuts: inject(shortcutsKey) };
+  },
   data() {
     return {
       loading: false,
       report: null as null | Report,
     };
   },
-  provide() {
-    return {
-      report: computed(() => this.report),
-    };
-  },
-  components: {
-    PageHeader,
-    FormControl,
-    ListReport,
-    DropdownWithActions,
-    Button,
+  computed: {
+    title() {
+      return reports[this.reportClassName]?.title ?? t`Report`;
+    },
+    groupedActions() {
+      const actions = this.report?.getActions() ?? [];
+      const actionsMap = actions.reduce((acc, ac) => {
+        if (!ac.group) {
+          ac.group = 'none';
+        }
+
+        acc[ac.group] ??= {
+          group: ac.group,
+          label: ac.label ?? '',
+          type: ac.type ?? 'secondary',
+          actions: [],
+        };
+
+        acc[ac.group].actions.push(ac);
+        return acc;
+      }, {} as Record<string, ActionGroup>);
+
+      return Object.values(actionsMap);
+    },
   },
   async activated() {
     docsPathRef.value =
@@ -121,31 +146,6 @@ export default defineComponent({
   deactivated() {
     docsPathRef.value = '';
     this.shortcuts?.delete(this.reportClassName);
-  },
-  computed: {
-    title() {
-      return reports[this.reportClassName]?.title ?? t`Report`;
-    },
-    groupedActions() {
-      const actions = this.report?.getActions() ?? [];
-      const actionsMap = actions.reduce((acc, ac) => {
-        if (!ac.group) {
-          ac.group = 'none';
-        }
-
-        acc[ac.group] ??= {
-          group: ac.group,
-          label: ac.label ?? '',
-          type: ac.type ?? 'secondary',
-          actions: [],
-        };
-
-        acc[ac.group].actions.push(ac);
-        return acc;
-      }, {} as Record<string, ActionGroup>);
-
-      return Object.values(actionsMap);
-    },
   },
   methods: {
     routeTo,

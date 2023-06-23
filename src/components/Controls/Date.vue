@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="labelClasses" v-if="showLabel">
+    <div v-if="showLabel" :class="labelClasses">
       {{ df.label }}
     </div>
     <input
@@ -20,14 +20,14 @@
       v-show="!showInput"
       class="flex"
       :class="[containerClasses, sizeClasses]"
+      tabindex="0"
       @click="activateInput"
       @focus="activateInput"
-      tabindex="0"
     >
       <p
+        v-if="!isEmpty"
         :class="[baseInputClasses]"
         class="overflow-auto no-scrollbar whitespace-nowrap"
-        v-if="!isEmpty"
       >
         {{ formattedValue }}
       </p>
@@ -57,6 +57,44 @@ export default defineComponent({
     return {
       showInput: false,
     };
+  },
+  computed: {
+    inputValue(): string {
+      let value = this.value;
+      if (typeof value === 'string') {
+        value = new Date(value);
+      }
+
+      if (value instanceof Date && !Number.isNaN(value.valueOf())) {
+        return value.toISOString().split('T')[0];
+      }
+
+      return '';
+    },
+    inputType() {
+      return 'date';
+    },
+    formattedValue() {
+      const value = this.parse(this.value);
+      return fyo.format(value, this.df, this.doc);
+    },
+    borderClasses(): string {
+      if (!this.border) {
+        return '';
+      }
+
+      const border = 'border border-gray-200';
+      let background = 'bg-gray-25';
+      if (this.isReadOnly) {
+        background = 'bg-gray-50';
+      }
+
+      if (this.showInput) {
+        return background;
+      }
+
+      return border + ' ' + background;
+    },
   },
   methods: {
     onFocus(e: FocusEvent) {
@@ -95,44 +133,6 @@ export default defineComponent({
         // @ts-ignore
         this.$refs.input.showPicker();
       });
-    },
-  },
-  computed: {
-    inputValue(): string {
-      let value = this.value;
-      if (typeof value === 'string') {
-        value = new Date(value);
-      }
-
-      if (value instanceof Date && !Number.isNaN(value.valueOf())) {
-        return value.toISOString().split('T')[0];
-      }
-
-      return '';
-    },
-    inputType() {
-      return 'date';
-    },
-    formattedValue() {
-      const value = this.parse(this.value);
-      return fyo.format(value, this.df, this.doc);
-    },
-    borderClasses(): string {
-      if (!this.border) {
-        return '';
-      }
-
-      const border = 'border border-gray-200';
-      let background = 'bg-gray-25';
-      if (this.isReadOnly) {
-        background = 'bg-gray-50';
-      }
-
-      if (this.showInput) {
-        return background;
-      }
-
-      return border + ' ' + background;
     },
   },
 });

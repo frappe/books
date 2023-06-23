@@ -21,8 +21,8 @@
       <!-- Nav Group -->
       <PageHeaderNavGroup />
       <h1
-        class="text-xl font-semibold select-none whitespace-nowrap"
         v-if="title"
+        class="text-xl font-semibold select-none whitespace-nowrap"
       >
         {{ title }}
       </h1>
@@ -49,12 +49,12 @@ import { defineComponent, inject, Transition } from 'vue';
 import PageHeaderNavGroup from './PageHeaderNavGroup.vue';
 
 export default defineComponent({
+  components: { Transition, PageHeaderNavGroup },
   props: {
     title: { type: String, default: '' },
     border: { type: Boolean, default: true },
     searchborder: { type: Boolean, default: true },
   },
-  components: { Transition, PageHeaderNavGroup },
   setup() {
     return { showSidebar, languageDirection: inject(languageDirectionKey) };
   },

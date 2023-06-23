@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="labelClasses" v-if="showLabel && df">
+    <div v-if="showLabel && df" :class="labelClasses">
       {{ df.label }}
     </div>
     <div :class="containerClasses" class="flex gap-2 items-center">
@@ -11,8 +11,8 @@
         >{{ label }}</label
       >
       <input
-        ref="fileInput"
         id="attachment"
+        ref="fileInput"
         type="file"
         accept="image/*,.pdf"
         class="hidden"
@@ -54,12 +54,34 @@ import FeatherIcon from '../FeatherIcon.vue';
 import Base from './Base.vue';
 
 export default defineComponent({
+  components: { FeatherIcon },
   extends: Base,
   props: {
     df: Object as PropType<Field>,
     value: { type: Object as PropType<Attachment | null>, default: null },
     border: { type: Boolean, default: false },
     size: String,
+  },
+  computed: {
+    label() {
+      if (this.value) {
+        return this.value.name;
+      }
+
+      return this.df?.placeholder ?? this.df?.label ?? t`Attachment`;
+    },
+    inputReadOnlyClasses() {
+      if (!this.value) {
+        return 'text-gray-600';
+      } else if (this.isReadOnly) {
+        return 'text-gray-800 cursor-default';
+      }
+
+      return 'text-gray-900';
+    },
+    containerReadOnlyClasses() {
+      return '';
+    },
   },
   methods: {
     upload() {
@@ -80,7 +102,7 @@ export default defineComponent({
         return;
       }
 
-      const a = document.createElement('a') as HTMLAnchorElement;
+      const a = document.createElement('a');
 
       a.style.display = 'none';
       a.href = data;
@@ -113,27 +135,5 @@ export default defineComponent({
       return { name, type, data };
     },
   },
-  computed: {
-    label() {
-      if (this.value) {
-        return this.value.name;
-      }
-
-      return this.df?.placeholder ?? this.df?.label ?? t`Attachment`;
-    },
-    inputReadOnlyClasses() {
-      if (!this.value) {
-        return 'text-gray-600';
-      } else if (this.isReadOnly) {
-        return 'text-gray-800 cursor-default';
-      }
-
-      return 'text-gray-900';
-    },
-    containerReadOnlyClasses() {
-      return '';
-    },
-  },
-  components: { FeatherIcon },
 });
 </script>

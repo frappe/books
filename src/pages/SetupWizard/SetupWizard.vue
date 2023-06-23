@@ -12,7 +12,7 @@
       </FormHeader>
 
       <!-- Section Container -->
-      <div class="overflow-auto custom-scroll" v-if="hasDoc">
+      <div v-if="hasDoc" class="overflow-auto custom-scroll">
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
           :key="name + idx"
@@ -84,6 +84,17 @@ import CommonFormSection from '../CommonForm/CommonFormSection.vue';
 
 export default defineComponent({
   name: 'SetupWizard',
+  components: {
+    Button,
+    FormContainer,
+    FormHeader,
+    CommonFormSection,
+  },
+  provide() {
+    return {
+      doc: computed(() => this.docOrNull),
+    };
+  },
   emits: ['setup-complete', 'setup-canceled'],
   data() {
     return {
@@ -96,16 +107,40 @@ export default defineComponent({
       loading: boolean;
     };
   },
-  provide() {
-    return {
-      doc: computed(() => this.docOrNull),
-    };
-  },
-  components: {
-    Button,
-    FormContainer,
-    FormHeader,
-    CommonFormSection,
+  computed: {
+    hasDoc(): boolean {
+      return this.docOrNull instanceof Doc;
+    },
+    doc(): Doc {
+      if (this.docOrNull instanceof Doc) {
+        return this.docOrNull;
+      }
+
+      throw new Error(`Doc is null`);
+    },
+    areAllValuesFilled(): boolean {
+      if (!this.hasDoc) {
+        return false;
+      }
+
+      const values = this.doc.schema.fields
+        .filter((f) => f.required)
+        .map((f) => this.doc[f.fieldname]);
+
+      return values.every(Boolean);
+    },
+    activeGroup(): Map<string, Field[]> {
+      if (!this.hasDoc) {
+        return new Map();
+      }
+
+      const groupedFields = getFieldsGroupedByTabAndSection(
+        this.doc.schema,
+        this.doc
+      );
+
+      return [...groupedFields.values()][0];
+    },
   },
   async mounted() {
     this.docOrNull = getSetupWizardDoc();
@@ -145,7 +180,7 @@ export default defineComponent({
           return;
         }
 
-        this.errors[fieldname] = getErrorMessage(err, this.doc as Doc);
+        this.errors[fieldname] = getErrorMessage(err, this.doc);
       }
     },
     async submit() {
@@ -163,41 +198,6 @@ export default defineComponent({
 
       this.loading = true;
       this.$emit('setup-complete', this.doc.getValidDict());
-    },
-  },
-  computed: {
-    hasDoc(): boolean {
-      return this.docOrNull instanceof Doc;
-    },
-    doc(): Doc {
-      if (this.docOrNull instanceof Doc) {
-        return this.docOrNull;
-      }
-
-      throw new Error(`Doc is null`);
-    },
-    areAllValuesFilled(): boolean {
-      if (!this.hasDoc) {
-        return false;
-      }
-
-      const values = this.doc.schema.fields
-        .filter((f) => f.required)
-        .map((f) => this.doc[f.fieldname]);
-
-      return values.every(Boolean);
-    },
-    activeGroup(): Map<string, Field[]> {
-      if (!this.hasDoc) {
-        return new Map();
-      }
-
-      const groupedFields = getFieldsGroupedByTabAndSection(
-        this.doc.schema,
-        this.doc
-      );
-
-      return [...groupedFields.values()][0];
     },
   },
 });

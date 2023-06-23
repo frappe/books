@@ -35,8 +35,8 @@
           <UnpaidInvoices
             :schema-name="'SalesInvoice'"
             :common-period="period"
-            @period-change="handlePeriodChange"
             class="border-e"
+            @period-change="handlePeriodChange"
           />
           <UnpaidInvoices
             :schema-name="'PurchaseInvoice'"

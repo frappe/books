@@ -1,8 +1,8 @@
 <template>
   <Popover
-    @close="emitFilterChange"
-    placement="bottom-end"
     v-if="fields.length"
+    placement="bottom-end"
+    @close="emitFilterChange"
   >
     <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
@@ -25,8 +25,8 @@
           <template v-if="explicitFilters.length">
             <div class="flex flex-col gap-2">
               <div
-                :key="filter.fieldname + getRandomString()"
                 v-for="(filter, i) in explicitFilters"
+                :key="filter.fieldname + getRandomString()"
                 class="flex items-center justify-between text-base gap-2"
               >
                 <div
@@ -174,6 +174,53 @@ export default defineComponent({
       filters: [],
     } as { filters: Filter[] };
   },
+  computed: {
+    fields(): Field[] {
+      const excludedFieldsTypes: string[] = [
+        FieldTypeEnum.Table,
+        FieldTypeEnum.Attachment,
+        FieldTypeEnum.AttachImage,
+      ];
+      const fields = fyo.schemaMap[this.schemaName]?.fields ?? [];
+      return fields.filter((f) => {
+        if (f.filter) {
+          return true;
+        }
+
+        if (excludedFieldsTypes.includes(f.fieldtype)) {
+          return false;
+        }
+
+        if (f.computed || f.meta || f.readOnly) {
+          return false;
+        }
+
+        return true;
+      });
+    },
+    fieldOptions(): { label: string; value: string }[] {
+      return this.fields.map((df) => ({
+        label: df.label,
+        value: df.fieldname,
+      }));
+    },
+    conditions(): { label: string; value: string }[] {
+      return [...conditions];
+    },
+    explicitFilters(): Filter[] {
+      return this.filters.filter((f) => !f.implicit);
+    },
+    activeFilterCount(): number {
+      return this.explicitFilters.filter((filter) => filter.value).length;
+    },
+    filterAppliedMessage(): string {
+      if (this.activeFilterCount === 1) {
+        return this.t`1 filter applied`;
+      }
+
+      return this.t`${this.activeFilterCount} filters applied`;
+    },
+  },
   created() {
     this.addNewFilter();
   },
@@ -229,53 +276,6 @@ export default defineComponent({
       }
 
       this.$emit('change', filters);
-    },
-  },
-  computed: {
-    fields(): Field[] {
-      const excludedFieldsTypes: string[] = [
-        FieldTypeEnum.Table,
-        FieldTypeEnum.Attachment,
-        FieldTypeEnum.AttachImage,
-      ];
-      const fields = fyo.schemaMap[this.schemaName]?.fields ?? [];
-      return fields.filter((f) => {
-        if (f.filter) {
-          return true;
-        }
-
-        if (excludedFieldsTypes.includes(f.fieldtype)) {
-          return false;
-        }
-
-        if (f.computed || f.meta || f.readOnly) {
-          return false;
-        }
-
-        return true;
-      });
-    },
-    fieldOptions(): { label: string; value: string }[] {
-      return this.fields.map((df) => ({
-        label: df.label,
-        value: df.fieldname,
-      }));
-    },
-    conditions(): { label: string; value: string }[] {
-      return [...conditions];
-    },
-    explicitFilters(): Filter[] {
-      return this.filters.filter((f) => !f.implicit);
-    },
-    activeFilterCount(): number {
-      return this.explicitFilters.filter((filter) => filter.value).length;
-    },
-    filterAppliedMessage(): string {
-      if (this.activeFilterCount === 1) {
-        return this.t`1 filter applied`;
-      }
-
-      return this.t`${this.activeFilterCount} filters applied`;
     },
   },
 });

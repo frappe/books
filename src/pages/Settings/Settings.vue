@@ -14,7 +14,7 @@
       </FormHeader>
 
       <!-- Section Container -->
-      <div class="overflow-auto custom-scroll" v-if="doc">
+      <div v-if="doc" class="overflow-auto custom-scroll">
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
           :key="name + idx"
@@ -32,6 +32,7 @@
 
       <!-- Tab Bar -->
       <div
+        v-if="groupedFields && groupedFields.size > 1"
         class="
           mt-auto
           px-4
@@ -44,12 +45,10 @@
           bottom-0
           bg-white
         "
-        v-if="groupedFields && groupedFields.size > 1"
       >
         <div
           v-for="key of groupedFields.keys()"
           :key="key"
-          @click="activeTab = key"
           class="text-sm cursor-pointer"
           :class="
             key === activeTab
@@ -59,6 +58,7 @@
           :style="{
             paddingTop: key === activeTab ? 'calc(1rem - 2px)' : '1rem',
           }"
+          @click="activeTab = key"
         >
           {{ tabLabels[key] }}
         </div>
@@ -91,6 +91,9 @@ const COMPONENT_NAME = 'Settings';
 
 export default defineComponent({
   components: { FormContainer, Button, FormHeader, CommonFormSection },
+  provide() {
+    return { doc: computed(() => this.doc) };
+  },
   setup() {
     return {
       shortcuts: inject(shortcutsKey),
@@ -109,8 +112,54 @@ export default defineComponent({
       groupedFields: null | UIGroupedFields;
     };
   },
-  provide() {
-    return { doc: computed(() => this.doc) };
+  computed: {
+    doc(): Doc | null {
+      const doc = this.fyo.singles[this.activeTab];
+      if (!doc) {
+        return null;
+      }
+
+      return doc;
+    },
+    tabLabels(): Record<string, string> {
+      return {
+        [ModelNameEnum.AccountingSettings]: this.t`General`,
+        [ModelNameEnum.PrintSettings]: this.t`Print`,
+        [ModelNameEnum.InventorySettings]: this.t`Inventory`,
+        [ModelNameEnum.Defaults]: this.t`Defaults`,
+        [ModelNameEnum.SystemSettings]: this.t`System`,
+      };
+    },
+    schemas(): Schema[] {
+      const enableInventory =
+        !!this.fyo.singles.AccountingSettings?.enableInventory;
+
+      return [
+        ModelNameEnum.AccountingSettings,
+        ModelNameEnum.InventorySettings,
+        ModelNameEnum.Defaults,
+        ModelNameEnum.PrintSettings,
+        ModelNameEnum.SystemSettings,
+      ]
+        .filter((s) =>
+          s === ModelNameEnum.InventorySettings ? enableInventory : true
+        )
+        .map((s) => this.fyo.schemaMap[s]!);
+    },
+    activeGroup(): Map<string, Field[]> {
+      if (!this.groupedFields) {
+        return new Map();
+      }
+
+      const group = this.groupedFields.get(this.activeTab);
+      if (!group) {
+        throw new ValidationError(
+          `Tab group ${this.activeTab} has no value set`
+        );
+      }
+
+      return group;
+    },
   },
   mounted() {
     if (this.fyo.store.isDevelopment) {
@@ -245,55 +294,6 @@ export default defineComponent({
       }
 
       this.groupedFields = grouped;
-    },
-  },
-  computed: {
-    doc(): Doc | null {
-      const doc = this.fyo.singles[this.activeTab];
-      if (!doc) {
-        return null;
-      }
-
-      return doc;
-    },
-    tabLabels(): Record<string, string> {
-      return {
-        [ModelNameEnum.AccountingSettings]: this.t`General`,
-        [ModelNameEnum.PrintSettings]: this.t`Print`,
-        [ModelNameEnum.InventorySettings]: this.t`Inventory`,
-        [ModelNameEnum.Defaults]: this.t`Defaults`,
-        [ModelNameEnum.SystemSettings]: this.t`System`,
-      };
-    },
-    schemas(): Schema[] {
-      const enableInventory =
-        !!this.fyo.singles.AccountingSettings?.enableInventory;
-
-      return [
-        ModelNameEnum.AccountingSettings,
-        ModelNameEnum.InventorySettings,
-        ModelNameEnum.Defaults,
-        ModelNameEnum.PrintSettings,
-        ModelNameEnum.SystemSettings,
-      ]
-        .filter((s) =>
-          s === ModelNameEnum.InventorySettings ? enableInventory : true
-        )
-        .map((s) => this.fyo.schemaMap[s]!);
-    },
-    activeGroup(): Map<string, Field[]> {
-      if (!this.groupedFields) {
-        return new Map();
-      }
-
-      const group = this.groupedFields.get(this.activeTab);
-      if (!group) {
-        throw new ValidationError(
-          `Tab group ${this.activeTab} has no value set`
-        );
-      }
-
-      return group;
     },
   },
 });

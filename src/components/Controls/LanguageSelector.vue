@@ -2,9 +2,9 @@
   <AutoComplete
     :df="languageDf"
     :value="value"
-    @change="onChange"
     :border="true"
     input-class="rounded py-1.5"
+    @change="onChange"
   />
 </template>
 <script lang="ts">
@@ -16,24 +16,11 @@ import { defineComponent } from 'vue';
 import AutoComplete from './AutoComplete.vue';
 
 export default defineComponent({
+  components: { AutoComplete },
   props: {
     dontReload: {
       type: Boolean,
       default: false,
-    },
-  },
-  components: { AutoComplete },
-  methods: {
-    onChange(value: unknown) {
-      if (typeof value !== 'string') {
-        return;
-      }
-
-      if (languageCodeMap[value] === undefined) {
-        return;
-      }
-
-      setLanguageMap(value, this.dontReload);
     },
   },
   computed: {
@@ -58,6 +45,19 @@ export default defineComponent({
         default: language,
         description: this.t`Set the display language.`,
       };
+    },
+  },
+  methods: {
+    onChange(value: unknown) {
+      if (typeof value !== 'string') {
+        return;
+      }
+
+      if (languageCodeMap[value] === undefined) {
+        return;
+      }
+
+      setLanguageMap(value, this.dontReload);
     },
   },
 });

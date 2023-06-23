@@ -1,22 +1,22 @@
 <template>
   <ScaledContainer
+    ref="scaledContainer"
     :scale="Math.max(scale, 0.1)"
     :width="width"
     :height="height"
-    ref="scaledContainer"
     class="mx-auto shadow-lg border"
   >
     <ErrorBoundary
       v-if="!error"
-      @error-captured="handleErrorCaptured"
       :propagate="false"
+      @error-captured="handleErrorCaptured"
     >
       <!-- Template -->
       <component
+        :is="templateComponent"
         class="flex-1 bg-white"
         :doc="values.doc"
         :print="values.print"
-        :is="templateComponent"
       />
     </ErrorBoundary>
 
@@ -63,11 +63,7 @@ export const baseSafeTemplate = `<main class="h-full w-full bg-white">
 `;
 
 export default defineComponent({
-  data() {
-    return { error: null } as {
-      error: null | { name: string; message: string; detail?: string };
-    };
-  },
+  components: { ScaledContainer, ErrorBoundary },
   props: {
     template: { type: String, required: true },
     scale: { type: Number, default: 0.65 },
@@ -76,6 +72,32 @@ export default defineComponent({
     values: {
       type: Object as PropType<PrintValues>,
       required: true,
+    },
+  },
+  data() {
+    return { error: null } as {
+      error: null | { name: string; message: string; detail?: string };
+    };
+  },
+  computed: {
+    templateComponent() {
+      let template = this.template;
+      if (this.error) {
+        template = baseSafeTemplate;
+      }
+
+      return {
+        template,
+        props: ['doc', 'print'],
+        computed: {
+          fyo() {
+            return {};
+          },
+          platform() {
+            return '';
+          },
+        },
+      } as {} /** to silence :is type check */;
     },
   },
   watch: {
@@ -156,27 +178,5 @@ export default defineComponent({
       );
     },
   },
-  computed: {
-    templateComponent() {
-      let template = this.template;
-      if (this.error) {
-        template = baseSafeTemplate;
-      }
-
-      return {
-        template,
-        props: ['doc', 'print'],
-        computed: {
-          fyo() {
-            return {};
-          },
-          platform() {
-            return '';
-          },
-        },
-      } as {} /** to silence :is type check */;
-    },
-  },
-  components: { ScaledContainer, ErrorBoundary },
 });
 </script>

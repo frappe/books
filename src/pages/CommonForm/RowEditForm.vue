@@ -31,8 +31,8 @@
       />
     </div>
     <TwoColumnForm
-      class="w-full"
       ref="form"
+      class="w-full"
       :doc="row"
       :fields="fields"
       :column-ratio="[1.1, 2]"
@@ -53,25 +53,20 @@ import { defineComponent } from 'vue';
 const COMPONENT_NAME = 'RowEditForm';
 
 export default defineComponent({
-  setup() {
-    return { shortcuts: inject(shortcutsKey) };
-  },
-  emits: ['next', 'previous', 'close'],
-  props: {
-    doc: { type: Doc, required: true },
-    index: { type: Number, required: true },
-    fieldname: { type: String, required: true },
-  },
+  components: { Button, TwoColumnForm, FormHeader },
   provide() {
     return {
       doc: computed(() => this.row),
     };
   },
-  mounted() {
-    this.shortcuts?.set(COMPONENT_NAME, ['Escape'], () => this.$emit('close'));
+  props: {
+    doc: { type: Doc, required: true },
+    index: { type: Number, required: true },
+    fieldname: { type: String, required: true },
   },
-  unmounted() {
-    this.shortcuts?.delete(COMPONENT_NAME);
+  emits: ['next', 'previous', 'close'],
+  setup() {
+    return { shortcuts: inject(shortcutsKey) };
   },
   computed: {
     fieldlabel() {
@@ -108,6 +103,11 @@ export default defineComponent({
       return this.index + 1;
     },
   },
-  components: { Button, TwoColumnForm, FormHeader },
+  mounted() {
+    this.shortcuts?.set(COMPONENT_NAME, ['Escape'], () => this.$emit('close'));
+  },
+  unmounted() {
+    this.shortcuts?.delete(COMPONENT_NAME);
+  },
 });
 </script>

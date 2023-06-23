@@ -19,8 +19,8 @@
             'bg-gray-200 text-gray-200 rounded': !count,
             'cursor-pointer': paidCount > 0,
           }"
-          @click="() => routeToInvoices('paid')"
           :title="paidCount > 0 ? t`View Paid Invoices` : ''"
+          @click="() => routeToInvoices('paid')"
         >
           {{ fyo.format(paid, 'Currency') }}
           <span :class="{ 'text-gray-900 font-normal': count }">{{
@@ -35,8 +35,8 @@
             'bg-gray-200 text-gray-200 rounded': !count,
             'cursor-pointer': unpaidCount > 0,
           }"
-          @click="() => routeToInvoices('unpaid')"
           :title="unpaidCount > 0 ? t`View Unpaid Invoices` : ''"
+          @click="() => routeToInvoices('unpaid')"
         >
           {{ fyo.format(unpaid, 'Currency') }}
           <span :class="{ 'text-gray-900 font-normal': count }">{{
@@ -96,14 +96,39 @@ import SectionHeader from './SectionHeader.vue';
 
 export default defineComponent({
   name: 'UnpaidInvoices',
-  extends: BaseDashboardChart,
   components: {
     PeriodSelector,
     SectionHeader,
     MouseFollower,
   },
+  extends: BaseDashboardChart,
   props: {
     schemaName: { type: String, required: true },
+  },
+  data() {
+    return {
+      show: false,
+      total: 0,
+      unpaid: 0,
+      hasData: false,
+      paid: 0,
+      count: 0,
+      unpaidCount: 0,
+      paidCount: 0,
+      barWidth: 40,
+      period: 'This Year',
+    } as {
+      show: boolean;
+      period: PeriodKey;
+      total: number;
+      unpaid: number;
+      hasData: boolean;
+      paid: number;
+      count: number;
+      unpaidCount: number;
+      paidCount: number;
+      barWidth: number;
+    };
   },
   computed: {
     title(): string {
@@ -133,31 +158,6 @@ export default defineComponent({
 
       return `bg-${this.color}-200`;
     },
-  },
-  data() {
-    return {
-      show: false,
-      total: 0,
-      unpaid: 0,
-      hasData: false,
-      paid: 0,
-      count: 0,
-      unpaidCount: 0,
-      paidCount: 0,
-      barWidth: 40,
-      period: 'This Year',
-    } as {
-      show: boolean;
-      period: PeriodKey;
-      total: number;
-      unpaid: number;
-      hasData: boolean;
-      paid: number;
-      count: number;
-      unpaidCount: number;
-      paidCount: number;
-      barWidth: number;
-    };
   },
   async activated() {
     await this.setData();

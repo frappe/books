@@ -37,9 +37,9 @@
       <!-- x Labels -->
       <template v-if="xLabels.length > 0">
         <text
-          :style="fontStyle"
           v-for="(i, j) in count"
           :key="j + '-xlabels'"
+          :style="fontStyle"
           :y="
             viewBoxHeight -
             axisPadding +
@@ -57,9 +57,9 @@
       <!-- y Labels -->
       <template v-if="yLabelDivisions > 0">
         <text
-          :style="fontStyle"
           v-for="(i, j) in yLabelDivisions + 1"
           :key="j + '-ylabels'"
+          :style="fontStyle"
           :y="yScalerLocation(i - 1)"
           :x="axisPadding - xLabelOffset + left"
           text-anchor="end"
@@ -92,10 +92,10 @@
         :width="width"
         :height="rec.height"
         :fill="rec.color"
+        clip-path="url(#positive-rect-clip)"
         @mouseenter="() => create(rec.xi, rec.yi)"
         @mousemove="update"
         @mouseleave="destroy"
-        clip-path="url(#positive-rect-clip)"
       />
 
       <rect
@@ -108,10 +108,10 @@
         :width="width"
         :height="rec.height"
         :fill="rec.color"
+        clip-path="url(#negative-rect-clip)"
         @mouseenter="() => create(rec.xi, rec.yi)"
         @mousemove="update"
         @mouseleave="destroy"
-        clip-path="url(#negative-rect-clip)"
       />
     </svg>
     <Tooltip
@@ -137,6 +137,7 @@ import { prefixFormat } from 'src/utils/chart';
 import Tooltip from '../Tooltip.vue';
 
 export default {
+  components: { Tooltip },
   props: {
     skipXLabel: { type: Number, default: 2 },
     colors: { type: Array, default: () => [] },
@@ -170,6 +171,9 @@ export default {
     extendGridX: { type: Number, default: -20 },
     tooltipDispDistThreshold: { type: Number, default: 20 },
     drawZeroLine: { type: Boolean, default: true },
+  },
+  data() {
+    return { xi: -1, yi: -1, activeColor: 'rgba(0, 0, 0, 0.2)' };
   },
   computed: {
     fontStyle() {
@@ -263,9 +267,6 @@ export default {
       return hMax;
     },
   },
-  data() {
-    return { xi: -1, yi: -1, activeColor: 'rgba(0, 0, 0, 0.2)' };
-  },
   methods: {
     gradY(i) {
       return Math.min(...this.ys[i]).toFixed();
@@ -351,7 +352,6 @@ export default {
       this.$refs.tooltip.destroy();
     },
   },
-  components: { Tooltip },
 };
 </script>
 

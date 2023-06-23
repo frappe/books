@@ -36,15 +36,6 @@ const components = {
 
 export default {
   name: 'FormControl',
-  render() {
-    const fieldtype = this.$attrs.df.fieldtype;
-    const component = components[fieldtype] ?? Data;
-
-    return h(component, {
-      ...this.$attrs,
-      ref: 'control',
-    });
-  },
   methods: {
     clear() {
       const input = this.$refs.control.$refs.input;
@@ -61,6 +52,15 @@ export default {
     getInput() {
       return this.$refs.control.$refs.input;
     },
+  },
+  render() {
+    const fieldtype = this.$attrs.df.fieldtype;
+    const component = components[fieldtype] ?? Data;
+
+    return h(component, {
+      ...this.$attrs,
+      ref: 'control',
+    });
   },
 };
 </script>

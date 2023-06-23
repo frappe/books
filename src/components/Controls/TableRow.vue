@@ -22,27 +22,27 @@
     <!-- Data Input Form Control -->
     <FormControl
       v-for="df in tableFields"
-      :size="size"
       :key="df.fieldname"
+      :size="size"
       :df="df"
       :value="row[df.fieldname]"
       @change="(value) => onChange(df, value)"
     />
     <Button
+      v-if="canEditRow"
       :icon="true"
       :padding="false"
       :background="false"
       @click="openRowQuickEdit"
-      v-if="canEditRow"
     >
       <feather-icon name="edit" class="w-4 h-4 text-gray-600" />
     </Button>
 
     <!-- Error Display -->
     <div
+      v-if="hasErrors"
       class="text-xs text-red-600 ps-2 col-span-full relative"
       style="bottom: 0.75rem; height: 0px"
-      v-if="hasErrors"
     >
       {{ getErrorString() }}
     </div>
@@ -58,6 +58,16 @@ import FormControl from './FormControl.vue';
 
 export default {
   name: 'TableRow',
+  components: {
+    Row,
+    FormControl,
+    Button,
+  },
+  provide() {
+    return {
+      doc: computed(() => this.row),
+    };
+  },
   props: {
     row: Doc,
     tableFields: Array,
@@ -71,24 +81,14 @@ export default {
     },
   },
   emits: ['remove', 'change'],
-  components: {
-    Row,
-    FormControl,
-    Button,
-  },
   data: () => ({ hovering: false, errors: {} }),
-  beforeCreate() {
-    this.$options.components.FormControl = FormControl;
-  },
-  provide() {
-    return {
-      doc: computed(() => this.row),
-    };
-  },
   computed: {
     hasErrors() {
       return Object.values(this.errors).filter(Boolean).length;
     },
+  },
+  beforeCreate() {
+    this.$options.components.FormControl = FormControl;
   },
   methods: {
     async onChange(df, value) {

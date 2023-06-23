@@ -32,8 +32,8 @@
 
       <!-- Template Container -->
       <PrintContainer
-        ref="printContainer"
         v-if="printProps"
+        ref="printContainer"
         :template="printProps.template"
         :values="printProps.values"
         :scale="scale"
@@ -63,16 +63,16 @@ import { showSidebar } from 'src/utils/refs';
 
 export default defineComponent({
   name: 'PrintView',
-  props: {
-    schemaName: { type: String, required: true },
-    name: { type: String, required: true },
-  },
   components: {
     PageHeader,
     Button,
     AutoComplete,
     PrintContainer,
     DropdownWithActions,
+  },
+  props: {
+    schemaName: { type: String, required: true },
+    name: { type: String, required: true },
   },
   data() {
     return {
@@ -90,22 +90,6 @@ export default defineComponent({
       templateName: null | string;
       templateList: string[];
     };
-  },
-  async mounted() {
-    await this.initialize();
-    if (fyo.store.isDevelopment) {
-      // @ts-ignore
-      window.pv = this;
-    }
-  },
-  async activated() {
-    await this.initialize();
-  },
-  unmounted() {
-    this.reset();
-  },
-  deactivated() {
-    this.reset();
   },
   computed: {
     helperMessage() {
@@ -189,6 +173,22 @@ export default defineComponent({
 
       return actions;
     },
+  },
+  async mounted() {
+    await this.initialize();
+    if (fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.pv = this;
+    }
+  },
+  async activated() {
+    await this.initialize();
+  },
+  unmounted() {
+    this.reset();
+  },
+  deactivated() {
+    this.reset();
   },
   methods: {
     async initialize() {

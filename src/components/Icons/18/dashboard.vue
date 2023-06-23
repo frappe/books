@@ -17,6 +17,6 @@
 import Base from '../base.vue';
 export default {
   name: 'IconDashboard',
-  extends: Base
+  extends: Base,
 };
 </script>

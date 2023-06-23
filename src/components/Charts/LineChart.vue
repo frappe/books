@@ -28,9 +28,9 @@
       <!-- x Labels -->
       <template v-if="drawLabels && xLabels.length > 0">
         <text
-          :style="fontStyle"
           v-for="(i, j) in count"
           :key="j + '-xlabels'"
+          :style="fontStyle"
           :y="
             viewBoxHeight -
             axisPadding +
@@ -48,9 +48,9 @@
       <!-- y Labels -->
       <template v-if="drawLabels && yLabelDivisions > 0">
         <text
-          :style="fontStyle"
           v-for="(i, j) in yLabelDivisions + 1"
           :key="j + '-ylabels'"
+          :style="fontStyle"
           :y="yScalerLocation(i - 1)"
           :x="axisPadding - xLabelOffset + left"
           text-anchor="end"
@@ -67,7 +67,7 @@
           <stop offset="70%" stop-color="rgba(255, 255, 255, 0)" />
         </linearGradient>
 
-        <mask v-for="(i, j) in num" :key="j + '-mask'" :id="'rect-mask-' + i">
+        <mask v-for="(i, j) in num" :id="'rect-mask-' + i" :key="j + '-mask'">
           <rect
             x="0"
             :y="gradY(j)"
@@ -136,6 +136,7 @@ import { euclideanDistance, prefixFormat } from 'src/utils/chart';
 import Tooltip from '../Tooltip.vue';
 
 export default {
+  components: { Tooltip },
   props: {
     colors: { type: Array, default: () => [] },
     xLabels: { type: Array, default: () => [] },
@@ -167,6 +168,9 @@ export default {
     extendGridX: { type: Number, default: -20 },
     tooltipDispDistThreshold: { type: Number, default: 40 },
     showTooltip: { type: Boolean, default: true },
+  },
+  data() {
+    return { cx: -1, cy: -1, xi: -1, yi: -1 };
   },
   computed: {
     fontStyle() {
@@ -248,9 +252,6 @@ export default {
       }
       return hMax;
     },
-  },
-  data() {
-    return { cx: -1, cy: -1, xi: -1, yi: -1 };
   },
   methods: {
     gradY(i) {
@@ -339,6 +340,5 @@ export default {
       return { xi, yi, cx: px, cy: pys[yi], d: minDist };
     },
   },
-  components: { Tooltip },
 };
 </script>

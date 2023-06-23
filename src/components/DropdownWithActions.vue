@@ -6,7 +6,7 @@
     :doc="doc"
     right
   >
-    <template v-slot="{ toggleDropdown }">
+    <template #default="{ toggleDropdown }">
       <Button :type="type" :icon="icon" @click="toggleDropdown()">
         <slot>
           <feather-icon name="more-horizontal" class="w-4 h-4" />
@@ -26,10 +26,9 @@ import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
   name: 'DropdownWithActions',
-  props: {
-    actions: { type: Array as PropType<Action[]>, default: () => [] },
-    type: { type: String, default: 'secondary' },
-    icon: { type: Boolean, default: true },
+  components: {
+    Dropdown,
+    Button,
   },
   inject: {
     injectedDoc: {
@@ -37,9 +36,10 @@ export default defineComponent({
       default: undefined,
     },
   },
-  components: {
-    Dropdown,
-    Button,
+  props: {
+    actions: { type: Array as PropType<Action[]>, default: () => [] },
+    type: { type: String, default: 'secondary' },
+    icon: { type: Boolean, default: true },
   },
   computed: {
     doc() {

@@ -9,8 +9,8 @@
 
     <!-- Chart of Accounts -->
     <div
-      class="flex-1 flex flex-col overflow-y-auto mb-4 custom-scroll"
       v-if="root"
+      class="flex-1 flex flex-col overflow-y-auto mb-4 custom-scroll"
     >
       <!-- Chart of Accounts Indented List -->
       <template v-for="account in allAccounts" :key="account.name">
@@ -70,7 +70,7 @@
           </div>
 
           <!-- Account Balance String -->
-          <p class="ms-auto text-base text-gray-800" v-if="!account.isGroup">
+          <p v-if="!account.isGroup" class="ms-auto text-base text-gray-800">
             {{ getBalanceString(account) }}
           </p>
         </div>
@@ -78,6 +78,7 @@
         <!-- Add Account/Group -->
         <div
           v-if="account.addingAccount || account.addingGroupAccount"
+          :key="account.name + '-adding-account'"
           class="
             px-4
             border-b
@@ -89,24 +90,23 @@
             text-base
           "
           :style="getGroupStyle(account.level + 1)"
-          :key="account.name + '-adding-account'"
         >
           <component
             :is="getIconComponent({ isGroup: account.addingGroupAccount })"
           />
           <div class="flex ms-4 h-row-mid items-center">
             <input
+              :ref="account.name"
+              v-model="newAccountName"
               class="focus:outline-none bg-transparent"
               :class="{ 'text-gray-600': insertingAccount }"
               :placeholder="t`New Account`"
-              :ref="account.name"
+              type="text"
+              :disabled="insertingAccount"
               @keydown.esc="cancelAddingAccount(account)"
               @keydown.enter="
                 (e) => createNewAccount(account, account.addingGroupAccount)
               "
-              type="text"
-              v-model="newAccountName"
-              :disabled="insertingAccount"
             />
             <button
               v-if="!insertingAccount"
@@ -178,6 +178,27 @@ export default {
       totals: {},
       refetchTotals: false,
     };
+  },
+  computed: {
+    allAccounts() {
+      const allAccounts = [];
+
+      (function getAccounts(accounts, level, location) {
+        for (let i in accounts) {
+          const account = accounts[i];
+
+          account.level = level;
+          account.location = [...location, i];
+          allAccounts.push(account);
+
+          if (account.children != null && account.expanded) {
+            getAccounts(account.children, level + 1, account.location);
+          }
+        }
+      })(this.accounts, 0, []);
+
+      return allAccounts;
+    },
   },
   async mounted() {
     await this.setTotalDebitAndCredit();
@@ -487,27 +508,6 @@ export default {
         styles['padding-left'] = `calc(1rem + 2rem * ${level})`;
       }
       return styles;
-    },
-  },
-  computed: {
-    allAccounts() {
-      const allAccounts = [];
-
-      (function getAccounts(accounts, level, location) {
-        for (let i in accounts) {
-          const account = accounts[i];
-
-          account.level = level;
-          account.location = [...location, i];
-          allAccounts.push(account);
-
-          if (account.children != null && account.expanded) {
-            getAccounts(account.children, level + 1, account.location);
-          }
-        }
-      })(this.accounts, 0, []);
-
-      return allAccounts;
     },
   },
 };

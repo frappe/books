@@ -3,16 +3,16 @@
     <PageHeader :title="t`Set Up Your Workspace`" />
     <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scroll">
       <div
-        class="p-4 border-b"
         v-for="section in sections"
         :key="section.label"
+        class="p-4 border-b"
       >
         <h2 class="font-medium">{{ section.label }}</h2>
         <div class="flex mt-4 gap-4">
           <div
-            class="w-full md:w-1/3 sm:w-1/2"
             v-for="item in section.items"
             :key="item.label"
+            class="w-full md:w-1/3 sm:w-1/2"
           >
             <div
               class="flex flex-col justify-between h-40 p-4 border rounded-lg"
@@ -21,8 +21,8 @@
             >
               <div>
                 <component
-                  v-show="activeCard !== item.key && !isCompleted(item)"
                   :is="getIconComponent(item)"
+                  v-show="activeCard !== item.key && !isCompleted(item)"
                   class="mb-4"
                 />
                 <Icon
@@ -37,8 +37,8 @@
                 </p>
               </div>
               <div
-                class="flex mt-2 overflow-hidden"
                 v-show="activeCard === item.key && !isCompleted(item)"
+                class="flex mt-2 overflow-hidden"
               >
                 <Button
                   v-if="item.action"

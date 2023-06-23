@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition>
       <!-- Backdrop -->
-      <div class="backdrop z-20 flex justify-center items-center" v-if="open">
+      <div v-if="open" class="backdrop z-20 flex justify-center items-center">
         <!-- Dialog -->
         <div
           class="
@@ -52,15 +52,7 @@ import Button from './Button.vue';
 import FeatherIcon from './FeatherIcon.vue';
 
 export default defineComponent({
-  setup() {
-    return {
-      primary: ref<InstanceType<typeof Button>[] | null>(null),
-      secondary: ref<InstanceType<typeof Button>[] | null>(null),
-    };
-  },
-  data() {
-    return { open: false };
-  },
+  components: { Button, FeatherIcon },
   props: {
     type: { type: String as PropType<ToastType>, default: 'info' },
     title: { type: String, required: true },
@@ -71,6 +63,20 @@ export default defineComponent({
     buttons: {
       type: Array as PropType<DialogButton[]>,
       required: true,
+    },
+  },
+  setup() {
+    return {
+      primary: ref<InstanceType<typeof Button>[] | null>(null),
+      secondary: ref<InstanceType<typeof Button>[] | null>(null),
+    };
+  },
+  data() {
+    return { open: false };
+  },
+  computed: {
+    config() {
+      return getIconConfig(this.type);
     },
   },
   watch: {
@@ -88,11 +94,6 @@ export default defineComponent({
     });
 
     this.focusButton();
-  },
-  computed: {
-    config() {
-      return getIconConfig(this.type);
-    },
   },
   methods: {
     focusButton() {
@@ -133,7 +134,6 @@ export default defineComponent({
       this.open = false;
     },
   },
-  components: { Button, FeatherIcon },
 });
 </script>
 <style scoped>

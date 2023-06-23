@@ -1,7 +1,7 @@
 <template>
   <Dropdown ref="dropdown" class="text-sm" :items="periodOptions" right>
     <template
-      v-slot="{
+      #default="{
         toggleDropdown,
         highlightItemUp,
         highlightItemDown,
@@ -22,8 +22,8 @@
           cursor-pointer
         "
         :class="!value ? 'text-gray-600' : 'text-gray-900'"
-        @click="toggleDropdown()"
         tabindex="0"
+        @click="toggleDropdown()"
         @keydown.down="highlightItemDown"
         @keydown.up="highlightItemUp"
         @keydown.enter="selectHighlightedItem"
@@ -41,6 +41,9 @@ import Dropdown from 'src/components/Dropdown.vue';
 
 export default {
   name: 'PeriodSelector',
+  components: {
+    Dropdown,
+  },
   props: {
     value: String,
     options: {
@@ -49,8 +52,11 @@ export default {
     },
   },
   emits: ['change'],
-  components: {
-    Dropdown,
+  data() {
+    return {
+      periodSelectorMap: {},
+      periodOptions: [],
+    };
   },
   mounted() {
     this.periodSelectorMap = {
@@ -68,12 +74,6 @@ export default {
         action: () => this.selectOption(option),
       };
     });
-  },
-  data() {
-    return {
-      periodSelectorMap: {},
-      periodOptions: [],
-    };
   },
   methods: {
     selectOption(value) {

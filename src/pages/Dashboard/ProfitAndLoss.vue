@@ -11,8 +11,8 @@
       </template>
     </SectionHeader>
     <BarChart
-      class="mt-4"
       v-if="hasData"
+      class="mt-4"
       :aspect-ratio="2.05"
       :colors="chartData.colors"
       :points="chartData.points"
@@ -22,7 +22,7 @@
       :y-max="chartData.yMax"
       :y-min="chartData.yMin"
     />
-    <div class="flex-1 w-full h-full flex-center my-20" v-else>
+    <div v-else class="flex-1 w-full h-full flex-center my-20">
       <span class="text-base text-gray-600">
         {{ t`No transactions yet` }}
       </span>
@@ -42,20 +42,17 @@ import SectionHeader from './SectionHeader.vue';
 
 export default {
   name: 'ProfitAndLoss',
-  extends: DashboardChartBase,
   components: {
     PeriodSelector,
     SectionHeader,
     BarChart,
   },
+  extends: DashboardChartBase,
   data: () => ({
     data: [],
     hasData: false,
     periodOptions: ['This Year', 'This Quarter'],
   }),
-  activated() {
-    this.setData();
-  },
   computed: {
     chartData() {
       const points = [this.data.map((d) => d.balance)];
@@ -75,6 +72,9 @@ export default {
         formatX: formatXLabels,
       };
     },
+  },
+  activated() {
+    this.setData();
   },
   methods: {
     async setData() {

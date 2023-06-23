@@ -4,7 +4,7 @@
     style="height: 28px"
   >
     <Fb class="ms-2" />
-    <p class="mx-auto text-sm" v-if="companyName && dbPath">
+    <p v-if="companyName && dbPath" class="mx-auto text-sm">
       {{ companyName }} - {{ dbPath }}
     </p>
   </div>

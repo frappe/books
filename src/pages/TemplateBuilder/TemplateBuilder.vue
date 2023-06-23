@@ -2,7 +2,7 @@
   <div>
     <PageHeader :title="doc && doc.inserted ? doc.name : ''">
       <!-- Template Name -->
-      <template #left v-if="doc && !doc.inserted">
+      <template v-if="doc && !doc.inserted" #left>
         <FormControl
           ref="nameField"
           class="w-60 flex-shrink-0"
@@ -112,11 +112,11 @@
                 focus:text-gray-900
               "
               :value="scale"
-              @change="setScale"
-              @input="setScale"
               min="0.1"
               max="10"
               step="0.1"
+              @change="setScale"
+              @input="setScale"
             />
           </div>
         </div>
@@ -167,9 +167,9 @@
 
         <!-- Value Key Hints Container -->
         <div
+          v-if="hints"
           class="border-t flex-shrink-0"
           :class="templateChanged ? '' : 'mt-auto'"
-          v-if="hints"
         >
           <!-- Value Key Toggle -->
           <div
@@ -258,7 +258,6 @@ import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
 
 export default defineComponent({
-  props: { name: String },
   components: {
     PageHeader,
     Button,
@@ -273,6 +272,10 @@ export default defineComponent({
     Modal,
     SetPrintSize,
   },
+  provide() {
+    return { doc: computed(() => this.doc) };
+  },
+  props: { name: String },
   setup() {
     const doc = ref(null) as DocRef<PrintTemplate>;
     const shortcuts = inject(shortcutsKey);
@@ -287,9 +290,6 @@ export default defineComponent({
       context,
       shortcuts,
     };
-  },
-  provide() {
-    return { doc: computed(() => this.doc) };
   },
   data() {
     return {
@@ -323,6 +323,114 @@ export default defineComponent({
         panelWidth: number;
       };
     };
+  },
+  computed: {
+    canDisplayPreview(): boolean {
+      if (!this.displayDoc || !this.values) {
+        return false;
+      }
+
+      if (!this.doc?.template) {
+        return false;
+      }
+
+      return true;
+    },
+    applyChangesShortcut() {
+      return [ShortcutKey.ctrl, ShortcutKey.enter];
+    },
+    view(): EditorView | null {
+      // @ts-ignore
+      const { view } = this.$refs.templateEditor ?? {};
+      if (view instanceof EditorView) {
+        return view;
+      }
+
+      return null;
+    },
+    maxWidth() {
+      return window.innerWidth - 12 * 16 - 100;
+    },
+    actions() {
+      if (!this.doc) {
+        return [];
+      }
+
+      const actions = getActionsForDoc(this.doc as Doc);
+      actions.push({
+        label: this.t`Print Settings`,
+        group: this.t`View`,
+        action: async () => {
+          await openSettings(ModelNameEnum.PrintSettings);
+        },
+      });
+
+      if (this.doc.isCustom && !this.showSizeModal) {
+        actions.push({
+          label: this.t`Set Print Size`,
+          group: this.t`Action`,
+          action: () => (this.showSizeModal = true),
+        });
+      }
+
+      if (this.doc.isCustom) {
+        actions.push({
+          label: this.t`Select Template File`,
+          group: this.t`Action`,
+          action: this.selectFile,
+        });
+      }
+
+      actions.push({
+        label: this.t`Save Template File`,
+        group: this.t`Action`,
+        action: this.saveFile,
+      });
+
+      return actions;
+    },
+    fields(): Record<string, Field> {
+      return getMapFromList(
+        this.fyo.schemaMap.PrintTemplate?.fields ?? [],
+        'fieldname'
+      );
+    },
+    displayDocField(): TargetField {
+      const target = this.doc?.type ?? ModelNameEnum.SalesInvoice;
+      return {
+        fieldname: 'displayDoc',
+        label: this.t`Display Doc`,
+        fieldtype: 'Link',
+        target,
+      };
+    },
+    helperMessage() {
+      if (!this.doc) {
+        return '';
+      }
+
+      if (!this.doc.type) {
+        return this.t`Select a Template type`;
+      }
+
+      if (!this.displayDoc) {
+        return this.t`Select a Display Doc to view the Template`;
+      }
+
+      if (!this.doc.template) {
+        return this.t`Set a Template value to see the Print Template`;
+      }
+
+      return '';
+    },
+    templateBuilderBodyStyles(): Record<string, string> {
+      const styles: Record<string, string> = {};
+
+      styles['grid-template-columns'] = `auto 0px ${this.panelWidth}px`;
+      styles['height'] = 'calc(100vh - var(--h-row-largest) - 1px)';
+
+      return styles;
+    },
   },
   async mounted() {
     await this.initialize();
@@ -606,114 +714,6 @@ export default defineComponent({
       }
 
       await saveExportData(template, filePath, this.t`Template file saved`);
-    },
-  },
-  computed: {
-    canDisplayPreview(): boolean {
-      if (!this.displayDoc || !this.values) {
-        return false;
-      }
-
-      if (!this.doc?.template) {
-        return false;
-      }
-
-      return true;
-    },
-    applyChangesShortcut() {
-      return [ShortcutKey.ctrl, ShortcutKey.enter];
-    },
-    view(): EditorView | null {
-      // @ts-ignore
-      const { view } = this.$refs.templateEditor ?? {};
-      if (view instanceof EditorView) {
-        return view;
-      }
-
-      return null;
-    },
-    maxWidth() {
-      return window.innerWidth - 12 * 16 - 100;
-    },
-    actions() {
-      if (!this.doc) {
-        return [];
-      }
-
-      const actions = getActionsForDoc(this.doc as Doc);
-      actions.push({
-        label: this.t`Print Settings`,
-        group: this.t`View`,
-        action: async () => {
-          await openSettings(ModelNameEnum.PrintSettings);
-        },
-      });
-
-      if (this.doc.isCustom && !this.showSizeModal) {
-        actions.push({
-          label: this.t`Set Print Size`,
-          group: this.t`Action`,
-          action: () => (this.showSizeModal = true),
-        });
-      }
-
-      if (this.doc.isCustom) {
-        actions.push({
-          label: this.t`Select Template File`,
-          group: this.t`Action`,
-          action: this.selectFile,
-        });
-      }
-
-      actions.push({
-        label: this.t`Save Template File`,
-        group: this.t`Action`,
-        action: this.saveFile,
-      });
-
-      return actions;
-    },
-    fields(): Record<string, Field> {
-      return getMapFromList(
-        this.fyo.schemaMap.PrintTemplate?.fields ?? [],
-        'fieldname'
-      );
-    },
-    displayDocField(): TargetField {
-      const target = this.doc?.type ?? ModelNameEnum.SalesInvoice;
-      return {
-        fieldname: 'displayDoc',
-        label: this.t`Display Doc`,
-        fieldtype: 'Link',
-        target,
-      };
-    },
-    helperMessage() {
-      if (!this.doc) {
-        return '';
-      }
-
-      if (!this.doc.type) {
-        return this.t`Select a Template type`;
-      }
-
-      if (!this.displayDoc) {
-        return this.t`Select a Display Doc to view the Template`;
-      }
-
-      if (!this.doc.template) {
-        return this.t`Set a Template value to see the Print Template`;
-      }
-
-      return '';
-    },
-    templateBuilderBodyStyles(): Record<string, string> {
-      const styles: Record<string, string> = {};
-
-      styles['grid-template-columns'] = `auto 0px ${this.panelWidth}px`;
-      styles['height'] = 'calc(100vh - var(--h-row-largest) - 1px)';
-
-      return styles;
     },
   },
 });

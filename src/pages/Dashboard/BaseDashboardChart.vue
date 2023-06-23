@@ -2,14 +2,14 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
+  props: {
+    commonPeriod: String,
+  },
   data() {
     return {
       period: 'This Year',
       periodOptions: ['This Year', 'This Quarter', 'This Month'],
     };
-  },
-  props: {
-    commonPeriod: String,
   },
   watch: {
     period: 'periodChange',
