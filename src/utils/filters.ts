@@ -1,4 +1,3 @@
-
 export const routeFilters = {
   SalesItems: { for: ['in', ['Sales', 'Both']] },
   PurchaseItems: { for: ['in', ['Purchases', 'Both']] },
