@@ -23,6 +23,7 @@ export function getInvoiceActions(
     getMakePaymentAction(fyo),
     getMakeStockTransferAction(fyo, schemaName),
     getLedgerLinkAction(fyo),
+    getMakeReturnDocAction(fyo),
   ];
 }
 
@@ -93,8 +94,7 @@ export function getMakePaymentAction(fyo: Fyo): Action {
   return {
     label: fyo.t`Payment`,
     group: fyo.t`Create`,
-    condition: (doc: Doc) =>
-      doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
+    condition: (doc: Doc) => doc.isSubmitted && !doc.isReturn,
     action: async (doc, router) => {
       const payment = (doc as Invoice).getPayment();
       if (!payment) {
@@ -108,12 +108,7 @@ export function getMakePaymentAction(fyo: Fyo): Action {
         await router.push(currentRoute);
       });
 
-      const hideFields = ['party', 'paymentType', 'for'];
-      if (doc.schemaName === ModelNameEnum.SalesInvoice) {
-        hideFields.push('account');
-      } else {
-        hideFields.push('paymentAccount');
-      }
+      const hideFields = ['party', 'for'];
 
       await payment.runFormulas();
       const { openQuickEdit } = await import('src/utils/ui');
@@ -141,6 +136,31 @@ export function getLedgerLinkAction(fyo: Fyo, isStock = false): Action {
     action: async (doc: Doc, router: Router) => {
       const route = getLedgerLink(doc, reportClassName);
       await router.push(route);
+    },
+  };
+}
+
+export function getMakeReturnDocAction(fyo: Fyo): Action {
+  const label = fyo.t`Return`;
+
+  return {
+    label,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) =>
+      !!doc.fyo.singles.AccountingSettings?.enableInvoiceReturns &&
+      doc.isSubmitted &&
+      !doc.isReturn &&
+      !doc.returnCompleted,
+    action: async (doc: Doc) => {
+      const invoiceDoc = doc as Invoice;
+      const rawReturnDoc = await invoiceDoc.getReturnDoc();
+
+      if (!rawReturnDoc) {
+        return;
+      }
+
+      const { openEdit } = await import('src/utils/ui');
+      await openEdit(rawReturnDoc);
     },
   };
 }
@@ -185,11 +205,14 @@ export const statusColor: Record<
   '': 'gray',
   Draft: 'gray',
   Unpaid: 'orange',
+  PartlyPaid: 'orange',
   Paid: 'green',
   Saved: 'gray',
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
+  Return: 'gray',
+  Returned: 'orange',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -204,10 +227,16 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Submitted`;
     case 'Cancelled':
       return t`Cancelled`;
+    case 'PartlyPaid':
+      return t`Partly Paid`;
     case 'Paid':
       return t`Paid`;
     case 'Unpaid':
       return t`Unpaid`;
+    case 'Return':
+      return t`Return`;
+    case 'Returned':
+      return t`Returned`;
     default:
       return '';
   }
@@ -256,6 +285,23 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
 }
 
 export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
+  if (doc.submitted && !doc.cancelled && doc.isReturn) {
+    return 'Return';
+  }
+
+  if (doc.submitted && !doc.cancelled && doc.isItemsReturned) {
+    return 'Returned';
+  }
+
+  if (
+    doc.submitted &&
+    !doc.cancelled &&
+    !(doc.outstandingAmount as Money).isZero() &&
+    (doc.outstandingAmount as Money) < (doc.grandTotal as Money)
+  ) {
+    return 'PartlyPaid';
+  }
+
   if (
     doc.submitted &&
     !doc.cancelled &&

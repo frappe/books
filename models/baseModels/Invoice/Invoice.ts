@@ -25,6 +25,7 @@ import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
+import { isPesa } from 'fyo/utils';
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
@@ -46,6 +47,10 @@ export abstract class Invoice extends Transactional {
   discountAfterTax?: boolean;
   stockNotTransferred?: number;
   backReference?: string;
+
+  isItemsReturned?: boolean;
+  returnAgainst?: string;
+  returnCompleted?: boolean;
 
   submitted?: boolean;
   cancelled?: boolean;
@@ -159,12 +164,16 @@ export abstract class Invoice extends Transactional {
       await stockTransfer?.submit();
       await this.load();
     }
+    await this._updateIsItemsReturned();
+    await this._updateReturnInvoiceOutStanding();
   }
 
   async afterCancel() {
     await super.afterCancel();
     await this._cancelPayments();
     await this._updatePartyOutStanding();
+    await this._updateIsItemsReturned();
+    await this._updateReturnInvoiceOutStanding();
   }
 
   async _cancelPayments() {
@@ -368,6 +377,123 @@ export abstract class Invoice extends Transactional {
     return discountAmount;
   }
 
+  async getReturnDoc() {
+    if (!this.items?.length) {
+      return;
+    }
+
+    const invoiceData = this.getValidDict(true, true);
+    const invoiceItems = invoiceData.items as InvoiceItem[];
+    const returnInvoiceItems: InvoiceItem[] = [];
+
+    const returnBalanceItemsQty =
+      await this.fyo.db.getInvoiceReturnBalanceItemsQty(
+        this.schema.name,
+        this.name!
+      );
+
+    for (const item of invoiceItems) {
+      if (!item.quantity) {
+        continue;
+      }
+
+      let quantity = -1 * item.quantity!;
+
+      if (returnBalanceItemsQty) {
+        const balanceItemQty = returnBalanceItemsQty.filter(
+          (i) => i.item === item.item
+        )[0];
+
+        if (!balanceItemQty) {
+          continue;
+        }
+        quantity = balanceItemQty.quantity as number;
+      }
+
+      item.quantity = safeParseFloat(quantity);
+      delete item.name;
+      returnInvoiceItems.push(item);
+    }
+
+    const returnDocData = {
+      ...invoiceData,
+      name: null,
+      date: new Date(),
+      items: returnInvoiceItems as InvoiceItem[],
+      isReturn: true,
+      returnAgainst: invoiceData.name,
+      netTotal: this.fyo.pesa(0),
+      baseGrandTotal: this.fyo.pesa(0),
+      grandTotal: this.fyo.pesa(0),
+      outstandingAmount: this.fyo.pesa(0),
+    };
+
+    const rawReturnDoc = this.fyo.doc.getNewDoc(
+      this.schema.name,
+      returnDocData
+    );
+
+    rawReturnDoc.once('beforeSync', async () => {
+      rawReturnDoc.runFormulas();
+    });
+    return rawReturnDoc;
+  }
+
+  async _updateIsItemsReturned() {
+    if (!this.isReturn || !this.returnAgainst) {
+      return;
+    }
+
+    const returnInvoices = await this.fyo.db.getAll(this.schema.name, {
+      filters: {
+        submitted: true,
+        cancelled: false,
+        returnAgainst: this.returnAgainst,
+      },
+    });
+
+    const isItemsReturned = returnInvoices.length;
+
+    await this.fyo.db.update(this.schemaName, {
+      name: this.returnAgainst as string,
+      isItemsReturned,
+    });
+  }
+
+  async _updateReturnInvoiceOutStanding() {
+    if (!this.isReturn || !this.returnAgainst || !this.grandTotal) {
+      return;
+    }
+
+    const invoiceOutstandingAmount = Object.values(
+      await this.fyo.db.get(
+        this.schema.name,
+        this.returnAgainst,
+        'outstandingAmount'
+      )
+    )[0];
+
+    if (!isPesa(invoiceOutstandingAmount)) {
+      return;
+    }
+
+    const returnInvoiceGrandTotal = this.grandTotal.abs();
+    let outstandingAmount = this.fyo.pesa(0);
+
+    if (this.submitted && !this.cancelled) {
+      outstandingAmount = invoiceOutstandingAmount.sub(returnInvoiceGrandTotal);
+    }
+
+    if (this.isCancelled) {
+      outstandingAmount = invoiceOutstandingAmount.add(returnInvoiceGrandTotal);
+    }
+
+    await this.fyo.db.update(this.schemaName, {
+      name: this.returnAgainst as string,
+      outstandingAmount,
+    });
+  }
+
   formulas: FormulaMap = {
     account: {
       formula: async () => {
@@ -447,6 +573,9 @@ export abstract class Invoice extends Transactional {
         !!this.autoStockTransferLocation,
       dependsOn: [],
     },
+    returnCompleted: {
+      formula: () => false,
+    },
   };
 
   getStockTransferred() {
@@ -518,6 +647,8 @@ export abstract class Invoice extends Transactional {
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     backReference: () => !this.backReference,
     priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
+    isReturn: () => !this.fyo.singles.AccountingSettings?.enableInvoiceReturns,
+    returnAgainst: () => !this.isReturn,
   };
 
   static defaults: DefaultMap = {
@@ -551,6 +682,12 @@ export abstract class Invoice extends Transactional {
     priceList: (doc: Doc) => ({
       isEnabled: true,
       ...(doc.isSales ? { isSales: true } : { isPurchase: true }),
+    }),
+    returnAgainst: () => ({
+      submitted: true,
+      isReturn: false,
+      cancelled: false,
+      returnCompleted: false,
     }),
   };
 
@@ -591,16 +728,15 @@ export abstract class Invoice extends Transactional {
       return null;
     }
 
-    if (this.outstandingAmount?.isZero()) {
-      return null;
-    }
-
     const accountField = this.isSales ? 'account' : 'paymentAccount';
     const data = {
       party: this.party,
       date: new Date().toISOString().slice(0, 10),
-      paymentType: this.isSales ? 'Receive' : 'Pay',
-      amount: this.outstandingAmount,
+      paymentType:
+        this.isSales && !this.outstandingAmount?.isNegative()
+          ? 'Receive'
+          : 'Pay',
+      amount: this.outstandingAmount?.abs(),
       [accountField]: this.account,
       for: [
         {

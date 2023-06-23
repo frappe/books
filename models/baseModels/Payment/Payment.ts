@@ -300,7 +300,7 @@ export class Payment extends Transactional {
       )) as Invoice;
 
       outstandingAmount = outstandingAmount.add(
-        referenceDoc.outstandingAmount ?? 0
+        referenceDoc.outstandingAmount?.abs() ?? 0
       );
     }
 
@@ -507,6 +507,7 @@ export class Payment extends Transactional {
         }
 
         if (outstanding?.isPositive()) {
+          console.log('positive');
           return 'Receive';
         }
         return 'Pay';
@@ -534,7 +535,7 @@ export class Payment extends Transactional {
         return;
       }
 
-      const amount = this.getSum('for', 'amount', false);
+      const amount = (this.getSum('for', 'amount', false) as Money).abs();
 
       if ((value as Money).gt(amount)) {
         throw new ValidationError(

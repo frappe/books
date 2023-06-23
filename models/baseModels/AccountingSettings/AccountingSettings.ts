@@ -13,6 +13,7 @@ import { getCountryInfo } from 'utils/misc';
 
 export class AccountingSettings extends Doc {
   enableDiscounting?: boolean;
+  enableInvoiceReturns?: boolean;
   enableInventory?: boolean;
   enablePriceList?: boolean;
 
@@ -42,6 +43,9 @@ export class AccountingSettings extends Doc {
   readOnly: ReadOnlyMap = {
     enableDiscounting: () => {
       return !!this.enableDiscounting;
+    },
+    enableInvoiceReturns: () => {
+      return !!this.enableInvoiceReturns;
     },
     enableInventory: () => {
       return !!this.enableInventory;

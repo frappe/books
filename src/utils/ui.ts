@@ -256,7 +256,7 @@ function getDeleteAction(doc: Doc): Action {
   };
 }
 
-async function openEdit({ name, schemaName }: Doc) {
+export async function openEdit({ name, schemaName }: Doc) {
   if (!name) {
     return;
   }

@@ -6,6 +6,7 @@ import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/baseModels/Party/Party';
+import { Money } from 'pesa';
 import { getBgTextColorClass } from 'src/utils/colors';
 import { defineComponent } from 'vue';
 
@@ -40,9 +41,12 @@ export default defineComponent({
         NotTransferred: this.t`Not Transferred`,
         NotSaved: this.t`Not Saved`,
         NotSubmitted: this.t`Not Submitted`,
+        PartlyPaid: this.t`Partly Paid`,
         Paid: this.t`Paid`,
         Saved: this.t`Saved`,
         Submitted: this.t`Submitted`,
+        Return: this.t`Return`,
+        Returned: this.t`Returned`,
       }[this.status];
     },
     color(): UIColors {
@@ -59,8 +63,11 @@ const statusColorMap: Record<Status, UIColors> = {
   NotSaved: 'orange',
   NotSubmitted: 'orange',
   Paid: 'green',
+  PartlyPaid: 'orange',
   Saved: 'blue',
   Submitted: 'blue',
+  Return: 'gray',
+  Returned: 'orange',
 };
 
 function getStatus(doc: Doc) {
@@ -72,7 +79,12 @@ function getStatus(doc: Doc) {
     return 'NotSaved';
   }
 
-  if (doc instanceof Party && doc.outstandingAmount?.isZero() !== true) {
+  if (
+    doc instanceof Party &&
+    doc.outstandingAmount?.isZero() !== true &&
+    !doc.isReturn &&
+    !doc.returnCompleted
+  ) {
     return 'Outstanding';
   }
 
@@ -92,13 +104,32 @@ function getSubmittableStatus(doc: Doc) {
   if (
     doc.isSubmitted &&
     isInvoice &&
-    doc.outstandingAmount?.isZero() !== true
+    doc.outstandingAmount?.isZero() !== true &&
+    !doc.isReturn &&
+    !doc.returnCompleted
   ) {
     return 'Outstanding';
   }
 
+  if (doc.isSubmitted && isInvoice && doc.isReturn) {
+    return 'Return';
+  }
+
+  if (doc.isSubmitted && isInvoice && doc.isItemsReturned) {
+    return 'Returned';
+  }
+
   if (doc.isSubmitted && isInvoice && (doc.stockNotTransferred ?? 0) > 0) {
     return 'NotTransferred';
+  }
+
+  if (
+    doc.isSubmitted &&
+    isInvoice &&
+    !doc.outstandingAmount?.isZero() &&
+    (doc.outstandingAmount as Money) < (doc.grandTotal as Money)
+  ) {
+    return 'PartlyPaid';
   }
 
   if (
