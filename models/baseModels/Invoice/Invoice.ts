@@ -856,6 +856,7 @@ export abstract class Invoice extends Transactional {
   async beforeCancel(): Promise<void> {
     await super.beforeCancel();
     await this._validateStockTransferCancelled();
+    await this._validateHasLinkedReturnInvoices();
   }
 
   async beforeDelete(): Promise<void> {
@@ -886,6 +887,31 @@ export abstract class Invoice extends Transactional {
     throw new ValidationError(
       this.fyo.t`Cannot cancel ${this.schema.label} ${this
         .name!} because of the following ${label}: ${names}`
+    );
+  }
+
+  async _validateHasLinkedReturnInvoices() {
+    if (!this.name || this.isReturn) {
+      return;
+    }
+
+    const returnInvoices = await this.fyo.db.getAll(this.schemaName, {
+      filters: {
+        returnAgainst: this.name,
+      },
+    });
+
+    if (!returnInvoices.length) {
+      return;
+    }
+
+    const names = returnInvoices.map(({ name }) => name).join(', ');
+    const label =
+      this.fyo.schemaMap[this.schemaName]?.label ?? this.schema.name;
+
+    throw new ValidationError(
+      this.fyo
+        .t`Cannot cancel ${this.schema.label} ${this.name} because of the following ${label}: ${names}`
     );
   }
 
