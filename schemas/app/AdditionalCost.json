@@ -1,0 +1,31 @@
+{
+  "name": "AdditionalCost",
+  "label": "Additional Cost",
+  "isSingle": false,
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "account",
+      "label": "Additional Cost Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Float",
+      "required": true,
+      "placeholder": "0%"
+    },
+    {
+      "fieldname": "amount",
+      "label": "Amount",
+      "fieldtype": "Currency",
+      "required": false,
+      "placeholder": "0.00"
+    }
+  ],
+  "tableFields": ["account", "rate", "amount"]
+}

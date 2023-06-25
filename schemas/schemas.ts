@@ -1,6 +1,7 @@
 import Account from './app/Account.json';
 import AccountingLedgerEntry from './app/AccountingLedgerEntry.json';
 import AccountingSettings from './app/AccountingSettings.json';
+import AdditionalCost from './app/AdditionalCost.json'
 import Address from './app/Address.json';
 import Batch from './app/Batch.json';
 import Color from './app/Color.json';
@@ -83,6 +84,8 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Account as Schema,
   AccountingSettings as Schema,
   AccountingLedgerEntry as Schema,
+
+  AdditionalCost as Schema,
 
   Party as Schema,
   Address as Schema,

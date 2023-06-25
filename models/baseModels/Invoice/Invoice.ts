@@ -25,12 +25,15 @@ import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
+import { AdditionalCost } from '../AdditionalCost/AdditionalCost';
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
 
   items?: InvoiceItem[];
+
+  additionalCost?: AdditionalCost[];
   party?: string;
   account?: string;
   currency?: string;
@@ -296,6 +299,25 @@ export abstract class Invoice extends Transactional {
     return this._taxes[tax];
   }
 
+  async getAdditionalCost() {
+    const additionalCost = this.additionalCost;
+    let sumOfRates = 0;
+    const netTotal = this.netTotal?.float;
+
+    additionalCost?.forEach((cost) => {
+      if (cost.rate && netTotal) {
+        // Calculate the additional cost based on percentage
+        const additional = (cost.rate / 100) * netTotal;
+        cost.amount = this.fyo.pesa(additional);
+        sumOfRates += additional;
+      } else if (cost.amount?.isPositive()) {
+        // Add the rate to the sum
+        sumOfRates += cost.amount.float;
+      }
+    });
+    return sumOfRates;
+  }
+
   getTotalDiscount() {
     if (!this.enableDiscounting) {
       return this.fyo.pesa(0);
@@ -308,10 +330,13 @@ export abstract class Invoice extends Transactional {
 
   getGrandTotal() {
     const totalDiscount = this.getTotalDiscount();
+    const additionalCost = await this.getAdditionalCost();
+
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => a.add(b), this.netTotal!)
-      .sub(totalDiscount);
+      .sub(totalDiscount)
+      .add(additionalCost);
   }
 
   getInvoiceDiscountAmount() {

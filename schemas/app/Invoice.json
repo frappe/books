@@ -67,6 +67,14 @@
       "section": "Tax and Totals"
     },
     {
+      "fieldname": "additionalCost",
+      "label": "Additional Cost",
+      "fieldtype": "Table",
+      "target": "AdditionalCost",
+      "readOnly": false,
+      "section": "Tax and Totals"
+    },
+    {
       "fieldname": "baseGrandTotal",
       "label": "Base Grand Total",
       "fieldtype": "Currency",

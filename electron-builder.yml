@@ -28,15 +28,6 @@ win:
     - github
   target:
     - portable
-    - nsis
-nsis:
-  oneClick: false
-  perMachine: false
-  allowToChangeInstallationDirectory: true
-  installerIcon: build/installericon.ico
-  uninstallerIcon: build/uninstallericon.ico
-  publish:
-    - github
 linux:
   icon: build/icons
   category: Finance
