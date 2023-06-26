@@ -15,7 +15,7 @@
         class="w-4 h-4 text-gray-600"
       />
     </div>
-    <div class="grid gap-4 gap-x-8 grid-cols-2" v-if="!collapsed">
+    <div v-if="!collapsed" class="grid gap-4 gap-x-8 grid-cols-2">
       <div
         v-for="field of fields"
         :key="field.fieldname"
@@ -25,7 +25,19 @@
           field.fieldtype === 'Check' ? 'mt-auto' : 'mb-auto',
         ]"
       >
+        <Table
+          v-if="field.fieldtype === 'Table'"
+          ref="fields"
+          :show-label="true"
+          :border="true"
+          :df="field"
+          :value="tableValue(doc[field.fieldname])"
+          @editrow="(doc: Doc) => $emit('editrow', doc)"
+          @change="(value: DocValue) => $emit('value-change', field, value)"
+          @row-change="(field:Field, value:DocValue, parentfield:Field) => $emit('row-change',field, value, parentfield)"
+        />
         <FormControl
+          v-else
           :ref="field.fieldname === 'name' ? 'nameField' : 'fields'"
           :size="field.fieldtype === 'AttachImage' ? 'form' : undefined"
           :show-label="true"
@@ -44,23 +56,29 @@
   </div>
 </template>
 <script lang="ts">
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import Table from 'src/components/Controls/Table.vue';
 import { focusOrSelectFormControl } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
-  emits: ['editrow', 'value-change', 'row-change'],
+  components: { FormControl, Table },
   props: {
-    title: String,
-    errors: Object as PropType<Record<string, string>>,
+    title: { type: String, default: '' },
+    errors: {
+      type: Object as PropType<Record<string, string>>,
+      required: true,
+    },
     showTitle: Boolean,
     doc: { type: Object as PropType<Doc>, required: true },
     collapsible: { type: Boolean, default: true },
-    fields: Array as PropType<Field[]>,
+    fields: { type: Array as PropType<Field[]>, required: true },
   },
+  emits: ['editrow', 'value-change', 'row-change'],
   data() {
     return { collapsed: false } as {
       collapsed: boolean;
@@ -70,6 +88,13 @@ export default defineComponent({
     focusOrSelectFormControl(this.doc, this.$refs.nameField);
   },
   methods: {
+    tableValue(value: unknown): unknown[] {
+      if (Array.isArray(value)) {
+        return value;
+      }
+
+      return [];
+    },
     toggleCollapsed() {
       if (!this.collapsible) {
         return;
@@ -78,6 +103,5 @@ export default defineComponent({
       this.collapsed = !this.collapsed;
     },
   },
-  components: { FormControl },
 });
 </script>

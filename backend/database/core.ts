@@ -1,9 +1,4 @@
-import {
-  CannotCommitError,
-  getDbError,
-  NotFoundError,
-  ValueError,
-} from 'fyo/utils/errors';
+import { getDbError, NotFoundError, ValueError } from 'fyo/utils/errors';
 import { knex, Knex } from 'knex';
 import {
   Field,
@@ -73,16 +68,16 @@ export default class DatabaseCore extends DatabaseBase {
 
     let query: { value: string }[] = [];
     try {
-      query = await db.knex!('SingleValue').where({
+      query = (await db.knex!('SingleValue').where({
         fieldname: 'countryCode',
         parent: 'SystemSettings',
-      });
+      })) as { value: string }[];
     } catch {
       // Database not inialized and no countryCode passed
     }
 
     if (query.length > 0) {
-      countryCode = query[0].value as string;
+      countryCode = query[0].value;
     }
 
     await db.close();
@@ -95,30 +90,11 @@ export default class DatabaseCore extends DatabaseBase {
 
   async connect() {
     this.knex = knex(this.connectionParams);
-    this.knex.on('query-error', (error) => {
-      error.type = getDbError(error);
-    });
     await this.knex.raw('PRAGMA foreign_keys=ON');
   }
 
   async close() {
     await this.knex!.destroy();
-  }
-
-  async commit() {
-    /**
-     * this auto commits, commit is not required
-     * will later wrap the outermost functions in
-     * transactions.
-     */
-    try {
-      // await this.knex!.raw('commit');
-    } catch (err) {
-      const type = getDbError(err as Error);
-      if (type !== CannotCommitError) {
-        throw err;
-      }
-    }
   }
 
   async migrate() {
@@ -135,7 +111,6 @@ export default class DatabaseCore extends DatabaseBase {
       }
     }
 
-    await this.commit();
     await this.#initializeSingles();
   }
 
@@ -149,6 +124,7 @@ export default class DatabaseCore extends DatabaseBase {
     try {
       const qb = this.knex!(schemaName);
       if (name !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         qb.where({ name });
       }
       row = await qb.limit(1);
@@ -178,7 +154,7 @@ export default class DatabaseCore extends DatabaseBase {
 
   async get(
     schemaName: string,
-    name: string = '',
+    name = '',
     fields?: string | string[]
   ): Promise<FieldValueMap> {
     const schema = this.schemaMap[schemaName] as Schema;
@@ -316,7 +292,6 @@ export default class DatabaseCore extends DatabaseBase {
     await this.knex!(schemaName)
       .update({ name: newName })
       .where('name', oldName);
-    await this.commit();
   }
 
   async update(schemaName: string, fieldValueMap: FieldValueMap) {
@@ -422,6 +397,7 @@ export default class DatabaseCore extends DatabaseBase {
     filters: QueryFilter,
     options: GetQueryBuilderOptions
   ): Knex.QueryBuilder {
+    /* eslint-disable @typescript-eslint/no-floating-promises */
     const builder = this.knex!.select(fields).from(schemaName);
 
     this.#applyFiltersToBuilder(builder, filters);
@@ -464,12 +440,12 @@ export default class DatabaseCore extends DatabaseBase {
     // => `date >= 2017-09-09 and date <= 2017-11-01`
 
     const filtersArray = this.#getFiltersArray(filters);
-    for (const i in filtersArray) {
+    for (let i = 0; i < filtersArray.length; i++) {
       const filter = filtersArray[i];
       const field = filter[0] as string;
       const operator = filter[1];
       const comparisonValue = filter[2];
-      const type = i === '0' ? 'where' : 'andWhere';
+      const type = i === 0 ? 'where' : 'andWhere';
 
       if (operator === '=') {
         builder[type](field, comparisonValue);
@@ -505,7 +481,8 @@ export default class DatabaseCore extends DatabaseBase {
 
         if (
           operator === 'like' &&
-          !(comparisonValue as (string | number)[]).includes('%')
+          typeof comparisonValue === 'string' &&
+          !comparisonValue.includes('%')
         ) {
           comparisonValue = `%${comparisonValue}%`;
         }
@@ -595,11 +572,8 @@ export default class DatabaseCore extends DatabaseBase {
     }
 
     // link
-    if (
-      field.fieldtype === FieldTypeEnum.Link &&
-      (field as TargetField).target
-    ) {
-      const targetSchemaName = (field as TargetField).target as string;
+    if (field.fieldtype === FieldTypeEnum.Link && field.target) {
+      const targetSchemaName = field.target;
       const schema = this.schemaMap[targetSchemaName] as Schema;
       table
         .foreign(field.fieldname)
@@ -630,7 +604,7 @@ export default class DatabaseCore extends DatabaseBase {
     }
 
     if (newForeignKeys.length) {
-      await this.#addForeignKeys(schemaName, newForeignKeys);
+      await this.#addForeignKeys(schemaName);
     }
   }
 
@@ -652,15 +626,15 @@ export default class DatabaseCore extends DatabaseBase {
 
   async #getNonExtantSingleValues(singleSchemaName: string) {
     const existingFields = (
-      await this.knex!('SingleValue')
+      (await this.knex!('SingleValue')
         .where({ parent: singleSchemaName })
-        .select('fieldname')
+        .select('fieldname')) as { fieldname: string }[]
     ).map(({ fieldname }) => fieldname);
 
     return this.schemaMap[singleSchemaName]!.fields.map(
       ({ fieldname, default: value }) => ({
         fieldname,
-        value: value as RawValue | undefined,
+        value: value,
       })
     ).filter(
       ({ fieldname, value }) =>
@@ -710,7 +684,7 @@ export default class DatabaseCore extends DatabaseBase {
     child.idx ??= idx;
   }
 
-  async #addForeignKeys(schemaName: string, newForeignKeys: Field[]) {
+  async #addForeignKeys(schemaName: string) {
     const tableRows = await this.knex!.select().from(schemaName);
     await this.prestigeTheTable(schemaName, tableRows);
   }
@@ -731,10 +705,10 @@ export default class DatabaseCore extends DatabaseBase {
   }
 
   async #getOne(schemaName: string, name: string, fields: string[]) {
-    const fieldValueMap: FieldValueMap = await this.knex!.select(fields)
+    const fieldValueMap = (await this.knex!.select(fields)
       .from(schemaName)
       .where('name', name)
-      .first();
+      .first()) as FieldValueMap;
     return fieldValueMap;
   }
 
@@ -794,9 +768,9 @@ export default class DatabaseCore extends DatabaseBase {
       fieldname,
     };
 
-    const names: { name: string }[] = await this.knex!('SingleValue')
+    const names = (await this.knex!('SingleValue')
       .select('name')
-      .where(updateKey);
+      .where(updateKey)) as { name: string }[];
 
     if (!names?.length) {
       this.#insertSingleValue(singleSchemaName, fieldname, value);
@@ -899,7 +873,7 @@ export default class DatabaseCore extends DatabaseBase {
         continue;
       }
 
-      for (const child of tableFieldValue!) {
+      for (const child of tableFieldValue) {
         this.#prepareChild(schemaName, parentName, child, field, added.length);
 
         if (

@@ -1,7 +1,6 @@
-import { theme } from '../../tailwind.config';
+import colors from '../../colors.json';
 
-export const uicolors = theme.extend.colors;
-
+export const uicolors = colors;
 export const indicators = {
   GRAY: 'grey',
   GREY: 'grey',
@@ -13,7 +12,6 @@ export const indicators = {
   YELLOW: 'yellow',
   BLACK: 'black',
 };
-
 
 const getValidColor = (color: string) => {
   const isValid = [

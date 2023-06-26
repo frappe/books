@@ -143,7 +143,7 @@ export abstract class Invoice extends Transactional {
       outstandingAmount: this.baseGrandTotal!,
     });
 
-    const party = (await this.fyo.doc.getDoc('Party', this.party!)) as Party;
+    const party = (await this.fyo.doc.getDoc('Party', this.party)) as Party;
     await party.updateOutstandingAmount();
 
     if (this.makeAutoPayment && this.autoPaymentAccount) {
@@ -181,7 +181,7 @@ export abstract class Invoice extends Transactional {
   async _updatePartyOutStanding() {
     const partyDoc = (await this.fyo.doc.getDoc(
       ModelNameEnum.Party,
-      this.party!
+      this.party
     )) as Party;
 
     await partyDoc.updateOutstandingAmount();
@@ -223,7 +223,7 @@ export abstract class Invoice extends Transactional {
       return 1.0;
     }
     const exchangeRate = await getExchangeRate({
-      fromCurrency: this.currency!,
+      fromCurrency: this.currency,
       toCurrency: currency as string,
     });
 
@@ -247,7 +247,7 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
-      const tax = await this.getTax(item.tax!);
+      const tax = await this.getTax(item.tax);
       for (const { account, rate } of (tax.details ?? []) as TaxDetail[]) {
         taxes[account] ??= {
           account,
@@ -256,7 +256,11 @@ export abstract class Invoice extends Transactional {
         };
 
         let amount = item.amount!;
-        if (this.enableDiscounting && !this.discountAfterTax && !item.itemDiscountedTotal?.isZero()) {
+        if (
+          this.enableDiscounting &&
+          !this.discountAfterTax &&
+          !item.itemDiscountedTotal?.isZero()
+        ) {
           amount = item.itemDiscountedTotal!;
         }
 
@@ -285,7 +289,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async getTax(tax: string) {
-    if (!this._taxes![tax]) {
+    if (!this._taxes[tax]) {
       this._taxes[tax] = await this.fyo.doc.getDoc('Tax', tax);
     }
 
@@ -302,7 +306,7 @@ export abstract class Invoice extends Transactional {
     return itemDiscountAmount.add(invoiceDiscountAmount);
   }
 
-  async getGrandTotal() {
+  getGrandTotal() {
     const totalDiscount = this.getTotalDiscount();
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
@@ -407,16 +411,15 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['party', 'currency'],
     },
-    netTotal: { formula: async () => this.getSum('items', 'amount', false) },
+    netTotal: { formula: () => this.getSum('items', 'amount', false) },
     taxes: { formula: async () => await this.getTaxSummary() },
-    grandTotal: { formula: async () => await this.getGrandTotal() },
+    grandTotal: { formula: () => this.getGrandTotal() },
     baseGrandTotal: {
-      formula: async () =>
-        (this.grandTotal as Money).mul(this.exchangeRate! ?? 1),
+      formula: () => (this.grandTotal as Money).mul(this.exchangeRate! ?? 1),
       dependsOn: ['grandTotal', 'exchangeRate'],
     },
     outstandingAmount: {
-      formula: async () => {
+      formula: () => {
         if (this.submitted) {
           return;
         }
@@ -425,7 +428,7 @@ export abstract class Invoice extends Transactional {
       },
     },
     stockNotTransferred: {
-      formula: async () => {
+      formula: () => {
         if (this.submitted) {
           return;
         }
@@ -526,7 +529,7 @@ export abstract class Invoice extends Transactional {
       !!doc.autoStockTransferLocation,
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
     terms: (doc) => {
-      const defaults = doc.fyo.singles.Defaults as Defaults | undefined;
+      const defaults = doc.fyo.singles.Defaults;
       if (doc.schemaName === ModelNameEnum.SalesInvoice) {
         return defaults?.salesInvoiceTerms ?? '';
       }
@@ -616,9 +619,7 @@ export abstract class Invoice extends Transactional {
     return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
   }
 
-  async getStockTransfer(
-    isAuto: boolean = false
-  ): Promise<StockTransfer | null> {
+  async getStockTransfer(isAuto = false): Promise<StockTransfer | null> {
     if (!this.isSubmitted) {
       return null;
     }

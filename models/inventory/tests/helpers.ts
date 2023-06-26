@@ -37,17 +37,22 @@ interface TransferTwo extends Omit<Transfer, 'from' | 'to'> {
   location: string;
 }
 
-export function getItem(name: string, rate: number, hasBatch: boolean = false, hasSerialNumber: boolean = false) {
+export function getItem(
+  name: string,
+  rate: number,
+  hasBatch = false,
+  hasSerialNumber = false
+) {
   return { name, rate, trackItem: true, hasBatch, hasSerialNumber };
 }
 
-export async function getBatch(
+export function getBatch(
   schemaName: ModelNameEnum.Batch,
   batch: string,
   expiryDate: Date,
   manufactureDate: Date,
   fyo: Fyo
-): Promise<Batch> {
+): Batch {
   const doc = fyo.doc.getNewDoc(schemaName, {
     batch,
     expiryDate,

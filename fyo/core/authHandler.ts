@@ -58,59 +58,8 @@ export class AuthHandler {
     return { ...this.#config };
   }
 
-  init() {}
-  async login(email: string, password: string) {
-    if (email === 'Administrator') {
-      this.#session.user = 'Administrator';
-      return;
-    }
-
-    const response = await fetch(this.#getServerURL() + '/api/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (response.status === 200) {
-      const res = await response.json();
-
-      this.#session.user = email;
-      this.#session.token = res.token;
-
-      return res;
-    }
-
-    return response;
-  }
-
-  async signup(email: string, fullName: string, password: string) {
-    const response = await fetch(this.#getServerURL() + '/api/signup', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, fullName, password }),
-    });
-
-    if (response.status === 200) {
-      return await response.json();
-    }
-
-    return response;
-  }
-
-  async logout() {
-    // TODO: Implement this with auth flow
-  }
-
-  async purgeCache() {}
-
-  #getServerURL() {
-    return this.#config.serverURL || '';
+  init() {
+    return null;
   }
 
   async getCreds(): Promise<Creds> {

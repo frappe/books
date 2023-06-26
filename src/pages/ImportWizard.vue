@@ -3,25 +3,25 @@
     <!-- Header -->
     <PageHeader :title="t`Import Wizard`">
       <DropdownWithActions
-        :actions="actions"
         v-if="hasImporter"
+        :actions="actions"
         :disabled="isMakingEntries"
         :title="t`More`"
       />
       <Button
         v-if="hasImporter"
         :title="t`Add Row`"
-        @click="() => importer.addRow()"
         :disabled="isMakingEntries"
         :icon="true"
+        @click="() => importer.addRow()"
       >
         <feather-icon name="plus" class="w-4 h-4" />
       </Button>
       <Button
         v-if="hasImporter"
         :title="t`Save Template`"
-        @click="saveTemplate"
         :icon="true"
+        @click="saveTemplate"
       >
         <feather-icon name="download" class="w-4 h-4" />
       </Button>
@@ -29,8 +29,8 @@
         v-if="canImportData"
         :title="t`Import Data`"
         type="primary"
-        @click="importData"
         :disabled="errorMessage.length > 0 || isMakingEntries"
+        @click="importData"
       >
         {{ t`Import Data` }}
       </Button>
@@ -118,10 +118,10 @@
           <div class="index-cell">#</div>
           <Select
             v-for="index in columnIterator"
+            :key="index"
             class="flex-shrink-0"
             size="small"
             :border="true"
-            :key="index"
             :df="gridColumnTitleDf"
             :value="importer.assignedTemplateFields[index]!"
             @change="(value: string | null) => importer.setTemplateField(index, value)"
@@ -231,9 +231,9 @@
 
         <!-- Pick Column Checkboxes -->
         <div
-          class="p-4 max-h-80 overflow-auto custom-scroll"
           v-for="[key, value] of columnPickerFieldsMap.entries()"
           :key="key"
+          class="p-4 max-h-80 overflow-auto custom-scroll"
         >
           <h2 class="text-sm font-semibold text-gray-800">
             {{ key }}
@@ -384,10 +384,10 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
-import { getColumnLabel, Importer, TemplateField } from 'src/importer';
+import { Importer, TemplateField, getColumnLabel } from 'src/importer';
 import { fyo } from 'src/initFyo';
 import { showDialog } from 'src/utils/interactive';
-import { getSavePath, saveData, selectFile } from 'src/utils/ipcCalls';
+import { getSavePath, saveData } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { selectTextFile } from 'src/utils/ui';
@@ -436,28 +436,6 @@ export default defineComponent({
       percentLoading: 0,
       messageLoading: '',
     } as ImportWizardData;
-  },
-  mounted() {
-    if (fyo.store.isDevelopment) {
-      // @ts-ignore
-      window.iw = this;
-    }
-  },
-  watch: {
-    columnCount(val) {
-      if (!this.hasImporter) {
-        return;
-      }
-
-      const possiblyAssigned = this.importer.assignedTemplateFields.length;
-      if (val >= this.importer.assignedTemplateFields.length) {
-        return;
-      }
-
-      for (let i = val; i < possiblyAssigned; i++) {
-        this.importer.assignedTemplateFields[i] = null;
-      }
-    },
   },
   computed: {
     gridTemplateColumn(): string {
@@ -625,7 +603,7 @@ export default defineComponent({
           component: {
             template: `<span>{{ "${selectFileLabel}" }}</span>`,
           },
-          action: this.selectFile,
+          action: this.selectFile.bind(this),
         });
       }
 
@@ -642,7 +620,7 @@ export default defineComponent({
         component: {
           template: '<span class="text-red-700" >{{ t`Cancel` }}</span>',
         },
-        action: this.clear,
+        action: this.clear.bind(this),
       };
       actions.push(pickColumnsAction, cancelAction);
 
@@ -690,9 +668,31 @@ export default defineComponent({
     },
     pickedArray(): string[] {
       return [...this.importer.templateFieldsPicked.entries()]
-        .filter(([_, picked]) => picked)
-        .map(([key, _]) => key);
+        .filter(([, picked]) => picked)
+        .map(([key]) => key);
     },
+  },
+  watch: {
+    columnCount(val) {
+      if (!this.hasImporter) {
+        return;
+      }
+
+      const possiblyAssigned = this.importer.assignedTemplateFields.length;
+      if (val >= this.importer.assignedTemplateFields.length) {
+        return;
+      }
+
+      for (let i = val; i < possiblyAssigned; i++) {
+        this.importer.assignedTemplateFields[i] = null;
+      }
+    },
+  },
+  mounted() {
+    if (fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.iw = this;
+    }
   },
   activated(): void {
     docsPathRef.value = docsPathMap.ImportWizard ?? '';
@@ -750,7 +750,11 @@ export default defineComponent({
         return;
       }
 
-      for (const idx in this.importer.assignedTemplateFields) {
+      for (
+        let idx = 0;
+        idx < this.importer.assignedTemplateFields.length;
+        idx++
+      ) {
         this.importer.assignedTemplateFields[idx] = null;
       }
 
@@ -764,10 +768,10 @@ export default defineComponent({
         idx += 1;
       }
     },
-    showMe(): void {
+    async showMe(): Promise<void> {
       const schemaName = this.importer.schemaName;
       this.clear();
-      this.$router.push(`/list/${schemaName}`);
+      await this.$router.push(`/list/${schemaName}`);
     },
     clear(): void {
       this.file = null;
@@ -821,7 +825,7 @@ export default defineComponent({
           title,
           type: 'error',
           detail: this.t`Following links do not exist: ${absentLinks
-            .map((l) => `(${l.schemaLabel}, ${l.name})`)
+            .map((l) => `(${l.schemaLabel ?? l.schemaName}, ${l.name})`)
             .join(', ')}.`,
         });
         return false;
@@ -883,7 +887,9 @@ export default defineComponent({
           },
           {
             label: this.t`No`,
-            action() {},
+            action() {
+              return null;
+            },
             isEscape: true,
           },
         ],

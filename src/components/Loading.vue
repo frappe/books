@@ -1,8 +1,8 @@
 <template>
   <div
+    v-if="open && !close"
     class="absolute bottom-0 flex justify-end pb-6 pe-6"
     :style="{ width: fullWidth ? '100%' : 'calc(100% - 12rem)' }"
-    v-if="open && !close"
   >
     <!-- Loading Continer -->
     <div
@@ -19,7 +19,7 @@
       "
     >
       <!-- Message -->
-      <p class="text-base text-gray-600 pb-2" v-if="message?.length">
+      <p v-if="message?.length" class="text-base text-gray-600 pb-2">
         {{ message }}
       </p>
 

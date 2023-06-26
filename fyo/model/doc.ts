@@ -9,7 +9,6 @@ import {
   DynamicLinkField,
   Field,
   FieldTypeEnum,
-  OptionField,
   RawValue,
   Schema,
   TargetField,
@@ -37,8 +36,8 @@ import {
   FormulaMap,
   FormulaReturn,
   HiddenMap,
-  ListsMap,
   ListViewSettings,
+  ListsMap,
   ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
@@ -47,6 +46,7 @@ import {
 import { validateOptions, validateRequired } from './validationFunction';
 
 export class Doc extends Observable<DocValue | Doc[]> {
+  /* eslint-disable @typescript-eslint/no-floating-promises */
   name?: string;
   schema: Readonly<Schema>;
   fyo: Fyo;
@@ -62,15 +62,15 @@ export class Doc extends Observable<DocValue | Doc[]> {
   parentSchemaName?: string;
 
   links?: Record<string, Doc>;
-  _dirty: boolean = true;
-  _notInserted: boolean = true;
+  _dirty = true;
+  _notInserted = true;
 
   _syncing = false;
   constructor(
     schema: Schema,
     data: DocValueMap,
     fyo: Fyo,
-    convertToDocValue: boolean = true
+    convertToDocValue = true
   ) {
     super();
     this.fyo = markRaw(fyo);
@@ -289,10 +289,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async set(
     fieldname: string | DocValueMap,
     value?: DocValue | Doc[] | DocValueMap[],
-    retriggerChildDocApplyChange: boolean = false
+    retriggerChildDocApplyChange = false
   ): Promise<boolean> {
     if (typeof fieldname === 'object') {
-      return await this.setMultiple(fieldname as DocValueMap);
+      return await this.setMultiple(fieldname);
     }
 
     if (!this._canSet(fieldname, value)) {
@@ -391,7 +391,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       }
 
       if (field.fieldtype === FieldTypeEnum.Currency && !isPesa(defaultValue)) {
-        defaultValue = this.fyo.pesa!(defaultValue as string | number);
+        defaultValue = this.fyo.pesa(defaultValue as string | number);
       }
 
       this[field.fieldname] = defaultValue;
@@ -418,7 +418,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   push(
     fieldname: string,
     docValueMap: Doc | DocValueMap | RawValueMap = {},
-    convertToDocValue: boolean = false
+    convertToDocValue = false
   ) {
     const childDocs = [
       (this[fieldname] ?? []) as Doc[],
@@ -449,7 +449,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   _getChildDoc(
     docValueMap: Doc | DocValueMap | RawValueMap,
     fieldname: string,
-    convertToDocValue: boolean = false
+    convertToDocValue = false
   ): Doc {
     if (!this.name && this.schema.naming !== 'manual') {
       this.name = this.fyo.doc.getTemporaryName(this.schema);
@@ -528,7 +528,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       field.fieldtype === FieldTypeEnum.Select ||
       field.fieldtype === FieldTypeEnum.AutoComplete
     ) {
-      validateOptions(field as OptionField, value as string, this);
+      validateOptions(field, value as string, this);
     }
 
     validateRequired(field, value, this);
@@ -544,10 +544,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await validator(value);
   }
 
-  getValidDict(
-    filterMeta: boolean = false,
-    filterComputed: boolean = false
-  ): DocValueMap {
+  getValidDict(filterMeta = false, filterComputed = false): DocValueMap {
     let fields = this.schema.fields;
     if (filterMeta) {
       fields = this.schema.fields.filter((f) => !f.meta);
@@ -639,11 +636,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   async _loadLink(field: Field) {
     if (field.fieldtype === FieldTypeEnum.Link) {
-      return await this._loadLinkField(field as TargetField);
+      return await this._loadLinkField(field);
     }
 
     if (field.fieldtype === FieldTypeEnum.DynamicLink) {
-      return await this._loadDynamicLinkField(field as DynamicLinkField);
+      return await this._loadDynamicLinkField(field);
     }
   }
 
@@ -767,14 +764,13 @@ export class Doc extends Observable<DocValue | Doc[]> {
     changedFieldname?: string,
     retriggerChildDocApplyChange?: boolean
   ): Promise<boolean> {
-    const doc = this;
     let changed = await this._callAllTableFieldsApplyFormula(changedFieldname);
     changed =
-      (await this._applyFormulaForFields(doc, changedFieldname)) || changed;
+      (await this._applyFormulaForFields(this, changedFieldname)) || changed;
 
     if (changed && retriggerChildDocApplyChange) {
       await this._callAllTableFieldsApplyFormula(changedFieldname);
-      await this._applyFormulaForFields(doc, changedFieldname);
+      await this._applyFormulaForFields(this, changedFieldname);
     }
 
     return changed;
@@ -803,7 +799,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     childDocs: Doc[],
     fieldname?: string
   ): Promise<boolean> {
-    let changed: boolean = false;
+    let changed = false;
     for (const childDoc of childDocs) {
       if (!childDoc._applyFormula) {
         continue;
@@ -978,7 +974,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   async trigger(event: string, params?: unknown) {
     if (this[event]) {
-      await (this[event] as Function)(params);
+      await (this[event] as (args: unknown) => Promise<void>)(params);
     }
 
     await super.trigger(event, params);
@@ -993,9 +989,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
           try {
             return this.fyo.pesa(value as string | number);
           } catch (err) {
-            (
-              err as Error
-            ).message += ` value: '${value}' of type: ${typeof value}, fieldname: '${tablefield}', childfield: '${childfield}'`;
+            (err as Error).message += ` value: '${String(
+              value
+            )}' of type: ${typeof value}, fieldname: '${tablefield}', childfield: '${childfield}'`;
             throw err;
           }
         }
@@ -1032,7 +1028,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (this.numberSeries) {
       delete updateMap.name;
     } else {
-      updateMap.name = updateMap.name + ' CPY';
+      updateMap.name = String(updateMap.name) + ' CPY';
     }
 
     const rawUpdateMap = this.fyo.db.converter.toRawValueMap(
@@ -1054,6 +1050,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
    *
    * This may cause the lifecycle function to execute incorrectly.
    */
+
+  /* eslint-disable @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars */
   async change(ch: ChangeArg) {}
   async validate() {}
   async beforeSync() {}
@@ -1084,7 +1082,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return {};
   }
 
-  static getTreeSettings(fyo: Fyo): TreeViewSettings | void {}
+  static getTreeSettings(fyo: Fyo): TreeViewSettings | void {
+    return;
+  }
 
   static getActions(fyo: Fyo): Action[] {
     return [];

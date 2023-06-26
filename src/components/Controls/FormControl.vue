@@ -14,7 +14,6 @@ import Float from './Float.vue';
 import Int from './Int.vue';
 import Link from './Link.vue';
 import Select from './Select.vue';
-import Table from './Table.vue';
 import Text from './Text.vue';
 
 const components = {
@@ -26,7 +25,6 @@ const components = {
   Link,
   Date,
   Datetime,
-  Table,
   AutoComplete,
   DynamicLink,
   Int,
@@ -38,15 +36,6 @@ const components = {
 
 export default {
   name: 'FormControl',
-  render() {
-    const fieldtype = this.$attrs.df.fieldtype;
-    const component = components[fieldtype] ?? Data;
-
-    return h(component, {
-      ...this.$attrs,
-      ref: 'control',
-    });
-  },
   methods: {
     clear() {
       const input = this.$refs.control.$refs.input;
@@ -63,6 +52,15 @@ export default {
     getInput() {
       return this.$refs.control.$refs.input;
     },
+  },
+  render() {
+    const fieldtype = this.$attrs.df.fieldtype;
+    const component = components[fieldtype] ?? Data;
+
+    return h(component, {
+      ...this.$attrs,
+      ref: 'control',
+    });
   },
 };
 </script>

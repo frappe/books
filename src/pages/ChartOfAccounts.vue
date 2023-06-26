@@ -9,8 +9,8 @@
 
     <!-- Chart of Accounts -->
     <div
-      class="flex-1 flex flex-col overflow-y-auto mb-4 custom-scroll"
       v-if="root"
+      class="flex-1 flex flex-col overflow-y-auto mb-4 custom-scroll"
     >
       <!-- Chart of Accounts Indented List -->
       <template v-for="account in allAccounts" :key="account.name">
@@ -34,7 +34,7 @@
           :style="getItemStyle(account.level)"
           @click="onClick(account)"
         >
-          <component :is="getIconComponent(account)" />
+          <component :is="getIconComponent(!!account.isGroup, account.name)" />
           <div class="flex items-baseline">
             <div
               class="ms-4"
@@ -70,7 +70,7 @@
           </div>
 
           <!-- Account Balance String -->
-          <p class="ms-auto text-base text-gray-800" v-if="!account.isGroup">
+          <p v-if="!account.isGroup" class="ms-auto text-base text-gray-800">
             {{ getBalanceString(account) }}
           </p>
         </div>
@@ -78,6 +78,7 @@
         <!-- Add Account/Group -->
         <div
           v-if="account.addingAccount || account.addingGroupAccount"
+          :key="account.name + '-adding-account'"
           class="
             px-4
             border-b
@@ -89,24 +90,21 @@
             text-base
           "
           :style="getGroupStyle(account.level + 1)"
-          :key="account.name + '-adding-account'"
         >
-          <component
-            :is="getIconComponent({ isGroup: account.addingGroupAccount })"
-          />
+          <component :is="getIconComponent(account.addingGroupAccount)" />
           <div class="flex ms-4 h-row-mid items-center">
             <input
+              :ref="account.name"
+              v-model="newAccountName"
               class="focus:outline-none bg-transparent"
               :class="{ 'text-gray-600': insertingAccount }"
               :placeholder="t`New Account`"
-              :ref="account.name"
+              type="text"
+              :disabled="insertingAccount"
               @keydown.esc="cancelAddingAccount(account)"
               @keydown.enter="
                 (e) => createNewAccount(account, account.addingGroupAccount)
               "
-              type="text"
-              v-model="newAccountName"
-              :disabled="insertingAccount"
             />
             <button
               v-if="!insertingAccount"
@@ -140,7 +138,7 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { t } from 'fyo';
 import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
@@ -151,12 +149,32 @@ import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { openQuickEdit } from 'src/utils/ui';
 import { getMapFromList, removeAtIndex } from 'utils/index';
-import { nextTick } from 'vue';
+import { defineComponent, nextTick } from 'vue';
 import Button from '../components/Button.vue';
 import { inject } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
+import { AccountRootType, AccountType } from 'models/baseModels/Account/types';
+import { TreeViewSettings } from 'fyo/model/types';
+import { Doc } from 'fyo/model/doc';
+import { Component } from 'vue';
 
-export default {
+type AccountItem = {
+  name: string;
+  parentAccount: string;
+  rootType: AccountRootType;
+  accountType: AccountType;
+  level: number;
+  location: number[];
+  isGroup?: boolean;
+  children: AccountItem[];
+  expanded: boolean;
+  addingAccount: boolean;
+  addingGroupAccount: boolean;
+};
+
+type AccKey = 'addingAccount' | 'addingGroupAccount';
+
+export default defineComponent({
   components: {
     Button,
     PageHeader,
@@ -170,14 +188,40 @@ export default {
     return {
       isAllCollapsed: true,
       isAllExpanded: false,
-      root: null,
-      accounts: [],
+      root: null as null | { label: string; balance: number; currency: string },
+      accounts: [] as AccountItem[],
       schemaName: 'Account',
       newAccountName: '',
       insertingAccount: false,
-      totals: {},
+      totals: {} as Record<string, { totalDebit: number; totalCredit: number }>,
       refetchTotals: false,
+      settings: null as null | TreeViewSettings,
     };
+  },
+  computed: {
+    allAccounts() {
+      const allAccounts: AccountItem[] = [];
+
+      (function getAccounts(
+        accounts: AccountItem[],
+        level: number,
+        location: number[]
+      ) {
+        for (let i = 0; i < accounts.length; i++) {
+          const account = accounts[i];
+
+          account.level = level;
+          account.location = [...location, i];
+          allAccounts.push(account);
+
+          if (account.children != null && account.expanded) {
+            getAccounts(account.children, level + 1, account.location);
+          }
+        }
+      })(this.accounts, 0, []);
+
+      return allAccounts;
+    },
   },
   async mounted() {
     await this.setTotalDebitAndCredit();
@@ -186,12 +230,13 @@ export default {
     });
   },
   async activated() {
-    this.fetchAccounts();
+    await this.fetchAccounts();
     if (fyo.store.isDevelopment) {
+      // @ts-ignore
       window.coa = this;
     }
 
-    docsPathRef.value = docsPathMap.ChartOfAccounts;
+    docsPathRef.value = docsPathMap.ChartOfAccounts!;
 
     if (this.refetchTotals) {
       await this.setTotalDebitAndCredit();
@@ -212,7 +257,7 @@ export default {
       this.isAllExpanded = false;
       this.isAllCollapsed = true;
     },
-    async toggleAll(accounts, expand) {
+    async toggleAll(accounts: AccountItem | AccountItem[], expand: boolean) {
       if (!Array.isArray(accounts)) {
         await this.toggle(accounts, expand);
         accounts = accounts.children ?? [];
@@ -222,14 +267,14 @@ export default {
         await this.toggleAll(account, expand);
       }
     },
-    async toggle(account, expand) {
+    async toggle(account: AccountItem, expand: boolean) {
       if (account.expanded === expand || !account.isGroup) {
         return;
       }
 
       await this.toggleChildren(account);
     },
-    getBalance(account) {
+    getBalance(account: AccountItem) {
       const total = this.totals[account.name];
       if (!total) {
         return 0;
@@ -243,7 +288,7 @@ export default {
 
       return totalDebit - totalCredit;
     },
-    getBalanceString(account) {
+    getBalanceString(account: AccountItem) {
       const suffix = isCredit(account.rootType) ? t`Cr.` : t`Dr.`;
       const balance = this.getBalance(account);
       return `${fyo.format(balance, 'Currency')} ${suffix}`;
@@ -253,16 +298,19 @@ export default {
       this.totals = getMapFromList(totals, 'account');
     },
     async fetchAccounts() {
-      this.settings = fyo.models[ModelNameEnum.Account].getTreeSettings(fyo);
-      const { currency } = await fyo.doc.getDoc('AccountingSettings');
+      this.settings =
+        fyo.models[ModelNameEnum.Account]?.getTreeSettings(fyo) ?? null;
+      const currency = this.fyo.singles.SystemSettings?.currency ?? '';
+      const label = (await this.settings?.getRootLabel()) ?? '';
+
       this.root = {
-        label: await this.settings.getRootLabel(),
+        label,
         balance: 0,
         currency,
       };
       this.accounts = await this.getChildren();
     },
-    async onClick(account) {
+    async onClick(account: AccountItem) {
       let shouldOpen = !account.isGroup;
       if (account.isGroup) {
         shouldOpen = !(await this.toggleChildren(account));
@@ -284,21 +332,29 @@ export default {
       this.setOpenAccountDocListener(doc, account);
       await openQuickEdit({ doc });
     },
-    setOpenAccountDocListener(doc, account, parentAccount) {
+    setOpenAccountDocListener(
+      doc: Doc,
+      account?: AccountItem,
+      parentAccount?: AccountItem
+    ) {
       if (doc.hasListener('afterDelete')) {
         return;
       }
 
       doc.once('afterDelete', () => {
-        this.removeAccount(doc.name, account, parentAccount);
+        this.removeAccount(doc.name!, account, parentAccount);
       });
     },
-    removeAccount(name, account, parentAccount) {
+    removeAccount(
+      name: string,
+      account?: AccountItem,
+      parentAccount?: AccountItem
+    ) {
       if (account == null && parentAccount == null) {
         return;
       }
 
-      if (account == null) {
+      if (account == null && parentAccount) {
         account = parentAccount.children.find((ch) => ch?.name === name);
       }
 
@@ -313,7 +369,7 @@ export default {
       let children = this.accounts[i].children;
 
       while (indices.length > 1) {
-        i = indices.shift();
+        i = indices.shift()!;
 
         parent = children[i];
         children = children[i].children;
@@ -327,7 +383,7 @@ export default {
 
       parent.children = removeAtIndex(children, i);
     },
-    async toggleChildren(account) {
+    async toggleChildren(account: AccountItem) {
       const hasChildren = await this.fetchChildren(account);
       if (!hasChildren) {
         return false;
@@ -335,20 +391,20 @@ export default {
 
       account.expanded = !account.expanded;
       if (!account.expanded) {
-        account.addingAccount = 0;
-        account.addingGroupAccount = 0;
+        account.addingAccount = false;
+        account.addingGroupAccount = false;
       }
 
       return true;
     },
-    async fetchChildren(account, force = false) {
+    async fetchChildren(account: AccountItem, force = false) {
       if (account.children == null || force) {
         account.children = await this.getChildren(account.name);
       }
 
       return !!account?.children?.length;
     },
-    async getChildren(parent = null) {
+    async getChildren(parent: null | string = null): Promise<AccountItem[]> {
       const children = await fyo.db.getAll(ModelNameEnum.Account, {
         filters: {
           parentAccount: parent,
@@ -359,39 +415,39 @@ export default {
       });
 
       return children.map((d) => {
-        d.expanded = 0;
-        d.addingAccount = 0;
-        d.addingGroupAccount = 0;
-        return d;
+        d.expanded = false;
+        d.addingAccount = false;
+        d.addingGroupAccount = false;
+
+        return d as unknown as AccountItem;
       });
     },
-    async addAccount(parentAccount, key) {
+    async addAccount(parentAccount: AccountItem, key: AccKey) {
       if (!parentAccount.expanded) {
         await this.fetchChildren(parentAccount);
         parentAccount.expanded = true;
       }
       // activate editing of type 'key' and deactivate other type
-      let otherKey =
+      let otherKey: AccKey =
         key === 'addingAccount' ? 'addingGroupAccount' : 'addingAccount';
-      parentAccount[key] = 1;
-      parentAccount[otherKey] = 0;
+      parentAccount[key] = true;
+      parentAccount[otherKey] = false;
 
-      nextTick(() => {
-        let input = this.$refs[parentAccount.name][0];
-        input.focus();
-      });
+      await nextTick();
+      let input = (this.$refs[parentAccount.name] as HTMLInputElement[])[0];
+      input.focus();
     },
-    cancelAddingAccount(parentAccount) {
-      parentAccount.addingAccount = 0;
-      parentAccount.addingGroupAccount = 0;
+    cancelAddingAccount(parentAccount: AccountItem) {
+      parentAccount.addingAccount = false;
+      parentAccount.addingGroupAccount = false;
       this.newAccountName = '';
     },
-    async createNewAccount(parentAccount, isGroup) {
+    async createNewAccount(parentAccount: AccountItem, isGroup: boolean) {
       // freeze input
       this.insertingAccount = true;
 
       const accountName = this.newAccountName.trim();
-      const doc = await fyo.doc.getNewDoc('Account');
+      const doc = fyo.doc.getNewDoc('Account');
       try {
         let { name, rootType, accountType } = parentAccount;
         await doc.set({
@@ -404,15 +460,15 @@ export default {
         await doc.sync();
 
         // turn off editing
-        parentAccount.addingAccount = 0;
-        parentAccount.addingGroupAccount = 0;
+        parentAccount.addingAccount = false;
+        parentAccount.addingGroupAccount = false;
 
         // update accounts
         await this.fetchChildren(parentAccount, true);
 
         // open quick edit
         await openQuickEdit({ doc });
-        this.setOpenAccountDocListener(doc, null, parentAccount);
+        this.setOpenAccountDocListener(doc, undefined, parentAccount);
 
         // unfreeze input
         this.insertingAccount = false;
@@ -423,11 +479,11 @@ export default {
         await handleErrorWithDialog(e, doc);
       }
     },
-    isQuickEditOpen(account) {
+    isQuickEditOpen(account: AccountItem) {
       let { edit, schemaName, name } = this.$route.query;
       return !!(edit && schemaName === 'Account' && name === account.name);
     },
-    getIconComponent(account) {
+    getIconComponent(isGroup: boolean, name?: string): Component {
       let icons = {
         'Application of Funds (Assets)': `<svg class="w-4 h-4" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" fill-rule="evenodd">
@@ -460,14 +516,14 @@ export default {
         <path d="M8.333 3.367L6.333.7H.667A.667.667 0 000 1.367v12a2 2 0 002 2h12a2 2 0 002-2V4.033a.667.667 0 00-.667-.666h-7z" fill="#415668" fill-rule="evenodd"/>
       </svg>`;
 
-      let icon = account.isGroup ? folder : leaf;
+      let icon = isGroup ? folder : leaf;
 
       return {
-        template: icons[account.name] || icon,
+        template: icons[name as keyof typeof icons] || icon,
       };
     },
-    getItemStyle(level) {
-      const styles = {
+    getItemStyle(level: number) {
+      const styles: Record<string, string> = {
         height: 'calc(var(--h-row-mid) + 1px)',
       };
       if (this.languageDirection === 'rtl') {
@@ -477,8 +533,8 @@ export default {
       }
       return styles;
     },
-    getGroupStyle(level) {
-      const styles = {
+    getGroupStyle(level: number) {
+      const styles: Record<string, string> = {
         height: 'height: calc(var(--h-row-mid) + 1px)',
       };
       if (this.languageDirection === 'rtl') {
@@ -489,26 +545,5 @@ export default {
       return styles;
     },
   },
-  computed: {
-    allAccounts() {
-      const allAccounts = [];
-
-      (function getAccounts(accounts, level, location) {
-        for (let i in accounts) {
-          const account = accounts[i];
-
-          account.level = level;
-          account.location = [...location, i];
-          allAccounts.push(account);
-
-          if (account.children != null && account.expanded) {
-            getAccounts(account.children, level + 1, account.location);
-          }
-        }
-      })(this.accounts, 0, []);
-
-      return allAccounts;
-    },
-  },
-};
+});
 </script>

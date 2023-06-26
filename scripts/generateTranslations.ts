@@ -8,6 +8,8 @@ import {
   schemaTranslateables,
 } from '../utils/translationHelpers';
 
+/* eslint-disable no-console, @typescript-eslint/no-floating-promises */
+
 const translationsFolder = path.resolve(__dirname, '..', 'translations');
 const PATTERN = /(?<!\w)t`([^`]+)`/g;
 
@@ -21,7 +23,7 @@ function shouldIgnore(p: string, ignoreList: string[]): boolean {
 async function getFileList(
   root: string,
   ignoreList: string[],
-  extPattern: RegExp = /\.(js|ts|vue)$/
+  extPattern = /\.(js|ts|vue)$/
 ): Promise<string[]> {
   const contents: string[] = await fs.readdir(root);
   const files: string[] = [];
@@ -86,7 +88,7 @@ function getTStrings(content: string): Promise<string[]> {
 }
 
 function tStringFinder(content: string): string[] {
-  return [...content.matchAll(PATTERN)].map(([_, t]) => {
+  return [...content.matchAll(PATTERN)].map(([, t]) => {
     t = getIndexFormat(t);
     return getWhitespaceSanitized(t);
   });

@@ -55,7 +55,7 @@ export class StockQueue {
       return null;
     }
 
-    let incomingRate: number = 0;
+    let incomingRate = 0;
     this.quantity -= quantity;
     let remaining = quantity;
 

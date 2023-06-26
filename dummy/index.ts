@@ -25,8 +25,8 @@ type Notifier = (stage: string, percent: number) => void;
 export async function setupDummyInstance(
   dbPath: string,
   fyo: Fyo,
-  years: number = 1,
-  baseCount: number = 1000,
+  years = 1,
+  baseCount = 1000,
   notifier?: Notifier
 ) {
   await fyo.purgeCache();
@@ -251,7 +251,7 @@ async function getSalesInvoices(
    * For each date create a Sales Invoice.
    */
 
-  for (const d in dates) {
+  for (let d = 0; d < dates.length; d++) {
     const date = dates[d];
 
     notifier?.(
@@ -424,7 +424,7 @@ async function getSalesPurchaseInvoices(
       for (const item of supplierGrouped[supplier]) {
         await doc.append('items', {});
         const quantity = purchaseQty[item];
-        doc.items!.at(-1)!.set({ item, quantity });
+        await doc.items!.at(-1)!.set({ item, quantity });
       }
 
       invoices.push(doc);
@@ -527,7 +527,7 @@ async function syncAndSubmit(docs: Doc[], notifier?: Notifier) {
   };
 
   const total = docs.length;
-  for (const i in docs) {
+  for (let i = 0; i < docs.length; i++) {
     const doc = docs[i];
     notifier?.(
       `Syncing ${nameMap[doc.schemaName]}, ${i} out of ${total}`,

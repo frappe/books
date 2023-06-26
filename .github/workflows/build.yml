@@ -13,7 +13,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: '16.13.1'
+          node-version: '16.14.0'
 
       - name: Set yarn version
         run: yarn set version 1.22.18
@@ -28,4 +28,4 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           APPLE_NOTARIZE: 0
-        run: yarn electron:build -mw --publish never
+        run: yarn build -mw --publish never

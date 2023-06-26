@@ -12,13 +12,13 @@
     />
     <!-- Main Contents -->
     <Desk
-      class="flex-1"
       v-if="activeScreen === 'Desk'"
+      class="flex-1"
       @change-db-file="showDbSelector"
     />
     <DatabaseSelector
-      ref="databaseSelector"
       v-if="activeScreen === 'DatabaseSelector'"
+      ref="databaseSelector"
       @file-selected="fileSelected"
     />
     <SetupWizard
@@ -36,7 +36,6 @@
   </div>
 </template>
 <script lang="ts">
-import { ConfigKeys } from 'fyo/core/types';
 import { RTL_LANGUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
 import { systemLanguageRef } from 'src/utils/refs';
@@ -69,6 +68,12 @@ enum Screen {
 
 export default defineComponent({
   name: 'App',
+  components: {
+    Desk,
+    SetupWizard,
+    DatabaseSelector,
+    WindowsTitleBar,
+  },
   setup() {
     const keys = useKeys();
     const searcher: Ref<null | Search> = ref(null);
@@ -105,31 +110,22 @@ export default defineComponent({
       companyName: string;
     };
   },
-  components: {
-    Desk,
-    SetupWizard,
-    DatabaseSelector,
-    WindowsTitleBar,
-  },
-  async mounted() {
-    this.setInitialScreen();
-  },
-  watch: {
-    language(value) {
-      this.languageDirection = getLanguageDirection(value);
-    },
-  },
   computed: {
     language(): string {
       return systemLanguageRef.value;
     },
   },
+  watch: {
+    language(value: string) {
+      this.languageDirection = getLanguageDirection(value);
+    },
+  },
+  async mounted() {
+    await this.setInitialScreen();
+  },
   methods: {
     async setInitialScreen(): Promise<void> {
-      const lastSelectedFilePath = fyo.config.get(
-        ConfigKeys.LastSelectedFilePath,
-        null
-      );
+      const lastSelectedFilePath = fyo.config.get('lastSelectedFilePath', null);
 
       if (
         typeof lastSelectedFilePath !== 'string' ||
@@ -159,7 +155,7 @@ export default defineComponent({
       updateConfigFiles(fyo);
     },
     async fileSelected(filePath: string, isNew?: boolean): Promise<void> {
-      fyo.config.set(ConfigKeys.LastSelectedFilePath, filePath);
+      fyo.config.set('lastSelectedFilePath', filePath);
       if (isNew) {
         this.activeScreen = Screen.SetupWizard;
         return;
@@ -173,7 +169,7 @@ export default defineComponent({
       }
     },
     async setupComplete(setupWizardOptions: SetupWizardOptions): Promise<void> {
-      const filePath = fyo.config.get(ConfigKeys.LastSelectedFilePath);
+      const filePath = fyo.config.get('lastSelectedFilePath');
       if (typeof filePath !== 'string') {
         return;
       }
@@ -213,7 +209,8 @@ export default defineComponent({
       }
 
       if (actionSymbol === dbErrorActionSymbols.SelectFile) {
-        return await this.databaseSelector?.existingDatabase();
+        await this.databaseSelector?.existingDatabase();
+        return;
       }
 
       throw error;
@@ -223,9 +220,9 @@ export default defineComponent({
       const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
 
       if (hideGetStarted || onboardingComplete) {
-        routeTo('/');
+        await routeTo('/');
       } else {
-        routeTo('/get-started');
+        await routeTo('/get-started');
       }
     },
     async showDbSelector(): Promise<void> {

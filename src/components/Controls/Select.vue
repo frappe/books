@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="labelClasses" v-if="showLabel">
+    <div v-if="showLabel" :class="labelClasses">
       {{ df.label }}
     </div>
     <div
@@ -24,10 +24,10 @@
         @focus="(e) => $emit('focus', e)"
       >
         <option
+          v-if="inputPlaceholder && !showLabel"
           value=""
           disabled
           selected
-          v-if="inputPlaceholder && !showLabel"
         >
           {{ inputPlaceholder }}
         </option>
@@ -70,6 +70,15 @@ export default defineComponent({
   name: 'Select',
   extends: Base,
   emits: ['focus'],
+  computed: {
+    options(): SelectOption[] {
+      if (this.df.fieldtype !== 'Select') {
+        return [];
+      }
+
+      return this.df.options;
+    },
+  },
   methods: {
     onChange(e: Event) {
       const target = e.target;
@@ -81,15 +90,6 @@ export default defineComponent({
       }
 
       this.triggerChange(target.value);
-    },
-  },
-  computed: {
-    options(): SelectOption[] {
-      if (this.df.fieldtype !== 'Select') {
-        return [];
-      }
-
-      return this.df.options;
     },
   },
 });

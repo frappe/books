@@ -117,7 +117,7 @@ export class Importer {
     this.templateFieldsMap = new Map();
     this.templateFieldsPicked = new Map();
 
-    templateFields.forEach((f, i) => {
+    templateFields.forEach((f) => {
       this.templateFieldsMap.set(f.fieldKey, f);
       this.templateFieldsPicked.set(f.fieldKey, true);
     });
@@ -199,7 +199,7 @@ export class Importer {
     }[];
 
     const cellErrors = [];
-    for (const i in this.valueMatrix) {
+    for (let i = 0; i < this.valueMatrix.length; i++) {
       const row = this.valueMatrix[i];
       for (const { tf, index } of assigned) {
         if (!row[index]?.error) {
@@ -278,14 +278,14 @@ export class Importer {
       return { dataMap, childTableMap };
     }
 
-    for (const i in this.valueMatrix) {
+    for (let i = 0; i < this.valueMatrix.length; i++) {
       const row = this.valueMatrix[i];
       const name = row[nameIndex]?.value;
       if (typeof name !== 'string') {
         continue;
       }
 
-      for (const j in row) {
+      for (let j = 0; j < row.length; j++) {
         const key = this.assignedTemplateFields[j];
         const tf = this.templateFieldsMap.get(key ?? '');
         if (!tf || !key) {
@@ -387,7 +387,7 @@ export class Importer {
 
   pushToValueMatrixFromParsedRow(row: string[]) {
     const vmRow: ValueMatrix[number] = [];
-    for (const i in row) {
+    for (let i = 0; i < row.length; i++) {
       const rawValue = row[i];
       const index = Number(i);
 
@@ -492,7 +492,7 @@ export class Importer {
       return false;
     }
 
-    for (const i in row) {
+    for (let i = 0; i < row.length; i++) {
       const value = row[i];
       const tf = this.templateFieldsMap.get(value);
       let key: string | null = value;

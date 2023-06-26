@@ -34,12 +34,21 @@ import { historyState } from 'src/utils/refs';
 const COMPONENT_NAME = 'PageHeaderNavGroup';
 
 export default defineComponent({
+  components: { SearchBar },
   setup() {
     return {
       historyState,
       backlink: ref<HTMLAnchorElement | null>(null),
       shortcuts: inject(shortcutsKey),
     };
+  },
+  computed: {
+    hasBack() {
+      return !!history.back;
+    },
+    hasForward() {
+      return !!history.forward;
+    },
   },
   activated() {
     this.shortcuts?.shift.set(COMPONENT_NAME, ['Backspace'], () => {
@@ -50,15 +59,6 @@ export default defineComponent({
   },
   deactivated() {
     this.shortcuts?.delete(COMPONENT_NAME);
-  },
-  components: { SearchBar },
-  computed: {
-    hasBack() {
-      return !!history.back;
-    },
-    hasForward() {
-      return !!history.forward;
-    },
   },
 });
 </script>

@@ -5,6 +5,7 @@ import { toggleSidebar } from 'src/utils/ui';
 <template>
   <div class="flex overflow-hidden">
     <Transition name="sidebar">
+      <!-- eslint-disable vue/require-explicit-emits -->
       <Sidebar
         v-show="showSidebar"
         class="flex-shrink-0 border-e whitespace-nowrap w-sidebar"
@@ -15,11 +16,11 @@ import { toggleSidebar } from 'src/utils/ui';
     <div class="flex flex-1 overflow-y-hidden bg-white">
       <router-view v-slot="{ Component }">
         <keep-alive>
-          <component :is="Component" class="flex-1" :key="$route.path" />
+          <component :is="Component" :key="$route.path" class="flex-1" />
         </keep-alive>
       </router-view>
 
-      <router-view name="edit" v-slot="{ Component, route }">
+      <router-view v-slot="{ Component, route }" name="edit">
         <Transition name="quickedit">
           <div v-if="route?.query?.edit">
             <component
@@ -58,10 +59,10 @@ import { defineComponent } from 'vue';
 import Sidebar from '../components/Sidebar.vue';
 export default defineComponent({
   name: 'Desk',
-  emits: ['change-db-file'],
   components: {
     Sidebar,
   },
+  emits: ['change-db-file'],
 });
 </script>
 

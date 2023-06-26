@@ -15,8 +15,8 @@
       <!-- Regular Field Form -->
       <div
         v-else
-        class="grid items-center border-b"
         :key="`${df.fieldname}-regular`"
+        class="grid items-center border-b"
         :style="{
           ...style,
           height: getFieldHeight(df),
@@ -42,8 +42,8 @@
             @change="async (value) => await onChange(df, value)"
           />
           <div
-            class="text-sm text-red-600 mt-2 ps-2"
             v-if="errors[df.fieldname]"
+            class="text-sm text-red-600 mt-2 ps-2"
           >
             {{ errors[df.fieldname] }}
           </div>
@@ -66,6 +66,10 @@ import { DocValue } from 'fyo/core/types';
 
 export default defineComponent({
   name: 'TwoColumnForm',
+  components: {
+    FormControl,
+    Table,
+  },
   props: {
     doc: { type: Doc, required: true },
     fields: { type: Array as PropType<Field[]>, default: () => [] },
@@ -74,20 +78,26 @@ export default defineComponent({
       default: () => [1, 1],
     },
   },
-  watch: {
-    doc() {
-      this.setFormFields();
-    },
-  },
   data() {
     return {
       formFields: [],
       errors: {},
     } as { formFields: Field[]; errors: Record<string, string> };
   },
-  components: {
-    FormControl,
-    Table,
+  computed: {
+    style() {
+      let templateColumns = (this.columnRatio || [1, 1])
+        .map((r) => `minmax(0, ${r}fr)`)
+        .join(' ');
+      return {
+        'grid-template-columns': templateColumns,
+      };
+    },
+  },
+  watch: {
+    doc() {
+      this.setFormFields();
+    },
   },
   mounted() {
     this.setFormFields();
@@ -141,16 +151,6 @@ export default defineComponent({
       this.formFields = fieldList.filter(
         (field) => field && !evaluateHidden(field, this.doc)
       );
-    },
-  },
-  computed: {
-    style() {
-      let templateColumns = (this.columnRatio || [1, 1])
-        .map((r) => `minmax(0, ${r}fr)`)
-        .join(' ');
-      return {
-        'grid-template-columns': templateColumns,
-      };
     },
   },
 });

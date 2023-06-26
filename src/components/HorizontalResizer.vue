@@ -1,10 +1,10 @@
 <template>
   <div
+    ref="hr"
     class="h-full bg-gray-300 transition-opacity hover:opacity-100"
     :class="resizing ? 'opacity-100' : 'opacity-0'"
     style="width: 3px; cursor: col-resize; margin-left: -3px"
     @mousedown="onMouseDown"
-    ref="hr"
   >
     <MouseFollower
       :show="resizing"
@@ -30,12 +30,13 @@ import { defineComponent } from 'vue';
 import MouseFollower from './MouseFollower.vue';
 
 export default defineComponent({
-  emits: ['resize'],
+  components: { MouseFollower },
   props: {
     initialX: { type: Number, required: true },
     minX: Number,
     maxX: Number,
   },
+  emits: ['resize'],
   data() {
     return {
       x: 0,
@@ -44,6 +45,34 @@ export default defineComponent({
       resizing: false,
       listener: null,
     };
+  },
+  computed: {
+    value() {
+      let value = this.delta + this.xOnMouseDown;
+      if (typeof this.minX === 'number') {
+        value = Math.max(this.minX, value);
+      }
+
+      if (typeof this.maxX === 'number') {
+        value = Math.min(this.maxX, value);
+      }
+
+      return value;
+    },
+    minDelta() {
+      if (typeof this.minX !== 'number') {
+        return null;
+      }
+
+      return this.initialX - this.minX;
+    },
+    maxDelta() {
+      if (typeof this.maxX !== 'number') {
+        return null;
+      }
+
+      return this.maxX - this.initialX;
+    },
   },
   methods: {
     onMouseDown(e: MouseEvent) {
@@ -85,34 +114,5 @@ export default defineComponent({
       }
     },
   },
-  computed: {
-    value() {
-      let value = this.delta + this.xOnMouseDown;
-      if (typeof this.minX === 'number') {
-        value = Math.max(this.minX, value);
-      }
-
-      if (typeof this.maxX === 'number') {
-        value = Math.min(this.maxX, value);
-      }
-
-      return value;
-    },
-    minDelta() {
-      if (typeof this.minX !== 'number') {
-        return null;
-      }
-
-      return this.initialX - this.minX;
-    },
-    maxDelta() {
-      if (typeof this.maxX !== 'number') {
-        return null;
-      }
-
-      return this.maxX - this.initialX;
-    },
-  },
-  components: { MouseFollower },
 });
 </script>

@@ -175,7 +175,7 @@ async function getCanExport(report: BaseGSTR) {
     return true;
   }
 
-  showDialog({
+  await showDialog({
     title: report.fyo.t`Cannot Export`,
     detail: report.fyo.t`Please set GSTIN in General Settings.`,
     type: 'error',
@@ -204,7 +204,7 @@ export async function getGstrJsonData(report: BaseGSTR): Promise<string> {
   } else if (transferType === TransferTypeEnum.B2CL) {
     gstData.b2cl = await generateB2clData(report);
   } else if (transferType === TransferTypeEnum.B2CS) {
-    gstData.b2cs = await generateB2csData(report);
+    gstData.b2cs = generateB2csData(report);
   }
 
   return JSON.stringify(gstData);

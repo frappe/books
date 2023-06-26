@@ -23,7 +23,7 @@ import {
   getSerialNumberFromDoc,
   updateSerialNumbers,
   validateBatch,
-  validateSerialNumber
+  validateSerialNumber,
 } from './helpers';
 import { MovementType, MovementTypeEnum } from './types';
 
@@ -39,6 +39,7 @@ export class StockMovement extends Transfer {
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   override async getPosting(): Promise<LedgerPosting | null> {
     return null;
   }

@@ -3,11 +3,11 @@ import { fyo } from 'src/initFyo';
 import Link from './Link.vue';
 export default {
   name: 'DynamicLink',
-  props: ['target'],
+  extends: Link,
   inject: {
     report: { default: null },
   },
-  extends: Link,
+  props: ['target'],
   created() {
     const watchKey = `doc.${this.df.references}`;
     this.targetWatcher = this.$watch(watchKey, function (newTarget, oldTarget) {

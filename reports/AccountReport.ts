@@ -34,11 +34,11 @@ export const ACC_BAL_WIDTH = 1.25;
 
 export abstract class AccountReport extends LedgerReport {
   toDate?: string;
-  count: number = 3;
+  count = 3;
   fromYear?: number;
   toYear?: number;
-  consolidateColumns: boolean = false;
-  hideGroupAmounts: boolean = false;
+  consolidateColumns = false;
+  hideGroupAmounts = false;
   periodicity: Periodicity = 'Monthly';
   basedOn: BasedOn = 'Until Date';
 
@@ -88,10 +88,7 @@ export abstract class AccountReport extends LedgerReport {
     };
   }
 
-  async getTotalNode(
-    rootNode: AccountTreeNode,
-    name: string
-  ): Promise<AccountListNode> {
+  getTotalNode(rootNode: AccountTreeNode, name: string): AccountListNode {
     const accountTree = { [rootNode.name]: rootNode };
     const leafNodes = getListOfLeafNodes(accountTree) as AccountTreeNode[];
 
@@ -153,7 +150,7 @@ export abstract class AccountReport extends LedgerReport {
   ): Promise<AccountNameValueMapMap> {
     const accountValueMap: AccountNameValueMapMap = new Map();
     if (!this.accountMap) {
-      await this._getAccountMap();
+      await this._setAndReturnAccountMap();
     }
 
     for (const account of map.keys()) {
@@ -169,17 +166,17 @@ export abstract class AccountReport extends LedgerReport {
         }
 
         if (!this.accountMap?.[entry.account]) {
-          this._getAccountMap(true);
+          await this._setAndReturnAccountMap(true);
         }
 
-        const totalBalance = valueMap.get(key!)?.balance ?? 0;
+        const totalBalance = valueMap.get(key)?.balance ?? 0;
         const balance = (entry.debit ?? 0) - (entry.credit ?? 0);
         const rootType = this.accountMap![entry.account]?.rootType;
 
         if (isCredit(rootType)) {
-          valueMap.set(key!, { balance: totalBalance - balance });
+          valueMap.set(key, { balance: totalBalance - balance });
         } else {
-          valueMap.set(key!, { balance: totalBalance + balance });
+          valueMap.set(key, { balance: totalBalance + balance });
         }
       }
       accountValueMap.set(account, valueMap);
@@ -189,7 +186,9 @@ export abstract class AccountReport extends LedgerReport {
   }
 
   async _getAccountTree(rangeGroupedMap: AccountNameValueMapMap) {
-    const accountTree = cloneDeep(await this._getAccountMap()) as AccountTree;
+    const accountTree = cloneDeep(
+      await this._setAndReturnAccountMap()
+    ) as AccountTree;
 
     setPruneFlagOnAccountTreeNodes(accountTree);
     setValueMapOnAccountTreeNodes(accountTree, rangeGroupedMap);
@@ -200,7 +199,7 @@ export abstract class AccountReport extends LedgerReport {
     return accountTree;
   }
 
-  async _getAccountMap(force: boolean = false) {
+  async _setAndReturnAccountMap(force = false) {
     if (this.accountMap && !force) {
       return this.accountMap;
     }
@@ -510,14 +509,14 @@ function updateParentAccountWithChildValues(
   parentAccount.valueMap ??= new Map();
 
   for (const key of valueMap.keys()) {
-    const value = parentAccount.valueMap!.get(key);
+    const value = parentAccount.valueMap.get(key);
     const childValue = valueMap.get(key);
     const map: Record<string, number> = {};
 
     for (const key of Object.keys(childValue!)) {
       map[key] = (value?.[key] ?? 0) + (childValue?.[key] ?? 0);
     }
-    parentAccount.valueMap!.set(key, map);
+    parentAccount.valueMap.set(key, map);
   }
 
   return parentAccount.parentAccount!;
@@ -533,7 +532,7 @@ function setChildrenOnAccountTreeNodes(accountTree: AccountTree) {
     }
 
     accountTree[ac.parentAccount].children ??= [];
-    accountTree[ac.parentAccount].children!.push(ac!);
+    accountTree[ac.parentAccount].children!.push(ac);
 
     parentNodes.add(ac.parentAccount);
   }

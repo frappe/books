@@ -1,12 +1,12 @@
 <template>
   <div :title="df.label">
-    <div :class="labelClasses" v-if="showLabel">
+    <div v-if="showLabel" :class="labelClasses">
       {{ df.label }}
     </div>
     <div :class="showMandatory ? 'show-mandatory' : ''">
       <input
-        spellcheck="false"
         ref="input"
+        spellcheck="false"
         class="bg-transparent"
         :class="[inputClasses, containerClasses]"
         :type="inputType"
@@ -17,10 +17,10 @@
         :max="isNumeric(df) ? df.maxvalue : undefined"
         :min="isNumeric(df) ? df.minvalue : undefined"
         :style="containerStyles"
+        :tabindex="isReadOnly ? '-1' : '0'"
         @blur="onBlur"
         @focus="(e) => !isReadOnly && $emit('focus', e)"
         @input="(e) => !isReadOnly && $emit('input', e)"
-        :tabindex="isReadOnly ? '-1' : '0'"
       />
     </div>
   </div>
@@ -35,6 +35,12 @@ import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
   name: 'Base',
+  inject: {
+    injectedDoc: {
+      from: 'doc',
+      default: undefined,
+    },
+  },
   props: {
     df: { type: Object as PropType<Field>, required: true },
     step: { type: Number, default: 1 },
@@ -59,12 +65,6 @@ export default defineComponent({
     },
   },
   emits: ['focus', 'input', 'change'],
-  inject: {
-    injectedDoc: {
-      from: 'doc',
-      default: undefined,
-    },
-  },
   computed: {
     doc(): Doc | undefined {
       // @ts-ignore

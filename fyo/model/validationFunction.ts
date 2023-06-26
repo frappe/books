@@ -7,14 +7,26 @@ import { getIsNullOrUndef } from 'utils';
 import { Doc } from './doc';
 
 export function validateEmail(value: DocValue) {
-  const isValid = /(.+)@(.+){2,}\.(.+){2,}/.test(value as string);
+  if (typeof value !== 'string') {
+    throw new TypeError(
+      `Invalid email ${String(value)} of type ${typeof value}`
+    );
+  }
+
+  const isValid = /(.+)@(.+){2,}\.(.+){2,}/.test(value);
   if (!isValid) {
     throw new ValidationError(`Invalid email: ${value}`);
   }
 }
 
 export function validatePhoneNumber(value: DocValue) {
-  const isValid = /[+]{0,1}[\d ]+/.test(value as string);
+  if (typeof value !== 'string') {
+    throw new TypeError(
+      `Invalid phone ${String(value)} of type ${typeof value}`
+    );
+  }
+
+  const isValid = /[+]{0,1}[\d ]+/.test(value);
   if (!isValid) {
     throw new ValidationError(`Invalid phone: ${value}`);
   }

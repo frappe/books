@@ -12,6 +12,7 @@ import Settings from 'src/pages/Settings/Settings.vue';
 import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { historyState } from './utils/refs';
+import type { HistoryState } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -122,8 +123,9 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({ routes, history: createWebHistory() });
 
 router.afterEach(() => {
-  historyState.forward = !!history.state?.forward;
-  historyState.back = !!history.state?.back;
+  const state = history.state as HistoryState;
+  historyState.forward = !!state.forward;
+  historyState.back = !!state.back;
 });
 
 export default router;

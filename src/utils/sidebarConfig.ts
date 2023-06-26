@@ -3,8 +3,8 @@ import { routeFilters } from 'src/utils/filters';
 import { fyo } from '../initFyo';
 import { SidebarConfig, SidebarItem, SidebarRoot } from './types';
 
-export async function getSidebarConfig(): Promise<SidebarConfig> {
-  const sideBar = await getCompleteSidebar();
+export function getSidebarConfig(): SidebarConfig {
+  const sideBar = getCompleteSidebar();
   return getFilteredSidebar(sideBar);
 }
 
@@ -54,7 +54,7 @@ function getRegionalSidebar(): SidebarRoot[] {
   ];
 }
 
-async function getInventorySidebar(): Promise<SidebarRoot[]> {
+function getInventorySidebar(): SidebarRoot[] {
   const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
   if (!hasInventory) {
     return [];
@@ -101,7 +101,7 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
   ];
 }
 
-async function getReportSidebar() {
+function getReportSidebar() {
   return {
     label: t`Reports`,
     name: 'reports',
@@ -132,7 +132,7 @@ async function getReportSidebar() {
   };
 }
 
-async function getCompleteSidebar(): Promise<SidebarConfig> {
+function getCompleteSidebar(): SidebarConfig {
   return [
     {
       label: t`Get Started`,
@@ -140,8 +140,8 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
       route: '/get-started',
       icon: 'general',
       iconSize: '24',
-      iconHeight: '5',
-      hidden: () => fyo.singles.SystemSettings!.hideGetStarted as boolean,
+      iconHeight: 5,
+      hidden: () => !!fyo.singles.SystemSettings?.hideGetStarted,
     },
     {
       label: t`Dashboard`,
@@ -254,9 +254,9 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
         },
       ] as SidebarItem[],
     },
-    await getReportSidebar(),
-    await getInventorySidebar(),
-    await getRegionalSidebar(),
+    getReportSidebar(),
+    getInventorySidebar(),
+    getRegionalSidebar(),
     {
       label: t`Setup`,
       name: 'setup',

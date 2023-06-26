@@ -54,6 +54,8 @@ export function getTestFyo(): Fyo {
 
 const ext = '.spec.ts';
 
+/* eslint-disable @typescript-eslint/no-misused-promises */
+
 export function setupTestFyo(fyo: Fyo, filename: string) {
   const testName = path.basename(filename, ext);
 

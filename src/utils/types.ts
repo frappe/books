@@ -51,7 +51,7 @@ export interface SidebarRoot {
   route: string;
   icon: string;
   iconSize?: string;
-  iconHeight?: string;
+  iconHeight?: number;
   hidden?: () => boolean;
   items?: SidebarItem[];
   filters?: QueryFilter;
@@ -90,7 +90,7 @@ export type ActionGroup = {
 export type DropdownItem = {
   label: string;
   value?: string;
-  action?: Function;
+  action?: () => unknown;
   group?: string;
   component?: { template: string };
   isGroup?: boolean;
@@ -114,7 +114,20 @@ export interface DialogOptions {
 
 export type DialogButton = {
   label: string;
-  action: () => any;
+  action: () => unknown;
   isPrimary?: boolean;
   isEscape?: boolean;
+};
+
+export type GetStartedConfigItem = {
+  label: string;
+  items: {
+    key: string;
+    label: string;
+    icon: string;
+    description: string;
+    fieldname: string;
+    documentation?: string;
+    action?: () => void;
+  }[];
 };

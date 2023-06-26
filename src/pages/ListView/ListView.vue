@@ -1,36 +1,36 @@
 <template>
   <div class="flex flex-col">
     <PageHeader :title="title">
-      <Button :icon="false" @click="openExportModal = true" ref="exportButton">
+      <Button ref="exportButton" :icon="false" @click="openExportModal = true">
         {{ t`Export` }}
       </Button>
       <FilterDropdown
         ref="filterDropdown"
-        @change="applyFilter"
         :schema-name="schemaName"
+        @change="applyFilter"
       />
       <Button
         v-if="canCreate"
+        ref="makeNewDocButton"
         :icon="true"
         type="primary"
-        @click="makeNewDoc"
         :padding="false"
         class="px-3"
-        ref="makeNewDocButton"
+        @click="makeNewDoc"
       >
         <feather-icon name="plus" class="w-4 h-4" />
       </Button>
     </PageHeader>
     <List
       ref="list"
-      :schemaName="schemaName"
-      :listConfig="listConfig"
+      :schema-name="schemaName"
+      :list-config="listConfig"
       :filters="filters"
-      :canCreate="canCreate"
+      :can-create="canCreate"
       class="flex-1 flex h-full"
-      @openDoc="openDoc"
-      @updatedData="updatedData"
-      @makeNewDoc="makeNewDoc"
+      @open-doc="openDoc"
+      @updated-data="updatedData"
+      @make-new-doc="makeNewDoc"
     />
     <Modal :open-modal="openExportModal" @closemodal="openExportModal = false">
       <ExportWizard
@@ -63,9 +63,17 @@ import List from './List.vue';
 
 export default defineComponent({
   name: 'ListView',
+  components: {
+    PageHeader,
+    List,
+    Button,
+    FilterDropdown,
+    Modal,
+    ExportWizard,
+  },
   props: {
     schemaName: { type: String, required: true },
-    filters: Object,
+    filters: { type: Object, default: undefined },
     pageTitle: { type: String, default: '' },
   },
   setup() {
@@ -76,14 +84,6 @@ export default defineComponent({
       exportButton: ref<InstanceType<typeof Button> | null>(null),
       filterDropdown: ref<InstanceType<typeof FilterDropdown> | null>(null),
     };
-  },
-  components: {
-    PageHeader,
-    List,
-    Button,
-    FilterDropdown,
-    Modal,
-    ExportWizard,
   },
   data() {
     return {
@@ -96,7 +96,25 @@ export default defineComponent({
       listFilters: QueryFilter;
     };
   },
-  async activated() {
+  computed: {
+    context(): string {
+      return 'ListView-' + this.schemaName;
+    },
+    title(): string {
+      if (this.pageTitle) {
+        return this.pageTitle;
+      }
+
+      return fyo.schemaMap[this.schemaName]?.label ?? this.schemaName;
+    },
+    fields(): Field[] {
+      return fyo.schemaMap[this.schemaName]?.fields ?? [];
+    },
+    canCreate(): boolean {
+      return fyo.schemaMap[this.schemaName]?.create !== false;
+    },
+  },
+  activated() {
     if (typeof this.filters === 'object') {
       this.filterDropdown?.setFilter(this.filters, true);
     }
@@ -148,24 +166,6 @@ export default defineComponent({
     },
     applyFilter(filters: QueryFilter) {
       this.list?.updateData(filters);
-    },
-  },
-  computed: {
-    context(): string {
-      return 'ListView-' + this.schemaName;
-    },
-    title(): string {
-      if (this.pageTitle) {
-        return this.pageTitle;
-      }
-
-      return fyo.schemaMap[this.schemaName]?.label ?? this.schemaName;
-    },
-    fields(): Field[] {
-      return fyo.schemaMap[this.schemaName]?.fields ?? [];
-    },
-    canCreate(): boolean {
-      return fyo.schemaMap[this.schemaName]?.create !== false;
     },
   },
 });
