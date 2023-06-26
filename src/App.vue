@@ -116,12 +116,12 @@ export default defineComponent({
     },
   },
   watch: {
-    language(value) {
+    language(value: string) {
       this.languageDirection = getLanguageDirection(value);
     },
   },
   async mounted() {
-    this.setInitialScreen();
+    await this.setInitialScreen();
   },
   methods: {
     async setInitialScreen(): Promise<void> {
@@ -209,7 +209,8 @@ export default defineComponent({
       }
 
       if (actionSymbol === dbErrorActionSymbols.SelectFile) {
-        return await this.databaseSelector?.existingDatabase();
+        await this.databaseSelector?.existingDatabase();
+        return;
       }
 
       throw error;
@@ -219,9 +220,9 @@ export default defineComponent({
       const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
 
       if (hideGetStarted || onboardingComplete) {
-        routeTo('/');
+        await routeTo('/');
       } else {
-        routeTo('/get-started');
+        await routeTo('/get-started');
       }
     },
     async showDbSelector(): Promise<void> {

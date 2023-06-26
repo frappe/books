@@ -29,7 +29,7 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import BarChart from 'src/components/Charts/BarChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
@@ -39,8 +39,14 @@ import { getValueMapFromList } from 'utils';
 import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
+import { defineComponent } from 'vue';
 
-export default {
+// Linting broken in this file cause of `extends: ...`
+/* 
+  eslint-disable @typescript-eslint/no-unsafe-argument, 
+  @typescript-eslint/no-unsafe-return
+*/
+export default defineComponent({
   name: 'ProfitAndLoss',
   components: {
     PeriodSelector,
@@ -49,7 +55,7 @@ export default {
   },
   extends: DashboardChartBase,
   data: () => ({
-    data: [],
+    data: [] as { yearmonth: string; balance: number }[],
     hasData: false,
     periodOptions: ['This Year', 'This Quarter'],
   }),
@@ -59,7 +65,7 @@ export default {
       const colors = [
         { positive: uicolors.blue['500'], negative: uicolors.pink['500'] },
       ];
-      const format = (value) => fyo.format(value ?? 0, 'Currency');
+      const format = (value: number) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
       const yMin = getYMin(points);
       return {
@@ -78,7 +84,7 @@ export default {
   },
   methods: {
     async setData() {
-      const { fromDate, toDate, periodList } = await getDatesAndPeriodList(
+      const { fromDate, toDate, periodList } = getDatesAndPeriodList(
         this.period
       );
 
@@ -102,5 +108,5 @@ export default {
       this.hasData = data.income.length > 0 || data.expense.length > 0;
     },
   },
-};
+});
 </script>

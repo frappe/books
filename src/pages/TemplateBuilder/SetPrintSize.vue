@@ -55,6 +55,7 @@ type SizeName = typeof printSizes[number];
 export default defineComponent({
   components: { Float, FormHeader, Select, Button },
   props: { doc: { type: PrintTemplate, required: true } },
+  emits: ['done'],
   data() {
     return { size: 'A4', width: 21, height: 29.7 };
   },
@@ -100,9 +101,9 @@ export default defineComponent({
       this.size = 'Custom';
       this[name] = v;
     },
-    done() {
-      this.doc.set('width', this.width);
-      this.doc.set('height', this.height);
+    async done() {
+      await this.doc.set('width', this.width);
+      await this.doc.set('height', this.height);
       this.$emit('done');
     },
   },

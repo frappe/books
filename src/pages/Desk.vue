@@ -5,6 +5,7 @@ import { toggleSidebar } from 'src/utils/ui';
 <template>
   <div class="flex overflow-hidden">
     <Transition name="sidebar">
+      <!-- eslint-disable vue/require-explicit-emits -->
       <Sidebar
         v-show="showSidebar"
         class="flex-shrink-0 border-e whitespace-nowrap w-sidebar"

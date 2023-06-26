@@ -87,8 +87,6 @@
   </div>
 </template>
 <script lang="ts">
-import { computed } from 'vue';
-import { t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { Field, Schema } from 'schemas/types';
 import Button from 'src/components/Button.vue';
@@ -104,7 +102,7 @@ import {
   focusOrSelectFormControl,
 } from 'src/utils/ui';
 import { useDocShortcuts } from 'src/utils/vueUtils';
-import { defineComponent, inject, ref } from 'vue';
+import { computed, defineComponent, inject, ref } from 'vue';
 
 export default defineComponent({
   name: 'QuickEditForm',
@@ -191,6 +189,7 @@ export default defineComponent({
   activated() {
     this.setShortcuts();
   },
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async mounted() {
     await this.initialize();
 
@@ -203,8 +202,8 @@ export default defineComponent({
   },
   methods: {
     setShortcuts() {
-      this.shortcuts?.set(this.context, ['Escape'], () => {
-        this.routeToPrevious();
+      this.shortcuts?.set(this.context, ['Escape'], async () => {
+        await this.routeToPrevious();
       });
     },
     async initialize() {

@@ -20,7 +20,7 @@ export default defineComponent({
   props: {
     initialValue: { type: String, required: true },
     disabled: { type: Boolean, default: false },
-    hints: { type: Object },
+    hints: { type: Object, default: undefined },
   },
   emits: ['input', 'blur'],
   data() {
@@ -76,7 +76,7 @@ export default defineComponent({
       const view = new EditorView({
         doc: this.initialValue,
         extensions: [
-          EditorView.updateListener.of(this.updateListener),
+          EditorView.updateListener.of(this.updateListener.bind(this)),
           readOnly.of(EditorState.readOnly.of(this.disabled)),
           editable.of(EditorView.editable.of(!this.disabled)),
           basicSetup,

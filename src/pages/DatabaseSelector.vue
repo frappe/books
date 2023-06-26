@@ -280,7 +280,7 @@ export default defineComponent({
     },
     async deleteDb(i: number) {
       const file = this.files[i];
-      const vm = this;
+      const setFiles = this.setFiles.bind(this);
 
       await showDialog({
         title: t`Delete ${file.companyName}?`,
@@ -291,13 +291,15 @@ export default defineComponent({
             label: this.t`Yes`,
             async action() {
               await deleteDb(file.dbPath);
-              await vm.setFiles();
+              await setFiles();
             },
             isPrimary: true,
           },
           {
             label: this.t`No`,
-            action() {},
+            action() {
+              return null;
+            },
             isEscape: true,
           },
         ],
@@ -305,7 +307,7 @@ export default defineComponent({
     },
     async createDemo() {
       if (!fyo.store.isDevelopment) {
-        this.startDummyInstanceSetup();
+        await this.startDummyInstanceSetup();
       } else {
         this.openModal = true;
       }
@@ -363,14 +365,14 @@ export default defineComponent({
       const filePath = (await getSelectedFilePath())?.filePaths?.[0];
       this.emitFileSelected(filePath);
     },
-    async selectFile(file: ConfigFilesWithModified) {
+    selectFile(file: ConfigFilesWithModified) {
       if (this.creatingDemo) {
         return;
       }
 
-      await this.emitFileSelected(file.dbPath);
+      this.emitFileSelected(file.dbPath);
     },
-    async emitFileSelected(filePath: string, isNew?: boolean) {
+    emitFileSelected(filePath: string, isNew?: boolean) {
       if (!filePath) {
         return;
       }

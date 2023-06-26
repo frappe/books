@@ -47,7 +47,7 @@
                   @click="handleAction(item)"
                 >
                   <span class="text-base text-white">
-                    {{ item.actionLabel || t`Set Up` }}
+                    {{ t`Set Up` }}
                   </span>
                 </Button>
                 <Button
@@ -69,15 +69,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { DocValue } from 'fyo/core/types';
 import Button from 'src/components/Button.vue';
 import Icon from 'src/components/Icon.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { getGetStartedConfig } from 'src/utils/getStartedConfig';
 import { openLink } from 'src/utils/ipcCalls';
-import { h } from 'vue';
-export default {
+import { GetStartedConfigItem } from 'src/utils/types';
+import { Component } from 'vue';
+import { defineComponent, h } from 'vue';
+
+type ListItem = GetStartedConfigItem['items'][number];
+
+export default defineComponent({
   name: 'GetStarted',
   components: {
     PageHeader,
@@ -86,19 +92,19 @@ export default {
   },
   data() {
     return {
-      activeCard: null,
-      sections: [],
+      activeCard: null as string | null,
+      sections: getGetStartedConfig(),
     };
   },
   mounted() {
-    this.sections = getGetStartedConfig();
+    // this.sections = getGetStartedConfig();
   },
   async activated() {
     await fyo.doc.getDoc('GetStarted');
-    this.checkForCompletedTasks();
+    await this.checkForCompletedTasks();
   },
   methods: {
-    async handleDocumentation({ key, documentation }) {
+    async handleDocumentation({ key, documentation }: ListItem) {
       if (documentation) {
         openLink(documentation);
       }
@@ -109,7 +115,7 @@ export default {
           break;
       }
     },
-    async handleAction({ key, action }) {
+    async handleAction({ key, action }: ListItem) {
       if (action) {
         action();
         this.activeCard = null;
@@ -134,12 +140,12 @@ export default {
       }
     },
     async checkIsOnboardingComplete() {
-      if (fyo.singles.GetStarted.onboardingComplete) {
+      if (fyo.singles.GetStarted?.onboardingComplete) {
         return true;
       }
 
       const doc = await fyo.doc.getDoc('GetStarted');
-      const onboardingComplete = fyo.schemaMap.GetStarted.fields
+      const onboardingComplete = fyo.schemaMap.GetStarted?.fields
         .filter(({ fieldname }) => fieldname !== 'onboardingComplete')
         .map(({ fieldname }) => doc.get(fieldname))
         .every(Boolean);
@@ -154,41 +160,41 @@ export default {
       return onboardingComplete;
     },
     async checkForCompletedTasks() {
-      let toUpdate = {};
+      let toUpdate: Record<string, DocValue> = {};
       if (await this.checkIsOnboardingComplete()) {
         return;
       }
 
-      if (!fyo.singles.GetStarted.salesItemCreated) {
+      if (!fyo.singles.GetStarted?.salesItemCreated) {
         const count = await fyo.db.count('Item', { filters: { for: 'Sales' } });
         toUpdate.salesItemCreated = count > 0;
       }
 
-      if (!fyo.singles.GetStarted.purchaseItemCreated) {
+      if (!fyo.singles.GetStarted?.purchaseItemCreated) {
         const count = await fyo.db.count('Item', {
           filters: { for: 'Purchases' },
         });
         toUpdate.purchaseItemCreated = count > 0;
       }
 
-      if (!fyo.singles.GetStarted.invoiceCreated) {
+      if (!fyo.singles.GetStarted?.invoiceCreated) {
         const count = await fyo.db.count('SalesInvoice');
         toUpdate.invoiceCreated = count > 0;
       }
 
-      if (!fyo.singles.GetStarted.customerCreated) {
+      if (!fyo.singles.GetStarted?.customerCreated) {
         const count = await fyo.db.count('Party', {
           filters: { role: 'Customer' },
         });
         toUpdate.customerCreated = count > 0;
       }
 
-      if (!fyo.singles.GetStarted.billCreated) {
+      if (!fyo.singles.GetStarted?.billCreated) {
         const count = await fyo.db.count('SalesInvoice');
         toUpdate.billCreated = count > 0;
       }
 
-      if (!fyo.singles.GetStarted.supplierCreated) {
+      if (!fyo.singles.GetStarted?.supplierCreated) {
         const count = await fyo.db.count('Party', {
           filters: { role: 'Supplier' },
         });
@@ -196,20 +202,21 @@ export default {
       }
       await this.updateChecks(toUpdate);
     },
-    async updateChecks(toUpdate) {
-      await fyo.singles.GetStarted.setAndSync(toUpdate);
+    async updateChecks(toUpdate: Record<string, DocValue>) {
+      await fyo.singles.GetStarted?.setAndSync(toUpdate);
       await fyo.doc.getDoc('GetStarted');
     },
-    isCompleted(item) {
-      return fyo.singles.GetStarted.get(item.fieldname) || false;
+    isCompleted(item: ListItem) {
+      return fyo.singles.GetStarted?.get(item.fieldname) || false;
     },
-    getIconComponent(item) {
-      let completed = fyo.singles.GetStarted[item.fieldname] || false;
+    getIconComponent(item: ListItem) {
+      let completed = fyo.singles.GetStarted?.[item.fieldname] || false;
       let name = completed ? 'green-check' : item.icon;
       let size = completed ? '24' : '18';
       return {
         name,
         render() {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return h(Icon, {
             ...Object.assign(
               {
@@ -220,8 +227,8 @@ export default {
             ),
           });
         },
-      };
+      } as Component;
     },
   },
-};
+});
 </script>

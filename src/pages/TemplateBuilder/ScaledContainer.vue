@@ -29,8 +29,8 @@ export default defineComponent({
   computed: {
     innerContainerStyle(): Record<string, string> {
       const style: Record<string, string> = {};
-      style['width'] = this.width + 'cm';
-      style['height'] = this.height + 'cm';
+      style['width'] = `${this.width}cm`;
+      style['height'] = `${this.height}cm`;
       style['transform'] = `scale(${this.scale})`;
       style['margin-top'] = `calc(-1 * (${this.height}cm * ${
         1 - this.scale

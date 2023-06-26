@@ -205,11 +205,13 @@ export default defineComponent({
       const matrix: { value: string; idx: number }[][] = [columns];
       const start = Math.max(this.start - 1, 1);
       const end = Math.min(start + this.limit, this.report.reportData.length);
-      for (const i in this.report.reportData.slice(start, end)) {
-        const row = this.report.reportData[Number(i) + start];
+      const slice = this.report.reportData.slice(start, end);
+
+      for (let i = 0; i < slice.length; i++) {
+        const row = slice[i];
 
         matrix.push([]);
-        for (const j in row.cells) {
+        for (let j = 0; j < row.cells.length; j++) {
           if (!this.columnSelection[j]) {
             continue;
           }

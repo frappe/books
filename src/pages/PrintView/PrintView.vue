@@ -244,7 +244,7 @@ export default defineComponent({
 
       this.templateList = list.map(({ name }) => name);
     },
-    async savePDF() {
+    savePDF() {
       const printContainer = this.$refs.printContainer as {
         savePDF: (name?: string) => void;
       };

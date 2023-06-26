@@ -235,6 +235,7 @@ import { showDialog, showToast } from 'src/utils/interactive';
 import { getSavePath } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import {
+  PrintTemplateHint,
   baseTemplate,
   getPrintTemplatePropHints,
   getPrintTemplatePropValues,
@@ -275,7 +276,7 @@ export default defineComponent({
   provide() {
     return { doc: computed(() => this.doc) };
   },
-  props: { name: String },
+  props: { name: { type: String, required: true } },
   setup() {
     const doc = ref(null) as DocRef<PrintTemplate>;
     const shortcuts = inject(shortcutsKey);
@@ -310,7 +311,7 @@ export default defineComponent({
     } as {
       editMode: boolean;
       showHints: boolean;
-      hints?: Record<string, unknown>;
+      hints?: PrintTemplateHint;
       values: null | PrintValues;
       displayDoc: PrintTemplate | null;
       showSizeModal: boolean;
@@ -377,14 +378,14 @@ export default defineComponent({
         actions.push({
           label: this.t`Select Template File`,
           group: this.t`Action`,
-          action: this.selectFile,
+          action: this.selectFile.bind(this),
         });
       }
 
       actions.push({
         label: this.t`Save Template File`,
         group: this.t`Action`,
-        action: this.saveFile,
+        action: this.saveFile.bind(this),
       });
 
       return actions;
@@ -464,9 +465,21 @@ export default defineComponent({
         return;
       }
 
-      this.shortcuts.ctrl.set(this.context, ['Enter'], this.setTemplate);
-      this.shortcuts.ctrl.set(this.context, ['KeyE'], this.toggleEditMode);
-      this.shortcuts.ctrl.set(this.context, ['KeyH'], this.toggleShowHints);
+      this.shortcuts.ctrl.set(
+        this.context,
+        ['Enter'],
+        this.setTemplate.bind(this)
+      );
+      this.shortcuts.ctrl.set(
+        this.context,
+        ['KeyE'],
+        this.toggleEditMode.bind(this)
+      );
+      this.shortcuts.ctrl.set(
+        this.context,
+        ['KeyH'],
+        this.toggleShowHints.bind(this)
+      );
       this.shortcuts.ctrl.set(this.context, ['Equal'], () =>
         this.setScale(this.scale + 0.1)
       );
@@ -523,7 +536,7 @@ export default defineComponent({
     toggleShowHints() {
       this.showHints = !this.showHints;
     },
-    async toggleEditMode() {
+    toggleEditMode() {
       if (!this.doc?.isCustom) {
         return;
       }
@@ -558,7 +571,7 @@ export default defineComponent({
     },
     getEditModeScale(): number {
       // @ts-ignore
-      const div = this.$refs.printContainer.$el;
+      const div = this.$refs.printContainer.$el as unknown;
       if (!(div instanceof HTMLDivElement)) {
         return this.scale;
       }
@@ -570,7 +583,7 @@ export default defineComponent({
 
       return Number(targetScale.toFixed(2));
     },
-    async savePDF() {
+    savePDF() {
       const printContainer = this.$refs.printContainer as {
         savePDF: (name?: string) => void;
       };
@@ -695,14 +708,14 @@ export default defineComponent({
       const template = this.getTemplateEditorState();
 
       if (!name) {
-        return await showToast({
+        return showToast({
           type: 'warning',
           message: this.t`Print Template Name not set`,
         });
       }
 
       if (!template) {
-        return await showToast({
+        return showToast({
           type: 'warning',
           message: this.t`Print Template is empty`,
         });

@@ -176,12 +176,12 @@ export default defineComponent({
     }
 
     docsPathRef.value = docsPathMap.Settings ?? '';
-    this.shortcuts?.pmod.set(COMPONENT_NAME, ['KeyS'], () => {
+    this.shortcuts?.pmod.set(COMPONENT_NAME, ['KeyS'], async () => {
       if (!this.canSave) {
         return;
       }
 
-      this.sync();
+      await this.sync();
     });
   },
   async deactivated(): Promise<void> {
@@ -214,7 +214,7 @@ export default defineComponent({
       }
 
       this.update();
-      showDialog({
+      await showDialog({
         title: this.t`Reload Frappe Books?`,
         detail: this.t`Changes made to settings will be visible on reload.`,
         type: 'info',
@@ -226,7 +226,7 @@ export default defineComponent({
           },
           {
             label: this.t`No`,
-            action() {},
+            action: () => null,
             isEscape: true,
           },
         ],

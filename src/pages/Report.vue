@@ -45,8 +45,8 @@
   </div>
 </template>
 <script lang="ts">
-import { computed } from 'vue';
 import { t } from 'fyo';
+import { DocValue } from 'fyo/core/types';
 import { reports } from 'reports';
 import { Report } from 'reports/Report';
 import Button from 'src/components/Button.vue';
@@ -60,7 +60,7 @@ import { docsPathMap, getReport } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { ActionGroup } from 'src/utils/types';
 import { routeTo } from 'src/utils/ui';
-import { PropType, defineComponent, inject } from 'vue';
+import { PropType, computed, defineComponent, inject } from 'vue';
 
 export default defineComponent({
   components: {
@@ -119,12 +119,13 @@ export default defineComponent({
       return Object.values(actionsMap);
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async activated() {
     docsPathRef.value =
       docsPathMap[this.reportClassName] ?? docsPathMap.Reports!;
     await this.setReportData();
 
-    const filters = JSON.parse(this.defaultFilters);
+    const filters = JSON.parse(this.defaultFilters) as Record<string, DocValue>;
     const filterKeys = Object.keys(filters);
     for (const key of filterKeys) {
       await this.report?.set(key, filters[key]);
@@ -139,8 +140,8 @@ export default defineComponent({
       window.rep = this;
     }
 
-    this.shortcuts?.pmod.set(this.reportClassName, ['KeyP'], () => {
-      routeTo(`/report-print/${this.reportClassName}`);
+    this.shortcuts?.pmod.set(this.reportClassName, ['KeyP'], async () => {
+      await routeTo(`/report-print/${this.reportClassName}`);
     });
   },
   deactivated() {

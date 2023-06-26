@@ -42,7 +42,7 @@
     />
   </div>
 </template>
-<script>
+<script lang="ts">
 import { AccountTypeEnum } from 'models/baseModels/Account/types';
 import { ModelNameEnum } from 'models/types';
 import LineChart from 'src/components/Charts/LineChart.vue';
@@ -50,11 +50,19 @@ import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax } from 'src/utils/chart';
 import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
-import { getMapFromList } from 'utils/';
 import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
+import { defineComponent } from 'vue';
+import { getMapFromList } from 'utils/index';
+import { PeriodKey } from 'src/utils/types';
 
-export default {
+// Linting broken in this file cause of `extends: ...`
+/* 
+  eslint-disable @typescript-eslint/no-unsafe-argument, 
+  @typescript-eslint/no-unsafe-return
+*/
+
+export default defineComponent({
   name: 'Cashflow',
   components: {
     PeriodSelector,
@@ -62,7 +70,7 @@ export default {
   },
   extends: DashboardChartBase,
   data: () => ({
-    data: [],
+    data: [] as { inflow: number; outflow: number; yearmonth: string }[],
     periodList: [],
     periodOptions: ['This Year', 'This Quarter'],
     hasData: false,
@@ -76,10 +84,12 @@ export default {
         colors = [uicolors.gray['200'], uicolors.gray['100']];
       }
 
-      const xLabels = data.map((cf) => cf['yearmonth']);
-      const points = ['inflow', 'outflow'].map((k) => data.map((d) => d[k]));
+      const xLabels = data.map((cf) => cf.yearmonth);
+      const points = (['inflow', 'outflow'] as const).map((k) =>
+        data.map((d) => d[k])
+      );
 
-      const format = (value) => fyo.format(value ?? 0, 'Currency');
+      const format = (value: number) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
       return { points, xLabels, colors, format, yMax, formatX: formatXLabels };
     },
@@ -92,8 +102,8 @@ export default {
   },
   methods: {
     async setData() {
-      const { periodList, fromDate, toDate } = await getDatesAndPeriodList(
-        this.period
+      const { periodList, fromDate, toDate } = getDatesAndPeriodList(
+        this.period as PeriodKey
       );
 
       const data = await fyo.db.getCashflow(fromDate.toISO(), toDate.toISO());
@@ -118,14 +128,14 @@ export default {
           accountType: ['in', [AccountTypeEnum.Cash, AccountTypeEnum.Bank]],
         },
       });
-      const accountNames = accounts.map((a) => a.name);
+      const accountNames = accounts.map((a) => a.name as string);
       const count = await fyo.db.count(ModelNameEnum.AccountingLedgerEntry, {
         filters: { account: ['in', accountNames] },
       });
       this.hasData = count > 0;
     },
   },
-};
+});
 
 const dummyData = [
   {

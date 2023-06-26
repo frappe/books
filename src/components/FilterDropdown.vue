@@ -93,7 +93,7 @@
                     fieldname: 'value',
                     fieldtype: 'Data',
                   }"
-                  :value="filter.value"
+                  :value="String(filter.value)"
                   @change="(value) => (filter.value = value)"
                 />
               </div>
@@ -127,7 +127,7 @@
 </template>
 <script lang="ts">
 import { t } from 'fyo';
-import { Field, FieldTypeEnum, SelectOption } from 'schemas/types';
+import { Field, FieldTypeEnum } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
 import { defineComponent } from 'vue';
@@ -136,7 +136,7 @@ import Data from './Controls/Data.vue';
 import Select from './Controls/Select.vue';
 import Icon from './Icon.vue';
 import Popover from './Popover.vue';
-import { cloneDeep } from 'lodash';
+import { QueryFilter } from 'utils/db/types';
 
 const conditions = [
   { label: t`Is`, value: '=' },
@@ -154,7 +154,7 @@ type Condition = typeof conditions[number]['value'];
 type Filter = {
   fieldname: string;
   condition: Condition;
-  value: string;
+  value: QueryFilter[string];
   implicit: boolean;
 };
 
@@ -237,7 +237,7 @@ export default defineComponent({
     addFilter(
       fieldname: string,
       condition: Condition,
-      value: string,
+      value: Filter['value'],
       implicit?: boolean
     ): void {
       this.filters.push({ fieldname, condition, value, implicit: !!implicit });
@@ -245,16 +245,17 @@ export default defineComponent({
     removeFilter(filter: Filter): void {
       this.filters = this.filters.filter((f) => f !== filter);
     },
-    setFilter(filters: Record<string, Filter>, implicit?: boolean): void {
+    setFilter(filters: QueryFilter, implicit?: boolean): void {
       this.filters = [];
 
       Object.keys(filters).map((fieldname) => {
         let parts = filters[fieldname];
-        let condition, value;
+        let condition: Condition;
+        let value: Filter['value'];
 
         if (Array.isArray(parts)) {
-          condition = parts[0];
-          value = parts[1];
+          condition = parts[0] as Condition;
+          value = parts[1] as Filter['value'];
         } else {
           condition = '=';
           value = parts;
@@ -266,7 +267,7 @@ export default defineComponent({
       this.emitFilterChange();
     },
     emitFilterChange(): void {
-      const filters: Record<string, [Condition, string]> = {};
+      const filters: Record<string, [Condition, Filter['value']]> = {};
       for (const { condition, value, fieldname } of this.filters) {
         if (value === '' && condition) {
           continue;

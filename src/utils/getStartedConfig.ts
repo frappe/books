@@ -1,12 +1,13 @@
 import { t } from 'fyo';
 import { ModelNameEnum } from 'models/types';
 import { openSettings, routeTo } from './ui';
+import { GetStartedConfigItem } from './types';
 
-export function getGetStartedConfig() {
+export function getGetStartedConfig(): GetStartedConfigItem[] {
+  /* eslint-disable @typescript-eslint/no-misused-promises */
   return [
     {
       label: t`Organisation`,
-
       items: [
         {
           key: 'General',
@@ -36,7 +37,6 @@ export function getGetStartedConfig() {
     },
     {
       label: t`Accounts`,
-
       items: [
         {
           key: 'Review Accounts',
@@ -71,7 +71,6 @@ export function getGetStartedConfig() {
     },
     {
       label: t`Sales`,
-
       items: [
         {
           key: 'Add Sales Items',
@@ -119,7 +118,6 @@ export function getGetStartedConfig() {
     },
     {
       label: t`Purchase`,
-
       items: [
         {
           key: 'Add Purchase Items',
