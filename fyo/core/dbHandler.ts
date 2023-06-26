@@ -305,7 +305,7 @@ export class DatabaseHandler extends DatabaseBase {
     )) as IncomeExpense;
   }
 
-  async getTotalCreditAndDebit(): Promise<unknown> {
+  async getTotalCreditAndDebit(): Promise<TotalCreditAndDebit[]> {
     return (await this.#demux.callBespoke(
       'getTotalCreditAndDebit'
     )) as TotalCreditAndDebit[];

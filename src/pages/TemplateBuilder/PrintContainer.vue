@@ -97,7 +97,8 @@ export default defineComponent({
             return '';
           },
         },
-      } as {} /** to silence :is type check */;
+        // eslint-disable-next-line @typescript-eslint/ban-types
+      } as {};
     },
   },
   watch: {
@@ -128,8 +129,8 @@ export default defineComponent({
       this.error = null;
       return compile(template, {
         hoistStatic: true,
-        onWarn: this.onError,
-        onError: this.onError,
+        onWarn: this.onError.bind(this),
+        onError: this.onError.bind(this),
       });
     },
     handleErrorCaptured(error: unknown) {
@@ -160,6 +161,8 @@ export default defineComponent({
       return generateCodeFrame(this.template, loc.start.offset, loc.end.offset);
     },
     async savePDF(name?: string) {
+      /* eslint-disable */
+
       /**
        * To be called through ref by the parent component.
        */

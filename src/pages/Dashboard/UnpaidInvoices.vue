@@ -89,11 +89,17 @@ import { getDatesAndPeriodList } from 'src/utils/misc';
 import { PeriodKey } from 'src/utils/types';
 import { routeTo } from 'src/utils/ui';
 import { safeParseFloat } from 'utils/index';
-import { defineComponent } from 'vue';
+import { PropType, defineComponent } from 'vue';
 import BaseDashboardChart from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 
+// Linting broken in this file cause of `extends: ...`
+/* 
+  eslint-disable @typescript-eslint/no-unsafe-argument, 
+  @typescript-eslint/restrict-template-expressions,
+  @typescript-eslint/no-unsafe-return
+*/
 export default defineComponent({
   name: 'UnpaidInvoices',
   components: {
@@ -103,7 +109,7 @@ export default defineComponent({
   },
   extends: BaseDashboardChart,
   props: {
-    schemaName: { type: String, required: true },
+    schemaName: { type: String as PropType<string>, required: true },
   },
   data() {
     return {
@@ -211,7 +217,7 @@ export default defineComponent({
     },
     async newInvoice() {
       const doc = fyo.doc.getNewDoc(this.schemaName);
-      await routeTo(`/edit/${this.schemaName}/${doc.name}`);
+      await routeTo(`/edit/${this.schemaName}/${doc.name!}`);
     },
 
     async getCounts(schemaName: string, fromDate: DateTime, toDate: DateTime) {

@@ -37,7 +37,7 @@
 
     <!-- Data Rows -->
     <div v-if="dataSlice.length !== 0" class="overflow-y-auto custom-scroll">
-      <div v-for="(row, i) in dataSlice" :key="row.name">
+      <div v-for="(row, i) in dataSlice" :key="(row.name as string)">
         <!-- Row Content -->
         <div class="flex hover:bg-gray-50 items-center">
           <p class="w-8 text-end me-4 text-gray-900">
@@ -56,7 +56,7 @@
                 'text-end': isNumeric(column.fieldtype),
                 'pe-4': c === columns.length - 1,
               }"
-              :row="row"
+              :row="(row as RenderData)"
               :column="column"
             />
           </Row>
@@ -93,14 +93,16 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
+import { ListViewSettings, RenderData } from 'fyo/model/types';
 import { cloneDeep } from 'lodash';
 import Button from 'src/components/Button.vue';
 import Paginator from 'src/components/Paginator.vue';
 import Row from 'src/components/Row.vue';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
-import { defineComponent } from 'vue';
+import { QueryFilter } from 'utils/db/types';
+import { PropType, defineComponent } from 'vue';
 import ListCell from './ListCell.vue';
 
 export default defineComponent({
@@ -112,15 +114,21 @@ export default defineComponent({
     Paginator,
   },
   props: {
-    listConfig: Object,
-    filters: Object,
-    schemaName: String,
+    listConfig: {
+      type: Object as PropType<ListViewSettings | undefined>,
+      default: () => ({ columns: [] }),
+    },
+    filters: {
+      type: Object as PropType<QueryFilter>,
+      default: () => ({}),
+    },
+    schemaName: { type: String, required: true },
     canCreate: Boolean,
   },
   emits: ['openDoc', 'makeNewDoc', 'updatedData'],
   data() {
     return {
-      data: [],
+      data: [] as RenderData[],
       pageStart: 0,
       pageEnd: 0,
     };
@@ -136,7 +144,7 @@ export default defineComponent({
       let columns = this.listConfig?.columns ?? [];
 
       if (columns.length === 0) {
-        columns = fyo.schemaMap[this.schemaName].quickEditFields ?? [];
+        columns = fyo.schemaMap[this.schemaName]?.quickEditFields ?? [];
         columns = [...new Set(['name', ...columns])];
       }
 
@@ -152,12 +160,12 @@ export default defineComponent({
     },
   },
   watch: {
-    schemaName(oldValue, newValue) {
+    async schemaName(oldValue, newValue) {
       if (oldValue === newValue) {
         return;
       }
 
-      this.updateData();
+      await this.updateData();
     },
   },
   async mounted() {
@@ -166,7 +174,7 @@ export default defineComponent({
   },
   methods: {
     isNumeric,
-    setPageIndices({ start, end }) {
+    setPageIndices({ start, end }: { start: number; end: number }) {
       this.pageStart = start;
       this.pageEnd = end;
     },
@@ -175,11 +183,11 @@ export default defineComponent({
         return;
       }
 
-      const listener = () => {
-        this.updateData();
+      const listener = async () => {
+        await this.updateData();
       };
 
-      if (fyo.schemaMap[this.schemaName].isSubmittable) {
+      if (fyo.schemaMap[this.schemaName]?.isSubmittable) {
         fyo.doc.observer.on(`submit:${this.schemaName}`, listener);
         fyo.doc.observer.on(`revert:${this.schemaName}`, listener);
       }
@@ -188,7 +196,7 @@ export default defineComponent({
       fyo.db.observer.on(`delete:${this.schemaName}`, listener);
       fyo.doc.observer.on(`rename:${this.schemaName}`, listener);
     },
-    async updateData(filters) {
+    async updateData(filters?: Record<string, unknown>) {
       if (!filters) {
         filters = { ...this.filters };
       }
@@ -201,13 +209,16 @@ export default defineComponent({
         orderBy.unshift('date');
       }
 
-      this.data = (
-        await fyo.db.getAll(this.schemaName, {
-          fields: ['*'],
-          filters,
-          orderBy,
-        })
-      ).map((d) => ({ ...d, schema: fyo.schemaMap[this.schemaName] }));
+      const tableData = await fyo.db.getAll(this.schemaName, {
+        fields: ['*'],
+        filters: filters as QueryFilter,
+        orderBy,
+      });
+
+      this.data = tableData.map((d) => ({
+        ...d,
+        schema: fyo.schemaMap[this.schemaName],
+      })) as RenderData[];
       this.$emit('updatedData', filters);
     },
   },

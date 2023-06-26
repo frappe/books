@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center truncate" :class="cellClass">
     <span v-if="!customRenderer" class="truncate">{{ columnValue }}</span>
-    <component :is="customRenderer" v-else />
+    <component :is="(customRenderer as {})" v-else />
   </div>
 </template>
 <script lang="ts">

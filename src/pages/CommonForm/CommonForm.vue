@@ -81,13 +81,13 @@
       <!-- Section Container -->
       <div v-if="hasDoc" class="overflow-auto custom-scroll">
         <CommonFormSection
-          v-for="([name, fields], idx) in activeGroup.entries()"
-          :key="name + idx"
+          v-for="([n, fields], idx) in activeGroup.entries()"
+          :key="n + idx"
           ref="section"
           class="p-4"
           :class="idx !== 0 && activeGroup.size > 1 ? 'border-t' : ''"
-          :show-title="activeGroup.size > 1 && name !== t`Default`"
-          :title="name"
+          :show-title="activeGroup.size > 1 && n !== t`Default`"
+          :title="n"
           :fields="fields"
           :doc="doc"
           :errors="errors"
@@ -348,7 +348,7 @@ export default defineComponent({
       const group = this.groupedFields.get(this.activeTab);
       if (!group) {
         const tab = [...this.groupedFields.keys()][0];
-        return this.groupedFields.get(tab) ?? new Map();
+        return this.groupedFields.get(tab) ?? new Map<string, Field[]>();
       }
 
       return group;
@@ -361,7 +361,7 @@ export default defineComponent({
       return getGroupedActionsForDoc(this.doc);
     },
   },
-  async beforeMount() {
+  beforeMount() {
     this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
   },
   async mounted() {
@@ -438,14 +438,14 @@ export default defineComponent({
         this.name
       );
     },
-    async replacePathAfterSync() {
+    replacePathAfterSync() {
       if (!this.hasDoc || this.doc.inserted) {
         return;
       }
 
-      this.doc.once('afterSync', () => {
+      this.doc.once('afterSync', async () => {
         const route = getFormRoute(this.schemaName, this.doc.name!);
-        this.$router.replace(route);
+        await this.$router.replace(route);
       });
     },
     async showRowEditForm(doc: Doc) {

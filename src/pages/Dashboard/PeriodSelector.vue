@@ -35,27 +35,30 @@
   </Dropdown>
 </template>
 
-<script>
+<script lang="ts">
 import { t } from 'fyo';
 import Dropdown from 'src/components/Dropdown.vue';
+import { PeriodKey } from 'src/utils/types';
+import { PropType } from 'vue';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'PeriodSelector',
   components: {
     Dropdown,
   },
   props: {
-    value: String,
+    value: { type: String as PropType<PeriodKey>, default: 'This Year' },
     options: {
-      type: Array,
+      type: Array as PropType<PeriodKey[]>,
       default: () => ['This Year', 'This Quarter', 'This Month'],
     },
   },
   emits: ['change'],
   data() {
     return {
-      periodSelectorMap: {},
-      periodOptions: [],
+      periodSelectorMap: {} as Record<PeriodKey | '', string>,
+      periodOptions: [] as { label: string; action: () => void }[],
     };
   },
   mounted() {
@@ -76,10 +79,12 @@ export default {
     });
   },
   methods: {
-    selectOption(value) {
+    selectOption(value: PeriodKey) {
       this.$emit('change', value);
-      this.$refs.dropdown.toggleDropdown(false);
+      (this.$refs.dropdown as InstanceType<typeof Dropdown>).toggleDropdown(
+        false
+      );
     },
   },
-};
+});
 </script>

@@ -1,19 +1,22 @@
 <script lang="ts">
+import { PeriodKey } from 'src/utils/types';
+import { PropType } from 'vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
   props: {
-    commonPeriod: String,
+    commonPeriod: { type: String as PropType<PeriodKey>, default: 'This Year' },
   },
+  emits: ['period-change'],
   data() {
     return {
-      period: 'This Year',
-      periodOptions: ['This Year', 'This Quarter', 'This Month'],
+      period: 'This Year' as PeriodKey,
+      periodOptions: ['This Year', 'This Quarter', 'This Month'] as PeriodKey[],
     };
   },
   watch: {
     period: 'periodChange',
-    commonPeriod(val) {
+    commonPeriod(val: PeriodKey) {
       if (!this.periodOptions.includes(val)) {
         return;
       }
@@ -26,7 +29,9 @@ export default defineComponent({
       this.$emit('period-change', this.period);
       await this.setData();
     },
-    async setData() {},
+    async setData() {
+      return Promise.resolve(null);
+    },
   },
 });
 </script>

@@ -28,9 +28,9 @@
       :filters="filters"
       :can-create="canCreate"
       class="flex-1 flex h-full"
-      @openDoc="openDoc"
-      @updatedData="updatedData"
-      @makeNewDoc="makeNewDoc"
+      @open-doc="openDoc"
+      @updated-data="updatedData"
+      @make-new-doc="makeNewDoc"
     />
     <Modal :open-modal="openExportModal" @closemodal="openExportModal = false">
       <ExportWizard
@@ -73,7 +73,7 @@ export default defineComponent({
   },
   props: {
     schemaName: { type: String, required: true },
-    filters: Object,
+    filters: { type: Object, default: undefined },
     pageTitle: { type: String, default: '' },
   },
   setup() {
@@ -114,7 +114,7 @@ export default defineComponent({
       return fyo.schemaMap[this.schemaName]?.create !== false;
     },
   },
-  async activated() {
+  activated() {
     if (typeof this.filters === 'object') {
       this.filterDropdown?.setFilter(this.filters, true);
     }

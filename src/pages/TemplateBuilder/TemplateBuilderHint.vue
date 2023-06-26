@@ -63,10 +63,12 @@
   </div>
 </template>
 <script lang="ts">
+import { PrintTemplateHint } from 'src/utils/printTemplates';
+import { PropType } from 'vue';
 import { defineComponent } from 'vue';
 type HintRow = {
   key: string;
-  value: string | Record<string, unknown>;
+  value: PrintTemplateHint[string];
   isCollapsible: boolean;
   collapsed: boolean;
 };
@@ -74,7 +76,10 @@ export default defineComponent({
   name: 'TemplateBuilderHint',
   props: {
     prefix: { type: String, default: '' },
-    hints: { type: Object, required: true },
+    hints: {
+      type: Object as PropType<PrintTemplateHint>,
+      required: true,
+    },
     level: { type: Number, default: 0 },
   },
   data() {

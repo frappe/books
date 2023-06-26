@@ -80,7 +80,9 @@ export default defineComponent({
         return rows[this.index];
       }
 
-      const label = `${this.doc.name}.${this.fieldname}[${this.index}]`;
+      const label = `${this.doc.name ?? '_name'}.${this.fieldname}[${
+        this.index
+      }]`;
       throw new ValueError(this.t`Invalid value found for ${label}`);
     },
     fields() {

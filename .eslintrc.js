@@ -37,6 +37,17 @@ module.exports = {
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:prettier/recommended',
   ],
+  overrides: [
+    {
+      files: ['*.vue'],
+      rules: {
+        '@typescript-eslint/no-misused-promises': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+      },
+    },
+  ],
   ignorePatterns: [
     '*.mjs',
     '.eslintrc.js',
@@ -46,5 +57,6 @@ module.exports = {
     '*.spec.ts',
     'vite.config.ts',
     'postcss.config.js',
+    'src/components/**/*.vue', // Incrementally fix these
   ],
 };

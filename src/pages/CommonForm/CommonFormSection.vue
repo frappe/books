@@ -56,6 +56,7 @@
   </div>
 </template>
 <script lang="ts">
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
@@ -67,12 +68,15 @@ import { defineComponent, PropType } from 'vue';
 export default defineComponent({
   components: { FormControl, Table },
   props: {
-    title: String,
-    errors: Object as PropType<Record<string, string>>,
+    title: { type: String, default: '' },
+    errors: {
+      type: Object as PropType<Record<string, string>>,
+      required: true,
+    },
     showTitle: Boolean,
     doc: { type: Object as PropType<Doc>, required: true },
     collapsible: { type: Boolean, default: true },
-    fields: Array as PropType<Field[]>,
+    fields: { type: Array as PropType<Field[]>, required: true },
   },
   emits: ['editrow', 'value-change', 'row-change'],
   data() {

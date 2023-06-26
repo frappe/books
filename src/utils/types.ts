@@ -118,3 +118,16 @@ export type DialogButton = {
   isPrimary?: boolean;
   isEscape?: boolean;
 };
+
+export type GetStartedConfigItem = {
+  label: string;
+  items: {
+    key: string;
+    label: string;
+    icon: string;
+    description: string;
+    fieldname: string;
+    documentation?: string;
+    action?: () => void;
+  }[];
+};
