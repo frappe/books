@@ -59,10 +59,7 @@ export class Account extends Doc {
       return;
     }
 
-    const account = await this.fyo.db.get(
-      'Account',
-      this.parentAccount as string
-    );
+    const account = await this.fyo.db.get('Account', this.parentAccount);
     this.accountType = account.accountType as AccountType;
   }
 

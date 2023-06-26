@@ -43,7 +43,7 @@ export default {
 
       this.$refs.tooltip.setAttribute('data-show', '');
       this.virtualElement = {
-        getBoundingClientRect: generateGetBoundingClientRect(-1000,-1000),
+        getBoundingClientRect: generateGetBoundingClientRect(-1000, -1000),
       };
       this.popper = createPopper(this.virtualElement, this.$refs.tooltip, {
         placement: this.placement,

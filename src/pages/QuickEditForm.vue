@@ -22,20 +22,20 @@
 
       <!-- Save & Submit Buttons -->
       <Button
-        :icon="true"
-        @click="sync"
-        type="primary"
         v-if="doc?.canSave"
+        :icon="true"
+        type="primary"
         class="text-white text-xs"
+        @click="sync"
       >
         {{ t`Save` }}
       </Button>
       <Button
-        :icon="true"
-        @click="submit"
-        type="primary"
         v-else-if="doc?.canSubmit"
+        :icon="true"
+        type="primary"
         class="text-white text-xs"
+        @click="submit"
       >
         {{ t`Submit` }}
       </Button>
@@ -43,30 +43,30 @@
 
     <!-- Name and image -->
     <div
+      v-if="doc && (titleField || imageField)"
       class="items-center border-b"
       :class="imageField ? 'grid' : 'flex justify-center'"
       :style="{
         height: `calc(var(--h-row-mid) * ${!!imageField ? '2 + 1px' : '1'})`,
         gridTemplateColumns: `minmax(0, 1.1fr) minmax(0, 2fr)`,
       }"
-      v-if="doc && (titleField || imageField)"
     >
-      <FormControl
+      <AttachImage
         v-if="imageField"
         class="ms-4"
         :df="imageField"
-        :value="doc[imageField.fieldname]"
-        @change="(value) => valueChange(imageField as Field, value)"
+        :value="String(doc[imageField.fieldname] ?? '')"
         :letter-placeholder="letterPlaceHolder"
+        @change="(value) => valueChange(imageField as Field, value)"
       />
       <FormControl
         v-if="titleField"
+        ref="titleControl"
         :class="!!imageField ? 'me-4' : 'w-full mx-4'"
         :input-class="[
           'font-semibold text-xl',
           !!imageField ? '' : 'text-center',
         ]"
-        ref="titleControl"
         size="small"
         :df="titleField"
         :value="doc[titleField.fieldname]"
@@ -78,8 +78,8 @@
     <!-- Rest of the form -->
     <TwoColumnForm
       v-if="doc"
-      class="w-full"
       ref="form"
+      class="w-full"
       :doc="doc"
       :fields="fields"
       :column-ratio="[1.1, 2]"
@@ -87,11 +87,10 @@
   </div>
 </template>
 <script lang="ts">
-import { computed } from '@vue/reactivity';
-import { t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { Field, Schema } from 'schemas/types';
 import Button from 'src/components/Button.vue';
+import AttachImage from 'src/components/Controls/AttachImage.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
@@ -103,20 +102,26 @@ import {
   focusOrSelectFormControl,
 } from 'src/utils/ui';
 import { useDocShortcuts } from 'src/utils/vueUtils';
-import { defineComponent, inject, ref } from 'vue';
+import { computed, defineComponent, inject, ref } from 'vue';
 
 export default defineComponent({
   name: 'QuickEditForm',
+  components: {
+    Button,
+    FormControl,
+    TwoColumnForm,
+    AttachImage,
+  },
+  provide() {
+    return {
+      doc: computed(() => this.doc),
+    };
+  },
   props: {
     name: { type: String, required: true },
     schemaName: { type: String, required: true },
     hideFields: { type: Array, default: () => [] },
     showFields: { type: Array, default: () => [] },
-  },
-  components: {
-    Button,
-    FormControl,
-    TwoColumnForm,
   },
   emits: ['close'],
   setup() {
@@ -135,11 +140,6 @@ export default defineComponent({
       shortcuts,
     };
   },
-  provide() {
-    return {
-      doc: computed(() => this.doc),
-    };
-  },
   data() {
     return {
       titleField: null,
@@ -148,19 +148,6 @@ export default defineComponent({
       titleField: null | Field;
       imageField: null | Field;
     };
-  },
-  activated() {
-    this.setShortcuts();
-  },
-  async mounted() {
-    await this.initialize();
-
-    if (fyo.store.isDevelopment) {
-      // @ts-ignore
-      window.qef = this;
-    }
-
-    this.setShortcuts();
   },
   computed: {
     letterPlaceHolder() {
@@ -199,10 +186,24 @@ export default defineComponent({
       return fieldnames.map((f) => fyo.getField(this.schemaName, f));
     },
   },
+  activated() {
+    this.setShortcuts();
+  },
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async mounted() {
+    await this.initialize();
+
+    if (fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.qef = this;
+    }
+
+    this.setShortcuts();
+  },
   methods: {
     setShortcuts() {
-      this.shortcuts?.set(this.context, ['Escape'], () => {
-        this.routeToPrevious();
+      this.shortcuts?.set(this.context, ['Escape'], async () => {
+        await this.routeToPrevious();
       });
     },
     async initialize() {

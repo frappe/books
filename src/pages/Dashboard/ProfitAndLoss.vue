@@ -11,8 +11,8 @@
       </template>
     </SectionHeader>
     <BarChart
-      class="mt-4"
       v-if="hasData"
+      class="mt-4"
       :aspect-ratio="2.05"
       :colors="chartData.colors"
       :points="chartData.points"
@@ -22,14 +22,14 @@
       :y-max="chartData.yMax"
       :y-min="chartData.yMin"
     />
-    <div class="flex-1 w-full h-full flex-center my-20" v-else>
+    <div v-else class="flex-1 w-full h-full flex-center my-20">
       <span class="text-base text-gray-600">
         {{ t`No transactions yet` }}
       </span>
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import BarChart from 'src/components/Charts/BarChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
@@ -37,32 +37,35 @@ import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getValueMapFromList } from 'utils';
 import DashboardChartBase from './BaseDashboardChart.vue';
-import PeriodSelector from './PeriodSelector';
-import SectionHeader from './SectionHeader';
+import PeriodSelector from './PeriodSelector.vue';
+import SectionHeader from './SectionHeader.vue';
+import { defineComponent } from 'vue';
 
-export default {
+// Linting broken in this file cause of `extends: ...`
+/* 
+  eslint-disable @typescript-eslint/no-unsafe-argument, 
+  @typescript-eslint/no-unsafe-return
+*/
+export default defineComponent({
   name: 'ProfitAndLoss',
-  extends: DashboardChartBase,
   components: {
     PeriodSelector,
     SectionHeader,
     BarChart,
   },
+  extends: DashboardChartBase,
   data: () => ({
-    data: [],
+    data: [] as { yearmonth: string; balance: number }[],
     hasData: false,
     periodOptions: ['This Year', 'This Quarter'],
   }),
-  activated() {
-    this.setData();
-  },
   computed: {
     chartData() {
       const points = [this.data.map((d) => d.balance)];
       const colors = [
         { positive: uicolors.blue['500'], negative: uicolors.pink['500'] },
       ];
-      const format = (value) => fyo.format(value ?? 0, 'Currency');
+      const format = (value: number) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
       const yMin = getYMin(points);
       return {
@@ -76,9 +79,12 @@ export default {
       };
     },
   },
+  activated() {
+    this.setData();
+  },
   methods: {
     async setData() {
-      const { fromDate, toDate, periodList } = await getDatesAndPeriodList(
+      const { fromDate, toDate, periodList } = getDatesAndPeriodList(
         this.period
       );
 
@@ -102,5 +108,5 @@ export default {
       this.hasData = data.income.length > 0 || data.expense.length > 0;
     },
   },
-};
+});
 </script>

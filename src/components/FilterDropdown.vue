@@ -1,8 +1,8 @@
 <template>
   <Popover
-    @close="emitFilterChange"
-    placement="bottom-end"
     v-if="fields.length"
+    placement="bottom-end"
+    @close="emitFilterChange"
   >
     <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
@@ -25,8 +25,8 @@
           <template v-if="explicitFilters.length">
             <div class="flex flex-col gap-2">
               <div
-                :key="filter.fieldname + getRandomString()"
                 v-for="(filter, i) in explicitFilters"
+                :key="filter.fieldname + getRandomString()"
                 class="flex items-center justify-between text-base gap-2"
               >
                 <div
@@ -55,11 +55,12 @@
                     {{ i + 1 }}
                   </span>
                 </div>
-                <FormControl
+                <Select
                   :border="true"
                   size="small"
                   class="w-24"
                   :df="{
+                    label: t`Field`,
                     placeholder: t`Field`,
                     fieldname: 'fieldname',
                     fieldtype: 'Select',
@@ -68,11 +69,12 @@
                   :value="filter.fieldname"
                   @change="(value) => (filter.fieldname = value)"
                 />
-                <FormControl
+                <Select
                   :border="true"
                   size="small"
                   class="w-24"
                   :df="{
+                    label: t`Condition`,
                     placeholder: t`Condition`,
                     fieldname: 'condition',
                     fieldtype: 'Select',
@@ -81,16 +83,17 @@
                   :value="filter.condition"
                   @change="(value) => (filter.condition = value)"
                 />
-                <FormControl
+                <Data
                   :border="true"
                   size="small"
                   class="w-24"
                   :df="{
+                    label: t`Value`,
                     placeholder: t`Value`,
                     fieldname: 'value',
                     fieldtype: 'Data',
                   }"
-                  :value="filter.value"
+                  :value="String(filter.value)"
                   @change="(value) => (filter.value = value)"
                 />
               </div>
@@ -127,11 +130,13 @@ import { t } from 'fyo';
 import { Field, FieldTypeEnum } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
+import { defineComponent } from 'vue';
 import Button from './Button.vue';
-import FormControl from './Controls/FormControl.vue';
+import Data from './Controls/Data.vue';
+import Select from './Controls/Select.vue';
 import Icon from './Icon.vue';
 import Popover from './Popover.vue';
-import { defineComponent } from 'vue';
+import { QueryFilter } from 'utils/db/types';
 
 const conditions = [
   { label: t`Is`, value: '=' },
@@ -149,7 +154,7 @@ type Condition = typeof conditions[number]['value'];
 type Filter = {
   fieldname: string;
   condition: Condition;
-  value: string;
+  value: QueryFilter[string];
   implicit: boolean;
 };
 
@@ -159,7 +164,8 @@ export default defineComponent({
     Popover,
     Button,
     Icon,
-    FormControl,
+    Select,
+    Data,
   },
   props: { schemaName: { type: String, required: true } },
   emits: ['change'],
@@ -167,63 +173,6 @@ export default defineComponent({
     return {
       filters: [],
     } as { filters: Filter[] };
-  },
-  created() {
-    this.addNewFilter();
-  },
-  methods: {
-    getRandomString,
-    addNewFilter(): void {
-      const df = this.fields[0];
-      if (!df) {
-        return;
-      }
-
-      this.addFilter(df.fieldname, 'like', '', false);
-    },
-    addFilter(
-      fieldname: string,
-      condition: Condition,
-      value: string,
-      implicit?: boolean
-    ): void {
-      this.filters.push({ fieldname, condition, value, implicit: !!implicit });
-    },
-    removeFilter(filter: Filter): void {
-      this.filters = this.filters.filter((f) => f !== filter);
-    },
-    setFilter(filters: Record<string, Filter>, implicit?: boolean): void {
-      this.filters = [];
-
-      Object.keys(filters).map((fieldname) => {
-        let parts = filters[fieldname];
-        let condition, value;
-
-        if (Array.isArray(parts)) {
-          condition = parts[0];
-          value = parts[1];
-        } else {
-          condition = '=';
-          value = parts;
-        }
-
-        this.addFilter(fieldname, condition, value, implicit);
-      });
-
-      this.emitFilterChange();
-    },
-    emitFilterChange(): void {
-      const filters: Record<string, [Condition, string]> = {};
-      for (const { condition, value, fieldname } of this.filters) {
-        if (value === '' && condition) {
-          continue;
-        }
-
-        filters[fieldname] = [condition, value];
-      }
-
-      this.$emit('change', filters);
-    },
   },
   computed: {
     fields(): Field[] {
@@ -255,8 +204,8 @@ export default defineComponent({
         value: df.fieldname,
       }));
     },
-    conditions(): typeof conditions {
-      return conditions;
+    conditions(): { label: string; value: string }[] {
+      return [...conditions];
     },
     explicitFilters(): Filter[] {
       return this.filters.filter((f) => !f.implicit);
@@ -270,6 +219,64 @@ export default defineComponent({
       }
 
       return this.t`${this.activeFilterCount} filters applied`;
+    },
+  },
+  created() {
+    this.addNewFilter();
+  },
+  methods: {
+    getRandomString,
+    addNewFilter(): void {
+      const df = this.fields[0];
+      if (!df) {
+        return;
+      }
+
+      this.addFilter(df.fieldname, 'like', '', false);
+    },
+    addFilter(
+      fieldname: string,
+      condition: Condition,
+      value: Filter['value'],
+      implicit?: boolean
+    ): void {
+      this.filters.push({ fieldname, condition, value, implicit: !!implicit });
+    },
+    removeFilter(filter: Filter): void {
+      this.filters = this.filters.filter((f) => f !== filter);
+    },
+    setFilter(filters: QueryFilter, implicit?: boolean): void {
+      this.filters = [];
+
+      Object.keys(filters).map((fieldname) => {
+        let parts = filters[fieldname];
+        let condition: Condition;
+        let value: Filter['value'];
+
+        if (Array.isArray(parts)) {
+          condition = parts[0] as Condition;
+          value = parts[1] as Filter['value'];
+        } else {
+          condition = '=';
+          value = parts;
+        }
+
+        this.addFilter(fieldname, condition, value, implicit);
+      });
+
+      this.emitFilterChange();
+    },
+    emitFilterChange(): void {
+      const filters: Record<string, [Condition, Filter['value']]> = {};
+      for (const { condition, value, fieldname } of this.filters) {
+        if (value === '' && condition) {
+          continue;
+        }
+
+        filters[fieldname] = [condition, value];
+      }
+
+      this.$emit('change', filters);
     },
   },
 });

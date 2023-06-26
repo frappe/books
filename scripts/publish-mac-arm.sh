@@ -3,13 +3,9 @@
 set -e
 
 # Check node and yarn versions
-NODE_VERSION=$(node --version)
 YARN_VERSION=$(yarn --version)
 if [ "$YARN_VERSION" != "1.22.18" ]; then
   echo "Incorrect yarn version: $YARN_VERSION"
-  exit 1
-elif [ "$NODE_VERSION" != "v16.13.1" ]; then
-  echo "Incorrect node version: $NODE_VERSION"
   exit 1
 fi
 
@@ -42,6 +38,6 @@ export GH_TOKEN=$GH_TOKEN &&
  export APPLE_ID=$APPLE_ID &&
  export APPLE_TEAM_ID=$APPLE_TEAM_ID &&
  export APPLE_APP_SPECIFIC_PASSWORD=$APPLE_APP_SPECIFIC_PASSWORD &&
- yarn electron:build --mac --publish=always
+ yarn build --mac --publish=always
 
 cd ../books

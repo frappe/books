@@ -24,7 +24,7 @@ interface SearchItem {
   label: string;
   group: Exclude<SearchGroup, 'Docs'>;
   route?: string;
-  action?: () => void;
+  action?: () => void | Promise<void>;
 }
 
 interface DocSearchItem extends Omit<SearchItem, 'group'> {
@@ -319,8 +319,8 @@ function getNonDocSearchList(fyo: Fyo) {
     .flat()
     .map((d) => {
       if (d.route && !d.action) {
-        d.action = () => {
-          routeTo(d.route!);
+        d.action = async () => {
+          await routeTo(d.route!);
         };
       }
       return d;
@@ -346,8 +346,8 @@ export class Search {
    * - Marked indices are rebuilt when the modal is opened.
    */
 
-  _obsSet: boolean = false;
-  numSearches: number = 0;
+  _obsSet = false;
+  numSearches = 0;
   searchables: Record<string, Searchable>;
   keywords: Record<string, Keyword[]>;
   priorityMap: Record<string, number> = {
@@ -707,7 +707,7 @@ export class Search {
 
   _getDocSearchItemFromKeyword(keyword: Keyword): DocSearchItem {
     const schemaName = keyword.meta.schemaName as string;
-    const schemaLabel = this.fyo.schemaMap[schemaName]?.label!;
+    const schemaLabel = this.fyo.schemaMap[schemaName]?.label ?? schemaName;
     const route = this._getRouteFromKeyword(keyword);
     return {
       label: keyword.values[0],

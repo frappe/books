@@ -1,8 +1,8 @@
-import { Doc } from 'fyo/model/doc';
-import { Money } from 'pesa';
-import { RawValue } from 'schemas/types';
-import { AuthDemuxBase } from 'utils/auth/types';
-import { DatabaseDemuxBase } from 'utils/db/types';
+import type { Doc } from 'fyo/model/doc';
+import type { Money } from 'pesa';
+import type { RawValue } from 'schemas/types';
+import type { AuthDemuxBase } from 'utils/auth/types';
+import type { DatabaseDemuxBase } from 'utils/db/types';
 
 export type Attachment = { name: string; type: string; data: string };
 export type DocValue =
@@ -31,12 +31,12 @@ export type DatabaseDemuxConstructor = new (
 
 export type AuthDemuxConstructor = new (isElectron?: boolean) => AuthDemuxBase;
 
-export enum ConfigKeys {
-  Files = 'files',
-  LastSelectedFilePath = 'lastSelectedFilePath',
-  Language = 'language',
-  DeviceId = 'deviceId',
-}
+export type ConfigMap = {
+  files: ConfigFile[];
+  lastSelectedFilePath: null | string;
+  language: string 
+  deviceId: string
+};
 
 export interface ConfigFile {
   id: string;

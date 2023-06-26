@@ -40,14 +40,7 @@ export class AccountingLedgerEntry extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: [
-        'date',
-        'account',
-        'party',
-        'debit',
-        'credit',
-        'referenceName',
-      ],
+      columns: ['date', 'account', 'party', 'debit', 'credit', 'referenceName'],
     };
   }
 }

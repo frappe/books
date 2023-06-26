@@ -26,7 +26,6 @@ import {
   validateBatch,
   validateSerialNumber,
 } from './helpers';
-import { Item } from 'models/baseModels/Item/Item';
 
 export abstract class StockTransfer extends Transfer {
   name?: string;
@@ -67,7 +66,7 @@ export abstract class StockTransfer extends Transfer {
   static defaults: DefaultMap = {
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
     terms: (doc) => {
-      const defaults = doc.fyo.singles.Defaults as Defaults | undefined;
+      const defaults = doc.fyo.singles.Defaults;
       if (doc.schemaName === ModelNameEnum.Shipment) {
         return defaults?.shipmentTerms ?? '';
       }

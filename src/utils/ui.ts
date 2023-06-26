@@ -7,6 +7,7 @@ import type { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
 import { getDbError, LinkValidationError, ValueError } from 'fyo/utils/errors';
+import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { getLedgerLink } from 'models/helpers';
@@ -25,13 +26,12 @@ import { selectFile } from './ipcCalls';
 import { showSidebar } from './refs';
 import {
   ActionGroup,
-  DialogButton,
   QuickEditOptions,
   SettingsTab,
   ToastOptions,
   UIGroupedFields,
 } from './types';
-import { Invoice } from 'models/baseModels/Invoice/Invoice';
+import { assertIsType } from 'utils/index';
 
 export const toastDurationMap = { short: 2_500, long: 5_000 } as const;
 
@@ -56,7 +56,7 @@ export async function openQuickEdit({
     showFields,
     hideFields,
   };
-  router.push({ query });
+  await router.push({ query });
 }
 
 export async function openSettings(tab: SettingsTab) {
@@ -81,7 +81,7 @@ export async function deleteDocWithPrompt(doc: Doc) {
     detail = t`This action is permanent and will delete associated ledger entries.`;
   }
 
-  return await showDialog({
+  return (await showDialog({
     title: t`Delete ${getDocReferenceLabel(doc)}?`,
     detail,
     type: 'warning',
@@ -93,13 +93,13 @@ export async function deleteDocWithPrompt(doc: Doc) {
             await doc.delete();
           } catch (err) {
             if (getDbError(err as Error) === LinkValidationError) {
-              showDialog({
+              await showDialog({
                 title: t`Delete Failed`,
                 detail: t`Cannot delete ${schemaLabel} "${doc.name!}" because of linked entries.`,
                 type: 'error',
               });
             } else {
-              handleErrorWithDialog(err as Error, doc);
+              await handleErrorWithDialog(err as Error, doc);
             }
 
             return false;
@@ -117,7 +117,7 @@ export async function deleteDocWithPrompt(doc: Doc) {
         isEscape: true,
       },
     ],
-  });
+  })) as boolean;
 }
 
 export async function cancelDocWithPrompt(doc: Doc) {
@@ -152,7 +152,7 @@ export async function cancelDocWithPrompt(doc: Doc) {
     }
   }
 
-  return await showDialog({
+  return (await showDialog({
     title: t`Cancel ${getDocReferenceLabel(doc)}?`,
     detail,
     type: 'warning',
@@ -163,7 +163,7 @@ export async function cancelDocWithPrompt(doc: Doc) {
           try {
             await doc.cancel();
           } catch (err) {
-            handleErrorWithDialog(err as Error, doc);
+            await handleErrorWithDialog(err as Error, doc);
             return false;
           }
 
@@ -179,7 +179,7 @@ export async function cancelDocWithPrompt(doc: Doc) {
         isEscape: true,
       },
     ],
-  });
+  })) as boolean;
 }
 
 export function getActionsForDoc(doc?: Doc): Action[] {
@@ -280,7 +280,7 @@ function getDuplicateAction(doc: Doc): Action {
         const dupe = doc.duplicate();
         await openEdit(dupe);
       } catch (err) {
-        handleErrorWithDialog(err as Error, doc);
+        await handleErrorWithDialog(err as Error, doc);
       }
     },
   };
@@ -385,8 +385,8 @@ export function toggleSidebar(value?: boolean) {
 
 export function focusOrSelectFormControl(
   doc: Doc,
-  ref: any,
-  clear: boolean = true
+  ref: unknown,
+  shouldClear = true
 ) {
   if (!doc?.fyo) {
     return;
@@ -405,7 +405,15 @@ export function focusOrSelectFormControl(
     ref = ref[0];
   }
 
-  if (!clear && typeof ref?.select === 'function') {
+  if (
+    !ref ||
+    typeof ref !== 'object' ||
+    !assertIsType<Record<string, () => void>>(ref)
+  ) {
+    return;
+  }
+
+  if (!shouldClear && typeof ref?.select === 'function') {
     ref.select();
     return;
   }
@@ -429,7 +437,7 @@ export async function selectTextFile(filters?: SelectFileOptions['filters']) {
   const { success, canceled, filePath, data, name } = await selectFile(options);
 
   if (canceled || !success) {
-    await showToast({
+    showToast({
       type: 'error',
       message: t`File selection failed`,
     });
@@ -438,7 +446,7 @@ export async function selectTextFile(filters?: SelectFileOptions['filters']) {
 
   const text = new TextDecoder().decode(data);
   if (!text) {
-    await showToast({
+    showToast({
       type: 'error',
       message: t`Empty file selected`,
     });
@@ -507,7 +515,7 @@ export async function commonDocCancel(doc: Doc): Promise<boolean> {
 
 export async function commonDocSync(
   doc: Doc,
-  useDialog: boolean = false
+  useDialog = false
 ): Promise<boolean> {
   let success: boolean;
   if (useDialog) {
@@ -528,7 +536,7 @@ async function syncWithoutDialog(doc: Doc): Promise<boolean> {
   try {
     await doc.sync();
   } catch (error) {
-    handleErrorWithDialog(error, doc);
+    await handleErrorWithDialog(error, doc);
     return false;
   }
 
@@ -563,14 +571,14 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
     try {
       await doc[type]();
     } catch (error) {
-      handleErrorWithDialog(error, doc);
+      await handleErrorWithDialog(error, doc);
       return false;
     }
 
     return true;
   };
 
-  const buttons: DialogButton[] = [
+  const buttons = [
     {
       label: t`Yes`,
       action: yesAction,
@@ -583,11 +591,13 @@ async function showSubmitOrSyncDialog(doc: Doc, type: 'submit' | 'sync') {
     },
   ];
 
-  return await showDialog({
+  const dialogOptions = {
     title,
     detail,
     buttons,
-  });
+  };
+
+  return (await showDialog(dialogOptions)) as boolean;
 }
 
 function getDocSyncMessage(doc: Doc): string {

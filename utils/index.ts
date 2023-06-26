@@ -8,7 +8,7 @@ export function getValueMapFromList<T, K extends keyof T, V extends keyof T>(
   list: T[],
   key: K,
   valueKey: V,
-  filterUndefined: boolean = true
+  filterUndefined = true
 ): Record<string, T[V]> {
   if (filterUndefined) {
     list = list.filter(
@@ -32,7 +32,7 @@ export function getRandomString(): string {
   return `${randomNumber}-${currentTime}`;
 }
 
-export async function sleep(durationMilliseconds: number = 1000) {
+export async function sleep(durationMilliseconds = 1000) {
   return new Promise((r) => setTimeout(() => r(null), durationMilliseconds));
 }
 
@@ -115,6 +115,7 @@ export function invertMap(map: Record<string, string>): Record<string, string> {
 }
 
 export function time<K, T>(func: (...args: K[]) => T, ...args: K[]): T {
+  /* eslint-disable no-console */
   const name = func.name;
   console.time(name);
   const stuff = func(...args);
@@ -126,6 +127,7 @@ export async function timeAsync<K, T>(
   func: (...args: K[]) => Promise<T>,
   ...args: K[]
 ): Promise<T> {
+  /* eslint-disable no-console */
   const name = func.name;
   console.time(name);
   const stuff = await func(...args);
@@ -253,17 +255,7 @@ export function removeAtIndex<T>(array: T[], index: number): T[] {
   return [...array.slice(0, index), ...array.slice(index + 1)];
 }
 
-export function objectForEach<T extends object | unknown>(
-  obj: T,
-  func: Function
-) {
-  if (typeof obj !== 'object' || obj === null) {
-    return func(obj);
-  }
-
-  for (const key in obj) {
-    obj[key] = objectForEach(obj[key], func);
-  }
-
-  return func(obj);
-}
+/**
+ * Asserts that `value` is of type T. Use with care.
+ */
+export const assertIsType = <T>(value: unknown): value is T => true;

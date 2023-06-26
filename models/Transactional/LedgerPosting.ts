@@ -71,9 +71,9 @@ export class LedgerPosting {
 
     const roundOffAccount = await this._getRoundOffAccount();
     if (difference.gt(0)) {
-      this.credit(roundOffAccount, absoluteValue);
+      await this.credit(roundOffAccount, absoluteValue);
     } else {
-      this.debit(roundOffAccount, absoluteValue);
+      await this.debit(roundOffAccount, absoluteValue);
     }
   }
 

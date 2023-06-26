@@ -3,13 +3,16 @@ enum EventType {
   OnceListeners = '_onceListeners',
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Listener = (...args: any[]) => unknown | Promise<unknown>;
+
 export default class Observable<T> {
   [key: string]: unknown | T;
   _isHot: Map<string, boolean>;
   _eventQueue: Map<string, unknown[]>;
   _map: Map<string, unknown>;
-  _listeners: Map<string, Function[]>;
-  _onceListeners: Map<string, Function[]>;
+  _listeners: Map<string, Listener[]>;
+  _onceListeners: Map<string, Listener[]>;
 
   constructor() {
     this._map = new Map();
@@ -37,6 +40,7 @@ export default class Observable<T> {
    */
   set(key: string, value: T) {
     this[key] = value;
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.trigger('change', {
       doc: this,
       changed: key,
@@ -50,7 +54,7 @@ export default class Observable<T> {
    * @param event : name of the event for which the listener is checked
    * @param listener : specific listener that is checked for
    */
-  hasListener(event: string, listener?: Function) {
+  hasListener(event: string, listener?: Listener) {
     const listeners = this[EventType.Listeners].get(event) ?? [];
     const onceListeners = this[EventType.OnceListeners].get(event) ?? [];
 
@@ -69,7 +73,7 @@ export default class Observable<T> {
    * @param event : name of the event for which the listener is set
    * @param listener : listener that is executed when the event is triggered
    */
-  on(event: string, listener: Function) {
+  on(event: string, listener: Listener) {
     this._addListener(EventType.Listeners, event, listener);
   }
 
@@ -80,7 +84,7 @@ export default class Observable<T> {
    * @param event : name of the event for which the listener is set
    * @param listener : listener that is executed when the event is triggered
    */
-  once(event: string, listener: Function) {
+  once(event: string, listener: Listener) {
     this._addListener(EventType.OnceListeners, event, listener);
   }
 
@@ -90,7 +94,7 @@ export default class Observable<T> {
    * @param event : name of the event from which to remove the listener
    * @param listener : listener that was set for the event
    */
-  off(event: string, listener: Function) {
+  off(event: string, listener: Listener) {
     this._removeListener(EventType.Listeners, event, listener);
     this._removeListener(EventType.OnceListeners, event, listener);
   }
@@ -111,7 +115,7 @@ export default class Observable<T> {
    * @param throttle : wait time before triggering the event.
    */
 
-  async trigger(event: string, params?: unknown, throttle: number = 0) {
+  async trigger(event: string, params?: unknown, throttle = 0) {
     let isHot = false;
     if (throttle > 0) {
       isHot = this._throttled(event, params, throttle);
@@ -125,7 +129,7 @@ export default class Observable<T> {
     await this._executeTriggers(event, params);
   }
 
-  _removeListener(type: EventType, event: string, listener: Function) {
+  _removeListener(type: EventType, event: string, listener: Listener) {
     const listeners = (this[type].get(event) ?? []).filter(
       (l) => l !== listener
     );
@@ -160,6 +164,7 @@ export default class Observable<T> {
 
       const params = this._eventQueue.get(event);
       if (params !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this._executeTriggers(event, params);
         this._eventQueue.delete(event);
       }
@@ -168,7 +173,7 @@ export default class Observable<T> {
     return false;
   }
 
-  _addListener(type: EventType, event: string, listener: Function) {
+  _addListener(type: EventType, event: string, listener: Listener) {
     this._initLiseners(type, event);
     const list = this[type].get(event)!;
     if (list.includes(listener)) {

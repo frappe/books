@@ -6,7 +6,7 @@
       <template v-for="g in groups" :key="g.label">
         <div class="p-4 w-full">
           <!-- Shortcut Group Header -->
-          <div @click="g.collapsed = !g.collapsed" class="cursor-pointer mb-4">
+          <div class="cursor-pointer mb-4" @click="g.collapsed = !g.collapsed">
             <div class="font-semibold">
               {{ g.label }}
             </div>
@@ -54,6 +54,7 @@ type Group = {
 };
 
 export default defineComponent({
+  components: { FormHeader, ShortcutKeys },
   data() {
     return { groups: [] } as { groups: Group[] };
   },
@@ -184,6 +185,5 @@ export default defineComponent({
       },
     ];
   },
-  components: { FormHeader, ShortcutKeys },
 });
 </script>

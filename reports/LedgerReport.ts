@@ -14,7 +14,7 @@ export abstract class LedgerReport extends Report {
   static reportName = 'general-ledger';
 
   _rawData: LedgerEntry[] = [];
-  shouldRefresh: boolean = false;
+  shouldRefresh = false;
 
   constructor(fyo: Fyo) {
     super(fyo);
@@ -117,7 +117,7 @@ export abstract class LedgerReport extends Report {
     });
   }
 
-  abstract _getQueryFilters(): Promise<QueryFilter>;
+  abstract _getQueryFilters(): QueryFilter | Promise<QueryFilter>;
 
   getActions(): Action[] {
     return getCommonExportActions(this);

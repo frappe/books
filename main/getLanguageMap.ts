@@ -16,8 +16,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { parseCSV } from 'utils/csvParser';
 import { LanguageMap } from 'utils/types';
-
-const fetch = require('node-fetch').default;
+import fetch from 'node-fetch';
 
 const VALENTINES_DAY = 1644796800000;
 
@@ -100,7 +99,7 @@ async function fetchContentsFromApi(code: string) {
     return null;
   }
 
-  const resJson = await res.json();
+  const resJson = (await res.json()) as { content: string };
   return Buffer.from(resJson.content, 'base64').toString();
 }
 
@@ -138,7 +137,9 @@ async function getLastUpdated(code: string): Promise<Date> {
     return new Date(VALENTINES_DAY);
   }
 
-  const resJson = await res.json();
+  const resJson = (await res.json()) as {
+    commit: { author: { date: string } };
+  }[];
   try {
     return new Date(resJson[0].commit.author.date);
   } catch {
@@ -187,7 +188,7 @@ async function storeFile(code: string, contents: string) {
 
 async function errorHandledFetch(url: string) {
   try {
-    return (await fetch(url)) as Response;
+    return await fetch(url);
   } catch {
     return null;
   }

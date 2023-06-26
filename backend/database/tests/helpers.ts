@@ -204,7 +204,7 @@ export async function assertDoesNotThrow(
     throw new assert.AssertionError({
       message: `Got unwanted exception${
         message ? `: ${message}` : ''
-      }\nError: ${(err as Error).message}\n${(err as Error).stack}`,
+      }\nError: ${(err as Error).message}\n${(err as Error).stack ?? ''}`,
     });
   }
 }

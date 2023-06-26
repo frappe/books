@@ -15,8 +15,8 @@
       ref="scanner"
       type="text"
       class="text-base placeholder-gray-600 w-full bg-transparent outline-none"
-      @change="handleChange"
       :placeholder="t`Enter barcode`"
+      @change="handleChange"
     />
     <feather-icon
       name="maximize"

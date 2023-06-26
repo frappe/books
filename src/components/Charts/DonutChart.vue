@@ -22,12 +22,6 @@
         :cx="cx"
         :cy="cy"
         :r="radius"
-        @mouseover="
-          $emit(
-            'change',
-            thetasAndStarts.length === 1 ? thetasAndStarts[0][0] : null
-          )
-        "
         :stroke-width="
           thickness +
           (hasNonZeroValues && active === thetasAndStarts[0][0] ? 4 : 0)
@@ -38,12 +32,18 @@
         :class="hasNonZeroValues ? 'sector' : ''"
         :style="{ transformOrigin: `${cx}px ${cy}px` }"
         fill="transparent"
+        @mouseover="
+          $emit(
+            'change',
+            thetasAndStarts.length === 1 ? thetasAndStarts[0][0] : null
+          )
+        "
       />
       <template v-if="thetasAndStarts.length > 1">
         <path
-          clip-path="url(#donut-hole)"
           v-for="[i, theta, start_] in thetasAndStarts"
           :key="i"
+          clip-path="url(#donut-hole)"
           :d="getArcPath(cx, cy, radius, start_, theta)"
           :stroke="sectors[i].color"
           :stroke-width="thickness + (active === i ? 4 : 0)"

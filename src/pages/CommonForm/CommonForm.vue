@@ -1,9 +1,9 @@
 <template>
   <FormContainer :use-full-width="useFullWidth">
-    <template #header-left v-if="hasDoc">
+    <template v-if="hasDoc" #header-left>
       <Barcode
-        class="h-8"
         v-if="canShowBarcode"
+        class="h-8"
         @item-selected="(name:string) => {
           // @ts-ignore
           doc?.addItem(name);
@@ -27,12 +27,12 @@
         {{ schema.label }}
       </p>
     </template>
-    <template #header v-if="hasDoc">
+    <template v-if="hasDoc" #header>
       <Button
         v-if="canShowLinks"
         :icon="true"
-        @click="showLinks = true"
         :title="t`View linked entries`"
+        @click="showLinks = true"
       >
         <feather-icon name="link" class="w-4 h-4"></feather-icon>
       </Button>
@@ -40,15 +40,15 @@
         v-if="canPrint"
         ref="printButton"
         :icon="true"
-        @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
         :title="t`Open Print View`"
+        @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
       >
         <feather-icon name="printer" class="w-4 h-4"></feather-icon>
       </Button>
       <Button
         :icon="true"
-        @click="toggleWidth"
         :title="t`Toggle between form and full width`"
+        @click="toggleWidth"
       >
         <feather-icon
           :name="useFullWidth ? 'minimize' : 'maximize'"
@@ -81,17 +81,17 @@
       <!-- Section Container -->
       <div v-if="hasDoc" class="overflow-auto custom-scroll">
         <CommonFormSection
-          v-for="([name, fields], idx) in activeGroup.entries()"
-          @editrow="(doc: Doc) => showRowEditForm(doc)"
-          :key="name + idx"
+          v-for="([n, fields], idx) in activeGroup.entries()"
+          :key="n + idx"
           ref="section"
           class="p-4"
           :class="idx !== 0 && activeGroup.size > 1 ? 'border-t' : ''"
-          :show-title="activeGroup.size > 1 && name !== t`Default`"
-          :title="name"
+          :show-title="activeGroup.size > 1 && n !== t`Default`"
+          :title="n"
           :fields="fields"
           :doc="doc"
           :errors="errors"
+          @editrow="(doc: Doc) => showRowEditForm(doc)"
           @value-change="onValueChange"
           @row-change="updateGroupedFields"
         />
@@ -99,6 +99,7 @@
 
       <!-- Tab Bar -->
       <div
+        v-if="groupedFields && groupedFields.size > 1"
         class="
           mt-auto
           px-4
@@ -111,12 +112,10 @@
           bottom-0
           bg-white
         "
-        v-if="groupedFields && groupedFields.size > 1"
       >
         <div
           v-for="key of groupedFields.keys()"
           :key="key"
-          @click="activeTab = key"
           class="text-sm cursor-pointer"
           :class="
             key === activeTab
@@ -126,6 +125,7 @@
           :style="{
             paddingTop: key === activeTab ? 'calc(1rem - 2px)' : '1rem',
           }"
+          @click="activeTab = key"
         >
           {{ key }}
         </div>
@@ -190,6 +190,23 @@ import LinkedEntries from './LinkedEntries.vue';
 import RowEditForm from './RowEditForm.vue';
 
 export default defineComponent({
+  components: {
+    FormContainer,
+    FormHeader,
+    CommonFormSection,
+    Button,
+    DropdownWithActions,
+    Barcode,
+    ExchangeRate,
+    LinkedEntries,
+    RowEditForm,
+    StatusPill,
+  },
+  provide() {
+    return {
+      doc: computed(() => this.docOrNull),
+    };
+  },
   props: {
     name: { type: String, default: '' },
     schemaName: { type: String, default: ModelNameEnum.SalesInvoice },
@@ -207,11 +224,6 @@ export default defineComponent({
       shortcuts,
       context,
       printButton: ref<InstanceType<typeof Button> | null>(null),
-    };
-  },
-  provide() {
-    return {
-      doc: computed(() => this.docOrNull),
     };
   },
   data() {
@@ -232,46 +244,6 @@ export default defineComponent({
       useFullWidth: boolean;
       row: null | { index: number; fieldname: string };
     };
-  },
-  async beforeMount() {
-    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
-  },
-  async mounted() {
-    if (this.fyo.store.isDevelopment) {
-      // @ts-ignore
-      window.cf = this;
-    }
-
-    await this.setDoc();
-    this.replacePathAfterSync();
-    this.updateGroupedFields();
-    if (this.groupedFields) {
-      this.activeTab = [...this.groupedFields.keys()][0];
-    }
-    this.isPrintable = await isPrintable(this.schemaName);
-  },
-  activated(): void {
-    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
-    docsPathRef.value = docsPathMap[this.schemaName] ?? '';
-    this.shortcuts?.pmod.set(this.context, ['KeyP'], () => {
-      if (!this.canPrint) {
-        return;
-      }
-
-      this.printButton?.$el.click();
-    });
-    this.shortcuts?.pmod.set(this.context, ['KeyL'], () => {
-      if (!this.canShowLinks && !this.showLinks) {
-        return;
-      }
-
-      this.showLinks = !this.showLinks;
-    });
-  },
-  deactivated(): void {
-    docsPathRef.value = '';
-    this.showLinks = false;
-    this.row = null;
   },
   computed: {
     canShowBarcode(): boolean {
@@ -345,7 +317,7 @@ export default defineComponent({
       return getDocStatus(this.doc);
     },
     doc(): Doc {
-      const doc = this.docOrNull as Doc | null;
+      const doc = this.docOrNull;
       if (!doc) {
         throw new ValidationError(
           this.t`Doc ${this.schema.label} ${this.name} not set`
@@ -376,7 +348,7 @@ export default defineComponent({
       const group = this.groupedFields.get(this.activeTab);
       if (!group) {
         const tab = [...this.groupedFields.keys()][0];
-        return this.groupedFields.get(tab) ?? new Map();
+        return this.groupedFields.get(tab) ?? new Map<string, Field[]>();
       }
 
       return group;
@@ -388,6 +360,46 @@ export default defineComponent({
 
       return getGroupedActionsForDoc(this.doc);
     },
+  },
+  beforeMount() {
+    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
+  },
+  async mounted() {
+    if (this.fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.cf = this;
+    }
+
+    await this.setDoc();
+    this.replacePathAfterSync();
+    this.updateGroupedFields();
+    if (this.groupedFields) {
+      this.activeTab = [...this.groupedFields.keys()][0];
+    }
+    this.isPrintable = await isPrintable(this.schemaName);
+  },
+  activated(): void {
+    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
+    docsPathRef.value = docsPathMap[this.schemaName] ?? '';
+    this.shortcuts?.pmod.set(this.context, ['KeyP'], () => {
+      if (!this.canPrint) {
+        return;
+      }
+
+      this.printButton?.$el.click();
+    });
+    this.shortcuts?.pmod.set(this.context, ['KeyL'], () => {
+      if (!this.canShowLinks && !this.showLinks) {
+        return;
+      }
+
+      this.showLinks = !this.showLinks;
+    });
+  },
+  deactivated(): void {
+    docsPathRef.value = '';
+    this.showLinks = false;
+    this.row = null;
   },
   methods: {
     routeTo,
@@ -426,14 +438,14 @@ export default defineComponent({
         this.name
       );
     },
-    async replacePathAfterSync() {
+    replacePathAfterSync() {
       if (!this.hasDoc || this.doc.inserted) {
         return;
       }
 
-      this.doc.once('afterSync', () => {
+      this.doc.once('afterSync', async () => {
         const route = getFormRoute(this.schemaName, this.doc.name!);
-        this.$router.replace(route);
+        await this.$router.replace(route);
       });
     },
     async showRowEditForm(doc: Doc) {
@@ -465,18 +477,6 @@ export default defineComponent({
 
       this.updateGroupedFields();
     },
-  },
-  components: {
-    FormContainer,
-    FormHeader,
-    CommonFormSection,
-    Button,
-    DropdownWithActions,
-    Barcode,
-    ExchangeRate,
-    LinkedEntries,
-    RowEditForm,
-    StatusPill,
   },
 });
 </script>

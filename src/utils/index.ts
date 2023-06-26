@@ -14,13 +14,13 @@ import { fyo } from 'src/initFyo';
 
 export function stringifyCircular(
   obj: unknown,
-  ignoreCircular: boolean = false,
-  convertDocument: boolean = false
-) {
+  ignoreCircular = false,
+  convertDocument = false
+): string {
   const cacheKey: string[] = [];
   const cacheValue: unknown[] = [];
 
-  return JSON.stringify(obj, (key, value) => {
+  return JSON.stringify(obj, (key: string, value: unknown) => {
     if (typeof value !== 'object' || value === null) {
       cacheKey.push(key);
       cacheValue.push(value);

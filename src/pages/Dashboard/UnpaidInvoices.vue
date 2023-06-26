@@ -19,8 +19,8 @@
             'bg-gray-200 text-gray-200 rounded': !count,
             'cursor-pointer': paidCount > 0,
           }"
-          @click="() => routeToInvoices('paid')"
           :title="paidCount > 0 ? t`View Paid Invoices` : ''"
+          @click="() => routeToInvoices('paid')"
         >
           {{ fyo.format(paid, 'Currency') }}
           <span :class="{ 'text-gray-900 font-normal': count }">{{
@@ -35,8 +35,8 @@
             'bg-gray-200 text-gray-200 rounded': !count,
             'cursor-pointer': unpaidCount > 0,
           }"
-          @click="() => routeToInvoices('unpaid')"
           :title="unpaidCount > 0 ? t`View Unpaid Invoices` : ''"
+          @click="() => routeToInvoices('unpaid')"
         >
           {{ fyo.format(unpaid, 'Currency') }}
           <span :class="{ 'text-gray-900 font-normal': count }">{{
@@ -89,21 +89,52 @@ import { getDatesAndPeriodList } from 'src/utils/misc';
 import { PeriodKey } from 'src/utils/types';
 import { routeTo } from 'src/utils/ui';
 import { safeParseFloat } from 'utils/index';
-import { defineComponent } from 'vue';
+import { PropType, defineComponent } from 'vue';
 import BaseDashboardChart from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 
+// Linting broken in this file cause of `extends: ...`
+/* 
+  eslint-disable @typescript-eslint/no-unsafe-argument, 
+  @typescript-eslint/restrict-template-expressions,
+  @typescript-eslint/no-unsafe-return
+*/
 export default defineComponent({
   name: 'UnpaidInvoices',
-  extends: BaseDashboardChart,
   components: {
     PeriodSelector,
     SectionHeader,
     MouseFollower,
   },
+  extends: BaseDashboardChart,
   props: {
-    schemaName: { type: String, required: true },
+    schemaName: { type: String as PropType<string>, required: true },
+  },
+  data() {
+    return {
+      show: false,
+      total: 0,
+      unpaid: 0,
+      hasData: false,
+      paid: 0,
+      count: 0,
+      unpaidCount: 0,
+      paidCount: 0,
+      barWidth: 40,
+      period: 'This Year',
+    } as {
+      show: boolean;
+      period: PeriodKey;
+      total: number;
+      unpaid: number;
+      hasData: boolean;
+      paid: number;
+      count: number;
+      unpaidCount: number;
+      paidCount: number;
+      barWidth: number;
+    };
   },
   computed: {
     title(): string {
@@ -133,31 +164,6 @@ export default defineComponent({
 
       return `bg-${this.color}-200`;
     },
-  },
-  data() {
-    return {
-      show: false,
-      total: 0,
-      unpaid: 0,
-      hasData: false,
-      paid: 0,
-      count: 0,
-      unpaidCount: 0,
-      paidCount: 0,
-      barWidth: 40,
-      period: 'This Year',
-    } as {
-      show: boolean;
-      period: PeriodKey;
-      total: number;
-      unpaid: number;
-      hasData: boolean;
-      paid: number;
-      count: number;
-      unpaidCount: number;
-      paidCount: number;
-      barWidth: number;
-    };
   },
   async activated() {
     await this.setData();
@@ -211,7 +217,7 @@ export default defineComponent({
     },
     async newInvoice() {
       const doc = fyo.doc.getNewDoc(this.schemaName);
-      await routeTo(`/edit/${this.schemaName}/${doc.name}`);
+      await routeTo(`/edit/${this.schemaName}/${doc.name!}`);
     },
 
     async getCounts(schemaName: string, fromDate: DateTime, toDate: DateTime) {

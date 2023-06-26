@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Search Bar Button -->
-    <Button @click="open" class="px-3 py-2 rounded-r-none" :padding="false">
+    <Button class="px-3 py-2 rounded-r-none" :padding="false" @click="open">
       <feather-icon name="search" class="w-4 h-4 text-gray-700" />
     </Button>
   </div>
@@ -9,23 +9,19 @@
   <!-- Search Modal -->
   <Modal
     :open-modal="openModal"
-    @closemodal="close"
     :set-close-listener="false"
+    @closemodal="close"
   >
     <div class="w-form">
       <!-- Search Input -->
       <div class="p-1">
         <input
           ref="input"
+          v-model="inputValue"
           type="search"
           autocomplete="off"
           spellcheck="false"
           :placeholder="t`Type to search...`"
-          v-model="inputValue"
-          @keydown.up="up"
-          @keydown.down="down"
-          @keydown.enter="() => select()"
-          @keydown.esc="close"
           class="
             bg-gray-100
             text-2xl
@@ -36,6 +32,10 @@
             rounded-md
             p-3
           "
+          @keydown.up="up"
+          @keydown.down="down"
+          @keydown.enter="() => select()"
+          @keydown.esc="close"
         />
       </div>
       <hr v-if="suggestions.length" />
@@ -62,7 +62,7 @@
               >
                 {{ si.label }}
               </p>
-              <p class="text-gray-600 text-sm ms-3" v-if="si.group === 'Docs'">
+              <p v-if="si.group === 'Docs'" class="text-gray-600 text-sm ms-3">
                 {{ si.more.filter(Boolean).join(', ') }}
               </p>
             </div>
@@ -169,8 +169,8 @@
           </p>
 
           <div
-            class="border border-gray-100 rounded flex justify-self-end ms-2"
             v-if="(searcher?.numSearches ?? 0) > 50"
+            class="border border-gray-100 rounded flex justify-self-end ms-2"
           >
             <template
               v-for="c in allowedLimits.filter(
@@ -179,9 +179,9 @@
               :key="c + '-count'"
             >
               <button
-                @click="limit = Number(c)"
                 class="w-9"
                 :class="limit === c ? 'bg-gray-100' : ''"
+                @click="limit = Number(c)"
               >
                 {{ c === -1 ? t`All` : c }}
               </button>
@@ -214,6 +214,7 @@ const COMPONENT_NAME = 'SearchBar';
 type SchemaFilters = { value: string; label: string; index: number }[];
 
 export default defineComponent({
+  components: { Modal, Button },
   setup() {
     return {
       searcher: inject(searcherKey),
@@ -231,7 +232,62 @@ export default defineComponent({
       allowedLimits: [50, 100, 500, -1],
     };
   },
-  components: { Modal, Button },
+  computed: {
+    groupLabelMap(): Record<SearchGroup, string> {
+      return getGroupLabelMap();
+    },
+    schemaFilters(): SchemaFilters {
+      const searchables = this.searcher?.searchables ?? {};
+
+      const schemaNames = Object.keys(searchables);
+      const filters = schemaNames
+        .map((value) => {
+          const schema = fyo.schemaMap[value];
+          if (!schema) {
+            return;
+          }
+
+          let index = 1;
+          if (schema.isSubmittable) {
+            index = 0;
+          } else if (schema.isChild) {
+            index = 2;
+          }
+
+          return { value, label: schema.label, index };
+        })
+        .filter(Boolean) as SchemaFilters;
+
+      return filters.sort((a, b) => a.index - b.index);
+    },
+    groupColorMap(): Record<SearchGroup, string> {
+      return {
+        Docs: 'blue',
+        Create: 'green',
+        List: 'teal',
+        Report: 'yellow',
+        Page: 'orange',
+      };
+    },
+    groupColorClassMap(): Record<SearchGroup, string> {
+      return searchGroups.reduce((map, g) => {
+        map[g] = getBgTextColorClass(this.groupColorMap[g]);
+        return map;
+      }, {} as Record<SearchGroup, string>);
+    },
+    suggestions(): SearchItems {
+      if (!this.searcher) {
+        return [];
+      }
+
+      const suggestions = this.searcher.search(this.inputValue);
+      if (this.limit === -1) {
+        return suggestions;
+      }
+
+      return suggestions.slice(0, this.limit);
+    },
+  },
   async mounted() {
     if (fyo.store.isDevelopment) {
       // @ts-ignore
@@ -276,7 +332,7 @@ export default defineComponent({
               return;
             }
 
-            this.searcher!.set(group, !value);
+            this.searcher.set(group, !value);
           }),
         });
       }
@@ -336,62 +392,6 @@ export default defineComponent({
       }
 
       return `text-${color}-600 border-${color}-100`;
-    },
-  },
-  computed: {
-    groupLabelMap(): Record<SearchGroup, string> {
-      return getGroupLabelMap();
-    },
-    schemaFilters(): SchemaFilters {
-      const searchables = this.searcher?.searchables ?? {};
-
-      const schemaNames = Object.keys(searchables);
-      const filters = schemaNames
-        .map((value) => {
-          const schema = fyo.schemaMap[value];
-          if (!schema) {
-            return;
-          }
-
-          let index = 1;
-          if (schema.isSubmittable) {
-            index = 0;
-          } else if (schema.isChild) {
-            index = 2;
-          }
-
-          return { value, label: schema.label, index };
-        })
-        .filter(Boolean) as SchemaFilters;
-
-      return filters.sort((a, b) => a.index - b.index);
-    },
-    groupColorMap(): Record<SearchGroup, string> {
-      return {
-        Docs: 'blue',
-        Create: 'green',
-        List: 'teal',
-        Report: 'yellow',
-        Page: 'orange',
-      };
-    },
-    groupColorClassMap(): Record<SearchGroup, string> {
-      return searchGroups.reduce((map, g) => {
-        map[g] = getBgTextColorClass(this.groupColorMap[g]);
-        return map;
-      }, {} as Record<SearchGroup, string>);
-    },
-    suggestions(): SearchItems {
-      if (!this.searcher) {
-        return [];
-      }
-
-      const suggestions = this.searcher.search(this.inputValue);
-      if (this.limit === -1) {
-        return suggestions;
-      }
-
-      return suggestions.slice(0, this.limit);
     },
   },
 });

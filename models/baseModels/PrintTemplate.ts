@@ -46,7 +46,7 @@ export class PrintTemplate extends Doc {
 
   static lists: ListsMap = {
     type(doc?: Doc) {
-      let enableInventory: boolean = false;
+      let enableInventory = false;
       let schemaMap: SchemaMap = {};
       if (doc) {
         enableInventory = !!doc.fyo.singles.AccountingSettings?.enableInventory;

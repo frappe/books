@@ -13,9 +13,9 @@ export class StockBalance extends StockLedger {
   static reportName = 'stock-balance';
   static isInventory = true;
 
-  override ascending: boolean = true;
+  override ascending = true;
   override referenceType: ReferenceType = 'All';
-  override referenceName: string = '';
+  override referenceName = '';
 
   override async _getReportData(force?: boolean): Promise<ReportData> {
     if (this.shouldRefresh || force || !this._rawData?.length) {

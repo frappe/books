@@ -35,7 +35,7 @@ export class Fyo {
   doc: DocHandler;
   db: DatabaseHandler;
 
-  _initialized: boolean = false;
+  _initialized = false;
 
   errorLog: ErrorLog[] = [];
   temp?: Record<string, unknown>;
@@ -94,10 +94,9 @@ export class Fyo {
     return format(value, field, doc ?? null, this);
   }
 
-  async setIsElectron() {
+  setIsElectron() {
     try {
-      const { ipcRenderer } = await import('electron');
-      this.isElectron = Boolean(ipcRenderer);
+      this.isElectron = Boolean(require('electron'));
     } catch {
       this.isElectron = false;
     }
@@ -106,7 +105,7 @@ export class Fyo {
   async initializeAndRegister(
     models: ModelMap = {},
     regionalModels: ModelMap = {},
-    force: boolean = false
+    force = false
   ) {
     if (this._initialized && !force) return;
 
@@ -122,8 +121,8 @@ export class Fyo {
     // temp params while calling routes
     this.temp = {};
 
-    await this.doc.init();
-    await this.auth.init();
+    this.doc.init();
+    this.auth.init();
     await this.db.init();
   }
 
@@ -165,7 +164,6 @@ export class Fyo {
 
   async close() {
     await this.db.close();
-    await this.auth.logout();
   }
 
   getField(schemaName: string, fieldname: string) {
@@ -190,14 +188,14 @@ export class Fyo {
     let value: DocValue | Doc[];
     try {
       doc = await this.doc.getDoc(schemaName, name);
-      value = doc.get(fieldname!);
+      value = doc.get(fieldname);
     } catch (err) {
       value = undefined;
     }
 
     if (value === undefined && schemaName === name) {
       const sv = await this.db.getSingleValues({
-        fieldname: fieldname!,
+        fieldname: fieldname,
         parent: schemaName,
       });
 
@@ -222,8 +220,7 @@ export class Fyo {
     this.errorLog = [];
     this.temp = {};
     await this.db.purgeCache();
-    await this.auth.purgeCache();
-    await this.doc.purgeCache();
+    this.doc.purgeCache();
   }
 
   store = {

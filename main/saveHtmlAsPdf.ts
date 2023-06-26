@@ -1,3 +1,4 @@
+import { emitMainProcessError } from 'backend/helpers';
 import { App, BrowserWindow } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
@@ -18,7 +19,7 @@ export async function saveHtmlAsPdf(
   const htmlPath = path.join(tempRoot, `${filename}.html`);
   await fs.writeFile(htmlPath, html, { encoding: 'utf-8' });
 
-  const printWindow = getInitializedPrintWindow(htmlPath, width, height);
+  const printWindow = await getInitializedPrintWindow(htmlPath, width, height);
   const printOptions = {
     marginsType: 1, // no margin
     pageSize: {
@@ -36,19 +37,26 @@ export async function saveHtmlAsPdf(
    */
   return await new Promise((resolve) => {
     printWindow.webContents.once('did-finish-load', () => {
-      printWindow.webContents.printToPDF(printOptions).then((data) => {
-        fs.writeFile(savePath, data).then(() => {
-          printWindow.close();
-          fs.unlink(htmlPath).then(() => {
-            resolve(true);
-          });
-        });
-      });
+      printWindow.webContents
+        .printToPDF(printOptions)
+        .then((data) => {
+          fs.writeFile(savePath, data)
+            .then(() => {
+              printWindow.close();
+              fs.unlink(htmlPath)
+                .then(() => {
+                  resolve(true);
+                })
+                .catch((err) => emitMainProcessError(err));
+            })
+            .catch((err) => emitMainProcessError(err));
+        })
+        .catch((err) => emitMainProcessError(err));
     });
   });
 }
 
-function getInitializedPrintWindow(
+async function getInitializedPrintWindow(
   printFilePath: string,
   width: number,
   height: number
@@ -59,6 +67,6 @@ function getInitializedPrintWindow(
     show: false,
   });
 
-  printWindow.loadFile(printFilePath);
+  await printWindow.loadFile(printFilePath);
   return printWindow;
 }

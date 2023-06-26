@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="labelClasses" v-if="showLabel">
+    <div v-if="showLabel" :class="labelClasses">
       {{ df.label }}
     </div>
     <div :class="showMandatory ? 'show-mandatory' : ''">
@@ -27,7 +27,7 @@ import Base from './Base.vue';
 export default {
   name: 'Text',
   extends: Base,
-  emits: ['focus', 'input'],
   props: { rows: { type: Number, default: 3 } },
+  emits: ['focus', 'input'],
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
   <Dropdown ref="dropdown" class="text-sm" :items="periodOptions" right>
     <template
-      v-slot="{
+      #default="{
         toggleDropdown,
         highlightItemUp,
         highlightItemDown,
@@ -22,8 +22,8 @@
           cursor-pointer
         "
         :class="!value ? 'text-gray-600' : 'text-gray-900'"
-        @click="toggleDropdown()"
         tabindex="0"
+        @click="toggleDropdown()"
         @keydown.down="highlightItemDown"
         @keydown.up="highlightItemUp"
         @keydown.enter="selectHighlightedItem"
@@ -35,22 +35,31 @@
   </Dropdown>
 </template>
 
-<script>
+<script lang="ts">
 import { t } from 'fyo';
 import Dropdown from 'src/components/Dropdown.vue';
+import { PeriodKey } from 'src/utils/types';
+import { PropType } from 'vue';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'PeriodSelector',
+  components: {
+    Dropdown,
+  },
   props: {
-    value: String,
+    value: { type: String as PropType<PeriodKey>, default: 'This Year' },
     options: {
-      type: Array,
+      type: Array as PropType<PeriodKey[]>,
       default: () => ['This Year', 'This Quarter', 'This Month'],
     },
   },
   emits: ['change'],
-  components: {
-    Dropdown,
+  data() {
+    return {
+      periodSelectorMap: {} as Record<PeriodKey | '', string>,
+      periodOptions: [] as { label: string; action: () => void }[],
+    };
   },
   mounted() {
     this.periodSelectorMap = {
@@ -69,17 +78,13 @@ export default {
       };
     });
   },
-  data() {
-    return {
-      periodSelectorMap: {},
-      periodOptions: [],
-    };
-  },
   methods: {
-    selectOption(value) {
+    selectOption(value: PeriodKey) {
       this.$emit('change', value);
-      this.$refs.dropdown.toggleDropdown(false);
+      (this.$refs.dropdown as InstanceType<typeof Dropdown>).toggleDropdown(
+        false
+      );
     },
   },
-};
+});
 </script>

@@ -9,6 +9,9 @@ import { getSavePath, getTemplates, makePDF } from './ipcCalls';
 import { PrintValues } from './types';
 import { getDocFromNameIfExistsElseNew } from './ui';
 
+export type PrintTemplateHint = {
+  [key: string]: string | PrintTemplateHint | PrintTemplateHint[];
+};
 type PrintTemplateData = Record<string, unknown>;
 type TemplateUpdateItem = { name: string; template: string; type: string };
 
@@ -62,11 +65,11 @@ export async function getPrintTemplatePropValues(
 }
 
 export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
-  const hints: PrintTemplateData = {};
+  const hints: PrintTemplateHint = {};
   const schema = fyo.schemaMap[schemaName]!;
   hints.doc = getPrintTemplateDocHints(schema, fyo);
-  (hints.doc as PrintTemplateData).entryType = fyo.t`Entry Type`;
-  (hints.doc as PrintTemplateData).entryLabel = fyo.t`Entry Label`;
+  hints.doc.entryType = fyo.t`Entry Type`;
+  hints.doc.entryLabel = fyo.t`Entry Label`;
 
   const printSettingsHints = getPrintTemplateDocHints(
     fyo.schemaMap[ModelNameEnum.PrintSettings]!,
@@ -93,11 +96,12 @@ export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
 }
 
 function showHSN(doc: Doc): boolean {
-  if (!Array.isArray(doc.items)) {
+  const items = doc.items;
+  if (!Array.isArray(items)) {
     return false;
   }
 
-  return doc.items.map((i) => i.hsnCode).every(Boolean);
+  return items.map((i: Doc) => i.hsnCode).every(Boolean);
 }
 
 function formattedTotalDiscount(doc: Doc): string {
@@ -118,10 +122,10 @@ function getPrintTemplateDocHints(
   fyo: Fyo,
   fieldnames?: string[],
   linkLevel?: number
-): PrintTemplateData {
+): PrintTemplateHint {
   linkLevel ??= 0;
-  const hints: PrintTemplateData = {};
-  const links: PrintTemplateData = {};
+  const hints: PrintTemplateHint = {};
+  const links: PrintTemplateHint = {};
 
   let fields = schema.fields;
   if (fieldnames) {
@@ -246,15 +250,14 @@ function constructPrintDocument(innerHTML: string) {
 }
 
 function getAllCSSAsStyleElem() {
-  const cssTexts = [];
+  const cssTexts: string[] = [];
   for (const sheet of document.styleSheets) {
     for (const rule of sheet.cssRules) {
       cssTexts.push(rule.cssText);
     }
 
-    // @ts-ignore
-    for (const rule of sheet.ownerRule ?? []) {
-      cssTexts.push(rule.cssText);
+    if (sheet.ownerRule) {
+      cssTexts.push(sheet.ownerRule.cssText);
     }
   }
 

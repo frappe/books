@@ -1,7 +1,10 @@
 import { Doc } from 'fyo/model/doc';
 import { ListViewSettings } from 'fyo/model/types';
 import { PriceListItem } from './PriceListItem';
-import { getPriceListEnabledColumn, getPriceListStatusColumn } from 'models/helpers';
+import {
+  getPriceListEnabledColumn,
+  getPriceListStatusColumn,
+} from 'models/helpers';
 
 export class PriceList extends Doc {
   isEnabled?: boolean;
@@ -11,7 +14,11 @@ export class PriceList extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: ['name', getPriceListEnabledColumn(), getPriceListStatusColumn()],
+      columns: [
+        'name',
+        getPriceListEnabledColumn(),
+        getPriceListStatusColumn(),
+      ],
     };
   }
 }

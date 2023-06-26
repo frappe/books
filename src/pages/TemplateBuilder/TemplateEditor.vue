@@ -17,6 +17,12 @@ import { uicolors } from 'src/utils/colors';
 import { defineComponent, markRaw } from 'vue';
 
 export default defineComponent({
+  props: {
+    initialValue: { type: String, required: true },
+    disabled: { type: Boolean, default: false },
+    hints: { type: Object, default: undefined },
+  },
+  emits: ['input', 'blur'],
   data() {
     return { state: null, view: null, compartments: {} } as {
       state: EditorState | null;
@@ -24,17 +30,21 @@ export default defineComponent({
       compartments: Record<string, Compartment>;
     };
   },
-  props: {
-    initialValue: { type: String, required: true },
-    disabled: { type: Boolean, default: false },
-    hints: { type: Object },
+  computed: {
+    container() {
+      const { container } = this.$refs;
+      if (container instanceof HTMLDivElement) {
+        return container;
+      }
+
+      throw new Error('ref container is not a div element');
+    },
   },
   watch: {
     disabled(value: boolean) {
       this.setDisabled(value);
     },
   },
-  emits: ['input', 'blur'],
   mounted() {
     if (!this.view) {
       this.init();
@@ -66,7 +76,7 @@ export default defineComponent({
       const view = new EditorView({
         doc: this.initialValue,
         extensions: [
-          EditorView.updateListener.of(this.updateListener),
+          EditorView.updateListener.of(this.updateListener.bind(this)),
           readOnly.of(EditorState.readOnly.of(this.disabled)),
           editable.of(EditorView.editable.of(!this.disabled)),
           basicSetup,
@@ -98,16 +108,6 @@ export default defineComponent({
           editable.reconfigure(EditorView.editable.of(!value)),
         ],
       });
-    },
-  },
-  computed: {
-    container() {
-      const { container } = this.$refs;
-      if (container instanceof HTMLDivElement) {
-        return container;
-      }
-
-      throw new Error('ref container is not a div element');
     },
   },
 });

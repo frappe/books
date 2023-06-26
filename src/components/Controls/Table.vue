@@ -1,6 +1,6 @@
 <template>
   <div v-if="tableFields?.length">
-    <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+    <div v-if="showLabel" class="text-gray-600 text-sm mb-1">
       {{ df.label }}
     </div>
 
@@ -12,12 +12,12 @@
       >
         <div class="flex items-center ps-2">#</div>
         <div
+          v-for="df in tableFields"
+          :key="df.fieldname"
           class="items-center flex px-2 h-row-mid"
           :class="{
             'ms-auto': isNumeric(df),
           }"
-          v-for="df in tableFields"
-          :key="df.fieldname"
           :style="{
             height: ``,
           }"
@@ -28,25 +28,26 @@
 
       <!-- Data Rows -->
       <div
+        v-if="value"
         class="overflow-auto custom-scroll"
         :style="{ 'max-height': maxHeight }"
-        v-if="value"
       >
         <TableRow
           v-for="(row, idx) of value"
-          :class="idx < value.length - 1 ? 'border-b' : ''"
           ref="table-row"
           :key="row.name"
+          :class="idx < value.length - 1 ? 'border-b' : ''"
           v-bind="{ row, tableFields, size, ratio, isNumeric }"
           :read-only="isReadOnly"
           :can-edit-row="canEditRow"
           @remove="removeRow(row)"
-          @change="(field, value) => $emit('row-change', field, value, this.df)"
+          @change="(field, value) => $emit('row-change', field, value, df)"
         />
       </div>
 
       <!-- Add Row and Row Count -->
       <Row
+        v-if="!isReadOnly"
         :ratio="ratio"
         class="
           text-gray-500
@@ -58,7 +59,6 @@
           items-center
         "
         :class="value.length > 0 ? 'border-t' : ''"
-        v-if="!isReadOnly"
         @click="addRow"
       >
         <div class="flex items-center ps-1">
@@ -72,12 +72,12 @@
             {{ t`Add Row` }}
           </p>
           <p
-            class="text-end px-2"
             v-if="
               value &&
               maxRowsBeforeOverflow &&
               value.length > maxRowsBeforeOverflow
             "
+            class="text-end px-2"
           >
             {{ t`${value.length} rows` }}
           </p>
@@ -96,7 +96,10 @@ import TableRow from './TableRow.vue';
 
 export default {
   name: 'Table',
-  emits: ['editrow', 'row-change'],
+  components: {
+    Row,
+    TableRow,
+  },
   extends: Base,
   props: {
     value: { type: Array, default: () => [] },
@@ -113,17 +116,37 @@ export default {
       default: false,
     },
   },
-  components: {
-    Row,
-    TableRow,
+  emits: ['editrow', 'row-change'],
+  data() {
+    return { maxHeight: '' };
+  },
+  computed: {
+    height() {
+      if (this.size === 'small') {
+      }
+      return 2;
+    },
+    canEditRow() {
+      return this.df.edit;
+    },
+    ratio() {
+      const ratio = [0.3].concat(this.tableFields.map(() => 1));
+
+      if (this.canEditRow) {
+        return ratio.concat(0.3);
+      }
+
+      return ratio;
+    },
+    tableFields() {
+      const fields = fyo.schemaMap[this.df.target].tableFields ?? [];
+      return fields.map((fieldname) => fyo.getField(this.df.target, fieldname));
+    },
   },
   watch: {
     value() {
       this.setMaxHeight();
     },
-  },
-  data() {
-    return { maxHeight: '' };
   },
   mounted() {
     if (fyo.store.isDevelopment) {
@@ -174,29 +197,6 @@ export default {
 
       const maxHeight = rowHeight * Math.min(this.maxRowsBeforeOverflow, size);
       return (this.maxHeight = `${maxHeight}px`);
-    },
-  },
-  computed: {
-    height() {
-      if (this.size === 'small') {
-      }
-      return 2;
-    },
-    canEditRow() {
-      return this.df.edit;
-    },
-    ratio() {
-      const ratio = [0.3].concat(this.tableFields.map(() => 1));
-
-      if (this.canEditRow) {
-        return ratio.concat(0.3);
-      }
-
-      return ratio;
-    },
-    tableFields() {
-      const fields = fyo.schemaMap[this.df.target].tableFields ?? [];
-      return fields.map((fieldname) => fyo.getField(this.df.target, fieldname));
     },
   },
 };

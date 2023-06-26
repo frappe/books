@@ -43,12 +43,12 @@
         <div class="grid grid-cols-3 border rounded mt-1">
           <Check
             v-for="ef of fields"
+            :key="ef.fieldname"
             :label-class="
               ef.fieldtype === 'Table'
                 ? 'text-sm text-gray-600 font-semibold'
                 : 'text-sm text-gray-600'
             "
-            :key="ef.fieldname"
             :df="getField(ef)"
             :show-label="true"
             :value="ef.export"
@@ -58,7 +58,7 @@
       </div>
 
       <!-- Table Fields -->
-      <div class="p-4" v-for="efs of filteredTableFields" :key="efs.fieldname">
+      <div v-for="efs of filteredTableFields" :key="efs.fieldname" class="p-4">
         <h2 class="text-sm font-semibold text-gray-800">
           {{ fyo.schemaMap[efs.target]?.label ?? schemaName }}
         </h2>
@@ -90,10 +90,10 @@ import { t } from 'fyo';
 import { Field, FieldTypeEnum } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import {
-getCsvExportData,
-getExportFields,
-getExportTableFields,
-getJsonExportData
+  getCsvExportData,
+  getExportFields,
+  getExportTableFields,
+  getJsonExportData,
 } from 'src/utils/export';
 import { getSavePath, saveData, showExportInFolder } from 'src/utils/ipcCalls';
 import { ExportField, ExportFormat, ExportTableField } from 'src/utils/types';
@@ -115,6 +115,7 @@ interface ExportWizardData {
 }
 
 export default defineComponent({
+  components: { FormHeader, Check, Select, Button, Int },
   props: {
     schemaName: { type: String, required: true },
     listFilters: { type: Object as PropType<QueryFilter>, default: () => {} },
@@ -132,6 +133,56 @@ export default defineComponent({
       fields: exportFields,
       tableFields: exportTableFields,
     } as ExportWizardData;
+  },
+  computed: {
+    label() {
+      if (this.pageTitle) {
+        return this.pageTitle;
+      }
+
+      return fyo.schemaMap?.[this.schemaName]?.label ?? '';
+    },
+    filteredTableFields() {
+      return this.tableFields.filter((f) => {
+        const ef = this.getExportField(f.fieldname);
+        return !!ef?.export;
+      });
+    },
+    numSelected() {
+      return (
+        this.filteredTableFields.reduce(
+          (acc, f) => f.fields.filter((f) => f.export).length + acc,
+          0
+        ) +
+        this.fields.filter(
+          (f) => f.fieldtype !== FieldTypeEnum.Table && f.export
+        ).length
+      );
+    },
+    configFields() {
+      return {
+        useListFilters: {
+          fieldtype: 'Check',
+          label: t`Use List Filters`,
+          fieldname: 'useListFilters',
+        },
+        limit: {
+          placeholder: 'Limit number of rows',
+          fieldtype: 'Int',
+          label: t`Limit`,
+          fieldname: 'limit',
+        },
+        exportFormat: {
+          fieldtype: 'Select',
+          label: t`Export Format`,
+          fieldname: 'exportFormat',
+          options: [
+            { value: 'json', label: 'JSON' },
+            { value: 'csv', label: 'CSV' },
+          ],
+        },
+      };
+    },
   },
   methods: {
     getField(ef: ExportField): Field {
@@ -214,56 +265,5 @@ export default defineComponent({
       return `${fileName}_${dateString}`;
     },
   },
-  computed: {
-    label() {
-      if (this.pageTitle) {
-        return this.pageTitle;
-      }
-
-      return fyo.schemaMap?.[this.schemaName]?.label ?? '';
-    },
-    filteredTableFields() {
-      return this.tableFields.filter((f) => {
-        const ef = this.getExportField(f.fieldname);
-        return !!ef?.export;
-      });
-    },
-    numSelected() {
-      return (
-        this.filteredTableFields.reduce(
-          (acc, f) => f.fields.filter((f) => f.export).length + acc,
-          0
-        ) +
-        this.fields.filter(
-          (f) => f.fieldtype !== FieldTypeEnum.Table && f.export
-        ).length
-      );
-    },
-    configFields() {
-      return {
-        useListFilters: {
-          fieldtype: 'Check',
-          label: t`Use List Filters`,
-          fieldname: 'useListFilters',
-        },
-        limit: {
-          placeholder: 'Limit number of rows',
-          fieldtype: 'Int',
-          label: t`Limit`,
-          fieldname: 'limit',
-        },
-        exportFormat: {
-          fieldtype: 'Select',
-          label: t`Export Format`,
-          fieldname: 'exportFormat',
-          options: [
-            { value: 'json', label: 'JSON' },
-            { value: 'csv', label: 'CSV' },
-          ],
-        },
-      };
-    },
-  },
-  components: { FormHeader, Check, Select, Button, Int },
 });
 </script>

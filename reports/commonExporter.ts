@@ -1,4 +1,4 @@
-import { Fyo, t } from 'fyo';
+import { t } from 'fyo';
 import { Action } from 'fyo/model/types';
 import { Verb } from 'fyo/telemetry/types';
 import { getSavePath, saveData, showExportInFolder } from 'src/utils/ipcCalls';
@@ -88,7 +88,7 @@ function getJsonData(report: Report): string {
     }
 
     const rowObj: Record<string, unknown> = {};
-    for (const c in row.cells) {
+    for (let c = 0; c < row.cells.length; c++) {
       const { label } = columns[c];
       const cell = getValueFromCell(row.cells[c], displayPrecision);
       rowObj[label] = cell;
@@ -129,7 +129,7 @@ function convertReportToCSVMatrix(report: Report): unknown[][] {
   const displayPrecision =
     (report.fyo.singles.SystemSettings?.displayPrecision as number) ?? 2;
   const reportData = report.reportData;
-  const columns = report.columns!;
+  const columns = report.columns;
 
   const csvdata: unknown[][] = [];
   csvdata.push(columns.map((c) => c.label));
@@ -140,7 +140,7 @@ function convertReportToCSVMatrix(report: Report): unknown[][] {
     }
 
     const csvrow: unknown[] = [];
-    for (const c in row.cells) {
+    for (let c = 0; c < row.cells.length; c++) {
       const cell = getValueFromCell(row.cells[c], displayPrecision);
       csvrow.push(cell);
     }

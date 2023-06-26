@@ -7,14 +7,14 @@
       </template>
     </SectionHeader>
 
-    <div class="flex relative" v-show="hasData">
+    <div v-show="hasData" class="flex relative">
       <!-- Chart Legend -->
       <div class="w-1/2 flex flex-col gap-4 justify-center">
         <!-- Ledgend Item -->
         <div
-          class="flex items-center text-sm"
           v-for="(d, i) in expenses"
-          :key="d.name"
+          :key="d.account"
+          class="flex items-center text-sm"
           @mouseover="active = i"
           @mouseleave="active = null"
         >
@@ -34,9 +34,9 @@
         :offset-x="3"
         :thickness="10"
         :text-offset-x="6.5"
-        :value-formatter="(value) => fyo.format(value, 'Currency')"
+        :value-formatter="(value: number) => fyo.format(value, 'Currency')"
         :total-label="t`Total Spending`"
-        @change="(value) => (active = value)"
+        @change="(value: number) => (active = value)"
       />
     </div>
 
@@ -52,39 +52,48 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { truncate } from 'lodash';
 import { fyo } from 'src/initFyo';
 import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
+import { defineComponent } from 'vue';
 import DonutChart from '../../components/Charts/DonutChart.vue';
 import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 
-export default {
+// Linting broken in this file cause of `extends: ...`
+/* 
+  eslint-disable @typescript-eslint/no-unsafe-argument, 
+  @typescript-eslint/no-unsafe-return,
+  @typescript-eslint/restrict-plus-operands
+*/
+export default defineComponent({
   name: 'Expenses',
-  extends: DashboardChartBase,
   components: {
     DonutChart,
     PeriodSelector,
     SectionHeader,
   },
+  extends: DashboardChartBase,
   data: () => ({
-    active: null,
-    expenses: [],
+    active: null as null | number,
+    expenses: [] as {
+      account: string;
+      total: number;
+      color: string;
+      class: string;
+    }[],
   }),
-  activated() {
-    this.setData();
-  },
   computed: {
-    totalExpense() {
+    totalExpense(): number {
       return this.expenses.reduce((sum, expense) => sum + expense.total, 0);
     },
-    hasData() {
+    hasData(): boolean {
       return this.expenses.length > 0;
     },
-    sectors() {
+    sectors(): { color: string; label: string; value: number }[] {
       return this.expenses.map(({ account, color, total }) => ({
         color,
         label: truncate(account, { length: 21 }),
@@ -92,9 +101,12 @@ export default {
       }));
     },
   },
+  activated() {
+    this.setData();
+  },
   methods: {
     async setData() {
-      const { fromDate, toDate } = await getDatesAndPeriodList(this.period);
+      const { fromDate, toDate } = getDatesAndPeriodList(this.period);
       let topExpenses = await fyo.db.getTopExpenses(
         fromDate.toISO(),
         toDate.toISO()
@@ -108,16 +120,16 @@ export default {
         { class: 'bg-pink-100', hex: uicolors.pink['100'] },
       ];
 
-      topExpenses = topExpenses
+      this.expenses = topExpenses
         .filter((e) => e.total > 0)
         .map((d, i) => {
-          d.color = shades[i].hex;
-          d.class = shades[i].class;
-          return d;
+          return {
+            ...d,
+            color: shades[i].hex,
+            class: shades[i].class,
+          };
         });
-
-      this.expenses = topExpenses;
     },
   },
-};
+});
 </script>

@@ -1,4 +1,4 @@
-import type { ConfigFile } from "fyo/core/types";
+import type { ConfigFile } from 'fyo/core/types';
 
 export type UnknownMap = Record<string, unknown>;
 export type Translation = { translation: string; context?: string };
@@ -51,6 +51,7 @@ export interface SelectFileReturn {
   canceled: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type PropertyEnum<T extends Record<string, any>> = {
   [key in keyof Required<T>]: key;
 };

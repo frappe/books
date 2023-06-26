@@ -1,12 +1,13 @@
 import { t } from 'fyo';
 import { ModelNameEnum } from 'models/types';
 import { openSettings, routeTo } from './ui';
+import { GetStartedConfigItem } from './types';
 
-export function getGetStartedConfig() {
+export function getGetStartedConfig(): GetStartedConfigItem[] {
+  /* eslint-disable @typescript-eslint/no-misused-promises */
   return [
     {
       label: t`Organisation`,
-
       items: [
         {
           key: 'General',
@@ -14,9 +15,7 @@ export function getGetStartedConfig() {
           icon: 'general',
           description: t`Set up your company information, email, country and fiscal year`,
           fieldname: 'companySetup',
-          action() {
-            openSettings(ModelNameEnum.AccountingSettings);
-          },
+          action: () => openSettings(ModelNameEnum.AccountingSettings),
         },
         {
           key: 'Print',
@@ -24,9 +23,7 @@ export function getGetStartedConfig() {
           icon: 'invoice',
           description: t`Customize your invoices by adding a logo and address details`,
           fieldname: 'printSetup',
-          action() {
-            openSettings(ModelNameEnum.PrintSettings);
-          },
+          action: () => openSettings(ModelNameEnum.PrintSettings),
         },
         {
           key: 'System',
@@ -34,24 +31,19 @@ export function getGetStartedConfig() {
           icon: 'system',
           description: t`Setup system defaults like date format and display precision`,
           fieldname: 'systemSetup',
-          action() {
-            openSettings(ModelNameEnum.SystemSettings);
-          },
+          action: () => openSettings(ModelNameEnum.SystemSettings),
         },
       ],
     },
     {
       label: t`Accounts`,
-
       items: [
         {
           key: 'Review Accounts',
           label: t`Review Accounts`,
           icon: 'review-ac',
           description: t`Review your chart of accounts, add any account or tax heads as needed`,
-          action: () => {
-            routeTo('/chart-of-accounts');
-          },
+          action: () => routeTo('/chart-of-accounts'),
           fieldname: 'chartOfAccountsReviewed',
           documentation:
             'https://docs.frappebooks.com/setting-up/initial-entries.html#add-additional-bank-accounts',
@@ -79,7 +71,6 @@ export function getGetStartedConfig() {
     },
     {
       label: t`Sales`,
-
       items: [
         {
           key: 'Add Sales Items',
@@ -127,7 +118,6 @@ export function getGetStartedConfig() {
     },
     {
       label: t`Purchase`,
-
       items: [
         {
           key: 'Add Purchase Items',

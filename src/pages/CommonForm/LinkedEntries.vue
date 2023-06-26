@@ -173,11 +173,12 @@ import { PropType, defineComponent, inject } from 'vue';
 const COMPONENT_NAME = 'LinkedEntries';
 
 export default defineComponent({
+  components: { Button },
+  props: { doc: { type: Object as PropType<Doc>, required: true } },
+  emits: ['close'],
   setup() {
     return { shortcuts: inject(shortcutsKey) };
   },
-  emits: ['close'],
-  props: { doc: { type: Object as PropType<Doc>, required: true } },
   data() {
     return { entries: {} } as {
       entries: Record<
@@ -185,13 +186,6 @@ export default defineComponent({
         { collapsed: boolean; details: Record<string, unknown>[] }
       >;
     };
-  },
-  async mounted() {
-    await this.setLinkedEntries();
-    this.shortcuts?.set(COMPONENT_NAME, ['Escape'], () => this.$emit('close'));
-  },
-  unmounted() {
-    this.shortcuts?.delete(COMPONENT_NAME);
   },
   computed: {
     sequence(): string[] {
@@ -208,6 +202,13 @@ export default defineComponent({
 
       return seq;
     },
+  },
+  async mounted() {
+    await this.setLinkedEntries();
+    this.shortcuts?.set(COMPONENT_NAME, ['Escape'], () => this.$emit('close'));
+  },
+  unmounted() {
+    this.shortcuts?.delete(COMPONENT_NAME);
   },
   methods: {
     isPesa,
@@ -238,7 +239,6 @@ export default defineComponent({
       }
     },
   },
-  components: { Button },
 });
 
 const linkSequence = [

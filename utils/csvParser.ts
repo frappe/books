@@ -13,7 +13,7 @@ export function generateCSV(matrix: unknown[][]): string {
   return formattedRows.join('\r\n');
 }
 
-function splitCsvBlock(text: string, splitter: string = '\r\n'): string[] {
+function splitCsvBlock(text: string, splitter = '\r\n'): string[] {
   if (!text.endsWith(splitter)) {
     text += splitter;
   }

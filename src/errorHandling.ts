@@ -1,6 +1,4 @@
-import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
-import { ConfigKeys } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { BaseError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
@@ -11,6 +9,7 @@ import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
 import { DialogOptions, ToastOptions } from './utils/types';
+const { ipcRenderer } = require('electron');
 
 function shouldNotStore(error: Error) {
   const shouldLog = (error as BaseError).shouldStore ?? true;
@@ -23,7 +22,7 @@ export async function sendError(errorLogObj: ErrorLog) {
   }
 
   errorLogObj.more ??= {};
-  errorLogObj.more!.path ??= router.currentRoute.value.fullPath;
+  errorLogObj.more.path ??= router.currentRoute.value.fullPath;
 
   const body = {
     error_name: errorLogObj.name,
@@ -40,6 +39,7 @@ export async function sendError(errorLogObj: ErrorLog) {
   };
 
   if (fyo.store.isDevelopment) {
+    // eslint-disable-next-line no-console
     console.log('sendError', body);
   }
 
@@ -77,9 +77,10 @@ export async function handleError(
   logToConsole: boolean,
   error: Error,
   more: Record<string, unknown> = {},
-  notifyUser: boolean = true
+  notifyUser = true
 ) {
   if (logToConsole) {
+    // eslint-disable-next-line no-console
     console.error(error);
   }
 
@@ -93,7 +94,7 @@ export async function handleError(
   if (notifyUser) {
     const toastProps = getToastProps(errorLogObj);
     const { showToast } = await import('src/utils/interactive');
-    await showToast(toastProps);
+    showToast(toastProps);
   }
 }
 
@@ -127,13 +128,20 @@ export async function handleErrorWithDialog(
         },
         isPrimary: true,
       },
-      { label: t`Cancel`, action() {}, isEscape: true },
+      {
+        label: t`Cancel`,
+        action() {
+          return null;
+        },
+        isEscape: true,
+      },
     ];
   }
 
   await showDialog(options);
   if (dontThrow) {
     if (fyo.store.isDevelopment) {
+      // eslint-disable-next-line no-console
       console.error(error);
     }
     return;
@@ -150,12 +158,14 @@ export async function showErrorDialog(title?: string, content?: string) {
   await ipcRenderer.invoke(IPC_ACTIONS.SHOW_ERROR, { title, content });
 }
 
-// Wrapper Functions
-
-export function getErrorHandled(func: Function) {
-  return async function errorHandled(...args: unknown[]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getErrorHandled<T extends (...args: any[]) => Promise<any>>(
+  func: T
+) {
+  type Return = ReturnType<T> extends Promise<infer P> ? P : true;
+  return async function errorHandled(...args: Parameters<T>): Promise<Return> {
     try {
-      return await func(...args);
+      return (await func(...args)) as Return;
     } catch (error) {
       await handleError(false, error as Error, {
         functionName: func.name,
@@ -167,16 +177,19 @@ export function getErrorHandled(func: Function) {
   };
 }
 
-export function getErrorHandledSync(func: Function) {
-  return function errorHandledSync(...args: unknown[]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getErrorHandledSync<T extends (...args: any[]) => any>(
+  func: T
+) {
+  type Return = ReturnType<T> extends Promise<infer P> ? P : ReturnType<T>;
+  return function errorHandledSync(...args: Parameters<T>) {
     try {
-      return func(...args);
+      return func(...args) as Return;
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       handleError(false, error as Error, {
         functionName: func.name,
         functionArgs: args,
-      }).then(() => {
-        throw error;
       });
     }
   };
@@ -208,7 +221,7 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   body.push(`**Platform**: \`${fyo.store.platform}\``);
   body.push(`**Path**: \`${router.currentRoute.value.fullPath}\``);
 
-  body.push(`**Language**: \`${fyo.config.get(ConfigKeys.Language)}\``);
+  body.push(`**Language**: \`${fyo.config.get('language') ?? '-'}\``);
   if (fyo.singles.SystemSettings?.countryCode) {
     body.push(`**Country**: \`${fyo.singles.SystemSettings.countryCode}\``);
   }

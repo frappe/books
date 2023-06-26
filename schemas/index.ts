@@ -12,7 +12,7 @@ const NAME_FIELD = {
   readOnly: true,
 };
 
-export function getSchemas(countryCode: string = '-'): Readonly<SchemaMap> {
+export function getSchemas(countryCode = '-'): Readonly<SchemaMap> {
   const builtCoreSchemas = getCoreSchemas();
   const builtAppSchemas = getAppSchemas(countryCode);
 
@@ -209,14 +209,14 @@ export function getAbstractCombinedSchemas(schemas: SchemaStubMap): SchemaMap {
 
   for (const name of extendingSchemaNames) {
     const extendingSchema = schemas[name] as Schema;
-    const abstractSchema = schemas[extendingSchema.extends!] as SchemaStub;
+    const abstractSchema = schemas[extendingSchema.extends!];
 
     schemaMap[name] = getCombined(extendingSchema, abstractSchema) as Schema;
   }
 
-  for (const name in abstractSchemaNames) {
+  abstractSchemaNames.forEach((name) => {
     delete schemaMap[name];
-  }
+  });
 
   return schemaMap;
 }

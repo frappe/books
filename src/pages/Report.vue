@@ -3,8 +3,8 @@
     <PageHeader :title="title">
       <DropdownWithActions
         v-for="group of groupedActions"
-        :icon="false"
         :key="group.label"
+        :icon="false"
         :type="group.type"
         :actions="group.actions"
         class="text-xs"
@@ -28,11 +28,11 @@
     >
       <FormControl
         v-for="field in report.filters"
+        :key="field.fieldname + '-filter'"
         :border="true"
         size="small"
         :class="[field.fieldtype === 'Check' ? 'self-end' : '']"
         :show-label="true"
-        :key="field.fieldname + '-filter'"
         :df="field"
         :value="report.get(field.fieldname)"
         :read-only="loading"
@@ -45,8 +45,8 @@
   </div>
 </template>
 <script lang="ts">
-import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
+import { DocValue } from 'fyo/core/types';
 import { reports } from 'reports';
 import { Report } from 'reports/Report';
 import Button from 'src/components/Button.vue';
@@ -60,11 +60,20 @@ import { docsPathMap, getReport } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { ActionGroup } from 'src/utils/types';
 import { routeTo } from 'src/utils/ui';
-import { PropType, defineComponent, inject } from 'vue';
+import { PropType, computed, defineComponent, inject } from 'vue';
 
 export default defineComponent({
-  setup() {
-    return { shortcuts: inject(shortcutsKey) };
+  components: {
+    PageHeader,
+    FormControl,
+    ListReport,
+    DropdownWithActions,
+    Button,
+  },
+  provide() {
+    return {
+      report: computed(() => this.report),
+    };
   },
   props: {
     reportClassName: {
@@ -76,51 +85,14 @@ export default defineComponent({
       default: '{}',
     },
   },
+  setup() {
+    return { shortcuts: inject(shortcutsKey) };
+  },
   data() {
     return {
       loading: false,
       report: null as null | Report,
     };
-  },
-  provide() {
-    return {
-      report: computed(() => this.report),
-    };
-  },
-  components: {
-    PageHeader,
-    FormControl,
-    ListReport,
-    DropdownWithActions,
-    Button,
-  },
-  async activated() {
-    docsPathRef.value =
-      docsPathMap[this.reportClassName] ?? docsPathMap.Reports!;
-    await this.setReportData();
-
-    const filters = JSON.parse(this.defaultFilters);
-    const filterKeys = Object.keys(filters);
-    for (const key of filterKeys) {
-      await this.report?.set(key, filters[key]);
-    }
-
-    if (filterKeys.length) {
-      await this.report?.updateData();
-    }
-
-    if (fyo.store.isDevelopment) {
-      // @ts-ignore
-      window.rep = this;
-    }
-
-    this.shortcuts?.pmod.set(this.reportClassName, ['KeyP'], () => {
-      routeTo(`/report-print/${this.reportClassName}`);
-    });
-  },
-  deactivated() {
-    docsPathRef.value = '';
-    this.shortcuts?.delete(this.reportClassName);
   },
   computed: {
     title() {
@@ -146,6 +118,35 @@ export default defineComponent({
 
       return Object.values(actionsMap);
     },
+  },
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async activated() {
+    docsPathRef.value =
+      docsPathMap[this.reportClassName] ?? docsPathMap.Reports!;
+    await this.setReportData();
+
+    const filters = JSON.parse(this.defaultFilters) as Record<string, DocValue>;
+    const filterKeys = Object.keys(filters);
+    for (const key of filterKeys) {
+      await this.report?.set(key, filters[key]);
+    }
+
+    if (filterKeys.length) {
+      await this.report?.updateData();
+    }
+
+    if (fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.rep = this;
+    }
+
+    this.shortcuts?.pmod.set(this.reportClassName, ['KeyP'], async () => {
+      await routeTo(`/report-print/${this.reportClassName}`);
+    });
+  },
+  deactivated() {
+    docsPathRef.value = '';
+    this.shortcuts?.delete(this.reportClassName);
   },
   methods: {
     routeTo,

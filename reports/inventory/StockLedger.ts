@@ -19,11 +19,11 @@ export class StockLedger extends Report {
   static reportName = 'stock-ledger';
   static isInventory = true;
 
-  usePagination: boolean = true;
+  usePagination = true;
 
   _rawData?: ComputedStockLedgerEntry[];
-  loading: boolean = false;
-  shouldRefresh: boolean = false;
+  loading = false;
+  shouldRefresh = false;
 
   item?: string;
   location?: string;
@@ -52,7 +52,7 @@ export class StockLedger extends Report {
     this._setObservers();
   }
 
-  async setDefaultFilters() {
+  setDefaultFilters() {
     if (!this.toDate) {
       this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
       this.fromDate = DateTime.now().minus({ years: 1 }).toISODate();
@@ -91,9 +91,8 @@ export class StockLedger extends Report {
 
   async _setRawData() {
     const valuationMethod =
-      (this.fyo.singles.InventorySettings?.valuationMethod as
-        | ValuationMethod
-        | undefined) ?? ValuationMethod.FIFO;
+      this.fyo.singles.InventorySettings?.valuationMethod ??
+      ValuationMethod.FIFO;
 
     const rawSLEs = await getRawStockLedgerEntries(this.fyo);
     this._rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
@@ -113,7 +112,7 @@ export class StockLedger extends Report {
     }
 
     let i = 0;
-    for (const idx in rawData) {
+    for (let idx = 0; idx < rawData.length; idx++) {
       const row = rawData[idx];
       if (this.item && row.item !== this.item) {
         continue;

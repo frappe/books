@@ -38,7 +38,7 @@ export class CreateCOA {
       const child = children[rootName];
 
       if (rootAccount) {
-        rootType = (child as COARootAccount).rootType as AccountRootType;
+        rootType = (child as COARootAccount).rootType;
       }
 
       const accountType = (child as COAChildAccount).accountType ?? '';
@@ -83,7 +83,7 @@ function identifyIsGroup(child: COARootAccount | COAChildAccount): boolean {
   return false;
 }
 
-async function getCOA(chartOfAccounts: string) {
+async function getCOA(chartOfAccounts: string): Promise<COATree> {
   const coaList = getCOAList();
   const coa = coaList.find(({ name }) => name === chartOfAccounts);
 
@@ -93,8 +93,9 @@ async function getCOA(chartOfAccounts: string) {
   }
 
   try {
-    const countryCoa = (await import('fixtures/verified/' + conCode + '.json'))
-      .default;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const countryCoa = (await import(`../../fixtures/verified/${conCode}.json`))
+      .default as { tree: COATree };
     return countryCoa.tree;
   } catch (e) {
     return getStandardCOA();

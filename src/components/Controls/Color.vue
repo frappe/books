@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="labelClasses" v-if="showLabel">
+    <div v-if="showLabel" :class="labelClasses">
       {{ df.label }}
     </div>
     <Popover placement="bottom-end">
@@ -19,7 +19,7 @@
             <span v-if="value">
               {{ selectedColorLabel }}
             </span>
-            <span class="text-gray-400" v-else>
+            <span v-else class="text-gray-400">
               {{ inputPlaceholder }}
             </span>
           </div>
@@ -55,16 +55,25 @@
 </template>
 
 <script>
-import Popover from 'src/components/Popover';
-import Row from 'src/components/Row';
-import Base from './Base';
+import Popover from 'src/components/Popover.vue';
+import Row from 'src/components/Row.vue';
+import Base from './Base.vue';
 
 export default {
   name: 'Color',
-  extends: Base,
   components: {
     Popover,
     Row,
+  },
+  extends: Base,
+  computed: {
+    colors() {
+      return this.df.options;
+    },
+    selectedColorLabel() {
+      const color = this.colors.find((c) => this.value === c.value);
+      return color ? color.label : this.value;
+    },
   },
   methods: {
     setColorValue(value) {
@@ -74,15 +83,6 @@ export default {
       if (/^#[0-9A-F]{6}$/i.test(value)) {
         this.triggerChange(value);
       }
-    },
-  },
-  computed: {
-    colors() {
-      return this.df.options;
-    },
-    selectedColorLabel() {
-      const color = this.colors.find((c) => this.value === c.value);
-      return color ? color.label : this.value;
     },
   },
 };

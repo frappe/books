@@ -133,7 +133,7 @@ async function updateSystemSettings(
   const systemSettings = await fyo.doc.getDoc('SystemSettings');
   const instanceId = getRandomString();
 
-  systemSettings.setAndSync({
+  await systemSettings.setAndSync({
     locale,
     currency,
     instanceId,
@@ -168,10 +168,8 @@ async function createCurrencyRecords(fyo: Fyo) {
     };
 
     const doc = checkAndCreateDoc('Currency', docObject, fyo);
-    if (doc) {
-      promises.push(doc);
-      queue.push(currency);
-    }
+    promises.push(doc);
+    queue.push(currency);
   }
   return Promise.all(promises);
 }
@@ -256,13 +254,13 @@ async function checkAndCreateDoc(
   schemaName: string,
   docObject: DocValueMap,
   fyo: Fyo
-) {
+): Promise<Doc | undefined> {
   const canCreate = await checkIfExactRecordAbsent(schemaName, docObject, fyo);
   if (!canCreate) {
     return;
   }
 
-  const doc = await fyo.doc.getNewDoc(schemaName, docObject);
+  const doc = fyo.doc.getNewDoc(schemaName, docObject);
   return doc.sync();
 }
 
@@ -373,12 +371,12 @@ async function updateInventorySettings(fyo: Fyo) {
     }
 
     const settingName = accountTypeDefaultMap[accountType]!;
-    inventorySettings.set(settingName, accounts[0].name);
+    await inventorySettings.set(settingName, accounts[0].name);
   }
 
   const location = fyo.t`Stores`;
   if (await fyo.db.exists(ModelNameEnum.Location, location)) {
-    inventorySettings.set('defaultLocation', location);
+    await inventorySettings.set('defaultLocation', location);
   }
 
   await inventorySettings.sync();

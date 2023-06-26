@@ -5,19 +5,13 @@ import { App, createApp, h } from 'vue';
 import { getColorClass } from './colors';
 import { DialogButton, DialogOptions, ToastOptions, ToastType } from './types';
 
-type DialogReturn<DO extends DialogOptions> = DO['buttons'] extends {
-  action: () => Promise<infer O> | infer O;
-}[]
-  ? O
-  : void;
-
 export async function showDialog<DO extends DialogOptions>(options: DO) {
   const preWrappedButtons: DialogButton[] = options.buttons ?? [
-    { label: t`Okay`, action: () => {}, isEscape: true },
+    { label: t`Okay`, action: () => null, isEscape: true },
   ];
 
-  return new Promise(async (resolve, reject) => {
-    const buttons = preWrappedButtons!.map((config) => {
+  const resultPromise = new Promise((resolve, reject) => {
+    const buttons = preWrappedButtons.map((config) => {
       return {
         ...config,
         action: async () => {
@@ -37,10 +31,12 @@ export async function showDialog<DO extends DialogOptions>(options: DO) {
     });
 
     fragmentMountComponent(dialogApp);
-  }) as DialogReturn<DO>;
+  });
+
+  return await resultPromise;
 }
 
-export async function showToast(options: ToastOptions) {
+export function showToast(options: ToastOptions) {
   const toastApp = createApp({
     render() {
       return h(Toast, { ...options });

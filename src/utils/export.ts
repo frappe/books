@@ -118,7 +118,7 @@ export async function getCsvExportData(
 
     const tableFieldRowMap = parentNameMap[parentName];
     if (!tableFieldRowMap || !Object.keys(tableFieldRowMap ?? {}).length) {
-      rows.push([baseRowData, headers.child.map((_) => '')].flat());
+      rows.push([baseRowData, headers.child.map(() => '')].flat());
       continue;
     }
 

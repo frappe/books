@@ -8,7 +8,7 @@ import { getIsNullOrUndef, safeParseInt } from 'utils';
 
 export function slug(str: string) {
   return str
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (letter, index) => {
       return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
     })
     .replace(/\s+/g, '');
@@ -24,7 +24,7 @@ export function unique<T>(list: T[], key = (it: T) => String(it)) {
 
 export function getDuplicates(array: unknown[]) {
   const duplicates: unknown[] = [];
-  for (const i in array) {
+  for (let i = 0; i < array.length; i++) {
     const previous = array[safeParseInt(i) - 1];
     const current = array[i];
 
@@ -118,7 +118,7 @@ function getRawOptionList(field: Field, doc: Doc | undefined | null) {
     return [];
   }
 
-  const Model = doc!.fyo.models[doc!.schemaName];
+  const Model = doc.fyo.models[doc.schemaName];
   if (Model === undefined) {
     return [];
   }
@@ -128,7 +128,7 @@ function getRawOptionList(field: Field, doc: Doc | undefined | null) {
     return [];
   }
 
-  return getList(doc!);
+  return getList(doc);
 }
 
 export function getEmptyValuesByFieldTypes(
