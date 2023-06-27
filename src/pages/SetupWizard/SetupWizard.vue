@@ -60,6 +60,7 @@
         <Button
           type="primary"
           class="w-24"
+          data-testid="submit-button"
           :disabled="!areAllValuesFilled || loading"
           @click="submit"
           >{{ t`Submit` }}</Button

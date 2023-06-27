@@ -14,6 +14,7 @@
         "
       >
         <h6
+          data-testid="company-name"
           class="
             font-semibold
             whitespace-nowrap
