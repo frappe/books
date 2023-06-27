@@ -8,7 +8,7 @@ import {
   assertDoesNotThrow,
   assertThrows,
   BaseMetaKey,
-  getBuiltTestSchemaMap
+  getBuiltTestSchemaMap,
 } from './helpers';
 
 /**

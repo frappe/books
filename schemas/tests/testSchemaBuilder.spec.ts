@@ -6,14 +6,14 @@ import {
   cleanSchemas,
   getAbstractCombinedSchemas,
   getRegionalCombinedSchemas,
-  setSchemaNameOnFields
+  setSchemaNameOnFields,
 } from '../index';
 import { metaSchemas } from '../schemas';
 import {
   everyFieldExists,
   getTestSchemaMap,
   someFieldExists,
-  subtract
+  subtract,
 } from './helpers';
 
 const { appSchemaMap, regionalSchemaMap } = getTestSchemaMap();

@@ -30,3 +30,6 @@ jobs:
 
       - name: Lint
         run: yarn lint
+
+      - name: Check Formatting
+        run: yarn prettier --check .

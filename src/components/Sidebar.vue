@@ -14,6 +14,7 @@
         "
       >
         <h6
+          data-testid="company-name"
           class="
             font-semibold
             whitespace-nowrap
@@ -115,6 +116,7 @@
       </button>
 
       <button
+        data-testid="change-db"
         class="
           flex
           text-sm text-gray-600

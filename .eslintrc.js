@@ -50,6 +50,7 @@ module.exports = {
   ],
   ignorePatterns: [
     '*.mjs',
+    'uitest',
     '.eslintrc.js',
     'tailwind.config.js',
     'node_modules',
