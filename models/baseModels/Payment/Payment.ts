@@ -522,7 +522,7 @@ export class Payment extends Transactional {
       dependsOn: ['amount', 'writeoff', 'for'],
     },
     forSales: {
-      formula: async () => {
+      formula: () => {
         if (!this.for) {
           return this.forSales;
         }

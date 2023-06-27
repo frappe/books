@@ -397,7 +397,7 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
-      let quantity = -1 * item.quantity!;
+      let quantity = -1 * item.quantity;
 
       if (returnBalanceItemsQty) {
         const balanceItemQty = returnBalanceItemsQty.filter(
@@ -419,7 +419,7 @@ export abstract class Invoice extends Transactional {
       ...invoiceData,
       name: null,
       date: new Date(),
-      items: returnInvoiceItems as InvoiceItem[],
+      items: returnInvoiceItems,
       isReturn: true,
       returnAgainst: invoiceData.name,
       netTotal: this.fyo.pesa(0),
@@ -434,7 +434,7 @@ export abstract class Invoice extends Transactional {
     );
 
     rawReturnDoc.once('beforeSync', async () => {
-      rawReturnDoc.runFormulas();
+      await rawReturnDoc.runFormulas();
     });
     return rawReturnDoc;
   }
