@@ -28,5 +28,28 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Yarn Tests
+      - name: Run Tests
         run: yarn test
+
+  setup_and_uitest:
+    runs-on: macos-11
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.14.0'
+
+      - name: Set yarn version
+        run: yarn set version 1.22.18
+
+      - name: Checkout Books
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Build Source Files
+        run: yarn build --nosign --nopackage
+
+      - name: Run UI Tests 
+        run: yarn uitest

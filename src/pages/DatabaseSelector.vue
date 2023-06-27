@@ -26,6 +26,7 @@
 
       <!-- New File (Blue Icon) -->
       <div
+        data-testid="create-new-file"
         class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
         :class="creatingDemo ? '' : 'hover:bg-gray-50 cursor-pointer'"
         @click="newDatabase"
