@@ -16,11 +16,29 @@ const packageDirPath = path.join(root, 'dist_electron', 'bundled');
 const mainFileName = 'main.js';
 const commonConfig = getMainProcessCommonConfig(root);
 
+const rawArgs = yargs(hideBin(process.argv))
+  .option('nosign', {
+    type: 'boolean',
+    description: 'Run electron-builder without code signing',
+  })
+  .option('nopackage', {
+    type: 'boolean',
+    description: 'Only build the source files, electron-builder will not run',
+  });
+
+const argv = rawArgs.argv;
+if (argv.nosign) {
+  process.env['CSC_IDENTITY_AUTO_DISCOVERY'] = false;
+}
+
 updatePaths();
 await buildMainProcessSource();
 await buildRendererProcessSource();
 copyPackageJson();
-await packageApp();
+
+if (!argv.nopackage) {
+  await packageApp();
+}
 
 function updatePaths() {
   fs.removeSync(buildDirPath);
@@ -117,8 +135,8 @@ function copyPackageJson() {
  * Packages the app using electron builder.
  *
  * Note: this also handles signing and notarization if the
- * appropriate flags are set. 
- * 
+ * appropriate flags are set.
+ *
  * Electron builder cli [commands](https://www.electron.build/cli)
  * are passed on as builderArgs.
  */
@@ -127,10 +145,13 @@ async function packageApp() {
     'electron-builder/out/builder.js'
   );
 
-  const rawArgs = hideBin(process.argv);
-  const builderArgs = yargs(rawArgs)
+  const builderArgs = rawArgs
     .command(['build', '*'], 'Build', configureBuildCommand)
     .parse();
+
+  for (const opt of ['nosign', 'nopackage']) {
+    delete builderArgs[opt];
+  }
 
   const buildOptions = {
     config: {
