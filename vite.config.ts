@@ -2,12 +2,11 @@ import vue from '@vitejs/plugin-vue';
 import path from 'path';
 import { defineConfig } from 'vite';
 
-
 /**
  * This vite config file is used only for dev mode, i.e.
  * to create a serve build modules of the source code
  * which will be rendered by electron.
- * 
+ *
  * For building the project, vite is used programmatically
  * see build/scripts/build.mjs for this.
  */

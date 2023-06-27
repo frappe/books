@@ -97,7 +97,6 @@ couple of seconds to render this because of how dev mode works. Each file is
 individually served by the dev server. And there are many files that have to be
 sent.
 
-
 **Note: Debug Electron Main Process**
 
 When in dev mode electron runs with the `--inspect` flag which allows an

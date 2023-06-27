@@ -262,15 +262,15 @@ export default {
         return;
       }
 
-      if (label && this.suggestions.length === 0) {
+      if (this.suggestions.length === 0) {
         this.triggerChange(label);
         return;
       }
 
-      if (
-        label &&
-        !this.suggestions.map(({ label }) => label).includes(label)
-      ) {
+      const suggestion = this.suggestions.find((s) => s.label === label);
+      if (suggestion) {
+        this.setSuggestion(suggestion);
+      } else {
         const suggestions = await this.getSuggestions(label);
         this.setSuggestion(suggestions[0]);
       }

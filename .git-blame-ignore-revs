@@ -1,2 +1,5 @@
 # Rename 'frappe' to 'fyo' outside src
 32d282dc9c6f129807a1cf53eae47fc3602aa976
+
+# Format files using prettier
+8c9d81d298dd08ae7acaf6de297aa30d95329778

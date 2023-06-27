@@ -141,7 +141,7 @@ export async function getSavePath(name: string, extention: string) {
   const canceled = response.canceled;
   let filePath = response.filePath;
 
-  if (filePath && !filePath.endsWith(extention)) {
+  if (filePath && !filePath.endsWith(extention) && filePath !== ':memory:') {
     filePath = `${filePath}.${extention}`;
   }
 
