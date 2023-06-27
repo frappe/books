@@ -17,7 +17,7 @@ There are a few types of schemas:
 - **Subclass**: Schemas that have an `"extends"` field on them, the value of which
   points to an Abstract schema.
 - **Complete**: Schemas which are neither abstract nor stub.
-    
+
 For more detail on the meta structure of the schema check `books/schemas/types.ts`.
 
 ## Final Schema

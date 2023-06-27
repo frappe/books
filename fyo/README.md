@@ -29,7 +29,7 @@ located in `model/doc.ts`, all classes exported from `books/models` extend this.
 - **Model**: the controller class that extends the `Doc` class, or the `Doc`
   class itself (if a specific controller doesn't exist).
 - **doc** (not `Doc`): instance of a Model, i.e. what has the data.
-    
+
 If you are confused, I understand.
 
 ## Initialization
@@ -102,6 +102,7 @@ strings globally since this will be evaluated before the map is loaded.
 
 The doc and db handlers have observers (instances of `Observable`) as
 properties, these can be accessed using
+
 - `fyo.db.observer`
 - `fyo.doc.observer`
 
