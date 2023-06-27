@@ -44,11 +44,10 @@ const appSourcePath = path.join(root, 'dist_electron', 'build', 'main.js');
   });
 
   test('fill setup form', async (t) => {
-    const filePath = path.join(root, 'dbs', 'books_uitest.db');
     await electronApp.evaluate(({ dialog }, filePath) => {
       dialog.showSaveDialog = () =>
         Promise.resolve({ canceled: false, filePath });
-    }, filePath);
+    }, ':memory:');
     await window.getByTestId('create-new-file').click();
     await window.getByTestId('submit-button').waitFor();
 
