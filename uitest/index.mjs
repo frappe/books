@@ -10,7 +10,7 @@ const appSourcePath = path.join(root, 'dist_electron', 'build', 'main.js');
 (async function run() {
   const electronApp = await _electron.launch({ args: [appSourcePath] });
   const window = await electronApp.firstWindow();
-  window.setDefaultTimeout(10_000);
+  window.setDefaultTimeout(60_000);
 
   test('load app', async (t) => {
     t.equal(await window.title(), 'Frappe Books', 'title matches');

@@ -1,1 +1,4 @@
 **/types.ts
+**/dist_electron
+**/dummy/*.json
+**/fixtures/countryInfo.json
