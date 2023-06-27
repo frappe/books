@@ -16,7 +16,8 @@
     "script:profile": "scripts/profile.sh",
     "test": "scripts/test.sh",
     "uitest": "node uitest/index.mjs | tap-spec",
-    "lint": "eslint . --ext ts,vue"
+    "lint": "eslint . --ext ts,vue",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.4.2",
