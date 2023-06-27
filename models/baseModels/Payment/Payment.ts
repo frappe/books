@@ -37,6 +37,7 @@ export class Payment extends Transactional {
   writeoff?: Money;
   paymentType?: PaymentType;
   for?: PaymentFor[];
+  forSales?: boolean;
   _accountsMap?: AccountTypeMap;
 
   async change({ changed }: ChangeArg) {
@@ -507,7 +508,6 @@ export class Payment extends Transactional {
         }
 
         if (outstanding?.isPositive()) {
-          console.log('positive');
           return 'Receive';
         }
         return 'Pay';
@@ -520,6 +520,14 @@ export class Payment extends Transactional {
     amountPaid: {
       formula: () => this.amount!.sub(this.writeoff!),
       dependsOn: ['amount', 'writeoff', 'for'],
+    },
+    forSales: {
+      formula: async () => {
+        if (!this.for) {
+          return this.forSales;
+        }
+        return this.for[0].referenceType === ModelNameEnum.SalesInvoice;
+      },
     },
   };
 

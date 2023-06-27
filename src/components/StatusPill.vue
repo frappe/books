@@ -6,7 +6,6 @@ import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/baseModels/Party/Party';
-import { Money } from 'pesa';
 import { getBgTextColorClass } from 'src/utils/colors';
 import { defineComponent } from 'vue';
 
@@ -105,6 +104,7 @@ function getSubmittableStatus(doc: Doc) {
     doc.isSubmitted &&
     isInvoice &&
     doc.outstandingAmount?.isZero() !== true &&
+    !doc.outstandingAmount?.isNegative() &&
     !doc.isReturn &&
     !doc.returnCompleted
   ) {
@@ -127,7 +127,7 @@ function getSubmittableStatus(doc: Doc) {
     doc.isSubmitted &&
     isInvoice &&
     !doc.outstandingAmount?.isZero() &&
-    (doc.outstandingAmount as Money) < (doc.grandTotal as Money)
+    doc.outstandingAmount!.abs() < doc.grandTotal!
   ) {
     return 'PartlyPaid';
   }

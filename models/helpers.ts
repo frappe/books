@@ -297,7 +297,7 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
     doc.submitted &&
     !doc.cancelled &&
     !(doc.outstandingAmount as Money).isZero() &&
-    (doc.outstandingAmount as Money) < (doc.grandTotal as Money)
+    (doc.outstandingAmount as Money).abs() < (doc.grandTotal as Money)
   ) {
     return 'PartlyPaid';
   }

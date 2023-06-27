@@ -454,10 +454,12 @@ export abstract class Invoice extends Transactional {
 
     const isItemsReturned = returnInvoices.length;
 
-    await this.fyo.db.update(this.schemaName, {
-      name: this.returnAgainst as string,
-      isItemsReturned,
-    });
+    const invoiceDoc = await this.fyo.doc.getDoc(
+      this.schemaName,
+      this.returnAgainst
+    );
+    await invoiceDoc.setAndSync({ isItemsReturned });
+    await invoiceDoc.submit();
   }
 
   async _updateReturnInvoiceOutStanding() {
@@ -488,10 +490,12 @@ export abstract class Invoice extends Transactional {
       outstandingAmount = invoiceOutstandingAmount.add(returnInvoiceGrandTotal);
     }
 
-    await this.fyo.db.update(this.schemaName, {
-      name: this.returnAgainst as string,
-      outstandingAmount,
-    });
+    const invoiceDoc = await this.fyo.doc.getDoc(
+      this.schemaName,
+      this.returnAgainst
+    );
+    await invoiceDoc.setAndSync({ outstandingAmount });
+    await invoiceDoc.submit();
   }
 
   formulas: FormulaMap = {
@@ -728,7 +732,11 @@ export abstract class Invoice extends Transactional {
       return null;
     }
 
-    const accountField = this.isSales ? 'account' : 'paymentAccount';
+    const accountField =
+      this.isSales && !this.outstandingAmount?.isNegative()
+        ? 'account'
+        : 'paymentAccount';
+
     const data = {
       party: this.party,
       date: new Date().toISOString().slice(0, 10),

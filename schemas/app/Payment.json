@@ -150,6 +150,13 @@
       "section": "References"
     },
     {
+      "fieldname": "forSales",
+      "fieldtype": "Check",
+      "default": true,
+      "required": true,
+      "hidden": true
+    },
+    {
       "fieldname": "attachment",
       "placeholder": "Add attachment",
       "label": "Attachment",
