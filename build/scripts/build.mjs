@@ -67,7 +67,7 @@ async function buildRendererProcessSource() {
   await vite.build({
     base: `/${base}`,
     root: path.join(root, 'src'),
-    build: { outDir },
+    build: { outDir, sourcemap: true },
     plugins: [vue()],
     resolve: {
       alias: {
