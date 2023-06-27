@@ -6,7 +6,7 @@ import { getValueMapFromList } from 'utils';
 import {
   getTestDbPath,
   getTestFyo,
-  getTestSetupWizardOptions
+  getTestSetupWizardOptions,
 } from './helpers';
 
 const dbPath = getTestDbPath();
