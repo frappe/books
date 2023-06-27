@@ -13,6 +13,13 @@
       "required": true
     },
     {
+      "fieldname": "tax",
+      "label": "Tax",
+      "fieldtype": "Link",
+      "create": true,
+      "target": "Tax"
+    },
+    {
       "fieldname": "rate",
       "label": "Rate",
       "fieldtype": "Float",
@@ -27,5 +34,5 @@
       "placeholder": "0.00"
     }
   ],
-  "tableFields": ["account", "rate", "amount"]
+  "tableFields": ["account", "rate", "amount", "tax"]
 }

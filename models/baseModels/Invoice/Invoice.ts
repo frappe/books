@@ -245,7 +245,14 @@ export abstract class Invoice extends Transactional {
 
     type TaxDetail = { account: string; rate: number };
 
-    for (const item of this.items ?? []) {
+    const itemTaxArray = await this.getTaxItem(this.items!);
+    const additionalFormatedArray = await this.getTaxItem(this.additionalCost!);
+
+    const combinedArray = [...itemTaxArray, ...additionalFormatedArray];
+
+    console.log(combinedArray);
+
+    for (const item of combinedArray ?? []) {
       if (!item.tax) {
         continue;
       }
@@ -299,6 +306,17 @@ export abstract class Invoice extends Transactional {
     return this._taxes[tax];
   }
 
+  async getTaxItem(items: any[]) {
+    type TaxItem = { amount: Money; itemDiscountedTotal: Money; tax: string };
+    let taxArray: TaxItem[] = [];
+
+    items.forEach(({ amount, itemDiscountedTotal, tax }) => {
+      const itemTaxArray: TaxItem = { amount, itemDiscountedTotal, tax };
+      taxArray.push(itemTaxArray);
+    });
+    return taxArray;
+  }
+
   async getAdditionalCost() {
     const additionalCost = this.additionalCost;
     let sumOfRates = 0;
@@ -328,7 +346,7 @@ export abstract class Invoice extends Transactional {
     return itemDiscountAmount.add(invoiceDiscountAmount);
   }
 
-  getGrandTotal() {
+  async getGrandTotal() {
     const totalDiscount = this.getTotalDiscount();
     const additionalCost = await this.getAdditionalCost();
 
