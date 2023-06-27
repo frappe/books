@@ -115,6 +115,7 @@
       </button>
 
       <button
+        data-testid="change-db"
         class="
           flex
           text-sm text-gray-600
