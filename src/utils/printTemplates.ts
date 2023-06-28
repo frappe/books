@@ -290,6 +290,8 @@ export async function updatePrintTemplates(fyo: Fyo) {
     updateList.push(...updates);
   }
 
+  const isLogging = fyo.store.skipTelemetryLogging;
+  fyo.store.skipTelemetryLogging = true;
   for (const { name, type, template } of updateList) {
     const doc = await getDocFromNameIfExistsElseNew(
       ModelNameEnum.PrintTemplate,
@@ -299,6 +301,7 @@ export async function updatePrintTemplates(fyo: Fyo) {
     await doc.set({ name, type, template, isCustom: false });
     await doc.sync();
   }
+  fyo.store.skipTelemetryLogging = isLogging;
 }
 
 function getPrintTemplateUpdateList(

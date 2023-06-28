@@ -9,6 +9,7 @@ export enum Verb {
   Cancelled = 'cancelled',
   Imported = 'imported',
   Exported = 'exported',
+  Printed = 'printed',
   Closed = 'closed',
   Opened = 'opened',
   Resumed = 'resumed',
