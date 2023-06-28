@@ -26,7 +26,7 @@
       <Int
         v-if="configFields.limit"
         :df="configFields.limit"
-        :value="limit"
+        :value="limit ?? undefined"
         :border="true"
         @change="(value: number) => (limit = value)"
       />
@@ -104,6 +104,7 @@ import Check from './Controls/Check.vue';
 import Int from './Controls/Int.vue';
 import Select from './Controls/Select.vue';
 import FormHeader from './FormHeader.vue';
+import { Verb } from 'fyo/telemetry/types';
 
 interface ExportWizardData {
   useListFilters: boolean;
@@ -165,13 +166,13 @@ export default defineComponent({
           fieldtype: 'Check',
           label: t`Use List Filters`,
           fieldname: 'useListFilters',
-        },
+        } as Field,
         limit: {
           placeholder: 'Limit number of rows',
           fieldtype: 'Int',
           label: t`Limit`,
           fieldname: 'limit',
-        },
+        } as Field,
         exportFormat: {
           fieldtype: 'Select',
           label: t`Export Format`,
@@ -180,7 +181,7 @@ export default defineComponent({
             { value: 'json', label: 'JSON' },
             { value: 'csv', label: 'CSV' },
           ],
-        },
+        } as Field,
       };
     },
   },
@@ -257,6 +258,9 @@ export default defineComponent({
       }
 
       await saveData(data, filePath);
+      this.fyo.telemetry.log(Verb.Exported, this.schemaName, {
+        extension: this.exportFormat,
+      });
       showExportInFolder(fyo.t`Export Successful`, filePath);
     },
     getFileName() {
