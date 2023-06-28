@@ -200,7 +200,7 @@ export class BespokeQueries {
         .where('returnAgainst', invoice)
         .andWhere('submitted', true)
         .andWhere('cancelled', false)
-    ).map((i) => i.name);
+    ).map((i: { name: string }) => i.name);
 
     if (!returnInvoiceNames.length) {
       return;
