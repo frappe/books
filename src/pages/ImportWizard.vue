@@ -371,6 +371,7 @@
 <script lang="ts">
 import { DocValue } from 'fyo/core/types';
 import { Action } from 'fyo/model/types';
+import { Verb } from 'fyo/telemetry/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { OptionField, RawValue, SelectOption } from 'schemas/types';
@@ -864,6 +865,7 @@ export default defineComponent({
         }
       }
 
+      this.fyo.telemetry.log(Verb.Imported, this.importer.schemaName);
       this.isMakingEntries = false;
       this.complete = true;
     },

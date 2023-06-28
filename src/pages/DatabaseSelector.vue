@@ -216,6 +216,7 @@
 <script lang="ts">
 import { setupDummyInstance } from 'dummy';
 import { t } from 'fyo';
+import { Verb } from 'fyo/telemetry/types';
 import { DateTime } from 'luxon';
 import Button from 'src/components/Button.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
@@ -334,7 +335,7 @@ export default defineComponent({
       updateConfigFiles(fyo);
       await fyo.purgeCache();
       await this.setFiles();
-
+      this.fyo.telemetry.log(Verb.Created, 'dummy-instance');
       this.creatingDemo = false;
     },
     async setFiles() {
