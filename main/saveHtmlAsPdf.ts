@@ -1,4 +1,3 @@
-import { emitMainProcessError } from 'backend/helpers';
 import { App, BrowserWindow } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
@@ -31,29 +30,11 @@ export async function saveHtmlAsPdf(
     printSelectionOnly: false,
   };
 
-  /**
-   * After the printWindow content is ready, save as pdf and
-   * then close the window and delete the temp html file.
-   */
-  return await new Promise((resolve) => {
-    printWindow.webContents.once('did-finish-load', () => {
-      printWindow.webContents
-        .printToPDF(printOptions)
-        .then((data) => {
-          fs.writeFile(savePath, data)
-            .then(() => {
-              printWindow.close();
-              fs.unlink(htmlPath)
-                .then(() => {
-                  resolve(true);
-                })
-                .catch((err) => emitMainProcessError(err));
-            })
-            .catch((err) => emitMainProcessError(err));
-        })
-        .catch((err) => emitMainProcessError(err));
-    });
-  });
+  const data = await printWindow.webContents.printToPDF(printOptions);
+  await fs.writeFile(savePath, data);
+  printWindow.close();
+  await fs.unlink(htmlPath);
+  return true;
 }
 
 async function getInitializedPrintWindow(
