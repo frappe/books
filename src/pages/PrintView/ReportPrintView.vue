@@ -145,20 +145,21 @@
   </div>
 </template>
 <script lang="ts">
+import { Verb } from 'fyo/telemetry/types';
 import { Report } from 'reports/Report';
 import { reports } from 'reports/index';
+import { OptionField } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import Check from 'src/components/Controls/Check.vue';
 import Int from 'src/components/Controls/Int.vue';
+import Select from 'src/components/Controls/Select.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { getReport } from 'src/utils/misc';
+import { getPathAndMakePDF } from 'src/utils/printTemplates';
+import { showSidebar } from 'src/utils/refs';
+import { paperSizeMap, printSizes } from 'src/utils/ui';
 import { PropType, defineComponent } from 'vue';
 import ScaledContainer from '../TemplateBuilder/ScaledContainer.vue';
-import { getPathAndMakePDF } from 'src/utils/printTemplates';
-import { OptionField } from 'schemas/types';
-import { paperSizeMap, printSizes } from 'src/utils/ui';
-import Select from 'src/components/Controls/Select.vue';
-import { showSidebar } from 'src/utils/refs';
 
 export default defineComponent({
   components: { PageHeader, Button, Check, Int, ScaledContainer, Select },
@@ -276,6 +277,8 @@ export default defineComponent({
         this.size.width,
         this.size.height
       );
+
+      this.fyo.telemetry.log(Verb.Printed, this.report!.reportName);
     },
     cellClasses(cIdx: number, rIdx: number): string[] {
       const classes: string[] = [];
