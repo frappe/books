@@ -49,6 +49,7 @@ import {
   generateCodeFrame,
   SourceLocation,
 } from '@vue/compiler-dom';
+import { Verb } from 'fyo/telemetry/types';
 import ErrorBoundary from 'src/components/ErrorBoundary.vue';
 import { getPathAndMakePDF } from 'src/utils/printTemplates';
 import { PrintValues } from 'src/utils/types';
@@ -66,6 +67,7 @@ export default defineComponent({
   components: { ScaledContainer, ErrorBoundary },
   props: {
     template: { type: String, required: true },
+    printSchemaName: { type: String, required: true },
     scale: { type: Number, default: 0.65 },
     width: { type: Number, default: 21 },
     height: { type: Number, default: 29.7 },
@@ -179,6 +181,8 @@ export default defineComponent({
         this.width,
         this.height
       );
+
+      this.fyo.telemetry.log(Verb.Printed, this.printSchemaName);
     },
   },
 });

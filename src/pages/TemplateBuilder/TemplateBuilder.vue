@@ -46,6 +46,7 @@
         <div v-if="canDisplayPreview" class="p-4 overflow-auto custom-scroll">
           <PrintContainer
             ref="printContainer"
+            :print-schema-name="displayDoc!.schemaName"
             :template="doc.template!"
             :values="values!"
             :scale="scale"

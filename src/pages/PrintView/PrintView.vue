@@ -34,6 +34,7 @@
       <PrintContainer
         v-if="printProps"
         ref="printContainer"
+        :print-schema-name="schemaName"
         :template="printProps.template"
         :values="printProps.values"
         :scale="scale"
@@ -55,11 +56,11 @@ import PageHeader from 'src/components/PageHeader.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { getPrintTemplatePropValues } from 'src/utils/printTemplates';
+import { showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
 import { getFormRoute, openSettings, routeTo } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import PrintContainer from '../TemplateBuilder/PrintContainer.vue';
-import { showSidebar } from 'src/utils/refs';
 
 export default defineComponent({
   name: 'PrintView',
@@ -244,16 +245,16 @@ export default defineComponent({
 
       this.templateList = list.map(({ name }) => name);
     },
-    savePDF() {
+    async savePDF() {
       const printContainer = this.$refs.printContainer as {
-        savePDF: (name?: string) => void;
+        savePDF: (name?: string) => Promise<void>;
       };
 
       if (!printContainer?.savePDF) {
         return;
       }
 
-      printContainer.savePDF(this.doc?.name);
+      await printContainer.savePDF(this.doc?.name);
     },
     async setTemplateFromDefault() {
       const defaultName =
