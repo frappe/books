@@ -1,5 +1,6 @@
 import { Fyo } from 'fyo';
 import { Noun, Telemetry, Verb } from './types';
+import { ModelNameEnum } from 'models/types';
 
 /**
  * # Telemetry
@@ -25,6 +26,11 @@ import { Noun, Telemetry, Verb } from './types';
  * 2. When the visiblity has changed which happens when either the app is being shut or
  *      the app is hidden.
  */
+
+const ignoreList: string[] = [
+  ModelNameEnum.AccountingLedgerEntry,
+  ModelNameEnum.StockLedgerEntry,
+];
 
 export class TelemetryManager {
   #url = '';
@@ -80,7 +86,11 @@ export class TelemetryManager {
   }
 
   #sendBeacon(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
-    if (!this.hasCreds || this.fyo.store.skipTelemetryLogging) {
+    if (
+      !this.hasCreds ||
+      this.fyo.store.skipTelemetryLogging ||
+      ignoreList.includes(noun)
+    ) {
       return;
     }
 
