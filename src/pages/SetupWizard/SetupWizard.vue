@@ -47,7 +47,7 @@
         <p v-if="loading" class="text-base text-gray-600">
           {{ t`Loading instance...` }}
         </p>
-        <Button v-if="!loading" class="w-24" @click="$emit('setup-canceled')">{{
+        <Button v-if="!loading" class="w-24" @click="cancel">{{
           t`Cancel`
         }}</Button>
         <Button
@@ -72,6 +72,8 @@
 <script lang="ts">
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
+import { Verb } from 'fyo/telemetry/types';
+import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormContainer from 'src/components/FormContainer.vue';
@@ -153,6 +155,7 @@ export default defineComponent({
       // @ts-ignore
       window.sw = this;
     }
+    this.fyo.telemetry.log(Verb.Started, ModelNameEnum.SetupWizard);
   },
   methods: {
     async fill() {
@@ -198,7 +201,12 @@ export default defineComponent({
       }
 
       this.loading = true;
+      this.fyo.telemetry.log(Verb.Completed, ModelNameEnum.SetupWizard);
       this.$emit('setup-complete', this.doc.getValidDict());
+    },
+    cancel() {
+      this.fyo.telemetry.log(Verb.Cancelled, ModelNameEnum.SetupWizard);
+      this.$emit('setup-canceled');
     },
   },
 });
