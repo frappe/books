@@ -3,6 +3,8 @@ export type UniqueId = string;
 export type Timestamp = string;
 
 export enum Verb {
+  Started = 'started',
+  Completed = 'completed',
   Created = 'created',
   Deleted = 'deleted',
   Submitted = 'submitted',
