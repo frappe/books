@@ -52,7 +52,8 @@ import './styles/index.css';
 import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
 import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
-import { checkForUpdates } from './utils/ipcCalls';
+import { showDialog } from './utils/interactive';
+import { checkDbAccess, checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
 import { updatePrintTemplates } from './utils/printTemplates';
 import { Search } from './utils/search';
@@ -158,6 +159,18 @@ export default defineComponent({
       fyo.config.set('lastSelectedFilePath', filePath);
       if (isNew) {
         this.activeScreen = Screen.SetupWizard;
+        return;
+      }
+
+      if (!(await checkDbAccess(filePath))) {
+        await showDialog({
+          title: this.t`Cannot open file`,
+          type: 'error',
+          detail: this
+            .t`Frappe Books does not have access to the selected file: ${filePath}`,
+        });
+
+        fyo.config.set('lastSelectedFilePath', null);
         return;
       }
 
