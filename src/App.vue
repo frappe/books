@@ -162,7 +162,7 @@ export default defineComponent({
         return;
       }
 
-      if (!(await checkDbAccess(filePath))) {
+      if (filePath !== ':memory:' && !(await checkDbAccess(filePath))) {
         await showDialog({
           title: this.t`Cannot open file`,
           type: 'error',
