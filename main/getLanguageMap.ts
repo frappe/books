@@ -159,7 +159,7 @@ async function getTranslationFilePath(code: string) {
     /**
      * This will be used for in Development mode
      */
-    filePath = path.join(__dirname, `../translations/${code}.csv`);
+    filePath = path.join(__dirname, `../../translations/${code}.csv`);
   }
 
   try {
