@@ -51,6 +51,13 @@ export async function selectFile(
   )) as SelectFileReturn;
 }
 
+export async function checkDbAccess(filePath: string) {
+  return (await ipcRenderer.invoke(
+    IPC_ACTIONS.CHECK_DB_ACCESS,
+    filePath
+  )) as boolean;
+}
+
 export async function checkForUpdates() {
   await ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES);
   await setLanguageMap();
