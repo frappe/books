@@ -37,10 +37,10 @@
 
         <div>
           <p class="font-medium">
-            {{ t`New File` }}
+            {{ t`New Company` }}
           </p>
           <p class="text-sm text-gray-600">
-            {{ t`Create a new file and store it in your computer.` }}
+            {{ t`Create a new company and store it on your computer.` }}
           </p>
         </div>
       </div>
@@ -56,10 +56,30 @@
         </div>
         <div>
           <p class="font-medium">
-            {{ t`Existing File` }}
+            {{ t`Existing Company` }}
           </p>
           <p class="text-sm text-gray-600">
-            {{ t`Load an existing .db file from your computer.` }}
+            {{ t`Load an existing company from your computer.` }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Create Demo (Pink Icon) -->
+      <div
+        v-if="!files?.length"
+        class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
+        :class="creatingDemo ? '' : 'hover:bg-gray-50 cursor-pointer'"
+        @click="createDemo"
+      >
+        <div class="w-8 h-8 rounded-full bg-pink-500 relative flex-center">
+          <feather-icon name="monitor" class="w-4 h-4 text-white" />
+        </div>
+        <div>
+          <p class="font-medium">
+            {{ t`Create Demo` }}
+          </p>
+          <p class="text-sm text-gray-600">
+            {{ t`Create an instance with demo data to try out Frappe Books.` }}
           </p>
         </div>
       </div>
@@ -146,6 +166,7 @@
       >
         <LanguageSelector v-show="!creatingDemo" class="text-sm w-28" />
         <button
+          v-if="files?.length"
           class="
             text-sm
             bg-gray-100
