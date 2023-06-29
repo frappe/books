@@ -7,6 +7,7 @@ import {
   ipcMain,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import { constants } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import { SelectFileOptions, SelectFileReturn } from 'utils/types';
@@ -27,6 +28,16 @@ import {
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 
 export default function registerIpcMainActionListeners(main: Main) {
+  ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
+    try {
+      await fs.access(filePath, constants.W_OK | constants.R_OK);
+    } catch (err) {
+      return false;
+    }
+
+    return true;
+  });
+
   ipcMain.handle(
     IPC_ACTIONS.GET_OPEN_FILEPATH,
     async (_, options: OpenDialogOptions) => {

@@ -37,10 +37,10 @@
 
         <div>
           <p class="font-medium">
-            {{ t`New File` }}
+            {{ t`New Company` }}
           </p>
           <p class="text-sm text-gray-600">
-            {{ t`Create a new file and store it in your computer.` }}
+            {{ t`Create a new company and store it on your computer.` }}
           </p>
         </div>
       </div>
@@ -56,10 +56,10 @@
         </div>
         <div>
           <p class="font-medium">
-            {{ t`Existing File` }}
+            {{ t`Existing Company` }}
           </p>
           <p class="text-sm text-gray-600">
-            {{ t`Load an existing .db file from your computer.` }}
+            {{ t`Load an existing company from your computer.` }}
           </p>
         </div>
       </div>
