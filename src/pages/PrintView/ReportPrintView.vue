@@ -204,7 +204,7 @@ export default defineComponent({
         .filter((_, i) => this.columnSelection[i]);
 
       const matrix: { value: string; idx: number }[][] = [columns];
-      const start = Math.max(this.start - 1, 1);
+      const start = Math.max(this.start - 1, 0);
       const end = Math.min(start + this.limit, this.report.reportData.length);
       const slice = this.report.reportData.slice(start, end);
 
@@ -252,6 +252,9 @@ export default defineComponent({
     this.limit = this.report.reportData.length;
     this.columnSelection = this.report.columns.map(() => true);
     this.setScale();
+
+    // @ts-ignore
+    window.rpv = this;
   },
   methods: {
     setScale() {

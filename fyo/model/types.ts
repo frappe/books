@@ -9,6 +9,7 @@ import type { AccountingSettings } from 'models/baseModels/AccountingSettings/Ac
 import type { Defaults } from 'models/baseModels/Defaults/Defaults';
 import type { PrintSettings } from 'models/baseModels/PrintSettings/PrintSettings';
 import type { InventorySettings } from 'models/inventory/InventorySettings';
+import { Misc } from 'models/baseModels/Misc';
 
 /**
  * The functions below are used for dynamic evaluation
@@ -55,6 +56,7 @@ export interface SinglesMap {
   InventorySettings?: InventorySettings;
   PrintSettings?: PrintSettings;
   Defaults?: Defaults;
+  Misc?: Misc;
   [key: string]: Doc | undefined;
 }
 

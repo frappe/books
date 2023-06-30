@@ -1,22 +1,20 @@
 <template>
   <div class="flex flex-col flex-1 bg-gray-25">
-    <PageHeader :border="true">
-      <template #left>
-        <AutoComplete
-          v-if="templateList.length"
-          :df="{
-            fieldtype: 'AutoComplete',
-            fieldname: 'templateName',
-            label: t`Template Name`,
-            options: templateList.map((n) => ({ label: n, value: n })),
-          }"
-          input-class="text-base py-0 h-8"
-          class="w-56"
-          :border="true"
-          :value="templateName ?? ''"
-          @change="onTemplateNameChange"
-        />
-      </template>
+    <PageHeader :border="true" :title="t`Print View`" class="bg-white">
+      <AutoComplete
+        v-if="templateList.length"
+        :df="{
+          fieldtype: 'AutoComplete',
+          fieldname: 'templateName',
+          label: t`Template Name`,
+          options: templateList.map((n) => ({ label: n, value: n })),
+        }"
+        input-class="text-base py-0 h-8"
+        class="w-40"
+        :border="true"
+        :value="templateName ?? ''"
+        @change="onTemplateNameChange"
+      />
       <DropdownWithActions :actions="actions" :title="t`More`" />
       <Button class="text-xs" type="primary" @click="savePDF">
         {{ t`Save as PDF` }}
