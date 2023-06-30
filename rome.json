@@ -1,0 +1,19 @@
+{
+  "organizeImports": {
+    "enabled": false
+  },
+  "formatter": {
+    "indentSize": 4
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  }
+}
