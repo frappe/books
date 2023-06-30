@@ -108,7 +108,7 @@ export type PrintValues = {
 export interface DialogOptions {
   title: string;
   type?: ToastType;
-  detail?: string;
+  detail?: string | string[];
   buttons?: DialogButton[];
 }
 

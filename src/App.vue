@@ -232,13 +232,15 @@ export default defineComponent({
       const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
       const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
 
+      let route = '/get-started';
       if (hideGetStarted || onboardingComplete) {
-        await routeTo('/');
-      } else {
-        await routeTo('/get-started');
+        route = '/';
       }
+
+      await routeTo(localStorage.getItem('lastRoute') || route);
     },
     async showDbSelector(): Promise<void> {
+      localStorage.clear();
       fyo.config.set('lastSelectedFilePath', null);
       fyo.telemetry.stop();
       await fyo.purgeCache();

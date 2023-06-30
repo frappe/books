@@ -26,7 +26,16 @@
               :class="config.iconColor"
             />
           </div>
-          <p v-if="detail" class="text-base">{{ detail }}</p>
+
+          <template v-if="detail">
+            <p v-if="typeof detail === 'string'" class="text-base">
+              {{ detail }}
+            </p>
+
+            <div v-else v-for="d of detail">
+              <p class="text-base">{{ d }}</p>
+            </div>
+          </template>
           <div class="flex justify-end gap-4 mt-4">
             <Button
               v-for="(b, index) of buttons"
@@ -57,7 +66,7 @@ export default defineComponent({
     type: { type: String as PropType<ToastType>, default: 'info' },
     title: { type: String, required: true },
     detail: {
-      type: String,
+      type: [String, Array] as PropType<string | string[]>,
       required: false,
     },
     buttons: {

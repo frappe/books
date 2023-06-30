@@ -7,12 +7,14 @@ import { Defaults } from './baseModels/Defaults/Defaults';
 import { Item } from './baseModels/Item/Item';
 import { JournalEntry } from './baseModels/JournalEntry/JournalEntry';
 import { JournalEntryAccount } from './baseModels/JournalEntryAccount/JournalEntryAccount';
+import { Misc } from './baseModels/Misc';
 import { Party } from './baseModels/Party/Party';
 import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { PriceListItem } from './baseModels/PriceList/PriceListItem';
 import { PrintSettings } from './baseModels/PrintSettings/PrintSettings';
+import { PrintTemplate } from './baseModels/PrintTemplate';
 import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
 import { PurchaseInvoiceItem } from './baseModels/PurchaseInvoiceItem/PurchaseInvoiceItem';
 import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
@@ -32,7 +34,6 @@ import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
 
-import { PrintTemplate } from './baseModels/PrintTemplate';
 export const models = {
   Account,
   AccountingLedgerEntry,
@@ -43,6 +44,7 @@ export const models = {
   Item,
   JournalEntry,
   JournalEntryAccount,
+  Misc,
   Party,
   Payment,
   PaymentFor,
