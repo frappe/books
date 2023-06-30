@@ -544,12 +544,85 @@ async function syncWithoutDialog(doc: Doc): Promise<boolean> {
 }
 
 export async function commonDocSubmit(doc: Doc): Promise<boolean> {
-  const success = await showSubmitOrSyncDialog(doc, 'submit');
+  let success = true;
+  if (
+    doc instanceof SalesInvoice &&
+    fyo.singles.AccountingSettings?.enableInventory
+  ) {
+    success = await showInsufficientInventoryDialog(doc);
+  }
+
+  if (!success) {
+    return false;
+  }
+
+  success = await showSubmitOrSyncDialog(doc, 'submit');
   if (!success) {
     return false;
   }
 
   showSubmitToast(doc);
+  return true;
+}
+
+async function showInsufficientInventoryDialog(doc: SalesInvoice) {
+  const insufficient: { item: string; quantity: number }[] = [];
+  for (const { item, quantity, batch } of doc.items ?? []) {
+    if (!item || typeof quantity !== 'number') {
+      continue;
+    }
+
+    const isTracked = await fyo.getValue(ModelNameEnum.Item, item, 'trackItem');
+    if (!isTracked) {
+      continue;
+    }
+
+    const stockQuantity =
+      (await fyo.db.getStockQuantity(
+        item,
+        undefined,
+        undefined,
+        doc.date!.toISOString(),
+        batch
+      )) ?? 0;
+
+    if (stockQuantity > quantity) {
+      continue;
+    }
+
+    insufficient.push({ item, quantity: quantity - stockQuantity });
+  }
+
+  if (insufficient.length) {
+    const buttons = [
+      {
+        label: t`Yes`,
+        action: () => true,
+        isPrimary: true,
+      },
+      {
+        label: t`No`,
+        action: () => false,
+        isEscape: true,
+      },
+    ];
+
+    const list = insufficient
+      .map(({ item, quantity }) => `${item} (${quantity})`)
+      .join(', ');
+    const detail = [
+      t`The following items have insufficient quantities to create a Shipment: ${list}`,
+      t`Continue submitting Sales Invoice?`,
+    ];
+
+    return (await showDialog({
+      title: t`Insufficient Quantity`,
+      type: 'warning',
+      detail,
+      buttons,
+    })) as boolean;
+  }
+
   return true;
 }
 
