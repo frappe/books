@@ -17,7 +17,7 @@
         </h1>
         <p class="text-gray-600 text-base select-none">
           {{
-            t`Create a new file or select an existing one from your computer`
+            t`Create a new company or select an existing one from your computer`
           }}
         </p>
       </div>
@@ -40,7 +40,7 @@
             {{ t`New Company` }}
           </p>
           <p class="text-sm text-gray-600">
-            {{ t`Create a new company and store it on your computer.` }}
+            {{ t`Create a new company and store it on your computer` }}
           </p>
         </div>
       </div>
@@ -59,7 +59,7 @@
             {{ t`Existing Company` }}
           </p>
           <p class="text-sm text-gray-600">
-            {{ t`Load an existing company from your computer.` }}
+            {{ t`Load an existing company from your computer` }}
           </p>
         </div>
       </div>
@@ -79,7 +79,7 @@
             {{ t`Create Demo` }}
           </p>
           <p class="text-sm text-gray-600">
-            {{ t`Create an instance with demo data to try out Frappe Books.` }}
+            {{ t`Create a demo company to try out Frappe Books` }}
           </p>
         </div>
       </div>
