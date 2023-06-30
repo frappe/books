@@ -611,7 +611,7 @@ async function showInsufficientInventoryDialog(doc: SalesInvoice) {
       .map(({ item, quantity }) => `${item} (${quantity})`)
       .join(', ');
     const detail = [
-      t`The following items have insufficient quantities to create a Shipment: ${list}`,
+      t`The following items have insufficient quantity for Shipment: ${list}`,
       t`Continue submitting Sales Invoice?`,
     ];
 
