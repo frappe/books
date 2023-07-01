@@ -330,6 +330,17 @@ export class DatabaseHandler extends DatabaseBase {
     )) as number | null;
   }
 
+  async getReturnBalanceItemsQty(
+    schemaName: string,
+    docName: string
+  ): Promise<DocValueMap[] | undefined> {
+    return (await this.#demux.callBespoke(
+      'getReturnBalanceItemsQty',
+      schemaName,
+      docName
+    )) as DocValueMap[] | undefined;
+  }
+
   /**
    * Internal methods
    */

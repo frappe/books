@@ -37,6 +37,7 @@ export interface SMTransferDetails {
   serialNumber?: string;
   fromLocation?: string;
   toLocation?: string;
+  isReturn?: boolean;
 }
 
 export interface SMIDetails extends SMDetails, SMTransferDetails {}
