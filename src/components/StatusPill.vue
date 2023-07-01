@@ -44,7 +44,7 @@ export default defineComponent({
         Saved: this.t`Saved`,
         Submitted: this.t`Submitted`,
         Return: this.t`Return`,
-        ReturnIssued: this.t`Return Issued`
+        ReturnIssued: this.t`Return Issued`,
       }[this.status];
     },
     color(): UIColors {
@@ -64,7 +64,7 @@ const statusColorMap: Record<Status, UIColors> = {
   Saved: 'blue',
   Submitted: 'blue',
   Return: 'orange',
-  ReturnIssued: 'gray'
+  ReturnIssued: 'gray',
 };
 
 function getStatus(doc: Doc) {
@@ -113,12 +113,12 @@ function getSubmittableStatus(doc: Doc) {
     return 'Paid';
   }
 
-  if(doc.isReturn && doc.isSubmitted && !doc.isCancelled){
-    return 'Return'
+  if (doc.isReturn && doc.isSubmitted && !doc.isCancelled) {
+    return 'Return';
   }
 
-  if(doc.isItemsReturned && doc.isSubmitted && !doc.isCancelled){
-    return 'ReturnIssued'
+  if (doc.isItemsReturned && doc.isSubmitted && !doc.isCancelled) {
+    return 'ReturnIssued';
   }
 
   if (doc.isSubmitted) {
