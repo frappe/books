@@ -8,6 +8,8 @@ import {
 import { ModelNameEnum } from '../../models/types';
 import DatabaseCore from './core';
 import { BespokeFunction } from './types';
+import { safeParseFloat } from 'utils/index';
+import { DocValueMap } from 'fyo/core/types';
 
 export class BespokeQueries {
   [key: string]: BespokeFunction;
@@ -179,5 +181,66 @@ export class BespokeQueries {
     }
 
     return value[0][Object.keys(value[0])[0]];
+  }
+
+  static async getReturnBalanceItemsQty(
+    db: DatabaseCore,
+    schemaName: string,
+    docName: string
+  ): Promise<DocValueMap[] | undefined> {
+    const docItems = (await db.knex!(`${schemaName}Item`)
+      .select('item')
+      .where('parent', docName)
+      .groupBy('item')
+      .sum({ quantity: 'quantity' })) as DocValueMap[];
+
+    const returnDocNames = (
+      await db.knex!(schemaName)
+        .select('name')
+        .where('returnAgainst', docName)
+        .andWhere('submitted', true)
+        .andWhere('cancelled', false)
+    ).map((i: { name: string }) => i.name);
+
+    if (!returnDocNames.length) {
+      return;
+    }
+
+    const returnedItems = (await db.knex!(`${schemaName}Item`)
+      .select('item')
+      .sum({ quantity: 'quantity' })
+      .whereIn('parent', returnDocNames)
+      .groupBy('item')) as DocValueMap[];
+
+    if (!returnedItems.length) {
+      return;
+    }
+
+    const returnBalanceItemQty = [];
+
+    for (const item of returnedItems) {
+      const docItem = docItems.filter(
+        (invItem) => invItem.item === item.item
+      )[0];
+
+      if (!docItem) {
+        continue;
+      }
+
+      let balanceQty = safeParseFloat(
+        (docItem.quantity as number) - Math.abs(item.quantity as number)
+      );
+
+      if (balanceQty === 0) {
+        continue;
+      }
+
+      if (balanceQty > 0) {
+        balanceQty *= -1;
+      }
+      returnBalanceItemQty.push({ ...item, quantity: balanceQty });
+    }
+
+    return returnBalanceItemQty;
   }
 }

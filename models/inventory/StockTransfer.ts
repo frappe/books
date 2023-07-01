@@ -26,6 +26,7 @@ import {
   validateBatch,
   validateSerialNumber,
 } from './helpers';
+import { safeParseFloat } from 'utils/index';
 
 export abstract class StockTransfer extends Transfer {
   name?: string;
@@ -36,6 +37,9 @@ export abstract class StockTransfer extends Transfer {
   grandTotal?: Money;
   backReference?: string;
   items?: StockTransferItem[];
+  isReturn?: boolean;
+  returnAgainst?: string;
+  isItemsReturned?: boolean;
 
   get isSales() {
     return this.schemaName === ModelNameEnum.Shipment;
@@ -61,6 +65,8 @@ export abstract class StockTransfer extends Transfer {
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
+    isReturn: () => !this.fyo.singles.AccountingSettings?.enableStockReturns,
+    returnAgainst: () => !this.isReturn,
   };
 
   static defaults: DefaultMap = {
@@ -86,6 +92,11 @@ export abstract class StockTransfer extends Transfer {
       submitted: true,
       cancelled: false,
     }),
+    returnAgainst: () => ({
+      isReturn: false,
+      submitted: true,
+      cancelled: false,
+    }),
   };
 
   override _getTransferDetails() {
@@ -107,6 +118,7 @@ export abstract class StockTransfer extends Transfer {
         serialNumber: row.serialNumber!,
         fromLocation,
         toLocation,
+        isReturn: this.isReturn,
       };
     });
   }
@@ -127,16 +139,26 @@ export abstract class StockTransfer extends Transfer {
         'costOfGoodsSold'
       )) as string;
 
-      await posting.debit(costOfGoodsSold, amount);
-      await posting.credit(stockInHand, amount);
+      if (this.isReturn) {
+        await posting.debit(stockInHand, amount);
+        await posting.credit(costOfGoodsSold, amount);
+      } else {
+        await posting.debit(costOfGoodsSold, amount);
+        await posting.credit(stockInHand, amount);
+      }
     } else {
       const stockReceivedButNotBilled = (await this.fyo.getValue(
         ModelNameEnum.InventorySettings,
         'stockReceivedButNotBilled'
       )) as string;
 
-      await posting.debit(stockInHand, amount);
-      await posting.credit(stockReceivedButNotBilled, amount);
+      if (this.isReturn) {
+        await posting.debit(stockReceivedButNotBilled, amount);
+        await posting.credit(stockInHand, amount);
+      } else {
+        await posting.debit(stockInHand, amount);
+        await posting.credit(stockReceivedButNotBilled, amount);
+      }
     }
 
     await posting.makeRoundOffEntry();
@@ -184,12 +206,14 @@ export abstract class StockTransfer extends Transfer {
     await super.afterSubmit();
     await updateSerialNumbers(this, false);
     await this._updateBackReference();
+    await this._updateItemsReturned();
   }
 
   async afterCancel(): Promise<void> {
     await super.afterCancel();
     await updateSerialNumbers(this, true);
     await this._updateBackReference();
+    await this._updateItemsReturned();
   }
 
   async _updateBackReference() {
@@ -244,6 +268,30 @@ export abstract class StockTransfer extends Transfer {
 
     const notTransferred = invoice.getStockNotTransferred();
     await invoice.setAndSync('stockNotTransferred', notTransferred);
+  }
+
+  async _updateItemsReturned() {
+    if (!this.returnAgainst) {
+      return null;
+    }
+
+    const returnDocs = await this.fyo.db.getAll(this.schema.name, {
+      filters: {
+        returnAgainst: this.returnAgainst,
+        submitted: true,
+        cancelled: false,
+      },
+    });
+
+    const isItemsReturned = returnDocs.length;
+
+    const referenceDoc = await this.fyo.doc.getDoc(
+      this.schema.name,
+      this.returnAgainst
+    );
+
+    await referenceDoc.setAndSync({ isItemsReturned });
+    await referenceDoc.submit();
   }
 
   _getTransferMap() {
@@ -372,6 +420,64 @@ export abstract class StockTransfer extends Transfer {
     }
 
     return invoice;
+  }
+
+  async getReturnDoc(): Promise<StockTransfer | null> {
+    if (!this.items?.length) {
+      return null;
+    }
+
+    const docData = this.getValidDict(true, true);
+    const docItems = docData.items as StockTransferItem[];
+    const returnDocItems: StockTransferItem[] = [];
+
+    const returnBalanceItemsQty = await this.fyo.db.getReturnBalanceItemsQty(
+      this.schema.name,
+      this.name!
+    );
+
+    for (const item of docItems) {
+      if (!item.quantity) {
+        continue;
+      }
+
+      let quantity = -1 * item.quantity;
+
+      if (returnBalanceItemsQty) {
+        const balanceItemQty = returnBalanceItemsQty.filter(
+          (i) => i.item === item.item
+        )[0];
+
+        if (!balanceItemQty) {
+          continue;
+        }
+        quantity = balanceItemQty.quantity as number;
+      }
+
+      item.quantity = safeParseFloat(quantity);
+      delete item.name;
+      returnDocItems.push(item);
+    }
+
+    const returnDocData = {
+      ...docData,
+      name: null,
+      date: new Date(),
+      items: returnDocItems,
+      isReturn: true,
+      returnAgainst: docData.name,
+      grandTotal: this.fyo.pesa(0),
+    };
+
+    const rawReturnDoc = this.fyo.doc.getNewDoc(
+      this.schema.name,
+      returnDocData
+    ) as StockTransfer;
+
+    rawReturnDoc.once('beforeSync', async () => {
+      await rawReturnDoc.runFormulas();
+    });
+    return rawReturnDoc;
   }
 }
 
