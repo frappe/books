@@ -12,6 +12,7 @@ import { Shipment } from '../Shipment';
 import { StockTransfer } from '../StockTransfer';
 import { ValuationMethod } from '../types';
 import { getALEs, getItem, getSLEs, getStockTransfer } from './helpers';
+import { PurchaseReceipt } from '../PurchaseReceipt';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -583,6 +584,110 @@ test('Create Shipment from manually set Back Ref', async (t) => {
   );
 
   t.equal(sinv.stockNotTransferred, 0, 'stock has been transferred');
+});
+
+test('Create Shipment then create return against it', async (t) => {
+  const rate = testDocs.Item[item].rate as number;
+  const shpm = fyo.doc.getNewDoc(ModelNameEnum.Shipment) as Shipment;
+
+  await shpm.set({
+    party,
+    date: new Date('2023-05-18'),
+    items: [{ item, quantity: 3, rate }],
+  });
+  await shpm.sync();
+  await shpm.submit();
+
+  t.equal(shpm.name, 'SHPM-1006', 'Shipment created');
+
+  const shpmReturn = (await shpm.getReturnDoc()) as Shipment;
+  await shpmReturn.sync();
+  await shpmReturn.submit();
+
+  t.equal(shpmReturn.name, 'SHPM-1007', 'Shipment return created');
+  t.ok(
+    shpmReturn.grandTotal?.isNegative(),
+    'Shipment return doc has negative grand total '
+  );
+
+  const returnShpmAles = await fyo.db.getAllRaw(
+    ModelNameEnum.AccountingLedgerEntry,
+    {
+      fields: ['name', 'account', 'credit', 'debit'],
+      filters: { referenceName: shpmReturn.name! },
+    }
+  );
+
+  for (const ale of returnShpmAles) {
+    if (ale.account === 'Stock In Hand') {
+      t.equal(
+        fyo.pesa(ale.debit as string).float,
+        shpmReturn.grandTotal?.float,
+        `Shipment return amount debited from ${ale.account}`
+      );
+    }
+
+    if (ale.account === 'Cost of Goods Sold') {
+      t.equal(
+        fyo.pesa(ale.credit as string).float,
+        shpmReturn.grandTotal?.float,
+        `Shipment return amount credited to ${ale.account}`
+      );
+    }
+  }
+});
+
+test('Create Purchase Reciept then create return against it', async (t) => {
+  const rate = testDocs.Item[item].rate as number;
+  const prec = fyo.doc.getNewDoc(
+    ModelNameEnum.PurchaseReceipt
+  ) as PurchaseReceipt;
+
+  await prec.set({
+    party,
+    date: new Date('2023-05-18'),
+    items: [{ item, quantity: 3, rate }],
+  });
+  await prec.sync();
+  await prec.submit();
+
+  t.equal(prec.name, 'PREC-1005', 'Purchase Receipt created');
+
+  const precReturn = (await prec.getReturnDoc()) as PurchaseReceipt;
+  await precReturn.sync();
+  await precReturn.submit();
+
+  t.equal(precReturn.name, 'PREC-1006', 'Purchase Receipt return created');
+  t.ok(
+    precReturn.grandTotal?.isNegative(),
+    'Purchase Receipt return doc has negative grand total '
+  );
+
+  const returnPrecAles = await fyo.db.getAllRaw(
+    ModelNameEnum.AccountingLedgerEntry,
+    {
+      fields: ['name', 'account', 'credit', 'debit'],
+      filters: { referenceName: precReturn.name! },
+    }
+  );
+
+  for (const ale of returnPrecAles) {
+    if (ale.account === 'Stock In Hand') {
+      t.equal(
+        fyo.pesa(ale.credit as string).float,
+        precReturn.grandTotal?.float,
+        `Purchase Receipt return amount credited to ${ale.account}`
+      );
+    }
+
+    if (ale.account === 'Stock Received But Not Billed') {
+      t.equal(
+        fyo.pesa(ale.debit as string).float,
+        precReturn.grandTotal?.float,
+        `Purchase Receipt return amount debited from ${ale.account}`
+      );
+    }
+  }
 });
 
 closeTestFyo(fyo, __filename);
