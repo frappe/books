@@ -27,6 +27,7 @@ import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { AdditionalCost } from '../AdditionalCost/AdditionalCost';
 
+type TaxItem = { amount: Money; itemDiscountedTotal: Money; tax: string };
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
@@ -265,13 +266,13 @@ export abstract class Invoice extends Transactional {
           amount: this.fyo.pesa(0),
         };
 
-        let amount = item.amount!;
+        let amount = item.amount;
         if (
           this.enableDiscounting &&
           !this.discountAfterTax &&
           !item.itemDiscountedTotal?.isZero()
         ) {
-          amount = item.itemDiscountedTotal!;
+          amount = item.itemDiscountedTotal;
         }
 
         const taxAmount = amount.mul(rate / 100);
@@ -306,9 +307,8 @@ export abstract class Invoice extends Transactional {
     return this._taxes[tax];
   }
 
-  async getTaxItem(items: any[]) {
-    type TaxItem = { amount: Money; itemDiscountedTotal: Money; tax: string };
-    let taxArray: TaxItem[] = [];
+  async getTaxItem(items: any[]): Promise<TaxItem[]> {
+    const taxArray: TaxItem[] = [];
 
     items.forEach(({ amount, itemDiscountedTotal, tax }) => {
       const itemTaxArray: TaxItem = { amount, itemDiscountedTotal, tax };
