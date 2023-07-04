@@ -1,4 +1,4 @@
-export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'PartlyPaid' | 'Paid' | 'Return' | 'Returned';
+export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'PartlyPaid' | 'Paid' | 'Return' | 'ReturnIssued';
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',

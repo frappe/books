@@ -212,7 +212,7 @@ export const statusColor: Record<
   Submitted: 'green',
   Cancelled: 'red',
   Return: 'gray',
-  Returned: 'orange',
+  ReturnIssued: 'orange',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -235,8 +235,8 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Unpaid`;
     case 'Return':
       return t`Return`;
-    case 'Returned':
-      return t`Returned`;
+    case 'ReturnIssued':
+      return t`Return Issued`;
     default:
       return '';
   }
@@ -290,7 +290,7 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   }
 
   if (doc.submitted && !doc.cancelled && doc.isItemsReturned) {
-    return 'Returned';
+    return 'ReturnIssued';
   }
 
   if (
