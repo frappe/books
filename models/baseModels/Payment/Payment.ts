@@ -439,6 +439,15 @@ export class Payment extends Transactional {
       'referenceName'
     )) as Invoice | null;
 
+    if (
+      refDoc &&
+      refDoc.schema.name === ModelNameEnum.SalesInvoice &&
+      refDoc.isItemsReturned
+    ) {
+      const accountsMap = await this._getAccountsMap();
+      return accountsMap[AccountTypeEnum.Cash]?.[0];
+    }
+
     return refDoc?.account ?? null;
   }
 

@@ -26,6 +26,7 @@ import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { isPesa } from 'fyo/utils';
+import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
@@ -732,18 +733,28 @@ export abstract class Invoice extends Transactional {
       return null;
     }
 
-    const accountField =
-      this.isSales && !this.outstandingAmount?.isNegative()
-        ? 'account'
-        : 'paymentAccount';
+    let accountField: AccountFieldEnum = AccountFieldEnum.Account;
+    let paymentType: PaymentTypeEnum = PaymentTypeEnum.Receive;
+
+    if (this.isSales && this.isItemsReturned) {
+      accountField = AccountFieldEnum.PaymentAccount;
+      paymentType = PaymentTypeEnum.Pay;
+    }
+
+    if (!this.isSales) {
+      accountField = AccountFieldEnum.PaymentAccount;
+      paymentType = PaymentTypeEnum.Pay;
+
+      if (this.isItemsReturned) {
+        accountField = AccountFieldEnum.Account;
+        paymentType = PaymentTypeEnum.Receive;
+      }
+    }
 
     const data = {
       party: this.party,
       date: new Date().toISOString().slice(0, 10),
-      paymentType:
-        this.isSales && !this.outstandingAmount?.isNegative()
-          ? 'Receive'
-          : 'Pay',
+      paymentType,
       amount: this.outstandingAmount?.abs(),
       [accountField]: this.account,
       for: [
