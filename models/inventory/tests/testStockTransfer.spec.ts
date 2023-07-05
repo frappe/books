@@ -12,6 +12,10 @@ import { Shipment } from '../Shipment';
 import { StockTransfer } from '../StockTransfer';
 import { ValuationMethod } from '../types';
 import { getALEs, getItem, getSLEs, getStockTransfer } from './helpers';
+import { Money } from 'pesa';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
+import { PaymentTypeEnum } from 'models/baseModels/Payment/types';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -583,6 +587,315 @@ test('Create Shipment from manually set Back Ref', async (t) => {
   );
 
   t.equal(sinv.stockNotTransferred, 0, 'stock has been transferred');
+});
+
+test('Creating SINV Return if Invoice is not paid', async (t) => {
+  const rate = testDocs.Item[item].rate as number;
+  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice) as SalesInvoice;
+
+  await sinv.set({
+    party,
+    date: new Date('2023-05-18'),
+    account: 'Debtors',
+    items: [{ item, quantity: 3, rate }],
+  });
+  await sinv.sync();
+  await sinv.submit();
+
+  t.equal(sinv.name, 'SINV-1003', 'SINV name matches');
+
+  const returnSinvDoc = (await sinv.getReturnDoc()) as SalesInvoice;
+
+  await returnSinvDoc.sync();
+  await returnSinvDoc.submit();
+
+  t.equal('SINV-1004', returnSinvDoc.name, 'Return Invoice name matches');
+
+  const returnSinvAles = await fyo.db.getAllRaw(
+    ModelNameEnum.AccountingLedgerEntry,
+    {
+      fields: ['name', 'account', 'credit', 'debit'],
+      filters: { referenceName: returnSinvDoc.name! },
+    }
+  );
+
+  for (const ale of returnSinvAles) {
+    if (ale.account === 'Sales') {
+      t.equal(
+        fyo.pesa(ale.credit as string).float,
+        fyo.pesa(0).float,
+        `Return Invoice *not credited to ${ale.account}`
+      );
+      t.equal(
+        fyo.pesa(ale.debit as string).float,
+        fyo.pesa(-300).float,
+        `Return Invoice debited from ${ale.account}`
+      );
+    }
+
+    if (ale.account === 'Debtors') {
+      t.equal(
+        fyo.pesa(ale.debit as string).float,
+        fyo.pesa(0).float,
+        `Return Invoice *not debited from ${ale.account}`
+      );
+      t.equal(
+        fyo.pesa(ale.credit as string).float,
+        fyo.pesa(-300).float,
+        `Return Invoice credited to ${ale.account}`
+      );
+    }
+  }
+
+  const invoiceOutstanding = (await fyo.getValue(
+    ModelNameEnum.SalesInvoice,
+    sinv.name!,
+    'outstandingAmount'
+  )) as Money;
+
+  t.true(invoiceOutstanding.isZero(), 'Sales Invoice outstanding is Zero');
+
+  await assertThrows(
+    async () => await sinv.cancel(),
+    'can not cancel a SINV when a return invoice is created against it'
+  );
+
+  await assertDoesNotThrow(
+    async () => await returnSinvDoc.cancel(),
+    'return invoice cancelled'
+  );
+
+  const updatedInvoiceOutstanding = (await fyo.getValue(
+    ModelNameEnum.SalesInvoice,
+    sinv.name!,
+    'outstandingAmount'
+  )) as Money;
+
+  t.equal(
+    updatedInvoiceOutstanding,
+    sinv.outstandingAmount,
+    'outstandingAmount updated after return invoice is cancelled'
+  );
+});
+
+test('Creating PINV Return if Invoice is not paid', async (t) => {
+  const rate = testDocs.Item[item].rate as number;
+  const pinv = fyo.doc.getNewDoc(
+    ModelNameEnum.PurchaseInvoice
+  ) as PurchaseInvoice;
+
+  await pinv.set({
+    party,
+    date: new Date('2023-05-18'),
+    account: 'Creditors',
+    items: [{ item, quantity: 3, rate }],
+  });
+  await pinv.sync();
+  await pinv.submit();
+
+  t.equal(pinv.name, 'PINV-1002', 'PINV name matches');
+
+  const returnPinvDoc = (await pinv.getReturnDoc()) as PurchaseInvoice;
+
+  await returnPinvDoc.sync();
+  await returnPinvDoc.submit();
+
+  t.equal('PINV-1003', returnPinvDoc.name, 'Return Invoice name matches');
+
+  const returnPinvAles = await fyo.db.getAllRaw(
+    ModelNameEnum.AccountingLedgerEntry,
+    {
+      fields: ['name', 'account', 'credit', 'debit'],
+      filters: { referenceName: returnPinvDoc.name! },
+    }
+  );
+
+  for (const ale of returnPinvAles) {
+    if (ale.account === 'Creditors') {
+      t.equal(
+        fyo.pesa(ale.credit as string).float,
+        fyo.pesa(0).float,
+        `Return Invoice *not credited to ${ale.account}`
+      );
+      t.equal(
+        fyo.pesa(ale.debit as string).float,
+        fyo.pesa(-300).float,
+        `Return Invoice debited from ${ale.account}`
+      );
+    }
+
+    if (ale.account === 'Stock Received But Not Billed') {
+      t.equal(
+        fyo.pesa(ale.debit as string).float,
+        fyo.pesa(0).float,
+        `Return Invoice *not debited from ${ale.account}`
+      );
+      t.equal(
+        fyo.pesa(ale.credit as string).float,
+        fyo.pesa(-300).float,
+        `Return Invoice credited to ${ale.account}`
+      );
+    }
+  }
+
+  const invoiceOutstanding = (await fyo.getValue(
+    ModelNameEnum.PurchaseInvoice,
+    pinv.name!,
+    'outstandingAmount'
+  )) as Money;
+
+  t.true(invoiceOutstanding.isZero(), 'Purchase Invoice outstanding is Zero');
+
+  await assertThrows(
+    async () => await pinv.cancel(),
+    'can not cancel a PINV when a return invoice is created against it'
+  );
+
+  await assertDoesNotThrow(
+    async () => await returnPinvDoc.cancel(),
+    'return invoice cancelled'
+  );
+
+  const updatedInvoiceOutstanding = (await fyo.getValue(
+    ModelNameEnum.PurchaseInvoice,
+    pinv.name!,
+    'outstandingAmount'
+  )) as Money;
+
+  t.equal(
+    updatedInvoiceOutstanding,
+    pinv.outstandingAmount,
+    'outstandingAmount updated after return invoice is cancelled'
+  );
+});
+
+test('Create payments for return PINV', async (t) => {
+  const rate = testDocs.Item[item].rate as number;
+  const pinv = fyo.doc.getNewDoc(
+    ModelNameEnum.PurchaseInvoice
+  ) as PurchaseInvoice;
+
+  await pinv.set({
+    party,
+    date: new Date('2023-07-04'),
+    account: 'Creditors',
+    items: [{ item, quantity: 3, rate }],
+  });
+  await pinv.sync();
+  await pinv.submit();
+
+  t.equal(pinv.name, 'PINV-1004', 'PINV name matches');
+
+  let payment = pinv.getPayment();
+  t.equal(payment?.paymentType, PaymentTypeEnum.Pay);
+
+  await payment?.sync();
+  await payment?.submit();
+
+  let outstandingAmt = (await fyo.getValue(
+    ModelNameEnum.PurchaseInvoice,
+    pinv.name!,
+    'outstandingAmount'
+  )) as Money;
+
+  t.equal(
+    outstandingAmt?.float,
+    fyo.pesa(0).float,
+    'invoice outstanding is zero after payment'
+  );
+
+  const returnPinv = await pinv.getReturnDoc();
+  await returnPinv?.sync();
+  await returnPinv?.submit();
+
+  t.equal(returnPinv?.name, 'PINV-1005', 'Return PINV name matches');
+
+  payment = pinv.getPayment();
+  t.equal(payment?.paymentType, PaymentTypeEnum.Receive);
+
+  t.equal(
+    payment?.amount?.float,
+    pinv.outstandingAmount?.abs().float,
+    'payment amount for return invoice matches with original invoice'
+  );
+
+  await payment?.sync();
+  await payment?.submit();
+
+  outstandingAmt = (await fyo.getValue(
+    ModelNameEnum.PurchaseInvoice,
+    pinv.name!,
+    'outstandingAmount'
+  )) as Money;
+
+  t.equal(
+    outstandingAmt?.float,
+    fyo.pesa(0).float,
+    'invoice outstanding is zero after payment for return invoice'
+  );
+});
+
+test('Create payments for return SINV', async (t) => {
+  const rate = testDocs.Item[item].rate as number;
+  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice) as SalesInvoice;
+
+  await sinv.set({
+    party,
+    date: new Date('2023-07-04'),
+    account: 'Debtors',
+    items: [{ item, quantity: 3, rate }],
+  });
+  await sinv.sync();
+  await sinv.submit();
+
+  t.equal(sinv.name, 'SINV-1005', 'SINV name matches');
+
+  let payment = sinv.getPayment();
+  t.equal(payment?.paymentType, PaymentTypeEnum.Receive);
+
+  await payment?.sync();
+  await payment?.submit();
+
+  let outstandingAmt = (await fyo.getValue(
+    ModelNameEnum.SalesInvoice,
+    sinv.name!,
+    'outstandingAmount'
+  )) as Money;
+
+  t.equal(
+    outstandingAmt?.float,
+    fyo.pesa(0).float,
+    'invoice outstanding is zero after payment'
+  );
+
+  const returnSinv = await sinv.getReturnDoc();
+  await returnSinv?.sync();
+  await returnSinv?.submit();
+
+  t.equal(returnSinv?.name, 'SINV-1006', 'Return SINV name matches');
+
+  payment = sinv.getPayment();
+  t.equal(payment?.paymentType, PaymentTypeEnum.Pay);
+
+  t.equal(
+    payment?.amount?.float,
+    sinv.outstandingAmount?.abs().float,
+    'payment amount for return invoice matches with original invoice'
+  );
+  await payment?.sync();
+  await payment?.submit();
+
+  outstandingAmt = (await fyo.getValue(
+    ModelNameEnum.SalesInvoice,
+    sinv.name!,
+    'outstandingAmount'
+  )) as Money;
+
+  t.equal(
+    outstandingAmt?.float,
+    fyo.pesa(0).float,
+    'invoice outstanding is zero after payment for return invoice'
+  );
 });
 
 closeTestFyo(fyo, __filename);
