@@ -430,6 +430,7 @@ export default defineComponent({
 
       styles['grid-template-columns'] = `auto 0px ${this.panelWidth}px`;
       styles['height'] = 'calc(100vh - var(--h-row-largest) - 1px)';
+      styles['direction'] = 'ltr !important';
 
       return styles;
     },
