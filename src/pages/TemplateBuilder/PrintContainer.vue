@@ -4,7 +4,7 @@
     :scale="Math.max(scale, 0.1)"
     :width="width"
     :height="height"
-    class="mx-auto shadow-lg border"
+    class="mx-auto shadow-lg border w-full"
   >
     <ErrorBoundary
       v-if="!error"
