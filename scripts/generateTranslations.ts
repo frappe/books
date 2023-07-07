@@ -295,7 +295,6 @@ async function run() {
   const ignoreList = ['node_modules', 'dist_electron', 'scripts'];
   const languageCode = getLanguageCode();
 
-  console.log();
   const fileList: string[] = await getFileList(root, ignoreList);
   const contents: Content[] = await getFileContents(fileList);
   const tMap: Map<string, string[]> = await getAllTStringsMap(contents);
