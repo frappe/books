@@ -50,6 +50,7 @@ export type BespokeFunction = (
   db: DatabaseCore,
   ...args: unknown[]
 ) => Promise<unknown>;
+
 export type SingleValue<T> = {
   fieldname: string;
   parent: string;
