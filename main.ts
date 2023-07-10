@@ -87,6 +87,7 @@ export class Main {
   }
 
   getOptions(): BrowserWindowConstructorOptions {
+    const preload = path.join(__dirname, 'main', 'preload.js');
     const options: BrowserWindowConstructorOptions = {
       width: this.WIDTH,
       height: this.HEIGHT,
@@ -96,6 +97,7 @@ export class Main {
       webPreferences: {
         contextIsolation: false, // TODO: Switch this off
         nodeIntegration: true,
+        preload,
       },
       autoHideMenuBar: true,
       frame: !this.isMac,
