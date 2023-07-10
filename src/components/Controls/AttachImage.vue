@@ -57,7 +57,6 @@
 <script lang="ts">
 import { Field } from 'schemas/types';
 import { fyo } from 'src/initFyo';
-import { selectFile } from 'src/utils/ipcCalls';
 import { getDataURL } from 'src/utils/misc';
 import { defineComponent, PropType } from 'vue';
 import FeatherIcon from '../FeatherIcon.vue';
@@ -105,7 +104,7 @@ export default defineComponent({
         ],
       };
 
-      const { name, success, data } = await selectFile(options);
+      const { name, success, data } = await ipc.selectFile(options);
 
       if (!success) {
         return;

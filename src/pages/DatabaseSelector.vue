@@ -246,7 +246,6 @@ import Loading from 'src/components/Loading.vue';
 import Modal from 'src/components/Modal.vue';
 import { fyo } from 'src/initFyo';
 import { showDialog } from 'src/utils/interactive';
-import { getDbList } from 'src/utils/ipcCalls';
 import { updateConfigFiles } from 'src/utils/misc';
 import { deleteDb, getSavePath, getSelectedFilePath } from 'src/utils/ui';
 import type { ConfigFilesWithModified } from 'utils/types';
@@ -359,7 +358,7 @@ export default defineComponent({
       this.creatingDemo = false;
     },
     async setFiles() {
-      const dbList = await getDbList();
+      const dbList = await ipc.getDbList();
       this.files = dbList?.sort(
         (a, b) => Date.parse(b.modified) - Date.parse(a.modified)
       );

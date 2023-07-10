@@ -28,13 +28,6 @@ import { SelectFileOptions } from 'utils/types';
 import { RouteLocationRaw } from 'vue-router';
 import { evaluateHidden } from './doc';
 import { showDialog, showToast } from './interactive';
-import {
-  deleteFile,
-  getOpenFilePath,
-  getSaveFilePath,
-  selectFile,
-  showItemInFolder,
-} from './ipcCalls';
 import { showSidebar } from './refs';
 import {
   ActionGroup,
@@ -445,7 +438,9 @@ export async function selectTextFile(filters?: SelectFileOptions['filters']) {
     title: t`Select File`,
     filters,
   };
-  const { success, canceled, filePath, data, name } = await selectFile(options);
+  const { success, canceled, filePath, data, name } = await ipc.selectFile(
+    options
+  );
 
   if (canceled || !success) {
     showToast({
@@ -971,13 +966,13 @@ export function showExportInFolder(message: string, filePath: string) {
     actionText: t`Open Folder`,
     type: 'success',
     action: () => {
-      showItemInFolder(filePath);
+      ipc.showItemInFolder(filePath);
     },
   });
 }
 
 export async function deleteDb(filePath: string) {
-  const { error } = await deleteFile(filePath);
+  const { error } = await ipc.deleteFile(filePath);
 
   if (error?.code === 'EBUSY') {
     await showDialog({
@@ -1006,7 +1001,7 @@ export async function deleteDb(filePath: string) {
 }
 
 export async function getSelectedFilePath() {
-  return getOpenFilePath({
+  return ipc.getOpenFilePath({
     title: t`Select file`,
     properties: ['openFile'],
     filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
@@ -1014,7 +1009,7 @@ export async function getSelectedFilePath() {
 }
 
 export async function getSavePath(name: string, extention: string) {
-  const response = await getSaveFilePath({
+  const response = await ipc.getSaveFilePath({
     title: t`Select folder`,
     defaultPath: `${name}.${extention}`,
   });

@@ -80,7 +80,6 @@ import { getErrorMessage } from 'src/utils';
 import { evaluateHidden } from 'src/utils/doc';
 import { shortcutsKey } from 'src/utils/injectionKeys';
 import { showDialog } from 'src/utils/interactive';
-import { reloadWindow } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { UIGroupedFields } from 'src/utils/types';
@@ -222,7 +221,7 @@ export default defineComponent({
           {
             label: this.t`Yes`,
             isPrimary: true,
-            action: reloadWindow,
+            action: ipc.reloadWindow.bind(ipc),
           },
           {
             label: this.t`No`,

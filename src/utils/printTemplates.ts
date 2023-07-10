@@ -6,7 +6,6 @@ import { FieldTypeEnum, Schema, TargetField } from 'schemas/types';
 import { getValueMapFromList } from 'utils/index';
 import { TemplateFile } from 'utils/types';
 import { showToast } from './interactive';
-import { getTemplates, makePDF } from './ipcCalls';
 import { PrintValues } from './types';
 import {
   getDocFromNameIfExistsElseNew,
@@ -234,7 +233,7 @@ export async function getPathAndMakePDF(
   }
 
   const html = constructPrintDocument(innerHTML);
-  const success = await makePDF(html, savePath, width, height);
+  const success = await ipc.makePDF(html, savePath, width, height);
   if (success) {
     showExportInFolder(t`Save as PDF Successful`, savePath);
   } else {
@@ -277,7 +276,7 @@ function getAllCSSAsStyleElem() {
 }
 
 export async function updatePrintTemplates(fyo: Fyo) {
-  const templateFiles = await getTemplates();
+  const templateFiles = await ipc.getTemplates();
   const existingTemplates = (await fyo.db.getAll(ModelNameEnum.PrintTemplate, {
     fields: ['name', 'modified'],
     filters: { isCustom: false },
