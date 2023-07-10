@@ -95,7 +95,7 @@ import {
   getExportTableFields,
   getJsonExportData,
 } from 'src/utils/export';
-import { getSavePath, saveData, showExportInFolder } from 'src/utils/ipcCalls';
+import { saveData } from 'src/utils/ipcCalls';
 import { ExportField, ExportFormat, ExportTableField } from 'src/utils/types';
 import { QueryFilter } from 'utils/db/types';
 import { defineComponent, PropType } from 'vue';
@@ -105,6 +105,7 @@ import Int from './Controls/Int.vue';
 import Select from './Controls/Select.vue';
 import FormHeader from './FormHeader.vue';
 import { Verb } from 'fyo/telemetry/types';
+import { getSavePath, showExportInFolder } from 'src/utils/ui';
 
 interface ExportWizardData {
   useListFilters: boolean;
