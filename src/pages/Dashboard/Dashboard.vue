@@ -14,7 +14,7 @@
         <PeriodSelector
           class="px-3"
           :value="period"
-          :options="['This Year', 'This Quarter', 'This Month']"
+          :options="['This Year', 'YTD', 'This Quarter', 'This Month']"
           @change="(value) => (period = value)"
         />
       </div>
