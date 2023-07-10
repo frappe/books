@@ -1,9 +1,7 @@
-const { ipcRenderer } = require('electron');
 import { DatabaseError, NotImplemented } from 'fyo/utils/errors';
 import { SchemaMap } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { BackendResponse } from 'utils/ipc/types';
-import { IPC_ACTIONS } from 'utils/messages';
 
 export class DatabaseDemux extends DatabaseDemuxBase {
   #isElectron = false;
@@ -32,9 +30,7 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     }
 
     return (await this.#handleDBCall(async () => {
-      return (await ipcRenderer.invoke(
-        IPC_ACTIONS.DB_SCHEMA
-      )) as BackendResponse;
+      return await ipc.db.getSchema();
     })) as SchemaMap;
   }
 
@@ -47,11 +43,7 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     }
 
     return (await this.#handleDBCall(async () => {
-      return (await ipcRenderer.invoke(
-        IPC_ACTIONS.DB_CREATE,
-        dbPath,
-        countryCode
-      )) as BackendResponse;
+      return ipc.db.create(dbPath, countryCode);
     })) as string;
   }
 
@@ -64,11 +56,7 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     }
 
     return (await this.#handleDBCall(async () => {
-      return (await ipcRenderer.invoke(
-        IPC_ACTIONS.DB_CONNECT,
-        dbPath,
-        countryCode
-      )) as BackendResponse;
+      return ipc.db.connect(dbPath, countryCode);
     })) as string;
   }
 
@@ -78,11 +66,7 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     }
 
     return await this.#handleDBCall(async () => {
-      return (await ipcRenderer.invoke(
-        IPC_ACTIONS.DB_CALL,
-        method,
-        ...args
-      )) as BackendResponse;
+      return await ipc.db.call(method, ...args);
     });
   }
 
@@ -92,11 +76,7 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     }
 
     return await this.#handleDBCall(async () => {
-      return (await ipcRenderer.invoke(
-        IPC_ACTIONS.DB_BESPOKE,
-        method,
-        ...args
-      )) as BackendResponse;
+      return await ipc.db.bespoke(method, ...args);
     });
   }
 }

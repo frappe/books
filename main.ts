@@ -4,6 +4,7 @@ require('source-map-support').install({
   environment: 'node',
 });
 
+import { emitMainProcessError } from 'backend/helpers';
 import {
   app,
   BrowserWindow,
@@ -12,7 +13,6 @@ import {
   ProtocolRequest,
   ProtocolResponse,
 } from 'electron';
-import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
 import path from 'path';
@@ -21,7 +21,6 @@ import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
-import { emitMainProcessError } from 'backend/helpers';
 
 export class Main {
   title = 'Frappe Books';
@@ -53,8 +52,6 @@ export class Main {
       'Cache-Control':
         'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
     };
-
-    Store.initRenderer();
 
     this.registerListeners();
     if (this.isMac && this.isDevelopment) {
@@ -95,7 +92,7 @@ export class Main {
       titleBarStyle: 'hidden',
       trafficLightPosition: { x: 16, y: 16 },
       webPreferences: {
-        contextIsolation: false, // TODO: Switch this off
+        contextIsolation: true,
         nodeIntegration: true,
         preload,
       },

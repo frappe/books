@@ -4,11 +4,15 @@ import type {
   SaveDialogOptions,
   SaveDialogReturnValue,
 } from 'electron';
-import { ipcRenderer } from 'electron';
-import { BackendResponse } from 'utils/ipc/types';
+import { contextBridge, ipcRenderer } from 'electron';
+import type { ConfigMap } from 'fyo/core/types';
+import config from 'utils/config';
+import type { DatabaseMethod } from 'utils/db/types';
+import type { BackendResponse } from 'utils/ipc/types';
 import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
 import type {
   ConfigFilesWithModified,
+  Creds,
   LanguageMap,
   SelectFileOptions,
   SelectFileReturn,
@@ -21,6 +25,10 @@ const ipc = {
 
   reloadWindow() {
     return ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
+  },
+
+  async getCreds() {
+    return (await ipcRenderer.invoke(IPC_ACTIONS.GET_CREDS)) as Creds;
   },
 
   async getLanguageMap(code: string) {
@@ -136,8 +144,61 @@ const ipc = {
   registerConsoleLogListener(listener: IPCRendererListener) {
     ipcRenderer.on(IPC_CHANNELS.CONSOLE_LOG, listener);
   },
+
+  db: {
+    async getSchema() {
+      return (await ipcRenderer.invoke(
+        IPC_ACTIONS.DB_SCHEMA
+      )) as BackendResponse;
+    },
+
+    async create(dbPath: string, countryCode?: string) {
+      return (await ipcRenderer.invoke(
+        IPC_ACTIONS.DB_CREATE,
+        dbPath,
+        countryCode
+      )) as BackendResponse;
+    },
+
+    async connect(dbPath: string, countryCode?: string) {
+      return (await ipcRenderer.invoke(
+        IPC_ACTIONS.DB_CONNECT,
+        dbPath,
+        countryCode
+      )) as BackendResponse;
+    },
+
+    async call(method: DatabaseMethod, ...args: unknown[]) {
+      return (await ipcRenderer.invoke(
+        IPC_ACTIONS.DB_CALL,
+        method,
+        ...args
+      )) as BackendResponse;
+    },
+
+    async bespoke(method: string, ...args: unknown[]) {
+      return (await ipcRenderer.invoke(
+        IPC_ACTIONS.DB_BESPOKE,
+        method,
+        ...args
+      )) as BackendResponse;
+    },
+  },
+
+  store: {
+    get<K extends keyof ConfigMap>(key: K) {
+      return config.get(key);
+    },
+
+    set<K extends keyof ConfigMap>(key: K, value: ConfigMap[K]) {
+      return config.set(key, value);
+    },
+
+    delete(key: keyof ConfigMap) {
+      return config.delete(key);
+    },
+  },
 } as const;
 
-// contextBridge.exposeInMainWorld('api', ipc);
-window.ipc = ipc;
+contextBridge.exposeInMainWorld('ipc', ipc);
 export type IPC = typeof ipc;

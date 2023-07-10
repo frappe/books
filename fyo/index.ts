@@ -96,7 +96,7 @@ export class Fyo {
 
   setIsElectron() {
     try {
-      this.isElectron = Boolean(require('electron'));
+      this.isElectron = !!window?.ipc;
     } catch {
       this.isElectron = false;
     }
