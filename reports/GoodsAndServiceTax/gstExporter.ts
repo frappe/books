@@ -5,11 +5,11 @@ import { ModelNameEnum } from 'models/types';
 import { codeStateMap } from 'regional/in';
 import { ExportExtention } from 'reports/types';
 import { showDialog } from 'src/utils/interactive';
-import { getSavePath } from 'src/utils/ipcCalls';
 import { invertMap } from 'utils';
 import { getCsvData, saveExportData } from '../commonExporter';
 import { BaseGSTR } from './BaseGSTR';
 import { TransferTypeEnum } from './types';
+import { getSavePath } from 'src/utils/ui';
 
 const GST = {
   'GST-0': 0,

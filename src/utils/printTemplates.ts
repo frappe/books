@@ -1,13 +1,18 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { ModelNameEnum } from 'models/types';
 import { FieldTypeEnum, Schema, TargetField } from 'schemas/types';
 import { getValueMapFromList } from 'utils/index';
 import { TemplateFile } from 'utils/types';
-import { getSavePath, getTemplates, makePDF } from './ipcCalls';
+import { showToast } from './interactive';
+import { getTemplates, makePDF } from './ipcCalls';
 import { PrintValues } from './types';
-import { getDocFromNameIfExistsElseNew } from './ui';
+import {
+  getDocFromNameIfExistsElseNew,
+  getSavePath,
+  showExportInFolder,
+} from './ui';
 
 export type PrintTemplateHint = {
   [key: string]: string | PrintTemplateHint | PrintTemplateHint[];
@@ -223,13 +228,18 @@ export async function getPathAndMakePDF(
   width: number,
   height: number
 ) {
-  const { filePath } = await getSavePath(name, 'pdf');
-  if (!filePath) {
+  const { filePath: savePath } = await getSavePath(name, 'pdf');
+  if (!savePath) {
     return;
   }
 
   const html = constructPrintDocument(innerHTML);
-  await makePDF(html, filePath, width, height);
+  const success = await makePDF(html, savePath, width, height);
+  if (success) {
+    showExportInFolder(t`Save as PDF Successful`, savePath);
+  } else {
+    showToast({ message: t`Export Failed`, type: 'error' });
+  }
 }
 
 function constructPrintDocument(innerHTML: string) {

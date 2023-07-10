@@ -6,7 +6,12 @@ import { t } from 'fyo';
 import type { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
-import { getDbError, LinkValidationError, ValueError } from 'fyo/utils/errors';
+import {
+  BaseError,
+  getDbError,
+  LinkValidationError,
+  ValueError,
+} from 'fyo/utils/errors';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
@@ -18,11 +23,18 @@ import { Schema } from 'schemas/types';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import router from 'src/router';
+import { assertIsType } from 'utils/index';
 import { SelectFileOptions } from 'utils/types';
 import { RouteLocationRaw } from 'vue-router';
 import { evaluateHidden } from './doc';
 import { showDialog, showToast } from './interactive';
-import { selectFile } from './ipcCalls';
+import {
+  deleteFile,
+  getOpenFilePath,
+  getSaveFilePath,
+  selectFile,
+  showItemInFolder,
+} from './ipcCalls';
 import { showSidebar } from './refs';
 import {
   ActionGroup,
@@ -31,7 +43,6 @@ import {
   ToastOptions,
   UIGroupedFields,
 } from './types';
-import { assertIsType } from 'utils/index';
 
 export const toastDurationMap = { short: 2_500, long: 5_000 } as const;
 
@@ -953,3 +964,67 @@ export const paperSizeMap: Record<
     height: -1,
   },
 };
+
+export function showExportInFolder(message: string, filePath: string) {
+  showToast({
+    message,
+    actionText: t`Open Folder`,
+    type: 'success',
+    action: () => {
+      showItemInFolder(filePath);
+    },
+  });
+}
+
+export async function deleteDb(filePath: string) {
+  const { error } = await deleteFile(filePath);
+
+  if (error?.code === 'EBUSY') {
+    await showDialog({
+      title: t`Delete Failed`,
+      detail: t`Please restart and try again.`,
+      type: 'error',
+    });
+  } else if (error?.code === 'ENOENT') {
+    await showDialog({
+      title: t`Delete Failed`,
+      detail: t`File ${filePath} does not exist.`,
+      type: 'error',
+    });
+  } else if (error?.code === 'EPERM') {
+    await showDialog({
+      title: t`Cannot Delete`,
+      detail: t`Close Frappe Books and try manually.`,
+      type: 'error',
+    });
+  } else if (error) {
+    const err = new BaseError(500, error.message);
+    err.name = error.name;
+    err.stack = error.stack;
+    throw err;
+  }
+}
+
+export async function getSelectedFilePath() {
+  return getOpenFilePath({
+    title: t`Select file`,
+    properties: ['openFile'],
+    filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
+  });
+}
+
+export async function getSavePath(name: string, extention: string) {
+  const response = await getSaveFilePath({
+    title: t`Select folder`,
+    defaultPath: `${name}.${extention}`,
+  });
+
+  const canceled = response.canceled;
+  let filePath = response.filePath;
+
+  if (filePath && !filePath.endsWith(extention) && filePath !== ':memory:') {
+    filePath = `${filePath}.${extention}`;
+  }
+
+  return { canceled, filePath };
+}

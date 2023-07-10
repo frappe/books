@@ -246,13 +246,9 @@ import Loading from 'src/components/Loading.vue';
 import Modal from 'src/components/Modal.vue';
 import { fyo } from 'src/initFyo';
 import { showDialog } from 'src/utils/interactive';
-import {
-  deleteDb,
-  getDbList,
-  getSavePath,
-  getSelectedFilePath,
-} from 'src/utils/ipcCalls';
+import { getDbList } from 'src/utils/ipcCalls';
 import { updateConfigFiles } from 'src/utils/misc';
+import { deleteDb, getSavePath, getSelectedFilePath } from 'src/utils/ui';
 import type { ConfigFilesWithModified } from 'utils/types';
 import { defineComponent } from 'vue';
 

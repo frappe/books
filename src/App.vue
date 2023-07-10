@@ -54,6 +54,7 @@ import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
 import { showDialog } from './utils/interactive';
 import { checkDbAccess, checkForUpdates } from './utils/ipcCalls';
+import { setLanguageMap } from './utils/language';
 import { updateConfigFiles } from './utils/misc';
 import { updatePrintTemplates } from './utils/printTemplates';
 import { Search } from './utils/search';
@@ -147,6 +148,7 @@ export default defineComponent({
       await this.setDeskRoute();
       await fyo.telemetry.start(true);
       await checkForUpdates();
+      await setLanguageMap();
       this.dbPath = filePath;
       this.companyName = (await fyo.getValue(
         ModelNameEnum.AccountingSettings,
