@@ -246,12 +246,15 @@ import Loading from 'src/components/Loading.vue';
 import Modal from 'src/components/Modal.vue';
 import { fyo } from 'src/initFyo';
 import { showDialog } from 'src/utils/interactive';
-import { deleteDb, getSavePath, getSelectedFilePath } from 'src/utils/ipcCalls';
+import {
+  deleteDb,
+  getDbList,
+  getSavePath,
+  getSelectedFilePath,
+} from 'src/utils/ipcCalls';
 import { updateConfigFiles } from 'src/utils/misc';
-import { IPC_ACTIONS } from 'utils/messages';
 import type { ConfigFilesWithModified } from 'utils/types';
 import { defineComponent } from 'vue';
-const { ipcRenderer } = require('electron');
 
 export default defineComponent({
   name: 'DatabaseSelector',
@@ -360,10 +363,7 @@ export default defineComponent({
       this.creatingDemo = false;
     },
     async setFiles() {
-      const dbList: ConfigFilesWithModified[] = await ipcRenderer.invoke(
-        IPC_ACTIONS.GET_DB_LIST
-      );
-
+      const dbList = await getDbList();
       this.files = dbList?.sort(
         (a, b) => Date.parse(b.modified) - Date.parse(a.modified)
       );

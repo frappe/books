@@ -5,8 +5,9 @@ const { ipcRenderer } = require('electron');
 import { t } from 'fyo';
 import { BaseError } from 'fyo/utils/errors';
 import type { BackendResponse } from 'utils/ipc/types';
-import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
+import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
 import type {
+  ConfigFilesWithModified,
   LanguageMap,
   SelectFileOptions,
   SelectFileReturn,
@@ -153,4 +154,41 @@ export async function getSavePath(name: string, extention: string) {
   }
 
   return { canceled, filePath };
+}
+
+export async function getDbList() {
+  return (await ipcRenderer.invoke(
+    IPC_ACTIONS.GET_DB_LIST
+  )) as ConfigFilesWithModified[];
+}
+
+export async function getEnv() {
+  return (await ipcRenderer.invoke(IPC_ACTIONS.GET_ENV)) as {
+    isDevelopment: boolean;
+    platform: string;
+    version: string;
+  };
+}
+
+export function openExternalUrl(url: string) {
+  ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, url);
+}
+
+export async function showError(title: string, content: string) {
+  await ipcRenderer.invoke(IPC_ACTIONS.SHOW_ERROR, { title, content });
+}
+
+export async function sendError(body: string) {
+  await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, body);
+}
+
+type IPCRendererListener = Parameters<typeof ipcRenderer.on>[1];
+export function registerMainProcessErrorListener(
+  listener: IPCRendererListener
+) {
+  ipcRenderer.on(IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR, listener);
+}
+
+export function registerConsoleLogListener(listener: IPCRendererListener) {
+  ipcRenderer.on(IPC_CHANNELS.CONSOLE_LOG, listener);
 }
