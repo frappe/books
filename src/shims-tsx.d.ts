@@ -1,8 +1,8 @@
 import type { IPC } from 'main/preload';
 import Vue, { VNode } from 'vue';
 
-declare const ipc: IPC;
 declare global {
+  const ipc: IPC;
   namespace JSX {
     type Element = VNode;
     type ElementClass = Vue;

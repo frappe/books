@@ -1,7 +1,6 @@
 import { DEFAULT_LANGUAGE } from 'fyo/utils/consts';
 import { setLanguageMapOnTranslationString } from 'fyo/utils/translation';
 import { fyo } from 'src/initFyo';
-import { getLanguageMap, reloadWindow } from './ipcCalls';
 import { systemLanguageRef } from './refs';
 
 // Language: Language Code in books/translations
@@ -45,7 +44,7 @@ export async function setLanguageMap(
   }
 
   if (!dontReload && success && initLanguage !== oldLanguage) {
-    reloadWindow();
+    ipc.reloadWindow();
   }
   return success;
 }
@@ -63,7 +62,7 @@ function getLanguageCode(initLanguage: string, oldLanguage: string) {
 }
 
 async function fetchAndSetLanguageMap(code: string) {
-  const { success, message, languageMap } = await getLanguageMap(code);
+  const { success, message, languageMap } = await ipc.getLanguageMap(code);
 
   if (!success) {
     const { showToast } = await import('src/utils/interactive');

@@ -53,7 +53,6 @@ import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
 import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
 import { showDialog } from './utils/interactive';
-import { checkDbAccess, checkForUpdates } from './utils/ipcCalls';
 import { setLanguageMap } from './utils/language';
 import { updateConfigFiles } from './utils/misc';
 import { updatePrintTemplates } from './utils/printTemplates';
@@ -147,7 +146,7 @@ export default defineComponent({
       this.activeScreen = Screen.Desk;
       await this.setDeskRoute();
       await fyo.telemetry.start(true);
-      await checkForUpdates();
+      await ipc.checkForUpdates();
       await setLanguageMap();
       this.dbPath = filePath;
       this.companyName = (await fyo.getValue(
@@ -164,7 +163,7 @@ export default defineComponent({
         return;
       }
 
-      if (filePath !== ':memory:' && !(await checkDbAccess(filePath))) {
+      if (filePath !== ':memory:' && !(await ipc.checkDbAccess(filePath))) {
         await showDialog({
           title: this.t`Cannot open file`,
           type: 'error',

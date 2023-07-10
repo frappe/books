@@ -9,7 +9,6 @@
   </button>
 </template>
 <script>
-import { openLink } from 'src/utils/ipcCalls';
 import FeatherIcon from './FeatherIcon.vue';
 
 export default {
@@ -23,7 +22,7 @@ export default {
   },
   methods: {
     openHelpLink() {
-      openLink(this.link);
+      ipc.openLink(this.link);
     },
   },
 };

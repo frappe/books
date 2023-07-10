@@ -1,12 +1,11 @@
 import { t } from 'fyo';
 import { Action } from 'fyo/model/types';
 import { Verb } from 'fyo/telemetry/types';
-import { saveData } from 'src/utils/ipcCalls';
+import { getSavePath, showExportInFolder } from 'src/utils/ui';
 import { getIsNullOrUndef } from 'utils';
 import { generateCSV } from 'utils/csvParser';
 import { Report } from './Report';
 import { ExportExtention, ReportCell } from './types';
-import { getSavePath, showExportInFolder } from 'src/utils/ui';
 
 interface JSONExport {
   columns: { fieldname: string; label: string }[];
@@ -184,7 +183,7 @@ export async function saveExportData(
   filePath: string,
   message?: string
 ) {
-  await saveData(data, filePath);
+  await ipc.saveData(data, filePath);
   message ??= t`Export Successful`;
   showExportInFolder(message, filePath);
 }

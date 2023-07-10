@@ -7,11 +7,6 @@ import { showDialog } from 'src/utils/interactive';
 import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
-import {
-  sendError as ipcSendError,
-  openExternalUrl,
-  showError,
-} from './utils/ipcCalls';
 import type { DialogOptions, ToastOptions } from './utils/types';
 
 function shouldNotStore(error: Error) {
@@ -46,7 +41,7 @@ export async function sendError(errorLogObj: ErrorLog) {
     console.log('sendError', body);
   }
 
-  await ipcSendError(JSON.stringify(body));
+  await ipc.sendError(JSON.stringify(body));
 }
 
 function getToastProps(errorLogObj: ErrorLog) {
@@ -157,7 +152,7 @@ export async function showErrorDialog(title?: string, content?: string) {
   // To be used for  show stopper errors
   title ??= t`Error`;
   content ??= t`Something has gone terribly wrong. Please check the console and raise an issue.`;
-  await showError(title, content);
+  await ipc.showError(title, content);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -234,7 +229,7 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
 
 export function reportIssue(errorLogObj?: ErrorLog) {
   const urlQuery = getIssueUrlQuery(errorLogObj);
-  openExternalUrl(urlQuery);
+  ipc.openExternalUrl(urlQuery);
 }
 
 function getErrorLabel(error: Error) {
