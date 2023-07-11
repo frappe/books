@@ -94,6 +94,7 @@ export class Main {
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
+        sandbox: false,
         preload,
       },
       autoHideMenuBar: true,
