@@ -169,11 +169,17 @@ export default function registerIpcMainActionListeners(main: Main) {
     return await getConfigFilesWithModified(files);
   });
 
-  ipcMain.handle(IPC_ACTIONS.GET_ENV, () => {
+  ipcMain.handle(IPC_ACTIONS.GET_ENV, async () => {
+    let version = app.getVersion();
+    if (main.isDevelopment) {
+      const packageJson = await fs.readFile('package.json', 'utf-8');
+      version = (JSON.parse(packageJson) as { version: string }).version;
+    }
+
     return {
       isDevelopment: main.isDevelopment,
       platform: process.platform,
-      version: app.getVersion(),
+      version,
     };
   });
 
