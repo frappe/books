@@ -260,7 +260,7 @@ export default defineComponent({
     Modal,
     Button,
   },
-  emits: ['file-selected'],
+  emits: ['file-selected', 'new-database'],
   data() {
     return {
       openModal: false,
@@ -363,17 +363,12 @@ export default defineComponent({
         (a, b) => Date.parse(b.modified) - Date.parse(a.modified)
       );
     },
-    async newDatabase() {
+    newDatabase() {
       if (this.creatingDemo) {
         return;
       }
 
-      const { filePath, canceled } = await getSavePath('books', 'db');
-      if (canceled || !filePath) {
-        return;
-      }
-
-      this.emitFileSelected(filePath, true);
+      this.$emit('new-database');
     },
     async existingDatabase() {
       if (this.creatingDemo) {
@@ -390,17 +385,12 @@ export default defineComponent({
 
       this.emitFileSelected(file.dbPath);
     },
-    emitFileSelected(filePath: string, isNew?: boolean) {
+    emitFileSelected(filePath: string) {
       if (!filePath) {
         return;
       }
 
-      if (isNew) {
-        this.$emit('file-selected', filePath, isNew);
-        return;
-      }
-
-      this.$emit('file-selected', filePath, !!isNew);
+      this.$emit('file-selected', filePath);
     },
   },
 });

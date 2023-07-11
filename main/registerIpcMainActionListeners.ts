@@ -8,7 +8,7 @@ import {
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { constants } from 'fs';
-import fs from 'fs/promises';
+import fs from 'fs-extra';
 import path from 'path';
 import { SelectFileOptions, SelectFileReturn } from 'utils/types';
 import databaseManager from '../backend/database/manager';
@@ -37,6 +37,22 @@ export default function registerIpcMainActionListeners(main: Main) {
 
     return true;
   });
+
+  ipcMain.handle(
+    IPC_ACTIONS.GET_DB_DEFAULT_PATH,
+    async (_, companyName: string) => {
+      let root = app.getPath('documents');
+      if (main.isDevelopment) {
+        root = 'dbs';
+      }
+
+      const dbsPath = path.join(root, 'Frappe Books');
+      const backupPath = path.join(dbsPath, 'backups');
+      await fs.ensureDir(backupPath);
+
+      return path.join(dbsPath, `${companyName}.books.db`);
+    }
+  );
 
   ipcMain.handle(
     IPC_ACTIONS.GET_OPEN_FILEPATH,
