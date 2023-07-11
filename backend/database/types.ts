@@ -16,6 +16,30 @@ export type FieldValueMap = Record<
   RawValue | undefined | FieldValueMap[]
 >;
 
+export type AlterConfig = {
+  schemaName: string;
+  diff: ColumnDiff;
+  newForeignKeys: Field[];
+};
+
+export type NonExtantConfig = {
+  schemaName: string;
+  nonExtant: {
+    fieldname: string;
+    value: RawValue;
+  }[];
+};
+
+export type UpdateSinglesConfig = {
+  update: string[];
+  updateNonExtant: NonExtantConfig[];
+};
+
+export type MigrationConfig = {
+  pre?: () => Promise<void> | void;
+  post?: () => Promise<void> | void;
+};
+
 export interface Patch {
   name: string;
   version: string;
