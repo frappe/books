@@ -93,7 +93,7 @@ export class Main {
       trafficLightPosition: { x: 16, y: 16 },
       webPreferences: {
         contextIsolation: true,
-        nodeIntegration: true,
+        nodeIntegration: false,
         preload,
       },
       autoHideMenuBar: true,
