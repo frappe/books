@@ -117,6 +117,13 @@ const ipc = {
     )) as ConfigFilesWithModified[];
   },
 
+  async getDbDefaultPath(companyName: string) {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.GET_DB_DEFAULT_PATH,
+      companyName
+    )) as string;
+  },
+
   async getEnv() {
     return (await ipcRenderer.invoke(IPC_ACTIONS.GET_ENV)) as {
       isDevelopment: boolean;
