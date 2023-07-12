@@ -60,6 +60,7 @@
       "fieldname": "version",
       "label": "Version",
       "fieldtype": "Data",
+      "default": "0.0.0",
       "readOnly": true,
       "section": "Default"
     },
