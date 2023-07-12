@@ -94,9 +94,6 @@ export default defineComponent({
       sections: getGetStartedConfig(),
     };
   },
-  mounted() {
-    // this.sections = getGetStartedConfig();
-  },
   async activated() {
     await fyo.doc.getDoc('GetStarted');
     await this.checkForCompletedTasks();

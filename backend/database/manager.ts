@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'fs-extra';
 import { DatabaseError } from 'fyo/utils/errors';
 import path from 'path';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
@@ -9,6 +9,9 @@ import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
 import { runPatches } from './runPatch';
 import { BespokeFunction, Patch } from './types';
+import BetterSQLite3 from 'better-sqlite3';
+import { getMapFromList } from 'utils/index';
+import { Version } from 'utils/version';
 
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
@@ -50,25 +53,12 @@ export class DatabaseManager extends DatabaseDemuxBase {
       return;
     }
 
-    const isFirstRun = await this.#getIsFirstRun();
+    const isFirstRun = this.#getIsFirstRun();
     if (isFirstRun) {
       await this.db!.migrate();
     }
 
-    /**
-     * This needs to be supplimented with transactions
-     * TODO: Add transactions in core.ts
-     */
-    const dbPath = this.db!.dbPath;
-    const copyPath = await this.#makeTempCopy();
-
-    try {
-      await this.#runPatchesAndMigrate();
-    } catch (error) {
-      await this.#handleFailedMigration(error, dbPath, copyPath);
-    } finally {
-      await unlinkIfExists(copyPath);
-    }
+    await this.#executeMigration();
   }
 
   async #handleFailedMigration(
@@ -89,32 +79,67 @@ export class DatabaseManager extends DatabaseDemuxBase {
     throw error;
   }
 
-  async #runPatchesAndMigrate() {
-    const patchesToExecute = await this.#getPatchesToExecute();
+  async #executeMigration() {
+    const version = this.#getAppVersion();
+    const patches = await this.#getPatchesToExecute(version);
 
-    patchesToExecute.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
-    const preMigrationPatches = patchesToExecute.filter(
-      (p) => p.patch.beforeMigrate
-    );
-    const postMigrationPatches = patchesToExecute.filter(
-      (p) => !p.patch.beforeMigrate
-    );
-
-    await runPatches(preMigrationPatches, this);
-    await this.db!.migrate();
-    await runPatches(postMigrationPatches, this);
-  }
-
-  async #getPatchesToExecute(): Promise<Patch[]> {
-    if (this.db === undefined) {
-      return [];
+    const hasPatches = !!patches.pre.length || !!patches.post.length;
+    if (hasPatches) {
+      await this.#createBackup();
     }
 
-    const query: { name: string }[] = await this.db.knex!('PatchRun').select(
-      'name'
-    );
-    const executedPatches = query.map((q) => q.name);
-    return patches.filter((p) => !executedPatches.includes(p.name));
+    await runPatches(patches.pre, this, version);
+    await this.db!.migrate({
+      pre: async () => {
+        if (hasPatches) {
+          return;
+        }
+
+        await this.#createBackup();
+      },
+    });
+    await runPatches(patches.post, this, version);
+  }
+
+  async #getPatchesToExecute(
+    version: string
+  ): Promise<{ pre: Patch[]; post: Patch[] }> {
+    if (this.db === undefined) {
+      return { pre: [], post: [] };
+    }
+
+    const query = (await this.db.knex!('PatchRun').select()) as {
+      name: string;
+      version?: string;
+      failed?: boolean;
+    }[];
+
+    const runPatchesMap = getMapFromList(query, 'name');
+    /**
+     * A patch is run only if:
+     * - it hasn't run and was added in a future version
+     *    i.e. app version is before patch added version
+     * - it ran but failed in some other version (i.e fixed)
+     */
+    const filtered = patches
+      .filter((p) => {
+        const exec = runPatchesMap[p.name];
+        if (!exec && Version.lte(version, p.version)) {
+          return true;
+        }
+
+        if (exec?.failed && exec?.version !== version) {
+          return true;
+        }
+
+        return false;
+      })
+      .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+
+    return {
+      pre: filtered.filter((p) => p.patch.beforeMigrate),
+      post: filtered.filter((p) => !p.patch.beforeMigrate),
+    };
   }
 
   async call(method: DatabaseMethod, ...args: unknown[]) {
@@ -149,33 +174,86 @@ export class DatabaseManager extends DatabaseDemuxBase {
     return await queryFunction(this.db!, ...args);
   }
 
-  async #getIsFirstRun(): Promise<boolean> {
-    if (!this.#isInitialized) {
+  #getIsFirstRun(): boolean {
+    const db = this.getDriver();
+    if (!db) {
       return true;
     }
 
-    const tableList: unknown[] = await this.db!.knex!.raw(
-      "SELECT name FROM sqlite_master WHERE type='table'"
-    );
-    return tableList.length === 0;
+    const noPatchRun =
+      db
+        .prepare(
+          `select name from sqlite_master
+           where
+            type = 'table' and
+            name = 'PatchRun'`
+        )
+        .all().length === 0;
+
+    db.close();
+    return noPatchRun;
   }
 
-  async #makeTempCopy() {
-    const src = this.db!.dbPath;
-    if (src === ':memory:') {
+  async #createBackup() {
+    const { dbPath } = this.db ?? {};
+    if (!dbPath) {
+      return;
+    }
+
+    const backupPath = this.#getBackupFilePath();
+    if (!backupPath) {
+      return;
+    }
+
+    const db = this.getDriver();
+    await db?.backup(backupPath);
+    db?.close();
+  }
+
+  #getBackupFilePath() {
+    const { dbPath } = this.db ?? {};
+    if (dbPath === ':memory:' || !dbPath) {
       return null;
     }
 
-    const dir = path.parse(src).dir;
-    const dest = path.join(dir, '__premigratory_temp.db');
+    let fileName = path.parse(dbPath).name;
+    if (fileName.endsWith('.books')) {
+      fileName = fileName.slice(0, -6);
+    }
 
-    try {
-      await fs.copyFile(src, dest);
-    } catch (err) {
+    const backupFolder = path.join(path.dirname(dbPath), 'backups');
+    const date = new Date().toISOString().split('.')[0];
+    const version = this.#getAppVersion();
+    const backupFile = `${fileName}-${version}-${date}.books.db`;
+    fs.ensureDirSync(backupFolder);
+    return path.join(backupFolder, backupFile);
+  }
+
+  #getAppVersion() {
+    const db = this.getDriver();
+    if (!db) {
+      return '0.0.0';
+    }
+
+    const query = db
+      .prepare(
+        `select value from SingleValue
+         where
+          fieldname = 'version' and
+          parent = 'SystemSettings'`
+      )
+      .get() as undefined | { value: string };
+    db.close();
+    return query?.value || '0.0.0';
+  }
+
+  getDriver() {
+    const { dbPath } = this.db ?? {};
+    if (!dbPath) {
       return null;
     }
 
-    return dest;
+    return BetterSQLite3(dbPath, { readonly: true });
   }
 }
 
