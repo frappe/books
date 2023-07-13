@@ -53,7 +53,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
       return;
     }
 
-    const isFirstRun = this.#getIsFirstRun();
+    const isFirstRun = await this.#getIsFirstRun();
     if (isFirstRun) {
       await this.db!.migrate();
     }
@@ -80,7 +80,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
   }
 
   async #executeMigration() {
-    const version = this.#getAppVersion();
+    const version = await this.#getAppVersion();
     const patches = await this.#getPatchesToExecute(version);
 
     const hasPatches = !!patches.pre.length || !!patches.post.length;
@@ -174,43 +174,35 @@ export class DatabaseManager extends DatabaseDemuxBase {
     return await queryFunction(this.db!, ...args);
   }
 
-  #getIsFirstRun(): boolean {
-    const db = this.getDriver();
-    if (!db) {
+  async #getIsFirstRun(): Promise<boolean> {
+    const knex = this.db?.knex;
+    if (!knex) {
       return true;
     }
 
-    const noPatchRun =
-      db
-        .prepare(
-          `select name from sqlite_master
-           where
-            type = 'table' and
-            name = 'PatchRun'`
-        )
-        .all().length === 0;
-
-    db.close();
-    return noPatchRun;
+    const query = await knex('sqlite_master').where({
+      type: 'table',
+      name: 'PatchRun',
+    });
+    return !query.length;
   }
 
   async #createBackup() {
     const { dbPath } = this.db ?? {};
-    if (!dbPath) {
+    if (!dbPath || process.env.IS_TEST) {
       return;
     }
 
-    const backupPath = this.#getBackupFilePath();
+    const backupPath = await this.#getBackupFilePath();
     if (!backupPath) {
       return;
     }
 
     const db = this.getDriver();
-    await db?.backup(backupPath);
-    db?.close();
+    await db?.backup(backupPath).then(() => db.close());
   }
 
-  #getBackupFilePath() {
+  async #getBackupFilePath() {
     const { dbPath } = this.db ?? {};
     if (dbPath === ':memory:' || !dbPath) {
       return null;
@@ -223,28 +215,23 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
     const backupFolder = path.join(path.dirname(dbPath), 'backups');
     const date = new Date().toISOString().split('.')[0];
-    const version = this.#getAppVersion();
+    const version = await this.#getAppVersion();
     const backupFile = `${fileName}-${version}-${date}.books.db`;
     fs.ensureDirSync(backupFolder);
     return path.join(backupFolder, backupFile);
   }
 
-  #getAppVersion() {
-    const db = this.getDriver();
-    if (!db) {
+  async #getAppVersion(): Promise<string> {
+    const knex = this.db?.knex;
+    if (!knex) {
       return '0.0.0';
     }
 
-    const query = db
-      .prepare(
-        `select value from SingleValue
-         where
-          fieldname = 'version' and
-          parent = 'SystemSettings'`
-      )
-      .get() as undefined | { value: string };
-    db.close();
-    return query?.value || '0.0.0';
+    const query = await knex('SingleValue')
+      .select('value')
+      .where({ fieldname: 'version', parent: 'SystemSettings' });
+    const value = (query[0] as undefined | { value: string })?.value;
+    return value || '0.0.0';
   }
 
   getDriver() {
