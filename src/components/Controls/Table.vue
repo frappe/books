@@ -155,17 +155,11 @@ export default {
   },
   methods: {
     focus() {},
-    addRow() {
-      this.doc.append(this.df.fieldname, {}).then((s) => {
-        if (!s) {
-          return;
-        }
-
-        nextTick(() => {
-          this.scrollToRow(this.value.length - 1);
-        });
-        this.triggerChange(this.value);
-      });
+    async addRow() {
+      await this.doc.append(this.df.fieldname);
+      await nextTick();
+      this.scrollToRow(this.value.length - 1);
+      this.triggerChange(this.value);
     },
     removeRow(row) {
       this.doc.remove(this.df.fieldname, row.idx).then((s) => {

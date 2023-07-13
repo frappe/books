@@ -774,7 +774,17 @@ export default class DatabaseCore extends DatabaseBase {
       order: 'asc',
     });
 
-    return getValueMapFromList(values, 'fieldname', 'value') as FieldValueMap;
+    const fieldValueMap = getValueMapFromList(
+      values,
+      'fieldname',
+      'value'
+    ) as FieldValueMap;
+    const tableFields: TargetField[] = this.#getTableFields(schemaName);
+    if (tableFields.length) {
+      await this.#loadChildren(schemaName, fieldValueMap, tableFields);
+    }
+
+    return fieldValueMap;
   }
 
   #insertOne(schemaName: string, fieldValueMap: FieldValueMap) {
@@ -800,7 +810,7 @@ export default class DatabaseCore extends DatabaseBase {
     fieldValueMap: FieldValueMap
   ) {
     const fields = this.schemaMap[singleSchemaName]!.fields.filter(
-      (f) => !f.computed
+      (f) => !f.computed && f.fieldtype !== 'Table'
     );
     for (const field of fields) {
       const value = fieldValueMap[field.fieldname] as RawValue | undefined;
@@ -935,7 +945,11 @@ export default class DatabaseCore extends DatabaseBase {
     fieldValueMap: FieldValueMap,
     isUpdate: boolean
   ) {
-    const parentName = fieldValueMap.name as string;
+    let parentName = fieldValueMap.name as string;
+    if (this.schemaMap[schemaName]?.isSingle) {
+      parentName = schemaName;
+    }
+
     const tableFields = this.#getTableFields(schemaName);
 
     for (const field of tableFields) {
