@@ -198,7 +198,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
     const backupFolder = path.join(path.dirname(dbPath), 'backups');
     const date = new Date().toISOString().split('T')[0];
     const version = await this.#getAppVersion();
-    const backupFile = `${fileName}-${version}-${date}.books.db`;
+    const backupFile = `${fileName}_${version}_${date}.books.db`;
     fs.ensureDirSync(backupFolder);
     return path.join(backupFolder, backupFile);
   }

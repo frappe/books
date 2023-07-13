@@ -101,17 +101,24 @@ export default defineComponent({
   data() {
     return {
       errors: {},
-      canSave: false,
       activeTab: ModelNameEnum.AccountingSettings,
       groupedFields: null,
     } as {
       errors: Record<string, string>;
-      canSave: boolean;
       activeTab: string;
       groupedFields: null | UIGroupedFields;
     };
   },
   computed: {
+    canSave() {
+      return [
+        ModelNameEnum.AccountingSettings,
+        ModelNameEnum.InventorySettings,
+        ModelNameEnum.Defaults,
+        ModelNameEnum.PrintSettings,
+        ModelNameEnum.SystemSettings,
+      ].some((s) => this.fyo.singles[s]?.canSave);
+    },
     doc(): Doc | null {
       const doc = this.fyo.singles[this.activeTab];
       if (!doc) {
@@ -256,13 +263,7 @@ export default defineComponent({
       this.update();
     },
     update(): void {
-      this.updateCanSave();
       this.updateGroupedFields();
-    },
-    updateCanSave(): void {
-      this.canSave = this.schemas
-        .map(({ name }) => this.fyo.singles[name]?.canSave)
-        .some(Boolean);
     },
     updateGroupedFields(): void {
       const grouped: UIGroupedFields = new Map();

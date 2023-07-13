@@ -14,7 +14,7 @@ import {
   TargetField,
 } from 'schemas/types';
 import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
-import { markRaw } from 'vue';
+import { markRaw, reactive } from 'vue';
 import { isPesa } from '../utils/index';
 import { getDbSyncError } from './errorHelpers';
 import {
@@ -83,6 +83,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     this._setDefaults();
     this._setValuesWithoutChecks(data, convertToDocValue);
+    return reactive(this) as Doc;
   }
 
   get schemaName(): string {
