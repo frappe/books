@@ -1,15 +1,13 @@
 import { t } from 'fyo';
-import { Doc } from 'fyo/model/doc';
+import type { Doc } from 'fyo/model/doc';
 import { BaseError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
 import { truncate } from 'lodash';
 import { showDialog } from 'src/utils/interactive';
-import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
-import { DialogOptions, ToastOptions } from './utils/types';
-const { ipcRenderer } = require('electron');
+import type { DialogOptions, ToastOptions } from './utils/types';
 
 function shouldNotStore(error: Error) {
   const shouldLog = (error as BaseError).shouldStore ?? true;
@@ -43,7 +41,7 @@ export async function sendError(errorLogObj: ErrorLog) {
     console.log('sendError', body);
   }
 
-  await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, JSON.stringify(body));
+  await ipc.sendError(JSON.stringify(body));
 }
 
 function getToastProps(errorLogObj: ErrorLog) {
@@ -119,7 +117,7 @@ export async function handleErrorWithDialog(
   };
 
   if (reportError) {
-    options.detail = truncate(options.detail, { length: 128 });
+    options.detail = truncate(String(options.detail), { length: 128 });
     options.buttons = [
       {
         label: t`Report`,
@@ -154,8 +152,7 @@ export async function showErrorDialog(title?: string, content?: string) {
   // To be used for  show stopper errors
   title ??= t`Error`;
   content ??= t`Something has gone terribly wrong. Please check the console and raise an issue.`;
-
-  await ipcRenderer.invoke(IPC_ACTIONS.SHOW_ERROR, { title, content });
+  await ipc.showError(title, content);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -232,7 +229,7 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
 
 export function reportIssue(errorLogObj?: ErrorLog) {
   const urlQuery = getIssueUrlQuery(errorLogObj);
-  ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, urlQuery);
+  ipc.openExternalUrl(urlQuery);
 }
 
 function getErrorLabel(error: Error) {

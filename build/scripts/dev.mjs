@@ -42,7 +42,7 @@ const viteProcess = $$`yarn vite`;
  */
 const ctx = await esbuild.context({
   ...getMainProcessCommonConfig(root),
-  outfile: path.join(root, 'dist_electron', 'dev', 'main.js'),
+  outdir: path.join(root, 'dist_electron', 'dev'),
 });
 
 /**

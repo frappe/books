@@ -1,17 +1,10 @@
-const { ipcRenderer } = require('electron');
-import { DateTime } from 'luxon';
-import { CUSTOM_EVENTS, IPC_ACTIONS } from 'utils/messages';
+import { CUSTOM_EVENTS } from 'utils/messages';
 import { UnexpectedLogObject } from 'utils/types';
 import { App as VueApp, createApp } from 'vue';
 import App from './App.vue';
 import Badge from './components/Badge.vue';
 import FeatherIcon from './components/FeatherIcon.vue';
-import {
-  getErrorHandled,
-  getErrorHandledSync,
-  handleError,
-  sendError,
-} from './errorHandling';
+import { handleError, sendError } from './errorHandling';
 import { fyo } from './initFyo';
 import { outsideClickDirective } from './renderer/helpers';
 import registerIpcRendererListeners from './renderer/registerIpcRendererListeners';
@@ -27,13 +20,8 @@ import { setLanguageMap } from './utils/language';
   }
   fyo.store.language = language || 'English';
 
-  ipcRenderer.send = getErrorHandledSync(ipcRenderer.send.bind(ipcRenderer));
-  ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke.bind(ipcRenderer));
-
   registerIpcRendererListeners();
-  const { isDevelopment, platform, version } = (await ipcRenderer.invoke(
-    IPC_ACTIONS.GET_ENV
-  )) as { isDevelopment: boolean; platform: string; version: string };
+  const { isDevelopment, platform, version } = await ipc.getEnv();
 
   fyo.store.isDevelopment = isDevelopment;
   fyo.store.appVersion = version;
@@ -125,10 +113,6 @@ function setOnWindow(isDevelopment: boolean) {
   window.router = router;
   // @ts-ignore
   window.fyo = fyo;
-  // @ts-ignore
-  window.DateTime = DateTime;
-  // @ts-ignore
-  window.ipcRenderer = ipcRenderer;
 }
 
 function getPlatformName(platform: string) {

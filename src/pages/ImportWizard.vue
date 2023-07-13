@@ -388,10 +388,9 @@ import PageHeader from 'src/components/PageHeader.vue';
 import { Importer, TemplateField, getColumnLabel } from 'src/importer';
 import { fyo } from 'src/initFyo';
 import { showDialog } from 'src/utils/interactive';
-import { getSavePath, saveData } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
-import { selectTextFile } from 'src/utils/ui';
+import { getSavePath, selectTextFile } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import Loading from '../components/Loading.vue';
 
@@ -795,7 +794,7 @@ export default defineComponent({
         return;
       }
 
-      await saveData(template, filePath);
+      await ipc.saveData(template, filePath);
     },
     async preImportValidations(): Promise<boolean> {
       const title = this.t`Cannot Import`;

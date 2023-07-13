@@ -1,26 +1,12 @@
-import type Store from 'electron-store';
 import { ConfigMap } from 'fyo/core/types';
+import type { IPC } from 'main/preload';
 
 export class Config {
-  config: Map<string, unknown> | Store;
+  config: Map<string, unknown> | IPC['store'];
   constructor(isElectron: boolean) {
     this.config = new Map();
     if (isElectron) {
-      const Config = require('electron-store') as typeof Store;
-      this.config = new Config();
-    }
-  }
-
-  get store() {
-    if (this.config instanceof Map) {
-      const store: Record<string, unknown> = {};
-      for (const key of this.config.keys()) {
-        store[key] = this.config.get(key);
-      }
-
-      return store;
-    } else {
-      return this.config;
+      this.config = ipc.store;
     }
   }
 
@@ -38,9 +24,5 @@ export class Config {
 
   delete(key: keyof ConfigMap) {
     this.config.delete(key);
-  }
-
-  clear() {
-    this.config.clear();
   }
 }

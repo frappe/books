@@ -19,6 +19,7 @@
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
       ref="databaseSelector"
+      @new-database="newDatabase"
       @file-selected="fileSelected"
     />
     <SetupWizard
@@ -53,7 +54,7 @@ import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
 import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
 import { showDialog } from './utils/interactive';
-import { checkDbAccess, checkForUpdates } from './utils/ipcCalls';
+import { setLanguageMap } from './utils/language';
 import { updateConfigFiles } from './utils/misc';
 import { updatePrintTemplates } from './utils/printTemplates';
 import { Search } from './utils/search';
@@ -136,7 +137,7 @@ export default defineComponent({
         return;
       }
 
-      await this.fileSelected(lastSelectedFilePath, false);
+      await this.fileSelected(lastSelectedFilePath);
     },
     async setSearcher(): Promise<void> {
       this.searcher = new Search(fyo);
@@ -146,7 +147,8 @@ export default defineComponent({
       this.activeScreen = Screen.Desk;
       await this.setDeskRoute();
       await fyo.telemetry.start(true);
-      await checkForUpdates();
+      await ipc.checkForUpdates();
+      await setLanguageMap();
       this.dbPath = filePath;
       this.companyName = (await fyo.getValue(
         ModelNameEnum.AccountingSettings,
@@ -155,14 +157,12 @@ export default defineComponent({
       await this.setSearcher();
       updateConfigFiles(fyo);
     },
-    async fileSelected(filePath: string, isNew?: boolean): Promise<void> {
+    newDatabase() {
+      this.activeScreen = Screen.SetupWizard;
+    },
+    async fileSelected(filePath: string): Promise<void> {
       fyo.config.set('lastSelectedFilePath', filePath);
-      if (isNew) {
-        this.activeScreen = Screen.SetupWizard;
-        return;
-      }
-
-      if (filePath !== ':memory:' && !(await checkDbAccess(filePath))) {
+      if (filePath !== ':memory:' && !(await ipc.checkDbAccess(filePath))) {
         await showDialog({
           title: this.t`Cannot open file`,
           type: 'error',
@@ -182,12 +182,10 @@ export default defineComponent({
       }
     },
     async setupComplete(setupWizardOptions: SetupWizardOptions): Promise<void> {
-      const filePath = fyo.config.get('lastSelectedFilePath');
-      if (typeof filePath !== 'string') {
-        return;
-      }
-
+      const companyName = setupWizardOptions.companyName;
+      const filePath = await ipc.getDbDefaultPath(companyName);
       await setupInstance(filePath, setupWizardOptions, fyo);
+      fyo.config.set('lastSelectedFilePath', filePath);
       await this.setDesk(filePath);
     },
     async showSetupWizardOrDesk(filePath: string): Promise<void> {

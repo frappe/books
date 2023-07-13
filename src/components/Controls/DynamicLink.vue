@@ -75,8 +75,8 @@ export default {
     },
     async openNewDoc() {
       const schemaName = this.getTargetSchemaName();
-      if(!schemaName){
-        return
+      if (!schemaName) {
+        return;
       }
       const name =
         this.linkValue || fyo.doc.getTemporaryName(fyo.schemaMap[schemaName]);
