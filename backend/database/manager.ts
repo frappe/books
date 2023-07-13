@@ -1,17 +1,17 @@
+import BetterSQLite3 from 'better-sqlite3';
 import fs from 'fs-extra';
 import { DatabaseError } from 'fyo/utils/errors';
 import path from 'path';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
+import { getMapFromList } from 'utils/index';
+import { Version } from 'utils/version';
 import { getSchemas } from '../../schemas';
-import { checkFileAccess, databaseMethodSet, unlinkIfExists } from '../helpers';
+import { databaseMethodSet, unlinkIfExists } from '../helpers';
 import patches from '../patches';
 import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
 import { runPatches } from './runPatch';
 import { BespokeFunction, Patch } from './types';
-import BetterSQLite3 from 'better-sqlite3';
-import { getMapFromList } from 'utils/index';
-import { Version } from 'utils/version';
 
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
@@ -59,24 +59,6 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }
 
     await this.#executeMigration();
-  }
-
-  async #handleFailedMigration(
-    error: unknown,
-    dbPath: string,
-    copyPath: string | null
-  ) {
-    await this.db!.close();
-
-    if (copyPath && (await checkFileAccess(copyPath))) {
-      await fs.copyFile(copyPath, dbPath);
-    }
-
-    if (error instanceof Error) {
-      error.message = `failed migration\n${error.message}`;
-    }
-
-    throw error;
   }
 
   async #executeMigration() {
@@ -214,7 +196,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }
 
     const backupFolder = path.join(path.dirname(dbPath), 'backups');
-    const date = new Date().toISOString().split('.')[0];
+    const date = new Date().toISOString().split('T')[0];
     const version = await this.#getAppVersion();
     const backupFile = `${fileName}-${version}-${date}.books.db`;
     fs.ensureDirSync(backupFolder);
