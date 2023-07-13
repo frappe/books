@@ -246,12 +246,10 @@ import Loading from 'src/components/Loading.vue';
 import Modal from 'src/components/Modal.vue';
 import { fyo } from 'src/initFyo';
 import { showDialog } from 'src/utils/interactive';
-import { deleteDb, getSavePath, getSelectedFilePath } from 'src/utils/ipcCalls';
 import { updateConfigFiles } from 'src/utils/misc';
-import { IPC_ACTIONS } from 'utils/messages';
+import { deleteDb, getSavePath, getSelectedFilePath } from 'src/utils/ui';
 import type { ConfigFilesWithModified } from 'utils/types';
 import { defineComponent } from 'vue';
-const { ipcRenderer } = require('electron');
 
 export default defineComponent({
   name: 'DatabaseSelector',
@@ -262,7 +260,7 @@ export default defineComponent({
     Modal,
     Button,
   },
-  emits: ['file-selected'],
+  emits: ['file-selected', 'new-database'],
   data() {
     return {
       openModal: false,
@@ -360,25 +358,17 @@ export default defineComponent({
       this.creatingDemo = false;
     },
     async setFiles() {
-      const dbList: ConfigFilesWithModified[] = await ipcRenderer.invoke(
-        IPC_ACTIONS.GET_DB_LIST
-      );
-
+      const dbList = await ipc.getDbList();
       this.files = dbList?.sort(
         (a, b) => Date.parse(b.modified) - Date.parse(a.modified)
       );
     },
-    async newDatabase() {
+    newDatabase() {
       if (this.creatingDemo) {
         return;
       }
 
-      const { filePath, canceled } = await getSavePath('books', 'db');
-      if (canceled || !filePath) {
-        return;
-      }
-
-      this.emitFileSelected(filePath, true);
+      this.$emit('new-database');
     },
     async existingDatabase() {
       if (this.creatingDemo) {
@@ -395,17 +385,12 @@ export default defineComponent({
 
       this.emitFileSelected(file.dbPath);
     },
-    emitFileSelected(filePath: string, isNew?: boolean) {
+    emitFileSelected(filePath: string) {
       if (!filePath) {
         return;
       }
 
-      if (isNew) {
-        this.$emit('file-selected', filePath, isNew);
-        return;
-      }
-
-      this.$emit('file-selected', filePath, !!isNew);
+      this.$emit('file-selected', filePath);
     },
   },
 });

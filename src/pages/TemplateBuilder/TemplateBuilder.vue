@@ -233,7 +233,6 @@ import ShortcutKeys from 'src/components/ShortcutKeys.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { shortcutsKey } from 'src/utils/injectionKeys';
 import { showDialog, showToast } from 'src/utils/interactive';
-import { getSavePath } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import {
   PrintTemplateHint,
@@ -248,6 +247,7 @@ import {
   focusOrSelectFormControl,
   getActionsForDoc,
   getDocFromNameIfExistsElseNew,
+  getSavePath,
   openSettings,
   selectTextFile,
 } from 'src/utils/ui';

@@ -1,11 +1,8 @@
-const { ipcRenderer } = require('electron');
 import { handleError } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
-import { IPC_CHANNELS } from 'utils/messages';
 
 export default function registerIpcRendererListeners() {
-  ipcRenderer.on(
-    IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR,
+  ipc.registerMainProcessErrorListener(
     (_, error: unknown, more?: Record<string, unknown>) => {
       if (!(error instanceof Error)) {
         throw error;
@@ -27,7 +24,7 @@ export default function registerIpcRendererListeners() {
     }
   );
 
-  ipcRenderer.on(IPC_CHANNELS.CONSOLE_LOG, (_, ...stuff: unknown[]) => {
+  ipc.registerConsoleLogListener((_, ...stuff: unknown[]) => {
     if (!fyo.store.isDevelopment) {
       return;
     }

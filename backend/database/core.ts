@@ -16,10 +16,14 @@ import {
 import { DatabaseBase, GetAllOptions, QueryFilter } from '../../utils/db/types';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../helpers';
 import {
+  AlterConfig,
   ColumnDiff,
   FieldValueMap,
   GetQueryBuilderOptions,
+  MigrationConfig,
+  NonExtantConfig,
   SingleValue,
+  UpdateSinglesConfig,
 } from './types';
 
 /**
@@ -97,21 +101,73 @@ export default class DatabaseCore extends DatabaseBase {
     await this.knex!.destroy();
   }
 
-  async migrate() {
-    for (const schemaName in this.schemaMap) {
-      const schema = this.schemaMap[schemaName] as Schema;
-      if (schema.isSingle) {
+  async migrate(config: MigrationConfig = {}) {
+    const { create, alter } = await this.#getCreateAlterList();
+    const hasSingleValueTable = !create.includes('SingleValue');
+    let singlesConfig: UpdateSinglesConfig = {
+      update: [],
+      updateNonExtant: [],
+    };
+
+    if (hasSingleValueTable) {
+      singlesConfig = await this.#getSinglesUpdateList();
+    }
+
+    const shouldMigrate = !!(
+      create.length ||
+      alter.length ||
+      singlesConfig.update.length ||
+      singlesConfig.updateNonExtant.length
+    );
+
+    if (!shouldMigrate) {
+      return;
+    }
+
+    await config.pre?.();
+    for (const schemaName of create) {
+      await this.#createTable(schemaName);
+    }
+
+    for (const config of alter) {
+      await this.#alterTable(config);
+    }
+
+    if (!hasSingleValueTable) {
+      singlesConfig = await this.#getSinglesUpdateList();
+    }
+
+    await this.#initializeSingles(singlesConfig);
+    await config.post?.();
+  }
+
+  async #getCreateAlterList() {
+    const create: string[] = [];
+    const alter: AlterConfig[] = [];
+
+    for (const [schemaName, schema] of Object.entries(this.schemaMap)) {
+      if (!schema || schema.isSingle) {
         continue;
       }
 
-      if (await this.#tableExists(schemaName)) {
-        await this.#alterTable(schemaName);
-      } else {
-        await this.#createTable(schemaName);
+      const exists = await this.#tableExists(schemaName);
+      if (!exists) {
+        create.push(schemaName);
+        continue;
+      }
+
+      const diff: ColumnDiff = await this.#getColumnDiff(schemaName);
+      const newForeignKeys: Field[] = await this.#getNewForeignKeys(schemaName);
+      if (diff.added.length || diff.removed.length || newForeignKeys.length) {
+        alter.push({
+          schemaName,
+          diff,
+          newForeignKeys,
+        });
       }
     }
 
-    await this.#initializeSingles();
+    return { create, alter };
   }
 
   async exists(schemaName: string, name?: string): Promise<boolean> {
@@ -584,11 +640,7 @@ export default class DatabaseCore extends DatabaseBase {
     }
   }
 
-  async #alterTable(schemaName: string) {
-    // get columns
-    const diff: ColumnDiff = await this.#getColumnDiff(schemaName);
-    const newForeignKeys: Field[] = await this.#getNewForeignKeys(schemaName);
-
+  async #alterTable({ schemaName, diff, newForeignKeys }: AlterConfig) {
     await this.knex!.schema.table(schemaName, (table) => {
       if (!diff.added.length) {
         return;
@@ -631,15 +683,17 @@ export default class DatabaseCore extends DatabaseBase {
         .select('fieldname')) as { fieldname: string }[]
     ).map(({ fieldname }) => fieldname);
 
-    return this.schemaMap[singleSchemaName]!.fields.map(
-      ({ fieldname, default: value }) => ({
-        fieldname,
-        value: value,
-      })
-    ).filter(
-      ({ fieldname, value }) =>
-        !existingFields.includes(fieldname) && value !== undefined
-    );
+    const nonExtant: NonExtantConfig['nonExtant'] = [];
+    const fields = this.schemaMap[singleSchemaName]?.fields ?? [];
+    for (const { fieldname, default: value } of fields) {
+      if (existingFields.includes(fieldname) || value === undefined) {
+        continue;
+      }
+
+      nonExtant.push({ fieldname, value });
+    }
+
+    return nonExtant;
   }
 
   async #deleteOne(schemaName: string, name: string) {
@@ -798,22 +852,42 @@ export default class DatabaseCore extends DatabaseBase {
     return await this.knex!('SingleValue').insert(fieldValueMap);
   }
 
-  async #initializeSingles() {
-    const singleSchemaNames = Object.keys(this.schemaMap).filter(
-      (n) => this.schemaMap[n]!.isSingle
-    );
-
-    for (const schemaName of singleSchemaNames) {
-      if (await this.#singleExists(schemaName)) {
-        await this.#updateNonExtantSingleValues(schemaName);
+  async #getSinglesUpdateList() {
+    const update: string[] = [];
+    const updateNonExtant: NonExtantConfig[] = [];
+    for (const [schemaName, schema] of Object.entries(this.schemaMap)) {
+      if (!schema || !schema.isSingle) {
         continue;
       }
 
+      const exists = await this.#singleExists(schemaName);
+      if (!exists && schema.fields.some((f) => f.default !== undefined)) {
+        update.push(schemaName);
+      }
+
+      if (!exists) {
+        continue;
+      }
+
+      const nonExtant = await this.#getNonExtantSingleValues(schemaName);
+      if (nonExtant.length) {
+        updateNonExtant.push({
+          schemaName,
+          nonExtant,
+        });
+      }
+    }
+
+    return { update, updateNonExtant };
+  }
+
+  async #initializeSingles({ update, updateNonExtant }: UpdateSinglesConfig) {
+    for (const config of updateNonExtant) {
+      await this.#updateNonExtantSingleValues(config);
+    }
+
+    for (const schemaName of update) {
       const fields = this.schemaMap[schemaName]!.fields;
-      if (fields.every((f) => f.default === undefined)) {
-        continue;
-      }
-
       const defaultValues: FieldValueMap = fields.reduce((acc, f) => {
         if (f.default !== undefined) {
           acc[f.fieldname] = f.default;
@@ -826,10 +900,12 @@ export default class DatabaseCore extends DatabaseBase {
     }
   }
 
-  async #updateNonExtantSingleValues(schemaName: string) {
-    const singleValues = await this.#getNonExtantSingleValues(schemaName);
-    for (const sv of singleValues) {
-      await this.#updateSingleValue(schemaName, sv.fieldname, sv.value!);
+  async #updateNonExtantSingleValues({
+    schemaName,
+    nonExtant,
+  }: NonExtantConfig) {
+    for (const { fieldname, value } of nonExtant) {
+      await this.#updateSingleValue(schemaName, fieldname, value);
     }
   }
 

@@ -51,7 +51,7 @@ function updatePaths() {
 async function buildMainProcessSource() {
   const result = await esbuild.build({
     ...commonConfig,
-    outfile: path.join(buildDirPath, mainFileName),
+    outdir: path.join(buildDirPath),
   });
 
   if (result.errors.length) {

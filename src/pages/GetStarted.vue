@@ -76,10 +76,8 @@ import Icon from 'src/components/Icon.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { getGetStartedConfig } from 'src/utils/getStartedConfig';
-import { openLink } from 'src/utils/ipcCalls';
 import { GetStartedConfigItem } from 'src/utils/types';
-import { Component } from 'vue';
-import { defineComponent, h } from 'vue';
+import { Component, defineComponent, h } from 'vue';
 
 type ListItem = GetStartedConfigItem['items'][number];
 
@@ -96,9 +94,6 @@ export default defineComponent({
       sections: getGetStartedConfig(),
     };
   },
-  mounted() {
-    // this.sections = getGetStartedConfig();
-  },
   async activated() {
     await fyo.doc.getDoc('GetStarted');
     await this.checkForCompletedTasks();
@@ -106,7 +101,7 @@ export default defineComponent({
   methods: {
     async handleDocumentation({ key, documentation }: ListItem) {
       if (documentation) {
-        openLink(documentation);
+        ipc.openLink(documentation);
       }
 
       switch (key) {

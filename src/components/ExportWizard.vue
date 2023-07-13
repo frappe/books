@@ -87,6 +87,7 @@
 </template>
 <script lang="ts">
 import { t } from 'fyo';
+import { Verb } from 'fyo/telemetry/types';
 import { Field, FieldTypeEnum } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import {
@@ -95,16 +96,15 @@ import {
   getExportTableFields,
   getJsonExportData,
 } from 'src/utils/export';
-import { getSavePath, saveData, showExportInFolder } from 'src/utils/ipcCalls';
 import { ExportField, ExportFormat, ExportTableField } from 'src/utils/types';
+import { getSavePath, showExportInFolder } from 'src/utils/ui';
 import { QueryFilter } from 'utils/db/types';
-import { defineComponent, PropType } from 'vue';
+import { PropType, defineComponent } from 'vue';
 import Button from './Button.vue';
 import Check from './Controls/Check.vue';
 import Int from './Controls/Int.vue';
 import Select from './Controls/Select.vue';
 import FormHeader from './FormHeader.vue';
-import { Verb } from 'fyo/telemetry/types';
 
 interface ExportWizardData {
   useListFilters: boolean;
@@ -257,7 +257,7 @@ export default defineComponent({
         return;
       }
 
-      await saveData(data, filePath);
+      await ipc.saveData(data, filePath);
       this.fyo.telemetry.log(Verb.Exported, this.schemaName, {
         extension: this.exportFormat,
       });
