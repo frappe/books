@@ -15,6 +15,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { historyState } from './utils/refs';
 
 const routes: RouteRecordRaw[] = [
+  { path: '/index.html', redirect: '/' },
   {
     path: '/',
     component: Dashboard,
