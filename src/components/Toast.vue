@@ -16,6 +16,7 @@
           z-30
           bg-white
           rounded-lg
+          border
         "
         style="pointer-events: auto"
       >
