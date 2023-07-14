@@ -3,6 +3,7 @@ import AccountingLedgerEntry from './app/AccountingLedgerEntry.json';
 import AccountingSettings from './app/AccountingSettings.json';
 import Address from './app/Address.json';
 import Batch from './app/Batch.json';
+import DefaultCashDenominations from './app/pos/DefaultCashDenominations.json';
 import Color from './app/Color.json';
 import Currency from './app/Currency.json';
 import Defaults from './app/Defaults.json';
@@ -32,6 +33,8 @@ import NumberSeries from './app/NumberSeries.json';
 import Party from './app/Party.json';
 import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
+import POSSettings from './app/pos/POSSettings.json';
+import POSShift from './app/pos/POSShift.json';
 import PrintSettings from './app/PrintSettings.json';
 import PrintTemplate from './app/PrintTemplate.json';
 import PurchaseInvoice from './app/PurchaseInvoice.json';
@@ -77,6 +80,10 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   NumberSeries as Schema,
 
   PrintSettings as Schema,
+
+  DefaultCashDenominations as Schema,
+  POSSettings as Schema,
+  POSShift as Schema,
 
   Account as Schema,
   AccountingSettings as Schema,

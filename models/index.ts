@@ -11,6 +11,8 @@ import { Misc } from './baseModels/Misc';
 import { Party } from './baseModels/Party/Party';
 import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
+import { POSSettings } from './POS/POSSettings';
+import { POSShift } from './POS/POSShift';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { PriceListItem } from './baseModels/PriceList/PriceListItem';
 import { PrintSettings } from './baseModels/PrintSettings/PrintSettings';
@@ -70,6 +72,9 @@ export const models = {
   ShipmentItem,
   PurchaseReceipt,
   PurchaseReceiptItem,
+  // POS Models
+  POSSettings,
+  POSShift,
 } as ModelMap;
 
 export async function getRegionalModels(

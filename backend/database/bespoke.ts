@@ -8,6 +8,7 @@ import {
 import { ModelNameEnum } from '../../models/types';
 import DatabaseCore from './core';
 import { BespokeFunction } from './types';
+import { Money, pesa } from 'pesa';
 
 export class BespokeQueries {
   [key: string]: BespokeFunction;
@@ -179,5 +180,30 @@ export class BespokeQueries {
     }
 
     return value[0][Object.keys(value[0])[0]];
+  }
+
+  static async getPOSShiftTotalSales(
+    db: DatabaseCore,
+    shiftOpeningDate: Date,
+    shiftClosingDate: Date
+  ): Promise<{ totalAfterTax: Money; totalBeforeTax: Money }> {
+    const query = await db.knex!(ModelNameEnum.SalesInvoice)
+      .select('grandTotal', 'netTotal')
+
+      .andWhereRaw('date(date) >= date(?)', [shiftOpeningDate])
+      .andWhereRaw('date(date) <= date(?)', [shiftClosingDate])
+
+      .andWhereRaw('datetime(created) >= datetime(?)', [shiftOpeningDate])
+      .andWhereRaw('datetime(created) <= datetime(?)', [shiftClosingDate]);
+
+    let totalAfterTax = pesa(0);
+    let totalBeforeTax = pesa(0);
+
+    query.map(({ grandTotal, netTotal }) => {
+      totalAfterTax = totalAfterTax.add(grandTotal as Money);
+      totalBeforeTax = totalBeforeTax.add(netTotal as Money);
+    });
+
+    return { totalAfterTax, totalBeforeTax };
   }
 }

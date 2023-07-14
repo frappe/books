@@ -9,6 +9,8 @@ import type { AccountingSettings } from 'models/baseModels/AccountingSettings/Ac
 import type { Defaults } from 'models/baseModels/Defaults/Defaults';
 import type { PrintSettings } from 'models/baseModels/PrintSettings/PrintSettings';
 import type { InventorySettings } from 'models/inventory/InventorySettings';
+import type { POSSettings } from 'models/POS/POSSettings';
+import type { POSShift } from 'models/POS/POSShift';
 import { Misc } from 'models/baseModels/Misc';
 
 /**
@@ -57,6 +59,8 @@ export interface SinglesMap {
   PrintSettings?: PrintSettings;
   Defaults?: Defaults;
   Misc?: Misc;
+  POSSettings?: POSSettings;
+  POSShift?: POSShift;
   [key: string]: Doc | undefined;
 }
 

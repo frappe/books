@@ -330,6 +330,17 @@ export class DatabaseHandler extends DatabaseBase {
     )) as number | null;
   }
 
+  async getPOSShiftTotalSales(
+    shiftOpeningDate: string,
+    shiftClosingDate: string
+  ) {
+    return await this.#demux.callBespoke(
+      'getPOSShiftTotalSales',
+      shiftOpeningDate,
+      shiftClosingDate
+    );
+  }
+
   /**
    * Internal methods
    */

@@ -20,6 +20,8 @@ export enum ModelNameEnum {
   Party = 'Party',
   Payment = 'Payment',
   PaymentFor = 'PaymentFor',
+  POSSettings = 'POSSettings',
+  POSShift = 'POSShift',
   PriceList = 'PriceList',
   PrintSettings = 'PrintSettings',
   PrintTemplate = 'PrintTemplate',

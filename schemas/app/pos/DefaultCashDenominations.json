@@ -1,0 +1,15 @@
+{
+  "name": "DefaultCashDenominations",
+  "label": "Default Cash Denominations",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "denomination",
+      "fieldtype": "Currency",
+      "label": "Denomination",
+      "placeholder": "Denomination",
+      "required": true
+    }
+  ],
+  "tableFields": ["denomination"]
+}
