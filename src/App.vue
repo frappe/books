@@ -40,6 +40,7 @@
 import { RTL_LANGUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
 import { systemLanguageRef } from 'src/utils/refs';
+import { isValidUrl } from 'utils/misc';
 import { defineComponent, provide, ref, Ref } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
@@ -162,7 +163,11 @@ export default defineComponent({
     },
     async fileSelected(filePath: string): Promise<void> {
       fyo.config.set('lastSelectedFilePath', filePath);
-      if (filePath !== ':memory:' && !(await ipc.checkDbAccess(filePath))) {
+      if (
+        !isValidUrl(filePath) &&
+        filePath !== ':memory:' &&
+        !(await ipc.checkDbAccess(filePath))
+      ) {
         await showDialog({
           title: this.t`Cannot open file`,
           type: 'error',

@@ -5,6 +5,7 @@ import { Main } from 'main';
 import config from 'utils/config';
 import { BackendResponse } from 'utils/ipc/types';
 import { IPC_CHANNELS } from 'utils/messages';
+import { isValidUrl } from 'utils/misc';
 import type { ConfigFilesWithModified } from 'utils/types';
 
 export async function setAndGetCleanedConfigFiles() {
@@ -12,20 +13,22 @@ export async function setAndGetCleanedConfigFiles() {
 
   const cleanedFileMap: Map<string, ConfigFile> = new Map();
   for (const file of files) {
+    const key = `${file.companyName}-${file.dbPath}`;
+
+    if (!file.companyName) continue;
+    if (isValidUrl(file.dbPath)) {
+      cleanedFileMap.set(key, file);
+      continue;
+    }
+
     const exists = await fs
       .access(file.dbPath, constants.W_OK)
       .then(() => true)
       .catch(() => false);
 
-    if (!file.companyName) {
-      continue;
-    }
-
-    const key = `${file.companyName}-${file.dbPath}`;
     if (!exists || cleanedFileMap.has(key)) {
       continue;
     }
-
     cleanedFileMap.set(key, file);
   }
 
@@ -37,14 +40,11 @@ export async function setAndGetCleanedConfigFiles() {
 export async function getConfigFilesWithModified(files: ConfigFile[]) {
   const filesWithModified: ConfigFilesWithModified[] = [];
   for (const { dbPath, id, companyName, openCount } of files) {
-    const { mtime } = await fs.stat(dbPath);
-    filesWithModified.push({
-      id,
-      dbPath,
-      companyName,
-      modified: mtime.toISOString(),
-      openCount,
-    });
+    const modified = isValidUrl(dbPath)
+      ? ''
+      : (await fs.stat(dbPath)).mtime.toISOString();
+
+    filesWithModified.push({ id, dbPath, companyName, modified, openCount });
   }
 
   return filesWithModified;
