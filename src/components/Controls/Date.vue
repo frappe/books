@@ -112,9 +112,11 @@ export default defineComponent({
       if (!(target instanceof HTMLInputElement)) {
         return;
       }
-
       this.showInput = false;
+
       let value: Date | null = new Date(target.value);
+      value.setHours(0, 0, 0, 0);
+
       if (Number.isNaN(value.valueOf())) {
         value = null;
       }
