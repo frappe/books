@@ -15,6 +15,7 @@ export class AccountingSettings extends Doc {
   enableDiscounting?: boolean;
   enableInventory?: boolean;
   enablePriceList?: boolean;
+  enablePOS?: boolean;
 
   static filters: FiltersMap = {
     writeOffAccount: () => ({
@@ -46,11 +47,15 @@ export class AccountingSettings extends Doc {
     enableInventory: () => {
       return !!this.enableInventory;
     },
+    enablePOS: () => {
+      return !!this.fyo.singles.POSShift?.isShiftOpen;
+    },
   };
 
   override hidden: HiddenMap = {
     discountAccount: () => !this.enableDiscounting,
     gstin: () => this.fyo.singles.SystemSettings?.countryCode !== 'in',
+    enablePOS: () => !this.enableInventory,
   };
 
   async change(ch: ChangeArg) {

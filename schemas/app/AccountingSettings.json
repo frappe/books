@@ -87,6 +87,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enablePOS",
+      "label": "Enable Point of Sale",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",
@@ -114,6 +121,7 @@
     "companyName",
     "country",
     "fiscalYearStart",
-    "fiscalYearEnd"
+    "fiscalYearEnd",
+    "cashInDenomination"
   ]
 }
