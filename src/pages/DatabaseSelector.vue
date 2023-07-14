@@ -176,6 +176,9 @@
             py-1.5
             w-28
             h-8
+            no-scrollbar
+            overflow-x-auto
+            whitespace-nowrap
           "
           :disabled="creatingDemo"
           @click="createDemo"

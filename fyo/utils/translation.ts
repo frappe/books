@@ -10,7 +10,7 @@ import { ValueError } from './errors';
 export type TranslationArgs = boolean | number | string;
 export type TranslationLiteral = TemplateStringsArray | TranslationArgs;
 
-class TranslationString {
+export class TranslationString {
   args: TranslationLiteral[];
   argList?: TranslationArgs[];
   strList?: string[];
