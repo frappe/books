@@ -73,6 +73,7 @@
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Verb } from 'fyo/telemetry/types';
+import { TranslationString } from 'fyo/utils/translation';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
 import Button from 'src/components/Button.vue';
@@ -146,7 +147,8 @@ export default defineComponent({
     },
   },
   async mounted() {
-    this.docOrNull = getSetupWizardDoc();
+    const languageMap = TranslationString.prototype.languageMap;
+    this.docOrNull = getSetupWizardDoc(languageMap);
     if (!this.fyo.db.isConnected) {
       await this.fyo.db.init();
     }
