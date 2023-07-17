@@ -503,9 +503,11 @@ export class Search {
     for (const si of this._intermediate.suggestions) {
       const label = si.label;
       const groupLabel =
-        (si as DocSearchItem).schemaLabel || this._groupLabelMap![si.group];
+        (si as DocSearchItem).schemaLabel || this._groupLabelMap?.[si.group];
       const more = (si as DocSearchItem).more ?? [];
-      const values = [label, more, groupLabel].flat();
+      const values = [label, more, groupLabel]
+        .flat()
+        .filter(Boolean) as string[];
 
       const { isMatch, distance } = this._getMatchAndDistance(input, values);
 
