@@ -25,7 +25,7 @@ export function getDatesAndPeriodList(period: PeriodKey): {
   if (period === 'This Year') {
     fromDate = toDate.minus({ months: 12 });
   } else if (period === 'YTD') {
-    fromDate = DateTime.now().startOf('Year');
+    fromDate = DateTime.now().startOf('year');
   } else if (period === 'This Quarter') {
     fromDate = toDate.minus({ months: 3 });
   } else if (period === 'This Month') {
@@ -41,7 +41,7 @@ export function getDatesAndPeriodList(period: PeriodKey): {
   while (true) {
     const nextDate = periodList.at(0)!.minus({ months: 1 });
     if (nextDate.toMillis() < fromDate.toMillis()) {
-      if (period === 'YTD'){
+      if (period === 'YTD') {
         periodList.unshift(nextDate);
         break;
       }

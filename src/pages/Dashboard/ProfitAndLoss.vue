@@ -57,7 +57,7 @@ export default defineComponent({
   data: () => ({
     data: [] as { yearmonth: string; balance: number }[],
     hasData: false,
-    periodOptions: ['This Year', 'YTD', 'This Quarter'],
+    periodOptions: ['This Year', 'This Quarter', 'YTD'],
   }),
   computed: {
     chartData() {

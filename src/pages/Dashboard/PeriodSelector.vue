@@ -51,7 +51,7 @@ export default defineComponent({
     value: { type: String as PropType<PeriodKey>, default: 'This Year' },
     options: {
       type: Array as PropType<PeriodKey[]>,
-      default: () => ['This Year', 'YTD', 'This Quarter', 'This Month'],
+      default: () => ['This Year', 'This Quarter', 'This Month', 'YTD'],
     },
   },
   emits: ['change'],
@@ -65,7 +65,7 @@ export default defineComponent({
     this.periodSelectorMap = {
       '': t`Set Period`,
       'This Year': t`This Year`,
-      'YTD': t`YTD`,
+      YTD: t`Year to Date`,
       'This Quarter': t`This Quarter`,
       'This Month': t`This Month`,
     };
