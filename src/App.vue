@@ -232,10 +232,10 @@ export default defineComponent({
 
       let route = '/get-started';
       if (hideGetStarted || onboardingComplete) {
-        route = '/';
+        route = localStorage.getItem('lastRoute') || '/';
       }
 
-      await routeTo(localStorage.getItem('lastRoute') || route);
+      await routeTo(route);
     },
     async showDbSelector(): Promise<void> {
       localStorage.clear();
