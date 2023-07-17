@@ -65,7 +65,7 @@ export class Account extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: ['name', 'parentAccount', 'rootType'],
+      columns: ['name', 'rootType', 'isGroup', 'parentAccount'],
     };
   }
 
