@@ -11,7 +11,12 @@ export default defineComponent({
   data() {
     return {
       period: 'This Year' as PeriodKey,
-      periodOptions: ['This Year', 'YTD', 'This Quarter', 'This Month'] as PeriodKey[],
+      periodOptions: [
+        'This Year',
+        'YTD',
+        'This Quarter',
+        'This Month',
+      ] as PeriodKey[],
     };
   },
   watch: {

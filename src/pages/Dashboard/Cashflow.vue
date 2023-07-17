@@ -72,7 +72,7 @@ export default defineComponent({
   data: () => ({
     data: [] as { inflow: number; outflow: number; yearmonth: string }[],
     periodList: [],
-    periodOptions: ['This Year', 'YTD', 'This Quarter'],
+    periodOptions: ['This Year', 'This Quarter', 'YTD'],
     hasData: false,
   }),
   computed: {

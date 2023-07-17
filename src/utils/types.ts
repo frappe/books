@@ -98,7 +98,7 @@ export type DropdownItem = {
 
 export type UIGroupedFields = Map<string, Map<string, Field[]>>;
 export type ExportFormat = 'csv' | 'json';
-export type PeriodKey = 'This Year'| 'YTD' | 'This Quarter' | 'This Month';
+export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month' | 'YTD';
 
 export type PrintValues = {
   print: Record<string, unknown>;
