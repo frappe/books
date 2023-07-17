@@ -1,6 +1,6 @@
 {
-  "name": "DefaultCashDenominations",
-  "label": "Default Cash Denominations",
+  "name": "CashDenominations",
+  "label": "Cash Denominations",
   "isChild": true,
   "fields": [
     {

@@ -6,37 +6,6 @@
   "isSubmittable": true,
   "fields": [
     {
-      "fieldname": "defaultCustomer",
-      "label": "Default Customer",
-      "fieldtype": "Link",
-      "target": "Party",
-      "section": "Default"
-    },
-    {
-      "fieldname": "inventory",
-      "label": "Inventory",
-      "fieldtype": "Link",
-      "target": "Location",
-      "default": "Stores",
-      "section": "Default"
-    },
-    {
-      "fieldname": "defaultPrintTemplate",
-      "label": "Default Print Template",
-      "fieldtype": "Link",
-      "target": "PrintTemplate",
-      "default": "Minimal - Sales Invoice",
-      "section": "Default"
-    },
-    {
-      "fieldname": "adjustmentAccount",
-      "label": "Adjustment Account",
-      "fieldtype": "Link",
-      "target": "Account",
-      "default": "Write Off",
-      "section": "Default"
-    },
-    {
       "fieldname": "discountAfterTax",
       "label": "Apply Discount After Tax",
       "fieldtype": "Check",
@@ -44,10 +13,10 @@
       "section": "Default"
     },
     {
-      "fieldname": "defaultCashDenominations",
-      "label": "Default Cash Denominations",
-      "fieldtype": "Table",
-      "target": "DefaultCashDenominations",
+      "fieldname": "hideImages",
+      "label": "Hide Images",
+      "fieldtype": "Check",
+      "default": false,
       "section": "Default"
     }
   ]

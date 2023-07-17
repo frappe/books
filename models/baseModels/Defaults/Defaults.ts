@@ -35,6 +35,10 @@ export class Defaults extends Doc {
   purchaseReceiptPrintTemplate?: string;
   stockMovementPrintTemplate?: string;
 
+  // Point of Sale
+  posCustomer?: string;
+  posPrintTemplate?: string;
+
   static commonFilters = {
     // Auto Payments
     salesPaymentAccount: () => ({ isGroup: false, accountType: 'Cash' }),
@@ -73,12 +77,23 @@ export class Defaults extends Doc {
       type: ModelNameEnum.PurchaseReceipt,
     }),
     stockMovementPrintTemplate: () => ({ type: ModelNameEnum.StockMovement }),
+    // Point of Sale
+    posCustomer: () => ({
+      role: ['in', ['Customer', 'Both']],
+    }),
+    posPrintTemplate: () => ({
+      type: ModelNameEnum.SalesInvoice,
+    }),
   };
 
   static filters: FiltersMap = this.commonFilters;
   static createFilters: FiltersMap = this.commonFilters;
 
   getInventoryHidden() {
+    return () => !this.fyo.singles.AccountingSettings?.enableInventory;
+  }
+
+  getPOSHidden() {
     return () => !this.fyo.singles.AccountingSettings?.enableInventory;
   }
 
@@ -91,6 +106,12 @@ export class Defaults extends Doc {
     shipmentPrintTemplate: this.getInventoryHidden(),
     purchaseReceiptPrintTemplate: this.getInventoryHidden(),
     stockMovementPrintTemplate: this.getInventoryHidden(),
+    // Point of Sale
+    posCustomer: this.getPOSHidden(),
+    posInventory: this.getPOSHidden(),
+    posPrintTemplate: this.getPOSHidden(),
+    posAdjustmentAccount: this.getPOSHidden(),
+    posCashDenominations: this.getPOSHidden(),
   };
 }
 
