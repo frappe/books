@@ -345,12 +345,23 @@ function toRawFloat(value: DocValue, field: Field): number {
 }
 
 function toRawDate(value: DocValue, field: Field): string | null {
-  const dateTime = toRawDateTime(value, field);
-  if (dateTime === null) {
+  if (value === null) {
     return null;
   }
 
-  return dateTime.split('T')[0];
+  if (typeof value === 'string' || typeof value === 'number') {
+    value = new Date(value);
+  }
+
+  if (value instanceof DateTime) {
+    return value.toISODate();
+  }
+
+  if (value instanceof Date) {
+    return DateTime.fromJSDate(value).toISODate();
+  }
+
+  throwError(value, field, 'raw');
 }
 
 function toRawDateTime(value: DocValue, field: Field): string | null {
@@ -367,7 +378,7 @@ function toRawDateTime(value: DocValue, field: Field): string | null {
   }
 
   if (value instanceof DateTime) {
-    return (value as DateTime).toISO();
+    return value.toJSDate().toISOString();
   }
 
   throwError(value, field, 'raw');
