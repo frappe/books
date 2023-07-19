@@ -1,0 +1,21 @@
+{
+  "name": "PluginTemplate",
+  "label": "Plugin Template",
+  "isSingle": false,
+  "isChild": false,
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Test Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "value",
+      "label": "Test Value",
+      "fieldtype": "Data"
+    }
+  ],
+  "quickEditFields": ["name", "value"]
+}
