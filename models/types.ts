@@ -33,6 +33,7 @@ export enum ModelNameEnum {
   TaxDetail = 'TaxDetail',
   TaxSummary = 'TaxSummary',
   PatchRun = 'PatchRun',
+  Plugin = 'Plugin',
   SingleValue = 'SingleValue',
   InventorySettings = 'InventorySettings',
   SystemSettings = 'SystemSettings',

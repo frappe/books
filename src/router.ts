@@ -6,6 +6,7 @@ import ImportWizard from 'src/pages/ImportWizard.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
 import PrintView from 'src/pages/PrintView/PrintView.vue';
 import ReportPrintView from 'src/pages/PrintView/ReportPrintView.vue';
+import Plugin from 'src/pages/Plugin/Plugin.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
@@ -104,6 +105,12 @@ const routes: RouteRecordRaw[] = [
     path: '/template-builder/:name',
     name: 'Template Builder',
     component: TemplateBuilder,
+    props: true,
+  },
+  {
+    path: '/plugin/:name',
+    name: 'Plugin',
+    component: Plugin,
     props: true,
   },
   {

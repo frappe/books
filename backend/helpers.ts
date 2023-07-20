@@ -24,6 +24,7 @@ export const sqliteTypeMap: Record<string, KnexColumnType> = {
   Attachment: 'text',
   AttachImage: 'text',
   Color: 'text',
+  Blob: 'text', // base-64 encoded
 };
 
 export const SYSTEM = '__SYSTEM__';

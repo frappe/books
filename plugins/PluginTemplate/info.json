@@ -1,4 +1,5 @@
 {
   "name": "Plugin Template",
-  "description": "Template for a Frappe Books plugin that can be extended to create custom plugins"
+  "description": "Template for a Frappe Books plugin that can be extended to create custom plugins",
+  "version": "0.0.0"
 }

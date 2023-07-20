@@ -73,3 +73,11 @@ interface ModMap {
 export interface ConfigFilesWithModified extends ConfigFile {
   modified: string;
 }
+
+export type PluginInfo = {
+  name: string;
+  description: string;
+  date: string;
+  version: string;
+  books_version: string;
+};

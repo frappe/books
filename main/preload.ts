@@ -52,6 +52,13 @@ const ipc = {
     )) as SelectFileReturn;
   },
 
+  async getPluginData(filePath: string) {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.GET_PLUGIN_DATA,
+      filePath
+    )) as { name: string; info: string; data: string };
+  },
+
   async getSaveFilePath(options: SaveDialogOptions) {
     return (await ipcRenderer.invoke(
       IPC_ACTIONS.GET_SAVE_FILEPATH,

@@ -20,12 +20,17 @@ import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
 import { getTemplates } from './getPrintTemplates';
 import {
+  getAppPath,
   getConfigFilesWithModified,
   getErrorHandledReponse,
+  getInfoJsonFromZip,
+  getPluginFolderNameFromInfo,
   isNetworkError,
   setAndGetCleanedConfigFiles,
+  unzipFile,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
+import { ValueError } from 'fyo/utils/errors';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -41,16 +46,11 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.GET_DB_DEFAULT_PATH,
     async (_, companyName: string) => {
-      let root = app.getPath('documents');
-      if (main.isDevelopment) {
-        root = 'dbs';
-      }
-
-      const dbsPath = path.join(root, 'Frappe Books');
-      const backupPath = path.join(dbsPath, 'backups');
+      const appPath = getAppPath(main);
+      const backupPath = path.join(appPath, 'backups');
       await fs.ensureDir(backupPath);
 
-      return path.join(dbsPath, `${companyName}.books.db`);
+      return path.join(appPath, `${companyName}.books.db`);
     }
   );
 
@@ -247,5 +247,26 @@ export default function registerIpcMainActionListeners(main: Main) {
     return await getErrorHandledReponse(() => {
       return databaseManager.getSchemaMap();
     });
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_PLUGIN_DATA, (_, filePath: string) => {
+    const appPath = getAppPath(main);
+
+    const pluginsRoot = path.join(appPath, 'plugins');
+    const info = getInfoJsonFromZip(filePath);
+    if (!info) {
+      throw new ValueError('Info file info.json not found');
+    }
+
+    const pluginFolder = getPluginFolderNameFromInfo(info);
+    const pluginPath = path.join(pluginsRoot, pluginFolder);
+    fs.ensureDirSync(pluginPath);
+    unzipFile(filePath, pluginPath);
+
+    return {
+      name: info.name,
+      info: JSON.stringify(info),
+      data: fs.readFileSync(filePath).toString('base64'),
+    };
   });
 }

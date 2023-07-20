@@ -285,6 +285,11 @@ function getCompleteSidebar(): SidebarConfig {
           route: `/list/PrintTemplate/${t`Print Templates`}`,
         },
         {
+          label: t`Plugins`,
+          name: 'plugin',
+          route: `/list/Plugin/${t`Plugins`}`,
+        },
+        {
           label: t`Settings`,
           name: 'settings',
           route: '/settings',

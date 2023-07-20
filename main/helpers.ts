@@ -5,7 +5,10 @@ import { Main } from 'main';
 import config from 'utils/config';
 import { BackendResponse } from 'utils/ipc/types';
 import { IPC_CHANNELS } from 'utils/messages';
-import type { ConfigFilesWithModified } from 'utils/types';
+import AdmZip from 'adm-zip';
+import type { ConfigFilesWithModified, PluginInfo } from 'utils/types';
+import { app } from 'electron';
+import path from 'path';
 
 export async function setAndGetCleanedConfigFiles() {
   const files = config.get('files', []);
@@ -87,4 +90,33 @@ export function isNetworkError(error: Error) {
     default:
       return false;
   }
+}
+
+export function unzipFile(filePath: string, destPath: string) {
+  const zip = new AdmZip(filePath);
+  zip.extractAllTo(destPath, true);
+}
+
+export function getInfoJsonFromZip(filePath: string) {
+  const zip = new AdmZip(filePath);
+  const entry = zip.getEntry('info.json');
+  if (!entry) {
+    return;
+  }
+
+  const data = entry.getData();
+  return JSON.parse(data.toString('utf-8')) as PluginInfo;
+}
+
+export function getPluginFolderNameFromInfo({ name, version }: PluginInfo) {
+  return `${name.replaceAll(' ', '')}-${version}`;
+}
+
+export function getAppPath(main: Main) {
+  let root = app.getPath('documents');
+  if (main.isDevelopment) {
+    root = 'dbs';
+  }
+
+  return path.join(root, 'Frappe Books');
 }

@@ -1,0 +1,25 @@
+{
+  "name": "Plugin",
+  "label": "Plugin",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "label": "Name",
+      "required": true
+    },
+    {
+      "fieldname": "info",
+      "fieldtype": "Data",
+      "label": "Info",
+      "default": ""
+    },
+    {
+      "fieldname": "data",
+      "fieldtype": "Blob",
+      "label": "Data",
+      "hidden": true
+    }
+  ]
+}
