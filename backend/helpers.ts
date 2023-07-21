@@ -2,6 +2,7 @@ import { constants } from 'fs';
 import fs from 'fs/promises';
 import { DatabaseMethod } from 'utils/db/types';
 import { CUSTOM_EVENTS } from 'utils/messages';
+import { PluginInfo } from 'utils/types';
 import { KnexColumnType } from './database/types';
 
 export const sqliteTypeMap: Record<string, KnexColumnType> = {
@@ -85,4 +86,16 @@ export async function unlinkIfExists(filePath: unknown) {
   }
 
   return false;
+}
+
+export function getPluginFolderNameFromInfo(
+  { name, version }: PluginInfo,
+  noVersion = false
+) {
+  const folderPrefix = name.replaceAll(' ', '');
+  if (noVersion) {
+    return folderPrefix;
+  }
+
+  return `${folderPrefix}-${version}`;
 }

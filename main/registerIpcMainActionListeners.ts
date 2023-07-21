@@ -9,10 +9,14 @@ import {
 import { autoUpdater } from 'electron-updater';
 import { constants } from 'fs';
 import fs from 'fs-extra';
+import { ValueError } from 'fyo/utils/errors';
 import path from 'path';
 import { SelectFileOptions, SelectFileReturn } from 'utils/types';
 import databaseManager from '../backend/database/manager';
-import { emitMainProcessError } from '../backend/helpers';
+import {
+  emitMainProcessError,
+  getPluginFolderNameFromInfo,
+} from '../backend/helpers';
 import { Main } from '../main';
 import { DatabaseMethod } from '../utils/db/types';
 import { IPC_ACTIONS } from '../utils/messages';
@@ -24,13 +28,11 @@ import {
   getConfigFilesWithModified,
   getErrorHandledReponse,
   getInfoJsonFromZip,
-  getPluginFolderNameFromInfo,
   isNetworkError,
   setAndGetCleanedConfigFiles,
   unzipFile,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
-import { ValueError } from 'fyo/utils/errors';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
