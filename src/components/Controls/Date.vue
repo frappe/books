@@ -115,7 +115,7 @@ export default defineComponent({
       }
       this.showInput = false;
 
-      let value: Date | null = new Date(target.value);
+      let value: Date | null = DateTime.fromISO(target.value).toJSDate();
       if (Number.isNaN(value.valueOf())) {
         value = null;
       }
