@@ -184,11 +184,11 @@ function toDocDate(value: RawValue, field: Field) {
     return null;
   }
 
-  if (typeof value !== 'number' && typeof value !== 'string') {
+  if (typeof value !== 'string') {
     throwError(value, field, 'doc');
   }
 
-  const date = new Date(value);
+  const date = DateTime.fromISO(value).toJSDate();
   if (date.toString() === 'Invalid Date') {
     throwError(value, field, 'doc');
   }
@@ -353,12 +353,12 @@ function toRawDate(value: DocValue, field: Field): string | null {
     value = new Date(value);
   }
 
-  if (value instanceof DateTime) {
-    return value.toISODate();
-  }
-
   if (value instanceof Date) {
     return DateTime.fromJSDate(value).toISODate();
+  }
+
+  if (value instanceof DateTime) {
+    return value.toISODate();
   }
 
   throwError(value, field, 'raw');
