@@ -46,10 +46,9 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.GET_DB_DEFAULT_PATH,
     async (_, companyName: string) => {
-      const appPath = getAppPath(main);
-      const backupPath = path.join(appPath, 'backups');
+      const appPath = getAppPath();
+      const backupPath = getAppPath('backups');
       await fs.ensureDir(backupPath);
-
       return path.join(appPath, `${companyName}.books.db`);
     }
   );
@@ -250,9 +249,7 @@ export default function registerIpcMainActionListeners(main: Main) {
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_PLUGIN_DATA, (_, filePath: string) => {
-    const appPath = getAppPath(main);
-
-    const pluginsRoot = path.join(appPath, 'plugins');
+    const pluginsRoot = getAppPath('plugins');
     const info = getInfoJsonFromZip(filePath);
     if (!info) {
       throw new ValueError('Info file info.json not found');

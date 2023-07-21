@@ -1,7 +1,12 @@
 import BetterSQLite3 from 'better-sqlite3';
 import fs from 'fs-extra';
 import { DatabaseError } from 'fyo/utils/errors';
+import {
+  getRawPluginSchemaList,
+  unzipPluginsIfDoesNotExist,
+} from 'main/helpers';
 import path from 'path';
+import { SchemaStub } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getMapFromList } from 'utils/index';
 import { Version } from 'utils/version';
@@ -15,6 +20,7 @@ import { BespokeFunction, Patch } from './types';
 
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
+  rawPluginSchemaList?: SchemaStub[];
 
   get #isInitialized(): boolean {
     return this.db !== undefined && this.db.knex !== undefined;
@@ -22,10 +28,10 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
   getSchemaMap() {
     if (this.#isInitialized) {
-      return this.db?.schemaMap ?? getSchemas();
+      return this.db?.schemaMap ?? getSchemas('-', this.rawPluginSchemaList);
     }
 
-    return getSchemas();
+    return getSchemas('-', this.rawPluginSchemaList);
   }
 
   async createNewDatabase(dbPath: string, countryCode: string) {
@@ -43,7 +49,14 @@ export class DatabaseManager extends DatabaseDemuxBase {
     countryCode ??= await DatabaseCore.getCountryCode(dbPath);
     this.db = new DatabaseCore(dbPath);
     await this.db.connect();
-    const schemaMap = getSchemas(countryCode);
+    if (!this.db.knex) {
+      throw new DatabaseError('Database not connected');
+    }
+
+    await unzipPluginsIfDoesNotExist(this.db.knex);
+    this.rawPluginSchemaList = await getRawPluginSchemaList();
+
+    const schemaMap = getSchemas(countryCode, this.rawPluginSchemaList);
     this.db.setSchemaMap(schemaMap);
     return countryCode;
   }

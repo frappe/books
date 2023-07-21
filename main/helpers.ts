@@ -1,14 +1,16 @@
+import AdmZip from 'adm-zip';
+import { app } from 'electron';
 import { constants } from 'fs';
-import fs from 'fs/promises';
+import fs from 'fs-extra';
 import { ConfigFile } from 'fyo/core/types';
+import type { Knex } from 'knex';
 import { Main } from 'main';
+import path from 'path';
+import type { SchemaStub } from 'schemas/types';
 import config from 'utils/config';
 import { BackendResponse } from 'utils/ipc/types';
 import { IPC_CHANNELS } from 'utils/messages';
-import AdmZip from 'adm-zip';
 import type { ConfigFilesWithModified, PluginInfo } from 'utils/types';
-import { app } from 'electron';
-import path from 'path';
 
 export async function setAndGetCleanedConfigFiles() {
   const files = config.get('files', []);
@@ -108,15 +110,93 @@ export function getInfoJsonFromZip(filePath: string) {
   return JSON.parse(data.toString('utf-8')) as PluginInfo;
 }
 
-export function getPluginFolderNameFromInfo({ name, version }: PluginInfo) {
-  return `${name.replaceAll(' ', '')}-${version}`;
+export function getPluginFolderNameFromInfo(
+  { name, version }: PluginInfo,
+  noVersion = false
+) {
+  const folderPrefix = name.replaceAll(' ', '');
+  if (noVersion) {
+    return folderPrefix;
+  }
+
+  return `${folderPrefix}-${version}`;
 }
 
-export function getAppPath(main: Main) {
+export function getAppPath(type: 'root' | 'backups' | 'plugins' = 'root') {
   let root = app.getPath('documents');
-  if (main.isDevelopment) {
+  if (process.env.NODE_ENV === 'development') {
     root = 'dbs';
   }
 
-  return path.join(root, 'Frappe Books');
+  if (type === 'root') {
+    return path.join(root, 'Frappe Books');
+  }
+
+  return path.join(root, 'Frappe Books', type);
+}
+
+export async function unzipPluginsIfDoesNotExist(knex: Knex): Promise<void> {
+  const plugins = (await knex('Plugin').select(['name', 'info'])) as {
+    name: string;
+    info: string;
+  }[];
+
+  for (const { name, info: infoString } of plugins) {
+    const pluginsRootPath = getAppPath('plugins');
+    const info = JSON.parse(infoString) as PluginInfo;
+    const folderName = getPluginFolderNameFromInfo(info);
+    const pluginPath = path.join(pluginsRootPath, folderName);
+
+    if (fs.existsSync(pluginPath)) {
+      continue;
+    }
+
+    deletePluginFolder(info);
+    fs.ensureDirSync(pluginPath);
+    const data = (await knex('Plugin').select('data').where({ name })) as {
+      data: string;
+    }[];
+
+    const pluginZipBase64 = data[0].data;
+    const zipBuffer = Buffer.from(pluginZipBase64, 'base64');
+    const pluginFilePath = path.join(pluginPath, `${folderName}.books_plugin`);
+
+    fs.writeFileSync(pluginFilePath, zipBuffer);
+    const zip = new AdmZip(pluginFilePath);
+    zip.extractAllTo(pluginPath);
+  }
+}
+
+function deletePluginFolder(info: PluginInfo) {
+  const pluginsRootPath = getAppPath('plugins');
+  const folderNamePrefix = getPluginFolderNameFromInfo(info, true) + '-';
+  for (const folderName of fs.readdirSync(pluginsRootPath)) {
+    if (!folderName.startsWith(folderNamePrefix)) {
+      continue;
+    }
+
+    fs.removeSync(path.join(pluginsRootPath, folderName));
+  }
+}
+
+export async function getRawPluginSchemaList(): Promise<SchemaStub[]> {
+  const pluginsRoot = getAppPath('plugins');
+  const schemaStubs: SchemaStub[][] = [];
+  for (const pluginFolderName of fs.readdirSync(pluginsRoot)) {
+    const pluginPath = path.join(pluginsRoot, pluginFolderName);
+    const schemasJs = path.resolve(path.join(pluginPath, 'schemas.js'));
+    if (!fs.existsSync(schemasJs)) {
+      continue;
+    }
+
+    const {
+      default: { default: schema },
+    } = (await import(schemasJs)) as {
+      default: { default: SchemaStub[] };
+    };
+
+    schemaStubs.push(schema);
+  }
+
+  return schemaStubs.flat();
 }
