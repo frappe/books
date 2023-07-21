@@ -1,5 +1,5 @@
 <template>
- <div
+  <div
     class="relative bg-white border flex-center overflow-hidden group"
     :class="{
       rounded: size === 'form',

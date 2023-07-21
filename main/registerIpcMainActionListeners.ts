@@ -15,6 +15,7 @@ import { SelectFileOptions, SelectFileReturn } from 'utils/types';
 import databaseManager from '../backend/database/manager';
 import {
   emitMainProcessError,
+  getAppPath,
   getPluginFolderNameFromInfo,
 } from '../backend/helpers';
 import { Main } from '../main';
@@ -24,7 +25,6 @@ import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
 import { getTemplates } from './getPrintTemplates';
 import {
-  getAppPath,
   getConfigFilesWithModified,
   getErrorHandledReponse,
   getInfoJsonFromZip,

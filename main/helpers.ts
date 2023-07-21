@@ -1,10 +1,8 @@
 import AdmZip from 'adm-zip';
-import { app } from 'electron';
 import { constants } from 'fs';
 import fs from 'fs-extra';
 import { ConfigFile } from 'fyo/core/types';
 import { Main } from 'main';
-import path from 'path';
 import config from 'utils/config';
 import { BackendResponse } from 'utils/ipc/types';
 import { IPC_CHANNELS } from 'utils/messages';
@@ -106,19 +104,4 @@ export function getInfoJsonFromZip(filePath: string) {
 
   const data = entry.getData();
   return JSON.parse(data.toString('utf-8')) as PluginInfo;
-}
-
-export function getAppPath(type: 'root' | 'backups' | 'plugins' = 'root') {
-  let root: string;
-  if (process.env.NODE_ENV === 'development') {
-    root = 'dbs';
-  } else {
-    root = app.getPath('documents');
-  }
-
-  if (type === 'root') {
-    return path.join(root, 'Frappe Books');
-  }
-
-  return path.join(root, 'Frappe Books', type);
 }

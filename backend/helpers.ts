@@ -1,5 +1,7 @@
+import { app } from 'electron';
 import { constants } from 'fs';
 import fs from 'fs/promises';
+import path from 'path';
 import { DatabaseMethod } from 'utils/db/types';
 import { CUSTOM_EVENTS } from 'utils/messages';
 import { PluginInfo } from 'utils/types';
@@ -98,4 +100,22 @@ export function getPluginFolderNameFromInfo(
   }
 
   return `${folderPrefix}-${version}`;
+}
+
+export function getAppPath(type: 'root' | 'backups' | 'plugins' = 'root') {
+  /**
+   * app will be undefined if this function is not running in electron
+   */
+  let root: string;
+  if (process.env.NODE_ENV === 'development' || !app) {
+    root = 'dbs';
+  } else {
+    root = app.getPath('documents');
+  }
+
+  if (type === 'root') {
+    return path.join(root, 'Frappe Books');
+  }
+
+  return path.join(root, 'Frappe Books', type);
 }

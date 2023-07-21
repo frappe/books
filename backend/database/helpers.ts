@@ -1,9 +1,8 @@
 import AdmZip from 'adm-zip';
-import { getPluginFolderNameFromInfo } from 'backend/helpers';
+import { getAppPath, getPluginFolderNameFromInfo } from 'backend/helpers';
 import fs from 'fs-extra';
 import { DatabaseError } from 'fyo/utils/errors';
 import type { Knex } from 'knex';
-import { getAppPath } from 'main/helpers';
 import path from 'path';
 import { getSchemas } from 'schemas/index';
 import { SchemaStub } from 'schemas/types';
