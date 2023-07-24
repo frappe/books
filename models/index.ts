@@ -33,7 +33,6 @@ import { ShipmentItem } from './inventory/ShipmentItem';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
-import { Plugin } from './baseModels/Plugin';
 
 export const models = {
   Account,
@@ -47,7 +46,6 @@ export const models = {
   JournalEntryAccount,
   Misc,
   Party,
-  Plugin,
   Payment,
   PaymentFor,
   PrintSettings,

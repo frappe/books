@@ -6,7 +6,7 @@ import { t } from 'fyo/utils/translation';
 import { SelectOption } from 'schemas/types';
 import { getCountryInfo } from 'utils/misc';
 
-export default class SystemSettings extends Doc {
+export class SystemSettings extends Doc {
   dateFormat?: string;
   locale?: string;
   displayPrecision?: number;

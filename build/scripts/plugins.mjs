@@ -90,8 +90,7 @@ async function buildPlugin(pluginName) {
       sourcemap: 'inline',
       sourcesContent: false,
       bundle: true,
-      platform: 'node',
-      target: 'node16',
+      ...getSpecificConfig(key),
       outfile: path.join(pluginBuildPath, `${key}.js`),
       external: ['knex', 'electron', 'better-sqlite3', 'electron-store'],
       plugins: [excludeVendorFromSourceMap],
@@ -106,6 +105,14 @@ async function buildPlugin(pluginName) {
   }
 
   await createPluginPackage(pluginName, pluginBuildPath);
+}
+
+function getSpecificConfig(key) {
+  if (key === 'schemas') {
+    return { platform: 'node', target: 'node16', format: 'cjs' };
+  }
+
+  return { platform: 'browser', target: 'chrome100', format: 'esm' };
 }
 
 async function createPluginPackage(pluginName, pluginBuildPath) {

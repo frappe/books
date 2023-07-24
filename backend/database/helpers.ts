@@ -8,6 +8,7 @@ import { getSchemas } from 'schemas/index';
 import { SchemaStub } from 'schemas/types';
 import { PluginInfo } from 'utils/types';
 import type DatabaseCore from './core';
+import { PluginConfig } from './types';
 
 export async function executeFirstMigration(
   db: DatabaseCore,
@@ -36,9 +37,14 @@ export async function getIsFirstRun(knex: Knex): Promise<boolean> {
 }
 
 export async function getPluginInfoList(knex: Knex): Promise<PluginInfo[]> {
-  const plugins = (await knex('Plugin').select(['info'])) as {
-    info: string;
-  }[];
+  let plugins: { info: string }[];
+  try {
+    plugins = (await knex('Plugin').select(['info'])) as {
+      info: string;
+    }[];
+  } catch {
+    return [];
+  }
 
   return plugins.map(({ info }) => JSON.parse(info) as PluginInfo);
 }
@@ -77,7 +83,12 @@ export async function unzipPluginsIfDoesNotExist(
 function deletePluginFolder(info: PluginInfo) {
   const pluginsRootPath = getAppPath('plugins');
   const folderNamePrefix = getPluginFolderNameFromInfo(info, true) + '-';
-  for (const folderName of fs.readdirSync(pluginsRootPath)) {
+  let folderNames: string[] = [];
+  try {
+    folderNames = fs.readdirSync(pluginsRootPath);
+  } catch {}
+
+  for (const folderName of folderNames) {
     if (!folderName.startsWith(folderNamePrefix)) {
       continue;
     }
@@ -86,44 +97,47 @@ function deletePluginFolder(info: PluginInfo) {
   }
 }
 
-export async function getRawPluginSchemaList(
-  infoList: PluginInfo[]
-): Promise<SchemaStub[]> {
-  const pluginsRoot = getAppPath('plugins');
-  const schemaStubs: SchemaStub[][] = [];
-  const folderSet = new Set(
-    infoList.map((info) => getPluginFolderNameFromInfo(info))
-  );
+export async function getPluginConfig(info: PluginInfo): Promise<PluginConfig> {
+  const folderName = getPluginFolderNameFromInfo(info);
+  const pluginRoot = path.join(getAppPath('plugins'), folderName);
 
-  if (!fs.existsSync(pluginsRoot)) {
-    return [];
+  const config: PluginConfig = {
+    info,
+    schemas: [],
+    paths: {
+      folderName,
+      root: pluginRoot,
+    },
+  };
+
+  const schemasPath = path.resolve(pluginRoot, 'schemas.js');
+  if (fs.existsSync(schemasPath)) {
+    config.paths.schemas = schemasPath;
+    config.schemas = await importSchemas(schemasPath);
   }
 
-  for (const pluginFolderName of fs.readdirSync(pluginsRoot)) {
-    if (!folderSet.has(pluginFolderName)) {
-      continue;
-    }
+  const modelsPath = path.resolve(pluginRoot, 'models.js');
+  if (fs.existsSync(schemasPath)) {
+    config.paths.models = modelsPath;
+  }
 
-    const pluginPath = path.join(pluginsRoot, pluginFolderName);
-    const schemasJs = path.resolve(path.join(pluginPath, 'schemas.js'));
-    if (!fs.existsSync(schemasJs)) {
-      continue;
-    }
+  return config;
+}
 
+async function importSchemas(schemasPath: string): Promise<SchemaStub[]> {
+  try {
     const {
-      default: { default: schemas },
-    } = (await import(schemasJs)) as {
+      default: { default: exportedSchemas },
+    } = (await import(schemasPath)) as {
       default: { default: unknown };
     };
 
-    if (!isSchemaStubList(schemas)) {
-      continue;
+    if (isSchemaStubList(exportedSchemas)) {
+      return exportedSchemas;
     }
+  } catch {}
 
-    schemaStubs.push(schemas);
-  }
-
-  return schemaStubs.flat();
+  return [];
 }
 
 function isSchemaStubList(schemas: unknown): schemas is SchemaStub[] {

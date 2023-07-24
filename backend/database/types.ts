@@ -1,5 +1,6 @@
-import { Field, RawValue } from '../../schemas/types';
-import DatabaseCore from './core';
+import { PluginInfo } from 'utils/types';
+import { Field, RawValue, SchemaStub } from '../../schemas/types';
+import type DatabaseCore from './core';
 import { DatabaseManager } from './manager';
 
 export interface GetQueryBuilderOptions {
@@ -80,3 +81,14 @@ export type SingleValue<T> = {
   parent: string;
   value: T;
 }[];
+
+export type PluginConfig = {
+  info: PluginInfo;
+  schemas: SchemaStub[];
+  paths: {
+    root: string;
+    schemas?: string;
+    models?: string;
+    folderName: string;
+  };
+};

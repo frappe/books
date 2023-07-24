@@ -33,6 +33,7 @@ import {
   unzipFile,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
+import manager from '../backend/database/manager';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -267,5 +268,15 @@ export default function registerIpcMainActionListeners(main: Main) {
       info: JSON.stringify(info),
       data: fs.readFileSync(filePath).toString('base64'),
     };
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_PLUGIN_MODULES, () => {
+    if (main.isTest) {
+      return [];
+    }
+
+    return manager.plugins
+      .map(({ paths }) => paths.models)
+      .filter(Boolean) as string[];
   });
 }

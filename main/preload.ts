@@ -59,6 +59,12 @@ const ipc = {
     )) as { name: string; info: string; data: string };
   },
 
+  async getPluginModules() {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.GET_PLUGIN_MODULES
+    )) as string[];
+  },
+
   async getSaveFilePath(options: SaveDialogOptions) {
     return (await ipcRenderer.invoke(
       IPC_ACTIONS.GET_SAVE_FILEPATH,

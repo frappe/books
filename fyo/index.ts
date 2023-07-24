@@ -26,6 +26,8 @@ export class Fyo {
   t = t;
   T = T;
 
+  Doc = Doc;
+
   errors = errors;
   isElectron: boolean;
 
@@ -112,7 +114,8 @@ export class Fyo {
     await this.#initializeModules();
     await this.#initializeMoneyMaker();
 
-    this.doc.registerModels(models, regionalModels);
+    this.doc.registerModels(models);
+    this.doc.registerModels(regionalModels);
     await this.doc.getDoc('SystemSettings');
     this._initialized = true;
   }

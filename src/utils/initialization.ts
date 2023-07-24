@@ -33,6 +33,7 @@ export async function initializeInstance(
   await setInstanceId(fyo);
   await setOpenCount(fyo);
   await setCurrencySymbols(fyo);
+  await loadPlugins(fyo);
 }
 
 async function closeDbIfConnected(fyo: Fyo) {
@@ -184,4 +185,40 @@ function getOpenCountFromFiles(fyo: Fyo) {
   }
 
   return null;
+}
+
+async function loadPlugins(fyo: Fyo) {
+  /**
+   * Property `ipc` is set by the preload script. This
+   * doesn't run when Frappe Books is not running in electron.
+   */
+  if (!fyo.isElectron || !ipc?.getPluginModules) {
+    return;
+  }
+
+  const srcs = await ipc.getPluginModules();
+  for (const src of srcs) {
+    const module = document.createElement('script');
+    module.setAttribute('type', 'module');
+    module.setAttribute('src', src);
+
+    const loadPromise = new Promise<void>((resolve) => {
+      module.onload = async () => {
+        const { default: initialize } = (await import(
+          src /* @vite-ignore */
+        )) as {
+          default: (fyo: Fyo) => Promise<void>;
+        };
+
+        if (typeof initialize !== 'function') {
+          resolve();
+        }
+
+        await initialize(fyo);
+        resolve();
+      };
+    });
+    document.body.appendChild(module);
+    await loadPromise;
+  }
 }

@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import NumberSeries from 'fyo/models/NumberSeries';
+import { NumberSeries } from 'fyo/models/NumberSeries';
 import { DEFAULT_SERIES_START } from 'fyo/utils/consts';
 import { BaseError } from 'fyo/utils/errors';
 import { getRandomString } from 'utils';

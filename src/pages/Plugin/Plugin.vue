@@ -16,11 +16,11 @@
   </div>
 </template>
 <script lang="ts">
-import { Plugin } from 'models/baseModels/Plugin';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader.vue';
 import Button from 'src/components/Button.vue';
 import { defineComponent } from 'vue';
+import { Plugin } from 'fyo/models/Plugin';
 
 export default defineComponent({
   components: { PageHeader, Button },

@@ -27,6 +27,7 @@ export enum IPC_ACTIONS {
   DELETE_FILE = 'delete-file',
   GET_DB_DEFAULT_PATH = 'get-db-default-path',
   GET_PLUGIN_DATA = 'get-plugin-data',
+  GET_PLUGIN_MODULES = 'get-plugin-modules',
   // Database messages
   DB_CREATE = 'db-create',
   DB_CONNECT = 'db-connect',

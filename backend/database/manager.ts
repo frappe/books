@@ -13,15 +13,16 @@ import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
 import {
   executeFirstMigration,
+  getPluginConfig,
   getPluginInfoList,
-  getRawPluginSchemaList,
   unzipPluginsIfDoesNotExist,
 } from './helpers';
 import { runPatches } from './runPatch';
-import { BespokeFunction, Patch } from './types';
+import { BespokeFunction, Patch, PluginConfig } from './types';
 
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
+  plugins: PluginConfig[] = [];
   rawPluginSchemaList?: SchemaStub[];
 
   get #isInitialized(): boolean {
@@ -54,15 +55,29 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }
 
     await executeFirstMigration(this.db, countryCode);
-    const infoList = await getPluginInfoList(this.db.knex);
-    await unzipPluginsIfDoesNotExist(this.db.knex, infoList);
-    this.rawPluginSchemaList = await getRawPluginSchemaList(infoList);
-
+    await this.initializePlugins();
     const schemaMap = getSchemas(countryCode, this.rawPluginSchemaList);
     this.db.setSchemaMap(schemaMap);
 
     await this.#executeMigration();
     return countryCode;
+  }
+
+  async initializePlugins() {
+    if (!this.db?.knex) {
+      return;
+    }
+
+    const infoList = await getPluginInfoList(this.db.knex);
+    await unzipPluginsIfDoesNotExist(this.db.knex, infoList);
+
+    this.plugins = [];
+    for (const info of infoList) {
+      const config = await getPluginConfig(info);
+      this.plugins.push(config);
+    }
+
+    this.rawPluginSchemaList = this.plugins.map((p) => p.schemas).flat();
   }
 
   async #executeMigration() {
