@@ -160,7 +160,7 @@ export default defineComponent({
       }
 
       const filters = getCreateFiltersFromListViewFilters(this.filters ?? {});
-      const doc = fyo.doc.getNewDoc(this.schemaName, filters);
+      const doc = fyo.doc.new(this.schemaName, filters);
       const route = getFormRoute(this.schemaName, doc.name!);
       await routeTo(route);
     },

@@ -50,7 +50,7 @@ async function setSingles(fyo: Fyo) {
       continue;
     }
 
-    await fyo.doc.getDoc(schema.name);
+    await fyo.doc.get(schema.name);
   }
 }
 
@@ -121,7 +121,7 @@ async function setVersion(fyo: Fyo) {
 
   const { appVersion } = fyo.store;
   if (version !== appVersion) {
-    const systemSettings = await fyo.doc.getDoc(ModelNameEnum.SystemSettings);
+    const systemSettings = await fyo.doc.get(ModelNameEnum.SystemSettings);
     await systemSettings?.setAndSync('version', appVersion);
   }
 }
@@ -137,7 +137,7 @@ function setDeviceId(fyo: Fyo) {
 }
 
 async function setInstanceId(fyo: Fyo) {
-  const systemSettings = await fyo.doc.getDoc(ModelNameEnum.SystemSettings);
+  const systemSettings = await fyo.doc.get(ModelNameEnum.SystemSettings);
   if (!systemSettings.instanceId) {
     await systemSettings.setAndSync('instanceId', getRandomString());
   }
@@ -161,7 +161,7 @@ export async function setCurrencySymbols(fyo: Fyo) {
 }
 
 async function setOpenCount(fyo: Fyo) {
-  const misc = await fyo.doc.getDoc(ModelNameEnum.Misc);
+  const misc = await fyo.doc.get(ModelNameEnum.Misc);
   let openCount = misc.openCount as number | null;
 
   if (typeof openCount !== 'number') {
@@ -218,7 +218,7 @@ async function loadPlugins(fyo: Fyo) {
         resolve();
       };
     });
-    document.body.appendChild(module);
+    document.head.appendChild(module);
     await loadPromise;
   }
 }

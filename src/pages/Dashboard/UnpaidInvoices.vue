@@ -216,7 +216,7 @@ export default defineComponent({
       this.barWidth = (this.paid / (this.total || 1)) * 100;
     },
     async newInvoice() {
-      const doc = fyo.doc.getNewDoc(this.schemaName);
+      const doc = fyo.doc.new(this.schemaName);
       await routeTo(`/edit/${this.schemaName}/${doc.name!}`);
     },
 

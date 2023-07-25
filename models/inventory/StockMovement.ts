@@ -156,7 +156,7 @@ async function validateSerialNumberStatus(doc: StockMovement) {
       continue;
     }
 
-    const snDoc = await doc.fyo.doc.getDoc(
+    const snDoc = await doc.fyo.doc.get(
       ModelNameEnum.SerialNumber,
       serialNumber
     );

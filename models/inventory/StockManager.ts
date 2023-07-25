@@ -309,7 +309,7 @@ class StockManagerItem {
     quantity: number,
     serialNumber?: string
   ): StockLedgerEntry {
-    return this.fyo.doc.getNewDoc(ModelNameEnum.StockLedgerEntry, {
+    return this.fyo.doc.new(ModelNameEnum.StockLedgerEntry, {
       date: this.date,
       item: this.item,
       rate: this.rate,

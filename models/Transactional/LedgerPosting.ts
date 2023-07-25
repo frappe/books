@@ -90,7 +90,7 @@ export class LedgerPosting {
       return map[account];
     }
 
-    const ledgerEntry = this.fyo.doc.getNewDoc(
+    const ledgerEntry = this.fyo.doc.new(
       ModelNameEnum.AccountingLedgerEntry,
       {
         account: account,
@@ -162,7 +162,7 @@ export class LedgerPosting {
     })) as { name: string }[];
 
     for (const { name } of data) {
-      const doc = (await this.fyo.doc.getDoc(
+      const doc = (await this.fyo.doc.get(
         'AccountingLedgerEntry',
         name
       )) as AccountingLedgerEntry;

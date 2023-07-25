@@ -362,13 +362,13 @@ export async function getDocFromNameIfExistsElseNew(
   name?: string
 ) {
   if (!name) {
-    return fyo.doc.getNewDoc(schemaName);
+    return fyo.doc.new(schemaName);
   }
 
   try {
-    return await fyo.doc.getDoc(schemaName, name);
+    return await fyo.doc.get(schemaName, name);
   } catch {
-    return fyo.doc.getNewDoc(schemaName);
+    return fyo.doc.new(schemaName);
   }
 }
 

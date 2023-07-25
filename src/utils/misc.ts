@@ -68,13 +68,7 @@ export function getSetupWizardDoc(languageMap?: LanguageMap) {
   if (languageMap) {
     translateSchema(schema, languageMap, schemaTranslateables);
   }
-  return fyo.doc.getNewDoc(
-    'SetupWizard',
-    {},
-    false,
-    schema as Schema,
-    SetupWizard
-  );
+  return fyo.doc.new('SetupWizard', {}, false, schema as Schema, SetupWizard);
 }
 
 export function updateConfigFiles(fyo: Fyo): ConfigFile {

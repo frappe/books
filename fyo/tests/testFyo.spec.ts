@@ -28,7 +28,7 @@ test('Fyo Docs', async (t) => {
       continue;
     }
 
-    const doc = fyo.doc.getNewDoc(schemaName);
+    const doc = fyo.doc.new(schemaName);
     t.equal(doc.schemaName, schemaName, `equal schemaNames: ${schemaName}`);
   }
 

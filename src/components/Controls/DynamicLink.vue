@@ -83,7 +83,7 @@ export default {
       const filters = await this.getCreateFilters();
       const { openQuickEdit } = await import('src/utils/ui');
 
-      const doc = fyo.doc.getNewDoc(schemaName, { name, ...filters });
+      const doc = fyo.doc.new(schemaName, { name, ...filters });
       openQuickEdit({ doc });
 
       doc.once('afterSync', () => {

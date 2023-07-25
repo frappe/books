@@ -73,7 +73,7 @@ export class Account extends Doc {
     return {
       parentField: 'parentAccount',
       async getRootLabel(): Promise<string> {
-        const accountingSettings = await fyo.doc.getDoc('AccountingSettings');
+        const accountingSettings = await fyo.doc.get('AccountingSettings');
         return accountingSettings.companyName as string;
       },
     };

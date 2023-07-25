@@ -30,9 +30,9 @@ export default defineComponent({
   },
   async mounted() {
     if (this.name) {
-      this.doc = await this.fyo.doc.getDoc(ModelNameEnum.Plugin, this.name);
+      this.doc = await this.fyo.doc.get(ModelNameEnum.Plugin, this.name);
     } else {
-      this.doc = this.fyo.doc.getNewDoc(ModelNameEnum.Plugin);
+      this.doc = this.fyo.doc.new(ModelNameEnum.Plugin);
     }
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore

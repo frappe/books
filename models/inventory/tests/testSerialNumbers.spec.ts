@@ -52,16 +52,16 @@ test('create dummy items, locations, party & serialNumbers', async (t) => {
   // Create Items
   for (const { name, rate } of Object.values(itemMap)) {
     const item = getItem(name, rate, false, true);
-    await fyo.doc.getNewDoc(ModelNameEnum.Item, item).sync();
+    await fyo.doc.new(ModelNameEnum.Item, item).sync();
   }
 
   // Create Locations
   for (const name of Object.values(locationMap)) {
-    await fyo.doc.getNewDoc(ModelNameEnum.Location, { name }).sync();
+    await fyo.doc.new(ModelNameEnum.Location, { name }).sync();
   }
 
   // Create Party
-  await fyo.doc.getNewDoc(ModelNameEnum.Party, partyMap.partyOne).sync();
+  await fyo.doc.new(ModelNameEnum.Party, partyMap.partyOne).sync();
 
   t.ok(
     await fyo.db.exists(ModelNameEnum.Party, partyMap.partyOne.name),
@@ -70,7 +70,7 @@ test('create dummy items, locations, party & serialNumbers', async (t) => {
 
   // Create SerialNumbers
   for (const serialNumber of Object.values(serialNumberMap)) {
-    const doc = fyo.doc.getNewDoc(ModelNameEnum.SerialNumber, serialNumber);
+    const doc = fyo.doc.new(ModelNameEnum.SerialNumber, serialNumber);
     await doc.sync();
 
     const status = await fyo.getValue(
@@ -358,7 +358,7 @@ test('Material Receipt, auto creation of Serial Number', async (t) => {
   await (await doc.sync()).submit();
   for (const sn of serialNumbers) {
     await assertDoesNotThrow(async () => {
-      const sndoc = await fyo.doc.getDoc(ModelNameEnum.SerialNumber, sn);
+      const sndoc = await fyo.doc.get(ModelNameEnum.SerialNumber, sn);
       t.equal(sndoc.status, 'Active', `Serial Number ${sn} updated to Active`);
     }, `SerialNumber ${sn} exists`);
   }

@@ -62,8 +62,8 @@ export async function setupDummyInstance(
 }
 
 async function setOtherSettings(fyo: Fyo) {
-  const doc = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
-  const address = fyo.doc.getNewDoc(ModelNameEnum.Address);
+  const doc = await fyo.doc.get(ModelNameEnum.PrintSettings);
+  const address = fyo.doc.new(ModelNameEnum.Address);
   await address.setAndSync({
     addressLine1: '1st Column, Fitzgerald Bridge',
     city: 'Pune',
@@ -82,7 +82,7 @@ async function setOtherSettings(fyo: Fyo) {
     address: address.name,
   });
 
-  const acc = await fyo.doc.getDoc(ModelNameEnum.AccountingSettings);
+  const acc = await fyo.doc.get(ModelNameEnum.AccountingSettings);
   await acc.setAndSync({
     gstin: '27LIN180000A1Z5',
   });
@@ -129,7 +129,7 @@ async function getJournalEntries(fyo: Fyo, salesInvoices: SalesInvoice[]) {
   const date = DateTime.fromJSDate(lastInv).minus({ months: 6 }).toJSDate();
 
   // Bank Entry
-  let doc = fyo.doc.getNewDoc(
+  let doc = fyo.doc.new(
     ModelNameEnum.JournalEntry,
     {
       date,
@@ -151,7 +151,7 @@ async function getJournalEntries(fyo: Fyo, salesInvoices: SalesInvoice[]) {
   entries.push(doc);
 
   // Cash Entry
-  doc = fyo.doc.getNewDoc(
+  doc = fyo.doc.new(
     ModelNameEnum.JournalEntry,
     {
       date,
@@ -183,7 +183,7 @@ async function getPayments(fyo: Fyo, invoices: Invoice[]) {
       continue;
     }
 
-    const doc = fyo.doc.getNewDoc(ModelNameEnum.Payment, {}, false) as Payment;
+    const doc = fyo.doc.new(ModelNameEnum.Payment, {}, false) as Payment;
     doc.party = invoice.party as string;
     doc.paymentType = invoice.isSales ? 'Receive' : 'Pay';
     doc.paymentMethod = 'Cash';
@@ -260,7 +260,7 @@ async function getSalesInvoices(
     );
     const customer = sample(customers);
 
-    const doc = fyo.doc.getNewDoc(
+    const doc = fyo.doc.new(
       ModelNameEnum.SalesInvoice,
       {
         date,
@@ -405,7 +405,7 @@ async function getSalesPurchaseInvoices(
      * For each supplier create a Purchase Invoice
      */
     for (const supplier in supplierGrouped) {
-      const doc = fyo.doc.getNewDoc(
+      const doc = fyo.doc.new(
         ModelNameEnum.PurchaseInvoice,
         {
           date,
@@ -461,7 +461,7 @@ async function getNonSalesPurchaseInvoices(
         continue;
       }
 
-      const doc = fyo.doc.getNewDoc(
+      const doc = fyo.doc.new(
         ModelNameEnum.PurchaseInvoice,
         {
           date,
@@ -506,14 +506,14 @@ async function generateStaticEntries(fyo: Fyo) {
 
 async function generateItems(fyo: Fyo) {
   for (const item of items) {
-    const doc = fyo.doc.getNewDoc('Item', item, false);
+    const doc = fyo.doc.new('Item', item, false);
     await doc.sync();
   }
 }
 
 async function generateParties(fyo: Fyo) {
   for (const party of parties) {
-    const doc = fyo.doc.getNewDoc('Party', party, false);
+    const doc = fyo.doc.new('Party', party, false);
     await doc.sync();
   }
 }

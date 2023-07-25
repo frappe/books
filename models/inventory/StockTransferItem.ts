@@ -87,10 +87,7 @@ export class StockTransferItem extends TransferItem {
           return this.quantity as number;
         }
 
-        const itemDoc = await this.fyo.doc.getDoc(
-          ModelNameEnum.Item,
-          this.item
-        );
+        const itemDoc = await this.fyo.doc.get(ModelNameEnum.Item, this.item);
         const unitDoc = itemDoc.getLink('uom');
 
         let quantity: number = this.quantity ?? 1;

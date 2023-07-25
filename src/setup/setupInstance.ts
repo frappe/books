@@ -92,7 +92,7 @@ async function updateAccountingSettings(
   }: SetupWizardOptions,
   fyo: Fyo
 ) {
-  const accountingSettings = (await fyo.doc.getDoc(
+  const accountingSettings = (await fyo.doc.get(
     'AccountingSettings'
   )) as AccountingSettings;
   await accountingSettings.setAndSync({
@@ -111,7 +111,7 @@ async function updatePrintSettings(
   { logo, companyName, email }: SetupWizardOptions,
   fyo: Fyo
 ) {
-  const printSettings = await fyo.doc.getDoc('PrintSettings');
+  const printSettings = await fyo.doc.get('PrintSettings');
   await printSettings.setAndSync({
     logo,
     companyName,
@@ -130,7 +130,7 @@ async function updateSystemSettings(
     companyCurrency ?? countryOptions.currency ?? DEFAULT_CURRENCY;
   const locale = countryOptions.locale ?? DEFAULT_LOCALE;
   const countryCode = getCountryCodeFromCountry(country);
-  const systemSettings = await fyo.doc.getDoc('SystemSettings');
+  const systemSettings = await fyo.doc.get('SystemSettings');
   const instanceId = getRandomString();
 
   await systemSettings.setAndSync({
@@ -260,7 +260,7 @@ async function checkAndCreateDoc(
     return;
   }
 
-  const doc = fyo.doc.getNewDoc(schemaName, docObject);
+  const doc = fyo.doc.new(schemaName, docObject);
   return doc.sync();
 }
 
@@ -347,7 +347,7 @@ async function createDefaultNumberSeries(fyo: Fyo) {
 }
 
 async function updateInventorySettings(fyo: Fyo) {
-  const inventorySettings = (await fyo.doc.getDoc(
+  const inventorySettings = (await fyo.doc.get(
     ModelNameEnum.InventorySettings
   )) as InventorySettings;
 

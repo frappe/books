@@ -469,7 +469,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     const childSchemaName = (this.fieldMap[fieldname] as TargetField).target;
-    const childDoc = this.fyo.doc.getNewDoc(
+    const childDoc = this.fyo.doc.new(
       childSchemaName,
       docValueMap,
       false,
@@ -667,7 +667,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _loadLinkDoc(fieldname: string, schemaName: string, name: string) {
-    this.links![fieldname] = await this.fyo.doc.getDoc(schemaName, name);
+    this.links![fieldname] = await this.fyo.doc.get(schemaName, name);
   }
 
   getLink(fieldname: string): Doc | null {
@@ -1037,7 +1037,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       updateMap
     ) as RawValueMap;
 
-    return this.fyo.doc.getNewDoc(this.schemaName, rawUpdateMap, true);
+    return this.fyo.doc.new(this.schemaName, rawUpdateMap, true);
   }
 
   /**

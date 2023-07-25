@@ -85,7 +85,7 @@ export class Item extends Doc {
         label: fyo.t`Sales Invoice`,
         condition: (doc) => !doc.notInserted && doc.for !== 'Purchases',
         action: async (doc, router) => {
-          const invoice = fyo.doc.getNewDoc('SalesInvoice');
+          const invoice = fyo.doc.new('SalesInvoice');
           await invoice.append('items', {
             item: doc.name as string,
             rate: doc.rate as Money,
@@ -99,7 +99,7 @@ export class Item extends Doc {
         label: fyo.t`Purchase Invoice`,
         condition: (doc) => !doc.notInserted && doc.for !== 'Sales',
         action: async (doc, router) => {
-          const invoice = fyo.doc.getNewDoc('PurchaseInvoice');
+          const invoice = fyo.doc.new('PurchaseInvoice');
           await invoice.append('items', {
             item: doc.name as string,
             rate: doc.rate as Money,

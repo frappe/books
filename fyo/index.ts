@@ -116,7 +116,7 @@ export class Fyo {
 
     this.doc.registerModels(models);
     this.doc.registerModels(regionalModels);
-    await this.doc.getDoc('SystemSettings');
+    await this.doc.get('SystemSettings');
     this._initialized = true;
   }
 
@@ -190,7 +190,7 @@ export class Fyo {
     let doc: Doc;
     let value: DocValue | Doc[];
     try {
-      doc = await this.doc.getDoc(schemaName, name);
+      doc = await this.doc.get(schemaName, name);
       value = doc.get(fieldname);
     } catch (err) {
       value = undefined;

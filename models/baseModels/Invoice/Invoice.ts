@@ -143,7 +143,7 @@ export abstract class Invoice extends Transactional {
       outstandingAmount: this.baseGrandTotal!,
     });
 
-    const party = (await this.fyo.doc.getDoc('Party', this.party)) as Party;
+    const party = (await this.fyo.doc.get('Party', this.party)) as Party;
     await party.updateOutstandingAmount();
 
     if (this.makeAutoPayment && this.autoPaymentAccount) {
@@ -170,7 +170,7 @@ export abstract class Invoice extends Transactional {
   async _cancelPayments() {
     const paymentIds = await this.getPaymentIds();
     for (const paymentId of paymentIds) {
-      const paymentDoc = (await this.fyo.doc.getDoc(
+      const paymentDoc = (await this.fyo.doc.get(
         'Payment',
         paymentId
       )) as Payment;
@@ -179,7 +179,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async _updatePartyOutStanding() {
-    const partyDoc = (await this.fyo.doc.getDoc(
+    const partyDoc = (await this.fyo.doc.get(
       ModelNameEnum.Party,
       this.party
     )) as Party;
@@ -191,7 +191,7 @@ export abstract class Invoice extends Transactional {
     await super.afterDelete();
     const paymentIds = await this.getPaymentIds();
     for (const name of paymentIds) {
-      const paymentDoc = await this.fyo.doc.getDoc(ModelNameEnum.Payment, name);
+      const paymentDoc = await this.fyo.doc.get(ModelNameEnum.Payment, name);
       await paymentDoc.delete();
     }
   }
@@ -290,7 +290,7 @@ export abstract class Invoice extends Transactional {
 
   async getTax(tax: string) {
     if (!this._taxes[tax]) {
-      this._taxes[tax] = await this.fyo.doc.getDoc('Tax', tax);
+      this._taxes[tax] = await this.fyo.doc.get('Tax', tax);
     }
 
     return this._taxes[tax];
@@ -616,7 +616,7 @@ export abstract class Invoice extends Transactional {
       data[autoPaymentAccount] = this.autoPaymentAccount;
     }
 
-    return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
+    return this.fyo.doc.new(ModelNameEnum.Payment, data) as Payment;
   }
 
   async getStockTransfer(isAuto = false): Promise<StockTransfer | null> {
@@ -658,7 +658,7 @@ export abstract class Invoice extends Transactional {
       return null;
     }
 
-    const transfer = this.fyo.doc.getNewDoc(schemaName, data) as StockTransfer;
+    const transfer = this.fyo.doc.new(schemaName, data) as StockTransfer;
     for (const row of this.items ?? []) {
       if (!row.item) {
         continue;
@@ -733,7 +733,7 @@ export abstract class Invoice extends Transactional {
     const transfers = await this._getLinkedStockTransferNames(true);
 
     for (const { name } of transfers) {
-      const st = await this.fyo.doc.getDoc(schemaName, name);
+      const st = await this.fyo.doc.get(schemaName, name);
       await st.delete();
     }
   }

@@ -130,7 +130,7 @@ async function validateItemRowSerialNumber(
       continue;
     }
 
-    const snDoc = await row.fyo.doc.getDoc(
+    const snDoc = await row.fyo.doc.get(
       ModelNameEnum.SerialNumber,
       serialNumber
     );
@@ -208,7 +208,7 @@ export async function createSerialNumbers(doc: Transfer) {
       continue;
     }
 
-    const snDoc = doc.fyo.doc.getNewDoc(ModelNameEnum.SerialNumber, {
+    const snDoc = doc.fyo.doc.new(ModelNameEnum.SerialNumber, {
       name: serialNumber,
       item,
     });
@@ -262,7 +262,7 @@ async function updateSerialNumberStatus(
   fyo: Fyo
 ) {
   for (const name of getSerialNumbers(serialNumber)) {
-    const doc = await fyo.doc.getDoc(ModelNameEnum.SerialNumber, name);
+    const doc = await fyo.doc.get(ModelNameEnum.SerialNumber, name);
     await doc.setAndSync('status', status);
   }
 }

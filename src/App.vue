@@ -227,8 +227,8 @@ export default defineComponent({
       throw error;
     },
     async setDeskRoute(): Promise<void> {
-      const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
-      const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
+      const { onboardingComplete } = await fyo.doc.get('GetStarted');
+      const { hideGetStarted } = await fyo.doc.get('SystemSettings');
 
       let route = '/get-started';
       if (hideGetStarted || onboardingComplete) {

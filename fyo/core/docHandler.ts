@@ -51,7 +51,7 @@ export class DocHandler {
    * Doc Operations
    */
 
-  async getDoc(
+  async get(
     schemaName: string,
     name?: string,
     options = { skipDocumentCache: false }
@@ -73,14 +73,14 @@ export class DocHandler {
       return doc;
     }
 
-    doc = this.getNewDoc(schemaName, { name }, false);
+    doc = this.new(schemaName, { name }, false);
     await doc.load();
     this.#addToCache(doc);
 
     return doc;
   }
 
-  getNewDoc(
+  new(
     schemaName: string,
     data: DocValueMap | RawValueMap = {},
     cacheDoc = true,

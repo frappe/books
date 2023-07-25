@@ -228,7 +228,7 @@ export default defineComponent({
     },
   },
   async mounted() {
-    const { companyName } = await fyo.doc.getDoc('AccountingSettings');
+    const { companyName } = await fyo.doc.get('AccountingSettings');
     this.companyName = companyName as string;
     this.groups = await getSidebarConfig();
 

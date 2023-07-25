@@ -19,7 +19,7 @@ export class AccountingLedgerEntry extends Doc {
     }
 
     await this.set('reverted', true);
-    const revertedEntry = this.fyo.doc.getNewDoc(
+    const revertedEntry = this.fyo.doc.new(
       ModelNameEnum.AccountingLedgerEntry,
       {
         account: this.account,

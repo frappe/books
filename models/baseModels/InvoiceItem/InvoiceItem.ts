@@ -203,10 +203,7 @@ export abstract class InvoiceItem extends Doc {
           return this.quantity as number;
         }
 
-        const itemDoc = await this.fyo.doc.getDoc(
-          ModelNameEnum.Item,
-          this.item
-        );
+        const itemDoc = await this.fyo.doc.get(ModelNameEnum.Item, this.item);
         const unitDoc = itemDoc.getLink('uom');
 
         let quantity: number = this.quantity ?? 1;
@@ -372,7 +369,7 @@ export abstract class InvoiceItem extends Doc {
           return this.quantity;
         }
 
-        const refdoc = (await this.fyo.doc.getDoc(
+        const refdoc = (await this.fyo.doc.get(
           stockTransferSchemaName,
           backReference
         )) as StockTransfer;
@@ -554,7 +551,7 @@ async function getItemRateFromPriceList(
     return;
   }
 
-  const priceList = await doc.fyo.doc.getDoc(
+  const priceList = await doc.fyo.doc.get(
     ModelNameEnum.PriceList,
     priceListName
   );

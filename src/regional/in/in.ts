@@ -19,7 +19,7 @@ async function createTaxes(fyo: Fyo) {
       const name = `${type}-${percent}`;
       const details = getTaxDetails(type as TaxType, percent);
 
-      const newTax = fyo.doc.getNewDoc('Tax', { name, details });
+      const newTax = fyo.doc.new('Tax', { name, details });
       await newTax.sync();
     }
   }
