@@ -5,6 +5,7 @@ export class Plugin extends Doc {
   name?: string;
   version?: string;
   info?: string;
+  data?: string;
 
   /*
   override get canDelete(): boolean {
