@@ -88,7 +88,7 @@ export abstract class Transactional extends Doc {
     )) as { name: string }[];
 
     for (const { name } of ledgerEntryIds) {
-      const ledgerEntryDoc = await this.fyo.doc.getDoc(
+      const ledgerEntryDoc = await this.fyo.doc.get(
         ModelNameEnum.AccountingLedgerEntry,
         name
       );

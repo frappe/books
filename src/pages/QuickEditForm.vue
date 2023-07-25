@@ -226,7 +226,7 @@ export default defineComponent({
     },
     async setDoc() {
       try {
-        this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
+        this.doc = await fyo.doc.get(this.schemaName, this.name);
       } catch (e) {
         return this.$router.back();
       }

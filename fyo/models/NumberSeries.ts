@@ -8,7 +8,7 @@ function getPaddedName(prefix: string, next: number, padZeros: number): string {
   return prefix + next.toString().padStart(padZeros ?? 4, '0');
 }
 
-export default class NumberSeries extends Doc {
+export class NumberSeries extends Doc {
   validations: ValidationMap = {
     name: (value) => {
       if (typeof value !== 'string') {

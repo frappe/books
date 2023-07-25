@@ -131,7 +131,7 @@ export default defineComponent({
           label: this.t`New Template`,
           group: this.t`Create`,
           action: async () => {
-            const doc = this.fyo.doc.getNewDoc(ModelNameEnum.PrintTemplate, {
+            const doc = this.fyo.doc.new(ModelNameEnum.PrintTemplate, {
               type: this.schemaName,
             });
 
@@ -159,7 +159,7 @@ export default defineComponent({
           label: this.t`Duplicate Template`,
           group: this.t`Create`,
           action: async () => {
-            const doc = this.fyo.doc.getNewDoc(ModelNameEnum.PrintTemplate, {
+            const doc = this.fyo.doc.new(ModelNameEnum.PrintTemplate, {
               type: this.schemaName,
               template: this.templateDoc?.template,
             });
@@ -191,7 +191,7 @@ export default defineComponent({
   },
   methods: {
     async initialize() {
-      this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
+      this.doc = await fyo.doc.get(this.schemaName, this.name);
       await this.setTemplateList();
       await this.setTemplateFromDefault();
       if (!this.templateDoc && this.templateList.length) {
@@ -227,7 +227,7 @@ export default defineComponent({
 
       this.templateName = value;
       try {
-        this.templateDoc = (await this.fyo.doc.getDoc(
+        this.templateDoc = (await this.fyo.doc.get(
           ModelNameEnum.PrintTemplate,
           this.templateName
         )) as PrintTemplate;

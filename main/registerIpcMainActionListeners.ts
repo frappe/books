@@ -9,10 +9,15 @@ import {
 import { autoUpdater } from 'electron-updater';
 import { constants } from 'fs';
 import fs from 'fs-extra';
+import { ValueError } from 'fyo/utils/errors';
 import path from 'path';
 import { SelectFileOptions, SelectFileReturn } from 'utils/types';
 import databaseManager from '../backend/database/manager';
-import { emitMainProcessError } from '../backend/helpers';
+import {
+  emitMainProcessError,
+  getAppPath,
+  getPluginFolderNameFromInfo,
+} from '../backend/helpers';
 import { Main } from '../main';
 import { DatabaseMethod } from '../utils/db/types';
 import { IPC_ACTIONS } from '../utils/messages';
@@ -22,10 +27,13 @@ import { getTemplates } from './getPrintTemplates';
 import {
   getConfigFilesWithModified,
   getErrorHandledReponse,
+  getInfoJsonFromZip,
   isNetworkError,
   setAndGetCleanedConfigFiles,
+  unzipFile,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
+import manager from '../backend/database/manager';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -41,16 +49,10 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.GET_DB_DEFAULT_PATH,
     async (_, companyName: string) => {
-      let root = app.getPath('documents');
-      if (main.isDevelopment) {
-        root = 'dbs';
-      }
-
-      const dbsPath = path.join(root, 'Frappe Books');
-      const backupPath = path.join(dbsPath, 'backups');
+      const appPath = getAppPath();
+      const backupPath = getAppPath('backups');
       await fs.ensureDir(backupPath);
-
-      return path.join(dbsPath, `${companyName}.books.db`);
+      return path.join(appPath, `${companyName}.books.db`);
     }
   );
 
@@ -247,5 +249,34 @@ export default function registerIpcMainActionListeners(main: Main) {
     return await getErrorHandledReponse(() => {
       return databaseManager.getSchemaMap();
     });
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_PLUGIN_DATA, (_, filePath: string) => {
+    const pluginsRoot = getAppPath('plugins');
+    const info = getInfoJsonFromZip(filePath);
+    if (!info) {
+      throw new ValueError('Info file info.json not found');
+    }
+
+    const pluginFolder = getPluginFolderNameFromInfo(info);
+    const pluginPath = path.join(pluginsRoot, pluginFolder);
+    fs.ensureDirSync(pluginPath);
+    unzipFile(filePath, pluginPath);
+
+    return {
+      name: info.name,
+      info: JSON.stringify(info),
+      data: fs.readFileSync(filePath).toString('base64'),
+    };
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_PLUGIN_MODULES, () => {
+    if (main.isTest) {
+      return [];
+    }
+
+    return manager.plugins
+      .map(({ paths }) => paths.models)
+      .filter(Boolean) as string[];
   });
 }

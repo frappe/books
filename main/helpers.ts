@@ -1,11 +1,12 @@
+import AdmZip from 'adm-zip';
 import { constants } from 'fs';
-import fs from 'fs/promises';
+import fs from 'fs-extra';
 import { ConfigFile } from 'fyo/core/types';
 import { Main } from 'main';
 import config from 'utils/config';
 import { BackendResponse } from 'utils/ipc/types';
 import { IPC_CHANNELS } from 'utils/messages';
-import type { ConfigFilesWithModified } from 'utils/types';
+import type { ConfigFilesWithModified, PluginInfo } from 'utils/types';
 
 export async function setAndGetCleanedConfigFiles() {
   const files = config.get('files', []);
@@ -87,4 +88,20 @@ export function isNetworkError(error: Error) {
     default:
       return false;
   }
+}
+
+export function unzipFile(filePath: string, destPath: string) {
+  const zip = new AdmZip(filePath);
+  zip.extractAllTo(destPath, true);
+}
+
+export function getInfoJsonFromZip(filePath: string) {
+  const zip = new AdmZip(filePath);
+  const entry = zip.getEntry('info.json');
+  if (!entry) {
+    return;
+  }
+
+  const data = entry.getData();
+  return JSON.parse(data.toString('utf-8')) as PluginInfo;
 }

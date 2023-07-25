@@ -12,9 +12,12 @@ const NAME_FIELD = {
   readOnly: true,
 };
 
-export function getSchemas(countryCode = '-'): Readonly<SchemaMap> {
+export function getSchemas(
+  countryCode = '-',
+  pluginSchemaList: SchemaStub[] = []
+): Readonly<SchemaMap> {
   const builtCoreSchemas = getCoreSchemas();
-  const builtAppSchemas = getAppSchemas(countryCode);
+  const builtAppSchemas = getAppSchemas(countryCode, pluginSchemaList);
 
   let schemaMap = Object.assign({}, builtAppSchemas, builtCoreSchemas);
   schemaMap = addMetaFields(schemaMap);
@@ -137,8 +140,12 @@ function getCoreSchemas(): SchemaMap {
   return cleanSchemas(coreSchemaMap);
 }
 
-function getAppSchemas(countryCode: string): SchemaMap {
-  const appSchemaMap = getMapFromList(cloneDeep(appSchemas), 'name');
+function getAppSchemas(
+  countryCode: string,
+  pluginSchemaList: SchemaStub[]
+): SchemaMap {
+  const schemaList = cloneDeep([appSchemas, pluginSchemaList].flat());
+  const appSchemaMap = getMapFromList(schemaList, 'name');
   const regionalSchemaMap = getRegionalSchemaMap(countryCode);
   const combinedSchemas = getRegionalCombinedSchemas(
     appSchemaMap,

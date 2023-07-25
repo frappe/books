@@ -205,7 +205,7 @@ export abstract class StockTransfer extends Transfer {
       ? ModelNameEnum.SalesInvoice
       : ModelNameEnum.PurchaseInvoice;
 
-    const invoice = (await this.fyo.doc.getDoc(
+    const invoice = (await this.fyo.doc.get(
       schemaName,
       this.backReference
     )) as Invoice;
@@ -296,7 +296,7 @@ export abstract class StockTransfer extends Transfer {
       return;
     }
 
-    const brDoc = await this.fyo.doc.getDoc(target, backReference);
+    const brDoc = await this.fyo.doc.get(target, backReference);
     if (!(brDoc instanceof Invoice)) {
       return;
     }
@@ -338,7 +338,7 @@ export abstract class StockTransfer extends Transfer {
       backReference: this.name,
     };
 
-    const invoice = this.fyo.doc.getNewDoc(schemaName, data) as Invoice;
+    const invoice = this.fyo.doc.new(schemaName, data) as Invoice;
     for (const row of this.items ?? []) {
       if (!row.item) {
         continue;
@@ -386,7 +386,7 @@ async function validateSerialNumberStatus(doc: StockTransfer) {
       continue;
     }
 
-    const snDoc = await doc.fyo.doc.getDoc(
+    const snDoc = await doc.fyo.doc.get(
       ModelNameEnum.SerialNumber,
       serialNumber
     );

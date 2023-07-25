@@ -1,6 +1,6 @@
 import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
-import type SystemSettings from 'fyo/models/SystemSettings';
+import type { SystemSettings } from 'fyo/models/SystemSettings';
 import { FieldType, Schema, SelectOption } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 import { RouteLocationRaw, Router } from 'vue-router';

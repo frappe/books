@@ -328,7 +328,7 @@ export default defineComponent({
         return;
       }
 
-      const doc = await fyo.doc.getDoc(ModelNameEnum.Account, account.name);
+      const doc = await fyo.doc.get(ModelNameEnum.Account, account.name);
       this.setOpenAccountDocListener(doc, account);
       await openQuickEdit({ doc });
     },
@@ -447,7 +447,7 @@ export default defineComponent({
       this.insertingAccount = true;
 
       const accountName = this.newAccountName.trim();
-      const doc = fyo.doc.getNewDoc('Account');
+      const doc = fyo.doc.new('Account');
       try {
         let { name, rootType, accountType } = parentAccount;
         await doc.set({

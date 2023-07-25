@@ -33,6 +33,7 @@ export async function initializeInstance(
   await setInstanceId(fyo);
   await setOpenCount(fyo);
   await setCurrencySymbols(fyo);
+  await loadPlugins(fyo);
 }
 
 async function closeDbIfConnected(fyo: Fyo) {
@@ -49,7 +50,7 @@ async function setSingles(fyo: Fyo) {
       continue;
     }
 
-    await fyo.doc.getDoc(schema.name);
+    await fyo.doc.get(schema.name);
   }
 }
 
@@ -120,7 +121,7 @@ async function setVersion(fyo: Fyo) {
 
   const { appVersion } = fyo.store;
   if (version !== appVersion) {
-    const systemSettings = await fyo.doc.getDoc(ModelNameEnum.SystemSettings);
+    const systemSettings = await fyo.doc.get(ModelNameEnum.SystemSettings);
     await systemSettings?.setAndSync('version', appVersion);
   }
 }
@@ -136,7 +137,7 @@ function setDeviceId(fyo: Fyo) {
 }
 
 async function setInstanceId(fyo: Fyo) {
-  const systemSettings = await fyo.doc.getDoc(ModelNameEnum.SystemSettings);
+  const systemSettings = await fyo.doc.get(ModelNameEnum.SystemSettings);
   if (!systemSettings.instanceId) {
     await systemSettings.setAndSync('instanceId', getRandomString());
   }
@@ -160,7 +161,7 @@ export async function setCurrencySymbols(fyo: Fyo) {
 }
 
 async function setOpenCount(fyo: Fyo) {
-  const misc = await fyo.doc.getDoc(ModelNameEnum.Misc);
+  const misc = await fyo.doc.get(ModelNameEnum.Misc);
   let openCount = misc.openCount as number | null;
 
   if (typeof openCount !== 'number') {
@@ -184,4 +185,40 @@ function getOpenCountFromFiles(fyo: Fyo) {
   }
 
   return null;
+}
+
+async function loadPlugins(fyo: Fyo) {
+  /**
+   * Property `ipc` is set by the preload script. This
+   * doesn't run when Frappe Books is not running in electron.
+   */
+  if (!fyo.isElectron || !ipc?.getPluginModules) {
+    return;
+  }
+
+  const srcs = await ipc.getPluginModules();
+  for (const src of srcs) {
+    const module = document.createElement('script');
+    module.setAttribute('type', 'module');
+    module.setAttribute('src', src);
+
+    const loadPromise = new Promise<void>((resolve) => {
+      module.onload = async () => {
+        const { default: initialize } = (await import(
+          src /* @vite-ignore */
+        )) as {
+          default: (fyo: Fyo) => Promise<void>;
+        };
+
+        if (typeof initialize !== 'function') {
+          resolve();
+        }
+
+        await initialize(fyo);
+        resolve();
+      };
+    });
+    document.head.appendChild(module);
+    await loadPromise;
+  }
 }

@@ -49,7 +49,7 @@ export class CreateCOA {
         child as COAChildAccount | COARootAccount
       );
 
-      const doc = this.fyo.doc.getNewDoc('Account', {
+      const doc = this.fyo.doc.new('Account', {
         name: accountName,
         parentAccount,
         isGroup,

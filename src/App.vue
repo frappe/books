@@ -227,15 +227,21 @@ export default defineComponent({
       throw error;
     },
     async setDeskRoute(): Promise<void> {
-      const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
-      const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
+      const { onboardingComplete } = await fyo.doc.get('GetStarted');
+      const { hideGetStarted } = await fyo.doc.get('SystemSettings');
 
-      let route = '/get-started';
+      let fallback, route;
+      fallback = route = '/get-started';
       if (hideGetStarted || onboardingComplete) {
         route = localStorage.getItem('lastRoute') || '/';
+        fallback = '/';
       }
 
-      await routeTo(route);
+      try {
+        await routeTo(route);
+      } catch {
+        await routeTo(fallback);
+      }
     },
     async showDbSelector(): Promise<void> {
       localStorage.clear();

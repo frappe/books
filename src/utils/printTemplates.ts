@@ -40,13 +40,13 @@ export async function getPrintTemplatePropValues(
   (values.doc as PrintTemplateData).entryType = doc.schema.name;
   (values.doc as PrintTemplateData).entryLabel = doc.schema.label;
 
-  const printSettings = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
+  const printSettings = await fyo.doc.get(ModelNameEnum.PrintSettings);
   const printValues = await getPrintTemplateDocValues(
     printSettings,
     printSettingsFields
   );
 
-  const accountingSettings = await fyo.doc.getDoc(
+  const accountingSettings = await fyo.doc.get(
     ModelNameEnum.AccountingSettings
   );
   const accountingValues = await getPrintTemplateDocValues(

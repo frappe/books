@@ -53,7 +53,7 @@ export function getBatch(
   manufactureDate: Date,
   fyo: Fyo
 ): Batch {
-  const doc = fyo.doc.getNewDoc(schemaName, {
+  const doc = fyo.doc.new(schemaName, {
     batch,
     expiryDate,
     manufactureDate,
@@ -68,7 +68,7 @@ export async function getStockTransfer(
   transfers: TransferTwo[],
   fyo: Fyo
 ): Promise<StockTransfer> {
-  const doc = fyo.doc.getNewDoc(schemaName, { party, date }) as StockTransfer;
+  const doc = fyo.doc.new(schemaName, { party, date }) as StockTransfer;
   for (const { item, location, quantity, rate } of transfers) {
     await doc.append('items', { item, location, quantity, rate });
   }
@@ -81,7 +81,7 @@ export async function getStockMovement(
   transfers: Transfer[],
   fyo: Fyo
 ): Promise<StockMovement> {
-  const doc = fyo.doc.getNewDoc(ModelNameEnum.StockMovement, {
+  const doc = fyo.doc.new(ModelNameEnum.StockMovement, {
     movementType,
     date,
   }) as StockMovement;

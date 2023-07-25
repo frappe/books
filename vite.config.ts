@@ -19,7 +19,7 @@ export default () => {
   }
 
   return defineConfig({
-    server: { host, port, strictPort: true },
+    server: { host, port, strictPort: true, watch: { ignored: ['**/dbs/**'] } },
     root: path.resolve(__dirname, './src'),
     plugins: [vue()],
     resolve: {

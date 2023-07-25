@@ -22,7 +22,7 @@ export class DocHandler {
   }
 
   init() {
-    this.models = {};
+    this.models = { ...coreModels };
     this.singles = {};
     this.docs = new Observable();
     this.observer = new Observable();
@@ -32,17 +32,18 @@ export class DocHandler {
     this.init();
   }
 
-  registerModels(models: ModelMap, regionalModels: ModelMap = {}) {
-    for (const schemaName in this.fyo.db.schemaMap) {
-      if (coreModels[schemaName] !== undefined) {
-        this.models[schemaName] = coreModels[schemaName];
-      } else if (regionalModels[schemaName] !== undefined) {
-        this.models[schemaName] = regionalModels[schemaName];
-      } else if (models[schemaName] !== undefined) {
-        this.models[schemaName] = models[schemaName];
-      } else {
-        this.models[schemaName] = Doc;
+  registerModels(models: ModelMap) {
+    for (const schemaName in models) {
+      const Model = models[schemaName];
+      if (
+        !this.fyo.db.schemaMap[schemaName] ||
+        !!coreModels[schemaName] ||
+        !Model
+      ) {
+        continue;
       }
+
+      this.models[schemaName] = Model;
     }
   }
 
@@ -50,7 +51,7 @@ export class DocHandler {
    * Doc Operations
    */
 
-  async getDoc(
+  async get(
     schemaName: string,
     name?: string,
     options = { skipDocumentCache: false }
@@ -72,14 +73,14 @@ export class DocHandler {
       return doc;
     }
 
-    doc = this.getNewDoc(schemaName, { name }, false);
+    doc = this.new(schemaName, { name }, false);
     await doc.load();
     this.#addToCache(doc);
 
     return doc;
   }
 
-  getNewDoc(
+  new(
     schemaName: string,
     data: DocValueMap | RawValueMap = {},
     cacheDoc = true,
@@ -98,7 +99,7 @@ export class DocHandler {
       throw new NotFoundError(`Schema not found for ${schemaName}`);
     }
 
-    const doc = new Model!(schema, data, this.fyo, isRawValueMap);
+    const doc = new (Model ?? Doc)(schema, data, this.fyo, isRawValueMap);
     doc.name ??= this.getTemporaryName(schema);
     if (cacheDoc) {
       this.#addToCache(doc);

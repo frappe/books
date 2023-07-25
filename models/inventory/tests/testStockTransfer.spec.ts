@@ -32,7 +32,7 @@ const testDocs = {
 test('insert test docs', async (t) => {
   for (const schemaName in testDocs) {
     for (const name in testDocs[schemaName]) {
-      await fyo.doc.getNewDoc(schemaName, testDocs[schemaName][name]).sync();
+      await fyo.doc.new(schemaName, testDocs[schemaName][name]).sync();
     }
   }
 
@@ -45,7 +45,7 @@ test('insert test docs', async (t) => {
 });
 
 test('inventory settings', async (t) => {
-  const doc = (await fyo.doc.getDoc(
+  const doc = (await fyo.doc.get(
     ModelNameEnum.InventorySettings
   )) as InventorySettings;
 
@@ -211,7 +211,7 @@ test('Stock Transfer, invalid cancellation', async (t) => {
     )[0] ?? {};
 
   t.ok(name?.startsWith('PREC-'));
-  const doc = await fyo.doc.getDoc(ModelNameEnum.PurchaseReceipt, name);
+  const doc = await fyo.doc.get(ModelNameEnum.PurchaseReceipt, name);
   await assertThrows(async () => await doc.cancel());
   t.equal(await fyo.db.getStockQuantity(item, location), 5, 'stock unchanged');
   t.equal(
@@ -232,7 +232,7 @@ test('Shipment, cancel and delete', async (t) => {
     )[0] ?? {};
 
   t.ok(name?.startsWith('SHPM-'), 'number series matches');
-  const doc = await fyo.doc.getDoc(ModelNameEnum.Shipment, name);
+  const doc = await fyo.doc.get(ModelNameEnum.Shipment, name);
   t.ok(doc.isSubmitted, `doc ${name} is submitted`);
   await assertDoesNotThrow(async () => await doc.cancel());
   t.ok(doc.isCancelled), `doc is cancelled`;
@@ -266,7 +266,7 @@ test('Purchase Receipt, cancel and delete', async (t) => {
     )[0] ?? {};
 
   t.ok(name?.startsWith('PREC-'), 'number series matches');
-  const doc = await fyo.doc.getDoc(ModelNameEnum.PurchaseReceipt, name);
+  const doc = await fyo.doc.get(ModelNameEnum.PurchaseReceipt, name);
   t.ok(doc.isSubmitted, `doc ${name} is submitted`);
   await assertDoesNotThrow(async () => await doc.cancel());
   t.ok(doc.isCancelled), `doc is cancelled`;
@@ -292,7 +292,7 @@ test('Purchase Receipt, cancel and delete', async (t) => {
 test('Purchase Invoice then Purchase Receipt', async (t) => {
   const rate = testDocs.Item[item].rate as number;
   const quantity = 3;
-  const pinv = fyo.doc.getNewDoc(ModelNameEnum.PurchaseInvoice) as Invoice;
+  const pinv = fyo.doc.new(ModelNameEnum.PurchaseInvoice) as Invoice;
 
   const date = new Date('2022-01-04');
   await pinv.set({
@@ -329,7 +329,7 @@ test('Purchase Invoice then Purchase Receipt', async (t) => {
 });
 
 test('Back Ref Purchase Receipt cancel', async (t) => {
-  const prec = (await fyo.doc.getDoc(
+  const prec = (await fyo.doc.get(
     ModelNameEnum.PurchaseReceipt,
     'PREC-1002'
   )) as StockTransfer;
@@ -339,7 +339,7 @@ test('Back Ref Purchase Receipt cancel', async (t) => {
     await prec.cancel();
   });
 
-  const pinv = (await fyo.doc.getDoc(
+  const pinv = (await fyo.doc.get(
     ModelNameEnum.PurchaseInvoice,
     'PINV-1001'
   )) as Invoice;
@@ -353,7 +353,7 @@ test('Back Ref Purchase Receipt cancel', async (t) => {
 });
 
 test('Cancel Purchase Invoice after Purchase Receipt is created', async (t) => {
-  const pinv = (await fyo.doc.getDoc(
+  const pinv = (await fyo.doc.get(
     ModelNameEnum.PurchaseInvoice,
     'PINV-1001'
   )) as Invoice;
@@ -384,7 +384,7 @@ test('Cancel Purchase Invoice after Purchase Receipt is created', async (t) => {
 
 test('Sales Invoice then partial Shipment', async (t) => {
   const rate = testDocs.Item[item].rate as number;
-  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice) as Invoice;
+  const sinv = fyo.doc.new(ModelNameEnum.SalesInvoice) as Invoice;
 
   await sinv.set({
     party,
@@ -423,7 +423,7 @@ test('Sales Invoice then partial Shipment', async (t) => {
 });
 
 test('Sales Invoice then another Shipment', async (t) => {
-  const sinv = (await fyo.doc.getDoc(
+  const sinv = (await fyo.doc.get(
     ModelNameEnum.SalesInvoice,
     'SINV-1001'
   )) as Invoice;
@@ -448,7 +448,7 @@ test('Sales Invoice then another Shipment', async (t) => {
 });
 
 test('Cancel Sales Invoice after Shipment is created', async (t) => {
-  const sinv = (await fyo.doc.getDoc(
+  const sinv = (await fyo.doc.get(
     ModelNameEnum.SalesInvoice,
     'SINV-1001'
   )) as Invoice;
@@ -466,7 +466,7 @@ test('Cancel Sales Invoice after Shipment is created', async (t) => {
 });
 
 test('Cancel partial Shipment', async (t) => {
-  let shpm = (await fyo.doc.getDoc(
+  let shpm = (await fyo.doc.get(
     ModelNameEnum.Shipment,
     'SHPM-1003'
   )) as StockTransfer;
@@ -477,13 +477,13 @@ test('Cancel partial Shipment', async (t) => {
   await assertDoesNotThrow(async () => await shpm.cancel());
   t.ok(shpm.isCancelled, 'SHPM cancelled');
 
-  const sinv = (await fyo.doc.getDoc(
+  const sinv = (await fyo.doc.get(
     ModelNameEnum.SalesInvoice,
     'SINV-1001'
   )) as Invoice;
   t.equal(sinv.stockNotTransferred, 1, 'stock qty 1 untransferred');
 
-  shpm = (await fyo.doc.getDoc(
+  shpm = (await fyo.doc.get(
     ModelNameEnum.Shipment,
     'SHPM-1004'
   )) as StockTransfer;
@@ -498,7 +498,7 @@ test('Cancel partial Shipment', async (t) => {
 });
 
 test('Duplicate Shipment, backref unset', async (t) => {
-  const shpm = (await fyo.doc.getDoc(
+  const shpm = (await fyo.doc.get(
     ModelNameEnum.Shipment,
     'SHPM-1003'
   )) as StockTransfer;
@@ -510,7 +510,7 @@ test('Duplicate Shipment, backref unset', async (t) => {
 });
 
 test('Cancel and Delete Sales Invoice with cancelled Shipments', async (t) => {
-  const sinv = (await fyo.doc.getDoc(
+  const sinv = (await fyo.doc.get(
     ModelNameEnum.SalesInvoice,
     'SINV-1001'
   )) as Invoice;
@@ -556,7 +556,7 @@ test('Create Shipment from manually set Back Ref', async (t) => {
   );
   await (await prec.sync()).submit();
 
-  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice) as Invoice;
+  const sinv = fyo.doc.new(ModelNameEnum.SalesInvoice) as Invoice;
   const quantity = 5;
   await sinv.set({
     party,
@@ -568,7 +568,7 @@ test('Create Shipment from manually set Back Ref', async (t) => {
 
   t.equal(sinv.stockNotTransferred, quantity, "stock hasn't been transferred");
 
-  const shpm = fyo.doc.getNewDoc(ModelNameEnum.Shipment) as Shipment;
+  const shpm = fyo.doc.new(ModelNameEnum.Shipment) as Shipment;
   await shpm.set('backReference', sinv.name);
   await shpm.set('date', new Date('2022-01-10'));
   shpm.items?.[0].set('location', location);

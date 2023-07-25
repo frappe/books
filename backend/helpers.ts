@@ -1,7 +1,10 @@
+import { app } from 'electron';
 import { constants } from 'fs';
 import fs from 'fs/promises';
+import path from 'path';
 import { DatabaseMethod } from 'utils/db/types';
 import { CUSTOM_EVENTS } from 'utils/messages';
+import { PluginInfo } from 'utils/types';
 import { KnexColumnType } from './database/types';
 
 export const sqliteTypeMap: Record<string, KnexColumnType> = {
@@ -24,6 +27,7 @@ export const sqliteTypeMap: Record<string, KnexColumnType> = {
   Attachment: 'text',
   AttachImage: 'text',
   Color: 'text',
+  Blob: 'text', // base-64 encoded
 };
 
 export const SYSTEM = '__SYSTEM__';
@@ -84,4 +88,34 @@ export async function unlinkIfExists(filePath: unknown) {
   }
 
   return false;
+}
+
+export function getPluginFolderNameFromInfo(
+  { name, version }: PluginInfo,
+  noVersion = false
+) {
+  const folderPrefix = name.replaceAll(' ', '');
+  if (noVersion) {
+    return folderPrefix;
+  }
+
+  return `${folderPrefix}-${version}`;
+}
+
+export function getAppPath(type: 'root' | 'backups' | 'plugins' = 'root') {
+  /**
+   * app will be undefined if this function is not running in electron
+   */
+  let root: string;
+  if (process.env.NODE_ENV === 'development' || !app) {
+    root = 'dbs';
+  } else {
+    root = app.getPath('documents');
+  }
+
+  if (type === 'root') {
+    return path.join(root, 'Frappe Books');
+  }
+
+  return path.join(root, 'Frappe Books', type);
 }

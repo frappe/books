@@ -24,7 +24,7 @@ test('check store and create test items', async (t) => {
 
   const exists: boolean[] = [];
   for (const item of items) {
-    await fyo.doc.getNewDoc('Item', item).sync();
+    await fyo.doc.new('Item', item).sync();
     exists.push(await fyo.db.exists('Item', item.name));
   }
 
@@ -32,7 +32,7 @@ test('check store and create test items', async (t) => {
 });
 
 test('Stock Movement, Material Receipt', async (t) => {
-  const sm = fyo.doc.getNewDoc(ModelNameEnum.StockMovement);
+  const sm = fyo.doc.new(ModelNameEnum.StockMovement);
 
   await sm.set({
     date: new Date('2022-01-01'),
@@ -74,7 +74,7 @@ test('Stock Movement, Material Receipt', async (t) => {
 });
 
 test('Stock Movement, Manufacture', async (t) => {
-  const sm = fyo.doc.getNewDoc(ModelNameEnum.StockMovement) as StockMovement;
+  const sm = fyo.doc.new(ModelNameEnum.StockMovement) as StockMovement;
 
   await sm.set({
     date: new Date('2022-01-02'),

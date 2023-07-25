@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import NumberSeries from 'fyo/models/NumberSeries';
+import { NumberSeries } from 'fyo/models/NumberSeries';
 import { DEFAULT_SERIES_START } from 'fyo/utils/consts';
 import { BaseError } from 'fyo/utils/errors';
 import { getRandomString } from 'utils';
@@ -70,7 +70,7 @@ export async function getSeriesNext(
   let series: NumberSeries;
 
   try {
-    series = (await fyo.doc.getDoc('NumberSeries', prefix)) as NumberSeries;
+    series = (await fyo.doc.get('NumberSeries', prefix)) as NumberSeries;
   } catch (e) {
     const { statusCode } = e as BaseError;
     if (!statusCode || statusCode !== 404) {
@@ -78,7 +78,7 @@ export async function getSeriesNext(
     }
 
     await createNumberSeries(prefix, schemaName, DEFAULT_SERIES_START, fyo);
-    series = (await fyo.doc.getDoc('NumberSeries', prefix)) as NumberSeries;
+    series = (await fyo.doc.get('NumberSeries', prefix)) as NumberSeries;
   }
 
   return await series.next(schemaName);
@@ -95,7 +95,7 @@ export async function createNumberSeries(
     return;
   }
 
-  const series = fyo.doc.getNewDoc('NumberSeries', {
+  const series = fyo.doc.new('NumberSeries', {
     name: prefix,
     start,
     referenceType,

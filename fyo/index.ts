@@ -26,6 +26,8 @@ export class Fyo {
   t = t;
   T = T;
 
+  Doc = Doc;
+
   errors = errors;
   isElectron: boolean;
 
@@ -112,8 +114,9 @@ export class Fyo {
     await this.#initializeModules();
     await this.#initializeMoneyMaker();
 
-    this.doc.registerModels(models, regionalModels);
-    await this.doc.getDoc('SystemSettings');
+    this.doc.registerModels(models);
+    this.doc.registerModels(regionalModels);
+    await this.doc.get('SystemSettings');
     this._initialized = true;
   }
 
@@ -187,7 +190,7 @@ export class Fyo {
     let doc: Doc;
     let value: DocValue | Doc[];
     try {
-      doc = await this.doc.getDoc(schemaName, name);
+      doc = await this.doc.get(schemaName, name);
       value = doc.get(fieldname);
     } catch (err) {
       value = undefined;

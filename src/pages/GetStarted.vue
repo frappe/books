@@ -95,7 +95,7 @@ export default defineComponent({
     };
   },
   async activated() {
-    await fyo.doc.getDoc('GetStarted');
+    await fyo.doc.get('GetStarted');
     await this.checkForCompletedTasks();
   },
   methods: {
@@ -139,7 +139,7 @@ export default defineComponent({
         return true;
       }
 
-      const doc = await fyo.doc.getDoc('GetStarted');
+      const doc = await fyo.doc.get('GetStarted');
       const onboardingComplete = fyo.schemaMap.GetStarted?.fields
         .filter(({ fieldname }) => fieldname !== 'onboardingComplete')
         .map(({ fieldname }) => doc.get(fieldname))
@@ -147,7 +147,7 @@ export default defineComponent({
 
       if (onboardingComplete) {
         await this.updateChecks({ onboardingComplete });
-        const systemSettings = await fyo.doc.getDoc('SystemSettings');
+        const systemSettings = await fyo.doc.get('SystemSettings');
         await systemSettings.set('hideGetStarted', true);
         await systemSettings.sync();
       }
@@ -199,7 +199,7 @@ export default defineComponent({
     },
     async updateChecks(toUpdate: Record<string, DocValue>) {
       await fyo.singles.GetStarted?.setAndSync(toUpdate);
-      await fyo.doc.getDoc('GetStarted');
+      await fyo.doc.get('GetStarted');
     },
     isCompleted(item: ListItem) {
       return fyo.singles.GetStarted?.get(item.fieldname) || false;

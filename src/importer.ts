@@ -229,7 +229,7 @@ export class Importer {
       }, {} as Record<string, string>);
 
     for (const [name, data] of dataMap.entries()) {
-      const doc = this.fyo.doc.getNewDoc(this.schemaName, data, false);
+      const doc = this.fyo.doc.new(this.schemaName, data, false);
       for (const schemaName in targetFieldnameMap) {
         const fieldname = targetFieldnameMap[schemaName];
         const childTable = childTableMap[name]?.[schemaName];

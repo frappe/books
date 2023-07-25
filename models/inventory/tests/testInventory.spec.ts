@@ -37,13 +37,13 @@ test('create dummy items & locations', async (t) => {
   // Create Items
   for (const { name, rate } of Object.values(itemMap)) {
     const item = getItem(name, rate);
-    await fyo.doc.getNewDoc(ModelNameEnum.Item, item).sync();
+    await fyo.doc.new(ModelNameEnum.Item, item).sync();
     t.ok(await fyo.db.exists(ModelNameEnum.Item, name), `${name} exists`);
   }
 
   // Create Locations
   for (const name of Object.values(locationMap)) {
-    await fyo.doc.getNewDoc(ModelNameEnum.Location, { name }).sync();
+    await fyo.doc.new(ModelNameEnum.Location, { name }).sync();
     t.ok(await fyo.db.exists(ModelNameEnum.Location, name), `${name} exists`);
   }
 });
@@ -180,7 +180,7 @@ test('cancel stock movement', async (t) => {
 
   for (const { name } of names) {
     const slesBefore = await getSLEs(name, ModelNameEnum.StockMovement, fyo);
-    const doc = (await fyo.doc.getDoc(
+    const doc = (await fyo.doc.get(
       ModelNameEnum.StockMovement,
       name
     )) as StockMovement;

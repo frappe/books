@@ -7,21 +7,6 @@ import Color from './app/Color.json';
 import Currency from './app/Currency.json';
 import Defaults from './app/Defaults.json';
 import GetStarted from './app/GetStarted.json';
-import InventorySettings from './app/inventory/InventorySettings.json';
-import Location from './app/inventory/Location.json';
-import PriceList from './app/PriceList.json';
-import PriceListItem from './app/PriceListItem.json';
-import PurchaseReceipt from './app/inventory/PurchaseReceipt.json';
-import PurchaseReceiptItem from './app/inventory/PurchaseReceiptItem.json';
-import SerialNumber from './app/inventory/SerialNumber.json';
-import Shipment from './app/inventory/Shipment.json';
-import ShipmentItem from './app/inventory/ShipmentItem.json';
-import StockLedgerEntry from './app/inventory/StockLedgerEntry.json';
-import StockMovement from './app/inventory/StockMovement.json';
-import StockMovementItem from './app/inventory/StockMovementItem.json';
-import StockTransfer from './app/inventory/StockTransfer.json';
-import StockTransferItem from './app/inventory/StockTransferItem.json';
-import UOMConversionItem from './app/inventory/UOMConversionItem.json';
 import Invoice from './app/Invoice.json';
 import InvoiceItem from './app/InvoiceItem.json';
 import Item from './app/Item.json';
@@ -32,6 +17,8 @@ import NumberSeries from './app/NumberSeries.json';
 import Party from './app/Party.json';
 import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
+import PriceList from './app/PriceList.json';
+import PriceListItem from './app/PriceListItem.json';
 import PrintSettings from './app/PrintSettings.json';
 import PrintTemplate from './app/PrintTemplate.json';
 import PurchaseInvoice from './app/PurchaseInvoice.json';
@@ -43,7 +30,21 @@ import Tax from './app/Tax.json';
 import TaxDetail from './app/TaxDetail.json';
 import TaxSummary from './app/TaxSummary.json';
 import UOM from './app/UOM.json';
+import InventorySettings from './app/inventory/InventorySettings.json';
+import Location from './app/inventory/Location.json';
+import PurchaseReceipt from './app/inventory/PurchaseReceipt.json';
+import PurchaseReceiptItem from './app/inventory/PurchaseReceiptItem.json';
+import SerialNumber from './app/inventory/SerialNumber.json';
+import Shipment from './app/inventory/Shipment.json';
+import ShipmentItem from './app/inventory/ShipmentItem.json';
+import StockLedgerEntry from './app/inventory/StockLedgerEntry.json';
+import StockMovement from './app/inventory/StockMovement.json';
+import StockMovementItem from './app/inventory/StockMovementItem.json';
+import StockTransfer from './app/inventory/StockTransfer.json';
+import StockTransferItem from './app/inventory/StockTransferItem.json';
+import UOMConversionItem from './app/inventory/UOMConversionItem.json';
 import PatchRun from './core/PatchRun.json';
+import Plugin from './core/Plugin.json';
 import SingleValue from './core/SingleValue.json';
 import SystemSettings from './core/SystemSettings.json';
 import base from './meta/base.json';
@@ -53,6 +54,7 @@ import tree from './meta/tree.json';
 import { Schema, SchemaStub } from './types';
 
 export const coreSchemas: Schema[] = [
+  Plugin as Schema,
   PatchRun as Schema,
   SingleValue as Schema,
   SystemSettings as Schema,

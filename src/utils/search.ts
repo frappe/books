@@ -74,7 +74,7 @@ export function getGroupLabelMap() {
 
 function getCreateAction(fyo: Fyo, schemaName: string, initData?: RawValueMap) {
   return async function action() {
-    const doc = fyo.doc.getNewDoc(schemaName, initData);
+    const doc = fyo.doc.new(schemaName, initData);
     const route = getFormRoute(schemaName, doc.name!);
     await routeTo(route);
   };

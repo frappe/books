@@ -65,7 +65,7 @@ export class Payment extends Transactional {
     }
 
     const schemaName = referenceType as string;
-    const doc = (await this.fyo.doc.getDoc(
+    const doc = (await this.fyo.doc.get(
       schemaName,
       referenceName as string
     )) as Invoice;
@@ -114,7 +114,7 @@ export class Payment extends Transactional {
       const referenceName = childDoc.referenceName;
       const referenceType = childDoc.referenceType;
 
-      const refDoc = (await this.fyo.doc.getDoc(
+      const refDoc = (await this.fyo.doc.get(
         childDoc.referenceType!,
         childDoc.referenceName
       )) as Invoice;
@@ -294,7 +294,7 @@ export class Payment extends Transactional {
   async validateReferenceOutstanding() {
     let outstandingAmount = this.fyo.pesa(0);
     for (const row of this.for ?? []) {
-      const referenceDoc = (await this.fyo.doc.getDoc(
+      const referenceDoc = (await this.fyo.doc.get(
         row.referenceType as string,
         row.referenceName as string
       )) as Invoice;
@@ -334,7 +334,7 @@ export class Payment extends Transactional {
 
   async updateReferenceDocOutstanding() {
     for (const row of this.for ?? []) {
-      const referenceDoc = await this.fyo.doc.getDoc(
+      const referenceDoc = await this.fyo.doc.get(
         row.referenceType!,
         row.referenceName
       );
@@ -357,7 +357,7 @@ export class Payment extends Transactional {
 
   async _revertReferenceOutstanding() {
     for (const ref of this.for ?? []) {
-      const refDoc = await this.fyo.doc.getDoc(
+      const refDoc = await this.fyo.doc.get(
         ref.referenceType!,
         ref.referenceName
       );
@@ -371,7 +371,7 @@ export class Payment extends Transactional {
   }
 
   async updatePartyOutstanding() {
-    const partyDoc = (await this.fyo.doc.getDoc(
+    const partyDoc = (await this.fyo.doc.get(
       ModelNameEnum.Party,
       this.party
     )) as Party;

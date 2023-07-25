@@ -140,7 +140,7 @@ export abstract class BaseGSTR extends Report {
   }
 
   async getGstrRow(entryName: string): Promise<GSTRRow> {
-    const entry = (await this.fyo.doc.getDoc(
+    const entry = (await this.fyo.doc.get(
       this.schemaName,
       entryName
     )) as Invoice;
@@ -149,7 +149,7 @@ export abstract class BaseGSTR extends Report {
       'gstin'
     )) as string | null;
 
-    const party = (await this.fyo.doc.getDoc('Party', entry.party)) as Party;
+    const party = (await this.fyo.doc.get('Party', entry.party)) as Party;
 
     let place = '';
     if (party.address) {

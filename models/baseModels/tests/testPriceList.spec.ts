@@ -42,13 +42,13 @@ test('Price List: create dummy item, party, price lists', async (t) => {
   // Create Items
   for (const { name, rate } of Object.values(itemMap)) {
     const item = getItem(name, rate, false);
-    await fyo.doc.getNewDoc(ModelNameEnum.Item, item).sync();
+    await fyo.doc.new(ModelNameEnum.Item, item).sync();
     t.ok(await fyo.db.exists(ModelNameEnum.Item, name), `Item: ${name} exists`);
   }
 
   // Create Parties
   for (const { name, email } of Object.values(partyMap)) {
-    await fyo.doc.getNewDoc(ModelNameEnum.Party, { name, email }).sync();
+    await fyo.doc.new(ModelNameEnum.Party, { name, email }).sync();
     t.ok(
       await fyo.db.exists(ModelNameEnum.Party, name),
       `Party: ${name} exists`
@@ -56,7 +56,7 @@ test('Price List: create dummy item, party, price lists', async (t) => {
   }
 
   for (const priceListItem of Object.values(priceListMap)) {
-    await fyo.doc.getNewDoc(ModelNameEnum.PriceList, priceListItem).sync();
+    await fyo.doc.new(ModelNameEnum.PriceList, priceListItem).sync();
     t.ok(
       await fyo.db.exists(ModelNameEnum.PriceList, priceListItem.name),
       `Price List: ${priceListItem.name} exists`
@@ -67,7 +67,7 @@ test('Price List: create dummy item, party, price lists', async (t) => {
 });
 
 test('Check if InvoiceItem rate fetched from PriceList', async (t) => {
-  const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
+  const sinv = fyo.doc.new(ModelNameEnum.SalesInvoice, {
     date: new Date('2023-01-01'),
     party: partyMap.partyOne.name,
   }) as SalesInvoice;

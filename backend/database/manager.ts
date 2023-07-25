@@ -2,6 +2,7 @@ import BetterSQLite3 from 'better-sqlite3';
 import fs from 'fs-extra';
 import { DatabaseError } from 'fyo/utils/errors';
 import path from 'path';
+import { SchemaStub } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getMapFromList } from 'utils/index';
 import { Version } from 'utils/version';
@@ -10,11 +11,19 @@ import { databaseMethodSet, unlinkIfExists } from '../helpers';
 import patches from '../patches';
 import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
+import {
+  executeFirstMigration,
+  getPluginConfig,
+  getPluginInfoList,
+  unzipPluginsIfDoesNotExist,
+} from './helpers';
 import { runPatches } from './runPatch';
-import { BespokeFunction, Patch } from './types';
+import { BespokeFunction, Patch, PluginConfig } from './types';
 
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
+  plugins: PluginConfig[] = [];
+  rawPluginSchemaList?: SchemaStub[];
 
   get #isInitialized(): boolean {
     return this.db !== undefined && this.db.knex !== undefined;
@@ -22,10 +31,10 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
   getSchemaMap() {
     if (this.#isInitialized) {
-      return this.db?.schemaMap ?? getSchemas();
+      return this.db?.schemaMap ?? getSchemas('-', this.rawPluginSchemaList);
     }
 
-    return getSchemas();
+    return getSchemas('-', this.rawPluginSchemaList);
   }
 
   async createNewDatabase(dbPath: string, countryCode: string) {
@@ -34,31 +43,41 @@ export class DatabaseManager extends DatabaseDemuxBase {
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {
-    countryCode = await this._connect(dbPath, countryCode);
-    await this.#migrate();
-    return countryCode;
+    return await this.#connect(dbPath, countryCode);
   }
 
-  async _connect(dbPath: string, countryCode?: string) {
+  async #connect(dbPath: string, countryCode?: string) {
     countryCode ??= await DatabaseCore.getCountryCode(dbPath);
     this.db = new DatabaseCore(dbPath);
     await this.db.connect();
-    const schemaMap = getSchemas(countryCode);
+    if (!this.db.knex) {
+      throw new DatabaseError('Database not connected');
+    }
+
+    await executeFirstMigration(this.db, countryCode);
+    await this.initializePlugins();
+    const schemaMap = getSchemas(countryCode, this.rawPluginSchemaList);
     this.db.setSchemaMap(schemaMap);
+
+    await this.#executeMigration();
     return countryCode;
   }
 
-  async #migrate(): Promise<void> {
-    if (!this.#isInitialized) {
+  async initializePlugins() {
+    if (!this.db?.knex) {
       return;
     }
 
-    const isFirstRun = await this.#getIsFirstRun();
-    if (isFirstRun) {
-      await this.db!.migrate();
+    const infoList = await getPluginInfoList(this.db.knex);
+    await unzipPluginsIfDoesNotExist(this.db.knex, infoList);
+
+    this.plugins = [];
+    for (const info of infoList) {
+      const config = await getPluginConfig(info);
+      this.plugins.push(config);
     }
 
-    await this.#executeMigration();
+    this.rawPluginSchemaList = this.plugins.map((p) => p.schemas).flat();
   }
 
   async #executeMigration() {
@@ -156,19 +175,6 @@ export class DatabaseManager extends DatabaseDemuxBase {
     return await queryFunction(this.db!, ...args);
   }
 
-  async #getIsFirstRun(): Promise<boolean> {
-    const knex = this.db?.knex;
-    if (!knex) {
-      return true;
-    }
-
-    const query = await knex('sqlite_master').where({
-      type: 'table',
-      name: 'PatchRun',
-    });
-    return !query.length;
-  }
-
   async #createBackup() {
     const { dbPath } = this.db ?? {};
     if (!dbPath || process.env.IS_TEST) {
@@ -181,7 +187,12 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }
 
     const db = this.getDriver();
-    await db?.backup(backupPath).then(() => db.close());
+    if (!db) {
+      return;
+    }
+
+    await db.backup(backupPath);
+    db.close();
   }
 
   async #getBackupFilePath() {
