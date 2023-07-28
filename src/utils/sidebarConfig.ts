@@ -285,6 +285,13 @@ function getCompleteSidebar(): SidebarConfig {
           route: `/list/PrintTemplate/${t`Print Templates`}`,
         },
         {
+          label: t`Customize Form`,
+          name: 'customize-form',
+          route: `/customize-form`,
+          hidden: () =>
+            !fyo.singles.AccountingSettings?.enableFormCustomization,
+        },
+        {
           label: t`Settings`,
           name: 'settings',
           route: '/settings',

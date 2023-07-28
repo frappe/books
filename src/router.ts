@@ -10,6 +10,7 @@ import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
 import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
+import CustomizeForm from 'src/pages/CustomizeForm/CustomizeForm.vue';
 import type { HistoryState } from 'vue-router';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { historyState } from './utils/refs';
@@ -105,6 +106,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Template Builder',
     component: TemplateBuilder,
     props: true,
+  },
+  {
+    path: '/customize-form',
+    name: 'Customize Form',
+    component: CustomizeForm,
   },
   {
     path: '/settings',
