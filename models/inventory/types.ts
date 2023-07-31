@@ -40,4 +40,24 @@ export interface SMTransferDetails {
   isReturn?: boolean;
 }
 
+export interface ReturnBalanceItemQty {
+  item?: string;
+  quantity: number;
+  batch?: string | undefined;
+  serialNumber?: string;
+}
+
+export interface DocItem {
+  item: string;
+  quantity: number;
+  batch?: string | undefined;
+  serialNumber?: string;
+}
+
+export interface ReturnDocItem {
+  quantity: number;
+  batches?: Record<string, { quantity: number, serialNumbers?: string[] }> | undefined;
+  serialNumbers?: string[] | undefined;
+}
+
 export interface SMIDetails extends SMDetails, SMTransferDetails {}

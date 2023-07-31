@@ -26,6 +26,7 @@ import {
   DocValueMap,
   RawValueMap,
 } from './types';
+import { ReturnDocItem } from 'models/inventory/types';
 
 type FieldMap = Record<string, Record<string, Field>>;
 
@@ -333,12 +334,12 @@ export class DatabaseHandler extends DatabaseBase {
   async getReturnBalanceItemsQty(
     schemaName: string,
     docName: string
-  ): Promise<DocValueMap[] | undefined> {
+  ): Promise<Record<string, ReturnDocItem> | undefined> {
     return (await this.#demux.callBespoke(
       'getReturnBalanceItemsQty',
       schemaName,
       docName
-    )) as DocValueMap[] | undefined;
+    )) as Promise<Record<string, ReturnDocItem> | undefined>;
   }
 
   /**

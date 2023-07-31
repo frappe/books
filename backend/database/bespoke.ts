@@ -8,8 +8,8 @@ import {
 import { ModelNameEnum } from '../../models/types';
 import DatabaseCore from './core';
 import { BespokeFunction } from './types';
+import { DocItem, ReturnDocItem } from 'models/inventory/types';
 import { safeParseFloat } from 'utils/index';
-import { DocValueMap } from 'fyo/core/types';
 
 export class BespokeQueries {
   [key: string]: BespokeFunction;
@@ -187,13 +187,7 @@ export class BespokeQueries {
     db: DatabaseCore,
     schemaName: string,
     docName: string
-  ): Promise<DocValueMap[] | undefined> {
-    const docItems = (await db.knex!(`${schemaName}Item`)
-      .select('item')
-      .where('parent', docName)
-      .groupBy('item')
-      .sum({ quantity: 'quantity' })) as DocValueMap[];
-
+  ): Promise<Record<string, ReturnDocItem> | undefined> {
     const returnDocNames = (
       await db.knex!(schemaName)
         .select('name')
@@ -206,41 +200,175 @@ export class BespokeQueries {
       return;
     }
 
-    const returnedItems = (await db.knex!(`${schemaName}Item`)
-      .select('item')
+    const returnedItems: DocItem[] = await db.knex!(`${schemaName}Item`)
+      .select('item', 'batch', 'serialNumber')
       .sum({ quantity: 'quantity' })
       .whereIn('parent', returnDocNames)
-      .groupBy('item')) as DocValueMap[];
+      .groupBy('item', 'batch', 'serialNumber');
 
     if (!returnedItems.length) {
       return;
     }
 
-    const returnBalanceItemQty = [];
+    const docItems: DocItem[] = await db.knex!(`${schemaName}Item`)
+      .select('name', 'item', 'batch', 'serialNumber')
+      .where('parent', docName)
+      .groupBy('item', 'batch', 'serialNumber')
+      .sum({ quantity: 'quantity' });
 
-    for (const item of returnedItems) {
-      const docItem = docItems.filter(
-        (invItem) => invItem.item === item.item
-      )[0];
+    const docItemsMap = BespokeQueries.#getDocItemMap(docItems);
+    const returnedItemsMap = BespokeQueries.#getDocItemMap(returnedItems);
 
-      if (!docItem) {
+    const returnBalanceItems = BespokeQueries.#getReturnBalanceItemQtyMap(
+      docItemsMap,
+      returnedItemsMap
+    );
+
+    return returnBalanceItems;
+  }
+
+  static #getDocItemMap(docItems: DocItem[]): Record<string, ReturnDocItem> {
+    const docItemsMap: Record<string, ReturnDocItem> = {};
+    const batchesMap:
+      | Record<
+          string,
+          { quantity: number; serialNumbers?: string[] | undefined }
+        >
+      | undefined = {};
+
+    for (const item of docItems) {
+      if (!!docItemsMap[item.item]) {
+        if (item.batch) {
+          let serialNumbers: string[] | undefined;
+
+          if (item.serialNumber) {
+            serialNumbers = item.serialNumber.split('\n');
+            docItemsMap[item.item].batches![item.batch] = {
+              quantity: item.quantity,
+              serialNumbers,
+            };
+          }
+
+          docItemsMap[item.item].batches![item.batch] = {
+            quantity: item.quantity,
+            serialNumbers,
+          };
+        } else {
+          docItemsMap[item.item].quantity += item.quantity;
+        }
+
+        if (item.serialNumber) {
+          const serialNumbers: string[] = [];
+
+          if (docItemsMap[item.item].serialNumbers) {
+            serialNumbers.push(...(docItemsMap[item.item].serialNumbers ?? []));
+          }
+
+          serialNumbers.push(...item.serialNumber.split('\n'));
+          docItemsMap[item.item].serialNumbers = serialNumbers;
+        }
         continue;
       }
 
-      let balanceQty = safeParseFloat(
-        (docItem.quantity as number) - Math.abs(item.quantity as number)
+      if (item.batch) {
+        let serialNumbers: string[] | undefined = undefined;
+        if (item.serialNumber) {
+          serialNumbers = item.serialNumber.split('\n');
+        }
+
+        batchesMap[item.batch] = {
+          serialNumbers,
+          quantity: item.quantity,
+        };
+      }
+
+      let serialNumbers: string[] | undefined = undefined;
+
+      if (!item.batch && item.serialNumber) {
+        serialNumbers = item.serialNumber.split('\n');
+      }
+
+      docItemsMap[item.item] = {
+        serialNumbers,
+        batches: batchesMap,
+        quantity: item.quantity,
+      };
+    }
+    return docItemsMap;
+  }
+
+  static #getReturnBalanceItemQtyMap(
+    docItemsMap: Record<string, ReturnDocItem>,
+    returnedItemsMap: Record<string, ReturnDocItem>
+  ): Record<string, ReturnDocItem> {
+    const returnBalanceItems: Record<string, ReturnDocItem> | undefined = {};
+    const balanceBatchQtyMap:
+      | Record<
+          string,
+          { quantity: number; serialNumbers: string[] | undefined }
+        >
+      | undefined = {};
+
+    for (const row in returnedItemsMap) {
+      const balanceSerialNumbersMap: string[] | undefined = [];
+
+      if (!docItemsMap[row]) {
+        continue;
+      }
+
+      const returnedItem = returnedItemsMap[row];
+      const docItem = docItemsMap[row];
+      let balanceQty = 0;
+
+      const docItemHasBatch = !!Object.keys(docItem.batches ?? {}).length;
+      const returnedItemHasBatch = !!Object.keys(returnedItem.batches ?? {})
+        .length;
+
+      if (docItemHasBatch && returnedItemHasBatch && docItem.batches) {
+        for (const batch in returnedItem.batches) {
+          const returnedItemQty = Math.abs(
+            returnedItem.batches[batch].quantity
+          );
+          const docBatchItemQty = docItem.batches[batch].quantity;
+          const balanceQty = returnedItemQty - docBatchItemQty;
+          const docItemSerialNumbers = docItem.batches[batch].serialNumbers;
+          const returnItemSerialNumbers =
+            returnedItem.batches[batch].serialNumbers;
+
+          let balanceSerialNumbers: string[] | undefined;
+
+          if (docItemSerialNumbers && returnItemSerialNumbers) {
+            balanceSerialNumbers = docItemSerialNumbers.filter(
+              (serialNumber: string) =>
+                returnItemSerialNumbers.indexOf(serialNumber) == -1
+            );
+          }
+
+          balanceBatchQtyMap[batch] = {
+            quantity: balanceQty,
+            serialNumbers: balanceSerialNumbers,
+          };
+        }
+      }
+
+      if (docItem.serialNumbers && returnedItem.serialNumbers) {
+        for (const serialNumber of docItem.serialNumbers) {
+          if (!returnedItem.serialNumbers.includes(serialNumber)) {
+            balanceSerialNumbersMap.push(serialNumber);
+          }
+        }
+      }
+
+      balanceQty = safeParseFloat(
+        Math.abs(returnedItem.quantity) - docItemsMap[row].quantity
       );
 
-      if (balanceQty === 0) {
-        continue;
-      }
-
-      if (balanceQty > 0) {
-        balanceQty *= -1;
-      }
-      returnBalanceItemQty.push({ ...item, quantity: balanceQty });
+      returnBalanceItems[row] = {
+        quantity: balanceQty,
+        batches: balanceBatchQtyMap,
+        serialNumbers: balanceSerialNumbersMap,
+      };
     }
-
-    return returnBalanceItemQty;
+    return returnBalanceItems;
   }
 }
