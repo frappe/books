@@ -62,28 +62,20 @@
       "section": "References"
     },
     {
+      "fieldname": "isReturned",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
       "abstract": true,
       "fieldname": "backReference",
       "section": "References"
     },
     {
-      "fieldname": "isReturn",
-      "label": "Is Return",
-      "placeholder": "Is Return",
-      "fieldtype": "Check",
-      "default": false,
-      "section": "Return"
-    },
-    {
       "abstract": true,
       "fieldname": "returnAgainst",
-      "section": "Return"
-    },
-    {
-      "fieldname": "isItemsReturned",
-      "fieldtype": "Check",
-      "default": false,
-      "hidden": true
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]

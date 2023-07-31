@@ -113,11 +113,11 @@ function getSubmittableStatus(doc: Doc) {
     return 'Paid';
   }
 
-  if (doc.isReturn && doc.isSubmitted && !doc.isCancelled) {
+  if (doc.returnAgainst && doc.isSubmitted) {
     return 'Return';
   }
 
-  if (doc.isItemsReturned && doc.isSubmitted && !doc.isCancelled) {
+  if (doc.isReturned && doc.isSubmitted) {
     return 'ReturnIssued';
   }
 

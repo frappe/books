@@ -35,7 +35,7 @@
       "fieldtype": "Link",
       "target": "PurchaseReceipt",
       "label": "Return Against",
-      "section": "Return"
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]

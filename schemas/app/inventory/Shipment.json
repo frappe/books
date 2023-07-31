@@ -36,7 +36,7 @@
       "fieldtype": "Link",
       "target": "Shipment",
       "label": "Return Against",
-      "section": "Return"
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]

@@ -87,13 +87,6 @@
       "section": "Features"
     },
     {
-      "fieldname": "enableStockReturns",
-      "label": "Enable Stock Returns",
-      "fieldtype": "Check",
-      "default": false,
-      "section": "Features"
-    },
-    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",
