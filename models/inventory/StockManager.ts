@@ -152,7 +152,7 @@ export class StockManager {
 
     const batchMessage = !!batch ? t` in Batch ${batch}` : '';
 
-    if (quantityBefore < details.quantity) {
+    if (!details.isReturn && quantityBefore < details.quantity) {
       throw new ValidationError(
         [
           t`Insufficient Quantity.`,

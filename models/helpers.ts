@@ -166,9 +166,8 @@ export function getMakeReturnDocAction(fyo: Fyo): Action {
     label: fyo.t`Return`,
     group: fyo.t`Create`,
     condition: (doc: Doc) =>
-      !!fyo.singles.AccountingSettings?.enableStockReturns &&
+      !!fyo.singles.InventorySettings?.enableStockReturns &&
       doc.isSubmitted &&
-      !doc.isCancelled &&
       !doc.isReturn,
     action: async (doc: Doc) => {
       const returnDoc = await (doc as StockTransfer).getReturnDoc();
@@ -212,8 +211,8 @@ export const statusColor: Record<
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
-  Return: 'orange',
-  ReturnIssued: 'gray',
+  Return: 'green',
+  ReturnIssued: 'green',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -274,14 +273,14 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
 
   if (
     [ModelNameEnum.Shipment, ModelNameEnum.PurchaseReceipt].includes(
-      doc.schema.name as ModelNameEnum
+      doc.schemaName as ModelNameEnum
     )
   ) {
-    if (doc.isReturn && doc.submitted && !doc.cancelled) {
+    if (doc.isReturn && doc.isSubmitted) {
       return 'Return';
     }
 
-    if (doc.isItemsReturned && doc.submitted && !doc.cancelled) {
+    if (doc.isItemsReturned && doc.isSubmitted) {
       return 'ReturnIssued';
     }
   }

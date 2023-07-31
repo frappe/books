@@ -102,7 +102,7 @@ async function validateItemRowSerialNumber(
 
   const serialNumbers = getSerialNumbers(serialNumber);
 
-  const quantity = row.quantity ?? 0;
+  const quantity = Math.abs(row.quantity ?? 0);
   if (serialNumbers.length !== quantity) {
     throw new ValidationError(
       t`Additional ${
@@ -147,14 +147,26 @@ async function validateItemRowSerialNumber(
 
     const status = snDoc.status ?? 'Inactive';
     const schemaName = row.parentSchemaName;
+    const isReturn = !!row.parentdoc?.returnAgainst;
+    const isSubmitted = !!row.parentdoc?.submitted;
 
-    if (schemaName === 'PurchaseReceipt' && status !== 'Inactive') {
+    if (
+      schemaName === 'PurchaseReceipt' &&
+      status !== 'Inactive' &&
+      !isSubmitted &&
+      !isReturn
+    ) {
       throw new ValidationError(
         t`Serial Number ${serialNumber} is not Inactive`
       );
     }
 
-    if (schemaName === 'Shipment' && status !== 'Active') {
+    if (
+      schemaName === 'Shipment' &&
+      status !== 'Active' &&
+      !isSubmitted &&
+      !isReturn
+    ) {
       throw new ValidationError(
         t`Serial Number ${serialNumber} is not Active.`
       );
@@ -244,14 +256,15 @@ export async function canValidateSerialNumber(
 
 export async function updateSerialNumbers(
   doc: StockTransfer | StockMovement,
-  isCancel: boolean
+  isCancel: boolean,
+  isReturn = false
 ) {
   for (const row of doc.items ?? []) {
     if (!row.serialNumber) {
       continue;
     }
 
-    const status = getSerialNumberStatus(doc, row, isCancel);
+    const status = getSerialNumberStatus(doc, row, isCancel, isReturn);
     await updateSerialNumberStatus(status, row.serialNumber, doc.fyo);
   }
 }
@@ -270,13 +283,20 @@ async function updateSerialNumberStatus(
 function getSerialNumberStatus(
   doc: StockTransfer | StockMovement,
   item: StockTransferItem | StockMovementItem,
-  isCancel: boolean
+  isCancel: boolean,
+  isReturn: boolean
 ): SerialNumberStatus {
   if (doc.schemaName === ModelNameEnum.Shipment) {
+    if (isReturn) {
+      return isCancel ? 'Delivered' : 'Active';
+    }
     return isCancel ? 'Active' : 'Delivered';
   }
 
   if (doc.schemaName === ModelNameEnum.PurchaseReceipt) {
+    if (isReturn) {
+      return isCancel ? 'Active' : 'Delivered';
+    }
     return isCancel ? 'Inactive' : 'Active';
   }
 

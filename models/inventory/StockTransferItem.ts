@@ -38,7 +38,7 @@ export class StockTransferItem extends TransferItem {
     return this.schemaName === ModelNameEnum.ShipmentItem;
   }
 
-  get isReturn() {
+  get isReturn(): boolean {
     return !!this.parentdoc?.isReturn;
   }
 

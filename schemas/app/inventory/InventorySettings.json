@@ -74,6 +74,13 @@
       "label": "Enable UOM Conversion",
       "fieldtype": "Check",
       "section": "Features"
+    },
+    {
+      "fieldname": "enableStockReturns",
+      "label": "Enable Stock Returns",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
     }
   ]
 }
