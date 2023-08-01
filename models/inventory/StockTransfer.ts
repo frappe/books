@@ -206,6 +206,11 @@ export abstract class StockTransfer extends Transfer {
     await this._updateItemsReturned();
   }
 
+  async beforeCancel(): Promise<void> {
+    await super.beforeCancel();
+    await this._validateHasReturnDocs();
+  }
+
   async afterCancel(): Promise<void> {
     await super.afterCancel();
     await updateSerialNumbers(this, true, this.isReturn);
@@ -268,8 +273,8 @@ export abstract class StockTransfer extends Transfer {
   }
 
   async _updateItemsReturned() {
-    if (!this.isSubmitted || !this.returnAgainst) {
-      return null;
+    if (this.isSyncing || !this.returnAgainst) {
+      return;
     }
 
     const linkedReference = await this.loadAndGetLink('returnAgainst');
@@ -281,9 +286,31 @@ export abstract class StockTransfer extends Transfer {
       this.schemaName,
       linkedReference.name
     );
-    const isReturned = !!referenceDoc;
 
+    const isReturned = this.isSubmitted;
     await referenceDoc.setAndSync({ isReturned });
+  }
+
+  async _validateHasReturnDocs() {
+    if (!this.name) {
+      return;
+    }
+
+    const returnDocs = await this.fyo.db.getAll(this.schemaName, {
+      filters: { returnAgainst: this.name },
+    });
+
+    const hasReturnDocs = !!returnDocs.length;
+    if (!hasReturnDocs) {
+      return;
+    }
+
+    const returnDocNames = returnDocs.map((doc) => doc.name).join(', ');
+    const label = this.fyo.schemaMap[this.schemaName]?.label ?? this.schemaName;
+
+    throw new ValidationError(
+      t`Cannot cancel ${this.schema.label} ${this.name} because of the following ${label}: ${returnDocNames}`
+    );
   }
 
   _getTransferMap() {
