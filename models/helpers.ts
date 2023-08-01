@@ -273,14 +273,14 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
 
   if (
     [ModelNameEnum.Shipment, ModelNameEnum.PurchaseReceipt].includes(
-      doc.schemaName as ModelNameEnum
+      doc.schema.name as ModelNameEnum
     )
   ) {
-    if (doc.isReturn && doc.isSubmitted) {
+    if (!!doc.returnAgainst && doc.submitted && !doc.cancelled) {
       return 'Return';
     }
 
-    if (doc.isItemsReturned && doc.isSubmitted) {
+    if (doc.isReturned && doc.submitted && !doc.cancelled) {
       return 'ReturnIssued';
     }
   }

@@ -63,8 +63,8 @@ const statusColorMap: Record<Status, UIColors> = {
   Paid: 'green',
   Saved: 'blue',
   Submitted: 'blue',
-  Return: 'orange',
-  ReturnIssued: 'gray',
+  Return: 'green',
+  ReturnIssued: 'green',
 };
 
 function getStatus(doc: Doc) {
