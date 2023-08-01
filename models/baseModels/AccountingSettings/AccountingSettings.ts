@@ -51,7 +51,6 @@ export class AccountingSettings extends Doc {
   override hidden: HiddenMap = {
     discountAccount: () => !this.enableDiscounting,
     gstin: () => this.fyo.singles.SystemSettings?.countryCode !== 'in',
-    enableStockReturns: () => !this.enableInventory,
   };
 
   async change(ch: ChangeArg) {
