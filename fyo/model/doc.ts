@@ -751,7 +751,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (dbValues && docModified !== dbModified) {
       throw new ConflictError(
         this.fyo
-          .t`${this.schema.label} ${this.name} has been modified after loading` +
+          .t`${this.schema.label} ${this.name} has been modified after loading please reload entry.` +
           ` ${dbModified}, ${docModified}`
       );
     }
