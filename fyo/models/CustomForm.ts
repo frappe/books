@@ -1,9 +1,10 @@
 import { Doc } from 'fyo/model/doc';
 import { HiddenMap, ListsMap } from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
-import type { CustomField } from './CustomField';
-import { getMapFromList } from 'utils/index';
 import { Field } from 'schemas/types';
+import { getMapFromList } from 'utils/index';
+import { CustomField } from './CustomField';
 
 export class CustomForm extends Doc {
   name?: string;
@@ -49,4 +50,29 @@ export class CustomForm extends Doc {
   };
 
   hidden: HiddenMap = { customFields: () => !this.name };
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  override async validate(): Promise<void> {
+    for (const row of this.customFields ?? []) {
+      if (row.fieldtype === 'Select' || row.fieldtype === 'AutoComplete') {
+        this.validateOptions(row);
+      }
+    }
+  }
+
+  validateOptions(row: CustomField) {
+    const optionString = row.options ?? '';
+    const options = optionString
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (options.length > 1) {
+      return;
+    }
+
+    throw new ValidationError(
+      `At least two options need to be set for the selected fieldtype`
+    );
+  }
 }

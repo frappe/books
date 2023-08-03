@@ -1,14 +1,18 @@
+import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import type {
   FormulaMap,
   HiddenMap,
   ListsMap,
+  RequiredMap,
   ValidationMap,
 } from 'fyo/model/types';
-import type { FieldType, SelectOption } from 'schemas/types';
-import type { CustomForm } from './CustomForm';
 import { ValueError } from 'fyo/utils/errors';
+import { camelCase } from 'lodash';
 import { ModelNameEnum } from 'models/types';
+import type { FieldType } from 'schemas/types';
+import { FieldTypeEnum } from 'schemas/types';
+import type { CustomForm } from './CustomForm';
 
 export class CustomField extends Doc {
   parentdoc?: CustomForm;
@@ -31,6 +35,19 @@ export class CustomField extends Doc {
     return this.parentdoc?.parentFields;
   }
 
+  formulas: FormulaMap = {
+    fieldname: {
+      formula: () => {
+        if (!this.label?.length) {
+          return;
+        }
+
+        return camelCase(this.label);
+      },
+      dependsOn: ['label'],
+    },
+  };
+
   hidden: HiddenMap = {
     options: () =>
       this.fieldtype !== 'Select' &&
@@ -40,9 +57,15 @@ export class CustomField extends Doc {
     references: () => this.fieldtype !== 'DynamicLink',
   };
 
-  formulas: FormulaMap = {};
-
   validations: ValidationMap = {
+    label: (value) => {
+      if (typeof value !== 'string') {
+        return;
+      }
+
+      const fieldname = camelCase(value);
+      (this.validations.fieldname as (value: DocValue) => void)(fieldname);
+    },
     fieldname: (value) => {
       if (typeof value !== 'string') {
         return;
@@ -94,9 +117,38 @@ export class CustomField extends Doc {
         return [];
       }
 
-      return (doc.parentdoc?.customFields
-        ?.map((cf) => ({ value: cf.fieldname, label: cf.label }))
-        .filter((cf) => cf.label && cf.value) ?? []) as SelectOption[];
+      const referenceType: string[] = [
+        FieldTypeEnum.AutoComplete,
+        FieldTypeEnum.Data,
+        FieldTypeEnum.Text,
+        FieldTypeEnum.Select,
+      ];
+
+      const customFields =
+        doc.parentdoc?.customFields
+          ?.filter(
+            (cf) =>
+              cf.fieldname &&
+              cf.label &&
+              referenceType.includes(cf.fieldtype ?? '')
+          )
+          ?.map((cf) => ({ value: cf.fieldname!, label: cf.label! })) ?? [];
+
+      const schemaFields =
+        doc.parentSchema?.fields
+          .filter(
+            (f) => f.fieldname && f.label && referenceType.includes(f.fieldtype)
+          )
+          .map((f) => ({ value: f.fieldname, label: f.label })) ?? [];
+
+      return [customFields, schemaFields].flat();
     },
+  };
+
+  required: RequiredMap = {
+    options: () =>
+      this.fieldtype === 'Select' || this.fieldtype === 'AutoComplete',
+    target: () => this.fieldtype === 'Link' || this.fieldtype === 'Table',
+    references: () => this.fieldtype === 'DynamicLink',
   };
 }

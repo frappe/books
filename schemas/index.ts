@@ -1,8 +1,16 @@
+import { RawCustomField } from 'backend/database/types';
 import { cloneDeep } from 'lodash';
 import { getListFromMap, getMapFromList } from 'utils';
 import regionalSchemas from './regional';
 import { appSchemas, coreSchemas, metaSchemas } from './schemas';
-import { Field, Schema, SchemaMap, SchemaStub, SchemaStubMap } from './types';
+import type {
+  Field,
+  Schema,
+  SchemaMap,
+  SchemaStub,
+  SchemaStubMap,
+  SelectOption,
+} from './types';
 
 const NAME_FIELD = {
   fieldname: 'name',
@@ -12,7 +20,10 @@ const NAME_FIELD = {
   readOnly: true,
 };
 
-export function getSchemas(countryCode = '-'): Readonly<SchemaMap> {
+export function getSchemas(
+  countryCode = '-',
+  rawCustomFields: RawCustomField[]
+): Readonly<SchemaMap> {
   const builtCoreSchemas = getCoreSchemas();
   const builtAppSchemas = getAppSchemas(countryCode);
 
@@ -21,6 +32,7 @@ export function getSchemas(countryCode = '-'): Readonly<SchemaMap> {
   schemaMap = removeFields(schemaMap);
   schemaMap = setSchemaNameOnFields(schemaMap);
 
+  addCustomFields(schemaMap, rawCustomFields);
   deepFreeze(schemaMap);
   return schemaMap;
 }
@@ -250,4 +262,75 @@ function getRegionalSchemaMap(countryCode: string): SchemaStubMap {
   }
 
   return getMapFromList(countrySchemas, 'name');
+}
+
+function addCustomFields(
+  schemaMap: SchemaMap,
+  rawCustomFields: RawCustomField[]
+): void {
+  const fieldMap = getFieldMapFromRawCustomFields(rawCustomFields, schemaMap);
+  for (const schemaName in fieldMap) {
+    const fields = fieldMap[schemaName];
+    schemaMap[schemaName]?.fields.push(...fields);
+  }
+}
+
+function getFieldMapFromRawCustomFields(
+  rawCustomFields: RawCustomField[],
+  schemaMap: SchemaMap
+) {
+  const schemaFieldMap: Record<string, Record<string, Field>> = {};
+
+  return rawCustomFields.reduce(
+    (
+      map,
+      {
+        parent,
+        label,
+        fieldname,
+        fieldtype,
+        isRequired,
+        section,
+        tab,
+        options: rawOptions,
+        target,
+        references,
+      }
+    ) => {
+      schemaFieldMap[parent] ??= getMapFromList(
+        schemaMap[parent]?.fields ?? [],
+        'fieldname'
+      );
+
+      if (!schemaFieldMap[parent] || schemaFieldMap[parent][fieldname]) {
+        return map;
+      }
+
+      map[parent] ??= [];
+      const options = rawOptions
+        ?.split('\n')
+        .map((o) => {
+          const value = o.trim();
+          return { value, label: value } as SelectOption;
+        })
+        .filter((o) => o.label && o.value);
+
+      const field = {
+        label,
+        fieldname,
+        fieldtype,
+        required: isRequired,
+        section,
+        tab,
+        target,
+        options,
+        references,
+        isCustom: true,
+      };
+
+      map[parent].push(field as Field);
+      return map;
+    },
+    {} as Record<string, Field[]>
+  );
 }
