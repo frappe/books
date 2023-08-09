@@ -49,8 +49,8 @@ type BaseFieldType = Exclude<
 export type RawValue = string | number | boolean | null;
 
 export interface BaseField {
-  fieldname: string;              // Column name in the db
-  fieldtype: BaseFieldType;       // UI Descriptive field types that map to column types
+  fieldname: string;             // Column name in the db
+  fieldtype: BaseFieldType;      // UI Descriptive field types that map to column types
   label: string;                 // Translateable UI facing name
   schemaName?: string;           // Convenient access to schemaName incase just the field is passed
   required?: boolean;            // Implies Not Null
@@ -61,11 +61,12 @@ export interface BaseField {
   placeholder?: string;          // UI Facing config, form field placeholder
   groupBy?: string;              // UI Facing used in dropdowns fields
   meta?: boolean;                // Field is a meta field, i.e. only for the db, not UI
-  filter?: boolean;               // UI Facing config, whether to be used to filter the List.
+  filter?: boolean;              // UI Facing config, whether to be used to filter the List.
   computed?: boolean;            // Computed values are not stored in the database.
   section?: string;              // UI Facing config, for grouping by sections
   tab?: string;                  // UI Facing config, for grouping by tabs
-  abstract?: string;             // Uused to mark the location of a field in an Abstract schema 
+  abstract?: string;             // Used to mark the location of a field in an Abstract schema 
+  isCustom?: boolean;            // Whether the field is a custom field
 }
 
 export type SelectOption = { value: string; label: string };

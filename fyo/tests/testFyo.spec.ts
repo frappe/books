@@ -17,7 +17,7 @@ test('Fyo Init', async (t) => {
 test('Fyo Docs', async (t) => {
   const countryCode = 'in';
   const fyo = getTestFyo();
-  const schemaMap = getSchemas(countryCode);
+  const schemaMap = getSchemas(countryCode, []);
   const regionalModels = await getRegionalModels(countryCode);
   await fyo.db.createNewDatabase(':memory:', countryCode);
   await fyo.initializeAndRegister(models, regionalModels);
