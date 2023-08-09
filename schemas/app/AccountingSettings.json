@@ -87,6 +87,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableFormCustomization",
+      "label": "Enable Form Customization",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",

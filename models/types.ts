@@ -44,6 +44,8 @@ export enum ModelNameEnum {
   PurchaseReceipt = 'PurchaseReceipt',
   PurchaseReceiptItem = 'PurchaseReceiptItem',
   Location = 'Location',
+  CustomForm = 'CustomForm',
+  CustomField = 'CustomField'
 }
 
 export type ModelName = keyof typeof ModelNameEnum;

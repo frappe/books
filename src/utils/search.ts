@@ -217,6 +217,10 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     schemaNames.push(ModelNameEnum.SerialNumber);
   }
 
+  if (fyo.doc.singles.AccountingSettings?.enableFormCustomization) {
+    schemaNames.push(ModelNameEnum.CustomForm);
+  }
+
   if (fyo.store.isDevelopment) {
     schemaNames = Object.keys(fyo.schemaMap) as ModelNameEnum[];
   }
