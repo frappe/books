@@ -122,12 +122,12 @@
       "fieldtype": "AutoComplete"
     }
   ],
-  "tableFields": ["label", "fieldname", "fieldtype"],
+  "tableFields": ["label", "fieldname", "fieldtype", "isRequired"],
   "quickEditFields": [
     "label",
     "fieldname",
     "fieldtype",
-    "required",
+    "isRequired",
     "options",
     "target",
     "references",
