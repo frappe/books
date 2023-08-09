@@ -4,12 +4,15 @@ import { getListFromMap, getMapFromList } from 'utils';
 import regionalSchemas from './regional';
 import { appSchemas, coreSchemas, metaSchemas } from './schemas';
 import type {
+  DynamicLinkField,
   Field,
+  OptionField,
   Schema,
   SchemaMap,
   SchemaStub,
   SchemaStubMap,
   SelectOption,
+  TargetField,
 } from './types';
 
 const NAME_FIELD = {
@@ -319,16 +322,28 @@ function getFieldMapFromRawCustomFields(
         label,
         fieldname,
         fieldtype,
-        required: isRequired,
         section,
         tab,
-        target,
-        options,
-        references,
         isCustom: true,
-      };
+      } as Field;
 
-      map[parent].push(field as Field);
+      if (options?.length) {
+        (field as OptionField).options = options;
+      }
+
+      if (typeof isRequired === 'number' || typeof isRequired === 'boolean') {
+        field.required = Boolean(isRequired);
+      }
+
+      if (typeof target === 'string') {
+        (field as TargetField).target === 'target';
+      }
+
+      if (typeof references === 'string') {
+        (field as DynamicLinkField).references === 'references';
+      }
+
+      map[parent].push(field);
       return map;
     },
     {} as Record<string, Field[]>
