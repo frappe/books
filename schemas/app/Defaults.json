@@ -164,6 +164,44 @@
       "fieldtype": "Link",
       "target": "PrintTemplate",
       "section": "Print Templates"
+    },
+    {
+      "fieldname": "posCustomer",
+      "label": "POS Customer",
+      "fieldtype": "Link",
+      "target": "Party",
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "posInventory",
+      "label": "Inventory",
+      "fieldtype": "Link",
+      "target": "Location",
+      "default": "Stores",
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "posPrintTemplate",
+      "label": "Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "default": "Minimal - Sales Invoice",
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "posAdjustmentAccount",
+      "label": "Adjustment Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "default": "Write Off",
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "posCashDenominations",
+      "label": "Cash Denominations",
+      "fieldtype": "Table",
+      "target": "DefaultCashDenominations",
+      "section": "Point of Sale"
     }
   ]
 }

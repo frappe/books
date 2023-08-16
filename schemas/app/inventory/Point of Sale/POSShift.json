@@ -1,0 +1,56 @@
+{
+  "name": "POSShift",
+  "isSingle": true,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "isShiftOpen",
+      "label": "Is POS Shift Open",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Defaults"
+    },
+    {
+      "fieldname": "openingDate",
+      "label": "Opening Date",
+      "fieldtype": "Datetime",
+      "section": "Defaults"
+    },
+    {
+      "fieldname": "closingDate",
+      "label": "Closing Date",
+      "fieldtype": "Datetime",
+      "section": "Defaults"
+    },
+    {
+      "fieldname": "openingCashAmount",
+      "label": "Opening Cash Amount",
+      "fieldtype": "Currency",
+      "section": "Defaults"
+    },
+    {
+      "fieldname": "totalOpeningAmount",
+      "label": "Opening Amount",
+      "fieldtype": "Currency",
+      "section": "Defaults"
+    },
+    {
+      "fieldname": "openingCashInDenominations",
+      "fieldtype": "Table",
+      "target": "OpeningCashInDenominations",
+      "section": "Defaults"
+    },
+    {
+      "fieldname": "openingAmounts",
+      "fieldtype": "Table",
+      "target": "POSShiftOpeningAmounts",
+      "section": "Defaults"
+    },
+    {
+      "fieldname": "closingAmounts",
+      "fieldtype": "Table",
+      "target": "POSShiftClosingAmounts",
+      "section": "Defaults"
+    }
+  ]
+}
