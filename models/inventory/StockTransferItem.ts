@@ -38,6 +38,10 @@ export class StockTransferItem extends TransferItem {
     return this.schemaName === ModelNameEnum.ShipmentItem;
   }
 
+  get isReturn(): boolean {
+    return !!this.parentdoc?.isReturn;
+  }
+
   formulas: FormulaMap = {
     description: {
       formula: async () =>
@@ -94,6 +98,15 @@ export class StockTransferItem extends TransferItem {
         const unitDoc = itemDoc.getLink('uom');
 
         let quantity: number = this.quantity ?? 1;
+
+        if (this.isReturn && quantity > 0) {
+          quantity *= -1;
+        }
+
+        if (!this.isReturn && quantity < 0) {
+          quantity *= -1;
+        }
+
         if (fieldname === 'transferQuantity') {
           quantity = this.transferQuantity! * this.unitConversionFactor!;
         }
@@ -109,6 +122,7 @@ export class StockTransferItem extends TransferItem {
         'transferQuantity',
         'transferUnit',
         'unitConversionFactor',
+        'isReturn',
       ],
     },
     unitConversionFactor: {

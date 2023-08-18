@@ -29,6 +29,13 @@
       "target": "PurchaseReceiptItem",
       "required": true,
       "edit": true
+    },
+    {
+      "fieldname": "returnAgainst",
+      "fieldtype": "Link",
+      "target": "PurchaseReceipt",
+      "label": "Return Against",
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]

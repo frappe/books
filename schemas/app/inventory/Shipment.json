@@ -30,6 +30,13 @@
       "required": true,
       "edit": true,
       "section": "Items"
+    },
+    {
+      "fieldname": "returnAgainst",
+      "fieldtype": "Link",
+      "target": "Shipment",
+      "label": "Return Against",
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]
