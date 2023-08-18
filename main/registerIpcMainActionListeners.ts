@@ -41,7 +41,13 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.GET_DB_DEFAULT_PATH,
     async (_, companyName: string) => {
-      let root = app.getPath('documents');
+      let root: string;
+      try {
+        root = app.getPath('documents');
+      } catch {
+        root = app.getPath('userData');
+      }
+
       if (main.isDevelopment) {
         root = 'dbs';
       }
