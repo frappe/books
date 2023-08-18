@@ -62,8 +62,19 @@
       "section": "References"
     },
     {
+      "fieldname": "isReturned",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
       "abstract": true,
       "fieldname": "backReference",
+      "section": "References"
+    },
+    {
+      "abstract": true,
+      "fieldname": "returnAgainst",
       "section": "References"
     }
   ],

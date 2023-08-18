@@ -34,6 +34,7 @@ export function getStockTransferActions(
     getMakeInvoiceAction(fyo, schemaName),
     getLedgerLinkAction(fyo, false),
     getLedgerLinkAction(fyo, true),
+    getMakeReturnDocAction(fyo),
   ];
 }
 
@@ -160,6 +161,26 @@ export function getLedgerLink(
     },
   };
 }
+export function getMakeReturnDocAction(fyo: Fyo): Action {
+  return {
+    label: fyo.t`Return`,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) =>
+      !!fyo.singles.InventorySettings?.enableStockReturns &&
+      doc.isSubmitted &&
+      !doc.isReturn,
+    action: async (doc: Doc) => {
+      const returnDoc = await (doc as StockTransfer).getReturnDoc();
+      if (!returnDoc || !returnDoc.name) {
+        return;
+      }
+
+      const { routeTo } = await import('src/utils/ui');
+      const path = `/edit/${doc.schemaName}/${returnDoc.name}`;
+      await routeTo(path);
+    },
+  };
+}
 
 export function getTransactionStatusColumn(): ColumnConfig {
   return {
@@ -190,6 +211,8 @@ export const statusColor: Record<
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
+  Return: 'green',
+  ReturnIssued: 'green',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -208,6 +231,10 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Paid`;
     case 'Unpaid':
       return t`Unpaid`;
+    case 'Return':
+      return t`Return`;
+    case 'ReturnIssued':
+      return t`Return Issued`;
     default:
       return '';
   }
@@ -242,6 +269,20 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
     )
   ) {
     return getInvoiceStatus(doc);
+  }
+
+  if (
+    [ModelNameEnum.Shipment, ModelNameEnum.PurchaseReceipt].includes(
+      doc.schema.name as ModelNameEnum
+    )
+  ) {
+    if (!!doc.returnAgainst && doc.submitted && !doc.cancelled) {
+      return 'Return';
+    }
+
+    if (doc.isReturned && doc.submitted && !doc.cancelled) {
+      return 'ReturnIssued';
+    }
   }
 
   if (!!doc.submitted && !doc.cancelled) {
