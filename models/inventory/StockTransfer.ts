@@ -68,7 +68,8 @@ export abstract class StockTransfer extends Transfer {
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
-    returnAgainst: () => this.isSubmitted && !this.returnAgainst,
+    returnAgainst: () =>
+      (this.isSubmitted || this.isCancelled) && !this.returnAgainst,
   };
 
   static defaults: DefaultMap = {
