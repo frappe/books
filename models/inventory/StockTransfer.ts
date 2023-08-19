@@ -198,6 +198,7 @@ export abstract class StockTransfer extends Transfer {
     await validateBatch(this);
     await validateSerialNumber(this);
     await validateSerialNumberStatus(this);
+    await this._validateHasReturnDocs();
   }
 
   async afterSubmit() {
@@ -205,11 +206,6 @@ export abstract class StockTransfer extends Transfer {
     await updateSerialNumbers(this, false, this.isReturn);
     await this._updateBackReference();
     await this._updateItemsReturned();
-  }
-
-  async beforeCancel(): Promise<void> {
-    await super.beforeCancel();
-    await this._validateHasReturnDocs();
   }
 
   async afterCancel(): Promise<void> {
@@ -293,7 +289,7 @@ export abstract class StockTransfer extends Transfer {
   }
 
   async _validateHasReturnDocs() {
-    if (!this.name) {
+    if (!this.name || !this.isCancelled) {
       return;
     }
 
