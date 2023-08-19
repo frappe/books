@@ -274,7 +274,7 @@ export abstract class StockTransfer extends Transfer {
   }
 
   async _updateItemsReturned() {
-    if (this.isSyncing || !this.returnAgainst) {
+    if (!this.returnAgainst) {
       return;
     }
 
