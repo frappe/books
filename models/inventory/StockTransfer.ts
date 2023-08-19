@@ -45,7 +45,7 @@ export abstract class StockTransfer extends Transfer {
   }
 
   get isReturn(): boolean {
-    return !!this.returnAgainst && this.returnAgainst.length > 1;
+    return !!this.returnAgainst;
   }
 
   get invoiceSchemaName() {
