@@ -45,7 +45,7 @@ export abstract class StockTransfer extends Transfer {
   }
 
   get isReturn(): boolean {
-    return !!this.returnAgainst && this.returnAgainst.length > 1;
+    return !!this.returnAgainst;
   }
 
   get invoiceSchemaName() {
@@ -68,7 +68,8 @@ export abstract class StockTransfer extends Transfer {
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
-    returnAgainst: () => this.isSubmitted && !this.returnAgainst,
+    returnAgainst: () =>
+      (this.isSubmitted || this.isCancelled) && !this.returnAgainst,
   };
 
   static defaults: DefaultMap = {
@@ -197,6 +198,7 @@ export abstract class StockTransfer extends Transfer {
     await validateBatch(this);
     await validateSerialNumber(this);
     await validateSerialNumberStatus(this);
+    await this._validateHasReturnDocs();
   }
 
   async afterSubmit() {
@@ -204,11 +206,6 @@ export abstract class StockTransfer extends Transfer {
     await updateSerialNumbers(this, false, this.isReturn);
     await this._updateBackReference();
     await this._updateItemsReturned();
-  }
-
-  async beforeCancel(): Promise<void> {
-    await super.beforeCancel();
-    await this._validateHasReturnDocs();
   }
 
   async afterCancel(): Promise<void> {
@@ -273,7 +270,7 @@ export abstract class StockTransfer extends Transfer {
   }
 
   async _updateItemsReturned() {
-    if (this.isSyncing || !this.returnAgainst) {
+    if (!this.returnAgainst) {
       return;
     }
 
@@ -292,7 +289,7 @@ export abstract class StockTransfer extends Transfer {
   }
 
   async _validateHasReturnDocs() {
-    if (!this.name) {
+    if (!this.name || !this.isCancelled) {
       return;
     }
 
