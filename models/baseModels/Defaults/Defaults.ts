@@ -1,3 +1,4 @@
+import { DefaultCashDenominations } from 'models/inventory/Point of Sale/DefaultCashDenominations';
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
@@ -34,6 +35,13 @@ export class Defaults extends Doc {
   shipmentPrintTemplate?: string;
   purchaseReceiptPrintTemplate?: string;
   stockMovementPrintTemplate?: string;
+
+  // Point of Sale
+  posAdjustmentAccount?: string;
+  posCashDenominations?: DefaultCashDenominations[];
+  posCustomer?: string;
+  posInventory?: string;
+  posPrintTemplate?: string;
 
   static commonFilters = {
     // Auto Payments
@@ -82,6 +90,10 @@ export class Defaults extends Doc {
     return () => !this.fyo.singles.AccountingSettings?.enableInventory;
   }
 
+  getPointOfSaleHidden() {
+    return () => !this.fyo.singles.InventorySettings?.enablePointOfSale;
+  }
+
   hidden: HiddenMap = {
     stockMovementNumberSeries: this.getInventoryHidden(),
     shipmentNumberSeries: this.getInventoryHidden(),
@@ -91,6 +103,11 @@ export class Defaults extends Doc {
     shipmentPrintTemplate: this.getInventoryHidden(),
     purchaseReceiptPrintTemplate: this.getInventoryHidden(),
     stockMovementPrintTemplate: this.getInventoryHidden(),
+    posAdjustmentAccount: this.getPointOfSaleHidden(),
+    posCashDenominations: this.getPointOfSaleHidden(),
+    posCustomer: this.getPointOfSaleHidden(),
+    posInventory: this.getPointOfSaleHidden(),
+    posPrintTemplate: this.getPointOfSaleHidden(),
   };
 }
 
