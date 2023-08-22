@@ -3,10 +3,11 @@ import { FormulaMap } from 'fyo/model/types';
 import { Money } from 'pesa';
 
 export class ClosingAmounts extends Doc {
-  openingAmount?: Money;
   closingAmount?: Money;
-  expectedAmount?: Money;
   differenceAmount?: Money;
+  expectedAmount?: Money;
+  openingAmount?: Money;
+  paymentMethod?: string;
 
   formulas: FormulaMap = {
     differenceAmount: {

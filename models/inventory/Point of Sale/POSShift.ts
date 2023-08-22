@@ -5,13 +5,13 @@ import { OpeningAmounts } from './OpeningAmounts';
 import { OpeningCash } from './OpeningCash';
 
 export class POSShift extends Doc {
-  isShiftOpen?: boolean;
-  openingDate?: Date;
-  closingDate?: Date;
-  openingAmounts?: OpeningAmounts[];
   closingAmounts?: ClosingAmounts[];
-  openingCash?: OpeningCash[];
   closingCash?: ClosingCash[];
+  closingDate?: Date;
+  isShiftOpen?: boolean;
+  openingAmounts?: OpeningAmounts[];
+  openingCash?: OpeningCash[];
+  openingDate?: Date;
 
   get openingCashAmount() {
     if (!this.openingCash) {
@@ -28,6 +28,23 @@ export class POSShift extends Doc {
       openingAmount = openingAmount.add(amount);
     });
     return openingAmount;
+  }
+
+  get closingCashAmount() {
+    if (!this.closingCash) {
+      return this.fyo.pesa(0);
+    }
+
+    let closingAmount = this.fyo.pesa(0);
+
+    this.closingCash.map((row: ClosingCash) => {
+      const denomination = row.denomination ?? this.fyo.pesa(0);
+      const count = row.count ?? 0;
+
+      const amount = denomination.mul(count);
+      closingAmount = closingAmount.add(amount);
+    });
+    return closingAmount;
   }
 
   get openingTransferAmount() {
