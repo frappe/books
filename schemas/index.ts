@@ -336,11 +336,11 @@ function getFieldMapFromRawCustomFields(
       }
 
       if (typeof target === 'string') {
-        (field as TargetField).target === 'target';
+        (field as TargetField).target = target;
       }
 
       if (typeof references === 'string') {
-        (field as DynamicLinkField).references === 'references';
+        (field as DynamicLinkField).references = references;
       }
 
       map[parent].push(field);
