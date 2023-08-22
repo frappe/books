@@ -10,6 +10,7 @@ import DatabaseCore from './core';
 import { BespokeFunction } from './types';
 import { DocItem, ReturnDocItem } from 'models/inventory/types';
 import { safeParseFloat } from 'utils/index';
+import { Money } from 'pesa';
 
 export class BespokeQueries {
   [key: string]: BespokeFunction;
@@ -389,5 +390,48 @@ export class BespokeQueries {
       };
     }
     return returnBalanceItems;
+  }
+
+  static async getPOSTransactedAmount(
+    db: DatabaseCore,
+    fromDate: Date
+  ): Promise<Record<string, Money> | undefined> {
+    const sinvNames = (
+      await db.knex!(ModelNameEnum.SalesInvoice)
+        .select('name')
+        .where('isPOS', true)
+        .andWhereRaw('datetime(date) > datetime(?)', [
+          new Date(fromDate.setHours(0, 0, 0)).toISOString(),
+        ])
+        .andWhereRaw('datetime(date) < datetime(?)', [new Date().toISOString()])
+    ).map((row: { name: string }) => row.name);
+
+    if (!sinvNames.length) {
+      return;
+    }
+
+    const paymentEntryNames: string[] = (
+      await db.knex!(ModelNameEnum.PaymentFor)
+        .select('parent')
+        .whereIn('referenceName', sinvNames)
+    ).map((doc: { parent: string }) => doc.parent);
+
+    const groupedAmounts = (await db.knex!(ModelNameEnum.Payment)
+      .select('paymentMethod')
+      .whereIn('name', paymentEntryNames)
+      .groupBy('paymentMethod')
+      .sum({ amount: 'amount' })) as { paymentMethod: string; amount: Money }[];
+
+    const transactedAmounts = {} as { [paymentMethod: string]: Money };
+
+    if (!groupedAmounts) {
+      return;
+    }
+
+    for (const row of groupedAmounts) {
+      transactedAmounts[row.paymentMethod] = row.amount;
+    }
+
+    return transactedAmounts;
   }
 }
