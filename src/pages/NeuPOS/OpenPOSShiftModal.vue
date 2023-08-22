@@ -74,7 +74,7 @@ export default defineComponent({
       doc: computed(() => this.posShiftDoc),
     };
   },
-  emits: ['toggleShiftOpenModal'],
+  emits: ['toggleModal'],
   data() {
     return {
       posShiftDoc: undefined as POSShift | undefined,
@@ -92,6 +92,7 @@ export default defineComponent({
     this.posShiftDoc = fyo.singles[ModelNameEnum.POSShift];
 
     await this.seedDefaults();
+    this.isValuesSeeded = true;
   },
   methods: {
     async seedDefaultCashDenomiations() {
@@ -142,10 +143,8 @@ export default defineComponent({
         return;
       }
 
-      this.isValuesSeeded = false;
       await this.seedDefaultCashDenomiations();
       await this.seedPaymentMethods();
-      this.isValuesSeeded = true;
     },
     getField(fieldname: string) {
       return this.fyo.getField(ModelNameEnum.POSShift, fieldname);
@@ -166,9 +165,13 @@ export default defineComponent({
       this.setOpeningCashAmount();
     },
     async handleSubmit() {
-      await this.posShiftDoc?.set('isShiftOpen', true);
+      await this.posShiftDoc?.setMultiple({
+        isShiftOpen: true,
+        openingDate: new Date(),
+      });
+
       await this.posShiftDoc?.sync();
-      this.$emit('toggleShiftOpenModal');
+      this.$emit('toggleModal', 'ShiftOpen');
     },
   },
 });
