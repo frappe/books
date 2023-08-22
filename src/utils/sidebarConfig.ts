@@ -101,6 +101,20 @@ function getInventorySidebar(): SidebarRoot[] {
   ];
 }
 
+function getPOSSidebar() {
+  const isPOSEnabled = !!fyo.singles.InventorySettings?.enablePointOfSale;
+  if (!isPOSEnabled) {
+    return [];
+  }
+
+  return {
+    label: t`NeuPOS`,
+    name: 'neupos',
+    route: '/neupos',
+    icon: 'neupos',
+  };
+}
+
 function getReportSidebar() {
   return {
     label: t`Reports`,
@@ -256,6 +270,7 @@ function getCompleteSidebar(): SidebarConfig {
     },
     getReportSidebar(),
     getInventorySidebar(),
+    getPOSSidebar(),
     getRegionalSidebar(),
     {
       label: t`Setup`,
