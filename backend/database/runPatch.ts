@@ -47,5 +47,14 @@ async function makeEntry(
   defaultFieldValueMap.failed = failed;
   defaultFieldValueMap.version = version;
 
-  await dm.db!.insert('PatchRun', defaultFieldValueMap);
+  try {
+    await dm.db!.insert('PatchRun', defaultFieldValueMap);
+  } catch {
+    /**
+     * Error is thrown if PatchRun table hasn't been migrated.
+     * In this case, PatchRun will migrated post pre-migration-patches
+     * are run and rerun the patch.
+     */
+    return;
+  }
 }
