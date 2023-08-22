@@ -5,13 +5,13 @@ import { OpeningAmounts } from './OpeningAmounts';
 import { OpeningCash } from './OpeningCash';
 
 export class POSShift extends Doc {
-  closingAmounts?: ClosingAmounts[];
-  closingCash?: ClosingCash[];
-  closingDate?: Date;
   isShiftOpen?: boolean;
-  openingAmounts?: OpeningAmounts[];
-  openingCash?: OpeningCash[];
   openingDate?: Date;
+  closingDate?: Date;
+  openingAmounts?: OpeningAmounts[];
+  closingAmounts?: ClosingAmounts[];
+  openingCash?: OpeningCash[];
+  closingCash?: ClosingCash[];
 
   get openingCashAmount() {
     if (!this.openingCash) {
