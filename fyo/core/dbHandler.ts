@@ -27,6 +27,7 @@ import {
   RawValueMap,
 } from './types';
 import { ReturnDocItem } from 'models/inventory/types';
+import { Money } from 'pesa';
 
 type FieldMap = Record<string, Record<string, Field>>;
 
@@ -340,6 +341,15 @@ export class DatabaseHandler extends DatabaseBase {
       schemaName,
       docName
     )) as Promise<Record<string, ReturnDocItem> | undefined>;
+  }
+
+  async getPOSTransactedAmount(
+    fromDate: Date
+  ): Promise<Record<string, Money> | undefined> {
+    return (await this.#demux.callBespoke(
+      'getPOSTransactedAmount',
+      fromDate
+    )) as Promise<Record<string, Money> | undefined>;
   }
 
   /**
