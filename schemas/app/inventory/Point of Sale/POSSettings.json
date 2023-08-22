@@ -4,20 +4,5 @@
   "isSingle": true,
   "isChild": false,
   "isSubmittable": true,
-  "fields": [
-    {
-      "fieldname": "discountAfterTax",
-      "label": "Apply Discount After Tax",
-      "fieldtype": "Check",
-      "default": false,
-      "section": "Default"
-    },
-    {
-      "fieldname": "hideImages",
-      "label": "Hide Images",
-      "fieldtype": "Check",
-      "default": false,
-      "section": "Default"
-    }
-  ]
+  "fields": []
 }

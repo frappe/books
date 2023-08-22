@@ -19,8 +19,7 @@
           "label": "Transfer"
         }
       ],
-      "required": true,
-      "section": "Details"
+      "required": true
     }
   ]
 }
