@@ -9,6 +9,7 @@ import Inventory from './inventory.vue';
 import Invoice from './invoice.vue';
 import Item from './item.vue';
 import Mail from './mail.vue';
+import NeuPOS from './neupos.vue';
 import OpeningAc from './opening-ac.vue';
 import Percentage from './percentage.vue';
 import Property from './property.vue';
@@ -36,6 +37,7 @@ export default {
   'invoice': Invoice,
   'item': Item,
   'mail': Mail,
+  'neupos': NeuPOS,
   'opening-ac': OpeningAc,
   'percentage': Percentage,
   'property': Property,
