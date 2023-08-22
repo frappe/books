@@ -170,6 +170,7 @@
       "label": "POS Customer",
       "fieldtype": "Link",
       "target": "Party",
+      "create": true,
       "section": "Point of Sale"
     },
     {
