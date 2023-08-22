@@ -1,5 +1,5 @@
 {
-  "name": "OpeningCashInDenominations",
+  "name": "OpeningCash",
   "label": "Opening Cash In Denominations",
   "isChild": true,
   "extends": "CashDenominations",
