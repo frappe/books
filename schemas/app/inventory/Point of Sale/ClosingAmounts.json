@@ -1,6 +1,6 @@
 {
-  "name": "POSShiftClosingAmounts",
-  "label": "Opening Amount",
+  "name": "ClosingAmounts",
+  "label": "Closing Amount",
   "isChild": true,
   "extends": "POSShiftAmounts",
   "fields": [
