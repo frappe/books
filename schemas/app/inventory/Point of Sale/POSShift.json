@@ -33,6 +33,11 @@
       "fieldname": "openingAmounts",
       "fieldtype": "Table",
       "target": "OpeningAmounts"
+    },
+    {
+      "fieldname": "closingAmounts",
+      "fieldtype": "Table",
+      "target": "ClosingAmounts"
     }
   ]
 }
