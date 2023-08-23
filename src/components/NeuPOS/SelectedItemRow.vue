@@ -242,22 +242,22 @@
 </template>
 
 <script lang="ts">
-import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
-import { Money } from 'pesa';
-import { inject } from 'vue';
-import { defineComponent } from 'vue';
-import Data from '../Controls/Data.vue';
-import Int from '../Controls/Int.vue';
 import Currency from '../Controls/Currency.vue';
+import Data from '../Controls/Data.vue';
+import Float from '../Controls/Float.vue';
+import Int from '../Controls/Int.vue';
 import Link from '../Controls/Link.vue';
 import Text from '../Controls/Text.vue';
-import Float from '../Controls/Float.vue';
+import { defineComponent } from 'vue';
 import { fyo } from 'src/initFyo';
+import { inject } from 'vue';
 import { DiscountType } from './types';
+import { Money } from 'pesa';
+import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 
 export default defineComponent({
   name: 'SelectedItemRow',
-  components: { Data, Int, Currency, Link, Text, Float },
+  components: { Currency, Data, Float, Int, Link, Text },
   props: {
     row: { type: SalesInvoiceItem, required: true },
   },
@@ -306,7 +306,7 @@ export default defineComponent({
       this.itemSerialNumbers[this.row.item as string] = serialNumber;
     },
     setItemDiscount(type: DiscountType, value: Money | number) {
-      if (type === DiscountType.Percent) {
+      if (type === 'percent') {
         this.row.setItemDiscountAmount = false;
         this.row.itemDiscountPercent = value as number;
         return;
@@ -315,12 +315,10 @@ export default defineComponent({
       this.row.itemDiscountAmount = value as Money;
     },
     setTransferUnit(unit: string) {
-      this.row._validateFields();
       this.row.setTransferUnit = unit;
       this.row._applyFormula('transferUnit');
     },
     setTransferQty(quantity: number) {
-      this.row._validateFields();
       this.row.transferQuantity = quantity;
       this.row._applyFormula('transferQuantity');
     },
