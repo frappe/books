@@ -2,13 +2,9 @@
   <div class="">
     <PageHeader :title="t`NeuPOS`">
       <slot>
-        <div class="flex justify-end">
-          <Button class="bg-red-500" @click="toggleModal('ShiftClose')">
-            <span class="font-medium text-white">{{
-              t`Close POS Shift `
-            }}</span>
-          </Button>
-        </div>
+        <Button class="bg-red-500" @click="toggleModal('ShiftClose')">
+          <span class="font-medium text-white">{{ t`Close POS Shift ` }}</span>
+        </Button>
       </slot>
     </PageHeader>
 
@@ -22,7 +18,14 @@
       @toggle-modal="toggleModal"
     />
 
-    <PaymentModal :open-modal="openPaymentModal" @toggle-modal="toggleModal" />
+    <PaymentModal
+      :open-modal="openPaymentModal"
+      @create-transaction="createTransaction"
+      @toggle-modal="toggleModal"
+      @set-cash-amount="setCashAmount"
+      @set-transfer-amount="setTransferAmount"
+      @set-transfer-ref-no="setTransferRefNo"
+    />
 
     <div
       class="bg-gray-25 gap-2 grid grid-cols-12 p-4"
@@ -41,9 +44,7 @@
             :border="true"
             :class="['w-full']"
             value=""
-            @change="
-              async (item: string) => (item ? addItem(getItem(item, 0)) : null)
-            "
+            @change="async (item) => (item ? addItem(getItem(item, 0)) : null)"
           />
           <ItemsTable @add-item="addItem" />
         </div>
@@ -63,8 +64,8 @@
                 target: 'Party',
                 schemaName: 'SalesInvoice',
               }"
-              :value="defaultCustomer"
-              @change="(value) => (customer = value)"
+              :value="sinvDoc.party"
+              @change="(value) => (sinvDoc.party = value)"
             />
 
             <SelectedItemTable />
@@ -129,10 +130,7 @@
               </div>
 
               <div class="">
-                <Button
-                  class="w-full bg-red-500 py-6"
-                  @click="clearSelectedItems"
-                >
+                <Button class="w-full bg-red-500 py-6" @click="clearValues">
                   <slot>
                     <p class="uppercase text-lg text-white font-semibold">
                       {{ t`Cancel` }}
@@ -170,7 +168,7 @@ import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import PaymentModal from './PaymentModal.vue';
 import SelectedItemTable from 'src/components/NeuPOS/SelectedItemTable.vue';
-import { toggleSidebar } from 'src/utils/ui';
+import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { fyo } from 'src/initFyo';
 import { computed, defineComponent } from 'vue';
 import { ValuationMethod } from 'models/inventory/types';
@@ -179,17 +177,21 @@ import {
   getStockBalanceEntries,
   getStockLedgerEntries,
 } from 'reports/inventory/helpers';
-import { DocValueMap } from 'fyo/core/types';
 import { ModelNameEnum } from 'models/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
-import { ValidationError } from 'fyo/utils/errors';
 import { getItem } from 'models/inventory/tests/helpers';
-import { handleErrorWithDialog } from 'src/errorHandling';
 import { t } from 'fyo';
-import { ItemQtyMap, ItemSerialNumbers } from 'src/components/NeuPOS/types';
-import { safeParseFloat } from 'utils/index';
-import { Money } from 'pesa';
+import {
+  ItemQtyMap,
+  ItemSerialNumbers,
+  POSItem,
+} from 'src/components/NeuPOS/types';
 import { ModalName } from 'src/components/NeuPOS/types';
+import { Money } from 'pesa';
+import { Payment } from 'models/baseModels/Payment/Payment';
+import { Shipment } from 'models/inventory/Shipment';
+import { safeParseFloat } from 'utils/index';
+import { showToast } from 'src/utils/interactive';
 
 export default defineComponent({
   name: 'NeuPOS',
@@ -207,9 +209,13 @@ export default defineComponent({
   },
   provide() {
     return {
+      cashAmount: computed(() => this.cashAmount),
       itemQtyMap: computed(() => this.itemQtyMap),
       itemSerialNumbers: computed(() => this.itemSerialNumbers),
       sinvDoc: computed(() => this.sinvDoc),
+      totalTaxedAmount: computed(() => this.totalTaxedAmount),
+      transferAmount: computed(() => this.transferAmount),
+      transferRefNo: computed(() => this.transferRefNo),
     };
   },
   data() {
@@ -219,17 +225,23 @@ export default defineComponent({
       openShiftCloseModal: false,
       openShiftOpenModal: false,
 
-      customer: undefined as string | undefined,
-      defaultCustomer: undefined as string | undefined,
-      itemQtyMap: {} as ItemQtyMap,
-      itemSerialNumbers: {} as ItemSerialNumbers,
-      sinvDoc: {} as SalesInvoice,
+      additionalDiscounts: fyo.pesa(0),
+      cashAmount: fyo.pesa(0),
+      itemDiscounts: fyo.pesa(0),
+      totalTaxedAmount: fyo.pesa(0),
+      transferAmount: fyo.pesa(0),
 
       totalQuantity: 0,
 
-      additionalDiscounts: fyo.pesa(0),
-      itemDiscounts: fyo.pesa(0),
-      totalTaxedAmount: fyo.pesa(0),
+      defaultCustomer: undefined as string | undefined,
+      transferRefNo: undefined as string | undefined,
+
+      transferClearanceDate: undefined as Date | undefined,
+
+      itemQtyMap: {} as ItemQtyMap,
+      itemSerialNumbers: {} as ItemSerialNumbers,
+      paymentDoc: {} as Payment,
+      sinvDoc: {} as SalesInvoice,
     };
   },
   computed: {
@@ -247,6 +259,7 @@ export default defineComponent({
   async activated() {
     toggleSidebar(false);
     this.setSinvDoc();
+    this.setDefaultCustomer();
     await this.setItemQtyMap();
   },
   deactivated() {
@@ -261,9 +274,10 @@ export default defineComponent({
     },
     setDefaultCustomer() {
       this.defaultCustomer = this.fyo.singles.Defaults?.posCustomer ?? '';
-      this.customer = this.defaultCustomer;
+      this.sinvDoc.party = this.defaultCustomer;
     },
     async setItemQtyMap() {
+      this.itemQtyMap = {};
       const valuationMethod =
         this.fyo.singles.InventorySettings?.valuationMethod ??
         ValuationMethod.FIFO;
@@ -277,12 +291,13 @@ export default defineComponent({
         if (!this.itemQtyMap[row.item]) {
           this.itemQtyMap[row.item] = { availableQty: 0 };
         }
-        this.itemQtyMap[row.item][row.batch] = row.balanceQuantity;
+
+        if (row.batch) {
+          this.itemQtyMap[row.item][row.batch] = row.balanceQuantity;
+        }
 
         this.itemQtyMap[row.item].availableQty += row.balanceQuantity;
       }
-
-      this.isItemsSeeded = true;
     },
     setTotalQuantity() {
       let totalQuantity = safeParseFloat(0);
@@ -317,19 +332,19 @@ export default defineComponent({
       this.setTotalQuantity();
       this.setItemDiscounts();
     },
-    async addItem(item: DocValueMap) {
+    async addItem(item: POSItem) {
       if (!item) {
         return;
       }
 
       await this.sinvDoc.runFormulas();
 
-      if (this.itemQtyMap[item.name as string].availableQty === 0) {
-        const error = new ValidationError(
-          t`Item ${item.name as string} has Zero Quantity`
-        );
-        await handleErrorWithDialog(error, this.sinvDoc as SalesInvoice);
-        throw error;
+      if (this.itemQtyMap[item.item].availableQty === 0) {
+        showToast({
+          type: 'error',
+          message: t`Item ${item.item} has Zero Quantity`,
+          duration: 'short',
+        });
       }
 
       const existingItems =
@@ -350,11 +365,14 @@ export default defineComponent({
         try {
           await this.sinvDoc.append('items', {
             ...item,
-            item: item.name,
+            item: item.item,
             name: undefined,
           });
         } catch (error) {
-          await handleErrorWithDialog(error, this.sinvDoc as SalesInvoice);
+          showToast({
+            type: 'error',
+            message: t`${error as string}`,
+          });
         }
         return;
       }
@@ -367,19 +385,128 @@ export default defineComponent({
       await this.sinvDoc.append('items', {
         ...item,
         name: undefined,
-        item: item.name,
+        item: item.item,
       });
     },
     setSinvDoc() {
       this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
         account: 'Debtors',
-        party: this.customer,
+        party: this.sinvDoc.party ?? this.defaultCustomer,
       }) as SalesInvoice;
     },
-    clearSelectedItems() {
+    setCashAmount(amount: Money) {
+      this.cashAmount = amount;
+    },
+    setTransferAmount(amount: Money = fyo.pesa(0)) {
+      this.transferAmount = amount;
+    },
+    setTransferRefNo(ref: string) {
+      this.transferRefNo = ref;
+    },
+    setTransferClearanceDate(date: Date) {
+      this.transferClearanceDate = date;
+    },
+    clearValues() {
       this.sinvDoc.items = [];
+      this.itemSerialNumbers = {};
+
+      this.cashAmount = fyo.pesa(0);
+      this.transferAmount = fyo.pesa(0);
+    },
+    async submitDoc() {
+      try {
+        await this.sinvDoc.sync();
+        await this.sinvDoc.submit();
+        this.paymentDoc = this.sinvDoc.getPayment() as Payment;
+      } catch (error) {
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
+    },
+    async makePayment() {
+      const paymentMethod = this.cashAmount.isZero() ? 'Transfer' : 'Cash';
+      await this.paymentDoc.set('paymentMethod', paymentMethod);
+
+      if (paymentMethod === 'Transfer') {
+        await this.paymentDoc.setMultiple({
+          amount: this.transferAmount as Money,
+          referenceId: this.transferRefNo,
+          clearanceDate: this.transferClearanceDate,
+        });
+      }
+
+      if (paymentMethod === 'Cash') {
+        await this.paymentDoc.set('amount', this.cashAmount as Money);
+      }
+
+      try {
+        await this.paymentDoc?.sync();
+        await this.paymentDoc?.submit();
+      } catch (error) {
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
+    },
+    async makeStockTransfer() {
+      const shipment = (await this.sinvDoc.getStockTransfer()) as Shipment;
+      if (!shipment.items) {
+        return;
+      }
+
+      for (const item of shipment.items) {
+        item.serialNumber =
+          this.itemSerialNumbers[item.item as string] ?? undefined;
+      }
+
+      try {
+        await shipment.sync();
+        await shipment.submit();
+      } catch (error) {
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
+    },
+    async afterTransaction() {
+      await this.setItemQtyMap();
+      this.clearValues();
+      this.setSinvDoc();
+      this.toggleModal('Payment', false);
+    },
+    async createTransaction(shouldPrint = false) {
+      this.sinvDoc.once('afterSubmit', async () => {
+        showToast({
+          type: 'success',
+          message: t`${this.sinvDoc.name as string} is Submitted`,
+          duration: 'short',
+        });
+
+        if (shouldPrint) {
+          await routeTo(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
+          );
+        }
+      });
+
+      try {
+        await this.submitDoc();
+        await this.makePayment();
+        await this.makeStockTransfer();
+      } catch (error) {
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
     },
     getItem,
+    showToast,
   },
 });
 </script>
