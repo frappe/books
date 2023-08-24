@@ -323,7 +323,15 @@ export default defineComponent({
       }
 
       for (const item of this.sinvDoc.items) {
-        itemDiscounts.add(item.itemDiscountedTotal as Money);
+        if (item.setItemDiscountAmount) {
+          itemDiscounts = itemDiscounts.add(item.itemDiscountAmount as Money);
+        }
+
+        if (item.amount && (item.itemDiscountPercent as number) > 1) {
+          itemDiscounts = itemDiscounts.add(
+            item.amount.percent(item.itemDiscountPercent as number)
+          );
+        }
       }
 
       this.itemDiscounts = itemDiscounts;
