@@ -34,7 +34,7 @@
       px-2
       w-full
     "
-    @click="handleChange(row)"
+    @click="handleChange(row as POSItem)"
   >
     <FormControl
       v-for="df in tableFields"
@@ -57,17 +57,23 @@ import { fyo } from 'src/initFyo';
 import { defineComponent } from 'vue';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
-import { DocValueMap } from 'fyo/core/types';
 import { ItemQtyMap } from './types';
+import { Item } from 'models/baseModels/Item/Item';
+import { POSItem } from './types';
+import { Money } from 'pesa';
 
 export default defineComponent({
   name: 'ItemsTable',
   components: { FormControl, Row },
   emits: ['addItem', 'updateValues'],
+  setup() {
+    return {
+      itemQtyMap: inject('itemQtyMap') as ItemQtyMap,
+    };
+  },
   data() {
     return {
-      items: [] as DocValueMap[],
-      itemQtyMap: inject('itemQtyMap') as ItemQtyMap,
+      items: [] as POSItem[],
     };
   },
   computed: {
@@ -78,59 +84,76 @@ export default defineComponent({
       return [
         {
           fieldname: 'item',
-          fieldtype: 'Link',
+          fieldtype: 'Data',
           label: 'Item',
           placeholder: 'Item',
-          required: true,
-          schemaName: 'Item',
+          readOnly: true,
         },
         {
           fieldname: 'rate',
           label: 'Rate',
           placeholder: 'Rate',
           fieldtype: 'Currency',
-          required: true,
+          readOnly: true,
         },
         {
           fieldname: 'availableQty',
           label: 'Available Qty',
           placeholder: 'Available Qty',
           fieldtype: 'Float',
-          required: true,
+          readOnly: true,
         },
         {
           fieldname: 'unit',
           label: 'Unit',
           placeholder: 'Unit',
-          fieldtype: 'Link',
-          required: true,
-          schemaName: 'UOM',
+          fieldtype: 'Data',
+          target: 'UOM',
+          readOnly: true,
         },
-      ];
+      ] as Field[];
+    },
+  },
+  watch: {
+    itemQtyMap: {
+      async handler() {
+        this.setItems();
+      },
+      deep: true,
     },
   },
   async activated() {
-    await this.getItems();
+    await this.setItems();
   },
   methods: {
-    async getItems() {
-      this.items = [];
-      const query = await fyo.db.getAll(ModelNameEnum.Item, { fields: [] });
-      for (const row of query) {
+    async setItems() {
+      const items = (await fyo.db.getAll(ModelNameEnum.Item, {
+        fields: [],
+      })) as Item[];
+
+      this.items = [] as POSItem[];
+      for (const item of items) {
         let availableQty = 0;
 
-        if (this.itemQtyMap[row.name as string]) {
-          availableQty = this.itemQtyMap[row.name as string].availableQty;
+        if (!!this.itemQtyMap[item.name as string]) {
+          availableQty = this.itemQtyMap[item.name as string].availableQty;
+        }
+
+        if (!item.name) {
+          return;
         }
 
         this.items.push({
-          item: row.name,
           availableQty,
-          ...row,
+          item: item.name,
+          rate: item.rate as Money,
+          unit: item.unit as string,
+          hasBatch: !!item.hasBatch,
+          hasSerialNumber: !!item.hasSerialNumber,
         });
       }
     },
-    handleChange(value: DocValueMap) {
+    handleChange(value: POSItem) {
       this.$emit('addItem', value);
       this.$emit('updateValues');
     },
