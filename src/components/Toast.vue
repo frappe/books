@@ -18,6 +18,7 @@
           rounded-lg
           border
         "
+        :class="[config.containerBorder]"
         style="pointer-events: auto"
       >
         <feather-icon
