@@ -1,6 +1,6 @@
 {
   "name": "Tax",
-  "label": "Tax",
+  "label": "Tax Template",
   "naming": "manual",
   "isSingle": false,
   "isChild": false,

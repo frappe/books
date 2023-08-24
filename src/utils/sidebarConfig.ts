@@ -269,7 +269,7 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/chart-of-accounts',
         },
         {
-          label: t`Taxes`,
+          label: t`Tax Templates`,
           name: 'taxes',
           route: '/list/Tax',
           schemaName: 'Tax',
