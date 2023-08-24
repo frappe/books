@@ -46,7 +46,10 @@ export class InventorySettings extends Doc {
       return !!this.enableStockReturns;
     },
     enablePointOfSale: () => {
-      return !!this.fyo.singles.POSShift?.isShiftOpen;
+      return (
+        !!this.fyo.singles.POSShift?.isShiftOpen &&
+        !!this.fyo.singles.AccountingSettings?.enableDiscounting
+      );
     },
   };
 }
