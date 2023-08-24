@@ -8,8 +8,7 @@
   <Link
     :df="{
       fieldname: 'item',
-      fieldtype: 'Link',
-      target: 'Item',
+      fieldtype: 'Data',
       label: 'item',
     }"
     size="small"
@@ -33,8 +32,7 @@
   <Link
     :df="{
       fieldname: 'unit',
-      fieldtype: 'Link',
-      target: 'UOM',
+      fieldtype: 'Data',
       label: 'Unit',
     }"
     size="small"
@@ -248,12 +246,12 @@ import Float from '../Controls/Float.vue';
 import Int from '../Controls/Int.vue';
 import Link from '../Controls/Link.vue';
 import Text from '../Controls/Text.vue';
-import { defineComponent } from 'vue';
-import { fyo } from 'src/initFyo';
 import { inject } from 'vue';
-import { DiscountType } from './types';
-import { Money } from 'pesa';
+import { fyo } from 'src/initFyo';
+import { defineComponent } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { Money } from 'pesa';
+import { DiscountType } from './types';
 
 export default defineComponent({
   name: 'SelectedItemRow',
