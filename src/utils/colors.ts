@@ -34,7 +34,11 @@ export function getBgColorClass(color: string) {
   return `bg-${vcolor}-200`;
 }
 
-export function getColorClass(color: string, type: 'bg' | 'text', value = 300) {
+export function getColorClass(
+  color: string,
+  type: 'bg' | 'text' | 'border',
+  value = 300
+) {
   return `${type}-${getValidColor(color)}-${value}`;
 }
 
