@@ -42,7 +42,6 @@
           </Button>
 
           <Button class="w-full py-5 bg-green-500" @click="handleSubmit">
-            <!-- style="padding: 1.35rem" -->
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
                 {{ t`Submit` }}
