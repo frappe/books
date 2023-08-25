@@ -43,8 +43,11 @@
             }"
             :border="true"
             :class="['w-full']"
-            value=""
-            @change="async (item) => (item ? addItem(getItem(item, 0)) : null)"
+            :value="itemSearchTerm"
+            @keyup.enter="
+              async () => await addItem(await getItem(itemSearchTerm))
+            "
+            @change="(item: string) =>itemSearchTerm= item"
           />
           <ItemsTable @add-item="addItem" />
         </div>
@@ -168,10 +171,10 @@ import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import PaymentModal from './PaymentModal.vue';
 import SelectedItemTable from 'src/components/NeuPOS/SelectedItemTable.vue';
-import { routeTo, toggleSidebar } from 'src/utils/ui';
-import { fyo } from 'src/initFyo';
-import { computed, defineComponent } from 'vue';
 import { ValuationMethod } from 'models/inventory/types';
+import { computed, defineComponent } from 'vue';
+import { fyo } from 'src/initFyo';
+import { routeTo, toggleSidebar } from 'src/utils/ui';
 import {
   getRawStockLedgerEntries,
   getStockBalanceEntries,
@@ -179,13 +182,13 @@ import {
 } from 'reports/inventory/helpers';
 import { ModelNameEnum } from 'models/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
-import { getItem } from 'models/inventory/tests/helpers';
 import { t } from 'fyo';
 import {
   ItemQtyMap,
   ItemSerialNumbers,
   POSItem,
 } from 'src/components/NeuPOS/types';
+import { Item } from 'models/baseModels/Item/Item';
 import { ModalName } from 'src/components/NeuPOS/types';
 import { Money } from 'pesa';
 import { Payment } from 'models/baseModels/Payment/Payment';
@@ -235,6 +238,7 @@ export default defineComponent({
 
       defaultCustomer: undefined as string | undefined,
       transferRefNo: undefined as string | undefined,
+      itemSearchTerm: '',
 
       transferClearanceDate: undefined as Date | undefined,
 
@@ -340,23 +344,31 @@ export default defineComponent({
       this.setTotalQuantity();
       this.setItemDiscounts();
     },
-    async addItem(item: POSItem) {
+    async getItem(item: string): Promise<Item | undefined> {
+      if (!item) {
+        return;
+      }
+      const itemDoc = (await fyo.doc.getDoc(ModelNameEnum.Item, item)) as Item;
+      if (!itemDoc) {
+        return;
+      }
+      return itemDoc;
+    },
+    async addItem(item: POSItem | Item | undefined) {
       if (!item) {
         return;
       }
 
-      await this.sinvDoc.runFormulas();
-
-      if (this.itemQtyMap[item.item].availableQty === 0) {
+      if (this.itemQtyMap[item.name as string].availableQty === 0) {
         showToast({
           type: 'error',
-          message: t`Item ${item.item} has Zero Quantity`,
+          message: t`Item ${item.name as string} has Zero Quantity`,
           duration: 'short',
         });
       }
 
       const existingItems =
-        this.sinvDoc.items?.filter((item) => item.item === item.item) ?? [];
+        this.sinvDoc.items?.filter((item) => item.item === item.name) ?? [];
 
       if (item.hasBatch) {
         for (const item of existingItems) {
@@ -372,9 +384,8 @@ export default defineComponent({
 
         try {
           await this.sinvDoc.append('items', {
-            ...item,
-            item: item.item,
-            name: undefined,
+            rate: item.rate as Money,
+            item: item.name,
           });
         } catch (error) {
           showToast({
@@ -391,9 +402,8 @@ export default defineComponent({
       }
 
       await this.sinvDoc.append('items', {
-        ...item,
-        name: undefined,
-        item: item.item,
+        rate: item.rate as Money,
+        item: item.name,
       });
     },
     setSinvDoc() {
@@ -513,7 +523,6 @@ export default defineComponent({
         });
       }
     },
-    getItem,
     showToast,
   },
 });
