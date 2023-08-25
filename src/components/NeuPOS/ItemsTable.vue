@@ -83,7 +83,7 @@ export default defineComponent({
     tableFields() {
       return [
         {
-          fieldname: 'item',
+          fieldname: 'name',
           fieldtype: 'Data',
           label: 'Item',
           placeholder: 'Item',
@@ -145,7 +145,7 @@ export default defineComponent({
 
         this.items.push({
           availableQty,
-          item: item.name,
+          name: item.name,
           rate: item.rate as Money,
           unit: item.unit as string,
           hasBatch: !!item.hasBatch,
