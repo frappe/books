@@ -19,26 +19,28 @@
     </div>
   </Row>
 
-  <Row
-    v-for="row in sinvDoc.items"
-    :ratio="ratio"
-    class="
-      border
-      w-full
-      px-2
-      py-2
-      group
-      flex
-      items-center
-      justify-center
-      hover:bg-gray-25
-    "
-  >
-    <SelectedItemRow
-      :row="(row as SalesInvoiceItem)"
-      @removeItem="removeItem"
-    />
-  </Row>
+  <div class="overflow-y-auto" style="height: 50vh">
+    <Row
+      v-for="row in sinvDoc.items"
+      :ratio="ratio"
+      class="
+        border
+        w-full
+        px-2
+        py-2
+        group
+        flex
+        items-center
+        justify-center
+        hover:bg-gray-25
+      "
+    >
+      <SelectedItemRow
+        :row="(row as SalesInvoiceItem)"
+        @removeItem="removeItem"
+      />
+    </Row>
+  </div>
 </template>
 <script lang="ts">
 import Row from '../Row.vue';

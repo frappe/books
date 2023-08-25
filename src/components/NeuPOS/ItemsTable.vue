@@ -18,34 +18,36 @@
     </div>
   </Row>
 
-  <Row
-    v-if="items"
-    v-for="row in items"
-    :ratio="ratio"
-    :border="true"
-    class="
-      border-b border-l border-r
-      flex
-      group
-      h-row-mid
-      hover:bg-gray-25
-      items-center
-      justify-center
-      px-2
-      w-full
-    "
-    @click="handleChange(row as POSItem)"
-  >
-    <FormControl
-      v-for="df in tableFields"
-      :key="df.fieldname"
-      size="large"
-      class=""
-      :df="df"
-      :value="row[df.fieldname]"
-      :readOnly="true"
-    />
-  </Row>
+  <div class="overflow-y-auto" style="height: 72.5vh">
+    <Row
+      v-if="items"
+      v-for="row in items"
+      :ratio="ratio"
+      :border="true"
+      class="
+        border-b border-l border-r
+        flex
+        group
+        h-row-mid
+        hover:bg-gray-25
+        items-center
+        justify-center
+        px-2
+        w-full
+      "
+      @click="handleChange(row as POSItem)"
+    >
+      <FormControl
+        v-for="df in tableFields"
+        :key="df.fieldname"
+        size="large"
+        class=""
+        :df="df"
+        :value="row[df.fieldname]"
+        :readOnly="true"
+      />
+    </Row>
+  </div>
 </template>
 
 <script lang="ts">
