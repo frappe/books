@@ -1,5 +1,5 @@
 <template>
-  <Modal class="w-2/5 ml-auto mr-3.5" :set-close-listener="false">
+  <Modal class="w-2/6 ml-auto mr-3.5" :set-close-listener="false">
     <div class="px-4 py-6 grid" style="height: 95vh">
       <div class="grid grid-cols-2 gap-6">
         <Currency
