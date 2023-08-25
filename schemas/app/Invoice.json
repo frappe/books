@@ -20,12 +20,8 @@
       "section": "Default"
     },
     {
+      "abstract": true,
       "fieldname": "party",
-      "label": "Party",
-      "fieldtype": "Link",
-      "target": "Party",
-      "create": true,
-      "required": true,
       "section": "Default"
     },
     {
