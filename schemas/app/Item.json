@@ -126,7 +126,7 @@
     },
     {
       "fieldname": "trackItem",
-      "label": "Track Item",
+      "label": "Track Inventory",
       "fieldtype": "Check",
       "section": "Inventory",
       "default": false
