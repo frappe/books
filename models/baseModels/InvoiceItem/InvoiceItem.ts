@@ -478,23 +478,12 @@ export abstract class InvoiceItem extends Doc {
 
   static filters: FiltersMap = {
     item: (doc: Doc) => {
-      const itemList = doc.parentdoc!.items as Doc[];
-      const items = itemList.map((d) => d.item as string).filter(Boolean);
-
       let itemNotFor = 'Sales';
       if (doc.isSales) {
         itemNotFor = 'Purchases';
       }
 
-      const baseFilter = { for: ['not in', [itemNotFor]] };
-      if (items.length <= 0) {
-        return baseFilter;
-      }
-
-      return {
-        name: ['not in', items],
-        ...baseFilter,
-      };
+      return { for: ['not in', [itemNotFor]] };
     },
   };
 
