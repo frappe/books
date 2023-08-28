@@ -83,8 +83,8 @@
     "addressLine1",
     "addressLine2",
     "city",
-    "state",
     "country",
+    "state",
     "postalCode"
   ],
   "linkDisplayField": "addressDisplay"
