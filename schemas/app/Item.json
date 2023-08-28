@@ -20,7 +20,7 @@
     },
     {
       "fieldname": "for",
-      "label": "For",
+      "label": "Purpose",
       "fieldtype": "Select",
       "options": [
         {
@@ -126,7 +126,7 @@
     },
     {
       "fieldname": "trackItem",
-      "label": "Track Item",
+      "label": "Track Inventory",
       "fieldtype": "Check",
       "section": "Inventory",
       "default": false

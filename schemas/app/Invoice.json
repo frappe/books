@@ -20,12 +20,8 @@
       "section": "Default"
     },
     {
+      "abstract": true,
       "fieldname": "party",
-      "label": "Party",
-      "fieldtype": "Link",
-      "target": "Party",
-      "create": true,
-      "required": true,
       "section": "Default"
     },
     {
@@ -167,10 +163,8 @@
       "section": "Outstanding"
     },
     {
+      "abstract": true,
       "fieldname": "stockNotTransferred",
-      "label": "Stock Not Transferred",
-      "fieldtype": "Float",
-      "readOnly": true,
       "section": "Outstanding"
     },
     {
