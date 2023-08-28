@@ -31,19 +31,19 @@
       "required": true
     },
     {
-      "fieldname": "state",
-      "label": "State",
-      "placeholder": "State",
-      "options": [],
-      "fieldtype": "AutoComplete"
-    },
-    {
       "fieldname": "country",
       "label": "Country",
       "placeholder": "Country",
       "fieldtype": "AutoComplete",
       "options": [],
       "required": true
+    },
+    {
+      "fieldname": "state",
+      "label": "State",
+      "placeholder": "State",
+      "options": [],
+      "fieldtype": "AutoComplete"
     },
     {
       "fieldname": "postalCode",
@@ -83,8 +83,8 @@
     "addressLine1",
     "addressLine2",
     "city",
-    "state",
     "country",
+    "state",
     "postalCode"
   ],
   "linkDisplayField": "addressDisplay"

@@ -16,6 +16,15 @@
       "section": "Default"
     },
     {
+      "fieldname": "party",
+      "label": "Supplier",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
       "fieldname": "backReference",
       "label": "Back Reference",
       "fieldtype": "Link",
@@ -38,6 +47,13 @@
       "required": true,
       "edit": true,
       "section": "Items"
+    },
+    {
+      "fieldname": "stockNotTransferred",
+      "label": "Stock Not Received",
+      "fieldtype": "Float",
+      "readOnly": true,
+      "section": "Outstanding"
     }
   ],
   "keywordFields": ["name", "party"]

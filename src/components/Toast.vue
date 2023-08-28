@@ -18,6 +18,7 @@
           rounded-lg
           border
         "
+        :class="[config.containerBorder]"
         style="pointer-events: auto"
       >
         <feather-icon
@@ -51,11 +52,10 @@
   </Teleport>
 </template>
 <script lang="ts">
-import { getColorClass } from 'src/utils/colors';
 import { getIconConfig } from 'src/utils/interactive';
 import { ToastDuration, ToastType } from 'src/utils/types';
 import { toastDurationMap } from 'src/utils/ui';
-import { defineComponent, nextTick, PropType } from 'vue';
+import { PropType, defineComponent, nextTick } from 'vue';
 import FeatherIcon from './FeatherIcon.vue';
 
 export default defineComponent({

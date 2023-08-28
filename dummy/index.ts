@@ -56,6 +56,7 @@ export async function setupDummyInstance(
     ModelNameEnum.SystemSettings,
     'instanceId'
   )) as string;
+  await fyo.singles.SystemSettings?.setAndSync('hideGetStarted', true);
 
   fyo.store.skipTelemetryLogging = false;
   return { companyName: options.companyName, instanceId };
