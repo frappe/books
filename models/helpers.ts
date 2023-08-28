@@ -170,7 +170,7 @@ export function getMakeReturnDocAction(fyo: Fyo): Action {
       doc.isSubmitted &&
       !doc.isReturn,
     action: async (doc: Doc) => {
-      const returnDoc = await (doc as StockTransfer).getReturnDoc();
+      const returnDoc = await (doc as StockTransfer)?.getReturnDoc();
       if (!returnDoc || !returnDoc.name) {
         return;
       }
