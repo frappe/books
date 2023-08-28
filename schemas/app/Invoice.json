@@ -163,10 +163,8 @@
       "section": "Outstanding"
     },
     {
+      "abstract": true,
       "fieldname": "stockNotTransferred",
-      "label": "Stock Not Transferred",
-      "fieldtype": "Float",
-      "readOnly": true,
       "section": "Outstanding"
     },
     {

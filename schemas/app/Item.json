@@ -20,7 +20,7 @@
     },
     {
       "fieldname": "for",
-      "label": "For",
+      "label": "Purpose",
       "fieldtype": "Select",
       "options": [
         {

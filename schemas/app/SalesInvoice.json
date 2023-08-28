@@ -47,6 +47,13 @@
       "required": true,
       "edit": true,
       "section": "Items"
+    },
+    {
+      "fieldname": "stockNotTransferred",
+      "label": "Stock Not Shipped",
+      "fieldtype": "Float",
+      "readOnly": true,
+      "section": "Outstanding"
     }
   ],
   "keywordFields": ["name", "party"]
