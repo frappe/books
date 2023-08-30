@@ -130,7 +130,10 @@
       />
     </div>
 
-    <div v-show="row.links?.item.hasBatch" class="pl-6 px-4 pt-6 col-span-2">
+    <div
+      v-if="row.links && row.links?.item.hasBatch"
+      class="pl-6 px-4 pt-6 col-span-2"
+    >
       <Link
         :df="{
           fieldname: 'batch',
@@ -146,7 +149,10 @@
       />
     </div>
 
-    <div v-show="!!row.links?.item.hasBatch" class="px-2 pt-6 col-span-2">
+    <div
+      v-if="row.links && row.links?.item.hasBatch"
+      class="px-2 pt-6 col-span-2"
+    >
       <Float
         :df="{
           fieldname: 'availableQtyInBatch',
@@ -164,7 +170,7 @@
     </div>
 
     <div
-      v-show="!!row.links?.item.hasSerialNumber"
+      v-if="row.links && row.links?.item.hasSerialNumber"
       class="px-2 pt-8 col-span-2"
     >
       <Text
