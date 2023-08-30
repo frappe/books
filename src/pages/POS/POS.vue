@@ -103,7 +103,7 @@
                     }"
                     size="large"
                     :value="additionalDiscounts"
-                    :read-only="false"
+                    :read-only="true"
                     :text-right="true"
                     @change="(amount:Money)=> additionalDiscounts= amount"
                   />
@@ -341,11 +341,6 @@ export default defineComponent({
       }
 
       this.itemDiscounts = itemDiscounts;
-    },
-    setAdditionalDiscounts(amount: Money) {
-      if (amount.isZero()) {
-        return;
-      }
     },
     async setTotalTaxedAmount() {
       if (!this.sinvDoc.items) {
