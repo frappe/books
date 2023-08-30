@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <PageHeader :title="t`NeuPOS`">
+    <PageHeader :title="t`Point of Sale`">
       <slot>
         <Button class="bg-red-500" @click="toggleModal('ShiftClose')">
           <span class="font-medium text-white">{{ t`Close POS Shift ` }}</span>
@@ -33,6 +33,7 @@
     >
       <div class="bg-white border col-span-5 rounded-md">
         <div class="rounded-md p-4 col-span-5">
+          <!-- Item Search -->
           <Link
             class="border-r flex-shrink-0 w-40"
             :df="{
@@ -56,6 +57,7 @@
       <div class="col-span-7">
         <div class="flex flex-col gap-3" style="height: calc(100vh - 6rem)">
           <div class="bg-white border grow h-full p-4 rounded-md">
+            <!-- Customer Search -->
             <Link
               class="flex-shrink-0"
               size="medium"
@@ -103,6 +105,7 @@
                     :value="additionalDiscounts"
                     :read-only="false"
                     :text-right="true"
+                    @change="(amount:Money)=> additionalDiscounts= amount"
                   />
                 </div>
 
@@ -163,14 +166,14 @@
 <script lang="ts">
 import Button from 'src/components/Button.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
-import FloatingLabelCurrencyInput from 'src/components/NeuPOS/FloatingLabelCurrencyInput.vue';
-import FloatingLabelFloatInput from 'src/components/NeuPOS/FloatingLabelFloatInput.vue';
-import ItemsTable from 'src/components/NeuPOS/ItemsTable.vue';
+import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
+import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
+import ItemsTable from 'src/components/POS/ItemsTable.vue';
 import Link from 'src/components/Controls/Link.vue';
 import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import PaymentModal from './PaymentModal.vue';
-import SelectedItemTable from 'src/components/NeuPOS/SelectedItemTable.vue';
+import SelectedItemTable from 'src/components/POS/SelectedItemTable.vue';
 import { ValuationMethod } from 'models/inventory/types';
 import { computed, defineComponent } from 'vue';
 import { fyo } from 'src/initFyo';
@@ -187,17 +190,18 @@ import {
   ItemQtyMap,
   ItemSerialNumbers,
   POSItem,
-} from 'src/components/NeuPOS/types';
+} from 'src/components/POS/types';
 import { Item } from 'models/baseModels/Item/Item';
-import { ModalName } from 'src/components/NeuPOS/types';
+import { ModalName } from 'src/components/POS/types';
 import { Money } from 'pesa';
 import { Payment } from 'models/baseModels/Payment/Payment';
 import { Shipment } from 'models/inventory/Shipment';
 import { safeParseFloat } from 'utils/index';
 import { showToast } from 'src/utils/interactive';
+import { ValidationError } from 'fyo/utils/errors';
 
 export default defineComponent({
-  name: 'NeuPOS',
+  name: 'POS',
   components: {
     Button,
     ClosePOSShiftModal,
@@ -254,10 +258,8 @@ export default defineComponent({
   watch: {
     sinvDoc: {
       async handler() {
-        await this.sinvDoc.runFormulas();
-        this.updateValues();
+        await this.updateValues();
       },
-      deep: true,
     },
   },
   async activated() {
@@ -340,9 +342,29 @@ export default defineComponent({
 
       this.itemDiscounts = itemDiscounts;
     },
-    updateValues() {
+    setAdditionalDiscounts(amount: Money) {
+      if (amount.isZero()) {
+        return;
+      }
+    },
+    async setTotalTaxedAmount() {
+      if (!this.sinvDoc.items) {
+        return;
+      }
+      let totalTaxedAmount = fyo.pesa(0);
+      for (const item of this.sinvDoc.items) {
+        await item._applyFormula();
+
+        if (item.itemTaxedTotal?.isZero()) {
+          return;
+        }
+        totalTaxedAmount = totalTaxedAmount.add(item.itemTaxedTotal as Money);
+      }
+    },
+    async updateValues() {
       this.setTotalQuantity();
       this.setItemDiscounts();
+      await this.setTotalTaxedAmount();
     },
     async getItem(item: string): Promise<Item | undefined> {
       if (!item) {
@@ -355,20 +377,28 @@ export default defineComponent({
       return itemDoc;
     },
     async addItem(item: POSItem | Item | undefined) {
+      await this.sinvDoc.runFormulas();
+
       if (!item) {
         return;
       }
 
-      if (this.itemQtyMap[item.name as string].availableQty === 0) {
+      if (
+        !this.itemQtyMap[item.name as string] ||
+        this.itemQtyMap[item.name as string].availableQty === 0
+      ) {
         showToast({
           type: 'error',
           message: t`Item ${item.name as string} has Zero Quantity`,
           duration: 'short',
         });
+        return;
       }
 
       const existingItems =
-        this.sinvDoc.items?.filter((item) => item.item === item.name) ?? [];
+        this.sinvDoc.items?.filter(
+          (invoiceItem) => invoiceItem.item === item.name
+        ) ?? [];
 
       if (item.hasBatch) {
         for (const item of existingItems) {
@@ -431,8 +461,65 @@ export default defineComponent({
       this.cashAmount = fyo.pesa(0);
       this.transferAmount = fyo.pesa(0);
     },
+    validateSinv() {
+      if (!this.sinvDoc.items) {
+        return;
+      }
+
+      for (const item of this.sinvDoc.items) {
+        if (!item.quantity || item.quantity < 1) {
+          throw new ValidationError(
+            t`Invalid Quantity for Item ${item.item as string}`
+          );
+        }
+
+        if (!this.itemQtyMap[item.item as string]) {
+          throw new ValidationError(
+            t`Item ${item.item as string} not in Stock`
+          );
+        }
+
+        if (item.quantity > this.itemQtyMap[item.item as string].availableQty) {
+          throw new ValidationError(
+            t`Insufficient Quantity. Item ${item.item as string} has only ${
+              this.itemQtyMap[item.item as string].availableQty
+            } quantities available. you selected ${item.quantity}`
+          );
+        }
+      }
+    },
+    async validateShipment() {
+      if (!this.itemSerialNumbers) {
+        return;
+      }
+
+      for (const idx in this.itemSerialNumbers) {
+        const serialNumbers = this.itemSerialNumbers[idx].split('\n');
+
+        for (const serialNumber of serialNumbers) {
+          const status = await fyo.getValue(
+            ModelNameEnum.SerialNumber,
+            serialNumber,
+            'status'
+          );
+
+          if (status !== 'Active') {
+            throw new ValidationError(
+              t`Serial Number ${serialNumber} status is not Active.`
+            );
+          }
+        }
+      }
+    },
+    async validate() {
+      this.validateSinv();
+      await this.validateShipment();
+    },
     async submitDoc() {
       try {
+        await this.validate();
+        await this.sinvDoc.runFormulas();
+        await this.sinvDoc._callAllTableFieldsApplyFormula();
         await this.sinvDoc.sync();
         await this.sinvDoc.submit();
         this.paymentDoc = this.sinvDoc.getPayment() as Payment;
@@ -444,6 +531,7 @@ export default defineComponent({
       }
     },
     async makePayment() {
+      await this.validateShipment();
       const paymentMethod = this.cashAmount.isZero() ? 'Transfer' : 'Cash';
       await this.paymentDoc.set('paymentMethod', paymentMethod);
 
@@ -513,9 +601,11 @@ export default defineComponent({
       });
 
       try {
+        await this.validate();
         await this.submitDoc();
         await this.makePayment();
         await this.makeStockTransfer();
+        await this.afterTransaction();
       } catch (error) {
         showToast({
           type: 'error',

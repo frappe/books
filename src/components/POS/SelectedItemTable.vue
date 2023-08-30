@@ -51,6 +51,7 @@ import { defineComponent } from 'vue';
 import { Field } from 'schemas/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { log } from 'console';
 
 export default defineComponent({
   name: 'SelectedItemTable',

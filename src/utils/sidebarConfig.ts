@@ -108,10 +108,10 @@ function getPOSSidebar() {
   }
 
   return {
-    label: t`NeuPOS`,
-    name: 'neupos',
-    route: '/neupos',
-    icon: 'neupos',
+    label: t`POS`,
+    name: 'pos',
+    route: '/pos',
+    icon: 'pos',
   };
 }
 
