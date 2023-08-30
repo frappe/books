@@ -1,8 +1,0 @@
-{
-  "name": "POSSettings",
-  "label": "POS Settings",
-  "isSingle": true,
-  "isChild": false,
-  "isSubmittable": true,
-  "fields": []
-}
