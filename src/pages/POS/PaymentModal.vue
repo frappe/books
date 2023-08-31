@@ -162,6 +162,7 @@
           :show-label="true"
           :border="true"
           :text-right="true"
+          :value="itemDiscounts"
         />
 
         <Currency
@@ -255,6 +256,7 @@ export default defineComponent({
   setup() {
     return {
       cashAmount: inject('cashAmount') as Money,
+      itemDiscounts: inject('itemDiscounts') as Money,
       transferAmount: inject('transferAmount') as Money,
       sinvDoc: inject('sinvDoc') as SalesInvoice,
       transferRefNo: inject('transferRefNo') as string,
