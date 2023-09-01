@@ -195,7 +195,7 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.PrintTemplate,
   ];
 
-  if (fyo.doc.singles.AccountingSettings?.enableInventory) {
+  if (fyo.doc.singles.AccountingSecuttings?.enableInventory) {
     schemaNames.push(
       ModelNameEnum.StockMovement,
       ModelNameEnum.Shipment,
