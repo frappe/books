@@ -7,6 +7,7 @@
     <!-- Loading Continer -->
     <div
       class="
+        border
         text-gray-900
         shadow-lg
         px-3
@@ -33,7 +34,7 @@
           <!-- Loading Bar -->
           <div
             v-if="percent >= 0"
-            class="h-3 rounded bg-blue-400"
+            class="h-3 rounded bg-gray-800"
             :style="{ width: `${percent * 100}%` }"
           ></div>
         </div>
