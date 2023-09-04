@@ -10,7 +10,6 @@
         h-row-largest
         sticky
         top-0
-        border-b
         bg-white
       "
       style="z-index: 1"
@@ -28,7 +27,7 @@
     <!-- Linked Entry List -->
     <div
       v-if="sequence.length"
-      class="w-full overflow-y-auto custom-scroll"
+      class="w-full overflow-y-auto custom-scroll border-t"
       style="height: calc(100vh - var(--h-row-largest) - 1px)"
     >
       <div v-for="sn of sequence" :key="sn" class="border-b p-4">
