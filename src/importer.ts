@@ -570,6 +570,16 @@ function getTemplateFields(
   ];
   const fields: TemplateField[] = [];
 
+  const targetSchemaFieldMap =
+    fyo.schemaMap[importer.schemaName]?.fields.reduce((acc, f) => {
+      if (!(f as TargetField).target) {
+        return acc;
+      }
+
+      acc[f.fieldname] = f;
+      return acc;
+    }, {} as Record<string, Field>) ?? {};
+
   while (schemas.length) {
     const { schema, parentSchemaChildField } = schemas.pop() ?? {};
     if (!schema) {
@@ -605,6 +615,14 @@ function getTemplateFields(
       }
 
       if (schema.isChild && tf.fieldname === 'name') {
+        tf.required = false;
+      }
+
+      if (
+        schema.isChild &&
+        tf.required &&
+        !targetSchemaFieldMap[tf.schemaName ?? '']?.required
+      ) {
         tf.required = false;
       }
 
