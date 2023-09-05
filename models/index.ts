@@ -37,6 +37,7 @@ import { ClosingAmounts } from './inventory/Point of Sale/ClosingAmounts';
 import { ClosingCash } from './inventory/Point of Sale/ClosingCash';
 import { OpeningAmounts } from './inventory/Point of Sale/OpeningAmounts';
 import { OpeningCash } from './inventory/Point of Sale/OpeningCash';
+import { POSSettings } from './inventory/Point of Sale/POSSettings';
 import { POSShift } from './inventory/Point of Sale/POSShift';
 
 export const models = {
@@ -80,6 +81,7 @@ export const models = {
   ClosingCash,
   OpeningAmounts,
   OpeningCash,
+  POSSettings,
   POSShift,
 } as ModelMap;
 
