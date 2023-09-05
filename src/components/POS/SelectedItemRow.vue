@@ -95,6 +95,7 @@
 
     <div class="px-4 pt-6 col-span-2 flex">
       <Link
+        v-if="isUOMConversionEnabled"
         :df="{
           fieldname: 'transferUnit',
           fieldtype: 'Link',
@@ -108,6 +109,7 @@
         @change="(value) => setTransferUnit((row.transferUnit = value))"
       />
       <feather-icon
+        v-if="isUOMConversionEnabled"
         name="refresh-ccw"
         class="w-3.5 ml-2 mt-4 text-blue-500"
         @click="row.transferUnit = row.unit"
@@ -116,6 +118,7 @@
 
     <div class="px-4 pt-6 col-span-2">
       <Int
+        v-if="isUOMConversionEnabled"
         :df="{
           fieldtype: 'Int',
           fieldname: 'transferQuantity',
@@ -129,6 +132,66 @@
         :read-only="false"
       />
     </div>
+
+    <div></div>
+    <div></div>
+
+    <div class="px-4 pt-6 flex">
+      <Currency
+        :df="{
+          fieldtype: 'Currency',
+          fieldname: 'rate',
+          label: 'Rate',
+        }"
+        size="medium"
+        :show-label="true"
+        :border="true"
+        :value="row.rate"
+        :read-only="false"
+        @change="(value) => (row.rate = value)"
+      />
+      <feather-icon
+        name="refresh-ccw"
+        class="w-3.5 ml-2 mt-5 text-blue-500 flex-none"
+        @click="row.rate= (defaultRate as Money)"
+      />
+    </div>
+    <div class="px-6 pt-6 col-span-2">
+      <Currency
+        v-if="isDiscountingEnabled"
+        :df="{
+          fieldtype: 'Currency',
+          fieldname: 'discountAmount',
+          label: 'Discount Amount',
+        }"
+        class="col-span-2"
+        size="medium"
+        :show-label="true"
+        :border="true"
+        :value="row.itemDiscountAmount"
+        :read-only="row.itemDiscountPercent as number > 0"
+        @change="(value) => setItemDiscount('amount', value)"
+      />
+    </div>
+
+    <div class="px-4 pt-6 col-span-2">
+      <Float
+        v-if="isDiscountingEnabled"
+        :df="{
+          fieldtype: 'Float',
+          fieldname: 'itemDiscountPercent',
+          label: 'Discount Percent',
+        }"
+        size="medium"
+        :show-label="true"
+        :border="true"
+        :value="row.itemDiscountPercent"
+        :read-only="!row.itemDiscountAmount?.isZero()"
+        @change="(value) => setItemDiscount('percent', value)"
+      />
+    </div>
+
+    <div class=""></div>
 
     <div
       v-if="row.links && row.links?.item.hasBatch"
@@ -185,63 +248,6 @@
         @change="(value:string)=> setSerialNumber(value)"
       />
     </div>
-
-    <div class=""></div>
-
-    <div class="px-4 pt-6 col-span-2 flex">
-      <Currency
-        :df="{
-          fieldtype: 'Currency',
-          fieldname: 'rate',
-          label: 'Rate',
-        }"
-        class="col-span-2 flex-1"
-        size="medium"
-        :show-label="true"
-        :border="true"
-        :value="row.rate"
-        :read-only="false"
-        @change="(value) => (row.rate = value)"
-      />
-      <feather-icon
-        name="refresh-ccw"
-        class="w-3.5 ml-2 mt-5 text-blue-500"
-        @click="row.rate= (defaultRate as Money)"
-      />
-    </div>
-
-    <div class="px-6 pt-6 col-span-2">
-      <Currency
-        :df="{
-          fieldtype: 'Currency',
-          fieldname: 'discountAmount',
-          label: 'Discount Amount',
-        }"
-        class="col-span-2"
-        size="medium"
-        :show-label="true"
-        :border="true"
-        :value="row.itemDiscountAmount"
-        :read-only="row.itemDiscountPercent as number > 0"
-        @change="(value) => setItemDiscount('amount', value)"
-      />
-    </div>
-
-    <div class="px-4 pt-6">
-      <Float
-        :df="{
-          fieldtype: 'Float',
-          fieldname: 'itemDiscountPercent',
-          label: 'Discount Percent',
-        }"
-        size="medium"
-        :show-label="true"
-        :border="true"
-        :value="row.itemDiscountPercent"
-        :read-only="!row.itemDiscountAmount?.isZero()"
-        @change="(value) => setItemDiscount('percent', value)"
-      />
-    </div>
   </template>
 </template>
 
@@ -268,6 +274,7 @@ export default defineComponent({
   emits: ['removeItem', 'setItemSerialNumbers'],
   setup() {
     return {
+      isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
       itemSerialNumbers: inject('itemSerialNumbers') as {
         [item: string]: string;
       },
@@ -281,6 +288,11 @@ export default defineComponent({
 
       defaultRate: this.row.rate as Money,
     };
+  },
+  computed: {
+    isUOMConversionEnabled(): boolean {
+      return !!fyo.singles.InventorySettings?.enableUomConversions;
+    },
   },
   methods: {
     async getAvailableQtyInBatch(): Promise<number> {
