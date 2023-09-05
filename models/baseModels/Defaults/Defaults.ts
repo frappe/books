@@ -2,6 +2,7 @@ import { DefaultCashDenominations } from 'models/inventory/Point of Sale/Default
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
+import { PartyRoleEnum } from '../Party/types';
 
 export class Defaults extends Doc {
   // Auto Payments
@@ -37,11 +38,8 @@ export class Defaults extends Doc {
   stockMovementPrintTemplate?: string;
 
   // Point of Sale
-  posAdjustmentAccount?: string;
   posCashDenominations?: DefaultCashDenominations[];
   posCustomer?: string;
-  posInventory?: string;
-  posPrintTemplate?: string;
 
   static commonFilters = {
     // Auto Payments
@@ -81,6 +79,7 @@ export class Defaults extends Doc {
       type: ModelNameEnum.PurchaseReceipt,
     }),
     stockMovementPrintTemplate: () => ({ type: ModelNameEnum.StockMovement }),
+    posCustomer: () => ({ role: PartyRoleEnum.Customer }),
   };
 
   static filters: FiltersMap = this.commonFilters;
@@ -103,11 +102,8 @@ export class Defaults extends Doc {
     shipmentPrintTemplate: this.getInventoryHidden(),
     purchaseReceiptPrintTemplate: this.getInventoryHidden(),
     stockMovementPrintTemplate: this.getInventoryHidden(),
-    posAdjustmentAccount: this.getPointOfSaleHidden(),
     posCashDenominations: this.getPointOfSaleHidden(),
     posCustomer: this.getPointOfSaleHidden(),
-    posInventory: this.getPointOfSaleHidden(),
-    posPrintTemplate: this.getPointOfSaleHidden(),
   };
 }
 
