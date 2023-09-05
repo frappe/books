@@ -153,6 +153,7 @@
         />
 
         <Currency
+          v-if="isDiscountingEnabled"
           :df="{
             label: t`Discount Amount`,
             fieldtype: 'Currency',
@@ -256,6 +257,7 @@ export default defineComponent({
   setup() {
     return {
       cashAmount: inject('cashAmount') as Money,
+      isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
       itemDiscounts: inject('itemDiscounts') as Money,
       transferAmount: inject('transferAmount') as Money,
       sinvDoc: inject('sinvDoc') as SalesInvoice,
@@ -264,23 +266,22 @@ export default defineComponent({
     };
   },
   computed: {
-    showPaidChange(): boolean {
-      if (
-        this.cashAmount.eq(fyo.pesa(0)) &&
-        this.transferAmount.eq(fyo.pesa(0))
-      ) {
-        return false;
+    balanceAmount(): Money {
+      const grandTotal = this.sinvDoc?.grandTotal ?? fyo.pesa(0);
+
+      if (this.cashAmount.isZero()) {
+        return grandTotal.sub(this.transferAmount);
       }
 
-      if (this.cashAmount.lt(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
-        return false;
+      if (this.transferAmount.isZero()) {
+        return grandTotal.sub(this.cashAmount);
       }
 
-      if (this.transferAmount.gte(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
-        return false;
-      }
-
-      return true;
+      const totalPaidAmount = this.cashAmount.add(this.transferAmount);
+      return grandTotal.sub(totalPaidAmount);
+    },
+    paidChange(): Money {
+      return this.cashAmount.sub(this.sinvDoc?.grandTotal ?? fyo.pesa(0));
     },
     showBalanceAmount(): boolean {
       if (
@@ -300,22 +301,23 @@ export default defineComponent({
 
       return true;
     },
-    paidChange(): Money {
-      return this.cashAmount.sub(this.sinvDoc?.grandTotal ?? fyo.pesa(0));
-    },
-    balanceAmount(): Money {
-      const grandTotal = this.sinvDoc?.grandTotal ?? fyo.pesa(0);
-
-      if (this.cashAmount.isZero()) {
-        return grandTotal.sub(this.transferAmount);
+    showPaidChange(): boolean {
+      if (
+        this.cashAmount.eq(fyo.pesa(0)) &&
+        this.transferAmount.eq(fyo.pesa(0))
+      ) {
+        return false;
       }
 
-      if (this.transferAmount.isZero()) {
-        return grandTotal.sub(this.cashAmount);
+      if (this.cashAmount.lt(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
+        return false;
       }
 
-      const totalPaidAmount = this.cashAmount.add(this.transferAmount);
-      return grandTotal.sub(totalPaidAmount);
+      if (this.transferAmount.gte(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
+        return false;
+      }
+
+      return true;
     },
   },
   methods: {

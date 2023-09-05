@@ -1,8 +1,10 @@
-import { t } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { ValidationError } from 'fyo/utils/errors';
+import { AccountTypeEnum } from 'models/baseModels/Account/types';
 import { Item } from 'models/baseModels/Item/Item';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { POSShift } from 'models/inventory/Point of Sale/POSShift';
 import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -22,8 +24,11 @@ export async function getItemQtyMap(): Promise<ItemQtyMap> {
 
   const rawSLEs = await getRawStockLedgerEntries(fyo);
   const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
+  const posInventory = fyo.singles.POSSettings?.inventory;
 
-  const stockBalance = getStockBalanceEntries(rawData, {});
+  const stockBalance = getStockBalanceEntries(rawData, {
+    location: posInventory,
+  });
 
   for (const row of stockBalance) {
     if (!itemQtyMap[row.item]) {
@@ -146,4 +151,73 @@ export function getTotalTaxedAmount(sinvDoc: SalesInvoice): Money {
     totalTaxedAmount = totalTaxedAmount.add(row.amount as Money);
   }
   return totalTaxedAmount;
+}
+
+export function validateClosingAmounts(posShiftDoc: POSShift) {
+  if (!posShiftDoc) {
+    throw new ValidationError(`POS Shift Document not loaded. Please reload.`);
+  }
+
+  posShiftDoc.closingAmounts?.map((row) => {
+    if (row.closingAmount?.isNegative()) {
+      throw new ValidationError(
+        t`Closing ${row.paymentMethod as string} Amount can not be negative.`
+      );
+    }
+  });
+}
+
+export async function transferPOSCashAndWriteOff(
+  fyo: Fyo,
+  posShiftDoc: POSShift
+) {
+  const closingCashAmount = posShiftDoc.closingAmounts?.find(
+    (row) => row.paymentMethod === 'Cash'
+  )?.closingAmount as Money;
+
+  const jvDoc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {
+    entryType: 'Journal Entry',
+  });
+
+  await jvDoc.append('accounts', {
+    account: AccountTypeEnum.Cash,
+    debit: closingCashAmount,
+  });
+
+  await jvDoc.append('accounts', {
+    account: fyo.singles.POSSettings?.cashAccount,
+    credit: closingCashAmount,
+  });
+
+  const differenceAmount = posShiftDoc?.closingAmounts?.find(
+    (row) => row.paymentMethod === 'Cash'
+  )?.differenceAmount as Money;
+
+  if (differenceAmount.isNegative()) {
+    await jvDoc.append('accounts', {
+      account: AccountTypeEnum.Cash,
+      debit: differenceAmount.abs(),
+      credit: fyo.pesa(0),
+    });
+    await jvDoc.append('accounts', {
+      account: fyo.singles.POSSettings?.writeOffAccount,
+      debit: fyo.pesa(0),
+      credit: differenceAmount.abs(),
+    });
+  }
+
+  if (!differenceAmount.isZero() && differenceAmount.isPositive()) {
+    await jvDoc.append('accounts', {
+      account: fyo.singles.POSSettings?.writeOffAccount,
+      debit: differenceAmount,
+      credit: fyo.pesa(0),
+    });
+    await jvDoc.append('accounts', {
+      account: AccountTypeEnum.Cash,
+      debit: fyo.pesa(0),
+      credit: differenceAmount,
+    });
+  }
+
+  await (await jvDoc.sync()).submit();
 }

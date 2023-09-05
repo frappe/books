@@ -1,5 +1,5 @@
 <template>
-  <Modal class="w-3/6 p-4">
+  <Modal :open-modal="openModal" class="w-3/6 p-4">
     <h1 class="text-xl font-semibold text-center pb-4">Close POS Shift</h1>
 
     <h2 class="mt-4 mb-2 text-lg font-medium">Closing Cash</h2>
@@ -50,24 +50,36 @@
 </template>
 
 <script lang="ts">
-import { OpeningAmounts } from 'models/inventory/Point of Sale/OpeningAmounts';
-import { POSShift } from 'models/inventory/Point of Sale/POSShift';
+import Button from 'src/components/Button.vue';
+import Modal from 'src/components/Modal.vue';
+import Table from 'src/components/Controls/Table.vue';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import Button from 'src/components/Button.vue';
-import Table from 'src/components/Controls/Table.vue';
-import Modal from 'src/components/Modal.vue';
-import { fyo } from 'src/initFyo';
+import { OpeningAmounts } from 'models/inventory/Point of Sale/OpeningAmounts';
+import { POSShift } from 'models/inventory/Point of Sale/POSShift';
 import { computed } from 'vue';
 import { defineComponent } from 'vue';
+import { fyo } from 'src/initFyo';
+import { showToast } from 'src/utils/interactive';
+import { t } from 'fyo';
+import {
+  validateClosingAmounts,
+  transferPOSCashAndWriteOff,
+} from 'src/utils/pos';
 
 export default defineComponent({
   name: 'ClosePOSShiftModal',
-  components: { Modal, Table, Button },
+  components: { Button, Modal, Table },
   provide() {
     return {
       doc: computed(() => this.posShiftDoc),
     };
+  },
+  props: {
+    openModal: {
+      default: false,
+      type: Boolean,
+    },
   },
   emits: ['toggleModal'],
   data() {
@@ -78,13 +90,25 @@ export default defineComponent({
       transactedAmount: {} as Record<string, Money> | undefined,
     };
   },
-  async mounted() {
+  watch: {
+    openModal: {
+      async handler() {
+        await this.setTransactedAmount();
+        await this.seedClosingAmounts();
+      },
+    },
+  },
+  async activated() {
     this.posShiftDoc = fyo.singles[ModelNameEnum.POSShift];
     await this.seedValues();
+    await this.setTransactedAmount();
   },
   methods: {
     async setTransactedAmount() {
-      const fromDate = fyo.singles.POSShift?.openingDate as Date;
+      if (!fyo.singles.POSShift?.openingDate) {
+        return;
+      }
+      const fromDate = fyo.singles.POSShift?.openingDate;
       this.transactedAmount = await fyo.db.getPOSTransactedAmount(fromDate);
     },
     seedClosingCash() {
@@ -105,8 +129,6 @@ export default defineComponent({
       if (!this.posShiftDoc) {
         return;
       }
-
-      await this.setTransactedAmount();
 
       this.posShiftDoc.closingAmounts = [];
       await this.posShiftDoc.sync();
@@ -155,30 +177,28 @@ export default defineComponent({
       await this.seedClosingAmounts();
       this.isValuesSeeded = true;
     },
-    setClosingCashAmount() {
-      if (!this.posShiftDoc?.closingAmounts) {
-        return;
-      }
-
-      this.posShiftDoc.closingAmounts.map((row) => {
-        if (row.paymentMethod === 'Cash') {
-          row.closingAmount = this.posShiftDoc?.closingCashAmount;
-        }
-      });
-    },
     getField(fieldname: string) {
-      return this.fyo.getField(ModelNameEnum.POSShift, fieldname);
+      return fyo.getField(ModelNameEnum.POSShift, fieldname);
     },
     async handleChange() {
       await this.posShiftDoc?.sync();
-      this.setClosingCashAmount();
     },
     async handleSubmit() {
-      this.$emit('toggleModal', 'ShiftClose');
-      await this.posShiftDoc?.setMultiple({
-        isShiftOpen: false,
-      });
-      await this.posShiftDoc?.sync();
+      try {
+        validateClosingAmounts(this.posShiftDoc as POSShift);
+
+        await this.posShiftDoc?.set('isShiftOpen', false);
+        await this.posShiftDoc?.sync();
+        await transferPOSCashAndWriteOff(fyo, this.posShiftDoc as POSShift);
+
+        this.$emit('toggleModal', 'ShiftClose');
+      } catch (error) {
+        return showToast({
+          type: 'error',
+          message: t`${error as string}`,
+          duration: 'short',
+        });
+      }
     },
   },
 });
