@@ -9,6 +9,7 @@
     </PageHeader>
 
     <OpenPOSShiftModal
+      v-if="!isPosShiftOpen"
       :open-modal="!isPosShiftOpen"
       @toggle-modal="toggleModal"
     />
@@ -57,18 +58,12 @@
         <div class="flex flex-col gap-3" style="height: calc(100vh - 6rem)">
           <div class="bg-white border grow h-full p-4 rounded-md">
             <!-- Customer Search -->
+
             <Link
               class="flex-shrink-0"
-              size="medium"
               :border="true"
-              :df="{
-                label: t`Customer`,
-                fieldtype: 'Link',
-                fieldname: 'customer',
-                target: 'Party',
-                schemaName: 'SalesInvoice',
-              }"
               :value="sinvDoc.party"
+              :df="sinvDoc.fieldMap.party"
               @change="(value) => (sinvDoc.party = value)"
             />
 
@@ -217,7 +212,9 @@ export default defineComponent({
   },
   provide() {
     return {
+      doc: computed(() => this.sinvDoc),
       cashAmount: computed(() => this.cashAmount),
+      isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
       itemDiscounts: computed(() => this.itemDiscounts),
       itemQtyMap: computed(() => this.itemQtyMap),
       itemSerialNumbers: computed(() => this.itemSerialNumbers),
@@ -255,6 +252,11 @@ export default defineComponent({
     };
   },
   computed: {
+    defaultPOSCashAccount: () =>
+      fyo.singles.POSSettings?.cashAccount ?? undefined,
+    isDiscountingEnabled(): boolean {
+      return !!fyo.singles.AccountingSettings?.enableDiscounting;
+    },
     isPosShiftOpen: () => !!fyo.singles.POSShift?.isShiftOpen,
   },
   watch: {
@@ -294,6 +296,7 @@ export default defineComponent({
       this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
         account: 'Debtors',
         party: this.sinvDoc.party ?? this.defaultCustomer,
+        isPOS: true,
       }) as SalesInvoice;
     },
     setTotalQuantity() {
@@ -404,7 +407,6 @@ export default defineComponent({
       }
     },
     async makePayment() {
-      await validateShipment(this.itemSerialNumbers);
       const paymentMethod = this.cashAmount.isZero() ? 'Transfer' : 'Cash';
       await this.paymentDoc.set('paymentMethod', paymentMethod);
 
@@ -417,35 +419,39 @@ export default defineComponent({
       }
 
       if (paymentMethod === 'Cash') {
-        await this.paymentDoc.set('amount', this.cashAmount as Money);
+        await this.paymentDoc.setMultiple({
+          paymentAccount: this.defaultPOSCashAccount,
+          amount: this.cashAmount as Money,
+        });
       }
 
       try {
         await this.paymentDoc?.sync();
         await this.paymentDoc?.submit();
       } catch (error) {
-        showToast({
+        return showToast({
           type: 'error',
           message: t`${error as string}`,
         });
       }
     },
     async makeStockTransfer() {
-      const shipment = (await this.sinvDoc.getStockTransfer()) as Shipment;
-      if (!shipment.items) {
+      const shipmentDoc = (await this.sinvDoc.getStockTransfer()) as Shipment;
+      if (!shipmentDoc.items) {
         return;
       }
 
-      for (const item of shipment.items) {
+      for (const item of shipmentDoc.items) {
+        item.location = fyo.singles.POSSettings?.inventory;
         item.serialNumber =
           this.itemSerialNumbers[item.item as string] ?? undefined;
       }
 
       try {
-        await shipment.sync();
-        await shipment.submit();
+        await shipmentDoc.sync();
+        await shipmentDoc.submit();
       } catch (error) {
-        showToast({
+        return showToast({
           type: 'error',
           message: t`${error as string}`,
         });
@@ -455,12 +461,11 @@ export default defineComponent({
       try {
         await this.validate();
         await this.sinvDoc.runFormulas();
-        await this.sinvDoc._callAllTableFieldsApplyFormula();
         await this.sinvDoc.sync();
         await this.sinvDoc.submit();
         this.paymentDoc = this.sinvDoc.getPayment() as Payment;
       } catch (error) {
-        showToast({
+        return showToast({
           type: 'error',
           message: t`${error as string}`,
         });
