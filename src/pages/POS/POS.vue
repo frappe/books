@@ -26,6 +26,7 @@
       @set-cash-amount="setCashAmount"
       @set-transfer-amount="setTransferAmount"
       @set-transfer-ref-no="setTransferRefNo"
+      @set-transfer-clearance-date="setTransferClearanceDate"
     />
 
     <div
@@ -58,8 +59,8 @@
         <div class="flex flex-col gap-3" style="height: calc(100vh - 6rem)">
           <div class="bg-white border grow h-full p-4 rounded-md">
             <!-- Customer Search -->
-
             <Link
+              v-if="sinvDoc.fieldMap"
               class="flex-shrink-0"
               :border="true"
               :value="sinvDoc.party"
@@ -116,11 +117,8 @@
                     :text-right="true"
                   />
                   <FloatingLabelCurrencyInput
-                    :df="{
-                      label: t`Total`,
-                      fieldtype: 'Currency',
-                      fieldname: 'total',
-                    }"
+                    v-if="sinvDoc.fieldMap"
+                    :df="sinvDoc.fieldMap.grandTotal"
                     size="large"
                     :value="sinvDoc.grandTotal"
                     :read-only="true"
@@ -212,8 +210,8 @@ export default defineComponent({
   },
   provide() {
     return {
-      doc: computed(() => this.sinvDoc),
       cashAmount: computed(() => this.cashAmount),
+      doc: computed(() => this.sinvDoc),
       isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
       itemDiscounts: computed(() => this.itemDiscounts),
       itemQtyMap: computed(() => this.itemQtyMap),
@@ -221,6 +219,7 @@ export default defineComponent({
       sinvDoc: computed(() => this.sinvDoc),
       totalTaxedAmount: computed(() => this.totalTaxedAmount),
       transferAmount: computed(() => this.transferAmount),
+      transferClearanceDate: computed(() => this.transferClearanceDate),
       transferRefNo: computed(() => this.transferRefNo),
     };
   },

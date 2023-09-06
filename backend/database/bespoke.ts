@@ -394,7 +394,8 @@ export class BespokeQueries {
 
   static async getPOSTransactedAmount(
     db: DatabaseCore,
-    fromDate: Date
+    fromDate: Date,
+    toDate: Date
   ): Promise<Record<string, Money> | undefined> {
     const sinvNames = (
       await db.knex!(ModelNameEnum.SalesInvoice)
@@ -403,7 +404,9 @@ export class BespokeQueries {
         .andWhereRaw('datetime(date) > datetime(?)', [
           new Date(fromDate.setHours(0, 0, 0)).toISOString(),
         ])
-        .andWhereRaw('datetime(date) < datetime(?)', [new Date().toISOString()])
+        .andWhereRaw('datetime(date) < datetime(?)', [
+          new Date(toDate.setHours(0, 0, 0)).toISOString(),
+        ])
     ).map((row: { name: string }) => row.name);
 
     if (!sinvNames.length) {

@@ -344,11 +344,13 @@ export class DatabaseHandler extends DatabaseBase {
   }
 
   async getPOSTransactedAmount(
-    fromDate: Date
+    fromDate: Date,
+    toDate: Date
   ): Promise<Record<string, Money> | undefined> {
     return (await this.#demux.callBespoke(
       'getPOSTransactedAmount',
-      fromDate
+      fromDate,
+      toDate
     )) as Promise<Record<string, Money> | undefined>;
   }
 

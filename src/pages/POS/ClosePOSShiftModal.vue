@@ -109,7 +109,10 @@ export default defineComponent({
         return;
       }
       const fromDate = fyo.singles.POSShift?.openingDate;
-      this.transactedAmount = await fyo.db.getPOSTransactedAmount(fromDate);
+      this.transactedAmount = await fyo.db.getPOSTransactedAmount(
+        fromDate,
+        new Date()
+      );
     },
     seedClosingCash() {
       if (!this.posShiftDoc) {

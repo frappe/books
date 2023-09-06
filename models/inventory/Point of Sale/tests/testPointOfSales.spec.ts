@@ -31,14 +31,15 @@ let sinvDocOne: SalesInvoice | undefined;
 
 test('check pos transacted amount', async (t) => {
   const transactedAmountBeforeTxn = await fyo.db.getPOSTransactedAmount(
-    new Date('2022-01-01')
+    new Date('2023-01-01'),
+    new Date('2023-01-02')
   );
 
   t.equals(transactedAmountBeforeTxn, undefined);
 
   sinvDocOne = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
     isPOS: true,
-    date: new Date('2022-01-02'),
+    date: new Date('2023-01-01'),
     account: 'Debtors',
     party: customer.name,
   }) as SalesInvoice;
@@ -56,7 +57,7 @@ test('check pos transacted amount', async (t) => {
 
   const sinvDocTwo = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
     isPOS: true,
-    date: new Date('2022-01-02'),
+    date: new Date('2023-01-01'),
     account: 'Debtors',
     party: customer.name,
   }) as SalesInvoice;
@@ -72,14 +73,17 @@ test('check pos transacted amount', async (t) => {
 
   await paymentDocTwo.setMultiple({
     paymentMethod: 'Transfer',
-    clearanceDate: new Date(),
+    clearanceDate: new Date('2023-01-01'),
     referenceId: 'xxxxxxxx',
   });
 
   await paymentDocTwo.sync();
 
   const transactedAmountAfterTxn: Record<string, Money> | undefined =
-    await fyo.db.getPOSTransactedAmount(new Date('2022-01-02'));
+    await fyo.db.getPOSTransactedAmount(
+      new Date('2023-01-01'),
+      new Date('2023-01-02')
+    );
 
   t.true(transactedAmountAfterTxn);
 
