@@ -56,7 +56,7 @@
     "autoprefixer": "^9",
     "chokidar": "^3.5.3",
     "dotenv": "^16.0.0",
-    "electron": "18.3.7",
+    "electron": "22.3.21",
     "electron-builder": "^24.4.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-rebuild": "^3.2.9",
