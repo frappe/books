@@ -1,13 +1,9 @@
 <template>
   <Modal class="w-2/6 ml-auto mr-3.5" :set-close-listener="false">
-    <div class="px-4 py-6 grid" style="height: 95vh">
+    <div v-if="sinvDoc.fieldMap" class="px-4 py-6 grid" style="height: 95vh">
       <div class="grid grid-cols-2 gap-6">
         <Currency
-          :df="{
-            label: t`Cash`,
-            fieldtype: 'Currency',
-            fieldname: 'cash',
-          }"
+          :df="fyo.fieldMap.PaymentFor.amount"
           :read-only="!transferAmount.isZero()"
           :border="true"
           :text-right="true"
@@ -27,11 +23,7 @@
         </Button>
 
         <Currency
-          :df="{
-            label: t`Transfer`,
-            fieldtype: 'Currency',
-            fieldname: 'transfer',
-          }"
+          :df="fyo.fieldMap.PaymentFor.amount"
           :read-only="!cashAmount.isZero()"
           :border="true"
           :text-right="true"
@@ -54,11 +46,7 @@
       <div class="mt-8 grid grid-cols-2 gap-6">
         <Data
           v-show="!transferAmount.isZero()"
-          :df="{
-            label: t`Transfer Ref No.`,
-            fieldtype: 'Data',
-            fieldname: 'transferRefNo',
-          }"
+          :df="fyo.fieldMap.Payment.referenceId"
           :show-label="true"
           :border="true"
           :required="!transferAmount.isZero()"
@@ -68,14 +56,11 @@
 
         <Date
           v-show="!transferAmount.isZero()"
-          :df="{
-            label: t`Clearance Date`,
-            fieldtype: 'Date',
-            fieldname: 'transferClearanceDate',
-          }"
+          :df="fyo.fieldMap.Payment.clearanceDate"
           :show-label="true"
           :border="true"
           :required="!transferAmount.isZero()"
+          :value="transferClearanceDate"
           @change="(value:Date) => $emit('setTransferClearanceDate', value)"
         />
       </div>
@@ -114,11 +99,7 @@
         class="mb-14 row-start-4 row-span-2 grid grid-cols-2 gap-x-6 gap-y-11"
       >
         <Currency
-          :df="{
-            label: t`Net Total`,
-            fieldtype: 'Currency',
-            fieldname: 'netTotal',
-          }"
+          :df="sinvDoc.fieldMap.netTotal"
           :read-only="true"
           :show-label="true"
           :border="true"
@@ -140,11 +121,7 @@
         />
 
         <Currency
-          :df="{
-            label: t`Total Amount`,
-            fieldtype: 'Currency',
-            fieldname: 'totalAmount',
-          }"
+          :df="sinvDoc.fieldMap.baseGrandTotal"
           :read-only="true"
           :show-label="true"
           :border="true"
@@ -154,11 +131,7 @@
 
         <Currency
           v-if="isDiscountingEnabled"
-          :df="{
-            label: t`Discount Amount`,
-            fieldtype: 'Currency',
-            fieldname: 'discountAmount',
-          }"
+          :df="sinvDoc.fieldMap.discountAmount"
           :read-only="true"
           :show-label="true"
           :border="true"
@@ -167,11 +140,7 @@
         />
 
         <Currency
-          :df="{
-            label: t`Grand Total`,
-            fieldtype: 'Currency',
-            fieldname: 'grandTotal',
-          }"
+          :df="sinvDoc.fieldMap.grandTotal"
           :read-only="true"
           :show-label="true"
           :border="true"
@@ -262,6 +231,7 @@ export default defineComponent({
       transferAmount: inject('transferAmount') as Money,
       sinvDoc: inject('sinvDoc') as SalesInvoice,
       transferRefNo: inject('transferRefNo') as string,
+      transferClearanceDate: inject('transferClearanceDate') as Date,
       totalTaxedAmount: inject('totalTaxedAmount') as Money,
     };
   },
@@ -273,15 +243,16 @@ export default defineComponent({
         return grandTotal.sub(this.transferAmount);
       }
 
-      if (this.transferAmount.isZero()) {
-        return grandTotal.sub(this.cashAmount);
-      }
-
-      const totalPaidAmount = this.cashAmount.add(this.transferAmount);
-      return grandTotal.sub(totalPaidAmount);
+      return grandTotal.sub(this.cashAmount);
     },
     paidChange(): Money {
-      return this.cashAmount.sub(this.sinvDoc?.grandTotal ?? fyo.pesa(0));
+      const grandTotal = this.sinvDoc?.grandTotal ?? fyo.pesa(0);
+
+      if (this.cashAmount.isZero()) {
+        return this.transferAmount.sub(grandTotal);
+      }
+
+      return this.cashAmount.sub(grandTotal);
     },
     showBalanceAmount(): boolean {
       if (
@@ -309,15 +280,15 @@ export default defineComponent({
         return false;
       }
 
-      if (this.cashAmount.lt(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
-        return false;
+      if (this.cashAmount.gt(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
+        return true;
       }
 
-      if (this.transferAmount.gte(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
-        return false;
+      if (this.transferAmount.gt(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
+        return true;
       }
 
-      return true;
+      return false;
     },
   },
   methods: {

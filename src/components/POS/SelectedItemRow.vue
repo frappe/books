@@ -194,7 +194,7 @@
     <div class=""></div>
 
     <div
-      v-if="row.links && row.links?.item.hasBatch"
+      v-if="row.links?.item && row.links?.item.hasBatch"
       class="pl-6 px-4 pt-6 col-span-2"
     >
       <Link
@@ -213,7 +213,7 @@
     </div>
 
     <div
-      v-if="row.links && row.links?.item.hasBatch"
+      v-if="row.links?.item && row.links?.item.hasBatch"
       class="px-2 pt-6 col-span-2"
     >
       <Float
@@ -233,7 +233,7 @@
     </div>
 
     <div
-      v-if="row.links && row.links?.item.hasSerialNumber"
+      v-if="row.links?.item && row.links?.item.hasSerialNumber"
       class="px-2 pt-8 col-span-2"
     >
       <Text
