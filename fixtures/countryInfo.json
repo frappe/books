@@ -1905,10 +1905,13 @@
   },
   "Suriname": {
     "code": "sr",
+    "currency": "SRD",
     "currency_fraction": "Cent",
     "currency_fraction_units": 100,
+    "currency_name": "Surinamese Dollar",
     "currency_symbol": "$",
-    "timezones": ["America/Paramaribo"]
+    "timezones": ["America/Paramaribo"],
+    "locale": "nl-SR"
   },
   "Svalbard and Jan Mayen": {
     "code": "sj"
