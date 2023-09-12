@@ -5,7 +5,7 @@
       <PageHeader
         v-if="showHeader"
         :title="title"
-        :border="useFullWidth"
+        :border="false"
         :searchborder="searchborder"
       >
         <template #left>
@@ -19,7 +19,7 @@
         class="flex flex-col self-center h-full overflow-auto bg-white"
         :class="
           useFullWidth
-            ? 'w-full'
+            ? 'w-full border-t'
             : 'w-form border rounded-lg shadow-lg mb-4 mx-4'
         "
       >

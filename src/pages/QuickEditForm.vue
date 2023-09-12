@@ -10,7 +10,6 @@
         h-row-largest
         sticky
         top-0
-        border-b
         bg-white
       "
       style="z-index: 1"
@@ -44,7 +43,7 @@
     <!-- Name and image -->
     <div
       v-if="doc && (titleField || imageField)"
-      class="items-center border-b"
+      class="items-center border-b border-t"
       :class="imageField ? 'grid' : 'flex justify-center'"
       :style="{
         height: `calc(var(--h-row-mid) * ${!!imageField ? '2 + 1px' : '1'})`,

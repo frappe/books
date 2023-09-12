@@ -40,7 +40,7 @@ export default defineComponent({
       return {
         'opacity-50 cursor-not-allowed pointer-events-none': this.disabled,
         'text-white': this.type === 'primary',
-        'bg-blue-500': this.type === 'primary' && this.background,
+        'bg-black': this.type === 'primary' && this.background,
         'text-gray-700': this.type !== 'primary',
         'bg-gray-200': this.type !== 'primary' && this.background,
         'h-8': this.background,
