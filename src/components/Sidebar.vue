@@ -33,7 +33,7 @@
           class="px-4 flex items-center cursor-pointer hover:bg-gray-100 h-10"
           :class="
             isGroupActive(group) && !group.items
-              ? 'bg-gray-100 border-s-4 border-blue-500'
+              ? 'bg-gray-100 border-s-4 border-gray-800'
               : ''
           "
           @click="routeToSidebarItem(group)"
@@ -47,8 +47,8 @@
             :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"
           />
           <div
-            class="ms-2 text-lg text-gray-900"
-            :class="isGroupActive(group) && !group.items && 'text-blue-600'"
+            class="ms-2 text-lg text-gray-700"
+            :class="isGroupActive(group) && !group.items && 'text-gray-900'"
           >
             {{ group.label }}
           </div>
@@ -60,7 +60,7 @@
             v-for="item in group.items"
             :key="item.label"
             class="
-              text-base text-gray-800
+              text-base
               h-10
               ps-10
               cursor-pointer
@@ -70,8 +70,8 @@
             "
             :class="
               isItemActive(item)
-                ? 'bg-gray-100 text-blue-600 border-s-4 border-blue-500'
-                : ''
+                ? 'bg-gray-100 text-gray-900 border-s-4 border-gray-800'
+                : 'text-gray-700'
             "
             @click="routeToSidebarItem(item)"
           >

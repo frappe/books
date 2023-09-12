@@ -119,8 +119,8 @@
           class="text-sm cursor-pointer"
           :class="
             key === activeTab
-              ? 'text-blue-500 font-semibold border-t-2 border-blue-500'
-              : ''
+              ? 'text-gray-900 font-semibold border-t-2 border-gray-800'
+              : 'text-gray-700'
           "
           :style="{
             paddingTop: key === activeTab ? 'calc(1rem - 2px)' : '1rem',
