@@ -627,3 +627,23 @@ john@doe.com,john@doe.com
 reports,报告
 setup,设置
 verify the imported data and click on,验证导入的数据并点击
+New Company,新建公司,
+Create a new company and store it on your computer,创建一家新公司并将其存储在电脑中,
+Create a new company or select an existing one from your computer,创建新公司或从电脑中选择现有公司,
+Existing Company,现有公司,
+Load an existing company from your computer,从计算机加载现有公司,
+Create a demo company to try out Frappe Books,创建演示公司，试用 Frappe Books,
+Accounting,会计,
+Fill,填充,
+Set Base Count,设置基数,
+Base Count is a lower bound on the number of entries made when creating the dummy instance.,基数是创建虚拟实例时条目数的下限。,
+Base Count,基数,
+Cancel,取消,
+Create,创建,
+Sales Invoice Number Series,销售发票编号系列,
+Add a few customers to create your first sales invoice,添加一些客户，创建您的第一张销售发票,
+Set Up,设置,
+Inventory,库存,
+Enable Inventory,启用库存,
+Stock Movement,库存动态,
+Location,位置,
