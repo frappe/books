@@ -16,6 +16,7 @@ import {
 import { ItemQtyMap, ItemSerialNumbers } from 'src/components/POS/types';
 import { fyo } from 'src/initFyo';
 import { safeParseFloat } from 'utils/index';
+import { showToast } from './interactive';
 
 export async function getItemQtyMap(): Promise<ItemQtyMap> {
   const itemQtyMap: ItemQtyMap = {};
@@ -141,6 +142,37 @@ export async function validateShipment(itemSerialNumbers: ItemSerialNumbers) {
   }
 }
 
+export function validateIsPosSettingsSet(fyo: Fyo) {
+  try {
+    const inventory = fyo.singles.POSSettings?.inventory;
+    if (!inventory) {
+      throw new ValidationError(
+        t`POS Inventory is not set. Please set it on POS Settings`
+      );
+    }
+
+    const cashAccount = fyo.singles.POSSettings?.cashAccount;
+    if (!cashAccount) {
+      throw new ValidationError(
+        t`POS Counter Cash Account is not set. Please set it on POS Settings`
+      );
+    }
+
+    const writeOffAccount = fyo.singles.POSSettings?.writeOffAccount;
+    if (!writeOffAccount) {
+      throw new ValidationError(
+        t`POS Write Off Account is not set. Please set it on POS Settings`
+      );
+    }
+  } catch (error) {
+    showToast({
+      type: 'error',
+      message: t`${error as string}`,
+      duration: 'long',
+    });
+  }
+}
+
 export function getTotalTaxedAmount(sinvDoc: SalesInvoice): Money {
   let totalTaxedAmount = fyo.pesa(0);
   if (!sinvDoc.items?.length || !sinvDoc.taxes?.length) {
@@ -154,17 +186,21 @@ export function getTotalTaxedAmount(sinvDoc: SalesInvoice): Money {
 }
 
 export function validateClosingAmounts(posShiftDoc: POSShift) {
-  if (!posShiftDoc) {
-    throw new ValidationError(`POS Shift Document not loaded. Please reload.`);
-  }
-
-  posShiftDoc.closingAmounts?.map((row) => {
-    if (row.closingAmount?.isNegative()) {
+  try {
+    if (!posShiftDoc) {
       throw new ValidationError(
-        t`Closing ${row.paymentMethod as string} Amount can not be negative.`
+        `POS Shift Document not loaded. Please reload.`
       );
     }
-  });
+
+    posShiftDoc.closingAmounts?.map((row) => {
+      if (row.closingAmount?.isNegative()) {
+        throw new ValidationError(
+          t`Closing ${row.paymentMethod as string} Amount can not be negative.`
+        );
+      }
+    });
+  } catch (error) {}
 }
 
 export async function transferPOSCashAndWriteOff(

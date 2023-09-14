@@ -190,6 +190,7 @@ import {
   getItemQtyMap,
   getTotalQuantity,
   getTotalTaxedAmount,
+  validateIsPosSettingsSet,
   validateShipment,
   validateSinv,
 } from 'src/utils/pos';
@@ -268,6 +269,7 @@ export default defineComponent({
   },
   async activated() {
     toggleSidebar(false);
+    validateIsPosSettingsSet(fyo);
     this.setSinvDoc();
     this.setDefaultCustomer();
     await this.setItemQtyMap();

@@ -189,7 +189,6 @@ export default defineComponent({
     async handleSubmit() {
       try {
         validateClosingAmounts(this.posShiftDoc as POSShift);
-
         await this.posShiftDoc?.set('isShiftOpen', false);
         await this.posShiftDoc?.sync();
         await transferPOSCashAndWriteOff(fyo, this.posShiftDoc as POSShift);
