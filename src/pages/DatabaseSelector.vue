@@ -199,13 +199,12 @@
     <!-- Base Count Selection when Dev -->
     <Modal :open-modal="openModal" @closemodal="openModal = false">
       <div class="p-4 text-gray-900 w-form">
-        <h2 class="text-xl font-semibold select-none">Set Base Count</h2>
+        <h2 class="text-xl font-semibold select-none">{{ t`Set Base Count` }}</h2>
         <p class="text-base mt-2">
-          Base Count is a lower bound on the number of entries made when
-          creating the dummy instance.
+          {{ t`Base Count is a lower bound on the number of entries made when creating the dummy instance.` }}
         </p>
         <div class="flex my-12 justify-center items-baseline gap-4 text-base">
-          <label for="basecount" class="text-gray-600">Base Count</label>
+          <label for="basecount" class="text-gray-600">{{ t`Base Count` }}</label>
           <input
             v-model="baseCount"
             type="number"
@@ -221,7 +220,7 @@
           />
         </div>
         <div class="flex justify-between">
-          <Button @click="openModal = false">Cancel</Button>
+          <Button @click="openModal = false">{{ t`Cancel` }}</Button>
           <Button
             type="primary"
             @click="
@@ -230,7 +229,7 @@
                 startDummyInstanceSetup();
               }
             "
-            >Create</Button
+            >{{ t`Create` }}</Button
           >
         </div>
       </div>
