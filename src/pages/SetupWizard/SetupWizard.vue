@@ -55,7 +55,7 @@
           class="w-24 ml-auto mr-4"
           :disabled="loading"
           @click="fill"
-          >Fill</Button
+          >{{ t`Fill` }}</Button
         >
         <Button
           type="primary"
