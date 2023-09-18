@@ -95,6 +95,11 @@
       "default": false
     },
     {
+      "fieldname": "default",
+      "label": "Default",
+      "fieldtype": "Data"
+    },
+    {
       "fieldname": "section",
       "label": "Form Section",
       "fieldtype": "Data",
@@ -128,6 +133,7 @@
     "fieldname",
     "fieldtype",
     "isRequired",
+    "default",
     "options",
     "target",
     "references",

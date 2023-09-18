@@ -150,5 +150,6 @@ export class CustomField extends Doc {
       this.fieldtype === 'Select' || this.fieldtype === 'AutoComplete',
     target: () => this.fieldtype === 'Link' || this.fieldtype === 'Table',
     references: () => this.fieldtype === 'DynamicLink',
+    default: () => !!this.isRequired,
   };
 }

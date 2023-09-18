@@ -92,4 +92,5 @@ export type RawCustomField = {
   options?: string;
   target?: string;
   references?: string;
+  default?: string;
 };
