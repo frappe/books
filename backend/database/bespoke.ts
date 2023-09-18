@@ -8,6 +8,7 @@ import {
 import { ModelNameEnum } from '../../models/types';
 import DatabaseCore from './core';
 import { BespokeFunction } from './types';
+import { DateTime } from 'luxon';
 import { DocItem, ReturnDocItem } from 'models/inventory/types';
 import { safeParseFloat } from 'utils/index';
 import { Money } from 'pesa';
@@ -401,11 +402,9 @@ export class BespokeQueries {
       await db.knex!(ModelNameEnum.SalesInvoice)
         .select('name')
         .where('isPOS', true)
-        .andWhereRaw('datetime(date) > datetime(?)', [
-          new Date(fromDate.setHours(0, 0, 0)).toISOString(),
-        ])
-        .andWhereRaw('datetime(date) < datetime(?)', [
-          new Date(toDate.setHours(0, 0, 0)).toISOString(),
+        .andWhereBetween('date', [
+          DateTime.fromJSDate(fromDate).toISODate(),
+          DateTime.fromJSDate(toDate).toISODate(),
         ])
     ).map((row: { name: string }) => row.name);
 
