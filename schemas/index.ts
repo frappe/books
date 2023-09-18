@@ -296,6 +296,7 @@ function getFieldMapFromRawCustomFields(
         section,
         tab,
         options: rawOptions,
+        default: defaultValue,
         target,
         references,
       }
@@ -341,6 +342,14 @@ function getFieldMapFromRawCustomFields(
 
       if (typeof references === 'string') {
         (field as DynamicLinkField).references = references;
+      }
+
+      if (field.required && defaultValue != null) {
+        field.default = defaultValue;
+      }
+
+      if (field.required && field.default == null) {
+        field.required = false;
       }
 
       map[parent].push(field);
