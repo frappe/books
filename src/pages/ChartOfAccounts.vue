@@ -44,8 +44,9 @@
             </div>
 
             <!-- Add Account Buttons on Group Hover -->
-            <div v-if="account.isGroup" class="ms-6 hidden group-hover:block">
+            <div class="ms-6 hidden group-hover:block">
               <button
+                v-if="account.isGroup"
                 class="
                   text-xs text-gray-800
                   hover:text-gray-900
@@ -56,6 +57,7 @@
                 {{ t`Add Account` }}
               </button>
               <button
+                v-if="account.isGroup"
                 class="
                   ms-3
                   text-xs text-gray-800
@@ -65,6 +67,17 @@
                 @click.stop="addAccount(account, 'addingGroupAccount')"
               >
                 {{ t`Add Group` }}
+              </button>
+              <button
+                class="
+                  ms-3
+                  text-xs text-gray-800
+                  hover:text-gray-900
+                  focus:outline-none
+                "
+                @click.stop="deleteAccount(account)"
+              >
+                {{ account.isGroup ? t`Delete Group` : t`Delete Account` }}
               </button>
             </div>
           </div>
@@ -147,7 +160,7 @@ import { fyo } from 'src/initFyo';
 import { languageDirectionKey } from 'src/utils/injectionKeys';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
-import { openQuickEdit } from 'src/utils/ui';
+import { commongDocDelete, openQuickEdit } from 'src/utils/ui';
 import { getMapFromList, removeAtIndex } from 'utils/index';
 import { defineComponent, nextTick } from 'vue';
 import Button from '../components/Button.vue';
@@ -158,6 +171,7 @@ import { TreeViewSettings } from 'fyo/model/types';
 import { Doc } from 'fyo/model/doc';
 import { Component } from 'vue';
 import { uicolors } from 'src/utils/colors';
+import { showDialog } from 'src/utils/interactive';
 
 type AccountItem = {
   name: string;
@@ -345,6 +359,34 @@ export default defineComponent({
       doc.once('afterDelete', () => {
         this.removeAccount(doc.name!, account, parentAccount);
       });
+    },
+    async deleteAccount(account: AccountItem) {
+      const canDelete = await this.canDeleteAccount(account);
+      if (!canDelete) {
+        return;
+      }
+
+      const doc = await fyo.doc.getDoc(ModelNameEnum.Account, account.name);
+      this.setOpenAccountDocListener(doc, account);
+
+      await commongDocDelete(doc, false);
+    },
+    async canDeleteAccount(account: AccountItem) {
+      if (account.isGroup && !account.children?.length) {
+        await this.fetchChildren(account);
+      }
+
+      if (!account.children?.length) {
+        return true;
+      }
+
+      await showDialog({
+        type: 'error',
+        title: t`Cannot Delete Account`,
+        detail: t`${account.name} has linked child accounts.`,
+      });
+
+      return false;
     },
     removeAccount(
       name: string,
