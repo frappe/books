@@ -498,14 +498,19 @@ export function getShortcutKeyMap(
   };
 }
 
-export async function commongDocDelete(doc: Doc): Promise<boolean> {
+export async function commongDocDelete(
+  doc: Doc,
+  routeBack = true
+): Promise<boolean> {
   const res = await deleteDocWithPrompt(doc);
   if (!res) {
     return false;
   }
 
   showActionToast(doc, 'delete');
-  router.back();
+  if (routeBack) {
+    router.back();
+  }
   return true;
 }
 
