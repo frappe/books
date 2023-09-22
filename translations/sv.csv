@@ -1,753 +1,1002 @@
-${0} ${1} already exists.,${0} ${1} finns redan.
-${0} ${1} does not exist,${0} ${1} existerar inte
-${0} ${1} has been modified after loading,${0} ${1} har modifierats efter inläsning
-${0} ${1} is linked with existing records.,${0} ${1} är kopplad till befintliga poster.
-${0} account not set in Inventory Settings.,${0} Kontot är inte inställt i inventeringsinställningar.
-${0} already exists.,${0} finns redan.
-${0} fields selected,${0} valda fält
-${0} filters applied,${0} Filter tillämpade
-${0} of type ${1} does not exist,${0} av typ ${1} finns inte
-${0} out of ${1},${0} av ${1}
-${0} party ${1} is different from ${2},${0} Party ${1} skiljer sig från ${2}
-${0} rows,${0} rader
-${0} value ${1} does not exist.,${0} värde ${1} finns inte.
-* required fields,* Obligatoriska fält
-0%,0%
-03-23-2022,03-23-2022
-03/23/2022,03/23/2022
-1 filter applied,1 filter applicerat
-2022-03-23,2022-03-23
-"23 Mar, 2022","23 mar, 2022"
-23-03-2022,23-03-2022
-23.03.2022,23.03.2022
-23/03/2022,23/03/2022
-9888900000,9888900000
-Account,konto
-Account ${0} does not exist.,Konto ${0} finns inte.
-Account Entries,Kontoposter
-Account Name,Kontonamn
-Account Type,Kontotyp
-Accounting Entries,Redovisningsposter
-Accounting Ledger Entry,Bokföringsbok
-Accounting Settings,Bokföringsinställningar
-Accounts,Konton
-Accounts Payable,Konton som ska betalas
-Accounts Receivable,Kundfordringar
-Accumulated Depreciation,Ackumulerade avskrivningar
-Add Account,Lägg till konto
-Add Customers,Lägga till kunder
-Add Group,Lägg till grupp
-Add Items,Lägg till objekt
-Add Row,Lägg till rad
-Add Suppliers,Lägga till leverantörer
-Add Taxes,Lägga till skatter
-Add a few customers to create your first sales invoice,Lägg till några kunder för att skapa din första försäljningsfaktura
-Add a few suppliers to create your first purchase invoice,Lägg till några leverantörer för att skapa ditt första köpfaktura
-Add a filter,Lägg till ett filter
-Add a remark,Lägg till en kommentar
-Add attachment,Bifoga fil
-Add invoice terms,Lägg till fakturavillkor
-Add products or services that you buy from your suppliers,Lägg till produkter eller tjänster som du köper från dina leverantörer
-Add products or services that you sell to your customers,Lägg till produkter eller tjänster som du säljer till dina kunder
-Add transfer terms,Lägg till överföringsvillkor
-Additional quantity (${0}) required to make outward transfer of item ${1} from ${2} on ${3},Ytterligare kvantitet (${0}) krävs för att göra utåtöverföring av artikel ${1} från ${2} på ${3}
-Address,Adress
-Address Display,Adressvisning
-Address Line 1,Adressrad 1
-Address Line 2,Adress Linje 2
-Administrative Expenses,Administrativa kostnader
-All,Allt
-Amount,Belopp
-Amount Paid,Betalt belopp
-Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.,Belopp: ${0} och WRITOFF: ${1} är mindre än det totala beloppet som tilldelas referenser: ${2}.
-Amount: ${0} is less than the total amount allocated to references: ${1}.,Belopp: ${0} är mindre än det totala beloppet som tilldelas referenser: ${1}.
-An error occurred.,Ett fel uppstod.
-Application of Funds (Assets),Tillämpning av fonder (tillgångar)
-April,April
-Arial,Arial
-Ascending Order,Stigande ordning
-Asset,Tillgång
-Assign Imported Labels,Tilldela importerade etiketter
-Attachment,Anknytning
-August,Augusti
-Back Reference,Bakreferens
-Bad import data.,Dålig importdata.
-Balance,Balans
-Balance Sheet,Balansräkning
-Bank,Bank
-Bank Accounts,Bankkonton
-Bank Entry,Bankinträde
-Bank Name,Bank namn
-Bank Overdraft Account,Kassakonto
-Base Grand Total,Bas Grand Total
-Based On,Baserat på
-Basic,Grundläggande
-Bill Created,Bill skapad
-Black,Svart
-Blue,Blå
-Both,Både
-Both From and To Location cannot be undefined,Både från och till plats kan inte definieras odefinierad
-Buildings,Byggnader
-Business,Företag
-Cancel,Avbryt
-Cancel ${0} ${1}?,Avbryt ${0} ${1}?
-Cancelled,Inställt
-Cannot Commit Error,Kan inte begå fel
-Cannot Delete,Kan inte ta bort
-Cannot cancel ${0} ${1} because of the following ${2}: ${3},Kan inte avbryta ${0} ${1} på grund av följande ${2}: ${3}
-Cannot delete ${0} ${1} because of linked entries.,Kan inte ta bort ${0} ${1} på grund av länkade poster.
-Cannot perform operation.,Kan inte utföra drift.
-Capital Equipments,Kapitalutrustning
-Capital Stock,Kapital
-Cash,Kontanter
-Cash Entry,Kontantpost
-Cash In Hand,Pengar i handen
-Cashflow,Pengaflöde
-Central Tax,Central skatt
-Change DB,Ändra DB
-Change File,Ändra fil
-Change Ref Type,Ändra ref -typ
-Chargeable,Avgiftsbelagd
-Chart Of Accounts Reviewed,Diagram över granskade konton
-Chart of Accounts,Kontoschema
-Cheque,Kolla upp
-City / Town,Stads-
-Clear,Klar
-Clearance Date,Avståndsdatum
-Click to create,Klicka för att skapa
-Close,Stänga
-Close Frappe Books and try manually,Stäng Frappe -böcker och försök manuellt
-Closing,Stängning
-Closing (Cr),Stängning (CR)
-Closing (Dr),Stängning (dr)
-Color,Färg
-Commission on Sales,Försäljningskommission
-Common,Allmänning
-Common Items,Gemensamma föremål
-Company,Företag
-Company Address,Företags Adress
-Company Logo,Företagslogotyp
-Company Name,Företagsnamn
-Company Settings,Företagsinställningar
-Company Setup,Företagsinställning
-Completed,Avslutad
-Condition,Skick
-Consolidate Columns,Konsolidera kolumner
-Contains,Innehåller
-Contra Entry,Kontrapost
-Cost Of Goods Sold Acc.,Kostnad för sålda varor akkumulerat.
-Cost of Goods Sold,Kostnad för sålda varor
-Could not import ${0} ${1}.,Kunde inte importera ${0} ${1}.
-Could not select file.,Kunde inte välja fil.
-Country,Land
-Country Code,Landskod
-Country code used to initialize regional settings.,Landskod som används för att initialisera regionala inställningar.
-Courier,Kurir
-Cr.,Cr.
-Create,Skapa
-Create Demo,Skapa demo
-Create Purchase,Skapa köp
-Create Purchase Invoice,Skapa köpfaktura
-Create Sale,Skapa försäljning
-Create Sales Invoice,Skapa försäljningsfaktura
-Create a new file and store it in your computer.,Skapa en ny fil och lagra den i din dator.
-Create a new file or select an existing one from your computer,Skapa en ny fil eller välj en befintlig från din dator
-Create your first purchase invoice from the created supplier,Skapa ditt första köpfaktura från den skapade leverantören
-Create your first sales invoice for the created customer,Skapa din första försäljningsfaktura för den skapade kunden
-Created,Skapad
-Created By,Skapad av
-Creating Items and Parties,Skapa föremål och fester
-Creating Journal Entries,Skapa journalposter
-Creating Purchase Invoices,Skapa köpfakturor
-Credit,Kreditera
-Credit Card Entry,Kreditkortspost
-Credit Note,Kreditnotering
-Creditors,Borgenärer
-Currency,Valuta
-Currency Name,Valutanamn
-Current,Nuvarande
-Current Assets,Nuvarande tillgångar
-Current Liabilities,Nuvarande åtaganden
-Custom Hex,Anpassad hex
-Customer,Kund
-Customer Created,Kund skapad
-Customer Currency,Kundvaluta
-Customers,Kunder
-Customise,Anpassa
-Customize your invoices by adding a logo and address details,Anpassa dina fakturor genom att lägga till en logotyp och adressuppgifter
-Dashboard,instrumentbräda
-Data Import,Dataimport
-Database Error,Databas fel
-Database file: ${0},Databasfil: ${0}
-Date,Datum
-Date Format,Datumformat
-Day,Dag
-Debit,Debitera
-Debit Note,Debiteringsanmärkning
-Debtors,Gäldenär
-December,December
-Default Account,Standardkonto
-Default Location,Standardplats
-Defaults,Standard
-Delete,Radera
-Delete ${0} ${1}?,Ta bort ${0} ${1}?
-Delete ${0}?,Ta bort ${0}?
-Delete Failed,Radera misslyckades
-Depreciation,Avskrivning
-Depreciation Entry,Avskrivning
-Description,Beskrivning
-Details,Information
-Direct Expenses,Direktutgifter
-Direct Income,Direktinkomst
-Discount,Rabatt
-Discount Account,Rabattkonto
-Discount Account is not set.,Rabattkonto är inte inställt.
-Discount After Tax,Rabatt efter skatt
-Discount Amount,Rabattbelopp
-Discount Amount (${0}) cannot be greated than Amount (${1}).,Rabattbelopp (${0}) kan inte vara märkt än belopp (${1}).
-Discount Percent,Rabattprocent
-Discount Percent (${0}) cannot be greater than 100.,Rabattprocent (${0}) kan inte vara större än 100.
-Discount applied after taxation,Rabatt tillämpas efter beskattning
-Discount applied before taxation,Rabatt tillämpas före beskattning
-Discounted Amount,Rabatterat belopp
-Discounts,Rabatter
-Display Logo in Invoice,Visa logotyp i faktura
-Display Precision,Visa precision
-Display Precision should have a value between 0 and 9.,Visningsprecision bör ha ett värde mellan 0 och 9.
-Display Tax Invoice,Visa skattefakturor
-Dividends Paid,Utdelningar
-Docs,Dokument
-Documentation,Dokumentation
-Does Not Contain,Innehåller inte
-Dr.,Doktor
-Draft,Förslag
-Duplicate,Duplicera
-Duplicate ${0} ${1}?,Duplikat ${0} ${1}?
-Duplicate Entry,Duplikatpost
-Duties and Taxes,Uppgifter och skatter
-Earnest Money,Hederliga pengar
-Electronic Equipments,Elektronisk utrustning
-Email,E-post
-Email Address,E-postadress
-Empty,Tömma
-Enable Discount Accounting,Aktivera rabattredovisning
-Enable Inventory,Aktivera inventering
-Enter Country to load States,Gå in i landet för att ladda stater
-Enter State,Gå in i staten
-Entertainment Expenses,Underhållningskostnader
-Entry Currency,Inträdesvaluta
-Entry No,Post nr
-Entry Type,Posttyp
-Equity,Rättvisa
-Error,Fel
-Exchange Gain/Loss,Utbytesförstärkning/förlust
-Exchange Rate,Växlingskurs
-Excise Entry,Punktskatt
-Existing File,Befintlig fil
-Expense,Bekostnad
-Expense Account,Utgiftskonto
-Expenses,Utgifter
-Expenses Included In Valuation,Utgifter som ingår i värderingen
-Export,Exportera
-Export Failed,Exporten misslyckades
-Export Format,Exportformat
-Export Successful,Exporten genomförd
-Export Wizard,Exportguide
-FIFO,Först in först ut
-Fax,Fax
-February,Februari
-Field,Fält
-Fieldname,Fält namn
-File ${0} does not exist,Fil ${0} finns inte
-File selection failed.,Filval misslyckades.
-Filter,Filtrera
-Fiscal Year,Räkenskapsår
-Fiscal Year End Date,Räkenskapsåret
-Fiscal Year Start Date,Räkenskapsårets startdatum
-Fixed Asset,Anläggningstillgång
-Fixed Assets,Anläggningstillgångar
-Font,Font
-For,För
-Forbidden Error,Förbjudet fel
-Fr,Fr
-Fraction,Fraktion
-Fraction Units,Fraktionsenheter
-Freight and Forwarding Charges,Frakt- och vidarebefordringsavgifter
-From,Från
-From Account,Från konto
-From Date,Från datum
-From Loc.,Från loc.
-From Year,Från år
-Full Name,Fullständiga namn
-Furnitures and Fixtures,Möbler och armaturer
-GST,GST
-GSTIN No.,Gstin No.
-GSTR1,Gstr1
-GSTR2,GSTR2
-Gain/Loss on Asset Disposal,Vinst/förlust vid bortskaffande av tillgångar
-General,Allmän
-General Ledger,Huvudbok
-Get Started,Komma igång
-Gram,Gram
-Grand Total,Total total
-Greater Than,Större än
-Green,Grön
-Group By,Grupp av
-HSN/SAC,HSN/SAC
-HSN/SAC Code,HSN/SAC -kod
-Half Yearly,Halvårs-
-Half Years,Ett halvt år
-Help,Hjälp
-Hex Value,Hexvärde
-Hide Get Started,Dölj Kom igång
-Hide Group Amounts,Dölj gruppbelopp
-Hide Month/Year,Dölj månad/år
-Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.,Gömmer avsnittet Komma igång från sidofältet. Ändring kommer att synas vid omstart eller uppdatera appen.
-Hour,Timme
-How to Use Data Import,Hur man använder dataimport
-INR,Inr
-Image,Bild
-Import Data,Importera data
-Import Failed,Import misslyckades
-Import More,Importera mer
-Import Success,Importframgång
-Import Type,Importtyp
-Importer Settings,Importörsinställningar
-Include Cancelled,Inkludera avbruten
-Income,Inkomst
-Income Account,Inkomstkonto
-Indigo,Indigo
-Indirect Expenses,Indirekta utgifter
-Indirect Income,Indirekt inkomst
-Inflow,Inflöde
-Instance Id,Instans ID
-Insufficient Quantity.,Otillräcklig mängd.
-Intergrated Tax,Intergraterad skatt
-Internal Precision,Intern precision
-Invalid value ${0} for ${1},Ogiltigt värde ${0} för ${1}
-Inventory,Lager
-Inventory Settings,Inventeringsinställningar
-Investments,Investeringar
-Invoice,Faktura
-Invoice Created,Faktura skapad
-Invoice Date,Fakturadatum
-Invoice Discount,Faktura rabatt
-Invoice Item,Faktura
-Invoice No,Faktura nr
-Invoice No.,Faktura nr.
-Invoice Setup,Fakturainställning
-Invoice Value,Fakturavärde
-Invoices,Fakturor
-Is,Är
-Is Empty,Är tom
-Is Group,Är grupp
-Is Not,Är inte
-Is Not Empty,Är inte tom
-Is Whole,Är hel
-Item,Artikel
-Item Description,Föremålsbeskrivning
-Item Name,Föremålsnamn
-Items,Föremål
-January,Januari
-John Doe,John doe
-Journal Entries,Journalanteckningar
-Journal Entry,Dagboksanteckning
-Journal Entry Account,Journalinmatningskonto
-Journal Entry Number Series,Journalinmatningsnummer serie
-July,Juli
-June,Juni
-Kg,Kg
-Label Index,Etikettindex
-Language,Språk
-Left Index,Vänsterindex
-Legal Expenses,Lagutgifter
-Less Filters,Mindre filter
-Less Than,Mindre än
-Liability,Ansvar
-Limit,Begränsa
-Link Validation Error,Länkvalideringsfel
-List,Lista
-Load an existing .db file from your computer.,Ladda en befintlig .db -fil från din dator.
-Loading Report...,Laddarrapport ...
-Loading...,Läser in...
-Loans (Liabilities),Lån (skulder)
-Loans and Advances (Assets),Lån och förskott (tillgångar)
-Locale,Plats
-Location,Plats
-Location Name,Platsnamn
-Logo,Logotyp
-Make Entry,Göra inträde
-Mandatory Error,Obligatoriskt fel
-"Mar 23, 2022",23 mars 2022
-March,Mars
-Marketing Expenses,Marknadsföringskostnader
-Material Issue,Materiell fråga
-Material Receipt,Materialkvitton
-Material Transfer,Materialöverföring
-May,Maj
-Meter,Meter
-Minimal,Minimal
-Misc,Övergiva
-Miscellaneous Expenses,Diverse utgifter
-Mo,Mo
-Modified,Ändrad
-Modified By,Modifierad av
-Monthly,En gång i månaden
-Months,Månad
-More Filters,Fler filter
-Movement Type,Rörelsetyp
-Moving Average,Glidande medelvärde
-Name,namn
-Navigate,Navigera
-Net Total,Netto total
-New ${0},Ny ${0}
-New Account,Nytt konto
-New Entry,Ny ingång
-New File,Ny fil
-No,Nej
-No Data to Import,Inga data för att importera
-No Values to be Displayed,Inga värden som ska visas
-No entries found,Inga poster hittades
-No expenses in this period,Inga utgifter under denna period
-No filters selected,Inga filter valda
-No labels have been assigned.,Inga etiketter har tilldelats.
-No results found,Inga resultat funna
-No transactions yet,Inga transaktioner än
-None,Ingen
-Not Found,Hittades inte
-NotSaved,NOTSAVED
-Notes,Anteckningar
-November,November
-Number Series,Nummerserie
-Number of ${0},Antal ${0}
-October,Oktober
-Office Equipments,Kontorsutrustning
-Office Maintenance Expenses,Kontorsunderhållskostnader
-Office Rent,Kontorshyra
-Onboarding Complete,Onboarding komplett
-Open Count,Öppen räkning
-Open Folder,Öppen mapp
-Opening (Cr),Öppning (CR)
-Opening (Dr),Öppning (dr)
-Opening Balance Equity,Öppning BALANSKAPITY
-Opening Balances,Inledande saldon
-Opening Entry,Öppningsinträde
-Orange,Orange
-Organisation,Organisation
-Outflow,Utflöde
-Outstanding Amount,Utestående belopp
-Pad Zeros,Nolloros
-Page,Sida
-Paid,Betalad
-Parent,Förälder
-Parent Account,Moderkonto
-Party,Fest
-Patch Run,Lappkörning
-Pay,Betala
-Payable,Betalbar
-Payment,Betalning
-Payment For,Betalning för
-Payment Method,Betalningsmetod
-Payment No,Betalning nr
-Payment Number Series,Betalningsnummer
-Payment Reference,Betalningsreferens
-Payment Type,Betalnings typ
-Payment amount cannot be ${0}.,Betalningsbelopp kan inte vara ${0}.
-Payment amount cannot be less than zero.,Betalningsbelopp kan inte vara mindre än noll.
-Payment amount cannot exceed ${0}.,Betalningsbeloppet kan inte överstiga ${0}.
-Payment amount: ${0} should be greater than 0.,Betalningsbelopp: ${0} bör vara större än 0.
-Payment amount: ${0} should be less than Outstanding amount: ${1}.,Betalningsbelopp: ${0} bör vara mindre än utestående belopp: ${1}.
-Payments,Betalningar
-Payroll Payable,Lön som ska betalas
-Periodicity,Periodicitet
-Phone,Telefon
-Pink,Rosa
-Place,Plats
-Place of supply,Leveransplats
-Plants and Machineries,Växter och maskiner
-Please Wait,Vänta
-Please assign the following fields ${0},Tilldela följande fält ${0}
-Please fill all values,Vänligen fyll alla värden
-Please restart and try again,Starta om och försök igen
-Please select a file with data to import.,Välj en fil med data för att importera.
-Please select a valid reference type.,Välj en giltig referenstyp.
-Please set Round Off Account in the Settings.,Vänligen ställ in kontot i inställningarna.
-Postal Code,postnummer
-Postal Expenses,Postutgifter
-Posting Date,Bokföringsdatum
-Prefix,Prefix
-Prime Bank,Premiärbank
-Print,Skriva ut
-Print Settings,Utskriftsinställningar
-Print and Stationery,Tryck och brevpapper
-Product,Produkt
-Profit And Loss,Vinst och förlust
-Profit and Loss,Vinst och förlust
-Purchase,Inköp
-Purchase Acc.,Köp akkumulerat.
-Purchase Invoice,Inköpsfaktura
-Purchase Invoice Item,Köp fakturaartikel
-Purchase Invoice Number Series,Köp faktura nummerserie
-Purchase Invoice Terms,Köp fakturavillkor
-Purchase Invoices,Köpa fakturor
-Purchase Item Created,Köpartikel skapad
-Purchase Items,Köpartiklar
-Purchase Payments,Köpbetalningar
-Purchase Receipt,Kvitto
-Purchase Receipt Item,Inköpskvitton
-Purchase Receipt Number Series,Köpkvitton nummerserien
-Purchase Receipt Terms,Köpkvittonvillkor
-Purchase Receipts,Köpkvitton
-Purchases,Inköp
-Purple,Lila
-Qty. ${0},Antal. ${0}
-Quantity,Kvantitet
-Quantity (${0}) has to be greater than zero,Kvantitet (${0}) måste vara större än noll
-Quantity needs to be set,Kvantitet måste ställas in
-Quarterly,Kvartals
-Quarters,Kvartal
-Rate,Betygsätta
-Rate (${0}) cannot be less zero.,Rate (${0}) kan inte vara mindre noll.
-Rate (${0}) has to be greater than zero,Rate (${0}) måste vara större än noll
-Rate can't be negative.,Hastigheten kan inte vara negativ.
-Rate needs to be set,Räntan måste ställas in
-Receivable,Föremål
-Receive,Motta
-Recent Invoices,Nya fakturor
-Red,Röd
-Ref Name,Referens
-Ref Type,Ref -typ
-Ref. / Cheque No.,Ref. / Kontrollera nr.
-Ref. Date,Ref. Datum
-Ref. Name,Ref. namn
-Ref. Type,Ref. Typ
-Reference,Referens
-Reference Date,Referensdatum
-Reference Number,Referensnummer
-Reference Type,Referenstyp
-Reload App,Ladda om appen
-Report,Rapportera
-Report Error,Rapportera fel
-Report Issue,Rapportera problem
-Reports,Rapporter
-Required Fields not Assigned,Obligatoriska fält som inte tilldelas
-Reset,Återställa
-Retained Earnings,Behållna intäkter
-Reverse Chrg.,Omvänd CHRG.
-Reverted,Återvänd
-Reverts,Återgår
-Review Accounts,Granska konton
-"Review your chart of accounts, add any account or tax heads as needed","Granska ditt kontoplan, lägg till alla konton eller skattetitlar efter behov"
-Right Index, Rätt index
-Role,Roll
-Root Type,Rottyp
-Round Off,Runda av
-Round Off Account,Avrundningskonto
-Round Off Account Not Found,Avrundningskonto hittades inte
-Rounded Off,Avrundat
-Sa,Sa
-Salary,Lön
-Sales,Försäljning
-Sales Acc.,Försäljning akkumulerad
-Sales Expenses,Försäljningsutgifter
-Sales Invoice,Försäljningsfaktura
-Sales Invoice Item,Försäljningsfaktura
-Sales Invoice Number Series,Försäljningsfaktur serienummer
-Sales Invoice Terms,Försäljningsvillkor
-Sales Invoices,Försäljningsfakturor
-Sales Item Created,Försäljningsartikel skapad
-Sales Items,Försäljningsartiklar
-Sales Payments,Försäljningsbetalningar
-Save,Spara
-Save Template,Spara mall
-Save as PDF,Spara som PDF
-Save as PDF Successful, PDF sparades
-Saved, Sparad
-Saving, Sparar
-Schema Name or Name not passed to Open Quick Edit,Schema namn eller namn inte angivet för snabbredigering
-Search,Sök
-Secured Loans,Säkrade lån
-Securities and Deposits,Värdepapper och insättningar
-Select,Välj
-Select CoA,Välj COA
-Select Color,Välj färg
-Select Country,Välj land
-Select File,Välj fil
-Select Folder,Välj mapp
-Select Image,Välj bild
-Select Logo,Välj logotyp
-Select a file for import,Välj en fil för import
-Select file,Välj fil
-Select folder,Välj mapp
-Selected file,Vald fil
-September,September
-Service,Service
-Set Discount Amount,Ställ rabatterat belopp
-Set Up, Ställ in
-Set Up Your Workspace, Ställ in din arbetsyta
-Set an Import Type, Ställ in en importtyp
-Set the display language.,Ställ in visningsspråket.
-Set the local code. This is used for number formatting.,Ställ in koden för lokalt språk. Detta används för nummerformatering.
-"Set up your company information, email, country and fiscal year","Ställ in din företagsinformation, e-post, land och räkenskapsår"
-Set up your opening balances before performing any accounting entries,Ställ in dina öppningsbalanser innan du utför några bokföringsposter
-Set up your organization,Ställ in din organisation
-Set up your tax templates for your sales or purchase transactions,Ställ in dina skattemallar för dina försäljnings- eller köptransaktioner
-Sets how many digits are shown after the decimal point.,Ställer in hur många siffror som visas efter decimalpunkten.
-Sets the app-wide date display format.,Ställer in datumformatering för appen.
-Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.,Ställer in den interna precisionen som används för monetära beräkningar. Över 6 bör vara tillräckliga för de flesta valutor.
-Setting Up Instance, Ställer in instans
-Setting up..., Ställer in ...
-Settings, Inställningar
-Settings changes will be visible on reload, Ändringar kommer att synas vid omladdning av sidan
-Setup, Ställ in
-Setup Complete, Klart
-Setup Wizard, Installationsguide
-Setup system defaults like date format and display precision,Installationssystemet standard som datumformat och visa precision
-Shipment, Leverans
-Shipment Item, Leveransobjekt
-Shipment Number Series,Leveransnummer
-Shipment Terms,Leveransvillkor
-Shipments,Leveranser
-Show Me,Visa mig
-Show Month/Year,Visa månad/år
-Single Value, Enskilt värde
-Skip Child Tables,Hoppa över undertabeller
-Skip Transactions,Hoppa över transaktioner
-Smallest Currency Fraction Value,Minsta valutafraktionsvärde
-Softwares,Mjukvaror
-Something has gone terribly wrong. Please check the console and raise an issue.,Något har gått fruktansvärt fel. Kontrollera konsolen och ta upp ett problem.
-Source of Funds (Liabilities),Källa till medel (skulder)
-Standard Chart of Accounts,Standarddiagram över konton
-Start,Start
-State,stat
-State Tax,Regional skatt
-Status,Status
-Stock,Stock
-Stock Adjustment,Lagerjustering
-Stock Assets,Aktieuttag
-Stock Balance,Lagerbalans
-Stock Entries,Lagerposter
-Stock Expenses,Lagerutgifter
-Stock In Hand,Lager i handen
-Stock In Hand Acc.,Lager i handen akkumulerat.
-Stock Ledger,Lagerbok
-Stock Ledger Entry,Lagerbokspost
-Stock Liabilities,Lagerförskjutningar
-Stock Movement,Lagrörelse
-Stock Movement Item,Lagerrörelse
-Stock Movement No.,Lagerrörelse nr.
-Stock Movement Number Series, Lagerrörelsens nummerserie
-Stock Movements,Lagerrörelser
-Stock Not Transferred,Lager har inte överförts
-Stock Received But Not Billed,Lager mottagen men inte fakturerad
-Stock Received But Not Billed Acc.,Lager mottagen men inte fakturerad akkumulerat.
-Stock Transfer Item,Lageröverföring
-Stock has been transferred,Lager har överförts
-Stock qty. ${0} out of ${1} left to transfer,Lager QTY. ${0} av ${1} kvar för att överföra
-StockTransfer,StockTransfer
-Stores,Butiker
-Su,Su
-Submit,Skicka in
-Submit ${0},Skicka ${0}
-Submit Journal Entry?,Skicka journalpost?
-Submit Purchase Invoice?,Skicka in köpfaktura?
-Submit Sales Invoice?,Skicka in försäljningsfaktura?
-Submit on Import,Skicka vid import
-Submitted,Lämnats
-Submitting,Inlämnande
-Subtotal,Delsumma
-Successfully created the following ${0} entries:,Skapade framgångsrikt följande ${0} poster:
-Supplier,Leverantör
-Supplier Created,Leverantör skapad
-Suppliers,Leverantör
-Symbol,Symbol
-System,Systemet
-System Settings,Systeminställningar
-System Setup,Systeminställning
-Tax, Skatt
-Tax Account,Skattekonto
-Tax Assets,Skatteuppgångar
-Tax Detail,Skatteuppgifter
-Tax ID, Skatte ID
-Tax Invoice,Skatte faktura
-Tax Summary,Skatteöversikt
-Taxable Value,Skattepliktigt värde
-Taxed Amount,Beskattat belopp
-Taxes,Skatter
-Teal,
-Telephone Expenses,Utgifter för telefoni
-Template,Mall
-Temporary,Tillfällig
-Temporary Accounts,Tillfälliga konton
-Temporary Opening,Tillfällig
-Th,Th
-The following ${0} entries were created: ${1},Följande ${0} poster skapades: ${1}
-This Month,Innestående månaden
-This Quarter,Innestående kvartalet
-This Year,Innestående året
-This action is permanent,Denna åtgärd är permanent
-This action is permanent and will cancel the following payment: ${0},Denna åtgärd är permanent och avbryter följande betalning: ${0}
-This action is permanent and will cancel the following payments: ${0},Denna åtgärd är permanent och avbryter följande betalningar: ${0}
-This action is permanent and will delete associated ledger entries.,Denna åtgärd är permanent och kommer att ta bort tillhörande bokposter.
-This action is permanent.,Denna åtgärd är permanent.
-Times New Roman,Times New Roman
-To,Till
-To Account,Till konto
-To Account and From Account can't be the same: ${0},till- och frånkonto kan inte vara detsamma: ${0}
-To Date,Hittills
-To Loc.,Till loc.
-To Year,Till år
-Top Expenses,Högsta utgifter
-Total,Total
-Total Amount,Totala summan
-Total Asset (Debit),Total tillgång (debet)
-Total Credit,Total kredit
-Total Debit,Total debet
-Total Debit: ${0} must be equal to Total Credit: ${1},Total debitering: ${0} måste vara lika med total kredit: ${1}
-Total Equity (Credit),Totalt eget kapital (kredit)
-Total Expense (Debit),Total kostnad (debet)
-Total Income (Credit),Total inkomst (kredit)
-Total Liability (Credit),Totalt ansvar (kredit)
-Total Profit,Total vinst
-Total Spending,Totala utgifter
-Track Item,Spårobjekt
-Transfer,Överföra
-Transfer No,Överför nej
-Transfer Type,Överföringstyp
-Transfer will cause future entries to have negative stock.,Överföring kommer att få framtida poster att ha negativt lager.
-Travel Expenses,Resekostnader
-Trial Balance,Råbalans
-Tu,Tu
-Type,Typ
-Type to search...,Typ att söka ...
-UOM,Uom
-Unit,Enhet
-Unit Type,Enhetstyp
-Unpaid,Obetald
-Unsecured Loans,Osäkrade lån
-Until Date,Fram till datum
-Use List Filters,Använd listfilter
-User Remark,Användaranmärkning
-Utility Expenses,Verktygskostnader
-Validation Error,Valideringsfel
-Valuation Method,Värderingsmetod
-Value,Värde
-Value missing for ${0},Värde saknas för ${0}
-Version,Version
-View,Se
-View Purchases,Visa inköp
-View Sales,Se försäljning
-We,Vi
-Welcome to Frappe Books,Välkommen till Frappe Books
-Write Off,Avskriva
-Write Off Account,Skriva av kontot
-Write Off Account ${0} does not exist. Please set Write Off Account in General Settings,Skrivningskonto ${0} finns inte. Vänligen ställa in skrivningskonto i allmänna inställningar
-Write Off Account not set. Please set Write Off Account in General Settings,Skriv av kontot inte. Vänligen ställa in skrivningskonto i allmänna inställningar
-Write Off Entry,Skriv in post
-Yearly,Årlig
-Years,År
-Yellow,Gul
-Yes,Ja
-Your Name,Ditt namn
-john@doe.com,john@doe.com
-verify the imported data and click on,verifiera de importerade uppgifterna och klicka på
+"${0} ${1} already exists.","${0} ${1} finns redan.",
+"${0} ${1} does not exist","${0} ${1} existerar inte",
+"${0} ${1} has been modified after loading please reload entry.",,
+"${0} ${1} is linked with existing records.","${0} ${1} är kopplad till befintliga poster.",
+"${0} account not set in Inventory Settings.","${0} Kontot är inte inställt i inventeringsinställningar.",
+"${0} already saved",,
+"${0} already submitted",,
+"${0} cancelled",,
+"${0} cannot be cancelled",,
+"${0} cannot be deleted",,
+"${0} deleted",,
+"${0} entries failed",,
+"${0} entries imported",,
+"${0} entry failed",,
+"${0} entry imported",,
+"${0} fields selected","${0} valda fält",
+"${0} filters applied","${0} Filter tillämpade",
+"${0} has linked child accounts.",,
+"${0} of type ${1} does not exist","${0} av typ ${1} finns inte",
+"${0} out of ${1}","${0} av ${1}",
+"${0} party ${1} is different from ${2}","${0} Party ${1} skiljer sig från ${2}",
+"${0} quantity 1 added.",,
+"${0} row added.",,
+"${0} rows","${0} rader",
+"${0} rows added.",,
+"${0} saved",,
+"${0} shortcuts",,
+"${0} stored at ${1}",,
+"${0} submitted",,
+"${0} value ${1} does not exist.","${0} värde ${1} finns inte.",
+0%,0%,
+03-23-2022,03-23-2022,
+03/23/2022,03/23/2022,
+"1 filter applied","1 filter applicerat",
+2022-03-23,2022-03-23,
+"23 Mar, 2022","23 mar, 2022",
+23-03-2022,23-03-2022,
+23.03.2022,23.03.2022,
+23/03/2022,23/03/2022,
+9888900000,9888900000,
+"A submittable entry is deleted only if it is in the cancelled state.",,
+Account,konto,
+"Account ${0} does not exist.","Konto ${0} finns inte.",
+"Account Entries",Kontoposter,
+"Account Name",Kontonamn,
+"Account Type",Kontotyp,
+Accounting,,
+"Accounting Entries",Redovisningsposter,
+"Accounting Ledger Entry",Bokföringsbok,
+"Accounting Settings",Bokföringsinställningar,
+Accounts,Konton,
+"Accounts Payable","Konton som ska betalas",
+"Accounts Receivable",Kundfordringar,
+"Accumulated Depreciation","Ackumulerade avskrivningar",
+Action,,
+Active,,
+"Add Account","Lägg till konto",
+"Add Customers","Lägga till kunder",
+"Add Group","Lägg till grupp",
+"Add Items","Lägg till objekt",
+"Add Row","Lägg till rad",
+"Add Suppliers","Lägga till leverantörer",
+"Add Taxes","Lägga till skatter",
+"Add a few customers to create your first sales invoice","Lägg till några kunder för att skapa din första försäljningsfaktura",
+"Add a few suppliers to create your first purchase invoice","Lägg till några leverantörer för att skapa ditt första köpfaktura",
+"Add a filter","Lägg till ett filter",
+"Add a remark","Lägg till en kommentar",
+"Add attachment","Bifoga fil",
+"Add invoice terms","Lägg till fakturavillkor",
+"Add products or services that you buy from your suppliers","Lägg till produkter eller tjänster som du köper från dina leverantörer",
+"Add products or services that you sell to your customers","Lägg till produkter eller tjänster som du säljer till dina kunder",
+"Add transfer terms","Lägg till överföringsvillkor",
+"Additional ${0} Serial Numbers required for ${1} quantity of ${2}.",,
+"Additional quantity (${0}) required${1} to make outward transfer of item ${2} from ${3} on ${4}",,
+Address,Adress,
+"Address Display",Adressvisning,
+"Address Line 1","Adressrad 1",
+"Address Line 2","Adress Linje 2",
+"Address Name",,
+"Administrative Expenses","Administrativa kostnader",
+All,Allt,
+Amount,Belopp,
+"Amount Paid","Betalt belopp",
+"Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.","Belopp: ${0} och WRITOFF: ${1} är mindre än det totala beloppet som tilldelas referenser: ${2}.",
+"Amount: ${0} is less than the total amount allocated to references: ${1}.","Belopp: ${0} är mindre än det totala beloppet som tilldelas referenser: ${1}.",
+Amounts,,
+"An entry is cancelled only if it is in the submitted state.",,
+"An entry is submitted only if it is submittable and is in the saved state.",,
+"An error occurred.","Ett fel uppstod.",
+"Applicable anywhere in Frappe Books",,
+"Applicable when Quick Search is open",,
+"Applicable when Template Builder is open",,
+"Applicable when a entry is open in the Form view or Quick Edit view",,
+"Applicable when the List View of an entry type is open",,
+"Application of Funds (Assets)","Tillämpning av fonder (tillgångar)",
+"Apply Discount After Tax",,
+"Apply and view changes made to the print template",,
+April,April,
+Arial,Arial,
+"Ascending Order","Stigande ordning",
+Asset,Tillgång,
+"Attach Image",,
+Attachment,Anknytning,
+August,Augusti,
+"Auto Payments",,
+"Auto Stock Transfer",,
+Autocomplete,,
+"Back Reference",Bakreferens,
+"Bad import data, could not read file.",,
+Balance,Balans,
+"Balance Sheet",Balansräkning,
+Bank,Bank,
+"Bank Accounts",Bankkonton,
+"Bank Entry",Bankinträde,
+"Bank Name","Bank namn",
+"Bank Overdraft Account",Kassakonto,
+Barcode,,
+"Base Grand Total","Bas Grand Total",
+"Based On","Baserat på",
+Batch,,
+"Batch not set for row ${0}.",,
+"Batch set for row ${0}.",,
+"Bill Created","Bill skapad",
+Billing,,
+Black,Svart,
+Blue,Blå,
+Both,Både,
+"Both From and To Location cannot be undefined","Både från och till plats kan inte definieras odefinierad",
+Buildings,Byggnader,
+Cancel,Avbryt,
+"Cancel ${0}?",,
+"Cancel or Delete an entry.",,
+Cancelled,Inställt,
+"Cannot Commit Error","Kan inte begå fel",
+"Cannot Delete","Kan inte ta bort",
+"Cannot Delete Account",,
+"Cannot Export",,
+"Cannot Import",,
+"Cannot Open File",,
+"Cannot cancel ${0} ${1} because of the following ${2}: ${3}","Kan inte avbryta ${0} ${1} på grund av följande ${2}: ${3}",
+"Cannot delete ${0} ""${1}"" because of linked entries.",,
+"Cannot open file",,
+"Cannot perform operation.","Kan inte utföra drift.",
+"Cannot read file",,
+"Capital Equipments",Kapitalutrustning,
+"Capital Stock",Kapital,
+Cash,Kontanter,
+"Cash Entry",Kontantpost,
+"Cash In Hand","Pengar i handen",
+Cashflow,Pengaflöde,
+"Central Tax","Central skatt",
+"Change DB","Ändra DB",
+"Change File","Ändra fil",
+"Change Ref Type","Ändra ref -typ",
+"Changes made to settings will be visible on reload.",,
+Chargeable,Avgiftsbelagd,
+"Chart Of Accounts Reviewed","Diagram över granskade konton",
+"Chart of Accounts",Kontoschema,
+Check,,
+Cheque,"Kolla upp",
+"City / Town",Stads-,
+Clear,Klar,
+"Clearance Date",Avståndsdatum,
+Close,Stänga,
+"Close Frappe Books and try manually.",,
+"Close Quick Search",,
+Closing,Stängning,
+"Closing (Cr)","Stängning (CR)",
+"Closing (Dr)","Stängning (dr)",
+Collapse,,
+Color,Färg,
+"Commission on Sales",Försäljningskommission,
+Common,Allmänning,
+Company,Företag,
+"Company Logo",Företagslogotyp,
+"Company Name",Företagsnamn,
+"Company Setup",Företagsinställning,
+Completed,Avslutad,
+Condition,Skick,
+"Consolidate Columns","Konsolidera kolumner",
+Contacts,,
+Contains,Innehåller,
+"Continue submitting Sales Invoice?",,
+"Contra Entry",Kontrapost,
+"Conversion Error",,
+"Conversion Factor",,
+"Cost Of Goods Sold Acc.","Kostnad för sålda varor akkumulerat.",
+"Cost of Goods Sold","Kostnad för sålda varor",
+"Could not connect to database file ${0}, please select the file manually",,
+Country,Land,
+"Country Code",Landskod,
+"Country code used to initialize regional settings.","Landskod som används för att initialisera regionala inställningar.",
+Courier,Kurir,
+Cr.,Cr.,
+"Cr. ${0}",,
+Create,Skapa,
+"Create Demo","Skapa demo",
+"Create Purchase","Skapa köp",
+"Create Purchase Invoice","Skapa köpfaktura",
+"Create Sale","Skapa försäljning",
+"Create Sales Invoice","Skapa försäljningsfaktura",
+"Create a demo company to try out Frappe Books",,
+"Create a new company and store it on your computer",,
+"Create a new company or select an existing one from your computer",,
+"Create a new entry of the same type as the List View",,
+"Create new ${0} entry?",,
+"Create your first purchase invoice from the created supplier","Skapa ditt första köpfaktura från den skapade leverantören",
+"Create your first sales invoice for the created customer","Skapa din första försäljningsfaktura för den skapade kunden",
+Created,Skapad,
+"Created By","Skapad av",
+"Creating Items and Parties","Skapa föremål och fester",
+"Creating Journal Entries","Skapa journalposter",
+"Creating Purchase Invoices","Skapa köpfakturor",
+Credit,Kreditera,
+"Credit Card Entry",Kreditkortspost,
+"Credit Note",Kreditnotering,
+Creditors,Borgenärer,
+Currency,Valuta,
+"Currency Name",Valutanamn,
+Current,Nuvarande,
+"Current Assets","Nuvarande tillgångar",
+"Current Liabilities","Nuvarande åtaganden",
+"Custom Field",,
+"Custom Fields",,
+"Custom Form",,
+"Custom Hex","Anpassad hex",
+Customer,Kund,
+"Customer Created","Kund skapad",
+"Customer Currency",Kundvaluta,
+Customers,Kunder,
+Customizations,,
+"Customize Form",,
+"Customize your invoices by adding a logo and address details","Anpassa dina fakturor genom att lägga till en logotyp och adressuppgifter",
+Dashboard,instrumentbräda,
+Data,,
+"Database Error","Databas fel",
+"Database file: ${0}","Databasfil: ${0}",
+Date,Datum,
+"Date Format",Datumformat,
+"Date Time",,
+Day,Dag,
+Debit,Debitera,
+"Debit Note",Debiteringsanmärkning,
+Debtors,Gäldenär,
+December,December,
+"Decrease print template display scale",,
+Default,,
+"Default Account",Standardkonto,
+"Default Location",Standardplats,
+Defaults,Standard,
+Delete,Radera,
+"Delete ${0}?","Ta bort ${0}?",
+"Delete Account",,
+"Delete Failed","Radera misslyckades",
+"Delete Group",,
+Delivered,,
+Depreciation,Avskrivning,
+"Depreciation Entry",Avskrivning,
+Description,Beskrivning,
+Details,Information,
+"Direct Expenses",Direktutgifter,
+"Direct Income",Direktinkomst,
+"Directory for database file ${0} does not exist, please select the file manually",,
+Disabled,,
+"Discount Account",Rabattkonto,
+"Discount Account is not set.","Rabattkonto är inte inställt.",
+"Discount Amount",Rabattbelopp,
+"Discount Amount (${0}) cannot be greated than Amount (${1}).","Rabattbelopp (${0}) kan inte vara märkt än belopp (${1}).",
+"Discount Percent",Rabattprocent,
+"Discount Percent (${0}) cannot be greater than 100.","Rabattprocent (${0}) kan inte vara större än 100.",
+"Discounted Amount","Rabatterat belopp",
+Discounts,Rabatter,
+"Display Doc",,
+"Display Logo in Invoice","Visa logotyp i faktura",
+"Display Precision","Visa precision",
+"Display Precision should have a value between 0 and 9.","Visningsprecision bör ha ett värde mellan 0 och 9.",
+"Display Scale",,
+"Dividends Paid",Utdelningar,
+"Doc ${0} ${1} not set",,
+Docs,Dokument,
+Documentation,Dokumentation,
+"Does Not Contain","Innehåller inte",
+Done,,
+Dr.,Doktor,
+"Dr. ${0}",,
+Draft,Förslag,
+Duplicate,Duplicera,
+"Duplicate Entry",Duplikatpost,
+"Duplicate Template",,
+"Duplicate columns found: ${0}",,
+"Duties and Taxes","Uppgifter och skatter",
+"Dynamic Link",,
+"Earnest Money","Hederliga pengar",
+"Electronic Equipments","Elektronisk utrustning",
+Email,E-post,
+"Email Address",E-postadress,
+Empty,Tömma,
+"Empty file selected",,
+"Enable Barcodes",,
+"Enable Batches",,
+"Enable Discount Accounting","Aktivera rabattredovisning",
+"Enable Form Customization",,
+"Enable Inventory","Aktivera inventering",
+"Enable Price List",,
+"Enable Serial Number",,
+"Enable Stock Returns",,
+"Enable UOM Conversion",,
+Enabled,,
+"Enabled For",,
+"Enter Country to load States","Gå in i landet för att ladda stater",
+"Enter State","Gå in i staten",
+"Enter barcode",,
+"Entertainment Expenses",Underhållningskostnader,
+Entry,,
+"Entry Currency",Inträdesvaluta,
+"Entry Label",,
+"Entry No","Post nr",
+"Entry No.",,
+"Entry Type",Posttyp,
+"Entry has Grand Total ${0}. Please verify amounts.",,
+Equity,Rättvisa,
+Error,Fel,
+"Exchange Gain/Loss",Utbytesförstärkning/förlust,
+"Exchange Rate",Växlingskurs,
+"Excise Entry",Punktskatt,
+"Existing Company",,
+Expand,,
+Expense,Bekostnad,
+"Expense Account",Utgiftskonto,
+Expenses,Utgifter,
+"Expenses Included In Valuation","Utgifter som ingår i värderingen",
+"Expiry Date",,
+Export,Exportera,
+"Export Failed","Exporten misslyckades",
+"Export Format",Exportformat,
+"Export Successful","Exporten genomförd",
+"Export Wizard",Exportguide,
+FIFO,"Först in först ut",
+Failed,,
+Fax,Fax,
+Features,,
+February,Februari,
+Field,Fält,
+Fieldname,"Fält namn",
+"Fieldname ${0} already exists for ${1}",,
+"Fieldname ${0} already used for Custom Field ${1}",,
+Fieldtype,,
+"File ${0} does not exist.",,
+"File selection failed",,
+Fill,,
+Filter,Filtrera,
+"Fiscal Year",Räkenskapsår,
+"Fiscal Year End Date",Räkenskapsåret,
+"Fiscal Year Start Date","Räkenskapsårets startdatum",
+"Fix Failed",,
+"Fixed Asset",Anläggningstillgång,
+"Fixed Assets",Anläggningstillgångar,
+Float,,
+"Following cells have errors: ${0}.",,
+"Following links do not exist: ${absentLinks .map((l) =>",,
+Font,Font,
+"For Purchase",,
+"For Sales",,
+"Forbidden Error","Förbjudet fel",
+"Form Section",,
+"Form Tab",,
+"Form Type",,
+Fr,Fr,
+Fraction,Fraktion,
+"Fraction Units",Fraktionsenheter,
+"Frappe Books does not have access to the selected file: ${0}",,
+"Freight and Forwarding Charges","Frakt- och vidarebefordringsavgifter",
+From,Från,
+"From Account","Från konto",
+"From Date","Från datum",
+"From Loc.","Från loc.",
+"From Year","Från år",
+"Full Name","Fullständiga namn",
+"Furnitures and Fixtures","Möbler och armaturer",
+GST,GST,
+"GSTIN No.","Gstin No.",
+GSTR1,Gstr1,
+GSTR2,GSTR2,
+"Gain/Loss on Asset Disposal","Vinst/förlust vid bortskaffande av tillgångar",
+General,Allmän,
+"General Ledger",Huvudbok,
+"Get Started","Komma igång",
+Global,,
+"Go back to the previous page",,
+Gram,Gram,
+"Grand Total","Total total",
+"Greater Than","Större än",
+Green,Grön,
+"Group By","Grupp av",
+HSN/SAC,HSN/SAC,
+"HSN/SAC Code","HSN/SAC -kod",
+"Half Yearly",Halvårs-,
+"Half Years","Ett halvt år",
+"Has Batch",,
+"Has Serial Number",,
+"Height (in cm)",,
+Help,Hjälp,
+"Hex Value",Hexvärde,
+"Hidden values will be visible on Print on.",,
+"Hide Get Started","Dölj Kom igång",
+"Hide Group Amounts","Dölj gruppbelopp",
+"Hide Month/Year","Dölj månad/år",
+"Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.","Gömmer avsnittet Komma igång från sidofältet. Ändring kommer att synas vid omstart eller uppdatera appen.",
+Hour,Timme,
+INR,Inr,
+Image,Bild,
+"Import Complete",,
+"Import Data","Importera data",
+"Import Data.",,
+"Import Type",Importtyp,
+"Import Wizard",,
+"Importer not set, reload tool",,
+Inactive,,
+"Include Cancelled","Inkludera avbruten",
+Income,Inkomst,
+"Income Account",Inkomstkonto,
+"Increase print template display scale",,
+Indigo,Indigo,
+"Indirect Expenses","Indirekta utgifter",
+"Indirect Income","Indirekt inkomst",
+Inflow,Inflöde,
+"Instance Id","Instans ID",
+"Insufficient Quantity",,
+"Insufficient Quantity.","Otillräcklig mängd.",
+Int,,
+"Intergrated Tax","Intergraterad skatt",
+"Internal Precision","Intern precision",
+"Invalid Key Error",,
+"Invalid barcode value ${0}.",,
+"Invalid value ${0} for ${1}","Ogiltigt värde ${0} för ${1}",
+"Invalid value found for ${0}",,
+Inventory,Lager,
+"Inventory Settings",Inventeringsinställningar,
+Investments,Investeringar,
+Invoice,Faktura,
+"Invoice Created","Faktura skapad",
+"Invoice Date",Fakturadatum,
+"Invoice Item",Faktura,
+"Invoice No","Faktura nr",
+"Invoice No.","Faktura nr.",
+"Invoice Value",Fakturavärde,
+Invoices,Fakturor,
+Is,Är,
+"Is Custom",,
+"Is Empty","Är tom",
+"Is Group","Är grupp",
+"Is Landscape",,
+"Is Not","Är inte",
+"Is Not Empty","Är inte tom",
+"Is Price List Enabled",,
+"Is Required",,
+"Is Whole","Är hel",
+Item,Artikel,
+"Item ${0} is a batched item",,
+"Item ${0} is not a batched item",,
+"Item Description",Föremålsbeskrivning,
+"Item Name",Föremålsnamn,
+"Item Prices",,
+"Item with From location not found",,
+"Item with To location not found",,
+"Item with barcode ${0} not found.",,
+Items,Föremål,
+January,Januari,
+"John Doe","John doe",
+"Journal Entries",Journalanteckningar,
+"Journal Entry",Dagboksanteckning,
+"Journal Entry Account",Journalinmatningskonto,
+"Journal Entry Number Series","Journalinmatningsnummer serie",
+"Journal Entry Print Template",,
+July,Juli,
+June,Juni,
+"Key Hints",,
+Kg,Kg,
+Label,,
+Language,Språk,
+"Left Index",Vänsterindex,
+"Legal Expenses",Lagutgifter,
+"Less Filters","Mindre filter",
+"Less Than","Mindre än",
+Liability,Ansvar,
+Limit,Begränsa,
+Link,,
+"Link Validation Error",Länkvalideringsfel,
+"Linked Entries",,
+List,Lista,
+"List View",,
+"Load an existing company from your computer",,
+"Loading Report...","Laddarrapport ...",
+"Loading instance...",,
+Loading...,"Läser in...",
+"Loans (Liabilities)","Lån (skulder)",
+"Loans and Advances (Assets)","Lån och förskott (tillgångar)",
+Locale,Plats,
+Location,Plats,
+"Location Name",Platsnamn,
+Logo,Logotyp,
+"Make Entry","Göra inträde",
+"Make Payment On Submit",,
+"Make Purchase Receipt On Submit",,
+"Make Shipment On Submit",,
+"Mandatory Error","Obligatoriskt fel",
+Manufacture,,
+"Manufacture Date",,
+"Mar 23, 2022","23 mars 2022",
+March,Mars,
+"Mark ${0} as submitted?",,
+"Marketing Expenses",Marknadsföringskostnader,
+"Material Issue","Materiell fråga",
+"Material Receipt",Materialkvitton,
+"Material Transfer",Materialöverföring,
+May,Maj,
+Meter,Meter,
+Misc,Övergiva,
+Miscellaneous,,
+"Miscellaneous Expenses","Diverse utgifter",
+Mo,Mo,
+Modified,Ändrad,
+"Modified By","Modifierad av",
+Monthly,"En gång i månaden",
+Months,Månad,
+More,,
+"More Filters","Fler filter",
+"More shortcuts will be added soon.",,
+"Movement Type",Rörelsetyp,
+"Moving Average","Glidande medelvärde",
+Name,namn,
+Navigate,Navigera,
+"Net Total","Netto total",
+"New ${0}","Ny ${0}",
+"New ${0} ${1}",,
+"New Account","Nytt konto",
+"New Company",,
+"New Entry","Ny ingång",
+"New Template",,
+No,Nej,
+"No Display Entries Found",,
+"No Print Templates not found for entry type ${0}",,
+"No Value",,
+"No Values to be Displayed","Inga värden som ska visas",
+"No entries found","Inga poster hittades",
+"No entries were imported.",,
+"No expenses in this period","Inga utgifter under denna period",
+"No filters selected","Inga filter valda",
+"No linked entries found",,
+"No results found","Inga resultat funna",
+"No rows added. Select a file or add rows.",,
+"No transactions yet","Inga transaktioner än",
+"Non Active Serial Number ${0} cannot be used as Manufacture raw material",,
+"Non Active Serial Number ${0} cannot be used for Material Issue",,
+"Non Active Serial Number ${0} cannot be used for Material Transfer",,
+"Non Inactive Serial Number ${0} cannot be used for Material Receipt",,
+None,Ingen,
+"Not Found","Hittades inte",
+"Not Saved",,
+"Not Submitted",,
+"Not Transferred",,
+Notes,Anteckningar,
+November,November,
+"Number Display",,
+"Number Series",Nummerserie,
+"Number of ${0}","Antal ${0}",
+"Number of Rows",,
+October,Oktober,
+"Office Equipments",Kontorsutrustning,
+"Office Maintenance Expenses",Kontorsunderhållskostnader,
+"Office Rent",Kontorshyra,
+Okay,,
+"Onboarding Complete","Onboarding komplett",
+"Only From or To can be set for Manufacture",,
+"Open Count","Öppen räkning",
+"Open Documentation",,
+"Open Folder","Öppen mapp",
+"Open Print View",,
+"Open Print View if Print is available.",,
+"Open Quick Search",,
+"Open Report Print View",,
+"Open the Export Wizard modal",,
+"Opening (Cr)","Öppning (CR)",
+"Opening (Dr)","Öppning (dr)",
+"Opening Balance Equity","Öppning BALANSKAPITY",
+"Opening Balances","Inledande saldon",
+"Opening Entry",Öppningsinträde,
+Options,,
+Orange,Orange,
+Organisation,Organisation,
+Outflow,Utflöde,
+Outstanding,,
+"Outstanding Amount","Utestående belopp",
+"Pad Zeros",Nolloros,
+Page,Sida,
+Paid,Betalad,
+"Paid ${0}",,
+Parent,Förälder,
+"Parent Account",Moderkonto,
+Party,Fest,
+"Patch Run",Lappkörning,
+Pay,Betala,
+Payable,Betalbar,
+Payment,Betalning,
+"Payment For","Betalning för",
+"Payment Method",Betalningsmetod,
+"Payment No","Betalning nr",
+"Payment Number Series",Betalningsnummer,
+"Payment Print Template",,
+"Payment Reference",Betalningsreferens,
+"Payment Type","Betalnings typ",
+"Payment amount cannot be ${0}.","Betalningsbelopp kan inte vara ${0}.",
+"Payment amount cannot be less than zero.","Betalningsbelopp kan inte vara mindre än noll.",
+"Payment amount cannot exceed ${0}.","Betalningsbeloppet kan inte överstiga ${0}.",
+"Payment amount: ${0} should be greater than 0.","Betalningsbelopp: ${0} bör vara större än 0.",
+"Payment amount: ${0} should be less than Outstanding amount: ${1}.","Betalningsbelopp: ${0} bör vara mindre än utestående belopp: ${1}.",
+"Payment of ${0} will be made from account ""${1}"" to account ""${2}"" on Submit.",,
+Payments,Betalningar,
+"Payroll Payable","Lön som ska betalas",
+"Pending Qty. ${0}",,
+"Pending qty. ${0}",,
+Periodicity,Periodicitet,
+Phone,Telefon,
+"Pick Columns",,
+"Pick Import Columns",,
+Pink,Rosa,
+Place,Plats,
+"Place of supply",Leveransplats,
+"Plants and Machineries","Växter och maskiner",
+"Please Wait",Vänta,
+"Please check Key Hints for valid key names",,
+"Please create a ${0} entry to view Template Preview.",,
+"Please fill all values.",,
+"Please restart and try again.",,
+"Please select a Print Template",,
+"Please select a valid reference type.","Välj en giltig referenstyp.",
+"Please set GSTIN in General Settings.",,
+"Please set Round Off Account in the Settings.","Vänligen ställ in kontot i inställningarna.",
+"Please set a Display Doc",,
+"Postal Code",postnummer,
+"Postal Expenses",Postutgifter,
+"Posting Date",Bokföringsdatum,
+Prefix,Prefix,
+"Price List",,
+"Price List Item",,
+"Prime Bank",Premiärbank,
+Print,"Skriva ut",
+"Print ${0}",,
+"Print Settings",Utskriftsinställningar,
+"Print Setup",,
+"Print Template",,
+"Print Template Name not set",,
+"Print Template is empty",,
+"Print Templates",,
+"Print View",,
+"Print and Stationery","Tryck och brevpapper",
+Product,Produkt,
+"Profit And Loss","Vinst och förlust",
+"Profit and Loss","Vinst och förlust",
+Purchase,Inköp,
+"Purchase Acc.","Köp akkumulerat.",
+"Purchase Invoice",Inköpsfaktura,
+"Purchase Invoice Item","Köp fakturaartikel",
+"Purchase Invoice Number Series","Köp faktura nummerserie",
+"Purchase Invoice Print Template",,
+"Purchase Invoice Terms","Köp fakturavillkor",
+"Purchase Invoices","Köpa fakturor",
+"Purchase Item",,
+"Purchase Item Created","Köpartikel skapad",
+"Purchase Items",Köpartiklar,
+"Purchase Payment",,
+"Purchase Payment Account",,
+"Purchase Payments",Köpbetalningar,
+"Purchase Receipt",Kvitto,
+"Purchase Receipt Item",Inköpskvitton,
+"Purchase Receipt Location",,
+"Purchase Receipt Number Series","Köpkvitton nummerserien",
+"Purchase Receipt Print Template",,
+"Purchase Receipt Terms",Köpkvittonvillkor,
+Purchases,Inköp,
+Purple,Lila,
+Purpose,,
+"Qty. ${0}","Antal. ${0}",
+"Qty. in Transfer Unit",,
+Quantity,Kvantitet,
+"Quantity (${0}) has to be greater than zero","Kvantitet (${0}) måste vara större än noll",
+"Quantity needs to be set","Kvantitet måste ställas in",
+Quarterly,Kvartals,
+Quarters,Kvartal,
+"Quick Search",,
+"Quick edit error: ${0} entry has no name.",,
+Rate,Betygsätta,
+"Rate (${0}) cannot be less zero.","Rate (${0}) kan inte vara mindre noll.",
+"Rate (${0}) has to be greater than zero","Rate (${0}) måste vara större än noll",
+"Rate can't be negative.","Hastigheten kan inte vara negativ.",
+"Rate needs to be set","Räntan måste ställas in",
+"Raw Value: ${0}",,
+Receivable,Föremål,
+Receive,Motta,
+Red,Röd,
+"Ref Name",Referens,
+"Ref Type","Ref -typ",
+"Ref. / Cheque No.","Ref. / Kontrollera nr.",
+"Ref. Date","Ref. Datum",
+"Ref. Name","Ref. namn",
+"Ref. Type","Ref. Typ",
+Reference,Referens,
+"Reference Date",Referensdatum,
+"Reference Number",Referensnummer,
+"Reference Type",Referenstyp,
+References,,
+"Reload Frappe Books?",,
+Report,Rapportera,
+"Report Error","Rapportera fel",
+"Report Issue","Rapportera problem",
+"Report will use more than one page if required.",,
+Reports,Rapporter,
+"Required fields not selected: ${0}",,
+"Retained Earnings","Behållna intäkter",
+Return,,
+"Return Against",,
+"Return Issued",,
+"Reverse Chrg.","Omvänd CHRG.",
+Reverted,Återvänd,
+Reverts,Återgår,
+"Review Accounts","Granska konton",
+"Review your chart of accounts, add any account or tax heads as needed","Granska ditt kontoplan, lägg till alla konton eller skattetitlar efter behov",
+"Right Index"," Rätt index",
+Role,Roll,
+"Root Type",Rottyp,
+"Round Off","Runda av",
+"Round Off Account",Avrundningskonto,
+"Round Off Account Not Found","Avrundningskonto hittades inte",
+"Rounded Off",Avrundat,
+"Row ${0}",,
+Sa,Sa,
+Salary,Lön,
+Sales,Försäljning,
+"Sales Acc.","Försäljning akkumulerad",
+"Sales Expenses",Försäljningsutgifter,
+"Sales Invoice",Försäljningsfaktura,
+"Sales Invoice Item",Försäljningsfaktura,
+"Sales Invoice Number Series","Försäljningsfaktur serienummer",
+"Sales Invoice Print Template",,
+"Sales Invoice Terms",Försäljningsvillkor,
+"Sales Invoices",Försäljningsfakturor,
+"Sales Item",,
+"Sales Item Created","Försäljningsartikel skapad",
+"Sales Items",Försäljningsartiklar,
+"Sales Payment",,
+"Sales Payment Account",,
+"Sales Payments",Försäljningsbetalningar,
+"Sales and Purchase",,
+Save,Spara,
+"Save ${0}?",,
+"Save Customizations",,
+"Save Template","Spara mall",
+"Save Template File",,
+"Save as PDF","Spara som PDF",
+"Save as PDF Successful"," PDF sparades",
+"Save changes made to ${0}?",,
+"Save or Submit an entry.",,
+Saved," Sparad",
+"Secured Loans","Säkrade lån",
+"Securities and Deposits","Värdepapper och insättningar",
+Select,Välj,
+"Select CoA","Välj COA",
+"Select Color","Välj färg",
+"Select Country","Välj land",
+"Select File","Välj fil",
+"Select Image","Välj bild",
+"Select Template File",,
+"Select a Display Doc to view the Template",,
+"Select a Template type",,
+"Select a form type to customize",,
+"Select a pre-defined page size, or set a custom page size for your Print Template.",,
+"Select column",,
+"Select file","Välj fil",
+"Select folder","Välj mapp",
+Selected,,
+September,September,
+"Serial Number",,
+"Serial Number ${0} does not belong to the item ${1}.",,
+"Serial Number ${0} does not exist.",,
+"Serial Number ${0} is not Active.",,
+"Serial Number ${0} is not Inactive",,
+"Serial Number Description",,
+"Serial Number is enabled for Item ${0}",,
+"Serial Number is not enabled for Item ${0}",,
+"Serial Number not set for row ${0}.",,
+"Serial Number set for row ${0}.",,
+Service,Service,
+"Set Discount Amount","Ställ rabatterat belopp",
+"Set Period",,
+"Set Print Size",,
+"Set Up"," Ställ in",
+"Set Up Your Workspace"," Ställ in din arbetsyta",
+"Set a Template value to see the Print Template",,
+"Set an Import Type"," Ställ in en importtyp",
+"Set the display language.","Ställ in visningsspråket.",
+"Set the local code. This is used for number formatting.","Ställ in koden för lokalt språk. Detta används för nummerformatering.",
+"Set up your company information, email, country and fiscal year","Ställ in din företagsinformation, e-post, land och räkenskapsår",
+"Set up your opening balances before performing any accounting entries","Ställ in dina öppningsbalanser innan du utför några bokföringsposter",
+"Set up your organization","Ställ in din organisation",
+"Set up your tax templates for your sales or purchase transactions","Ställ in dina skattemallar för dina försäljnings- eller köptransaktioner",
+"Sets how many digits are shown after the decimal point.","Ställer in hur många siffror som visas efter decimalpunkten.",
+"Sets the app-wide date display format.","Ställer in datumformatering för appen.",
+"Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.","Ställer in den interna precisionen som används för monetära beräkningar. Över 6 bör vara tillräckliga för de flesta valutor.",
+"Setting Up Instance"," Ställer in instans",
+Settings," Inställningar",
+Setup," Ställ in",
+"Setup Complete"," Klart",
+"Setup Wizard"," Installationsguide",
+"Setup system defaults like date format and display precision","Installationssystemet standard som datumformat och visa precision",
+Shipment," Leverans",
+"Shipment Item"," Leveransobjekt",
+"Shipment Location",,
+"Shipment Number Series",Leveransnummer,
+"Shipment Print Template",,
+"Shipment Terms",Leveransvillkor,
+Shortcuts,,
+"Should entries be submitted after syncing?",,
+"Show HSN",,
+"Show Me","Visa mig",
+"Show Month/Year","Visa månad/år",
+"Single Value"," Enskilt värde",
+"Skip Child Tables","Hoppa över undertabeller",
+"Skip Transactions","Hoppa över transaktioner",
+"Smallest Currency Fraction Value","Minsta valutafraktionsvärde",
+Softwares,Mjukvaror,
+"Something has gone terribly wrong. Please check the console and raise an issue.","Något har gått fruktansvärt fel. Kontrollera konsolen och ta upp ett problem.",
+"Source of Funds (Liabilities)","Källa till medel (skulder)",
+"Standard Chart of Accounts","Standarddiagram över konton",
+Start,Start,
+"Start From Row Index",,
+State,stat,
+"State Tax","Regional skatt",
+Status,Status,
+Stock,Stock,
+"Stock Adjustment",Lagerjustering,
+"Stock Assets",Aktieuttag,
+"Stock Balance",Lagerbalans,
+"Stock Entries",Lagerposter,
+"Stock Expenses",Lagerutgifter,
+"Stock In Hand","Lager i handen",
+"Stock In Hand Acc.","Lager i handen akkumulerat.",
+"Stock Ledger",Lagerbok,
+"Stock Ledger Entry",Lagerbokspost,
+"Stock Liabilities",Lagerförskjutningar,
+"Stock Movement",Lagrörelse,
+"Stock Movement Item",Lagerrörelse,
+"Stock Movement No.","Lagerrörelse nr.",
+"Stock Movement Number Series"," Lagerrörelsens nummerserie",
+"Stock Movement Print Template",,
+"Stock Movements",Lagerrörelser,
+"Stock Not Received",,
+"Stock Not Shipped",,
+"Stock Not Transferred","Lager har inte överförts",
+"Stock Received But Not Billed","Lager mottagen men inte fakturerad",
+"Stock Received But Not Billed Acc.","Lager mottagen men inte fakturerad akkumulerat.",
+"Stock Transfer Item",Lageröverföring,
+"Stock Unit",,
+StockTransfer,StockTransfer,
+Stores,Butiker,
+Su,Su,
+Submit,"Skicka in",
+"Submit ${0}?",,
+"Submit entries?",,
+Submitted,Lämnats,
+Success,,
+Supplier,Leverantör,
+"Supplier Created","Leverantör skapad",
+Suppliers,Leverantör,
+Symbol,Symbol,
+System,Systemet,
+"System Settings",Systeminställningar,
+"System Setup",Systeminställning,
+Table,,
+Target,,
+Tax," Skatt",
+"Tax Account",Skattekonto,
+"Tax Amount",,
+"Tax Assets",Skatteuppgångar,
+"Tax Detail",Skatteuppgifter,
+"Tax ID"," Skatte ID",
+"Tax Rate",,
+"Tax Summary",Skatteöversikt,
+"Tax Template",,
+"Tax Templates",,
+"Tax and Totals",,
+"Taxable Value","Skattepliktigt värde",
+"Taxed Amount","Beskattat belopp",
+Taxes,Skatter,
+Teal,,
+"Telephone Expenses","Utgifter för telefoni",
+Template,Mall,
+"Template Builder",,
+"Template Compilation Error",,
+"Template Name",,
+"Template Type",,
+"Template file saved",,
+Temporary,Tillfällig,
+"Temporary Accounts","Tillfälliga konton",
+"Temporary Opening",Tillfällig,
+Terms,,
+Text,,
+Th,Th,
+"The following characters cannot be used ${0} in a Number Series name.",,
+"The following items have insufficient quantity for Shipment: ${0}",,
+"This Month","Innestående månaden",
+"This Quarter","Innestående kvartalet",
+"This Year","Innestående året",
+"This action is permanent","Denna åtgärd är permanent",
+"This action is permanent and will cancel the following payment: ${0}","Denna åtgärd är permanent och avbryter följande betalning: ${0}",
+"This action is permanent and will cancel the following payments: ${0}","Denna åtgärd är permanent och avbryter följande betalningar: ${0}",
+"This action is permanent and will delete associated ledger entries.","Denna åtgärd är permanent och kommer att ta bort tillhörande bokposter.",
+"This action is permanent.","Denna åtgärd är permanent.",
+"Times New Roman","Times New Roman",
+To,Till,
+"To Account","Till konto",
+"To Account and From Account can't be the same: ${0}","till- och frånkonto kan inte vara detsamma: ${0}",
+"To Date",Hittills,
+"To Loc.","Till loc.",
+"To Year","Till år",
+"Toggle Edit Mode",,
+"Toggle Key Hints",,
+"Toggle Linked Entries widget, not available in Quick Edit view.",,
+"Toggle between form and full width",,
+"Toggle sidebar",,
+"Toggle the Create filter",,
+"Toggle the Docs filter",,
+"Toggle the List filter",,
+"Toggle the Page filter",,
+"Toggle the Report filter",,
+"Top Expenses","Högsta utgifter",
+Total,Total,
+"Total Amount","Totala summan",
+"Total Asset (Debit)","Total tillgång (debet)",
+"Total Debit: ${0} must be equal to Total Credit: ${1}","Total debitering: ${0} måste vara lika med total kredit: ${1}",
+"Total Discount",,
+"Total Equity (Credit)","Totalt eget kapital (kredit)",
+"Total Expense (Debit)","Total kostnad (debet)",
+"Total Income (Credit)","Total inkomst (kredit)",
+"Total Liability (Credit)","Totalt ansvar (kredit)",
+"Total Profit","Total vinst",
+"Total Spending","Totala utgifter",
+"Track Inventory",,
+Transfer,Överföra,
+"Transfer No","Överför nej",
+"Transfer Type",Överföringstyp,
+"Transfer Unit",,
+"Transfer Unit ${0} is not applicable for Item ${1}",,
+"Transfer will cause future entries to have negative stock.","Överföring kommer att få framtida poster att ha negativt lager.",
+"Travel Expenses",Resekostnader,
+"Trial Balance",Råbalans,
+Tu,Tu,
+Type,Typ,
+"Type to search...","Typ att söka ...",
+UOM,Uom,
+"UOM Conversion Item",,
+"UOM Conversions",,
+Unit,Enhet,
+"Unit Type",Enhetstyp,
+Unpaid,Obetald,
+"Unpaid ${0}",,
+"Unsecured Loans","Osäkrade lån",
+"Until Date","Fram till datum",
+"Use Full Width",,
+"Use List Filters","Använd listfilter",
+"User Remark",Användaranmärkning,
+"Utility Expenses",Verktygskostnader,
+"Validation Error",Valideringsfel,
+"Valuation Method",Värderingsmetod,
+Value,Värde,
+"Value missing for ${0}","Värde saknas för ${0}",
+"Value: ${0}",,
+Version,Version,
+View,Se,
+"View Accounting Entries",,
+"View Paid Invoices",,
+"View Purchases","Visa inköp",
+"View Sales","Se försäljning",
+"View Stock Entries",,
+"View Unpaid Invoices",,
+"View linked entries",,
+We,Vi,
+"Welcome to Frappe Books","Välkommen till Frappe Books",
+"Width (in cm)",,
+"Write Off",Avskriva,
+"Write Off Account","Skriva av kontot",
+"Write Off Account ${0} does not exist. Please set Write Off Account in General Settings","Skrivningskonto ${0} finns inte. Vänligen ställa in skrivningskonto i allmänna inställningar",
+"Write Off Account not set. Please set Write Off Account in General Settings","Skriv av kontot inte. Vänligen ställa in skrivningskonto i allmänna inställningar",
+"Write Off Entry","Skriv in post",
+"Year to Date",,
+Yearly,Årlig,
+Years,År,
+Yellow,Gul,
+Yes,Ja,
+"check values and click on",,
+"in Batch ${0}",,
+john@doe.com,john@doe.com,
+"to apply changes",,
