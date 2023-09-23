@@ -54,6 +54,13 @@
       "fieldtype": "Float",
       "readOnly": true,
       "section": "Outstanding"
+    },
+    {
+      "fieldname": "returnAgainst",
+      "fieldtype": "Link",
+      "target": "PurchaseInvoice",
+      "label": "Return Against",
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]
