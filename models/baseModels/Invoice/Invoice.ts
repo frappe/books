@@ -25,6 +25,8 @@ import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
+import { ReturnDocItem } from 'models/inventory/types';
+import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
@@ -51,6 +53,9 @@ export abstract class Invoice extends Transactional {
   cancelled?: boolean;
   makeAutoPayment?: boolean;
   makeAutoStockTransfer?: boolean;
+
+  isReturned?: boolean;
+  returnAgainst?: string;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
@@ -118,6 +123,10 @@ export abstract class Invoice extends Transactional {
     return null;
   }
 
+  get isReturn(): boolean {
+    return !!this.returnAgainst;
+  }
+
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super(schema, data, fyo);
     this._setGetCurrencies();
@@ -159,12 +168,15 @@ export abstract class Invoice extends Transactional {
       await stockTransfer?.submit();
       await this.load();
     }
+
+    await this._updateIsItemsReturned();
   }
 
   async afterCancel() {
     await super.afterCancel();
     await this._cancelPayments();
     await this._updatePartyOutStanding();
+    await this._updateIsItemsReturned();
   }
 
   async _cancelPayments() {
@@ -368,6 +380,134 @@ export abstract class Invoice extends Transactional {
     return discountAmount;
   }
 
+  async getReturnDoc(): Promise<Invoice | undefined> {
+    if (!this.name) {
+      return;
+    }
+
+    const docData = this.getValidDict(true, true);
+    const docItems = docData.items as DocValueMap[];
+
+    if (!docItems) {
+      return;
+    }
+
+    let returnDocItems: DocValueMap[] = [];
+
+    const returnBalanceItemsQty = await this.fyo.db.getReturnBalanceItemsQty(
+      this.schemaName,
+      this.name
+    );
+
+    for (const item of docItems) {
+      if (!returnBalanceItemsQty) {
+        returnDocItems = docItems;
+        returnDocItems.map((row) => {
+          row.name = undefined;
+          (row.quantity as number) *= -1;
+          return row;
+        });
+        break;
+      }
+
+      const isItemExist = !!returnDocItems.filter(
+        (balanceItem) => balanceItem.item === item.item
+      ).length;
+
+      if (isItemExist) {
+        continue;
+      }
+
+      const returnedItem: ReturnDocItem | undefined =
+        returnBalanceItemsQty[item.item as string];
+
+      let quantity = returnedItem.quantity;
+      let serialNumber: string | undefined =
+        returnedItem.serialNumbers?.join('\n');
+
+      if (
+        item.batch &&
+        returnedItem.batches &&
+        returnedItem.batches[item.batch as string]
+      ) {
+        quantity = returnedItem.batches[item.batch as string].quantity;
+
+        if (returnedItem.batches[item.batch as string].serialNumbers) {
+          serialNumber =
+            returnedItem.batches[item.batch as string].serialNumbers?.join(
+              '\n'
+            );
+        }
+      }
+
+      returnDocItems.push({
+        ...item,
+        serialNumber,
+        name: undefined,
+        quantity: quantity,
+      });
+    }
+    const returnDocData = {
+      ...docData,
+      name: undefined,
+      date: new Date(),
+      items: returnDocItems,
+      returnAgainst: docData.name,
+    } as DocValueMap;
+
+    const newReturnDoc = this.fyo.doc.getNewDoc(
+      this.schema.name,
+      returnDocData
+    ) as Invoice;
+
+    await newReturnDoc.runFormulas();
+    return newReturnDoc;
+  }
+
+  async _updateIsItemsReturned() {
+    if (!this.isReturn || !this.returnAgainst) {
+      return;
+    }
+
+    const returnInvoices = await this.fyo.db.getAll(this.schema.name, {
+      filters: {
+        submitted: true,
+        cancelled: false,
+        returnAgainst: this.returnAgainst,
+      },
+    });
+
+    const isReturned = !!returnInvoices.length;
+    const invoiceDoc = await this.fyo.doc.getDoc(
+      this.schemaName,
+      this.returnAgainst
+    );
+    await invoiceDoc.setAndSync({ isReturned });
+    await invoiceDoc.submit();
+  }
+
+  async _validateHasLinkedReturnInvoices() {
+    if (!this.name || this.isReturn) {
+      return;
+    }
+
+    const returnInvoices = await this.fyo.db.getAll(this.schemaName, {
+      filters: {
+        returnAgainst: this.name,
+      },
+    });
+
+    if (!returnInvoices.length) {
+      return;
+    }
+
+    const names = returnInvoices.map(({ name }) => name).join(', ');
+    throw new ValidationError(
+      this.fyo
+        .t`Cannot cancel ${this.name} because of the following ${this.schema.label}: ${names}`
+    );
+  }
+
   formulas: FormulaMap = {
     account: {
       formula: async () => {
@@ -518,6 +658,8 @@ export abstract class Invoice extends Transactional {
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     backReference: () => !this.backReference,
     priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
+    returnAgainst: () =>
+      (this.isSubmitted || this.isCancelled) && !this.returnAgainst,
   };
 
   static defaults: DefaultMap = {
@@ -595,12 +737,29 @@ export abstract class Invoice extends Transactional {
       return null;
     }
 
-    const accountField = this.isSales ? 'account' : 'paymentAccount';
+    let accountField: AccountFieldEnum = AccountFieldEnum.Account;
+    let paymentType: PaymentTypeEnum = PaymentTypeEnum.Receive;
+
+    if (this.isSales && this.isReturn) {
+      accountField = AccountFieldEnum.PaymentAccount;
+      paymentType = PaymentTypeEnum.Pay;
+    }
+
+    if (!this.isSales) {
+      accountField = AccountFieldEnum.PaymentAccount;
+      paymentType = PaymentTypeEnum.Pay;
+
+      if (this.isReturn) {
+        accountField = AccountFieldEnum.Account;
+        paymentType = PaymentTypeEnum.Receive;
+      }
+    }
+
     const data = {
       party: this.party,
       date: new Date().toISOString().slice(0, 10),
-      paymentType: this.isSales ? 'Receive' : 'Pay',
-      amount: this.outstandingAmount,
+      paymentType,
+      amount: this.outstandingAmount?.abs(),
       [accountField]: this.account,
       for: [
         {
@@ -720,6 +879,7 @@ export abstract class Invoice extends Transactional {
   async beforeCancel(): Promise<void> {
     await super.beforeCancel();
     await this._validateStockTransferCancelled();
+    await this._validateHasLinkedReturnInvoices();
   }
 
   async beforeDelete(): Promise<void> {
