@@ -300,7 +300,7 @@ export class Payment extends Transactional {
       )) as Invoice;
 
       outstandingAmount = outstandingAmount.add(
-        referenceDoc.outstandingAmount ?? 0
+        referenceDoc.outstandingAmount?.abs() ?? 0
       );
     }
 
@@ -438,6 +438,15 @@ export class Payment extends Transactional {
       'referenceName'
     )) as Invoice | null;
 
+    if (
+      refDoc &&
+      refDoc.schema.name === ModelNameEnum.SalesInvoice &&
+      refDoc.isReturned
+    ) {
+      const accountsMap = await this._getAccountsMap();
+      return accountsMap[AccountTypeEnum.Cash]?.[0];
+    }
+
     return refDoc?.account ?? null;
   }
 
@@ -534,7 +543,7 @@ export class Payment extends Transactional {
         return;
       }
 
-      const amount = this.getSum('for', 'amount', false);
+      const amount = (this.getSum('for', 'amount', false) as Money).abs();
 
       if ((value as Money).gt(amount)) {
         throw new ValidationError(
