@@ -185,7 +185,7 @@ export class BespokeQueries {
 
   static async getReturnBalanceItemsQty(
     db: DatabaseCore,
-    schemaName: string,
+    schemaName: ModelNameEnum,
     docName: string
   ): Promise<Record<string, ReturnDocItem> | undefined> {
     const returnDocNames = (
@@ -200,21 +200,41 @@ export class BespokeQueries {
       return;
     }
 
-    const returnedItems: DocItem[] = await db.knex!(`${schemaName}Item`)
-      .select('item', 'batch', 'serialNumber')
+    const returnedItemsQuery = db.knex!(`${schemaName}Item`)
       .sum({ quantity: 'quantity' })
-      .whereIn('parent', returnDocNames)
-      .groupBy('item', 'batch', 'serialNumber');
+      .whereIn('parent', returnDocNames);
 
+    const docItemsQuery = db.knex!(`${schemaName}Item`)
+      .where('parent', docName)
+      .sum({ quantity: 'quantity' });
+
+    if (
+      [ModelNameEnum.SalesInvoice, ModelNameEnum.PurchaseInvoice].includes(
+        schemaName
+      )
+    ) {
+      returnedItemsQuery.select('item', 'batch').groupBy('item', 'batch');
+      docItemsQuery.select('name', 'item', 'batch').groupBy('item', 'batch');
+    }
+
+    if (
+      [ModelNameEnum.Shipment, ModelNameEnum.PurchaseReceipt].includes(
+        schemaName
+      )
+    ) {
+      returnedItemsQuery
+        .select('item', 'batch', 'serialNumber')
+        .groupBy('item', 'batch', 'serialNumber');
+      docItemsQuery
+        .select('name', 'item', 'batch', 'serialNumber')
+        .groupBy('item', 'batch', 'serialNumber');
+    }
+
+    const returnedItems = (await returnedItemsQuery) as DocItem[];
     if (!returnedItems.length) {
       return;
     }
-
-    const docItems: DocItem[] = await db.knex!(`${schemaName}Item`)
-      .select('name', 'item', 'batch', 'serialNumber')
-      .where('parent', docName)
-      .groupBy('item', 'batch', 'serialNumber')
-      .sum({ quantity: 'quantity' });
+    const docItems = (await docItemsQuery) as DocItem[];
 
     const docItemsMap = BespokeQueries.#getDocItemMap(docItems);
     const returnedItemsMap = BespokeQueries.#getDocItemMap(returnedItems);
@@ -223,7 +243,6 @@ export class BespokeQueries {
       docItemsMap,
       returnedItemsMap
     );
-
     return returnBalanceItems;
   }
 

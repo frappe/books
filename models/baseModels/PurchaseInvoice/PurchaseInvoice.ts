@@ -12,14 +12,26 @@ export class PurchaseInvoice extends Invoice {
   async getPosting() {
     const exchangeRate = this.exchangeRate ?? 1;
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
-    await posting.credit(this.account!, this.baseGrandTotal!);
+    if (this.isReturn) {
+      await posting.debit(this.account!, this.baseGrandTotal!);
+    } else {
+      await posting.credit(this.account!, this.baseGrandTotal!);
+    }
 
     for (const item of this.items!) {
+      if (this.isReturn) {
+        await posting.credit(item.account!, item.amount!.mul(exchangeRate));
+        continue;
+      }
       await posting.debit(item.account!, item.amount!.mul(exchangeRate));
     }
 
     if (this.taxes) {
       for (const tax of this.taxes) {
+        if (this.isReturn) {
+          await posting.credit(tax.account!, tax.amount!.mul(exchangeRate));
+          continue;
+        }
         await posting.debit(tax.account!, tax.amount!.mul(exchangeRate));
       }
     }
@@ -28,7 +40,11 @@ export class PurchaseInvoice extends Invoice {
     const discountAccount = this.fyo.singles.AccountingSettings
       ?.discountAccount as string | undefined;
     if (discountAccount && discountAmount.isPositive()) {
-      await posting.credit(discountAccount, discountAmount.mul(exchangeRate));
+      if (this.isReturn) {
+        await posting.debit(discountAccount, discountAmount.mul(exchangeRate));
+      } else {
+        await posting.credit(discountAccount, discountAmount.mul(exchangeRate));
+      }
     }
 
     await posting.makeRoundOffEntry();
