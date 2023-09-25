@@ -131,6 +131,7 @@ export default defineComponent({
     async setItems() {
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
         fields: [],
+        filters: { trackItem: true },
       })) as Item[];
 
       this.items = [] as POSItem[];
