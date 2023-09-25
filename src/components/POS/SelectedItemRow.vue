@@ -232,10 +232,7 @@
       />
     </div>
 
-    <div
-      v-if="row.links?.item && row.links?.item.hasSerialNumber"
-      class="px-2 pt-8 col-span-2"
-    >
+    <div v-if="hasSerialNumber" class="px-2 pt-8 col-span-2">
       <Text
         :df="{
           label: t`Serial Number`,
@@ -245,6 +242,7 @@
         :value="row.serialNumber"
         :show-label="true"
         :border="true"
+        :required="hasSerialNumber"
         @change="(value:string)=> setSerialNumber(value)"
       />
     </div>
@@ -264,6 +262,8 @@ import { defineComponent } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { Money } from 'pesa';
 import { DiscountType } from './types';
+import { t } from 'fyo';
+import { validateSerialNumberCount } from 'src/utils/pos';
 
 export default defineComponent({
   name: 'SelectedItemRow',
@@ -293,6 +293,9 @@ export default defineComponent({
     isUOMConversionEnabled(): boolean {
       return !!fyo.singles.InventorySettings?.enableUomConversions;
     },
+    hasSerialNumber(): boolean {
+      return !!(this.row.links?.item && this.row.links?.item.hasSerialNumber);
+    },
   },
   methods: {
     async getAvailableQtyInBatch(): Promise<number> {
@@ -318,8 +321,13 @@ export default defineComponent({
       if (!serialNumber) {
         return;
       }
-
       this.itemSerialNumbers[this.row.item as string] = serialNumber;
+
+      validateSerialNumberCount(
+        serialNumber,
+        this.row.quantity ?? 0,
+        this.row.item!
+      );
     },
     setItemDiscount(type: DiscountType, value: Money | number) {
       if (type === 'percent') {

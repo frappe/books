@@ -257,3 +257,26 @@ export async function transferPOSCashAndWriteOff(
 
   await (await jvDoc.sync()).submit();
 }
+
+export function validateSerialNumberCount(
+  serialNumbers: string | undefined,
+  quantity: number,
+  item: string
+) {
+  let serialNumberCount = 0;
+
+  if (serialNumbers) {
+    serialNumberCount = serialNumbers.split('\n').length;
+  }
+
+  if (quantity !== serialNumberCount) {
+    const errorMessage = t`Need ${quantity} Serial Numbers for Item ${item}. You have provided ${serialNumberCount}`;
+
+    showToast({
+      type: 'error',
+      message: errorMessage,
+      duration: 'long',
+    });
+    throw new ValidationError(errorMessage);
+  }
+}
