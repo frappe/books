@@ -90,9 +90,7 @@ export class StockLedger extends Report {
   }
 
   async _setRawData() {
-    const valuationMethod =
-      this.fyo.singles.InventorySettings?.valuationMethod ??
-      ValuationMethod.FIFO;
+    const valuationMethod = ValuationMethod.FIFO;
 
     const rawSLEs = await getRawStockLedgerEntries(this.fyo);
     this._rawData = getStockLedgerEntries(rawSLEs, valuationMethod);

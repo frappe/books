@@ -27,6 +27,7 @@ import {
   validateSerialNumber,
 } from './helpers';
 import { ReturnDocItem } from './types';
+import { getShipmentCOGSAmountFromSLEs } from 'reports/inventory/helpers';
 
 export abstract class StockTransfer extends Transfer {
   name?: string;
@@ -128,7 +129,7 @@ export abstract class StockTransfer extends Transfer {
       'stockInHand'
     )) as string;
 
-    const amount = this.grandTotal ?? this.fyo.pesa(0);
+    const amount = await this.getPostingAmount();
     const posting = new LedgerPosting(this, this.fyo);
 
     if (this.isSales) {
@@ -161,6 +162,14 @@ export abstract class StockTransfer extends Transfer {
 
     await posting.makeRoundOffEntry();
     return posting;
+  }
+
+  async getPostingAmount(): Promise<Money> {
+    if (!this.isSales) {
+      return this.grandTotal ?? this.fyo.pesa(0);
+    }
+
+    return await getShipmentCOGSAmountFromSLEs(this);
   }
 
   async validateAccounts() {
