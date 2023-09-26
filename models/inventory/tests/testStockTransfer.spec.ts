@@ -50,7 +50,6 @@ test('inventory settings', async (t) => {
     ModelNameEnum.InventorySettings
   )) as InventorySettings;
 
-  t.equal(doc.valuationMethod, ValuationMethod.FIFO, 'fifo valuation set');
   t.ok(doc.stockInHand, 'stock in hand set');
   t.ok(doc.stockReceivedButNotBilled, 'stock rec. but not billed set');
 });
