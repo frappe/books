@@ -587,12 +587,7 @@ function getTemplateFields(
     }
 
     for (const field of schema.fields) {
-      if (
-        field.computed ||
-        field.meta ||
-        field.hidden ||
-        (field.readOnly && !field.required)
-      ) {
+      if (shouldSkipField(field, schema)) {
         continue;
       }
 
@@ -649,4 +644,24 @@ export function getColumnLabel(field: TemplateField): string {
   }
 
   return field.label;
+}
+
+function shouldSkipField(field: Field, schema: Schema): boolean {
+  if (field.computed || field.meta) {
+    return true;
+  }
+
+  if (schema.naming === 'numberSeries' && field.fieldname === 'name') {
+    return false;
+  }
+
+  if (field.hidden) {
+    return true;
+  }
+
+  if (field.readOnly && !field.required) {
+    return true;
+  }
+
+  return false;
 }
