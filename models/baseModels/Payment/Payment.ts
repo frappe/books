@@ -36,6 +36,7 @@ export class Payment extends Transactional {
   amount?: Money;
   writeoff?: Money;
   paymentType?: PaymentType;
+  referenceType?: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
   for?: PaymentFor[];
   _accountsMap?: AccountTypeMap;
 
@@ -528,6 +529,14 @@ export class Payment extends Transactional {
     amountPaid: {
       formula: () => this.amount!.sub(this.writeoff!),
       dependsOn: ['amount', 'writeoff', 'for'],
+    },
+    referenceType: {
+      formula: () => {
+        if (this.referenceType) {
+          return;
+        }
+        return this.for![0].referenceType;
+      },
     },
   };
 
