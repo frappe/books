@@ -98,11 +98,13 @@ export function getMakePaymentAction(fyo: Fyo): Action {
     condition: (doc: Doc) =>
       doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
     action: async (doc, router) => {
+      const schemaName = doc.schema.name;
       const payment = (doc as Invoice).getPayment();
       if (!payment) {
         return;
       }
 
+      await payment?.set('referenceType', schemaName);
       const currentRoute = router.currentRoute.value.fullPath;
       payment.once('afterSync', async () => {
         await payment.submit();
