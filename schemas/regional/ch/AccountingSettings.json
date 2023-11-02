@@ -1,0 +1,21 @@
+{
+  "name": "AccountingSettings",
+  "fields": [
+    {
+      "fieldname": "taxId",
+      "label": "Tax ID",
+      "fieldtype": "Data",
+      "placeholder": "CHE-123.456.789",
+      "section": "Default"
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "fiscalYearStart",
+    "fiscalYearEnd",
+    "taxId"
+  ]
+}
