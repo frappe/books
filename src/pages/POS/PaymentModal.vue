@@ -168,6 +168,7 @@
           <Button
             class="w-full bg-blue-500"
             style="padding: 1.35rem"
+            :disabled="disableSubmitButton"
             @click="$emit('createTransaction')"
           >
             <slot>
@@ -181,6 +182,7 @@
           <Button
             class="w-full bg-green-500"
             style="padding: 1.35rem"
+            :disabled="disableSubmitButton"
             @click="$emit('createTransaction', true)"
           >
             <slot>
@@ -290,10 +292,20 @@ export default defineComponent({
 
       return false;
     },
+    disableSubmitButton(): boolean {
+      if (
+        !this.sinvDoc.grandTotal?.isZero() &&
+        this.transferAmount.isZero() &&
+        this.cashAmount.isZero()
+      ) {
+        return true;
+      }
+      return false;
+    },
   },
   methods: {
-    setCashOrTransferAmount(payemtMethod = 'Cash') {
-      if (payemtMethod === 'Transfer') {
+    setCashOrTransferAmount(paymentMethod = 'Cash') {
+      if (paymentMethod === 'Transfer') {
         this.$emit('setCashAmount', fyo.pesa(0));
         this.$emit('setTransferAmount', this.sinvDoc?.grandTotal);
         return;
