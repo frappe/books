@@ -88,7 +88,7 @@
         :border="true"
         :show-label="true"
         :value="row.quantity"
-        @change="(value) => (row.quantity = value)"
+        @change="(value:number) => (row.quantity = value)"
         :read-only="false"
       />
     </div>
@@ -106,7 +106,7 @@
         :show-label="true"
         :border="true"
         :value="row.transferUnit"
-        @change="(value) => setTransferUnit((row.transferUnit = value))"
+        @change="(value:string) => setTransferUnit((row.transferUnit = value))"
       />
       <feather-icon
         v-if="isUOMConversionEnabled"
@@ -128,7 +128,7 @@
         :border="true"
         :show-label="true"
         :value="row.transferQuantity"
-        @change="(value) => setTransferQty((row.transferQuantity = value))"
+        @change="(value:number) => setTransferQty((row.transferQuantity = value))"
         :read-only="false"
       />
     </div>
@@ -148,7 +148,7 @@
         :border="true"
         :value="row.rate"
         :read-only="false"
-        @change="(value) => (row.rate = value)"
+        @change="(value:Money) => (row.rate = value)"
       />
       <feather-icon
         name="refresh-ccw"
@@ -170,7 +170,7 @@
         :border="true"
         :value="row.itemDiscountAmount"
         :read-only="row.itemDiscountPercent as number > 0"
-        @change="(value) => setItemDiscount('amount', value)"
+        @change="(value:number) => setItemDiscount('amount', value)"
       />
     </div>
 
@@ -187,7 +187,7 @@
         :border="true"
         :value="row.itemDiscountPercent"
         :read-only="!row.itemDiscountAmount?.isZero()"
-        @change="(value) => setItemDiscount('percent', value)"
+        @change="(value:number) => setItemDiscount('percent', value)"
       />
     </div>
 
@@ -208,7 +208,7 @@
         :border="true"
         :show-label="true"
         :read-only="false"
-        @change="(value) => setBatch(value)"
+        @change="(value:string) => setBatch(value)"
       />
     </div>
 
@@ -271,7 +271,7 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
   },
-  emits: ['removeItem', 'setItemSerialNumbers'],
+  emits: ['removeItem', 'runSinvFormulas', 'setItemSerialNumbers'],
   setup() {
     return {
       isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
@@ -333,10 +333,12 @@ export default defineComponent({
       if (type === 'percent') {
         this.row.setItemDiscountAmount = false;
         this.row.itemDiscountPercent = value as number;
+        this.$emit('runSinvFormulas');
         return;
       }
       this.row.setItemDiscountAmount = true;
       this.row.itemDiscountAmount = value as Money;
+      this.$emit('runSinvFormulas');
     },
     setTransferUnit(unit: string) {
       this.row.setTransferUnit = unit;
@@ -345,6 +347,7 @@ export default defineComponent({
     setTransferQty(quantity: number) {
       this.row.transferQuantity = quantity;
       this.row._applyFormula('transferQuantity');
+      this.$emit('runSinvFormulas');
     },
   },
 });
