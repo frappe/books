@@ -89,15 +89,19 @@ export async function getItem(item: string): Promise<Item | undefined> {
   return itemDoc;
 }
 
-export function validateSinv(
-  items: SalesInvoiceItem[],
-  itemQtyMap: ItemQtyMap
-) {
-  if (!items) {
+export function validateSinv(sinvDoc: SalesInvoice, itemQtyMap: ItemQtyMap) {
+  if (!sinvDoc) {
     return;
   }
 
-  for (const item of items) {
+  validateSinvItems(sinvDoc.items as SalesInvoiceItem[], itemQtyMap);
+}
+
+function validateSinvItems(
+  sinvItems: SalesInvoiceItem[],
+  itemQtyMap: ItemQtyMap
+) {
+  for (const item of sinvItems) {
     if (!item.quantity || item.quantity < 1) {
       throw new ValidationError(
         t`Invalid Quantity for Item ${item.item as string}`
