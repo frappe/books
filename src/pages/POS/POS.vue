@@ -65,7 +65,7 @@
               :border="true"
               :value="sinvDoc.party"
               :df="sinvDoc.fieldMap.party"
-              @change="(value) => (sinvDoc.party = value)"
+              @change="(value:string) => (sinvDoc.party = value)"
             />
 
             <SelectedItemTable />
@@ -128,7 +128,11 @@
               </div>
 
               <div class="">
-                <Button class="w-full bg-red-500 py-6" @click="clearValues">
+                <Button
+                  class="w-full bg-red-500 py-6"
+                  :disabled="!sinvDoc.items?.length"
+                  @click="clearValues"
+                >
                   <slot>
                     <p class="uppercase text-lg text-white font-semibold">
                       {{ t`Cancel` }}
@@ -138,6 +142,7 @@
 
                 <Button
                   class="mt-4 w-full bg-green-500 py-6"
+                  :disabled="!sinvDoc.items?.length"
                   @click="toggleModal('Payment', true)"
                 >
                   <slot>
@@ -258,6 +263,16 @@ export default defineComponent({
       return !!fyo.singles.AccountingSettings?.enableDiscounting;
     },
     isPosShiftOpen: () => !!fyo.singles.POSShift?.isShiftOpen,
+    isPaymentAmountSet(): boolean {
+      if (this.sinvDoc.grandTotal?.isZero()) {
+        return true;
+      }
+
+      if (this.cashAmount.isZero() && this.transferAmount.isZero()) {
+        return false;
+      }
+      return true;
+    },
   },
   watch: {
     sinvDoc: {
@@ -380,23 +395,9 @@ export default defineComponent({
       });
     },
     async createTransaction(shouldPrint = false) {
-      this.sinvDoc.once('afterSubmit', async () => {
-        showToast({
-          type: 'success',
-          message: t`${this.sinvDoc.name as string} is Submitted`,
-          duration: 'short',
-        });
-
-        if (shouldPrint) {
-          await routeTo(
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
-          );
-        }
-      });
       try {
         await this.validate();
-        await this.submitDoc();
+        await this.submitSinvDoc(shouldPrint);
         await this.makePayment();
         await this.makeStockTransfer();
         await this.afterTransaction();
@@ -408,6 +409,7 @@ export default defineComponent({
       }
     },
     async makePayment() {
+      this.paymentDoc = this.sinvDoc.getPayment() as Payment;
       const paymentMethod = this.cashAmount.isZero() ? 'Transfer' : 'Cash';
       await this.paymentDoc.set('paymentMethod', paymentMethod);
 
@@ -425,6 +427,14 @@ export default defineComponent({
           amount: this.cashAmount as Money,
         });
       }
+
+      this.paymentDoc.once('afterSubmit', () => {
+        showToast({
+          type: 'success',
+          message: t`Payment ${this.paymentDoc.name as string} is Saved`,
+          duration: 'short',
+        });
+      });
 
       try {
         await this.paymentDoc?.sync();
@@ -448,6 +458,14 @@ export default defineComponent({
           this.itemSerialNumbers[item.item as string] ?? undefined;
       }
 
+      shipmentDoc.once('afterSubmit', () => {
+        showToast({
+          type: 'success',
+          message: t`Shipment ${shipmentDoc.name as string} is Submitted`,
+          duration: 'short',
+        });
+      });
+
       try {
         await shipmentDoc.sync();
         await shipmentDoc.submit();
@@ -458,13 +476,27 @@ export default defineComponent({
         });
       }
     },
-    async submitDoc() {
+    async submitSinvDoc(shouldPrint: boolean) {
+      this.sinvDoc.once('afterSubmit', async () => {
+        showToast({
+          type: 'success',
+          message: t`Sales Invoice ${this.sinvDoc.name as string} is Submitted`,
+          duration: 'short',
+        });
+
+        if (shouldPrint) {
+          await routeTo(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
+          );
+        }
+      });
+
       try {
         await this.validate();
         await this.sinvDoc.runFormulas();
         await this.sinvDoc.sync();
         await this.sinvDoc.submit();
-        this.paymentDoc = this.sinvDoc.getPayment() as Payment;
       } catch (error) {
         return showToast({
           type: 'error',
@@ -480,7 +512,7 @@ export default defineComponent({
       this.toggleModal('Payment', false);
     },
     clearValues() {
-      this.sinvDoc.items = [];
+      this.setSinvDoc();
       this.itemSerialNumbers = {};
 
       this.cashAmount = fyo.pesa(0);
@@ -498,7 +530,7 @@ export default defineComponent({
       this.setTotalTaxedAmount();
     },
     async validate() {
-      validateSinv(this.sinvDoc.items as SalesInvoiceItem[], this.itemQtyMap);
+      validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
       await validateShipment(this.itemSerialNumbers);
     },
 
