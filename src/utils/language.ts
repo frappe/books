@@ -5,19 +5,20 @@ import { systemLanguageRef } from './refs';
 
 // Language: Language Code in books/translations
 export const languageCodeMap: Record<string, string> = {
+  Arabic: 'ar',
+  Catalan: 'ca-ES',
+  Chinese: 'zh-CN',
+  Dutch: 'nl',
   English: 'en',
   French: 'fr',
   German: 'de',
-  Portuguese: 'pt',
-  Arabic: 'ar',
-  Catalan: 'ca-ES',
-  Spanish: 'es',
-  Dutch: 'nl',
   Gujarati: 'gu',
-  Turkish: 'tr',
   Korean: 'ko',
-  Swedish: 'sv',
-  'Simplified Chinese': 'zh-CN',
+  Nepali:'np',
+  Portuguese: 'pt',  
+  Spanish: 'es',
+  Swedish: 'sv',  
+  Turkish: 'tr',  
 };
 
 export async function setLanguageMap(
