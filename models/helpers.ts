@@ -112,7 +112,12 @@ export function getMakePaymentAction(fyo: Fyo): Action {
         await router.push(currentRoute);
       });
 
-      const hideFields = ['party', 'paymentType', 'for'];
+      const hideFields = ['party', 'for'];
+
+      if (!fyo.singles.AccountingSettings?.enableInvoiceReturns) {
+        hideFields.push('paymentType');
+      }
+
       if (doc.schemaName === ModelNameEnum.SalesInvoice) {
         hideFields.push('account');
       } else {
