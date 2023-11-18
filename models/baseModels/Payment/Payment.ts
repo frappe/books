@@ -505,13 +505,21 @@ export class Payment extends Transactional {
         }
 
         const partyDoc = (await this.loadAndGetLink('party')) as Party;
+        const outstanding = partyDoc.outstandingAmount as Money;
+
+        if (outstanding.isNegative()) {
+          if (this.referenceType === ModelNameEnum.SalesInvoice) {
+            return 'Pay';
+          }
+          return 'Receive';
+        }
+
         if (partyDoc.role === 'Supplier') {
           return 'Pay';
         } else if (partyDoc.role === 'Customer') {
           return 'Receive';
         }
 
-        const outstanding = partyDoc.outstandingAmount as Money;
         if (outstanding?.isZero() ?? true) {
           return this.paymentType;
         }
