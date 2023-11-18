@@ -155,6 +155,24 @@
       "label": "Attachment",
       "fieldtype": "Attachment",
       "section": "References"
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "SalesInvoice",
+          "label": "Sales"
+        },
+        {
+          "value": "PurchaseInvoice",
+          "label": "Purchase"
+        }
+      ],
+      "hidden": true,
+      "required": true
     }
   ],
   "quickEditFields": [
