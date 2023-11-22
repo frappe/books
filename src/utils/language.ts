@@ -17,6 +17,7 @@ export const languageCodeMap: Record<string, string> = {
   Turkish: 'tr',
   Korean: 'ko',
   Swedish: 'sv',
+  Danish: 'da',
   'Simplified Chinese': 'zh-CN',
 };
 
