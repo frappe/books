@@ -14,11 +14,11 @@ export const languageCodeMap: Record<string, string> = {
   German: 'de',
   Gujarati: 'gu',
   Korean: 'ko',
-  Nepali:'np',
-  Portuguese: 'pt',  
+  Nepali: 'np',
+  Portuguese: 'pt',
   Spanish: 'es',
-  Swedish: 'sv',  
-  Turkish: 'tr',  
+  Swedish: 'sv',
+  Turkish: 'tr',
 };
 
 export async function setLanguageMap(
