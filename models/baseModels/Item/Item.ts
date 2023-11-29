@@ -58,16 +58,28 @@ export class Item extends Doc {
   };
 
   static filters: FiltersMap = {
-    incomeAccount: () => ({
-      isGroup: false,
-      rootType: AccountRootTypeEnum.Income,
-    }),
-    expenseAccount: (doc) => ({
-      isGroup: false,
-      rootType: doc.trackItem
-        ? AccountRootTypeEnum.Liability
-        : AccountRootTypeEnum.Expense,
-    }),
+    incomeAccount: (doc) => {
+      if (doc.fyo.singles.AccountingSettings?.itemAccountFiltering) {
+        return {
+          isGroup: false,
+          rootType: AccountRootTypeEnum.Income
+        }
+      } else {
+        return {isGroup: false}
+      }
+    },
+    expenseAccount: (doc) => {
+      if (doc.fyo.singles.AccountingSettings?.itemAccountFiltering) {
+        return {
+          isGroup: false,
+          rootType: doc.trackItem
+            ? AccountRootTypeEnum.Liability
+            : AccountRootTypeEnum.Expense
+        }
+      } else {
+        return {isGroup: false}
+      }
+    },
   };
 
   validations: ValidationMap = {
