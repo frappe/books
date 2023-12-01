@@ -107,6 +107,6 @@ export type Tree = Record<string, TreeNode>;
 
 export type RootTypeRow = {
   rootType: AccountRootType;
-  rootNode: AccountTreeNode;
+  rootNodes: AccountTreeNode[];
   rows: ReportData;
 };
