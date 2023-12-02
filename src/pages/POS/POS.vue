@@ -142,7 +142,7 @@
 
                 <Button
                   class="mt-4 w-full bg-green-500 py-6"
-                  :disabled="!sinvDoc.items?.length"
+                  :disabled="disablePayButton"
                   @click="toggleModal('Payment', true)"
                 >
                   <slot>
@@ -272,6 +272,16 @@ export default defineComponent({
         return false;
       }
       return true;
+    },
+    disablePayButton(): boolean {
+      if (!this.sinvDoc.items?.length) {
+        return true;
+      }
+
+      if (!this.sinvDoc.party) {
+        return true;
+      }
+      return false;
     },
   },
   watch: {

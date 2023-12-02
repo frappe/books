@@ -300,6 +300,13 @@ export default defineComponent({
       ) {
         return true;
       }
+
+      if (
+        this.cashAmount.isZero() &&
+        (!this.transferRefNo || !this.transferClearanceDate)
+      ) {
+        return true;
+      }
       return false;
     },
   },
