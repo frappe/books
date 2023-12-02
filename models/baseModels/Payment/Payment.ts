@@ -28,10 +28,12 @@ import { Invoice } from '../Invoice/Invoice';
 import { Party } from '../Party/Party';
 import { PaymentFor } from '../PaymentFor/PaymentFor';
 import { PaymentMethod, PaymentType } from './types';
+import { TaxSummary } from '../TaxSummary/TaxSummary';
 
 type AccountTypeMap = Record<AccountTypeEnum, string[] | undefined>;
 
 export class Payment extends Transactional {
+  taxes?: TaxSummary[];
   party?: string;
   amount?: Money;
   writeoff?: Money;
@@ -221,6 +223,86 @@ export class Payment extends Transactional {
     );
   }
 
+  async getTaxSummary() {
+    const taxes: Record<
+      string,
+      Record<
+        string,
+        {
+          account: string;
+          from_account: string;
+          rate: number;
+          amount: Money;
+        }
+      >
+    > = {};
+
+    for (const childDoc of this.for ?? []) {
+      const referenceName = childDoc.referenceName;
+      const referenceType = childDoc.referenceType;
+
+      const refDoc = (await this.fyo.doc.getDoc(
+        childDoc.referenceType!,
+        childDoc.referenceName
+      )) as Invoice;
+
+      if (referenceName && referenceType && !refDoc) {
+        throw new ValidationError(
+          t`${referenceType} of type ${
+            this.fyo.schemaMap?.[referenceType]?.label ?? referenceType
+          } does not exist`
+        );
+      }
+
+      if (!refDoc) {
+        continue;
+      }
+
+      for (const {
+        details,
+        taxAmount,
+        exchangeRate,
+      } of await refDoc.getTaxItems()) {
+        const { account, payment_account } = details;
+        if (!payment_account) {
+          continue;
+        }
+
+        taxes[payment_account] ??= {};
+        taxes[payment_account][account] ??= {
+          account: payment_account,
+          from_account: account,
+          rate: details.rate,
+          amount: this.fyo.pesa(0),
+        };
+
+        taxes[payment_account][account].amount = taxes[payment_account][
+          account
+        ].amount.add(taxAmount.mul(exchangeRate ?? 1));
+      }
+    }
+
+    type Summary = typeof taxes[string][string] & { idx: number };
+    const taxArr: Summary[] = [];
+    let idx = 0;
+    for (const payment_account in taxes) {
+      for (const account in taxes[payment_account]) {
+        const tax = taxes[payment_account][account];
+        if (tax.amount.isZero()) {
+          continue;
+        }
+
+        taxArr.push({
+          ...tax,
+          idx,
+        });
+        idx += 1;
+      }
+    }
+
+    return taxArr;
+  }
+
   async getPosting() {
     /**
      * account        : From Account
@@ -243,6 +325,20 @@ export class Payment extends Transactional {
 
     await posting.debit(paymentAccount, amount);
     await posting.credit(account, amount);
+
+    if (this.taxes) {
+      if (this.paymentType === 'Receive') {
+        for (const tax of this.taxes) {
+          await posting.debit(tax.from_account!, tax.amount!);
+          await posting.credit(tax.account!, tax.amount!);
+        }
+      } else if (this.paymentType === 'Pay') {
+        for (const tax of this.taxes) {
+          await posting.credit(tax.from_account!, tax.amount!);
+          await posting.debit(tax.account!, tax.amount!);
+        }
+      }
+    }
 
     await this.applyWriteOffPosting(posting);
     return posting;
@@ -546,6 +642,7 @@ export class Payment extends Transactional {
         return this.for![0].referenceType;
       },
     },
+    taxes: { formula: async () => await this.getTaxSummary() },
   };
 
   validations: ValidationMap = {
@@ -588,6 +685,7 @@ export class Payment extends Transactional {
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     for: () => !!((this.isSubmitted || this.isCancelled) && !this.for?.length),
+    taxes: () => !this.taxes?.length,
   };
 
   static filters: FiltersMap = {
