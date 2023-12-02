@@ -1,3 +1,10 @@
+> [!IMPORTANT]
+>
+> Frappe in search of a maintainer for Frappe Books. For more details check
+> this issue: [#775](https://github.com/frappe/books/issues/775)
+
+---
+
 <div align="center" markdown="1">
 
 <img src="https://user-images.githubusercontent.com/29507195/207267672-d422db6c-d89a-4bbe-9822-468a55c15053.png" alt="Frappe Books logo" width="384"/>

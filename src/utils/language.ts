@@ -8,6 +8,7 @@ export const languageCodeMap: Record<string, string> = {
   Arabic: 'ar',
   Catalan: 'ca-ES',
   Chinese: 'zh-CN',
+  Danish: 'da',
   Dutch: 'nl',
   English: 'en',
   French: 'fr',
@@ -19,6 +20,7 @@ export const languageCodeMap: Record<string, string> = {
   Spanish: 'es',
   Swedish: 'sv',
   Turkish: 'tr',
+  'Simplified Chinese': 'zh-CN',
 };
 
 export async function setLanguageMap(

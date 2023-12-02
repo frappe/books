@@ -92,6 +92,14 @@ function getSubmittableStatus(doc: Doc) {
     return 'Cancelled';
   }
 
+  if (doc.returnAgainst && doc.isSubmitted) {
+    return 'Return';
+  }
+
+  if (doc.isReturned && doc.isSubmitted) {
+    return 'ReturnIssued';
+  }
+
   const isInvoice = doc instanceof Invoice;
   if (
     doc.isSubmitted &&
@@ -111,14 +119,6 @@ function getSubmittableStatus(doc: Doc) {
     doc.outstandingAmount?.isZero() === true
   ) {
     return 'Paid';
-  }
-
-  if (doc.returnAgainst && doc.isSubmitted) {
-    return 'Return';
-  }
-
-  if (doc.isReturned && doc.isSubmitted) {
-    return 'ReturnIssued';
   }
 
   if (doc.isSubmitted) {

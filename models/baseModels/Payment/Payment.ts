@@ -36,6 +36,7 @@ export class Payment extends Transactional {
   amount?: Money;
   writeoff?: Money;
   paymentType?: PaymentType;
+  referenceType?: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
   for?: PaymentFor[];
   _accountsMap?: AccountTypeMap;
 
@@ -300,7 +301,7 @@ export class Payment extends Transactional {
       )) as Invoice;
 
       outstandingAmount = outstandingAmount.add(
-        referenceDoc.outstandingAmount ?? 0
+        referenceDoc.outstandingAmount?.abs() ?? 0
       );
     }
 
@@ -438,6 +439,15 @@ export class Payment extends Transactional {
       'referenceName'
     )) as Invoice | null;
 
+    if (
+      refDoc &&
+      refDoc.schema.name === ModelNameEnum.SalesInvoice &&
+      refDoc.isReturned
+    ) {
+      const accountsMap = await this._getAccountsMap();
+      return accountsMap[AccountTypeEnum.Cash]?.[0];
+    }
+
     return refDoc?.account ?? null;
   }
 
@@ -495,13 +505,21 @@ export class Payment extends Transactional {
         }
 
         const partyDoc = (await this.loadAndGetLink('party')) as Party;
+        const outstanding = partyDoc.outstandingAmount as Money;
+
+        if (outstanding.isNegative()) {
+          if (this.referenceType === ModelNameEnum.SalesInvoice) {
+            return 'Pay';
+          }
+          return 'Receive';
+        }
+
         if (partyDoc.role === 'Supplier') {
           return 'Pay';
         } else if (partyDoc.role === 'Customer') {
           return 'Receive';
         }
 
-        const outstanding = partyDoc.outstandingAmount as Money;
         if (outstanding?.isZero() ?? true) {
           return this.paymentType;
         }
@@ -520,6 +538,14 @@ export class Payment extends Transactional {
       formula: () => this.amount!.sub(this.writeoff!),
       dependsOn: ['amount', 'writeoff', 'for'],
     },
+    referenceType: {
+      formula: () => {
+        if (this.referenceType) {
+          return;
+        }
+        return this.for![0].referenceType;
+      },
+    },
   };
 
   validations: ValidationMap = {
@@ -534,7 +560,7 @@ export class Payment extends Transactional {
         return;
       }
 
-      const amount = this.getSum('for', 'amount', false);
+      const amount = (this.getSum('for', 'amount', false) as Money).abs();
 
       if ((value as Money).gt(amount)) {
         throw new ValidationError(
