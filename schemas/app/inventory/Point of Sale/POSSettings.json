@@ -18,6 +18,7 @@
       "label": "Counter Cash Account",
       "fieldtype": "Link",
       "target": "Account",
+      "default": "Cash In Hand",
       "required": true,
       "create": true,
       "section": "Default"

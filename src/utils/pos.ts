@@ -211,6 +211,14 @@ export async function transferPOSCashAndWriteOff(
   fyo: Fyo,
   posShiftDoc: POSShift
 ) {
+  const differenceAmount = posShiftDoc?.closingAmounts?.find(
+    (row) => row.paymentMethod === 'Cash'
+  )?.differenceAmount as Money;
+
+  if (differenceAmount.isZero()) {
+    return;
+  }
+
   const closingCashAmount = posShiftDoc.closingAmounts?.find(
     (row) => row.paymentMethod === 'Cash'
   )?.closingAmount as Money;
@@ -228,10 +236,6 @@ export async function transferPOSCashAndWriteOff(
     account: fyo.singles.POSSettings?.cashAccount,
     credit: closingCashAmount,
   });
-
-  const differenceAmount = posShiftDoc?.closingAmounts?.find(
-    (row) => row.paymentMethod === 'Cash'
-  )?.differenceAmount as Money;
 
   if (differenceAmount.isNegative()) {
     await jvDoc.append('accounts', {
