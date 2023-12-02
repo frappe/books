@@ -28,6 +28,15 @@ import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { ReturnDocItem } from 'models/inventory/types';
 import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
 
+export type TaxDetail = { account: string, payment_account?: string, rate: number };
+
+export type InvoiceTaxItem = {
+  details: TaxDetail,
+  exchangeRate?: number,
+  fullAmount: Money,
+  taxAmount: Money
+}
+
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
@@ -242,30 +251,15 @@ export abstract class Invoice extends Transactional {
     return safeParseFloat(exchangeRate.toFixed(2));
   }
 
-  async getTaxSummary() {
-    const taxes: Record<
-      string,
-      {
-        account: string;
-        rate: number;
-        amount: Money;
-      }
-    > = {};
-
-    type TaxDetail = { account: string; rate: number };
-
+  async getTaxItems(): Promise<InvoiceTaxItem[]> {
+    const taxItems: InvoiceTaxItem[] = []
     for (const item of this.items ?? []) {
       if (!item.tax) {
         continue;
       }
 
       const tax = await this.getTax(item.tax);
-      for (const { account, rate } of (tax.details ?? []) as TaxDetail[]) {
-        taxes[account] ??= {
-          account,
-          rate,
-          amount: this.fyo.pesa(0),
-        };
+      for (const details of (tax.details ?? []) as TaxDetail[]) {
 
         let amount = item.amount!;
         if (
@@ -276,9 +270,40 @@ export abstract class Invoice extends Transactional {
           amount = item.itemDiscountedTotal!;
         }
 
-        const taxAmount = amount.mul(rate / 100);
-        taxes[account].amount = taxes[account].amount.add(taxAmount);
+        let taxItem: InvoiceTaxItem = {
+          details,
+          exchangeRate: this.exchangeRate ?? 1,
+          fullAmount: amount,
+          taxAmount: amount.mul(details.rate / 100)
+        }
+
+        taxItems.push(taxItem)
       }
+    }
+
+    return taxItems
+  }
+
+  async getTaxSummary() {
+    const taxes: Record<
+      string,
+      {
+        account: string;
+        rate: number;
+        amount: Money;
+      }
+    > = {};
+
+    for(const { details, taxAmount } of await this.getTaxItems()) {
+      const account = details.account
+
+      taxes[account] ??= {
+        account,
+        rate: details.rate,
+        amount: this.fyo.pesa(0),
+      }
+
+      taxes[account].amount = taxes[account].amount.add(taxAmount);
     }
 
     type Summary = typeof taxes[string] & { idx: number };
