@@ -171,8 +171,7 @@
           "label": "Purchase"
         }
       ],
-      "hidden": true,
-      "required": true
+      "hidden": true
     }
   ],
   "quickEditFields": [
