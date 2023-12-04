@@ -111,7 +111,8 @@ export default defineComponent({
       const fromDate = fyo.singles.POSShift?.openingDate;
       this.transactedAmount = await fyo.db.getPOSTransactedAmount(
         fromDate,
-        new Date()
+        new Date(),
+        fyo.singles.POSShift.closingDate as Date
       );
     },
     seedClosingCash() {
@@ -190,6 +191,7 @@ export default defineComponent({
       try {
         validateClosingAmounts(this.posShiftDoc as POSShift);
         await this.posShiftDoc?.set('isShiftOpen', false);
+        await this.posShiftDoc?.set('closingDate', new Date());
         await this.posShiftDoc?.sync();
         await transferPOSCashAndWriteOff(fyo, this.posShiftDoc as POSShift);
 
