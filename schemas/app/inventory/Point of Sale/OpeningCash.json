@@ -1,0 +1,17 @@
+{
+  "name": "OpeningCash",
+  "label": "Opening Cash In Denominations",
+  "isChild": true,
+  "extends": "CashDenominations",
+  "fields": [
+    {
+      "fieldname": "count",
+      "label": "Count",
+      "placeholder": "Count",
+      "fieldtype": "Int",
+      "default": 0,
+      "required": true
+    }
+  ],
+  "tableFields": ["denomination", "count"]
+}

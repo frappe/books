@@ -164,6 +164,21 @@
       "fieldtype": "Link",
       "target": "PrintTemplate",
       "section": "Print Templates"
+    },
+    {
+      "fieldname": "posCustomer",
+      "label": "POS Customer",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "posCashDenominations",
+      "label": "Cash Denominations",
+      "fieldtype": "Table",
+      "target": "DefaultCashDenominations",
+      "section": "Point of Sale"
     }
   ]
 }

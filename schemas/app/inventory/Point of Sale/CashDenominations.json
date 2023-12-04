@@ -1,0 +1,14 @@
+{
+  "name": "CashDenominations",
+  "label": "Cash Denominations",
+  "isAbstract": true,
+  "fields": [
+    {
+      "fieldname": "denomination",
+      "fieldtype": "Currency",
+      "label": "Denomination",
+      "placeholder": "Denomination",
+      "required": true
+    }
+  ]
+}

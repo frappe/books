@@ -33,6 +33,12 @@ import { ShipmentItem } from './inventory/ShipmentItem';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
+import { ClosingAmounts } from './inventory/Point of Sale/ClosingAmounts';
+import { ClosingCash } from './inventory/Point of Sale/ClosingCash';
+import { OpeningAmounts } from './inventory/Point of Sale/OpeningAmounts';
+import { OpeningCash } from './inventory/Point of Sale/OpeningCash';
+import { POSSettings } from './inventory/Point of Sale/POSSettings';
+import { POSShift } from './inventory/Point of Sale/POSShift';
 
 export const models = {
   Account,
@@ -70,6 +76,13 @@ export const models = {
   ShipmentItem,
   PurchaseReceipt,
   PurchaseReceiptItem,
+  // POS Models
+  ClosingAmounts,
+  ClosingCash,
+  OpeningAmounts,
+  OpeningCash,
+  POSSettings,
+  POSShift,
 } as ModelMap;
 
 export async function getRegionalModels(

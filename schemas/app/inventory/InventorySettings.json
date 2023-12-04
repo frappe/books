@@ -63,6 +63,13 @@
       "fieldtype": "Check",
       "default": false,
       "section": "Features"
+    },
+    {
+      "fieldname": "enablePointOfSale",
+      "label": "Enable Point of Sale",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
     }
   ]
 }
