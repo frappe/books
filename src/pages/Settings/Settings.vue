@@ -115,6 +115,7 @@ export default defineComponent({
         ModelNameEnum.AccountingSettings,
         ModelNameEnum.InventorySettings,
         ModelNameEnum.Defaults,
+        ModelNameEnum.POSSettings,
         ModelNameEnum.PrintSettings,
         ModelNameEnum.SystemSettings,
       ].some((s) => this.fyo.singles[s]?.canSave);
@@ -133,6 +134,7 @@ export default defineComponent({
         [ModelNameEnum.PrintSettings]: this.t`Print`,
         [ModelNameEnum.InventorySettings]: this.t`Inventory`,
         [ModelNameEnum.Defaults]: this.t`Defaults`,
+        [ModelNameEnum.POSSettings]: this.t`POS Settings`,
         [ModelNameEnum.SystemSettings]: this.t`System`,
       };
     },
@@ -140,16 +142,26 @@ export default defineComponent({
       const enableInventory =
         !!this.fyo.singles.AccountingSettings?.enableInventory;
 
+      const enablePOS = !!this.fyo.singles.InventorySettings?.enablePointOfSale;
+
       return [
         ModelNameEnum.AccountingSettings,
         ModelNameEnum.InventorySettings,
         ModelNameEnum.Defaults,
+        ModelNameEnum.POSSettings,
         ModelNameEnum.PrintSettings,
         ModelNameEnum.SystemSettings,
       ]
-        .filter((s) =>
-          s === ModelNameEnum.InventorySettings ? enableInventory : true
-        )
+        .filter((s) => {
+          if (s === ModelNameEnum.InventorySettings && !enableInventory) {
+            return false;
+          }
+
+          if (s === ModelNameEnum.POSSettings && !enablePOS) {
+            return false;
+          }
+          return true;
+        })
         .map((s) => this.fyo.schemaMap[s]!);
     },
     activeGroup(): Map<string, Field[]> {
