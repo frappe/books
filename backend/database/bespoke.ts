@@ -396,17 +396,28 @@ export class BespokeQueries {
   static async getPOSTransactedAmount(
     db: DatabaseCore,
     fromDate: Date,
-    toDate: Date
+    toDate: Date,
+    lastShiftClosingDate?: Date
   ): Promise<Record<string, Money> | undefined> {
-    const sinvNames = (
-      await db.knex!(ModelNameEnum.SalesInvoice)
-        .select('name')
-        .where('isPOS', true)
-        .andWhereBetween('date', [
-          DateTime.fromJSDate(fromDate).toISODate(),
-          DateTime.fromJSDate(toDate).toISODate(),
-        ])
-    ).map((row: { name: string }) => row.name);
+    const sinvNamesQuery = db.knex!(ModelNameEnum.SalesInvoice)
+      .select('name')
+      .where('isPOS', true)
+      .andWhereBetween('date', [
+        DateTime.fromJSDate(fromDate).toSQLDate(),
+        DateTime.fromJSDate(toDate).toSQLDate(),
+      ]);
+
+    if (lastShiftClosingDate) {
+      sinvNamesQuery.andWhere(
+        'created',
+        '>',
+        DateTime.fromJSDate(lastShiftClosingDate).toUTC().toString()
+      );
+    }
+
+    const sinvNames = (await sinvNamesQuery).map(
+      (row: { name: string }) => row.name
+    );
 
     if (!sinvNames.length) {
       return;
