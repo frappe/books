@@ -37,8 +37,6 @@ export async function getPrintTemplatePropValues(
   const fyo = doc.fyo;
   const values: PrintValues = { doc: {}, print: {} };
   values.doc = await getPrintTemplateDocValues(doc);
-  (values.doc as PrintTemplateData).entryType = doc.schema.name;
-  (values.doc as PrintTemplateData).entryLabel = doc.schema.label;
 
   const printSettings = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
   const printValues = await getPrintTemplateDocValues(
@@ -72,8 +70,6 @@ export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
   const hints: PrintTemplateHint = {};
   const schema = fyo.schemaMap[schemaName]!;
   hints.doc = getPrintTemplateDocHints(schema, fyo);
-  hints.doc.entryType = fyo.t`Entry Type`;
-  hints.doc.entryLabel = fyo.t`Entry Label`;
 
   const printSettingsHints = getPrintTemplateDocHints(
     fyo.schemaMap[ModelNameEnum.PrintSettings]!,
@@ -159,6 +155,10 @@ function getPrintTemplateDocHints(
     }
   }
 
+  hints.submitted = fyo.t`Submitted`;
+  hints.entryType = fyo.t`Entry Type`;
+  hints.entryLabel = fyo.t`Entry Label`;
+
   if (Object.keys(links).length) {
     hints.links = links;
   }
@@ -203,6 +203,10 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
 
     values[fieldname] = table;
   }
+
+  values.submitted = doc.submitted
+  values.entryType = doc.schema.name;
+  values.entryLabel = doc.schema.label;
 
   // Set Formatted Doc Link Data
   await doc.loadLinks();
