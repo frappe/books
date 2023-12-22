@@ -347,6 +347,7 @@ function getNameAndTypeFromTemplateFile(
    * If the SchemaName is absent then it is assumed
    * that the SchemaName is:
    * - SalesInvoice
+   * - SalesQuote
    * - PurchaseInvoice
    */
 
@@ -359,7 +360,7 @@ function getNameAndTypeFromTemplateFile(
     return [{ name: `${name} - ${label}`, type: schemaName }];
   }
 
-  return [ModelNameEnum.SalesInvoice, ModelNameEnum.PurchaseInvoice].map(
+  return [ModelNameEnum.SalesInvoice, ModelNameEnum.SalesQuote, ModelNameEnum.PurchaseInvoice].map(
     (schemaName) => {
       const label = fyo.schemaMap[schemaName]?.label ?? schemaName;
       return { name: `${name} - ${label}`, type: schemaName };

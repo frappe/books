@@ -36,6 +36,10 @@
           "label": "Sales Invoice"
         },
         {
+          "value": "SalesQuote",
+          "label": "Sales Quote"
+        },
+        {
           "value": "PurchaseInvoice",
           "label": "Purchase Invoice"
         },

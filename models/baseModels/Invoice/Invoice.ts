@@ -71,7 +71,11 @@ export abstract class Invoice extends Transactional {
   returnAgainst?: string;
 
   get isSales() {
-    return this.schemaName === 'SalesInvoice';
+    return this.schemaName === 'SalesInvoice' || this.schemaName == 'SalesQuote';
+  }
+
+  get isQuote() {
+    return this.schemaName == 'SalesQuote';
   }
 
   get enableDiscounting() {
@@ -493,7 +497,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async _updateIsItemsReturned() {
-    if (!this.isReturn || !this.returnAgainst) {
+    if (!this.isReturn || !this.returnAgainst || this.isQuote) {
       return;
     }
 
@@ -515,7 +519,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async _validateHasLinkedReturnInvoices() {
-    if (!this.name || this.isReturn) {
+    if (!this.name || this.isReturn || this.isQuote) {
       return;
     }
 
@@ -685,6 +689,7 @@ export abstract class Invoice extends Transactional {
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     backReference: () => !this.backReference,
+    quote: () => !this.quote,
     priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
     returnAgainst: () =>
       (this.isSubmitted || this.isCancelled) && !this.returnAgainst,
