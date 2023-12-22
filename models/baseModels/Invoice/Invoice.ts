@@ -71,7 +71,9 @@ export abstract class Invoice extends Transactional {
   returnAgainst?: string;
 
   get isSales() {
-    return this.schemaName === 'SalesInvoice' || this.schemaName == 'SalesQuote';
+    return (
+      this.schemaName === 'SalesInvoice' || this.schemaName == 'SalesQuote'
+    );
   }
 
   get isQuote() {

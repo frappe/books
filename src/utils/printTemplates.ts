@@ -204,7 +204,7 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
     values[fieldname] = table;
   }
 
-  values.submitted = doc.submitted
+  values.submitted = doc.submitted;
   values.entryType = doc.schema.name;
   values.entryLabel = doc.schema.label;
 
@@ -364,12 +364,14 @@ function getNameAndTypeFromTemplateFile(
     return [{ name: `${name} - ${label}`, type: schemaName }];
   }
 
-  return [ModelNameEnum.SalesInvoice, ModelNameEnum.SalesQuote, ModelNameEnum.PurchaseInvoice].map(
-    (schemaName) => {
-      const label = fyo.schemaMap[schemaName]?.label ?? schemaName;
-      return { name: `${name} - ${label}`, type: schemaName };
-    }
-  );
+  return [
+    ModelNameEnum.SalesInvoice,
+    ModelNameEnum.SalesQuote,
+    ModelNameEnum.PurchaseInvoice,
+  ].map((schemaName) => {
+    const label = fyo.schemaMap[schemaName]?.label ?? schemaName;
+    return { name: `${name} - ${label}`, type: schemaName };
+  });
 }
 
 export const baseTemplate = `<main class="h-full w-full bg-white">
