@@ -4,9 +4,7 @@
     <hr />
     <div class="p-4 w-full flex flex-col gap-4">
       <p class="text-base text-gray-900">
-        {{
-          t`Select the template type.`
-        }}
+        {{ t`Select the template type.` }}
       </p>
       <Select
         :df="df"
@@ -27,12 +25,10 @@
 import { PrintTemplate } from 'models/baseModels/PrintTemplate';
 import { OptionField } from 'schemas/types';
 import Button from 'src/components/Button.vue';
-import Float from 'src/components/Controls/Float.vue';
 import Select from 'src/components/Controls/Select.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import { defineComponent } from 'vue';
 
-type SizeName = typeof printSizes[number];
 export default defineComponent({
   components: { FormHeader, Select, Button },
   props: { doc: { type: PrintTemplate, required: true } },
@@ -42,14 +38,14 @@ export default defineComponent({
   },
   computed: {
     df(): OptionField {
-      const options = PrintTemplate.lists.type(this.doc)
+      const options = PrintTemplate.lists.type(this.doc);
       return {
         ...fyo.getField('PrintTemplate', 'type'),
         options,
         fieldtype: 'Select',
-        default: options[0].value
-      }
-    }
+        default: options[0].value,
+      } as OptionField;
+    },
   },
   mounted() {
     this.type = this.doc.type ?? 'SalesInvoice';

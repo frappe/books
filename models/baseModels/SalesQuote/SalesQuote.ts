@@ -1,14 +1,18 @@
 import { Fyo } from 'fyo';
+import { DocValueMap } from 'fyo/core/types';
 import { Action, ListViewSettings } from 'fyo/model/types';
-import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { getQuoteActions, getTransactionStatusColumn } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
 import { SalesQuoteItem } from '../SalesQuoteItem/SalesQuoteItem';
+import { Defaults } from '../Defaults/Defaults';
 
 export class SalesQuote extends Invoice {
   items?: SalesQuoteItem[];
 
+  // This is an inherited method and it must keep the async from the parent
+  // class
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getPosting() {
     return null;
   }
@@ -23,20 +27,18 @@ export class SalesQuote extends Invoice {
     const terms = defaults.salesInvoiceTerms ?? '';
     const numberSeries = defaults.salesInvoiceNumberSeries ?? undefined;
 
-    const data = {
-      ...this,
+    const data: DocValueMap = {
+      ...this.getValidDict(false, true),
       date: new Date().toISOString(),
       terms,
       numberSeries,
       quote: this.name,
-      items: []
+      items: [],
     };
 
     const invoice = this.fyo.doc.getNewDoc(schemaName, data) as Invoice;
     for (const row of this.items ?? []) {
-      await invoice.append('items', {
-        ...row
-      });
+      await invoice.append('items', row.getValidDict(false, true));
     }
 
     if (!invoice.items?.length) {

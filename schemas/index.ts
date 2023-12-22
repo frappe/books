@@ -197,11 +197,7 @@ function getCombined(
   const combined = Object.assign(abstractSchema, extendingSchema);
 
   for (const fieldname in extendingFields) {
-    if (extendingFields[fieldname].drop) {
-      delete abstractFields[fieldname]
-    } else {
-      abstractFields[fieldname] = extendingFields[fieldname];
-    }
+    abstractFields[fieldname] = extendingFields[fieldname];
   }
 
   combined.fields = getListFromMap(abstractFields);

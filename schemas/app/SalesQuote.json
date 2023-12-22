@@ -16,26 +16,6 @@
       "section": "Default"
     },
     {
-      "fieldname": "account",
-      "drop": true
-    },
-    {
-      "fieldname": "stockNotTransferred",
-      "drop": true
-    },
-    {
-      "fieldname": "backReference",
-      "drop": true
-    },
-    {
-      "fieldname": "makeAutoStockTransfer",
-      "drop": true
-    },
-    {
-      "fieldname": "returnAgainst",
-      "drop": true
-    },
-    {
       "fieldname": "party",
       "label": "Customer",
       "fieldtype": "Link",
@@ -54,5 +34,13 @@
       "section": "Items"
     }
   ],
-  "keywordFields": ["name", "party"]
+  "keywordFields": ["name", "party"],
+  "removeFields": [
+    "account",
+    "stockNotTransferred",
+    "backReference",
+    "makeAutoStockTransfer",
+    "returnAgainst",
+    "isReturned"
+  ]
 }
