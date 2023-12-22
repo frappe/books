@@ -19,6 +19,8 @@ import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
 import { PurchaseInvoiceItem } from './baseModels/PurchaseInvoiceItem/PurchaseInvoiceItem';
 import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
+import { SalesQuoteItem } from './baseModels/SalesQuoteItem/SalesQuoteItem';
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
@@ -61,6 +63,8 @@ export const models = {
   PurchaseInvoiceItem,
   SalesInvoice,
   SalesInvoiceItem,
+  SalesQuote,
+  SalesQuoteItem,
   SerialNumber,
   SetupWizard,
   PrintTemplate,

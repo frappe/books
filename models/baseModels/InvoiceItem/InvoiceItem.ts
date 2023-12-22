@@ -47,7 +47,7 @@ export abstract class InvoiceItem extends Doc {
   itemTaxedTotal?: Money;
 
   get isSales() {
-    return this.schemaName === 'SalesInvoiceItem';
+    return this.schemaName === 'SalesInvoiceItem' || this.schemaName === 'SalesQuoteItem';
   }
 
   get date() {

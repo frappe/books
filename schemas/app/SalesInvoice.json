@@ -32,6 +32,14 @@
       "section": "References"
     },
     {
+      "fieldname": "quote",
+      "label": "Quote Reference",
+      "fieldtype": "Link",
+      "target": "SalesQuote",
+      "section": "References",
+      "required": false
+    },
+    {
       "fieldname": "makeAutoStockTransfer",
       "label": "Make Shipment On Submit",
       "fieldtype": "Check",

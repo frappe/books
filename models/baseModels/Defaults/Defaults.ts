@@ -14,6 +14,7 @@ export class Defaults extends Doc {
   purchaseReceiptLocation?: string;
 
   // Number Series
+  salesQuoteNumberSeries?: string;
   salesInvoiceNumberSeries?: string;
   purchaseInvoiceNumberSeries?: string;
   journalEntryNumberSeries?: string;
@@ -29,6 +30,7 @@ export class Defaults extends Doc {
   purchaseReceiptTerms?: string;
 
   // Print Templates
+  salesQuotePrintTemplate?: string;
   salesInvoicePrintTemplate?: string;
   purchaseInvoicePrintTemplate?: string;
   journalEntryPrintTemplate?: string;
@@ -46,6 +48,9 @@ export class Defaults extends Doc {
     salesPaymentAccount: () => ({ isGroup: false, accountType: 'Cash' }),
     purchasePaymentAccount: () => ({ isGroup: false, accountType: 'Cash' }),
     // Number Series
+    salesQuoteNumberSeries: () => ({
+      referenceType: ModelNameEnum.SalesQuote,
+    }),
     salesInvoiceNumberSeries: () => ({
       referenceType: ModelNameEnum.SalesInvoice,
     }),
@@ -68,6 +73,7 @@ export class Defaults extends Doc {
       referenceType: ModelNameEnum.PurchaseReceipt,
     }),
     // Print Templates
+    salesQuotePrintTemplate: () => ({ type: ModelNameEnum.SalesQuote }),
     salesInvoicePrintTemplate: () => ({ type: ModelNameEnum.SalesInvoice }),
     purchaseInvoicePrintTemplate: () => ({
       type: ModelNameEnum.PurchaseInvoice,
@@ -118,4 +124,5 @@ export const numberSeriesDefaultsMap: Record<
   [ModelNameEnum.StockMovement]: 'stockMovementNumberSeries',
   [ModelNameEnum.Shipment]: 'shipmentNumberSeries',
   [ModelNameEnum.PurchaseReceipt]: 'purchaseReceiptNumberSeries',
+  [ModelNameEnum.SalesQuote]: 'salesQuoteNumberSeries',
 };
