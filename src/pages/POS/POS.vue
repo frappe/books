@@ -35,10 +35,10 @@
     >
       <div class="bg-white border col-span-5 rounded-md">
         <div class="rounded-md p-4 col-span-5">
-          <div class="flex justify-between">
+          <div class="flex gap-x-2">
             <!-- Item Search -->
             <Link
-              class="w-2/3 border-r flex-shrink-0"
+              class="flex-shrink-0 w-2/3"
               :df="{
                 label: t`Search an Item`,
                 fieldtype: 'Link',
@@ -54,6 +54,7 @@
             />
 
             <Barcode
+              class="w-1/3"
               @item-selected="
                 async (name: string) => {
                   await addItem(await getItem(name));
