@@ -38,7 +38,7 @@
           <div class="flex justify-between">
             <!-- Item Search -->
             <Link
-              class="border-r flex-shrink-0 w-2/3"
+              class="w-2/3 border-r flex-shrink-0"
               :df="{
                 label: t`Search an Item`,
                 fieldtype: 'Link',
