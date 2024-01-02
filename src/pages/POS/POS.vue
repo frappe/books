@@ -35,22 +35,33 @@
     >
       <div class="bg-white border col-span-5 rounded-md">
         <div class="rounded-md p-4 col-span-5">
-          <!-- Item Search -->
-          <Link
-            class="border-r flex-shrink-0 w-full"
-            :df="{
-              label: t`Search an Item`,
-              fieldtype: 'Link',
-              fieldname: 'item',
-              target: 'Item',
-            }"
-            :border="true"
-            :value="itemSearchTerm"
-            @keyup.enter="
-              async () => await addItem(await getItem(itemSearchTerm))
-            "
-            @change="(item: string) =>itemSearchTerm= item"
-          />
+          <div class="flex justify-between">
+            <!-- Item Search -->
+            <Link
+              class="border-r flex-shrink-0 w-2/3"
+              :df="{
+                label: t`Search an Item`,
+                fieldtype: 'Link',
+                fieldname: 'item',
+                target: 'Item',
+              }"
+              :border="true"
+              :value="itemSearchTerm"
+              @keyup.enter="
+                async () => await addItem(await getItem(itemSearchTerm))
+              "
+              @change="(item: string) =>itemSearchTerm= item"
+            />
+
+            <Barcode
+              @item-selected="
+                async (name: string) => {
+                  await addItem(await getItem(name));
+                }
+              "
+            />
+          </div>
+
           <ItemsTable @add-item="addItem" />
         </div>
       </div>
@@ -199,6 +210,7 @@ import {
   validateShipment,
   validateSinv,
 } from 'src/utils/pos';
+import Barcode from 'src/components/Controls/Barcode.vue';
 
 export default defineComponent({
   name: 'POS',
@@ -213,6 +225,7 @@ export default defineComponent({
     PageHeader,
     PaymentModal,
     SelectedItemTable,
+    Barcode,
   },
   provide() {
     return {
