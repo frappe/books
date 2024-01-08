@@ -27,6 +27,8 @@ export enum ModelNameEnum {
   PurchaseInvoiceItem = 'PurchaseInvoiceItem',
   SalesInvoice = 'SalesInvoice',
   SalesInvoiceItem = 'SalesInvoiceItem',
+  SalesQuote = 'SalesQuote',
+  SalesQuoteItem = 'SalesQuoteItem',
   SerialNumber = 'SerialNumber',
   SetupWizard = 'SetupWizard',
   Tax = 'Tax',
