@@ -35,8 +35,7 @@
     "pesa": "^1.1.12",
     "source-map-support": "^0.5.21",
     "vue": "^3.2.40",
-    "vue-router": "^4.0.12",
-    "yarn": "^1.22.21"
+    "vue-router": "^4.0.12"
   },
   "devDependencies": {
     "@codemirror/language": "^6.0.0",
