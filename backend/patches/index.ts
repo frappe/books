@@ -31,7 +31,7 @@ export default [
   },
   {
     name: 'setPaymentReferenceType',
-    version: '0.21.0',
+    version: '0.20.1',
     patch: setPaymentReferenceType,
   },
 ] as Patch[];
