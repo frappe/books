@@ -153,7 +153,7 @@ async function packageApp() {
     delete builderArgs[opt];
   }
 
-  const buildOptions = {
+  let buildOptions = {
     config: {
       directories: { output: packageDirPath, app: buildDirPath },
       files: ['**'],
@@ -161,6 +161,13 @@ async function packageApp() {
     },
     ...builderArgs,
   };
+
+  /**
+   * electron-builder doesn't look for the APPLE_TEAM_ID environment variable for some reason.
+   * This workaround allows an environment variable to be added to the electron-builder.yml config
+   * collection. See: https://github.com/electron-userland/electron-builder/issues/7812
+   */
+  buildOptions.mac = { notarize: { teamId: process.env.APPLE_TEAM_ID || "" } }
 
   await builder.build(buildOptions);
 }
