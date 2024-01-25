@@ -193,7 +193,7 @@ export default {
             this.padding +
             this.left +
             (i * (this.viewBoxWidth - this.left - 2 * this.padding)) /
-              (this.count - 1)
+              (this.count - 1 || 1) // The "or" one (1) prevents accidentally dividing by 0
         );
     },
     ys() {
