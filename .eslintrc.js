@@ -59,5 +59,6 @@ module.exports = {
     'vite.config.ts',
     'postcss.config.js',
     'src/components/**/*.vue', // Incrementally fix these
+    'electron-builder.ts',
   ],
 };
