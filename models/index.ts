@@ -14,6 +14,8 @@ import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { PriceListItem } from './baseModels/PriceList/PriceListItem';
+import { PricingRule } from './baseModels/PricingRule/PricingRule';
+import { PricingRuleItem } from './baseModels/PricingRuleItem/PricingRuleItem';
 import { PrintSettings } from './baseModels/PrintSettings/PrintSettings';
 import { PrintTemplate } from './baseModels/PrintTemplate';
 import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
@@ -61,6 +63,8 @@ export const models = {
   PrintSettings,
   PriceList,
   PriceListItem,
+  PricingRule,
+  PricingRuleItem,
   PurchaseInvoice,
   PurchaseInvoiceItem,
   SalesInvoice,

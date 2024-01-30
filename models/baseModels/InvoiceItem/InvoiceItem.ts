@@ -19,6 +19,9 @@ import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { PriceList } from '../PriceList/PriceList';
 import { isPesa } from 'fyo/utils';
+import { canApplyPricingRule } from 'models/helpers';
+import { PricingRule } from '../PricingRule/PricingRule';
+import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -404,6 +407,42 @@ export abstract class InvoiceItem extends Doc {
       },
       dependsOn: ['item', 'quantity'],
     },
+    isPricingRuleAppliedItem: {
+      formula: async () => {
+        if (!this.parentdoc?.pricingRuleDetail) {
+          return false;
+        }
+
+        for (const prleDoc of this.parentdoc.pricingRuleDetail) {
+          const pricingRuleDoc = (await this.fyo.doc.getDoc(
+            ModelNameEnum.PricingRule,
+            prleDoc.referenceName
+          )) as PricingRule;
+
+          if (
+            !canApplyPricingRule(
+              pricingRuleDoc,
+              this.parentdoc.date as Date,
+              this.quantity as number,
+              this.amount as Money
+            )
+          ) {
+            continue;
+          }
+
+          const appliedItems = pricingRuleDoc.appliedItems?.map(
+            (item) => item.item
+          );
+
+          if (!appliedItems?.includes(this.item)) {
+            continue;
+          }
+
+          await applyPricingRuleOnItem(this, pricingRuleDoc);
+        }
+      },
+      dependsOn: ['item', 'quantity'],
+    },
   };
 
   validations: ValidationMap = {
@@ -733,4 +772,31 @@ function getRate(
   }
 
   return null;
+}
+
+async function applyPricingRuleOnItem(
+  sinvItemDoc: SalesInvoiceItem,
+  pricingRuleDoc: PricingRule
+) {
+  switch (pricingRuleDoc.priceDiscountType) {
+    case 'rate':
+      await sinvItemDoc.set('rate', pricingRuleDoc.discountRate);
+      return;
+
+    case 'amount':
+      await sinvItemDoc.set('setItemDiscountAmount', true);
+      const discountAmount = pricingRuleDoc.discountAmount?.mul(
+        sinvItemDoc.quantity as number
+      );
+
+      await sinvItemDoc.set('itemDiscountAmount', discountAmount);
+      return;
+
+    case 'percentage':
+      await sinvItemDoc.set(
+        'itemDiscountPercent',
+        pricingRuleDoc.discountPercentage
+      );
+      return;
+  }
 }
