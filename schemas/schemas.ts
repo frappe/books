@@ -20,6 +20,9 @@ import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
 import PriceList from './app/PriceList.json';
 import PriceListItem from './app/PriceListItem.json';
+import PricingRule from './app/PricingRule.json';
+import PricingRuleItem from './app/PricingRuleItem.json';
+import PricingRuleDetail from './app/PricingRuleDetail.json';
 import PrintSettings from './app/PrintSettings.json';
 import PrintTemplate from './app/PrintTemplate.json';
 import PurchaseInvoice from './app/PurchaseInvoice.json';
@@ -121,6 +124,10 @@ export const appSchemas: Schema[] | SchemaStub[] = [
 
   PriceList as Schema,
   PriceListItem as SchemaStub,
+
+  PricingRule as Schema,
+  PricingRuleItem as SchemaStub,
+  PricingRuleDetail as SchemaStub,
 
   Tax as Schema,
   TaxDetail as Schema,
