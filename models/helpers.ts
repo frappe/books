@@ -22,6 +22,8 @@ import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
 import { Lead } from './baseModels/Lead/Lead';
+import { PricingRule } from './baseModels/PricingRule/PricingRule';
+import { showToast } from 'src/utils/interactive';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -517,7 +519,7 @@ export function getPriceListStatusColumn(): ColumnConfig {
   };
 }
 
-export function getPriceListEnabledColumn(): ColumnConfig {
+export function getIsDocEnabledColumn(): ColumnConfig {
   return {
     label: t`Enabled`,
     fieldname: 'enabled',
@@ -656,4 +658,106 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   }
 
   await item.set('item', name);
+}
+
+export function filterPricingRules(
+  pricingRuleDocsForItem: PricingRule[],
+  sinvDate: Date,
+  quantity: number,
+  amount: Money
+): PricingRule[] | [] {
+  const filteredPricingRules: PricingRule[] | undefined = [];
+
+  for (const pricingRuleDoc of pricingRuleDocsForItem) {
+    if (canApplyPricingRule(pricingRuleDoc, sinvDate, quantity, amount)) {
+      filteredPricingRules.push(pricingRuleDoc);
+    }
+  }
+  return filteredPricingRules;
+}
+
+export function canApplyPricingRule(
+  pricingRuleDoc: PricingRule,
+  sinvDate: Date,
+  quantity: number,
+  amount: Money
+): boolean {
+  // Filter by Quantity
+  if (
+    (pricingRuleDoc.minQuantity as number) > 0 &&
+    quantity < (pricingRuleDoc.minQuantity as number)
+  ) {
+    return false;
+  }
+
+  if (
+    (pricingRuleDoc.maxQuantity as number) > 0 &&
+    quantity > (pricingRuleDoc.maxQuantity as number)
+  ) {
+    return false;
+  }
+
+  // Filter by Amount
+  if (
+    !pricingRuleDoc.minAmount?.isZero() &&
+    amount.lte(pricingRuleDoc.minAmount as Money)
+  ) {
+    return false;
+  }
+
+  if (
+    !pricingRuleDoc.maxAmount?.isZero() &&
+    amount.gte(pricingRuleDoc.maxAmount as Money)
+  ) {
+    return false;
+  }
+
+  // Filter by Validity
+  if (
+    pricingRuleDoc.validFrom &&
+    sinvDate.toISOString() < pricingRuleDoc.validFrom.toISOString()
+  ) {
+    return false;
+  }
+  if (
+    pricingRuleDoc.validTo &&
+    sinvDate.toISOString() > pricingRuleDoc.validTo.toISOString()
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+export function getPricingRulesConflicts(
+  pricingRules: PricingRule[],
+  item: string
+) {
+  const pricingRuleDocs = Array.from(pricingRules);
+
+  const firstPricingRule = pricingRuleDocs.shift();
+  if (!firstPricingRule) {
+    return;
+  }
+
+  const conflictingPricingRuleNames: string[] = [];
+  for (const pricingRuleDoc of pricingRuleDocs.slice(0)) {
+    if (pricingRuleDoc.priority === firstPricingRule?.priority) {
+      conflictingPricingRuleNames.push(pricingRuleDoc.name as string);
+    }
+  }
+
+  if (!conflictingPricingRuleNames.length) {
+    return false;
+  }
+
+  showToast({
+    type: 'error',
+    message: t`Pricing Rules ${
+      firstPricingRule.name as string
+    }, ${conflictingPricingRuleNames.join(
+      ', '
+    )} has the same Priority for the Item ${item}.`,
+  });
+  return true;
 }

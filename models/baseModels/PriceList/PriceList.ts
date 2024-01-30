@@ -2,7 +2,7 @@ import { Doc } from 'fyo/model/doc';
 import { ListViewSettings } from 'fyo/model/types';
 import { PriceListItem } from './PriceListItem';
 import {
-  getPriceListEnabledColumn,
+  getIsDocEnabledColumn,
   getPriceListStatusColumn,
 } from 'models/helpers';
 
@@ -14,11 +14,7 @@ export class PriceList extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: [
-        'name',
-        getPriceListEnabledColumn(),
-        getPriceListStatusColumn(),
-      ],
+      columns: ['name', getIsDocEnabledColumn(), getPriceListStatusColumn()],
     };
   }
 }
