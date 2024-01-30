@@ -75,6 +75,21 @@
       "fieldtype": "Check",
       "default": false,
       "hidden": true
+    },
+    {
+      "fieldname": "isPricingRuleApplied",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "pricingRuleDetail",
+      "fieldtype": "Table",
+      "label": "Pricing Rule Detail",
+      "target": "PricingRuleDetail",
+      "edit": false,
+      "readOnly": true,
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]

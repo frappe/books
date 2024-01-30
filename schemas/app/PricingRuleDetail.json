@@ -1,0 +1,23 @@
+{
+  "name": "PricingRuleDetail",
+  "label": "Pricing Rule Detail",
+  "isSingle": false,
+  "isChild": true,
+  "fields": [
+    {
+      "label": "Pricing Rule",
+      "fieldname": "referenceName",
+      "fieldtype": "Link",
+      "target": "PricingRule",
+      "readOnly": true
+    },
+    {
+      "label": "Item",
+      "fieldname": "referenceItem",
+      "fieldtype": "Link",
+      "target": "Item",
+      "readOnly": true
+    }
+  ],
+  "tableFields": ["referenceName", "referenceItem"]
+}
