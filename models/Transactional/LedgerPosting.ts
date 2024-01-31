@@ -91,18 +91,21 @@ export class LedgerPosting {
     }
 
     // Timezone inconsistency fix (very ugly code for now)
-    let entryDateTime = this.refDoc.date as string | Date;
+    const entryDateTime = this.refDoc.date as string | Date;
     let dateTimeValue: Date;
     if (typeof entryDateTime === 'string' || entryDateTime instanceof String) {
       dateTimeValue = new Date(entryDateTime);
     } else {
       dateTimeValue = entryDateTime;
     }
-    let dtFixedValue = dateTimeValue;
-    let dtMinutes = dtFixedValue.getTimezoneOffset() % 60;
-    let dtHours = (dtFixedValue.getTimezoneOffset() - dtMinutes) / 60;
-    dtFixedValue.setHours(dtFixedValue.getHours() - dtHours);
-    dtFixedValue.setMinutes(dtFixedValue.getMinutes() - dtMinutes);
+    const dtFixedValue = dateTimeValue;
+    const dtMinutes = dtFixedValue.getTimezoneOffset() % 60;
+    const dtHours = (dtFixedValue.getTimezoneOffset() - dtMinutes) / 60;
+    // Forcing the time to always be set to 00:00.000 for locale time
+    dtFixedValue.setHours(0 - dtHours);
+    dtFixedValue.setMinutes(0 - dtMinutes);
+    dtFixedValue.setSeconds(0);
+    dtFixedValue.setMilliseconds(0);
 
     // end ugly timezone fix code
 
