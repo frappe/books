@@ -90,12 +90,28 @@ export class LedgerPosting {
       return map[account];
     }
 
+    // Timezone inconsistency fix (very ugly code for now)
+    let entryDateTime = this.refDoc.date as string | Date;
+    let dateTimeValue: Date;
+    if (typeof entryDateTime === 'string' || entryDateTime instanceof String) {
+      dateTimeValue = new Date(entryDateTime);
+    } else {
+      dateTimeValue = entryDateTime;
+    }
+    let dtFixedValue = dateTimeValue;
+    let dtMinutes = dtFixedValue.getTimezoneOffset() % 60;
+    let dtHours = (dtFixedValue.getTimezoneOffset() - dtMinutes) / 60;
+    dtFixedValue.setHours(dtFixedValue.getHours() - dtHours);
+    dtFixedValue.setMinutes(dtFixedValue.getMinutes() - dtMinutes);
+
+    // end ugly timezone fix code
+
     const ledgerEntry = this.fyo.doc.getNewDoc(
       ModelNameEnum.AccountingLedgerEntry,
       {
         account: account,
         party: (this.refDoc.party as string) ?? '',
-        date: this.refDoc.date as string | Date,
+        date: dtFixedValue,
         referenceType: this.refDoc.schemaName,
         referenceName: this.refDoc.name!,
         reverted: this.reverted,
