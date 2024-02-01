@@ -18,6 +18,7 @@ import {
   getExchangeRate,
   getNumberSeries,
   getPricingRulesConflicts,
+  roundFreeItemQty,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -172,6 +173,7 @@ export abstract class Invoice extends Transactional {
       throw new ValidationError(this.fyo.t`Discount Account is not set.`);
     }
     await validateBatch(this);
+    await this._validatePricingRule();
   }
 
   async afterSubmit() {
@@ -639,6 +641,10 @@ export abstract class Invoice extends Transactional {
     },
     isPricingRuleApplied: {
       formula: async () => {
+        if (!this.fyo.singles.AccountingSettings?.enablePricingRule) {
+          return false;
+        }
+
         const pricingRule = await this.getPricingRule();
         if (pricingRule) {
           await this.appendPricingRuleDetail(pricingRule);
@@ -1077,6 +1083,84 @@ export abstract class Invoice extends Transactional {
     return await addItem(name, this);
   }
 
+  async appendPricingRuleDetail(
+    applicablePricingRule: ApplicablePricingRules[]
+  ) {
+    await this.set('pricingRuleDetail', null);
+
+    for (const doc of applicablePricingRule) {
+      await this.append('pricingRuleDetail', {
+        referenceName: doc.pricingRule.name,
+        referenceItem: doc.applyOnItem,
+      });
+    }
+  }
+
+  async applyProductDiscount() {
+    if (!this.pricingRuleDetail || !this.items) {
+      return;
+    }
+
+    this.items = this.items.filter((item) => !item.isFreeItem);
+
+    for (const item of this.items) {
+      if (item.isFreeItem) {
+        continue;
+      }
+
+      const pricingRuleDetailForItem = this.pricingRuleDetail.filter(
+        (doc) => doc.referenceItem === item.item
+      );
+
+      const pricingRuleDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.PricingRule,
+        pricingRuleDetailForItem[0].referenceName
+      )) as PricingRule;
+
+      if (pricingRuleDoc.discountType === 'Price Discount') {
+        continue;
+      }
+
+      const appliedItems = pricingRuleDoc.appliedItems?.map((doc) => doc.item);
+      if (!appliedItems?.includes(item.item)) {
+        continue;
+      }
+
+      const canApplyPRLOnItem = canApplyPricingRule(
+        pricingRuleDoc,
+        this.date as Date,
+        item.quantity as number,
+        item.amount as Money
+      );
+
+      if (!canApplyPRLOnItem) {
+        continue;
+      }
+
+      let freeItemQty = pricingRuleDoc.freeItemQuantity as number;
+
+      if (pricingRuleDoc.isRecursive) {
+        freeItemQty =
+          (item.quantity as number) / (pricingRuleDoc.recurseEvery as number);
+      }
+
+      if (pricingRuleDoc.roundFreeItemQty) {
+        freeItemQty = roundFreeItemQty(
+          freeItemQty,
+          pricingRuleDoc.roundingMethod as 'round' | 'floor' | 'ceil'
+        );
+      }
+
+      await this.append('items', {
+        item: pricingRuleDoc.freeItem as string,
+        quantity: freeItemQty,
+        isFreeItem: true,
+        rate: pricingRuleDoc.freeItemRate,
+        unit: pricingRuleDoc.freeItemUnit,
+      });
+    }
+  }
+
   async getPricingRule(): Promise<ApplicablePricingRules[] | undefined> {
     if (!this.isSales || !this.items) {
       return;
@@ -1140,107 +1224,14 @@ export abstract class Invoice extends Transactional {
     return pricingRules;
   }
 
-  async appendPricingRuleDetail(
-    applicablePricingRule: ApplicablePricingRules[]
-  ) {
-    await this.set('pricingRuleDetail', null);
-
-    for (const doc of applicablePricingRule) {
-      await this.append('pricingRuleDetail', {
-        referenceName: doc.pricingRule.name,
-        referenceItem: doc.applyOnItem,
-      });
-    }
-  }
-
-  async applyPriceDiscount() {
-    if (!this.pricingRuleDetail || !this.items) {
+  async _validatePricingRule() {
+    if (!this.fyo.singles.AccountingSettings?.enablePricingRule) {
       return;
     }
 
-    for (const doc of this.pricingRuleDetail) {
-      const pricingRuleDoc = (await this.fyo.doc.getDoc(
-        ModelNameEnum.PricingRule,
-        doc.referenceName
-      )) as PricingRule;
-
-      if (pricingRuleDoc.discountType === 'Product Discount') {
-        continue;
-      }
-
-      const appliedItems = pricingRuleDoc.appliedItems?.map(
-        (itemDoc) => itemDoc.item
-      );
-
-      for (const item of this.items) {
-        if (!appliedItems?.includes(item.item)) {
-          continue;
-        }
-
-        const canApplyPRLOnItem = canApplyPricingRule(
-          pricingRuleDoc,
-          this.date as Date,
-          item.quantity as number,
-          item.amount as Money
-        );
-
-        if (!canApplyPRLOnItem) {
-          continue;
-        }
-      }
-    }
-  }
-
-  async applyProductDiscount() {
-    if (!this.pricingRuleDetail || !this.items) {
+    if (!this.items) {
       return;
     }
-
-    for (const doc of this.pricingRuleDetail) {
-      const pricingRuleDoc = (await this.fyo.doc.getDoc(
-        ModelNameEnum.PricingRule,
-        doc.referenceName
-      )) as PricingRule;
-
-      if (pricingRuleDoc.discountType === 'Price Discount') {
-        continue;
-      }
-
-      const appliedItems = pricingRuleDoc.appliedItems?.map(
-        (itemDoc) => itemDoc.item
-      );
-
-      for (const item of this.items) {
-        if (!appliedItems?.includes(item.item)) {
-          continue;
-        }
-
-        const canApplyPRLOnItem = canApplyPricingRule(
-          pricingRuleDoc,
-          this.date as Date,
-          item.quantity as number,
-          item.amount as Money
-        );
-
-        if (!canApplyPRLOnItem) {
-          continue;
-        }
-
-        let freeItemQty = pricingRuleDoc.freeItemQuantity as number;
-
-        if (pricingRuleDoc.isRecursive) {
-          freeItemQty =
-            (item.quantity as number) / (pricingRuleDoc.recurseEvery as number);
-        }
-
-        await this.append('items', {
-          item: pricingRuleDoc.freeItem as string,
-          quantity: freeItemQty,
-          isFreeItem: true,
-          rate: pricingRuleDoc.freeItemRate,
-          unit: pricingRuleDoc.freeItemUnit,
-        });
-      }
-    }
+    await this.getPricingRule();
   }
 }
