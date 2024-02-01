@@ -20,14 +20,12 @@ export async function saveHtmlAsPdf(
 
   const printWindow = await getInitializedPrintWindow(htmlPath, width, height);
   const printOptions = {
-    marginsType: 1, // no margin
+    margins: { top: 0, bottom: 0, left: 0, right: 0 }, // equivalent to previous 'marginType: 1'
     pageSize: {
-      height: height * 10_000, // micrometers
-      width: width * 10_000, // micrometers
+      height: height / 2.54, // Convert from centimeters to inches
+      width: width / 2.54, // Convert from centimeters to inches
     },
     printBackground: true,
-    printBackgrounds: true,
-    printSelectionOnly: false,
   };
 
   const data = await printWindow.webContents.printToPDF(printOptions);
