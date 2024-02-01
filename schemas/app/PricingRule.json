@@ -93,13 +93,6 @@
       "section": "Price Discount Scheme"
     },
     {
-      "fieldname": "forPriceList",
-      "label": "For Price List",
-      "fieldtype": "Link",
-      "target": "PriceList",
-      "section": "Price Discount Scheme"
-    },
-    {
       "fieldname": "freeItem",
       "label": "Free Item",
       "fieldtype": "Link",

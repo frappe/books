@@ -8,12 +8,6 @@
       "fieldtype": "Check",
       "default": false,
       "hidden": true
-    },
-    {
-      "fieldname": "isPricingRuleAppliedItem",
-      "fieldtype": "Check",
-      "default": false,
-      "hidden": true
     }
   ]
 }
