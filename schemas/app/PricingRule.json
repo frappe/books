@@ -156,7 +156,7 @@
     },
     {
       "fieldname": "recurseEvery",
-      "label": "Recurse Every (As Per Transaction UOM)",
+      "label": "Recurse Every (As Per Transaction Unit)",
       "fieldtype": "Float",
       "section": "Product Discount Scheme"
     },
@@ -168,7 +168,7 @@
     },
     {
       "fieldname": "maxQuantity",
-      "label": "Max Qty (As Per Stock UOM)",
+      "label": "Max Qty (As Per Stock Unit)",
       "fieldtype": "Float",
       "section": "Quantity and Amount"
     },
