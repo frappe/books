@@ -5,6 +5,7 @@ import fixRoundOffAccount from './fixRoundOffAccount';
 import testPatch from './testPatch';
 import updateSchemas from './updateSchemas';
 import setPaymentReferenceType from './setPaymentReferenceType';
+import fixLedgerDateTime from './v0_21_0/fixLedgerDateTime';
 
 export default [
   { name: 'testPatch', version: '0.5.0-beta.0', patch: testPatch },
@@ -33,5 +34,10 @@ export default [
     name: 'setPaymentReferenceType',
     version: '0.20.1',
     patch: setPaymentReferenceType,
+  },
+  {
+    name: 'fixLedgerDateTime',
+    version: '0.21.1',
+    patch: fixLedgerDateTime,
   },
 ] as Patch[];
