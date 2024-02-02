@@ -730,6 +730,9 @@ export abstract class Invoice extends Transactional {
       (!this.canEdit && !this.priceList),
     returnAgainst: () =>
       (this.isSubmitted || this.isCancelled) && !this.returnAgainst,
+    pricingRuleDetail: () =>
+      !this.fyo.singles.AccountingSettings?.enablePricingRule ||
+      !this.pricingRuleDetail?.length,
   };
 
   static defaults: DefaultMap = {
