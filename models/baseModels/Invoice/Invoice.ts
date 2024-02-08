@@ -692,7 +692,9 @@ export abstract class Invoice extends Transactional {
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     backReference: () => !this.backReference,
     quote: () => !this.quote,
-    priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
+    priceList: () =>
+      !this.fyo.singles.AccountingSettings?.enablePriceList ||
+      (!this.canEdit && !this.priceList),
     returnAgainst: () =>
       (this.isSubmitted || this.isCancelled) && !this.returnAgainst,
   };
