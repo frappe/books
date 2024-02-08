@@ -37,7 +37,7 @@ export default [
   },
   {
     name: 'fixLedgerDateTime',
-    version: '0.21.1',
+    version: '0.21.2',
     patch: fixLedgerDateTime,
   },
 ] as Patch[];
