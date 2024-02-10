@@ -1,63 +1,63 @@
 <template>
-  <div class="h-screen" style="width: var(--w-desk)">
-    <PageHeader :title="t`Dashboard`">
+  <div class='h-screen' style='width: var(--w-desk)'>
+    <PageHeader :title='t`Dashboard`'>
       <div
-        class="
+        class='
           border
           rounded
           bg-gray-50
           focus-within:bg-gray-100
           flex
           items-center
-        "
+        '
       >
         <PeriodSelector
-          class="px-3"
-          :value="period"
+          class='px-3'
+          :value='period'
           :options="['This Year', 'This Quarter', 'This Month', 'YTD']"
-          @change="(value) => (period = value)"
+          @change='(value) => (period = value)'
         />
       </div>
     </PageHeader>
 
-    <div
-      class="no-scrollbar overflow-auto"
-      style="height: calc(100vh - var(--h-row-largest) - 1px)"
-    >
-      <div style="min-width: var(--w-desk-fixed)" class="overflow-auto">
-        <Cashflow
-          class="p-4"
-          :common-period="period"
-          @period-change="handlePeriodChange"
-        />
-        <hr />
-        <div class="flex w-full">
-          <UnpaidInvoices
-            :schema-name="'SalesInvoice'"
-            :common-period="period"
-            class="border-e"
-            @period-change="handlePeriodChange"
+    <div class='p-4 bg-gray-100 w-full'>
+      <div
+        class='no-scrollbar overflow-auto'
+        style='height: calc(100vh - var(--h-row-largest) - 1px)'
+      >
+        <div  class='overflow-auto'>
+          <Cashflow
+            class='p-4 mb-4 bg-white rounded shadow'
+            :common-period='period'
+            @period-change='handlePeriodChange'
           />
-          <UnpaidInvoices
-            :schema-name="'PurchaseInvoice'"
-            :common-period="period"
-            @period-change="handlePeriodChange"
-          />
+          <div class='flex w-full'>
+            <UnpaidInvoices
+              :schema-name="'SalesInvoice'"
+              :common-period='period'
+              class='mb-4 mr-2 bg-white rounded shadow'
+              @period-change='handlePeriodChange'
+            />
+            <UnpaidInvoices
+              :schema-name="'PurchaseInvoice'"
+              :common-period='period'
+              class='mb-4 ml-2 bg-white rounded shadow'
+              @period-change='handlePeriodChange'
+            />
+          </div>
+          <div class='flex'>
+            <ProfitAndLoss
+              class='w-full p-4 mr-2 bg-white rounded shadow'
+              :common-period='period'
+              @period-change='handlePeriodChange'
+            />
+            <Expenses
+              class='w-full p-4 ml-2 bg-white rounded shadow'
+              :common-period='period'
+              @period-change='handlePeriodChange'
+            />
+          </div>
         </div>
-        <hr />
-        <div class="flex">
-          <ProfitAndLoss
-            class="w-full p-4 border-e"
-            :common-period="period"
-            @period-change="handlePeriodChange"
-          />
-          <Expenses
-            class="w-full p-4"
-            :common-period="period"
-            @period-change="handlePeriodChange"
-          />
-        </div>
-        <hr />
       </div>
     </div>
   </div>

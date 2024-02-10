@@ -63,7 +63,7 @@ export default defineComponent({
     chartData() {
       const points = [this.data.map((d) => d.balance)];
       const colors = [
-        { positive: uicolors.blue['500'], negative: uicolors.pink['500'] },
+        { positive: uicolors.green['500'], negative: uicolors.red['500'] },
       ];
       const format = (value: number) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);

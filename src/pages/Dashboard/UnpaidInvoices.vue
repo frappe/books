@@ -140,12 +140,12 @@ export default defineComponent({
     title(): string {
       return fyo.schemaMap[this.schemaName]?.label ?? '';
     },
-    color(): 'blue' | 'pink' {
+    color(): 'green' | 'yellow' {
       if (this.schemaName === ModelNameEnum.SalesInvoice) {
-        return 'blue';
+        return 'green';
       }
 
-      return 'pink';
+      return 'yellow';
     },
     colors(): string {
       return uicolors[this.color]['500'];

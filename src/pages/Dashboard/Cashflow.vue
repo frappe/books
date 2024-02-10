@@ -7,11 +7,11 @@
       <!-- Chart Legend -->
       <div v-if="hasData" class="flex text-base gap-8">
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-sm inline-block bg-blue-500" />
+          <span class="w-3 h-3 rounded-sm inline-block bg-green-500" />
           <span class="text-gray-900">{{ t`Inflow` }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-sm inline-block bg-pink-500" />
+          <span class="w-3 h-3 rounded-sm inline-block bg-gray-500" />
           <span class="text-gray-900">{{ t`Outflow` }}</span>
         </div>
       </div>
@@ -57,8 +57,8 @@ import { getMapFromList } from 'utils/index';
 import { PeriodKey } from 'src/utils/types';
 
 // Linting broken in this file cause of `extends: ...`
-/* 
-  eslint-disable @typescript-eslint/no-unsafe-argument, 
+/*
+  eslint-disable @typescript-eslint/no-unsafe-argument,
   @typescript-eslint/no-unsafe-return
 */
 
@@ -78,7 +78,7 @@ export default defineComponent({
   computed: {
     chartData() {
       let data = this.data;
-      let colors = [uicolors.blue['500'], uicolors.pink['500']];
+      let colors = [uicolors.green['500'], uicolors.gray['500']];
       if (!this.hasData) {
         data = dummyData;
         colors = [uicolors.gray['200'], uicolors.gray['100']];

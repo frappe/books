@@ -1,48 +1,50 @@
 <template>
-  <div class="flex flex-col">
-    <PageHeader :title="title">
-      <Button ref="exportButton" :icon="false" @click="openExportModal = true">
+  <div class='flex flex-col'>
+    <PageHeader :title='title'>
+      <Button ref='exportButton' :icon='false' @click='openExportModal = true'>
         {{ t`Export` }}
       </Button>
       <FilterDropdown
-        ref="filterDropdown"
-        :schema-name="schemaName"
-        @change="applyFilter"
+        ref='filterDropdown'
+        :schema-name='schemaName'
+        @change='applyFilter'
       />
       <Button
-        v-if="canCreate"
-        ref="makeNewDocButton"
-        :icon="true"
-        type="primary"
-        :padding="false"
-        class="px-3"
-        @click="makeNewDoc"
+        v-if='canCreate'
+        ref='makeNewDocButton'
+        :icon='true'
+        type='primary'
+        :padding='false'
+        class='px-3'
+        @click='makeNewDoc'
       >
-        <feather-icon name="plus" class="w-4 h-4" />
+        <feather-icon name='plus' class='w-4 h-4' />
       </Button>
     </PageHeader>
-    <List
-      ref="list"
-      :schema-name="schemaName"
-      :list-config="listConfig"
-      :filters="filters"
-      :can-create="canCreate"
-      class="flex-1 flex h-full"
-      @open-doc="openDoc"
-      @updated-data="updatedData"
-      @make-new-doc="makeNewDoc"
-    />
-    <Modal :open-modal="openExportModal" @closemodal="openExportModal = false">
+
+      <List
+        ref='list'
+        :schema-name='schemaName'
+        :list-config='listConfig'
+        :filters='filters'
+        :can-create='canCreate'
+        class='flex-1 flex h-full'
+        @open-doc='openDoc'
+        @updated-data='updatedData'
+        @make-new-doc='makeNewDoc'
+      />
+    <Modal :open-modal='openExportModal' @closemodal='openExportModal = false'>
       <ExportWizard
-        class="w-form"
-        :schema-name="schemaName"
-        :title="pageTitle"
-        :list-filters="listFilters"
+        class='w-form'
+        :schema-name='schemaName'
+        :title='pageTitle'
+        :list-filters='listFilters'
       />
     </Modal>
+
   </div>
 </template>
-<script lang="ts">
+<script lang='ts'>
 import { Field } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import ExportWizard from 'src/components/ExportWizard.vue';
@@ -51,10 +53,7 @@ import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { shortcutsKey } from 'src/utils/injectionKeys';
-import {
-  docsPathMap,
-  getCreateFiltersFromListViewFilters,
-} from 'src/utils/misc';
+import { docsPathMap, getCreateFiltersFromListViewFilters } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { getFormRoute, routeTo } from 'src/utils/ui';
 import { QueryFilter } from 'utils/db/types';
@@ -141,10 +140,10 @@ export default defineComponent({
       }
 
       this.shortcuts.pmod.set(this.context, ['KeyN'], () =>
-        this.makeNewDocButton?.$el.click()
+        this.makeNewDocButton?.$el.click(),
       );
       this.shortcuts.pmod.set(this.context, ['KeyE'], () =>
-        this.exportButton?.$el.click()
+        this.exportButton?.$el.click(),
       );
     },
     updatedData(listFilters: QueryFilter) {

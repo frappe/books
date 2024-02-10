@@ -160,11 +160,11 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: theme('colors.gray.100');
+  background: theme('colors.gray.600');
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.gray.200');
+  background: theme('colors.gray.700');
 }
 
 /* 

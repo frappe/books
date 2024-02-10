@@ -170,16 +170,16 @@ function getCompleteSidebar(): SidebarConfig {
       route: '/list/SalesInvoice',
       items: [
         {
-          label: t`Sales Quotes`,
-          name: 'sales-quotes',
-          route: '/list/SalesQuote',
-          schemaName: 'SalesQuote',
-        },
-        {
           label: t`Sales Invoices`,
           name: 'sales-invoices',
           route: '/list/SalesInvoice',
           schemaName: 'SalesInvoice',
+        },
+        {
+          label: t`Sales Quotes`,
+          name: 'sales-quotes',
+          route: '/list/SalesQuote',
+          schemaName: 'SalesQuote',
         },
         {
           label: t`Sales Payments`,

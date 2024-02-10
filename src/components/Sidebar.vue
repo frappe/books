@@ -1,6 +1,7 @@
 <template>
   <div
-    class="py-2 h-full flex justify-between flex-col bg-gray-25 relative"
+    class='py-2 h-full flex justify-between flex-col bg-white relative'
+    style='min-width: 200px'
     :class="{
       'window-drag': platform !== 'Windows',
     }"
@@ -8,75 +9,81 @@
     <div>
       <!-- Company name and DB Switcher -->
       <div
-        class="px-4 flex flex-row items-center justify-between mb-4"
+        class='ps-4 pe-12 flex flex-row items-center justify-between mb-4'
         :class="
           platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'
         "
       >
-        <h6
-          data-testid="company-name"
-          class="
-            font-semibold
+        <div
+          class='
             whitespace-nowrap
             overflow-auto
             no-scrollbar
             select-none
-          "
+          '
         >
-          {{ companyName }}
-        </h6>
+          <div class='text-xl font-bold'>
+            <span class='text-gray-800'>Lominy</span> <span class='text-green-700'>Books</span>
+          </div>
+          <div class='text-sm text-gray-600 font-semibold'>
+            <span>• {{companyName}}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Sidebar Items -->
-      <div v-for="group in groups" :key="group.label">
+      <div v-for='group in groups' :key='group.label'>
         <div
-          class="px-4 flex items-center cursor-pointer hover:bg-gray-100 h-10"
+          class='px-4 mx-2 flex items-center cursor-pointer hover:bg-green-100 h-10 rounded'
           :class="
             isGroupActive(group) && !group.items
-              ? 'bg-gray-100 border-s-4 border-gray-800'
+              ? 'bg-green-100 border-s-4 border-green-800'
               : ''
           "
-          @click="routeToSidebarItem(group)"
+          @click='routeToSidebarItem(group)'
         >
-          <Icon
-            class="flex-shrink-0"
-            :name="group.icon"
-            :size="group.iconSize || '18'"
-            :height="group.iconHeight ?? 0"
-            :active="!!isGroupActive(group)"
-            :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"
-          />
+          <!--          <Icon-->
+          <!--            class="flex-shrink-0"-->
+          <!--            :name="group1.icon"-->
+          <!--            :size="group.iconSize || '18'"-->
+          <!--            :height="group.iconHeight ?? 0"-->
+          <!--            :active="!!isGroupActive(group)"-->
+          <!--            :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"-->
+          <!--          />-->
           <div
-            class="ms-2 text-lg text-gray-700"
-            :class="isGroupActive(group) && !group.items && 'text-gray-900'"
+            class='text-lg text-gray-700'
+            :class="isGroupActive(group) && !group.items && 'text-green-900'"
           >
-            {{ group.label }}
+            <span class='font-medium'>{{ group.label }}</span>
           </div>
         </div>
 
         <!-- Expanded Group -->
-        <div v-if="group.items && isGroupActive(group)">
+        <div v-if='group.items && isGroupActive(group)'>
           <div
-            v-for="item in group.items"
-            :key="item.label"
-            class="
+            v-for='item in group.items'
+            :key='item.label'
+            class='
+              rounded
+              px-4
+              mx-2
               text-base
               h-10
-              ps-10
+              ps-6
               cursor-pointer
               flex
               items-center
-              hover:bg-gray-100
-            "
+              hover:bg-green-100
+            '
             :class="
               isItemActive(item)
-                ? 'bg-gray-100 text-gray-900 border-s-4 border-gray-800'
+                ? 'bg-green-100 text-green-900 border-s-4 border-green-800 '
                 : 'text-gray-700'
             "
-            @click="routeToSidebarItem(item)"
+            @click='routeToSidebarItem(item)'
           >
             <p :style="isItemActive(item) ? 'margin-left: -4px' : ''">
-              {{ item.label }}
+              <span class='font-medium'>{{ item.label }}</span>
             </p>
           </div>
         </div>
@@ -84,73 +91,73 @@
     </div>
 
     <!-- Report Issue and App Version -->
-    <div class="window-no-drag flex flex-col gap-2 py-2 px-4">
+    <div class='window-no-drag flex flex-col gap-2 py-2 px-4'>
       <button
-        class="
+        class='
           flex
           text-sm text-gray-600
           hover:text-gray-800
           gap-1
           items-center
-        "
-        @click="openDocumentation"
+        '
+        @click='openDocumentation'
       >
-        <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
+        <feather-icon name='help-circle' class='h-4 w-4 flex-shrink-0' />
         <p>
           {{ t`Help` }}
         </p>
       </button>
 
       <button
-        class="
+        class='
           flex
           text-sm text-gray-600
           hover:text-gray-800
           gap-1
           items-center
-        "
-        @click="viewShortcuts = true"
+        '
+        @click='viewShortcuts = true'
       >
-        <feather-icon name="command" class="h-4 w-4 flex-shrink-0" />
+        <feather-icon name='command' class='h-4 w-4 flex-shrink-0' />
         <p>{{ t`Shortcuts` }}</p>
       </button>
 
       <button
-        data-testid="change-db"
-        class="
+        data-testid='change-db'
+        class='
           flex
           text-sm text-gray-600
           hover:text-gray-800
           gap-1
           items-center
-        "
+        '
         @click="$emit('change-db-file')"
       >
-        <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
+        <feather-icon name='database' class='h-4 w-4 flex-shrink-0' />
         <p>{{ t`Change DB` }}</p>
       </button>
 
       <button
-        class="
+        class='
           flex
           text-sm text-gray-600
           hover:text-gray-800
           gap-1
           items-center
-        "
-        @click="() => reportIssue()"
+        '
+        @click='() => reportIssue()'
       >
-        <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
+        <feather-icon name='flag' class='h-4 w-4 flex-shrink-0' />
         <p>
           {{ t`Report Issue` }}
         </p>
       </button>
 
       <p
-        v-if="showDevMode"
-        class="text-xs text-gray-500 select-none cursor-pointer"
-        @click="showDevMode = false"
-        title="Open dev tools with Ctrl+Shift+I"
+        v-if='showDevMode'
+        class='text-xs text-gray-500 select-none cursor-pointer'
+        @click='showDevMode = false'
+        title='Open dev tools with Ctrl+Shift+I'
       >
         dev mode
       </p>
@@ -158,7 +165,7 @@
 
     <!-- Hide Sidebar Button -->
     <button
-      class="
+      class='
         absolute
         bottom-0
         end-0
@@ -168,18 +175,18 @@
         p-1
         m-4
         rtl-rotate-180
-      "
-      @click="() => toggleSidebar()"
+      '
+      @click='() => toggleSidebar()'
     >
-      <feather-icon name="chevrons-left" class="w-4 h-4" />
+      <feather-icon name='chevrons-left' class='w-4 h-4' />
     </button>
 
-    <Modal :open-modal="viewShortcuts" @closemodal="viewShortcuts = false">
-      <ShortcutsHelper class="w-form" />
+    <Modal :open-modal='viewShortcuts' @closemodal='viewShortcuts = false'>
+      <ShortcutsHelper class='w-form' />
     </Modal>
   </div>
 </template>
-<script lang="ts">
+<script lang='ts'>
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
@@ -272,7 +279,7 @@ export default defineComponent({
 
           if (g.items) {
             let activeItem = g.items.filter(
-              ({ route }) => route === fullPath || fullPath.startsWith(route)
+              ({ route }) => route === fullPath || fullPath.startsWith(route),
             );
 
             if (activeItem.length) {

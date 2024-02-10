@@ -1,8 +1,8 @@
 <template>
-  <div class="text-base flex flex-col overflow-hidden">
+  <div class="text-base flex flex-col overflow-hidden p-4 bg-gray-100">
     <!-- Title Row -->
     <div
-      class="flex items-center"
+      class="flex items-center bg-gray-25 rounded-t shadow"
       :style="{
         paddingRight: dataSlice.length > 13 ? 'var(--w-scrollbar)' : '',
       }"
@@ -36,7 +36,7 @@
     <hr />
 
     <!-- Data Rows -->
-    <div v-if="dataSlice.length !== 0" class="overflow-y-auto custom-scroll">
+    <div v-if="dataSlice.length !== 0" class="overflow-y-auto custom-scroll bg-white shadow">
       <div v-for="(row, i) in dataSlice" :key="(row.name as string)">
         <!-- Row Content -->
         <div class="flex hover:bg-gray-50 items-center">
@@ -66,7 +66,7 @@
     </div>
 
     <!-- Pagination Footer -->
-    <div v-if="data?.length" class="mt-auto">
+    <div v-if="data?.length" class="mt-auto bg-white rounded-b shadow">
       <hr />
       <Paginator
         :item-count="data.length"
