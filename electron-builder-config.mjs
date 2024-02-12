@@ -1,4 +1,6 @@
-import type { Configuration } from 'electron-builder';
+// App is tagged with a .mjs extension to allow
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * electron-builder doesn't look for the APPLE_TEAM_ID environment variable for some reason.
@@ -6,7 +8,13 @@ import type { Configuration } from 'electron-builder';
  * collection. See: https://github.com/electron-userland/electron-builder/issues/7812
  */
 
-const config: Configuration = {
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+// const root = path.join(dirname, '..', '..');
+const root = dirname; // redundant, but is meant to keep with the previous line
+const buildDirPath = path.join(root, 'dist_electron', 'build');
+const packageDirPath = path.join(root, 'dist_electron', 'bundled');
+
+const frappeBooksConfig = {
   productName: 'Frappe Books',
   appId: 'io.frappe.books',
   asarUnpack: '**/*.node',
@@ -15,6 +23,12 @@ const config: Configuration = {
     { from: 'translations', to: '../translations' },
     { from: 'templates', to: '../templates' },
   ],
+  files: '**',
+  extends: null,
+  directories: {
+    output: packageDirPath,
+    app: buildDirPath,
+  },
   mac: {
     type: 'distribution',
     category: 'public.app-category.finance',
@@ -34,7 +48,7 @@ const config: Configuration = {
     signDlls: true,
     icon: 'build/icon.ico',
     publish: ['github'],
-    target: ['portable', 'nsis'],
+    target: ['nsis', 'portable'],
   },
   nsis: {
     oneClick: false,
@@ -52,4 +66,4 @@ const config: Configuration = {
   },
 };
 
-export default config;
+export default frappeBooksConfig;
