@@ -154,8 +154,6 @@ async function packageApp() {
     delete builderArgs[opt];
   }
 
-  
-
   let buildOptions = {
     config: frappeBooksConfig,
     ...builderArgs,

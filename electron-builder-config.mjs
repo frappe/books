@@ -1,4 +1,4 @@
-// App is tagged with a .mjs extension to allow 
+// App is tagged with a .mjs extension to allow
 import path from 'path';
 import { fileURLToPath } from 'url';
 
