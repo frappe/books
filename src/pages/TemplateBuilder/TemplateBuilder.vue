@@ -1,208 +1,184 @@
 <template>
-  <div>
-    <PageHeader :title="doc && doc.inserted ? doc.name : ''">
-      <!-- Template Name -->
-      <template v-if="doc && !doc.inserted" #left>
-        <FormControl
-          ref="nameField"
-          class="w-60 flex-shrink-0"
-          size="small"
-          :input-class="['font-semibold text-xl']"
-          :df="fields.name"
-          :border="true"
-          :value="doc!.name"
-          @change="async (value) => await doc?.set('name', value)"
-        />
-      </template>
-      <Button v-if="displayDoc && doc?.template" @click="savePDF">
-        {{ t`Save as PDF` }}
-      </Button>
-      <Button
-        v-if="doc && doc.isCustom && displayDoc"
-        :title="t`Toggle Edit Mode`"
-        :icon="true"
-        @click="toggleEditMode"
-      >
-        <feather-icon name="edit" class="w-4 h-4" />
-      </Button>
-      <DropdownWithActions v-if="actions.length" :actions="actions" />
-      <Button v-if="doc?.canSave" type="primary" @click="sync()">
-        {{ t`Save` }}
-      </Button>
-    </PageHeader>
-
-    <!-- Template Builder Body -->
+  <div class="flex flex-col w-full">
+    <div>
+      <PageHeader :title="doc && doc.inserted ? doc.name : ''">
+        <!-- Template Name -->
+        <template v-if="doc && !doc.inserted" #left>
+          <FormControl
+            ref="nameField"
+            class="flex-shrink-0 w-60"
+            size="small"
+            :input-class="['font-semibold text-xl']"
+            :df="fields.name"
+            :border="true"
+            :value="doc!.name"
+            @change="async (value) => await doc?.set('name', value)"
+          />
+        </template>
+        <Button v-if="displayDoc && doc?.template" @click="savePDF">
+          {{ t`Save as PDF` }}
+        </Button>
+        <Button
+          v-if="doc && doc.isCustom && displayDoc"
+          :title="t`Toggle Edit Mode`"
+          :icon="true"
+          @click="toggleEditMode"
+        >
+          <feather-icon name="edit" class="w-4 h-4" />
+        </Button>
+        <DropdownWithActions v-if="actions.length" :actions="actions" />
+        <Button v-if="doc?.canSave" type="primary" @click="sync()">
+          {{ t`Save` }}
+        </Button>
+      </PageHeader>
+    </div>
     <div
       v-if="doc"
-      class="w-full bg-gray-50 grid"
+      class="grid w-full bg-gray-50"
       :style="templateBuilderBodyStyles"
     >
-      <!-- Template Display Area -->
-      <div
-        class="overflow-auto no-scrollbar flex flex-col"
-        style="height: calc(100vh - var(--h-row-largest) - 1px)"
-      >
-        <!-- Template Container -->
-        <div v-if="canDisplayPreview" class="p-4 overflow-auto custom-scroll">
-          <PrintContainer
-            ref="printContainer"
-            :print-schema-name="displayDoc!.schemaName"
-            :template="doc.template!"
-            :values="values!"
-            :scale="scale"
-            :height="doc.height"
-            :width="doc.width"
-          />
-        </div>
-
-        <!-- Display Hints -->
-        <p v-else-if="helperMessage" class="text-sm text-gray-700 p-4">
-          {{ helperMessage }}
-        </p>
-
-        <!-- Bottom Bar -->
+      <div class="relative flex flex-col flex-1">
         <div
-          class="
-            w-full
-            sticky
-            bottom-0
-            flex
-            bg-white
-            border-t
-            mt-auto
-            flex-shrink-0
-          "
+          class="flex items-center justify-center overflow-auto"
+          style="height: calc(100vh - var(--h-row-largest) - 1px)"
         >
-          <!-- Entry Type -->
-          <FormControl
-            :title="fields.type.label"
-            class="w-40 border-r flex-shrink-0"
-            :df="fields.type"
-            :border="false"
-            :value="doc.get('type')"
-            :container-styles="{ 'border-radius': '0px' }"
-            @change="async (value) => await setType(value)"
-          />
-
-          <!-- Display Doc -->
-          <Link
-            v-if="doc.type"
-            :title="displayDocField.label"
-            class="w-40 border-r flex-shrink-0"
-            :df="displayDocField"
-            :border="false"
-            :value="displayDoc?.name"
-            :container-styles="{ 'border-radius': '0px' }"
-            @change="(value: string) => setDisplayDoc(value)"
-          />
-
-          <!-- Display Scale -->
-          <div
-            v-if="canDisplayPreview"
-            class="flex ml-auto gap-2 px-2 w-36 justify-between flex-shrink-0"
-          >
-            <p class="text-sm text-gray-600 my-auto">{{ t`Display Scale` }}</p>
-            <input
-              type="number"
-              class="
-                my-auto
-                w-10
-                text-base text-end
-                bg-transparent
-                text-gray-800
-                focus:text-gray-900
-              "
-              :value="scale"
-              min="0.1"
-              max="10"
-              step="0.1"
-              @change="setScale"
-              @input="setScale"
+          <!-- Template Container -->
+          <div v-if="canDisplayPreview" class="p-4">
+            <PrintContainer
+              ref="printContainer"
+              :print-schema-name="displayDoc!.schemaName"
+              :template="doc.template!"
+              :values="values!"
+              :scale="scale"
+              :height="doc.height"
+              :width="doc.width"
             />
+          </div>
+
+          <!-- Display Hints -->
+          <p v-else-if="helperMessage" class="p-4 text-sm text-gray-700">
+            {{ helperMessage }}
+          </p>
+        </div>
+        <div class="absolute sticky bottom-0 flex w-full">
+          <!-- Bottom Bar -->
+          <div
+            class="sticky bottom-0 flex flex-shrink-0 w-full mt-auto bg-white border-t "
+          >
+            <!-- Entry Type -->
+            <FormControl
+              :title="fields.type.label"
+              class="flex-shrink-0 w-40 border-r"
+              :df="fields.type"
+              :border="false"
+              :value="doc.get('type')"
+              :container-styles="{ 'border-radius': '0px' }"
+              @change="async (value) => await setType(value)"
+            />
+
+            <!-- Display Doc -->
+            <link
+              v-if="doc.type"
+              :title="displayDocField.label"
+              class="flex-shrink-0 w-40 border-r"
+              :df="displayDocField"
+              :border="false"
+              :value="displayDoc?.name"
+              :container-styles="{ 'border-radius': '0px' }"
+              @change="(value: string) => setDisplayDoc(value)"
+            />
+
+            <!-- Display Scale -->
+            <div
+              v-if="canDisplayPreview"
+              class="flex justify-between flex-shrink-0 gap-2 px-2 ml-auto w-36"
+            >
+              <p class="my-auto text-sm text-gray-600">
+                {{ t`Display Scale` }}
+              </p>
+              <input
+                type="number"
+                class="w-10 my-auto text-base text-gray-800 bg-transparent  text-end focus:text-gray-900"
+                :value="scale"
+                min="0.1"
+                max="10"
+                step="0.1"
+                @change="setScale"
+                @input="setScale"
+              />
+            </div>
           </div>
         </div>
       </div>
-
       <!-- Input Panel Resizer -->
       <HorizontalResizer
         :initial-x="panelWidth"
         :min-x="22 * 16"
-        :max-x="maxWidth"
+        :max-x="parseInt(maxWidth / 2)"
         style="z-index: 5"
         @resize="(x: number) => panelWidth = x"
       />
-
-      <!-- Template Panel -->
-      <div
-        class="border-l bg-white flex flex-col"
-        style="height: calc(100vh - var(--h-row-largest) - 1px)"
-      >
-        <!-- Template Editor -->
-        <div class="min-h-0">
-          <TemplateEditor
-            v-if="typeof doc.template === 'string' && hints"
-            ref="templateEditor"
-            class="overflow-auto custom-scroll h-full"
-            :initial-value="doc.template"
-            :disabled="!doc.isCustom"
-            :hints="hints"
-            @input="() => (templateChanged = true)"
-            @blur="(value: string) => setTemplate(value)"
-          />
-        </div>
-        <div
-          v-if="templateChanged"
-          class="
-            flex
-            gap-2
-            p-2
-            text-sm text-gray-600
-            items-center
-            mt-auto
-            border-t
-          "
-        >
-          <ShortcutKeys :keys="applyChangesShortcut" :simple="true" />
-          {{ t` to apply changes` }}
-        </div>
-
-        <!-- Value Key Hints Container -->
-        <div
-          v-if="hints"
-          class="border-t flex-shrink-0"
-          :class="templateChanged ? '' : 'mt-auto'"
-        >
-          <!-- Value Key Toggle -->
+      <div class="relative flex flex-col flex-1">
+        <div class="flex flex-1 overflow-hidden">
+          <!-- Template Panel -->
           <div
-            class="
-              flex
-              justify-between
-              items-center
-              cursor-pointer
-              select-none
-              p-2
-            "
-            @click="toggleShowHints"
+            class="flex flex-col w-full bg-white border-l"
+            style="height: calc(100vh - var(--h-row-largest) - 1px)"
           >
-            <h2 class="text-base text-gray-900 font-semibold">
-              {{ t`Key Hints` }}
-            </h2>
-            <feather-icon
-              :name="showHints ? 'chevron-up' : 'chevron-down'"
-              class="w-4 h-4 text-gray-600 resize-none"
-            />
-          </div>
-
-          <!-- Value Key Hints -->
-          <Transition name="hints">
-            <div
-              v-if="showHints"
-              class="overflow-auto custom-scroll p-2 border-t"
-              style="max-height: 30vh"
-            >
-              <TemplateBuilderHint :hints="hints" />
+            <!-- Template Editor -->
+            <div class="w-full min-h-0">
+              <TemplateEditor
+                v-if="typeof doc.template === 'string' && hints"
+                ref="templateEditor"
+                class="w-full h-full overflow-auto custom-scroll"
+                :initial-value="doc.template"
+                :disabled="!doc.isCustom"
+                :hints="hints"
+                @input="() => (templateChanged = true)"
+                @blur="(value: string) => setTemplate(value)"
+              />
             </div>
-          </Transition>
+            <div
+              v-if="templateChanged"
+              class="flex items-center gap-2 p-2 mt-auto text-sm text-gray-600 border-t "
+            >
+              <ShortcutKeys :keys="applyChangesShortcut" :simple="true" />
+              {{ t` to apply changes` }}
+            </div>
+          </div>
+        </div>
+        <div class="absolute sticky bottom-0 flex w-full">
+          <!-- Value Key Hints Container -->
+          <div
+            v-if="hints"
+            class="flex-shrink-0 w-full bg-white border-t"
+            :class="templateChanged ? '' : 'mt-auto'"
+          >
+            <!-- Value Key Toggle -->
+            <div
+              class="flex items-center justify-between p-2 cursor-pointer select-none "
+              @click="toggleShowHints"
+            >
+              <h2 class="text-base font-semibold text-gray-900">
+                {{ t`Key Hints` }}
+              </h2>
+              <feather-icon
+                :name="showHints ? 'chevron-up' : 'chevron-down'"
+                class="w-4 h-4 text-gray-600 resize-none"
+              />
+            </div>
+
+            <!-- Value Key Hints -->
+            <Transition name="hints">
+              <div
+                v-if="showHints"
+                class="p-2 overflow-auto border-t custom-scroll"
+                style="max-height: 30vh"
+              >
+                <TemplateBuilderHint :hints="hints" />
+              </div>
+            </Transition>
+          </div>
         </div>
       </div>
     </div>
@@ -242,21 +218,21 @@ import { shortcutsKey } from 'src/utils/injectionKeys';
 import { showDialog, showToast } from 'src/utils/interactive';
 import { docsPathMap } from 'src/utils/misc';
 import {
-  PrintTemplateHint,
-  baseTemplate,
-  getPrintTemplatePropHints,
-  getPrintTemplatePropValues,
+PrintTemplateHint,
+baseTemplate,
+getPrintTemplatePropHints,
+getPrintTemplatePropValues,
 } from 'src/utils/printTemplates';
 import { docsPathRef, showSidebar } from 'src/utils/refs';
 import { DocRef, PrintValues } from 'src/utils/types';
 import {
-  ShortcutKey,
-  focusOrSelectFormControl,
-  getActionsForDoc,
-  getDocFromNameIfExistsElseNew,
-  getSavePath,
-  openSettings,
-  selectTextFile,
+ShortcutKey,
+focusOrSelectFormControl,
+getActionsForDoc,
+getDocFromNameIfExistsElseNew,
+getSavePath,
+openSettings,
+selectTextFile,
 } from 'src/utils/ui';
 import { useDocShortcuts } from 'src/utils/vueUtils';
 import { getMapFromList } from 'utils/index';
