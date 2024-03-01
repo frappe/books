@@ -51,6 +51,7 @@
     "@types/node": "^17.0.23",
     "@types/node-fetch": "^2.6.1",
     "@types/tape": "^4.13.2",
+    "@types/webpack-env": "^1.18.4",
     "@typescript-eslint/eslint-plugin": "5.60.0",
     "@typescript-eslint/parser": "5.60.0",
     "@vitejs/plugin-vue": "^4.2.3",

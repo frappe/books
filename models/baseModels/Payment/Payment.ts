@@ -521,7 +521,6 @@ export class Payment extends Transactional {
     if (!party || party.role === 'Both') {
       return null;
     }
-
     return party.defaultAccount ?? null;
   }
 
@@ -603,8 +602,8 @@ export class Payment extends Transactional {
         const partyDoc = (await this.loadAndGetLink('party')) as Party;
         const outstanding = partyDoc.outstandingAmount as Money;
 
-        if (outstanding.isNegative()) {
-          if (this.referenceType === ModelNameEnum.SalesInvoice) {
+        if (outstanding.isNegative()) { 
+          if (this.referenceType === ModelNameEnum.PurchaseInvoice) {
             return 'Pay';
           }
           return 'Receive';

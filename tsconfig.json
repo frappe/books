@@ -24,7 +24,10 @@
       "reports/*": ["reports/*"],
       "models/*": ["models/*"],
       "utils/*": ["utils/*"],
-      "dummy/*": ["dummy/*"]
+      "dummy/*": ["dummy/*"],
+      "webpack-env": [
+        "./node_modules/@types/webpack-env"
+      ]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
