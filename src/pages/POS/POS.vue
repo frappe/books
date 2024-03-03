@@ -38,7 +38,11 @@
           <div class="flex gap-x-2">
             <!-- Item Search -->
             <Link
-              class="flex-shrink-0 w-2/3"
+              :class="
+                fyo.singles.InventorySettings?.enableBarcodes
+                  ? 'flex-shrink-0 w-2/3'
+                  : 'w-full'
+              "
               :df="{
                 label: t`Search an Item`,
                 fieldtype: 'Link',
@@ -54,6 +58,7 @@
             />
 
             <Barcode
+              v-if="fyo.singles.InventorySettings?.enableBarcodes"
               class="w-1/3"
               @item-selected="
                 async (name: string) => {
