@@ -604,7 +604,7 @@ export class Payment extends Transactional {
         const outstanding = partyDoc.outstandingAmount as Money;
 
         if (outstanding.isNegative()) {
-          if (this.referenceType === ModelNameEnum.SalesInvoice) {
+          if (this.referenceType === ModelNameEnum.PurchaseInvoice) {
             return 'Pay';
           }
           return 'Receive';
