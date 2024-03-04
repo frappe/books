@@ -58,3 +58,9 @@ export function logUnexpected(detail: Partial<UnexpectedLogObject>) {
   });
   window.dispatchEvent(event);
 }
+
+export function isValidUrl(string: string) {
+  const urlPattern =
+    /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+  return urlPattern.test(string);
+}

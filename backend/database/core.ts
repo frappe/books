@@ -26,6 +26,9 @@ import {
   UpdateSinglesConfig,
 } from './types';
 
+import { isValidUrl } from 'utils/misc';
+import SQLiteServerClient from './KnexRemoteSQLiteClient.mjs';
+
 /**
  * # DatabaseCore
  * This is the ORM, the DatabaseCore interface (function signatures) should be
@@ -56,7 +59,8 @@ export default class DatabaseCore extends DatabaseBase {
     super();
     this.dbPath = dbPath ?? ':memory:';
     this.connectionParams = {
-      client: 'better-sqlite3',
+      // @ts-ignore
+      client: isValidUrl(dbPath ?? '') ? SQLiteServerClient : 'better-sqlite3',
       connection: {
         filename: this.dbPath,
       },

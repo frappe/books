@@ -10,6 +10,8 @@ import { autoUpdater } from 'electron-updater';
 import { constants } from 'fs';
 import fs from 'fs-extra';
 import path from 'path';
+import config from 'utils/config';
+import { isValidUrl } from 'utils/misc';
 import { SelectFileOptions, SelectFileReturn } from 'utils/types';
 import databaseManager from '../backend/database/manager';
 import { emitMainProcessError } from '../backend/helpers';
@@ -183,7 +185,13 @@ export default function registerIpcMainActionListeners(main: Main) {
   });
 
   ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath: string) => {
-    return getErrorHandledReponse(async () => await fs.unlink(filePath));
+    if (!isValidUrl(filePath)) {
+      return getErrorHandledReponse(async () => await fs.unlink(filePath));
+    }
+    const files = config.get('files', []);
+    const remainingFiles = files.filter(({ dbPath }) => filePath !== dbPath);
+    config.set('files', remainingFiles);
+    return {};
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_DB_LIST, async () => {
