@@ -197,16 +197,10 @@
       "section": "Validity"
     },
     {
-      "fieldname": "thresholdForSuggestion",
-      "label": "Threshold for Suggestion",
-      "fieldtype": "Float",
-      "section": "Threshold and Priority"
-    },
-    {
       "fieldname": "priority",
       "label": "Priority",
       "fieldtype": "Select",
-      "section": "Threshold and Priority",
+      "section": "Priority",
       "required": true,
       "options": [
         { "value": "1", "label": 1 },
