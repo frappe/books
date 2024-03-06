@@ -217,6 +217,7 @@ import {
   validateSinv,
 } from 'src/utils/pos';
 import Barcode from 'src/components/Controls/Barcode.vue';
+import { getPricingRule } from 'models/helpers';
 
 export default defineComponent({
   name: 'POS',
@@ -364,7 +365,7 @@ export default defineComponent({
 
     async addItem(item: POSItem | Item | undefined) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.sinvDoc.runFormulas();
+      await this.sinvDoc.runFormulas();
 
       if (!item) {
         return;
@@ -415,6 +416,7 @@ export default defineComponent({
 
       if (existingItems.length) {
         existingItems[0].quantity = (existingItems[0].quantity as number) + 1;
+        await this.applyPricingRule();
         return;
       }
 
@@ -561,6 +563,17 @@ export default defineComponent({
     async validate() {
       validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
       await validateShipment(this.itemSerialNumbers);
+    },
+    async applyPricingRule() {
+      const hasPricingRules = await getPricingRule(
+        this.sinvDoc as SalesInvoice
+      );
+      if (!hasPricingRules) {
+        return;
+      }
+
+      await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
+      await this.sinvDoc.applyProductDiscount();
     },
 
     getItem,
