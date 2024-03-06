@@ -796,7 +796,6 @@ export function canApplyPricingRule(
   ) {
     return false;
   }
-
   return true;
 }
 
