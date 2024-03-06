@@ -11,7 +11,15 @@ import {
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { Transactional } from 'models/Transactional/Transactional';
-import { addItem, getExchangeRate, getNumberSeries } from 'models/helpers';
+import {
+  addItem,
+  canApplyPricingRule,
+  filterPricingRules,
+  getExchangeRate,
+  getNumberSeries,
+  getPricingRulesConflicts,
+  roundFreeItemQty,
+} from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
 import { ModelNameEnum } from 'models/types';
@@ -27,6 +35,9 @@ import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { ReturnDocItem } from 'models/inventory/types';
 import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
+import { PricingRule } from '../PricingRule/PricingRule';
+import { ApplicablePricingRules } from './types';
+import { PricingRuleDetail } from '../PricingRuleDetail/PricingRuleDetail';
 
 export type TaxDetail = {
   account: string;
@@ -69,6 +80,8 @@ export abstract class Invoice extends Transactional {
 
   isReturned?: boolean;
   returnAgainst?: string;
+
+  pricingRuleDetail?: PricingRuleDetail[];
 
   get isSales() {
     return (
@@ -160,6 +173,7 @@ export abstract class Invoice extends Transactional {
       throw new ValidationError(this.fyo.t`Discount Account is not set.`);
     }
     await validateBatch(this);
+    await this._validatePricingRule();
   }
 
   async afterSubmit() {
@@ -621,6 +635,21 @@ export abstract class Invoice extends Transactional {
         !!this.autoStockTransferLocation,
       dependsOn: [],
     },
+    isPricingRuleApplied: {
+      formula: async () => {
+        if (!this.fyo.singles.AccountingSettings?.enablePricingRule) {
+          return false;
+        }
+
+        const pricingRule = await this.getPricingRule();
+        if (pricingRule) {
+          await this.appendPricingRuleDetail(pricingRule);
+        }
+
+        return !!pricingRule?.length;
+      },
+      dependsOn: ['items'],
+    },
   };
 
   getStockTransferred() {
@@ -697,6 +726,9 @@ export abstract class Invoice extends Transactional {
       (!this.canEdit && !this.priceList),
     returnAgainst: () =>
       (this.isSubmitted || this.isCancelled) && !this.returnAgainst,
+    pricingRuleDetail: () =>
+      !this.fyo.singles.AccountingSettings?.enablePricingRule ||
+      !this.pricingRuleDetail?.length,
   };
 
   static defaults: DefaultMap = {
@@ -913,6 +945,14 @@ export abstract class Invoice extends Transactional {
     return transfer;
   }
 
+  async beforeSync(): Promise<void> {
+    await super.beforeSync();
+
+    if (this.pricingRuleDetail?.length) {
+      await this.applyProductDiscount();
+    }
+  }
+
   async beforeCancel(): Promise<void> {
     await super.beforeCancel();
     await this._validateStockTransferCancelled();
@@ -1040,5 +1080,157 @@ export abstract class Invoice extends Transactional {
 
   async addItem(name: string) {
     return await addItem(name, this);
+  }
+
+  async appendPricingRuleDetail(
+    applicablePricingRule: ApplicablePricingRules[]
+  ) {
+    await this.set('pricingRuleDetail', null);
+
+    for (const doc of applicablePricingRule) {
+      await this.append('pricingRuleDetail', {
+        referenceName: doc.pricingRule.name,
+        referenceItem: doc.applyOnItem,
+      });
+    }
+  }
+
+  async applyProductDiscount() {
+    if (!this.pricingRuleDetail || !this.items) {
+      return;
+    }
+
+    this.items = this.items.filter((item) => !item.isFreeItem);
+
+    for (const item of this.items) {
+      if (item.isFreeItem) {
+        continue;
+      }
+
+      const pricingRuleDetailForItem = this.pricingRuleDetail.filter(
+        (doc) => doc.referenceItem === item.item
+      );
+
+      const pricingRuleDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.PricingRule,
+        pricingRuleDetailForItem[0].referenceName
+      )) as PricingRule;
+
+      if (pricingRuleDoc.discountType === 'Price Discount') {
+        continue;
+      }
+
+      const appliedItems = pricingRuleDoc.appliedItems?.map((doc) => doc.item);
+      if (!appliedItems?.includes(item.item)) {
+        continue;
+      }
+
+      const canApplyPRLOnItem = canApplyPricingRule(
+        pricingRuleDoc,
+        this.date as Date,
+        item.quantity as number,
+        item.amount as Money
+      );
+
+      if (!canApplyPRLOnItem) {
+        continue;
+      }
+
+      let freeItemQty = pricingRuleDoc.freeItemQuantity as number;
+
+      if (pricingRuleDoc.isRecursive) {
+        freeItemQty =
+          (item.quantity as number) / (pricingRuleDoc.recurseEvery as number);
+      }
+
+      if (pricingRuleDoc.roundFreeItemQty) {
+        freeItemQty = roundFreeItemQty(
+          freeItemQty,
+          pricingRuleDoc.roundingMethod as 'round' | 'floor' | 'ceil'
+        );
+      }
+
+      await this.append('items', {
+        item: pricingRuleDoc.freeItem as string,
+        quantity: freeItemQty,
+        isFreeItem: true,
+        rate: pricingRuleDoc.freeItemRate,
+        unit: pricingRuleDoc.freeItemUnit,
+      });
+    }
+  }
+
+  async getPricingRule(): Promise<ApplicablePricingRules[] | undefined> {
+    if (!this.isSales || !this.items) {
+      return;
+    }
+    const pricingRules: ApplicablePricingRules[] = [];
+
+    for (const item of this.items) {
+      if (item.isFreeItem) {
+        continue;
+      }
+
+      const pricingRuleDocNames = (
+        await this.fyo.db.getAll(ModelNameEnum.PricingRuleItem, {
+          fields: ['parent'],
+          filters: {
+            item: item.item as string,
+            unit: item.unit as string,
+          },
+        })
+      ).map((doc) => doc.parent) as string[];
+
+      const pricingRuleDocsForItem = (await this.fyo.db.getAll(
+        ModelNameEnum.PricingRule,
+        {
+          fields: ['*'],
+          filters: {
+            name: ['in', pricingRuleDocNames],
+            isEnabled: true,
+          },
+          orderBy: 'priority',
+          order: 'desc',
+        }
+      )) as PricingRule[];
+
+      const filtered = filterPricingRules(
+        pricingRuleDocsForItem,
+        this.date as Date,
+        item.quantity as number,
+        item.amount as Money
+      );
+
+      if (!filtered.length) {
+        continue;
+      }
+
+      const isPricingRuleHasConflicts = getPricingRulesConflicts(
+        filtered,
+        item.item as string
+      );
+
+      if (isPricingRuleHasConflicts) {
+        continue;
+      }
+
+      pricingRules.push({
+        applyOnItem: item.item as string,
+        pricingRule: filtered[0],
+      });
+    }
+
+    return pricingRules;
+  }
+
+  async _validatePricingRule() {
+    if (!this.fyo.singles.AccountingSettings?.enablePricingRule) {
+      return;
+    }
+
+    if (!this.items) {
+      return;
+    }
+    await this.getPricingRule();
   }
 }
