@@ -482,7 +482,7 @@ export abstract class InvoiceItem extends Doc {
           return pricingRuleDoc.discountPercentage;
         }
 
-        return this.setItemDiscountAmount;
+        return this.itemDiscountPercent;
       },
       dependsOn: ['pricingRuleDetail'],
     },
