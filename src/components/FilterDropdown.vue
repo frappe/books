@@ -34,7 +34,7 @@
                 class="flex items-center justify-between text-base gap-2"
               >
                 <div
-                  class="cursor-pointer w-4 h-4 flex items-center justify-center text-gray-600 hover:text-gray-800 rounded-md group"
+                  class="cursor-pointer w-4 h-4 flex items-center justify-center text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 rounded-md group"
                 >
                   <span class="hidden group-hover:inline-block">
                     <feather-icon
@@ -93,13 +93,13 @@
             </div>
           </template>
           <template v-else>
-            <span class="text-base text-gray-600">{{
+            <span class="text-base text-gray-600 dark:text-gray-500">{{
               t`No filters selected`
             }}</span>
           </template>
         </div>
         <div
-          class="text-base border-t p-2 flex items-center text-gray-600 cursor-pointer hover:bg-gray-100"
+          class="text-base border-t dark:border-gray-800 p-2 flex items-center text-gray-600 dark:text-gray-500 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-875"
           @click="addNewFilter"
         >
           <feather-icon name="plus" class="w-4 h-4" />

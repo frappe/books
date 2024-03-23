@@ -7,23 +7,16 @@
         paddingRight: dataSlice.length > 13 ? 'var(--w-scrollbar)' : '',
       }"
     >
-      <p class="w-8 text-end me-4 text-gray-700">#</p>
+      <p class="w-8 text-end me-4 text-gray-700 dark:text-gray-400">#</p>
       <Row
-        class="flex-1 text-gray-700 h-row-mid"
+        class="flex-1 text-gray-700 dark:text-gray-400 h-row-mid"
         :column-count="columns.length"
         gap="1rem"
       >
         <div
           v-for="(column, i) in columns"
           :key="column.label"
-          class="
-            overflow-x-auto
-            no-scrollbar
-            whitespace-nowrap
-            h-row
-            items-center
-            flex
-          "
+          class="overflow-x-auto no-scrollbar whitespace-nowrap h-row items-center flex"
           :class="{
             'ms-auto': isNumeric(column.fieldtype),
             'pe-4': i === columns.length - 1,
@@ -33,19 +26,22 @@
         </div>
       </Row>
     </div>
-    <hr />
+    <hr class="dark:border-gray-800" />
 
     <!-- Data Rows -->
-    <div v-if="dataSlice.length !== 0" class="overflow-y-auto custom-scroll">
+    <div
+      v-if="dataSlice.length !== 0"
+      class="overflow-y-auto dark:dark-scroll custom-scroll"
+    >
       <div v-for="(row, i) in dataSlice" :key="(row.name as string)">
         <!-- Row Content -->
-        <div class="flex hover:bg-gray-50 items-center">
-          <p class="w-8 text-end me-4 text-gray-900">
+        <div class="flex hover:bg-gray-50 dark:hover:bg-gray-850 items-center">
+          <p class="w-8 text-end me-4 text-gray-900 dark:text-gray-25">
             {{ i + pageStart + 1 }}
           </p>
           <Row
             gap="1rem"
-            class="cursor-pointer text-gray-900 flex-1 h-row-mid"
+            class="cursor-pointer text-gray-900 dark:text-gray-300 flex-1 h-row-mid"
             :column-count="columns.length"
             @click="$emit('openDoc', row.name)"
           >
@@ -61,13 +57,16 @@
             />
           </Row>
         </div>
-        <hr v-if="!(i === dataSlice.length - 1 && i > 13)" />
+        <hr
+          v-if="!(i === dataSlice.length - 1 && i > 13)"
+          class="dark:border-gray-800"
+        />
       </div>
     </div>
 
     <!-- Pagination Footer -->
     <div v-if="data?.length" class="mt-auto">
-      <hr />
+      <hr class="dark:border-gray-800" />
       <Paginator
         :item-count="data.length"
         class="px-4"
@@ -81,13 +80,10 @@
       class="flex flex-col items-center justify-center my-auto"
     >
       <img src="../../assets/img/list-empty-state.svg" alt="" class="w-24" />
-      <p class="my-3 text-gray-800">{{ t`No entries found` }}</p>
-      <Button
-        v-if="canCreate"
-        type="primary"
-        class="text-white"
-        @click="$emit('makeNewDoc')"
-      >
+      <p class="my-3 text-gray-800 dark:text-gray-200">
+        {{ t`No entries found` }}
+      </p>
+      <Button v-if="canCreate" type="primary" @click="$emit('makeNewDoc')">
         {{ t`Make Entry` }}
       </Button>
     </div>

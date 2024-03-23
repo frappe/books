@@ -80,7 +80,7 @@ export default defineComponent({
       return 'text';
     },
     labelClasses(): string {
-      return 'text-gray-600 text-sm mb-1';
+      return 'text-gray-600 dark:text-gray-500 text-sm mb-1';
     },
     inputClasses(): string[] {
       /**
@@ -115,10 +115,10 @@ export default defineComponent({
     },
     inputReadOnlyClasses(): string {
       if (this.isReadOnly) {
-        return 'text-gray-800 cursor-default';
+        return 'text-gray-800 dark:text-gray-300 cursor-default';
       }
 
-      return 'text-gray-900';
+      return 'text-gray-900 dark:text-gray-100';
     },
     containerClasses(): string[] {
       /**
@@ -136,7 +136,7 @@ export default defineComponent({
     },
     containerReadOnlyClasses(): string {
       if (!this.isReadOnly) {
-        return 'focus-within:bg-gray-100';
+        return 'focus-within:bg-gray-100 dark:focus-within:bg-gray-890';
       }
 
       return '';
@@ -146,10 +146,10 @@ export default defineComponent({
         return '';
       }
 
-      const border = 'border border-gray-200';
-      let background = 'bg-gray-25';
+      const border = 'border border-gray-200 dark:border-gray-800';
+      let background = 'bg-gray-25 dark:bg-gray-875';
       if (this.isReadOnly) {
-        background = 'bg-gray-50';
+        background = 'bg-gray-50 dark:bg-gray-850';
       }
 
       return border + ' ' + background;

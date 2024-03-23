@@ -167,6 +167,21 @@ input[type='number']::-webkit-inner-spin-button {
   background: theme('colors.gray.200');
 }
 
+.dark .custom-scroll::-webkit-scrollbar-track:vertical {
+  border-left-color: theme('colors.gray.800');
+}
+
+.dark .custom-scroll::-webkit-scrollbar-track:horizontal {
+  border-top-color: theme('colors.gray.800');
+}
+
+.dark .custom-scroll::-webkit-scrollbar-thumb {
+  background: theme('colors.gray.850');
+}
+
+.dark .custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.gray.800');
+}
 /* 
   Transitions
  */
@@ -200,6 +215,10 @@ input[type='number']::-webkit-inner-spin-button {
 
 [dir='rtl'] .custom-scroll::-webkit-scrollbar-track:vertical {
   border-right: solid 1px theme('colors.gray.200');
+}
+
+[dir='rtl'].dark .custom-scroll::-webkit-scrollbar-track:vertical {
+  border-right: solid 1px theme('colors.gray.850');
 }
 
 .pill {

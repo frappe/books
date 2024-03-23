@@ -8,13 +8,7 @@
       :class="[inputClasses, containerClasses]"
     >
       <select
-        class="
-          appearance-none
-          bg-transparent
-          focus:outline-none
-          w-11/12
-          cursor-pointer
-        "
+        class="appearance-none bg-transparent focus:outline-none w-11/12 cursor-pointer"
         :class="{
           'pointer-events-none': isReadOnly,
           'text-gray-500': !value,
@@ -28,6 +22,7 @@
           value=""
           disabled
           selected
+          class="text-black dark:text-gray-25 dark:bg-gray-800"
         >
           {{ inputPlaceholder }}
         </option>
@@ -35,7 +30,7 @@
           v-for="option in options"
           :key="option.value"
           :value="option.value"
-          class="text-black"
+          class="text-black dark:text-gray-25 dark:bg-gray-800"
         >
           {{ option.label }}
         </option>
@@ -50,7 +45,11 @@
         <path
           d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
           class="stroke-current"
-          :class="showMandatory ? 'text-red-400' : 'text-gray-400'"
+          :class="
+            showMandatory
+              ? 'text-red-400 dark:text-red-600'
+              : 'text-gray-400 dark:text-gray-600'
+          "
           fill="none"
           fill-rule="evenodd"
           stroke-linecap="round"
