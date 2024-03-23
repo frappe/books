@@ -8,15 +8,22 @@ import { toggleSidebar } from 'src/utils/ui';
       <!-- eslint-disable vue/require-explicit-emits -->
       <Sidebar
         v-show="showSidebar"
-        class="flex-shrink-0 border-e whitespace-nowrap w-sidebar"
+        class="flex-shrink-0 border-e dark:border-gray-800 whitespace-nowrap w-sidebar"
+        :darkMode="darkMode"
         @change-db-file="$emit('change-db-file')"
+        @toggle-darkmode="$emit('toggle-darkmode')"
       />
     </Transition>
 
-    <div class="flex flex-1 overflow-y-hidden bg-white">
+    <div class="flex flex-1 overflow-y-hidden bg-white dark:bg-gray-875">
       <router-view v-slot="{ Component }">
         <keep-alive>
-          <component :is="Component" :key="$route.path" class="flex-1" />
+          <component
+            :is="Component"
+            :key="$route.path"
+            :darkMode="darkMode"
+            class="flex-1"
+          />
         </keep-alive>
       </router-view>
 
@@ -26,6 +33,7 @@ import { toggleSidebar } from 'src/utils/ui';
             <component
               :is="Component"
               :key="route.query.schemaName + route.query.name"
+              :darkMode="darkMode"
             />
           </div>
         </Transition>
@@ -35,19 +43,7 @@ import { toggleSidebar } from 'src/utils/ui';
     <!-- Show Sidebar Button -->
     <button
       v-show="!showSidebar"
-      class="
-        absolute
-        bottom-0
-        start-0
-        text-gray-600
-        bg-gray-100
-        rounded
-        rtl-rotate-180
-        p-1
-        m-4
-        opacity-0
-        hover:opacity-100 hover:shadow-md
-      "
+      class="absolute bottom-0 start-0 text-gray-600 bg-gray-100 rounded rtl-rotate-180 p-1 m-4 opacity-0 hover:opacity-100 hover:shadow-md"
       @click="() => toggleSidebar()"
     >
       <feather-icon name="chevrons-right" class="w-4 h-4" />
@@ -62,7 +58,10 @@ export default defineComponent({
   components: {
     Sidebar,
   },
-  emits: ['change-db-file'],
+  props: {
+    darkMode: Boolean,
+  },
+  emits: ['change-db-file', 'toggle-darkmode'],
 });
 </script>
 

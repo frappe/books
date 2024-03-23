@@ -4,9 +4,11 @@
     <!-- Back Button -->
     <a
       ref="backlink"
-      class="nav-link border-l border-r border-white"
+      class="nav-link border-l border-r border-white dark:border-gray-850 dark:bg-gray-900"
       :class="
-        historyState.back ? 'text-gray-700 cursor-pointer' : 'text-gray-400'
+        historyState.back
+          ? 'text-gray-700 dark:text-gray-300 cursor-pointer'
+          : 'text-gray-400 dark:text-gray-700'
       "
       @click="$router.back()"
     >
@@ -14,9 +16,11 @@
     </a>
     <!-- Forward Button -->
     <a
-      class="nav-link rounded-md rounded-l-none"
+      class="nav-link rounded-md rounded-l-none dark:bg-gray-900"
       :class="
-        historyState.forward ? 'text-gray-700 cursor-pointer' : 'text-gray-400'
+        historyState.forward
+          ? 'text-gray-700 dark:text-gray-400 cursor-pointer'
+          : 'text-gray-400 dark:text-gray-700'
       "
       @click="$router.forward()"
     >

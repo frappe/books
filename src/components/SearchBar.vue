@@ -1,8 +1,15 @@
 <template>
   <div>
     <!-- Search Bar Button -->
-    <Button class="px-3 py-2 rounded-r-none" :padding="false" @click="open">
-      <feather-icon name="search" class="w-4 h-4 text-gray-700" />
+    <Button
+      class="px-3 py-2 rounded-r-none dark:bg-gray-900"
+      :padding="false"
+      @click="open"
+    >
+      <feather-icon
+        name="search"
+        class="w-4 h-4 text-gray-700 dark:text-gray-300"
+      />
     </Button>
   </div>
 
@@ -22,16 +29,7 @@
           autocomplete="off"
           spellcheck="false"
           :placeholder="t`Type to search...`"
-          class="
-            bg-gray-100
-            text-2xl
-            focus:outline-none
-            w-full
-            placeholder-gray-500
-            text-gray-900
-            rounded-md
-            p-3
-          "
+          class="bg-gray-100 text-2xl focus:outline-none w-full placeholder-gray-500 text-gray-900 rounded-md p-3"
           @keydown.up="up"
           @keydown.down="down"
           @keydown.enter="() => select()"
@@ -129,14 +127,7 @@
             <button
               v-for="sf in schemaFilters"
               :key="sf.value"
-              class="
-                border
-                px-1
-                py-0.5
-                rounded-lg
-                border-blue-100
-                whitespace-nowrap
-              "
+              class="border px-1 py-0.5 rounded-lg border-blue-100 whitespace-nowrap"
               :class="{
                 'bg-blue-100': searcher?.filters.schemaFilters[sf.value],
               }"
