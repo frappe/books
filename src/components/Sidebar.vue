@@ -58,10 +58,10 @@
           <div
             v-for="item in group.items"
             :key="item.label"
-            class="text-base h-10 ps-10 cursor-pointer flex items-center hover:bg-gray-100 dark:hover:bg-gray-800"
+            class="text-base h-10 ps-10 cursor-pointer flex items-center hover:bg-gray-100 dark:hover:bg-gray-875"
             :class="
               isItemActive(item)
-                ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-s-4 border-gray-800 dark:border-gray-100'
+                ? 'bg-gray-100 dark:bg-gray-875 text-gray-900 dark:text-gray-100 border-s-4 border-gray-800 dark:border-gray-100'
                 : 'text-gray-700 dark:text-gray-400'
             "
             @click="routeToSidebarItem(item)"
@@ -80,7 +80,10 @@
         class="flex text-sm text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-400 gap-1 items-center"
         @click="$emit('toggle-darkmode')"
       >
-        <feather-icon :name="darkMode?'sun':'moon'" class="h-4 w-4 flex-shrink-0" />
+        <feather-icon
+          :name="darkMode ? 'sun' : 'moon'"
+          class="h-4 w-4 flex-shrink-0"
+        />
         <p>
           {{ t`Dark Mode` }}
         </p>

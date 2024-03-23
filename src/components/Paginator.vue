@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-3 text-gray-800 text-sm select-none items-center"
+    class="grid grid-cols-3 text-gray-800 dark:text-gray-100 text-sm select-none items-center"
     style="height: 50px"
   >
     <!-- Length Display -->
@@ -16,14 +16,16 @@
         name="chevron-left"
         class="w-4 h-4 rtl-rotate-180"
         :class="
-          pageNo > 1 ? 'text-gray-600 cursor-pointer' : 'text-transparent'
+          pageNo > 1
+            ? 'text-gray-600 dark:text-gray-500 cursor-pointer'
+            : 'text-transparent'
         "
         @click="() => setPageNo(Math.max(1, pageNo - 1))"
       />
-      <div class="flex gap-1 bg-gray-100 rounded">
+      <div class="flex gap-1 bg-gray-100 dark:bg-gray-890 rounded">
         <input
           type="number"
-          class="w-7 text-end outline-none bg-transparent focus:text-gray-900"
+          class="w-7 text-end outline-none bg-transparent focus:text-gray-900 dark:focus:text-gray-25"
           :value="pageNo"
           min="1"
           :max="maxPages"
@@ -40,7 +42,7 @@
         class="w-4 h-4 rtl-rotate-180"
         :class="
           pageNo < maxPages
-            ? 'text-gray-600 cursor-pointer'
+            ? 'text-gray-600 dark:text-gray-500 cursor-pointer'
             : 'text-transparent'
         "
         @click="() => setPageNo(Math.min(maxPages, pageNo + 1))"
@@ -50,14 +52,14 @@
     <!-- Count Selector -->
     <div
       v-if="filteredCounts.length"
-      class="border border-gray-100 rounded flex justify-self-end"
+      class="border border-gray-100 dark:border-gray-800 rounded flex justify-self-end"
     >
       <template v-for="c in filteredCounts" :key="c + '-count'">
         <button
           class="w-9"
           :class="
             count === c || (count === itemCount && c === -1)
-              ? 'bg-gray-100'
+              ? 'rounded bg-gray-100 dark:bg-gray-890'
               : ''
           "
           @click="setCount(c)"
