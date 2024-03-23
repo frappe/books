@@ -1,6 +1,6 @@
 <template>
   <div
-    class="window-drag flex items-center border-b text-gray-900 border-gray-100"
+    class="window-drag flex items-center border-b dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-100 dark:border-gray-800"
     style="height: 28px"
   >
     <Fb class="ms-2" />

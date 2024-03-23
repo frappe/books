@@ -118,7 +118,7 @@
       ref="tooltip"
       :offset="15"
       placement="top"
-      class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-s-4"
+      class="text-sm shadow-md px-2 py-1 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 border-s-4"
       :style="{ borderColor: activeColor }"
     >
       <div class="flex flex-col justify-center items-center">

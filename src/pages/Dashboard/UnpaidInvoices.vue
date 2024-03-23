@@ -14,34 +14,38 @@
       <div class="flex justify-between">
         <!-- Paid -->
         <div
-          class="text-sm font-medium"
+          class="text-sm font-medium dark:text-gray-25"
           :class="{
-            'bg-gray-200 text-gray-200 rounded': !count,
+            'bg-gray-200 dark:bg-gray-700 text-gray-200 dark:text-gray-700 rounded':
+              !count,
             'cursor-pointer': paidCount > 0,
           }"
           :title="paidCount > 0 ? t`View Paid Invoices` : ''"
           @click="() => routeToInvoices('paid')"
         >
           {{ fyo.format(paid, 'Currency') }}
-          <span :class="{ 'text-gray-900 font-normal': count }">{{
-            t`Paid`
-          }}</span>
+          <span
+            :class="{ 'text-gray-900 dark:text-gray-200 font-normal': count }"
+            >{{ t`Paid` }}</span
+          >
         </div>
 
         <!-- Unpaid -->
         <div
-          class="text-sm font-medium"
+          class="text-sm font-medium dark:text-gray-25"
           :class="{
-            'bg-gray-200 text-gray-200 rounded': !count,
+            'bg-gray-200 dark:bg-gray-700 text-gray-200 dark:text-gray-700 rounded':
+              !count,
             'cursor-pointer': unpaidCount > 0,
           }"
           :title="unpaidCount > 0 ? t`View Unpaid Invoices` : ''"
           @click="() => routeToInvoices('unpaid')"
         >
           {{ fyo.format(unpaid, 'Currency') }}
-          <span :class="{ 'text-gray-900 font-normal': count }">{{
-            t`Unpaid`
-          }}</span>
+          <span
+            :class="{ 'text-gray-900 dark:text-gray-200 font-normal': count }"
+            >{{ t`Unpaid` }}</span
+          >
         </div>
       </div>
 
@@ -64,7 +68,7 @@
       :offset="15"
       :show="show"
       placement="top"
-      class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-s-4"
+      class="text-sm shadow-md px-2 py-1 bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-s-4"
       :style="{ borderColor: colors }"
     >
       <div class="flex justify-between gap-4">
@@ -110,6 +114,7 @@ export default defineComponent({
   extends: BaseDashboardChart,
   props: {
     schemaName: { type: String as PropType<string>, required: true },
+    darkMode: Boolean,
   },
   data() {
     return {
@@ -144,25 +149,24 @@ export default defineComponent({
       if (this.schemaName === ModelNameEnum.SalesInvoice) {
         return 'blue';
       }
-
       return 'pink';
     },
     colors(): string {
-      return uicolors[this.color]['500'];
+      return uicolors[this.color][this.darkMode ? '600' : '500'];
     },
     paidColor(): string {
       if (!this.hasData) {
-        return 'bg-gray-400';
+        return this.darkMode ? 'bg-gray-700' : 'bg-gray-400';
       }
 
-      return `bg-${this.color}-500`;
+      return `bg-${this.color}-${this.darkMode ? '600' : '500'}`;
     },
     unpaidColor(): string {
       if (!this.hasData) {
-        return 'bg-gray-200';
+        return `bg-gray-${this.darkMode ? '800' : '200'}`;
       }
 
-      return `bg-${this.color}-200`;
+      return `bg-${this.color}-${this.darkMode ? '700 bg-opacity-20' : '200'}`;
     },
   },
   async activated() {

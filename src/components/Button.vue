@@ -39,10 +39,10 @@ export default defineComponent({
     _class() {
       return {
         'opacity-50 cursor-not-allowed pointer-events-none': this.disabled,
-        'text-white': this.type === 'primary',
-        'bg-black': this.type === 'primary' && this.background,
-        'text-gray-700': this.type !== 'primary',
-        'bg-gray-200': this.type !== 'primary' && this.background,
+        'text-white dark:text-black': this.type === 'primary',
+        'bg-black dark:bg-gray-400': this.type === 'primary' && this.background,
+        'text-gray-700 dark:text-gray-200': this.type !== 'primary',
+        'bg-gray-200 dark:bg-gray-900': this.type !== 'primary' && this.background,
         'h-8': this.background,
         'px-3': this.padding && this.icon,
         'px-6': this.padding && !this.icon,

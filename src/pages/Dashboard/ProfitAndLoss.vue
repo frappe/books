@@ -15,6 +15,8 @@
       class="mt-4"
       :aspect-ratio="2.05"
       :colors="chartData.colors"
+      :gridColor="chartData.gridColor"
+      :fontColor="chartData.fontColor"
       :points="chartData.points"
       :x-labels="chartData.xLabels"
       :format="chartData.format"
@@ -23,7 +25,7 @@
       :y-min="chartData.yMin"
     />
     <div v-else class="flex-1 w-full h-full flex-center my-20">
-      <span class="text-base text-gray-600">
+      <span class="text-base text-gray-600 dark:text-gray-500">
         {{ t`No transactions yet` }}
       </span>
     </div>
@@ -42,8 +44,8 @@ import SectionHeader from './SectionHeader.vue';
 import { defineComponent } from 'vue';
 
 // Linting broken in this file cause of `extends: ...`
-/* 
-  eslint-disable @typescript-eslint/no-unsafe-argument, 
+/*
+  eslint-disable @typescript-eslint/no-unsafe-argument,
   @typescript-eslint/no-unsafe-return
 */
 export default defineComponent({
@@ -52,6 +54,9 @@ export default defineComponent({
     PeriodSelector,
     SectionHeader,
     BarChart,
+  },
+  props: {
+    darkMode: Boolean,
   },
   extends: DashboardChartBase,
   data: () => ({
@@ -63,7 +68,10 @@ export default defineComponent({
     chartData() {
       const points = [this.data.map((d) => d.balance)];
       const colors = [
-        { positive: uicolors.blue['500'], negative: uicolors.pink['500'] },
+        {
+          positive: uicolors.blue[this.darkMode ? '600' : '500'],
+          negative: uicolors.pink[this.darkMode ? '600' : '500'],
+        },
       ];
       const format = (value: number) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
@@ -76,6 +84,9 @@ export default defineComponent({
         yMax,
         yMin,
         formatX: formatXLabels,
+        gridColor: this.darkMode ? 'rgba(200, 200, 200, 0.2)' : undefined,
+        fontColor: this.darkMode ? uicolors.gray['400'] : undefined,
+        zeroLineColor: this.darkMode ? uicolors.gray['400'] : undefined,
       };
     },
   },

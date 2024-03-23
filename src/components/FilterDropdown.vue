@@ -7,7 +7,11 @@
     <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
-          <Icon name="filter" size="12" class="stroke-current text-gray-700" />
+          <Icon
+            name="filter"
+            size="12"
+            class="stroke-current text-gray-700 dark:text-gray-400"
+          />
           <span class="ms-1">
             <template v-if="activeFilterCount > 0">
               {{ filterAppliedMessage }}
@@ -30,18 +34,7 @@
                 class="flex items-center justify-between text-base gap-2"
               >
                 <div
-                  class="
-                    cursor-pointer
-                    w-4
-                    h-4
-                    flex
-                    items-center
-                    justify-center
-                    text-gray-600
-                    hover:text-gray-800
-                    rounded-md
-                    group
-                  "
+                  class="cursor-pointer w-4 h-4 flex items-center justify-center text-gray-600 hover:text-gray-800 rounded-md group"
                 >
                   <span class="hidden group-hover:inline-block">
                     <feather-icon
@@ -106,16 +99,7 @@
           </template>
         </div>
         <div
-          class="
-            text-base
-            border-t
-            p-2
-            flex
-            items-center
-            text-gray-600
-            cursor-pointer
-            hover:bg-gray-100
-          "
+          class="text-base border-t p-2 flex items-center text-gray-600 cursor-pointer hover:bg-gray-100"
           @click="addNewFilter"
         >
           <feather-icon name="plus" class="w-4 h-4" />
@@ -149,7 +133,7 @@ const conditions = [
   { label: t`Is Not Empty`, value: 'is not null' },
 ] as const;
 
-type Condition = typeof conditions[number]['value'];
+type Condition = (typeof conditions)[number]['value'];
 
 type Filter = {
   fieldname: string;
