@@ -4,11 +4,11 @@
       {{ df.label }}
     </div>
 
-    <div :class="border ? 'border rounded-md' : ''">
+    <div :class="border ? 'border dark:border-gray-800 rounded-md' : ''">
       <!-- Title Row -->
       <Row
         :ratio="ratio"
-        class="border-b px-2 text-gray-600 w-full flex items-center"
+        class="border-b dark:border-gray-800 px-2 text-gray-600 dark:text-gray-400 w-full flex items-center"
       >
         <div class="flex items-center ps-2">#</div>
         <div
@@ -29,14 +29,14 @@
       <!-- Data Rows -->
       <div
         v-if="value"
-        class="overflow-auto custom-scroll"
+        class="overflow-auto custom-scroll custom-scroll-thumb1"
         :style="{ 'max-height': maxHeight }"
       >
         <TableRow
           v-for="(row, idx) of value"
           ref="table-row"
           :key="row.name"
-          :class="idx < value.length - 1 ? 'border-b' : ''"
+          :class="idx < value.length - 1 ? 'border-b dark:border-gray-800' : ''"
           v-bind="{ row, tableFields, size, ratio, isNumeric }"
           :read-only="isReadOnly"
           :can-edit-row="canEditRow"
@@ -58,7 +58,7 @@
           flex
           items-center
         "
-        :class="value.length > 0 ? 'border-t' : ''"
+        :class="value.length > 0 ? 'border-t dark:border-gray-800' : ''"
         @click="addRow"
       >
         <div class="flex items-center ps-1">

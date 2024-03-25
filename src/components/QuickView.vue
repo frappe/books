@@ -2,22 +2,22 @@
   <div style="min-width: 192px; max-width: 300px">
     <div
       class="p-2 flex justify-between"
-      :class="values.length ? 'border-b' : ''"
+      :class="values.length ? 'border-b dark:border-gray-800' : ''"
     >
       <p
         v-if="schema?.naming !== 'random' && !schema?.isChild"
-        class="font-semibold text-base text-gray-900"
+        class="font-semibold text-base text-gray-900 dark:text-gray-25"
       >
         {{ name }}
       </p>
-      <p class="font-semibold text-base text-gray-600">
+      <p class="font-semibold text-base text-gray-600 dark:text-gray-400">
         {{ schema?.label ?? '' }}
       </p>
     </div>
     <div v-if="values.length" class="flex gap-2 p-2 flex-wrap">
-      <p v-for="v of values" :key="v.label" class="pill bg-gray-200">
-        <span class="text-gray-600">{{ v.label }}</span>
-        <span class="text-gray-800 ml-1.5">{{ v.value }}</span>
+      <p v-for="v of values" :key="v.label" class="pill bg-gray-200 dark:bg-gray-800">
+        <span class="text-gray-600 dark:text-gray-500">{{ v.label }}</span>
+        <span class="text-gray-800 dark:text-gray-300 ml-1.5">{{ v.value }}</span>
       </p>
     </div>
   </div>

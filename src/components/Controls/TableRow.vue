@@ -2,10 +2,10 @@
   <Row
     :ratio="ratio"
     class="w-full px-2 group flex items-center justify-center h-row-mid"
-    :class="readOnly ? '' : 'hover:bg-gray-25'"
+    :class="readOnly ? '' : 'hover:bg-gray-25 dark:hover:bg-gray-900'"
   >
     <!-- Index or Remove button -->
-    <div class="flex items-center ps-2 text-gray-600">
+    <div class="flex items-center ps-2 text-gray-600 dark:text-gray-400">
       <span class="hidden" :class="{ 'group-hover:inline-block': !readOnly }">
         <feather-icon
           name="x"
@@ -35,7 +35,7 @@
       :background="false"
       @click="openRowQuickEdit"
     >
-      <feather-icon name="edit" class="w-4 h-4 text-gray-600" />
+      <feather-icon name="edit" class="w-4 h-4 text-gray-600 dark:text-gray-400" />
     </Button>
 
     <!-- Error Display -->

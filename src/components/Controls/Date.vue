@@ -27,7 +27,7 @@
       <p
         v-if="!isEmpty"
         :class="[baseInputClasses]"
-        class="overflow-auto no-scrollbar whitespace-nowrap"
+        class="overflow-auto no-scrollbar whitespace-nowrap dark:text-gray-100"
       >
         {{ formattedValue }}
       </p>
@@ -39,7 +39,7 @@
         <FeatherIcon
           name="calendar"
           class="w-4 h-4"
-          :class="showMandatory ? 'text-red-600' : 'text-gray-600'"
+          :class="showMandatory ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'"
         />
       </button>
     </div>
@@ -84,10 +84,10 @@ export default defineComponent({
         return '';
       }
 
-      const border = 'border border-gray-200';
-      let background = 'bg-gray-25';
+      const border = 'border border-gray-200 dark:border-gray-800';
+      let background = 'bg-gray-25 dark:bg-gray-875';
       if (this.isReadOnly) {
-        background = 'bg-gray-50';
+        background = 'bg-gray-50 dark:bg-gray-850';
       }
 
       if (this.showInput) {

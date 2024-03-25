@@ -6,10 +6,10 @@
         <!-- Dialog -->
         <div
           class="
-            bg-white
-            border
+            bg-white dark:bg-gray-850
+            border dark:border-gray-800
             rounded-lg
-            text-gray-900
+            text-gray-900 dark:text-gray-25
             p-4
             shadow-2xl
             w-dialog
