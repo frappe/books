@@ -13,17 +13,7 @@
     <div v-else :class="[!isReadOnly ? 'group-hover:opacity-90' : '']">
       <div
         v-if="letterPlaceholder"
-        class="
-          flex
-          h-full
-          items-center
-          justify-center
-          text-gray-400 dark:text-gray-600
-          font-semibold
-          w-full
-          text-4xl
-          select-none
-        "
+        class="flex h-full items-center justify-center text-gray-400 dark:text-gray-600 font-semibold w-full text-4xl select-none"
       >
         {{ letterPlaceholder }}
       </div>
@@ -45,7 +35,10 @@
       :class="[!isReadOnly ? 'group-hover:flex' : '']"
       style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(2px)"
     >
-      <button class="bg-gray-100 dark:bg-gray-800 p-0.5 rounded mb-1" @click="handleClick">
+      <button
+        class="bg-gray-100 dark:bg-gray-800 p-0.5 rounded mb-1"
+        @click="handleClick"
+      >
         <FeatherIcon
           :name="shouldClear ? 'x' : 'upload'"
           class="w-4 h-4 text-gray-600 dark:text-gray-400"

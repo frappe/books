@@ -27,8 +27,8 @@ html {
 input[type='number']::-webkit-inner-spin-button {
   appearance: none;
 }
-input[type="date"]::-webkit-calendar-picker-indicator {
-background-color:  theme('colors.gray.900');
+input[type='date']::-webkit-calendar-picker-indicator {
+  background-color: theme('colors.gray.900');
 }
 .window-drag {
   -webkit-app-region: drag;
@@ -169,6 +169,9 @@ background-color:  theme('colors.gray.900');
   background: theme('colors.gray.200');
 }
 
+.custom-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
 
 .dark .custom-scroll::-webkit-scrollbar-track:vertical {
   border-left-color: theme('colors.gray.800');

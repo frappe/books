@@ -1,9 +1,28 @@
 <template>
   <div
-    class="border-s dark:border-gray-800 h-full overflow-auto w-quick-edit bg-white dark:bg-gray-890 custom-scroll custom-scroll-thumb2"
+    class="
+      border-s
+      dark:border-gray-800
+      h-full
+      overflow-auto
+      w-quick-edit
+      bg-white
+      dark:bg-gray-890
+      custom-scroll custom-scroll-thumb2
+    "
   >
     <!-- Row Edit Tool bar -->
-    <div class="sticky top-0 border-b dark:border-gray-800 bg-white dark:bg-gray-890" style="z-index: 1">
+    <div
+      class="
+        sticky
+        top-0
+        border-b
+        dark:border-gray-800
+        bg-white
+        dark:bg-gray-890
+      "
+      style="z-index: 1"
+    >
       <div class="flex items-center justify-between px-4 h-row-largest">
         <!-- Close Button -->
         <Button :icon="true" @click="$emit('close')">

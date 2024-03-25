@@ -1,8 +1,16 @@
 <template>
   <div>
     <FormHeader :form-title="t`Shortcuts`" />
-    <hr class="dark:border-gray-800"/>
-    <div class="h-96 overflow-y-auto custom-scroll custom-scroll-thumb2 text-gray-900 dark:text-gray-100">
+    <hr class="dark:border-gray-800" />
+    <div
+      class="
+        h-96
+        overflow-y-auto
+        custom-scroll custom-scroll-thumb2
+        text-gray-900
+        dark:text-gray-100
+      "
+    >
       <template v-for="g in groups" :key="g.label">
         <div class="p-4 w-full">
           <!-- Shortcut Group Header -->
@@ -31,7 +39,7 @@
             {{ t`${g.shortcuts.length} shortcuts` }}
           </div>
         </div>
-        <hr class="dark:border-gray-800"/>
+        <hr class="dark:border-gray-800" />
       </template>
       <div class="p-4 text-base text-gray-600 dark:text-gray-400">
         {{ t`More shortcuts will be added soon.` }}
