@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative bg-white border flex-center overflow-hidden group"
+    class="relative bg-white dark:bg-gray-900 border dark:border-gray-800 flex-center overflow-hidden group"
     :class="{
       rounded: size === 'form',
       'w-20 h-20 rounded-full': size !== 'small' && size !== 'form',
@@ -18,7 +18,7 @@
           h-full
           items-center
           justify-center
-          text-gray-400
+          text-gray-400 dark:text-gray-600
           font-semibold
           w-full
           text-4xl
@@ -29,7 +29,7 @@
       </div>
       <svg
         v-else
-        class="w-6 h-6 text-gray-300"
+        class="w-6 h-6 text-gray-300 dark:text-gray-600"
         viewBox="0 0 24 21"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -45,10 +45,10 @@
       :class="[!isReadOnly ? 'group-hover:flex' : '']"
       style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(2px)"
     >
-      <button class="bg-gray-100 p-0.5 rounded mb-1" @click="handleClick">
+      <button class="bg-gray-100 dark:bg-gray-800 p-0.5 rounded mb-1" @click="handleClick">
         <FeatherIcon
           :name="shouldClear ? 'x' : 'upload'"
-          class="w-4 h-4 text-gray-600"
+          class="w-4 h-4 text-gray-600 dark:text-gray-400"
         />
       </button>
     </div>

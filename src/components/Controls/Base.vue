@@ -136,7 +136,7 @@ export default defineComponent({
     },
     containerReadOnlyClasses(): string {
       if (!this.isReadOnly) {
-        return 'focus-within:bg-gray-100 dark:focus-within:bg-gray-890';
+        return 'focus-within:bg-gray-100 dark:focus-within:bg-gray-850';
       }
 
       return '';

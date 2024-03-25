@@ -74,18 +74,18 @@
       }}</Button>
     </template>
     <template #body>
-      <FormHeader :form-title="title" class="sticky top-0 bg-white border-b">
+      <FormHeader :form-title="title" class="sticky top-0 bg-white dark:bg-gray-890 border-b dark:border-gray-800">
         <StatusPill v-if="hasDoc" :doc="doc" />
       </FormHeader>
 
       <!-- Section Container -->
-      <div v-if="hasDoc" class="overflow-auto custom-scroll">
+      <div v-if="hasDoc" class="overflow-auto custom-scroll custom-scroll-thumb1">
         <CommonFormSection
           v-for="([n, fields], idx) in activeGroup.entries()"
           :key="n + idx"
           ref="section"
           class="p-4"
-          :class="idx !== 0 && activeGroup.size > 1 ? 'border-t' : ''"
+          :class="idx !== 0 && activeGroup.size > 1 ? 'border-t dark:border-gray-800' : ''"
           :show-title="activeGroup.size > 1 && n !== t`Default`"
           :title="n"
           :fields="fields"
@@ -106,11 +106,11 @@
           pb-4
           flex
           gap-8
-          border-t
+          border-t dark:border-gray-800
           flex-shrink-0
           sticky
           bottom-0
-          bg-white
+          bg-white dark:bg-gray-875
         "
       >
         <div
@@ -119,8 +119,8 @@
           class="text-sm cursor-pointer"
           :class="
             key === activeTab
-              ? 'text-gray-900 font-semibold border-t-2 border-gray-800'
-              : 'text-gray-700'
+              ? 'text-gray-900 dark:text-gray-25 font-semibold border-t-2 border-gray-800 dark:border-gray-100'
+              : 'text-gray-700 dark:text-gray-200 '
           "
           :style="{
             paddingTop: key === activeTab ? 'calc(1rem - 2px)' : '1rem',

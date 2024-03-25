@@ -27,7 +27,9 @@ html {
 input[type='number']::-webkit-inner-spin-button {
   appearance: none;
 }
-
+input[type="date"]::-webkit-calendar-picker-indicator {
+background-color:  theme('colors.gray.900');
+}
 .window-drag {
   -webkit-app-region: drag;
 }
@@ -167,6 +169,7 @@ input[type='number']::-webkit-inner-spin-button {
   background: theme('colors.gray.200');
 }
 
+
 .dark .custom-scroll::-webkit-scrollbar-track:vertical {
   border-left-color: theme('colors.gray.800');
 }
@@ -175,13 +178,22 @@ input[type='number']::-webkit-inner-spin-button {
   border-top-color: theme('colors.gray.800');
 }
 
-.dark .custom-scroll::-webkit-scrollbar-thumb {
+.dark .custom-scroll-thumb1::-webkit-scrollbar-thumb {
   background: theme('colors.gray.850');
 }
 
-.dark .custom-scroll::-webkit-scrollbar-thumb:hover {
+.dark .custom-scroll-thumb1::-webkit-scrollbar-thumb:hover {
   background: theme('colors.gray.800');
 }
+
+.dark .custom-scroll-thumb2::-webkit-scrollbar-thumb {
+  background: theme('colors.gray.800');
+}
+
+.dark .custom-scroll-thumb2::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.gray.875');
+}
+
 /* 
   Transitions
  */

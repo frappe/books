@@ -2,7 +2,7 @@
   <div>
     <!-- Export Wizard Header -->
     <FormHeader :form-title="label" :form-sub-title="t`Export Wizard`" />
-    <hr />
+    <hr class="dark:border-gray-800"/>
 
     <!-- Export Config -->
     <div class="grid grid-cols-3 p-4 gap-4">
@@ -31,23 +31,23 @@
         @change="(value: number) => (limit = value)"
       />
     </div>
-    <hr />
+    <hr class="dark:border-gray-800"/>
 
     <!-- Fields Selection -->
-    <div class="max-h-80 overflow-auto custom-scroll">
+    <div class="max-h-80 overflow-auto custom-scroll custom-scroll-thumb2">
       <!-- Main Fields -->
       <div class="p-4">
-        <h2 class="text-sm font-semibold text-gray-800">
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-300">
           {{ fyo.schemaMap[schemaName]?.label ?? schemaName }}
         </h2>
-        <div class="grid grid-cols-3 border rounded mt-1">
+        <div class="grid grid-cols-3 border dark:border-gray-800 rounded mt-1">
           <Check
             v-for="ef of fields"
             :key="ef.fieldname"
             :label-class="
               ef.fieldtype === 'Table'
-                ? 'text-sm text-gray-600 font-semibold'
-                : 'text-sm text-gray-600'
+                ? 'text-sm text-gray-600 dark:text-gray-300 font-semibold'
+                : 'text-sm text-gray-600 dark:text-gray-400'
             "
             :df="getField(ef)"
             :show-label="true"
@@ -59,13 +59,14 @@
 
       <!-- Table Fields -->
       <div v-for="efs of filteredTableFields" :key="efs.fieldname" class="p-4">
-        <h2 class="text-sm font-semibold text-gray-800">
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-300">
           {{ fyo.schemaMap[efs.target]?.label ?? schemaName }}
         </h2>
-        <div class="grid grid-cols-3 border rounded mt-1">
+        <div class="grid grid-cols-3 border dark:border-gray-800 rounded mt-1">
           <Check
             v-for="ef of efs.fields"
             :key="ef.fieldname"
+            label-class='text-gray-600 dark:text-gray-300'
             :df="getField(ef)"
             :show-label="true"
             :value="ef.export"
@@ -76,9 +77,9 @@
     </div>
 
     <!-- Export Button -->
-    <hr />
+    <hr class="dark:border-gray-800"/>
     <div class="p-4 flex justify-between items-center">
-      <p class="text-sm text-gray-600">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
         {{ t`${numSelected} fields selected` }}
       </p>
       <Button type="primary" @click="exportData">{{ t`Export` }}</Button>

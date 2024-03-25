@@ -18,7 +18,7 @@
       <div
         class="bg-white dark:bg-gray-850 dark:text-white rounded w-full min-w-40 overflow-hidden"
       >
-        <div class="p-1 max-h-64 overflow-auto custom-scroll text-sm">
+        <div class="p-1 max-h-64 overflow-auto custom-scroll custom-scroll-thumb2 text-sm">
           <div
             v-if="isLoading"
             class="p-2 text-gray-600 dark:text-gray-400 italic"

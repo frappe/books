@@ -31,7 +31,7 @@
     <!-- Data Rows -->
     <div
       v-if="dataSlice.length !== 0"
-      class="overflow-y-auto dark:dark-scroll custom-scroll"
+      class="overflow-y-auto dark:dark-scroll custom-scroll custom-scroll-thumb1"
     >
       <div v-for="(row, i) in dataSlice" :key="(row.name as string)">
         <!-- Row Content -->

@@ -29,26 +29,26 @@
           autocomplete="off"
           spellcheck="false"
           :placeholder="t`Type to search...`"
-          class="bg-gray-100 text-2xl focus:outline-none w-full placeholder-gray-500 text-gray-900 rounded-md p-3"
+          class="bg-gray-100 dark:bg-gray-800 text-2xl focus:outline-none w-full placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-md p-3"
           @keydown.up="up"
           @keydown.down="down"
           @keydown.enter="() => select()"
           @keydown.esc="close"
         />
       </div>
-      <hr v-if="suggestions.length" />
+      <hr v-if="suggestions.length" class="dark:border-gray-800"/>
 
       <!-- Search List -->
       <div
         :style="`max-height: ${49 * 6 - 1}px`"
-        class="overflow-auto custom-scroll"
+        class="overflow-auto custom-scroll custom-scroll-thumb2"
       >
         <div
           v-for="(si, i) in suggestions"
           :key="`${i}-${si.label}`"
           :data-index="`search-suggestion-${i}`"
-          class="hover:bg-gray-50 cursor-pointer"
-          :class="idx === i ? 'border-gray-700 bg-gray-50 border-s-4' : ''"
+          class="hover:bg-gray-50 dark:hover:bg-gray-875 cursor-pointer"
+          :class="idx === i ? 'border-gray-700 dark:border-gray-200 bg-gray-50 dark:bg-gray-875 border-s-4' : ''"
           @click="select(i)"
         >
           <!-- Search List Item -->
@@ -58,12 +58,12 @@
           >
             <div class="flex items-center">
               <p
-                :class="idx === i ? 'text-gray-900' : 'text-gray-700'"
+                :class="idx === i ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-400'"
                 :style="idx === i ? 'margin-left: -4px' : ''"
               >
                 {{ si.label }}
               </p>
-              <p v-if="si.group === 'Docs'" class="text-gray-600 text-sm ms-3">
+              <p v-if="si.group === 'Docs'" class="text-gray-600 dark:text-gray-400 text-sm ms-3">
                 {{ si.more.filter(Boolean).join(', ') }}
               </p>
             </div>
@@ -77,12 +77,12 @@
             </p>
           </div>
 
-          <hr v-if="i !== suggestions.length - 1" />
+          <hr v-if="i !== suggestions.length - 1" class="dark:border-gray-800"/>
         </div>
       </div>
 
       <!-- Footer -->
-      <hr />
+      <hr class="dark:border-gray-800"/>
       <div class="m-1 flex justify-between flex-col gap-2 text-sm select-none">
         <!-- Group Filters -->
         <div class="flex justify-between">
@@ -90,7 +90,7 @@
             <button
               v-for="g in searchGroups"
               :key="g"
-              class="border px-1 py-0.5 rounded-lg"
+              class="border dark:border-gray-800 px-1 py-0.5 rounded-lg"
               :class="getGroupFilterButtonClass(g)"
               @click="searcher!.set(g, !searcher!.filters.groupFilters[g])"
             >
@@ -98,7 +98,7 @@
             </button>
           </div>
           <button
-            class="hover:text-gray-900 py-0.5 rounded text-gray-700"
+            class="hover:text-gray-900 dark:hover:text-gray-25 py-0.5 rounded text-gray-700 dark:text-gray-300"
             @click="showMore = !showMore"
           >
             {{ showMore ? t`Less Filters` : t`More Filters` }}
@@ -108,11 +108,11 @@
         <!-- Additional Filters -->
         <div v-if="showMore" class="-mt-1">
           <!-- Group Skip Filters -->
-          <div class="flex gap-1 text-gray-800">
+          <div class="flex gap-1 text-gray-800 dark:text-gray-200">
             <button
               v-for="s in ['skipTables', 'skipTransactions'] as const"
               :key="s"
-              class="border px-1 py-0.5 rounded-lg"
+              class="border dark:border-gray-800 px-1 py-0.5 rounded-lg"
               :class="{ 'bg-gray-200': searcher?.filters[s] }"
               @click="searcher?.set(s, !searcher?.filters[s])"
             >
@@ -123,13 +123,13 @@
           </div>
 
           <!-- Schema Name Filters -->
-          <div class="flex mt-1 gap-1 text-blue-500 flex-wrap">
+          <div class="flex mt-1 gap-1 text-blue-500 dark:text-blue-100 flex-wrap">
             <button
               v-for="sf in schemaFilters"
               :key="sf.value"
-              class="border px-1 py-0.5 rounded-lg border-blue-100 whitespace-nowrap"
+              class="border px-1 py-0.5 rounded-lg border-blue-100 dark:border-blue-800 whitespace-nowrap"
               :class="{
-                'bg-blue-100': searcher?.filters.schemaFilters[sf.value],
+                'bg-blue-100 dark:bg-blue-800': searcher?.filters.schemaFilters[sf.value],
               }"
               @click="
                 searcher?.set(
@@ -150,7 +150,7 @@
             <p>↩ {{ t`Select` }}</p>
             <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
             <button
-              class="flex items-center hover:text-gray-800"
+              class="flex items-center hover:text-gray-800 dark:hover:text-gray-300"
               @click="openDocs"
             >
               <feather-icon name="help-circle" class="w-4 h-4 me-1" />
@@ -164,7 +164,7 @@
 
           <div
             v-if="(searcher?.numSearches ?? 0) > 50"
-            class="border border-gray-100 rounded flex justify-self-end ms-2"
+            class="border border-gray-100 dark:border-gray-875 rounded flex justify-self-end ms-2"
           >
             <template
               v-for="c in allowedLimits.filter(
@@ -174,7 +174,7 @@
             >
               <button
                 class="w-9"
-                :class="limit === c ? 'bg-gray-100' : ''"
+                :class="limit === c ? 'bg-gray-100 dark:bg-gray-875 rounded' : ''"
                 @click="limit = Number(c)"
               >
                 {{ c === -1 ? t`All` : c }}
@@ -381,10 +381,10 @@ export default defineComponent({
       const isOn = this.searcher.filters.groupFilters[g];
       const color = this.groupColorMap[g];
       if (isOn) {
-        return `${getBgTextColorClass(color)} border-${color}-100`;
+        return `${getBgTextColorClass(color)} border-${color}-100 dark:border-${color}-800`;
       }
 
-      return `text-${color}-600 border-${color}-100`;
+      return `text-${color}-600 dark:text-${color}-400 border-${color}-100 dark:border-${color}-800`;
     },
   },
 });
