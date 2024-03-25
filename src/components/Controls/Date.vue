@@ -39,7 +39,9 @@
         <FeatherIcon
           name="calendar"
           class="w-4 h-4"
-          :class="showMandatory ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'"
+          :class="
+            showMandatory ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'
+          "
         />
       </button>
     </div>

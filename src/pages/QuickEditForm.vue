@@ -1,5 +1,15 @@
 <template>
-  <div class="border-s dark:border-gray-800 h-full overflow-auto w-quick-edit bg-white dark:bg-gray-850">
+  <div
+    class="
+      border-s
+      dark:border-gray-800
+      h-full
+      overflow-auto
+      w-quick-edit
+      bg-white
+      dark:bg-gray-850
+    "
+  >
     <!-- Quick edit Tool bar -->
     <div
       class="
@@ -10,7 +20,8 @@
         h-row-largest
         sticky
         top-0
-        bg-white dark:bg-gray-850
+        bg-white
+        dark:bg-gray-850
       "
       style="z-index: 1"
     >
@@ -20,12 +31,7 @@
       </Button>
 
       <!-- Save & Submit Buttons -->
-      <Button
-        v-if="doc?.canSave"
-        :icon="true"
-        type="primary"
-        @click="sync"
-      >
+      <Button v-if="doc?.canSave" :icon="true" type="primary" @click="sync">
         {{ t`Save` }}
       </Button>
       <Button

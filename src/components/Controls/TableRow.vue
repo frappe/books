@@ -35,7 +35,10 @@
       :background="false"
       @click="openRowQuickEdit"
     >
-      <feather-icon name="edit" class="w-4 h-4 text-gray-600 dark:text-gray-400" />
+      <feather-icon
+        name="edit"
+        class="w-4 h-4 text-gray-600 dark:text-gray-400"
+      />
     </Button>
 
     <!-- Error Display -->

@@ -15,9 +15,15 @@
       </p>
     </div>
     <div v-if="values.length" class="flex gap-2 p-2 flex-wrap">
-      <p v-for="v of values" :key="v.label" class="pill bg-gray-200 dark:bg-gray-800">
+      <p
+        v-for="v of values"
+        :key="v.label"
+        class="pill bg-gray-200 dark:bg-gray-800"
+      >
         <span class="text-gray-600 dark:text-gray-500">{{ v.label }}</span>
-        <span class="text-gray-800 dark:text-gray-300 ml-1.5">{{ v.value }}</span>
+        <span class="text-gray-800 dark:text-gray-300 ml-1.5">{{
+          v.value
+        }}</span>
       </p>
     </div>
   </div>

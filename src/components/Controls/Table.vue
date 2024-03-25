@@ -8,7 +8,16 @@
       <!-- Title Row -->
       <Row
         :ratio="ratio"
-        class="border-b dark:border-gray-800 px-2 text-gray-600 dark:text-gray-400 w-full flex items-center"
+        class="
+          border-b
+          dark:border-gray-800
+          px-2
+          text-gray-600
+          dark:text-gray-400
+          w-full
+          flex
+          items-center
+        "
       >
         <div class="flex items-center ps-2">#</div>
         <div

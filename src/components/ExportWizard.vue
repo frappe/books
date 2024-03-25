@@ -2,7 +2,7 @@
   <div>
     <!-- Export Wizard Header -->
     <FormHeader :form-title="label" :form-sub-title="t`Export Wizard`" />
-    <hr class="dark:border-gray-800"/>
+    <hr class="dark:border-gray-800" />
 
     <!-- Export Config -->
     <div class="grid grid-cols-3 p-4 gap-4">
@@ -31,7 +31,7 @@
         @change="(value: number) => (limit = value)"
       />
     </div>
-    <hr class="dark:border-gray-800"/>
+    <hr class="dark:border-gray-800" />
 
     <!-- Fields Selection -->
     <div class="max-h-80 overflow-auto custom-scroll custom-scroll-thumb2">
@@ -66,7 +66,7 @@
           <Check
             v-for="ef of efs.fields"
             :key="ef.fieldname"
-            label-class='text-gray-600 dark:text-gray-300'
+            label-class="text-gray-600 dark:text-gray-300"
             :df="getField(ef)"
             :show-label="true"
             :value="ef.export"
@@ -77,7 +77,7 @@
     </div>
 
     <!-- Export Button -->
-    <hr class="dark:border-gray-800"/>
+    <hr class="dark:border-gray-800" />
     <div class="p-4 flex justify-between items-center">
       <p class="text-sm text-gray-600 dark:text-gray-400">
         {{ t`${numSelected} fields selected` }}
