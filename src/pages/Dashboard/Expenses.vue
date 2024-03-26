@@ -78,7 +78,7 @@ export default defineComponent({
     SectionHeader,
   },
   props: {
-    darkMode: Boolean,
+    darkMode: { type: Boolean, default: false },
   },
   extends: DashboardChartBase,
   data: () => ({

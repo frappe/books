@@ -105,7 +105,7 @@ export default {
     offsetY: { default: 0, type: Number },
     textOffsetX: { default: 0, type: Number },
     textOffsetY: { default: 0, type: Number },
-    darkMode: Boolean,
+    darkMode: { type: Boolean, default: false },
   },
   emits: ['change'],
   computed: {

@@ -8,7 +8,14 @@
       :class="[inputClasses, containerClasses]"
     >
       <select
-        class="appearance-none bg-transparent focus:outline-none w-11/12 cursor-pointer"
+        class="
+          appearance-none
+          bg-transparent
+          focus:outline-none
+          w-11/12
+          cursor-pointer
+          custom-scroll custom-scroll-thumb2
+        "
         :class="{
           'pointer-events-none': isReadOnly,
           'text-gray-500': !value,
@@ -22,7 +29,7 @@
           value=""
           disabled
           selected
-          class="text-black dark:text-gray-25 dark:bg-gray-800"
+          class="text-black dark:text-gray-200 dark:bg-gray-850"
         >
           {{ inputPlaceholder }}
         </option>
@@ -30,7 +37,7 @@
           v-for="option in options"
           :key="option.value"
           :value="option.value"
-          class="text-black dark:text-gray-25 dark:bg-gray-800"
+          class="text-black dark:text-gray-200 dark:bg-gray-850"
         >
           {{ option.label }}
         </option>

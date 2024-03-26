@@ -56,7 +56,7 @@ export default defineComponent({
     BarChart,
   },
   props: {
-    darkMode: Boolean,
+    darkMode: { type: Boolean, default: false },
   },
   extends: DashboardChartBase,
   data: () => ({

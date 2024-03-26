@@ -5,7 +5,7 @@ export default {
   name: 'IconBase',
   props: {
     active: Boolean,
-    darkMode: Boolean,
+    darkMode: { type: Boolean, default: false },
   },
   computed: {
     lightColor(): string {
@@ -25,6 +25,9 @@ export default {
         ? uicolors.gray['500']
         : uicolors.gray['600'];
       return this.active ? activeGray : passiveGray;
+    },
+    bgColor(): string {
+      return this.darkMode ? uicolors.gray['900'] : uicolors.gray['100'];
     },
   },
 };
