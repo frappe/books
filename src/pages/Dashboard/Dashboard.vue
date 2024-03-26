@@ -2,7 +2,17 @@
   <div class="h-screen" style="width: var(--w-desk)">
     <PageHeader :title="t`Dashboard`">
       <div
-        class="border dark:border-gray-900 rounded bg-gray-50 dark:bg-gray-890 focus-within:bg-gray-100 dark:focus-within:bg-gray-900 flex items-center"
+        class="
+          border
+          dark:border-gray-900
+          rounded
+          bg-gray-50
+          dark:bg-gray-890
+          focus-within:bg-gray-100
+          dark:focus-within:bg-gray-900
+          flex
+          items-center
+        "
       >
         <PeriodSelector
           class="px-3"
@@ -81,7 +91,7 @@ export default {
     UnpaidInvoices,
   },
   props: {
-    darkMode: Boolean,
+    darkMode: { type: Boolean, default: false },
   },
   data() {
     return { period: 'This Year' };

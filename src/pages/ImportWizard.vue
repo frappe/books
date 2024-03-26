@@ -56,6 +56,7 @@
           w-full
           gap-2
           border-b
+          dark:border-gray-800
           p-4
         "
       >
@@ -69,7 +70,6 @@
               label: fyo.schemaMap[value]?.label ?? value,
             })),
           }"
-          input-class="bg-transparent text-gray-900 text-base"
           class="w-40"
           :border="true"
           :value="importType"
@@ -83,7 +83,11 @@
         <p
           v-else
           class="text-base ms-2"
-          :class="fileName ? 'text-gray-900 font-semibold' : 'text-gray-700'"
+          :class="
+            fileName
+              ? 'text-gray-900 dark:text-gray-25 font-semibold'
+              : 'text-gray-700 dark:text-gray-200'
+          "
         >
           <span v-if="fileName" class="font-normal">{{ t`Selected` }} </span>
           {{ helperMessage }}{{ fileName ? ',' : '' }}
@@ -106,12 +110,23 @@
       <!-- Assignment Row and Value Grid container -->
       <div
         v-if="hasImporter"
-        class="overflow-auto custom-scroll"
+        class="overflow-auto custom-scroll custom-scroll-thumb1"
         style="max-height: calc(100vh - (2 * var(--h-row-largest)) - 2px)"
       >
         <!-- Column Assignment Row -->
         <div
-          class="grid sticky top-0 py-4 pe-4 bg-white border-b gap-4"
+          class="
+            grid
+            sticky
+            top-0
+            py-4
+            pe-4
+            bg-white
+            dark:bg-gray-875
+            border-b border-e
+            dark:border-gray-800
+            gap-4
+          "
           style="z-index: 1; width: fit-content"
           :style="gridTemplateColumn"
         >
@@ -131,7 +146,17 @@
         <!-- Values Grid -->
         <div
           v-if="importer.valueMatrix.length"
-          class="grid py-4 pe-4 bg-white gap-4"
+          class="
+            grid
+            py-4
+            pe-4
+            bg-white
+            dark:bg-gray-875
+            gap-4
+            border-e
+            last:border-b
+            dark:border-gray-800
+          "
           style="width: fit-content"
           :style="gridTemplateColumn"
         >
@@ -180,7 +205,11 @@
               <!-- FormControl Field if Column is Assigned -->
               <FormControl
                 v-else
-                :class="val.error ? 'border border-red-300 rounded-md' : ''"
+                :class="
+                  val.error
+                    ? 'border border-red-300 dark:border-red-600 rounded-md'
+                    : ''
+                "
                 :title="getFieldTitle(val)"
                 :df="
                     importer.templateFieldsMap.get(
@@ -203,7 +232,15 @@
 
         <div
           v-else
-          class="ps-4 text-gray-700 sticky left-0 flex items-center"
+          class="
+            ps-4
+            text-gray-700
+            dark:text-gray-300
+            sticky
+            left-0
+            flex
+            items-center
+          "
           style="height: 62.5px"
         >
           {{ t`No rows added. Select a file or add rows.` }}
@@ -227,18 +264,20 @@
       <div class="w-form">
         <!-- Pick Column Header -->
         <FormHeader :form-title="t`Pick Import Columns`" />
-        <hr />
+        <hr class="dark:border-gray-800" />
 
         <!-- Pick Column Checkboxes -->
         <div
           v-for="[key, value] of columnPickerFieldsMap.entries()"
           :key="key"
-          class="p-4 max-h-80 overflow-auto custom-scroll"
+          class="p-4 max-h-80 overflow-auto custom-scroll custom-scroll-thumb1"
         >
-          <h2 class="text-sm font-semibold text-gray-800">
+          <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
             {{ key }}
           </h2>
-          <div class="grid grid-cols-3 border rounded mt-1">
+          <div
+            class="grid grid-cols-3 border dark:border-gray-800 rounded mt-1"
+          >
             <div
               v-for="tf of value"
               :key="tf.fieldKey"
@@ -261,9 +300,9 @@
         </div>
 
         <!-- Pick Column Footer -->
-        <hr />
+        <hr class="dark:border-gray-800" />
         <div class="p-4 flex justify-between items-center">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             {{ t`${numColumnsPicked} fields selected` }}
           </p>
           <Button type="primary" @click="showColumnPicker = false">{{
@@ -278,13 +317,15 @@
       <div class="w-form">
         <!-- Import Completed Header -->
         <FormHeader :form-title="t`Import Complete`" />
-        <hr />
+        <hr class="dark:border-gray-800" />
         <!-- Success -->
         <div v-if="success.length > 0">
           <!-- Success Section Header -->
           <div class="flex justify-between px-4 pt-4 pb-1">
-            <p class="text-base font-semibold">{{ t`Success` }}</p>
-            <p class="text-sm text-gray-600">
+            <p class="text-base font-semibold dark:text-gray-200">
+              {{ t`Success` }}
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
               {{
                 success.length === 1
                   ? t`${success.length} entry imported`
@@ -293,7 +334,7 @@
             </p>
           </div>
           <!-- Success Body -->
-          <div class="max-h-40 overflow-auto text-gray-900">
+          <div class="max-h-40 overflow-auto text-gray-900 dark:text-gray-50">
             <div
               v-for="(name, i) of success"
               :key="name"
@@ -306,7 +347,7 @@
               </p>
             </div>
           </div>
-          <hr />
+          <hr class="dark:border-gray-800" />
         </div>
 
         <!-- Failed -->
@@ -314,7 +355,7 @@
           <!-- Failed Section Header -->
           <div class="flex justify-between px-4 pt-4 pb-1">
             <p class="text-base font-semibold">{{ t`Failed` }}</p>
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
               {{
                 failed.length === 1
                   ? t`${failed.length} entry failed`
@@ -323,7 +364,7 @@
             </p>
           </div>
           <!-- Failed Body -->
-          <div class="max-h-40 overflow-auto text-gray-900">
+          <div class="max-h-40 overflow-auto text-gray-900 dark:text-gray-50">
             <div
               v-for="(f, i) of failed"
               :key="f.name"
@@ -345,7 +386,7 @@
         <!-- Fallback Div -->
         <div
           v-if="failed.length === 0 && success.length === 0"
-          class="p-4 text-base"
+          class="p-4 text-base dark:text-gray-200"
         >
           {{ t`No entries were imported.` }}
         </div>
@@ -964,6 +1005,6 @@ export default defineComponent({
 </script>
 <style scoped>
 .index-cell {
-  @apply flex pe-4 justify-end items-center border-e  bg-white sticky left-0 -my-4 text-gray-600;
+  @apply flex pe-4 justify-end items-center border-e last:border-b dark:border-gray-800 bg-white dark:bg-gray-875 sticky left-0 -my-4 text-gray-600 dark:text-gray-400;
 }
 </style>
