@@ -38,7 +38,13 @@
     <!-- Linked Entry List -->
     <div
       v-if="sequence.length"
-      class="w-full overflow-y-auto custom-scroll border-t dark:border-gray-800"
+      class="
+        w-full
+        overflow-y-auto
+        custom-scroll custom-scroll-thumb2
+        border-t
+        dark:border-gray-800
+      "
     >
       <div
         v-for="sn of sequence"

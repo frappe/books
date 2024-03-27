@@ -1,6 +1,6 @@
 <template>
   <div v-if="tableFields?.length">
-    <div v-if="showLabel" class="text-gray-600 text-sm mb-1">
+    <div v-if="showLabel" class="text-gray-600 dark:text-gray-400 text-sm mb-1">
       {{ df.label }}
     </div>
 

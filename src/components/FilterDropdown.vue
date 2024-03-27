@@ -34,7 +34,7 @@
                 class="flex items-center justify-between text-base gap-2"
               >
                 <div
-                  class="cursor-pointer w-4 h-4 flex items-center justify-center text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 rounded-md group"
+                  class="cursor-pointer w-4 h-4 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 rounded-md group"
                 >
                   <span class="hidden group-hover:inline-block">
                     <feather-icon

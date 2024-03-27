@@ -7,18 +7,32 @@
     <template #body>
       <FormHeader
         :form-title="t`Set up your organization`"
-        class="sticky top-0 bg-white dark:bg-gray-890 border-b dark:border-gray-800"
+        class="
+          sticky
+          top-0
+          bg-white
+          dark:bg-gray-890
+          border-b
+          dark:border-gray-800
+        "
       >
       </FormHeader>
 
       <!-- Section Container -->
-      <div v-if="hasDoc" class="overflow-auto custom-scroll">
+      <div
+        v-if="hasDoc"
+        class="overflow-auto custom-scroll custom-scroll-thumb1"
+      >
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
           :key="name + idx"
           ref="section"
           class="p-4"
-          :class="idx !== 0 && activeGroup.size > 1 ? 'border-t dark:border-gray-800' : ''"
+          :class="
+            idx !== 0 && activeGroup.size > 1
+              ? 'border-t dark:border-gray-800'
+              : ''
+          "
           :show-title="activeGroup.size > 1 && name !== t`Default`"
           :title="name"
           :fields="fields"
@@ -37,19 +51,24 @@
           flex
           items-center
           justify-between
-          border-t dark:border-gray-800
+          border-t
+          dark:border-gray-800
           flex-shrink-0
           sticky
           bottom-0
-          bg-white dark:bg-gray-890
+          bg-white
+          dark:bg-gray-890
         "
       >
         <p v-if="loading" class="text-base text-gray-600 dark:text-gray-400">
           {{ t`Loading instance...` }}
         </p>
-        <Button v-if="!loading" class="w-24 border dark:border-gray-800" @click="cancel">{{
-          t`Cancel`
-        }}</Button>
+        <Button
+          v-if="!loading"
+          class="w-24 border dark:border-gray-800"
+          @click="cancel"
+          >{{ t`Cancel` }}</Button
+        >
         <Button
           v-if="fyo.store.isDevelopment && !loading"
           class="w-24 ml-auto mr-4 border dark:border-gray-800"

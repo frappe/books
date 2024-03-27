@@ -1,10 +1,14 @@
 <template>
   <Modal class="w-3/6 p-4">
-    <h1 class="text-xl font-semibold text-center pb-4">Open POS Shift</h1>
+    <h1 class="text-xl font-semibold text-center dark:text-gray-100 pb-4">
+      Open POS Shift
+    </h1>
 
     <div class="grid grid-cols-12 gap-6">
       <div class="col-span-6">
-        <h2 class="text-lg font-medium">Cash In Denominations</h2>
+        <h2 class="text-lg font-medium dark:text-gray-100">
+          Cash In Denominations
+        </h2>
 
         <Table
           v-if="isValuesSeeded"
@@ -18,7 +22,7 @@
       </div>
 
       <div class="col-span-6">
-        <h2 class="text-lg font-medium">Opening Amount</h2>
+        <h2 class="text-lg font-medium dark:text-gray-100">Opening Amount</h2>
 
         <Table
           v-if="isValuesSeeded"
@@ -33,7 +37,10 @@
         />
 
         <div class="mt-4 grid grid-cols-2 gap-4 flex items-end">
-          <Button class="w-full py-5 bg-red-500" @click="$router.back()">
+          <Button
+            class="w-full py-5 bg-red-500 dark:bg-red-700"
+            @click="$router.back()"
+          >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
                 {{ t`Back` }}
@@ -41,7 +48,10 @@
             </slot>
           </Button>
 
-          <Button class="w-full py-5 bg-green-500" @click="handleSubmit">
+          <Button
+            class="w-full py-5 bg-green-500 dark:bg-green-700"
+            @click="handleSubmit"
+          >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
                 {{ t`Submit` }}

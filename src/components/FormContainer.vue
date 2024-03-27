@@ -1,5 +1,13 @@
 <template>
-  <div class="flex bg-gray-25 dark:bg-gray-875 overflow-x-auto">
+  <div
+    class="
+      flex
+      bg-gray-25
+      dark:bg-gray-875
+      overflow-x-auto
+      custom-scroll custom-scroll-thumb1
+    "
+  >
     <div class="flex flex-1 flex-col">
       <!-- Page Header (Title, Buttons, etc) -->
       <PageHeader
@@ -16,7 +24,14 @@
 
       <!-- Common Form -->
       <div
-        class="flex flex-col self-center h-full overflow-auto bg-white dark:bg-gray-890"
+        class="
+          flex flex-col
+          self-center
+          h-full
+          overflow-auto
+          bg-white
+          dark:bg-gray-890
+        "
         :class="
           useFullWidth
             ? 'w-full border-t dark:border-gray-800'
