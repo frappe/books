@@ -72,7 +72,7 @@
             <template #target>
               <feather-icon
                 name="chevron-right"
-                class="w-4 h-4 text-gray-600"
+                class="w-4 h-4 text-gray-600 dark:text-gray-400"
               />
             </template>
             <template #content>

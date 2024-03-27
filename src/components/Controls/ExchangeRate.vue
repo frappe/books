@@ -1,18 +1,37 @@
 <template>
-  <div class="flex items-center bg-gray-50 rounded-md text-sm p-1 border">
+  <div
+    class="
+      flex
+      items-center
+      bg-gray-50
+      dark:bg-gray-890
+      rounded-md
+      text-sm
+      p-1
+      border
+    "
+  >
     <div
       class="rate-container"
-      :class="disabled ? 'bg-gray-100' : 'bg-gray-25'"
+      :class="
+        disabled
+          ? 'bg-gray-100 dark:bg-gray-850'
+          : 'bg-gray-25 dark:bg-gray-890'
+      "
     >
       <input v-model="fromValue" type="number" :disabled="disabled" min="0" />
       <p>{{ left }}</p>
     </div>
 
-    <p class="mx-1 text-gray-600">=</p>
+    <p class="mx-1 text-gray-600 dark:text-gray-400">=</p>
 
     <div
       class="rate-container"
-      :class="disabled ? 'bg-gray-100' : 'bg-gray-25'"
+      :class="
+        disabled
+          ? 'bg-gray-100 dark:bg-gray-850'
+          : 'bg-gray-25 dark:bg-gray-890'
+      "
     >
       <input
         type="number"
@@ -26,10 +45,22 @@
 
     <button
       v-if="!disabled"
-      class="bg-green-100 px-2 ms-1 -me-0.5 h-full border-s"
+      class="
+        bg-green-100
+        dark:bg-green-600
+        px-2
+        ms-1
+        -me-0.5
+        h-full
+        border-s
+        dark:border-gray-800
+      "
       @click="swap"
     >
-      <feather-icon name="refresh-cw" class="w-3 h-3 text-gray-600" />
+      <feather-icon
+        name="refresh-cw"
+        class="w-3 h-3 text-gray-600 dark:text-gray-400"
+      />
     </button>
   </div>
 </template>
