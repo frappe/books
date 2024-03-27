@@ -21,8 +21,7 @@ import { setDarkMode } from './utils/theme';
   }
   fyo.store.language = language || 'English';
 
-  const darkMode = fyo.config.get('darkMode') as boolean;
-  setDarkMode(darkMode);
+  setDarkMode();
 
   registerIpcRendererListeners();
   const { isDevelopment, platform, version } = await ipc.getEnv();
