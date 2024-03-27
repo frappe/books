@@ -36,7 +36,7 @@
           @row-change="handleChange"
         />
 
-        <div class="mt-4 grid grid-cols-2 gap-4 flex items-end">
+        <div class="mt-4 grid grid-cols-2 gap-4 items-end">
           <Button
             class="w-full py-5 bg-red-500 dark:bg-red-700"
             @click="$router.back()"
