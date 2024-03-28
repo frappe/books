@@ -4,6 +4,7 @@
     :is="iconComponent"
     :class="iconClasses"
     :active="active"
+    :darkMode="darkMode"
   />
 </template>
 
@@ -26,6 +27,7 @@ export default {
   props: {
     name: { type: String, required: true },
     active: { type: Boolean, default: false },
+    darkMode: { type: Boolean, default: false },
     size: {
       type: String,
       required: true,

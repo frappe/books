@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col flex-1 bg-gray-25">
-    <PageHeader :border="true" :title="t`Print View`" class="bg-white">
+  <div class="flex flex-col flex-1 bg-gray-25 dark:bg-gray-875">
+    <PageHeader :border="true" :title="t`Print View`">
       <AutoComplete
         v-if="templateList.length"
         :df="{
@@ -22,9 +22,12 @@
     </PageHeader>
 
     <!-- Template Display Area -->
-    <div class="overflow-auto custom-scroll p-4">
+    <div class="overflow-auto custom-scroll custom-scroll-thumb1 p-4">
       <!-- Display Hints -->
-      <div v-if="helperMessage" class="text-sm text-gray-700">
+      <div
+        v-if="helperMessage"
+        class="text-sm text-gray-700 dark:text-gray-300"
+      >
         {{ helperMessage }}
       </div>
 

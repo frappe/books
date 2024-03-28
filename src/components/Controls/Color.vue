@@ -19,7 +19,7 @@
             <span v-if="value">
               {{ selectedColorLabel }}
             </span>
-            <span v-else class="text-gray-400">
+            <span v-else class="text-gray-400 dark:text-gray-600">
               {{ inputPlaceholder }}
             </span>
           </div>

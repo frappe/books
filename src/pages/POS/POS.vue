@@ -2,7 +2,10 @@
   <div class="">
     <PageHeader :title="t`Point of Sale`">
       <slot>
-        <Button class="bg-red-500" @click="toggleModal('ShiftClose')">
+        <Button
+          class="bg-red-500 dark:bg-red-700"
+          @click="toggleModal('ShiftClose')"
+        >
           <span class="font-medium text-white">{{ t`Close POS Shift ` }}</span>
         </Button>
       </slot>
@@ -30,10 +33,19 @@
     />
 
     <div
-      class="bg-gray-25 gap-2 grid grid-cols-12 p-4"
+      class="bg-gray-25 dark:bg-gray-875 gap-2 grid grid-cols-12 p-4"
       style="height: calc(100vh - var(--h-row-largest))"
     >
-      <div class="bg-white border col-span-5 rounded-md">
+      <div
+        class="
+          bg-white
+          dark:bg-gray-850
+          border
+          dark:border-gray-800
+          col-span-5
+          rounded-md
+        "
+      >
         <div class="rounded-md p-4 col-span-5">
           <div class="flex gap-x-2">
             <!-- Item Search -->
@@ -74,7 +86,18 @@
 
       <div class="col-span-7">
         <div class="flex flex-col gap-3" style="height: calc(100vh - 6rem)">
-          <div class="bg-white border grow h-full p-4 rounded-md">
+          <div
+            class="
+              bg-white
+              dark:bg-gray-850
+              border
+              dark:border-gray-800
+              grow
+              h-full
+              p-4
+              rounded-md
+            "
+          >
             <!-- Customer Search -->
             <Link
               v-if="sinvDoc.fieldMap"
@@ -88,7 +111,16 @@
             <SelectedItemTable />
           </div>
 
-          <div class="bg-white border p-4 rounded-md">
+          <div
+            class="
+              bg-white
+              dark:bg-gray-850
+              border
+              dark:border-gray-800
+              p-4
+              rounded-md
+            "
+          >
             <div class="w-full grid grid-cols-2 gap-y-2 gap-x-3">
               <div class="">
                 <div class="grid grid-cols-2 gap-2">
@@ -146,7 +178,7 @@
 
               <div class="">
                 <Button
-                  class="w-full bg-red-500 py-6"
+                  class="w-full bg-red-500 dark:bg-red-700 py-6"
                   :disabled="!sinvDoc.items?.length"
                   @click="clearValues"
                 >
@@ -158,7 +190,7 @@
                 </Button>
 
                 <Button
-                  class="mt-4 w-full bg-green-500 py-6"
+                  class="mt-4 w-full bg-green-500 dark:bg-green-700 py-6"
                   :disabled="disablePayButton"
                   @click="toggleModal('Payment', true)"
                 >

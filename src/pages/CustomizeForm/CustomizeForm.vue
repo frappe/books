@@ -17,6 +17,7 @@
           w-full
           gap-2
           border-b
+          dark:border-gray-800
           p-4
         "
       >
@@ -27,7 +28,7 @@
             fieldtype: 'AutoComplete',
             options: customizableSchemas,
           }"
-          input-class="bg-transparent text-gray-900 text-base"
+          input-class="bg-transparent text-gray-900 dark:text-gray-100 text-base"
           class="w-40"
           :border="true"
           :value="formType"
@@ -38,7 +39,10 @@
         <p v-if="errorMessage" class="text-base ms-2 text-red-500">
           {{ errorMessage }}
         </p>
-        <p v-else-if="helpMessage" class="text-base ms-2 text-gray-700">
+        <p
+          v-else-if="helpMessage"
+          class="text-base ms-2 text-gray-700 dark:text-gray-300"
+        >
           {{ helpMessage }}
         </p>
       </div>
