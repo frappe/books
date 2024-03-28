@@ -1,6 +1,7 @@
 <template>
   <div
     class="
+      relative
       window-drag
       flex
       items-center
@@ -17,7 +18,10 @@
     <p v-if="companyName && dbPath" class="mx-auto text-sm">
       {{ companyName }} - {{ dbPath }}
     </p>
-    <div v-if="!isFullscreen" class="window-no-drag flex h-full items-center justify-end">
+    <div
+      v-if="!isFullscreen"
+      class="absolute window-no-drag flex h-full items-center right-0"
+    >
       <div
         class="
           flex
@@ -86,7 +90,10 @@ export default {
   },
   destroyed() {
     window.removeEventListener('resize', this.getIsFullscreen);
-    document.removeEventListener('webkitfullscreenchange', this.getIsFullscreen);
+    document.removeEventListener(
+      'webkitfullscreenchange',
+      this.getIsFullscreen
+    );
     document.removeEventListener('mozfullscreenchange', this.getIsFullscreen);
     document.removeEventListener('fullscreenchange', this.getIsFullscreen);
     document.removeEventListener('MSFullscreenChange', this.getIsFullscreen);
@@ -106,7 +113,7 @@ export default {
       ipc
         .isMaximized()
         .then((result) => {
-          this.isMax =  result;
+          this.isMax = result;
         })
         .catch((error) => {
           console.error(error);
@@ -116,7 +123,7 @@ export default {
       ipc
         .isFullscreen()
         .then((result) => {
-          this.isFullscreen =  result;
+          this.isFullscreen = result;
         })
         .catch((error) => {
           console.error(error);
