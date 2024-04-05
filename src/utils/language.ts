@@ -15,7 +15,7 @@ export const languageCodeMap: Record<string, string> = {
   Gujarati: 'gu',
   Korean: 'ko',
   Nepali: 'np',
-  Persian (Iran): 'fa-IR',
+  Persian: 'fa-IR',
   Portuguese: 'pt',
   'Simplified Chinese': 'zh-CN',
   Spanish: 'es',
