@@ -1,0 +1,36 @@
+{
+  "name": "POSSettings",
+  "label": "POS Settings",
+  "isSingle": true,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "inventory",
+      "label": "Inventory",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true,
+      "default": "Stores",
+      "section": "Default"
+    },
+    {
+      "fieldname": "cashAccount",
+      "label": "Counter Cash Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "default": "Cash In Hand",
+      "required": true,
+      "create": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "writeOffAccount",
+      "label": "Write Off Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "default": "Write Off",
+      "section": "Default"
+    }
+  ]
+}

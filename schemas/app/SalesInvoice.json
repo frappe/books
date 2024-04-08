@@ -32,6 +32,14 @@
       "section": "References"
     },
     {
+      "fieldname": "quote",
+      "label": "Quote Reference",
+      "fieldtype": "Link",
+      "target": "SalesQuote",
+      "section": "References",
+      "required": false
+    },
+    {
       "fieldname": "makeAutoStockTransfer",
       "label": "Make Shipment On Submit",
       "fieldtype": "Check",
@@ -61,6 +69,12 @@
       "target": "SalesInvoice",
       "label": "Return Against",
       "section": "References"
+    },
+    {
+      "fieldname": "isPOS",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
     }
   ],
   "keywordFields": ["name", "party"]

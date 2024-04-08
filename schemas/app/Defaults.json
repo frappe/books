@@ -93,6 +93,14 @@
       "section": "Number Series"
     },
     {
+      "fieldname": "salesQuoteNumberSeries",
+      "label": "Sales Quote Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
       "fieldname": "salesInvoiceTerms",
       "label": "Sales Invoice Terms",
       "fieldtype": "Text",
@@ -115,6 +123,13 @@
       "label": "Purchase Receipt Terms",
       "fieldtype": "Text",
       "section": "Terms"
+    },
+    {
+      "fieldname": "salesQuotePrintTemplate",
+      "label": "Sales Quote Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
     },
     {
       "fieldname": "salesInvoicePrintTemplate",
@@ -164,6 +179,21 @@
       "fieldtype": "Link",
       "target": "PrintTemplate",
       "section": "Print Templates"
+    },
+    {
+      "fieldname": "posCustomer",
+      "label": "POS Customer",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "posCashDenominations",
+      "label": "Cash Denominations",
+      "fieldtype": "Table",
+      "target": "DefaultCashDenominations",
+      "section": "Point of Sale"
     }
   ]
 }

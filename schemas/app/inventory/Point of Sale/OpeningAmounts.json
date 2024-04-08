@@ -1,0 +1,15 @@
+{
+  "name": "OpeningAmounts",
+  "label": "Opening Amount",
+  "isChild": true,
+  "extends": "POSShiftAmounts",
+  "fields": [
+    {
+      "fieldname": "amount",
+      "label": "Amount",
+      "fieldtype": "Currency",
+      "section": "Defaults"
+    }
+  ],
+  "tableFields": ["paymentMethod", "amount"]
+}
