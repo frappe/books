@@ -150,6 +150,7 @@
         v-if="showDevMode"
         class="text-xs text-gray-500 select-none cursor-pointer"
         @click="showDevMode = false"
+        title="Open dev tools with Ctrl+Shift+I"
       >
         dev mode
       </p>

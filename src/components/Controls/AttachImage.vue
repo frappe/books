@@ -62,6 +62,14 @@ import { defineComponent, PropType } from 'vue';
 import FeatherIcon from '../FeatherIcon.vue';
 import Base from './Base.vue';
 
+const mime_types: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+};
+
 export default defineComponent({
   name: 'AttachImage',
   components: { FeatherIcon },
@@ -99,9 +107,7 @@ export default defineComponent({
       }
       const options = {
         title: fyo.t`Select Image`,
-        filters: [
-          { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] },
-        ],
+        filters: [{ name: 'Image', extensions: Object.keys(mime_types) }],
       };
 
       const { name, success, data } = await ipc.selectFile(options);
@@ -110,7 +116,7 @@ export default defineComponent({
         return;
       }
       const extension = name.split('.').at(-1);
-      const type = 'image/' + extension;
+      const type = mime_types[extension];
       const dataURL = await getDataURL(type, data);
 
       // @ts-ignore

@@ -21,6 +21,7 @@ const defaultNumberSeriesMap = {
   [ModelNameEnum.JournalEntry]: 'JV-',
   [ModelNameEnum.SalesInvoice]: 'SINV-',
   [ModelNameEnum.PurchaseInvoice]: 'PINV-',
+  [ModelNameEnum.SalesQuote]: 'SQUOT-',
 } as Record<ModelNameEnum, string>;
 
 async function execute(dm: DatabaseManager) {
@@ -209,6 +210,7 @@ async function copyTransactionalTables(
     ModelNameEnum.Payment,
     ModelNameEnum.SalesInvoice,
     ModelNameEnum.PurchaseInvoice,
+    ModelNameEnum.SalesQuote,
   ];
 
   for (const sn of schemaNames) {

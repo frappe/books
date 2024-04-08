@@ -11,9 +11,17 @@ import {
 } from './baseModels/Account/types';
 import { numberSeriesDefaultsMap } from './baseModels/Defaults/Defaults';
 import { Invoice } from './baseModels/Invoice/Invoice';
+import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
+
+export function getQuoteActions(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.SalesQuote
+): Action[] {
+  return [getMakeInvoiceAction(fyo, schemaName)];
+}
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -67,7 +75,10 @@ export function getMakeStockTransferAction(
 
 export function getMakeInvoiceAction(
   fyo: Fyo,
-  schemaName: ModelNameEnum.Shipment | ModelNameEnum.PurchaseReceipt
+  schemaName:
+    | ModelNameEnum.Shipment
+    | ModelNameEnum.PurchaseReceipt
+    | ModelNameEnum.SalesQuote
 ): Action {
   let label = fyo.t`Sales Invoice`;
   if (schemaName === ModelNameEnum.PurchaseReceipt) {
@@ -77,9 +88,15 @@ export function getMakeInvoiceAction(
   return {
     label,
     group: fyo.t`Create`,
-    condition: (doc: Doc) => doc.isSubmitted && !doc.backReference,
+    condition: (doc: Doc) => {
+      if (schemaName === ModelNameEnum.SalesQuote) {
+        return doc.isSubmitted;
+      } else {
+        return doc.isSubmitted && !doc.backReference;
+      }
+    },
     action: async (doc: Doc) => {
-      const invoice = await (doc as StockTransfer).getInvoice();
+      const invoice = await (doc as SalesQuote | StockTransfer).getInvoice();
       if (!invoice || !invoice.name) {
         return;
       }

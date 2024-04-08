@@ -101,6 +101,20 @@ function getInventorySidebar(): SidebarRoot[] {
   ];
 }
 
+function getPOSSidebar() {
+  const isPOSEnabled = !!fyo.singles.InventorySettings?.enablePointOfSale;
+  if (!isPOSEnabled) {
+    return [];
+  }
+
+  return {
+    label: t`POS`,
+    name: 'pos',
+    route: '/pos',
+    icon: 'pos',
+  };
+}
+
 function getReportSidebar() {
   return {
     label: t`Reports`,
@@ -155,6 +169,12 @@ function getCompleteSidebar(): SidebarConfig {
       icon: 'sales',
       route: '/list/SalesInvoice',
       items: [
+        {
+          label: t`Sales Quotes`,
+          name: 'sales-quotes',
+          route: '/list/SalesQuote',
+          schemaName: 'SalesQuote',
+        },
         {
           label: t`Sales Invoices`,
           name: 'sales-invoices',
@@ -256,6 +276,7 @@ function getCompleteSidebar(): SidebarConfig {
     },
     getReportSidebar(),
     getInventorySidebar(),
+    getPOSSidebar(),
     getRegionalSidebar(),
     {
       label: t`Setup`,
