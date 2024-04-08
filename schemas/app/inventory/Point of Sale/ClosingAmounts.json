@@ -1,0 +1,42 @@
+{
+  "name": "ClosingAmounts",
+  "label": "Closing Amount",
+  "isChild": true,
+  "extends": "POSShiftAmounts",
+  "fields": [
+    {
+      "fieldname": "openingAmount",
+      "fieldtype": "Currency",
+      "label": "Opening Amount",
+      "placeholder": "Opening Amount",
+      "readOnly": true
+    },
+    {
+      "fieldname": "closingAmount",
+      "fieldtype": "Currency",
+      "label": "Closing Amount",
+      "placeholder": "Closing Amount"
+    },
+    {
+      "fieldname": "expectedAmount",
+      "fieldtype": "Currency",
+      "label": "Expected Amount",
+      "placeholder": "Expected Amount",
+      "readOnly": true
+    },
+    {
+      "fieldname": "differenceAmount",
+      "fieldtype": "Currency",
+      "label": "Difference Amount",
+      "placeholder": "Difference Amount",
+      "readOnly": true
+    }
+  ],
+  "tableFields": [
+    "paymentMethod",
+    "openingAmount",
+    "closingAmount",
+    "expectedAmount",
+    "differenceAmount"
+  ]
+}

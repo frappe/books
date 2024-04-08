@@ -61,6 +61,21 @@ export class LedgerPosting {
     this._validateIsEqual();
   }
 
+  timezoneDateTimeAdjuster(setDate: string | Date) {
+    const dateTimeValue = new Date(setDate);
+
+    const dtFixedValue = dateTimeValue;
+    const dtMinutes = dtFixedValue.getTimezoneOffset() % 60;
+    const dtHours = (dtFixedValue.getTimezoneOffset() - dtMinutes) / 60;
+    // Forcing the time to always be set to 00:00.000 for locale time
+    dtFixedValue.setHours(0 - dtHours);
+    dtFixedValue.setMinutes(0 - dtMinutes);
+    dtFixedValue.setSeconds(0);
+    dtFixedValue.setMilliseconds(0);
+
+    return dtFixedValue;
+  }
+
   async makeRoundOffEntry() {
     const { debit, credit } = this._getTotalDebitAndCredit();
     const difference = debit.sub(credit);
@@ -90,12 +105,14 @@ export class LedgerPosting {
       return map[account];
     }
 
+    // end ugly timezone fix code
+
     const ledgerEntry = this.fyo.doc.getNewDoc(
       ModelNameEnum.AccountingLedgerEntry,
       {
         account: account,
         party: (this.refDoc.party as string) ?? '',
-        date: this.refDoc.date as string | Date,
+        date: this.timezoneDateTimeAdjuster(this.refDoc.date as string | Date),
         referenceType: this.refDoc.schemaName,
         referenceName: this.refDoc.name!,
         reverted: this.reverted,

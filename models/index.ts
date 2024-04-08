@@ -19,6 +19,8 @@ import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
 import { PurchaseInvoiceItem } from './baseModels/PurchaseInvoiceItem/PurchaseInvoiceItem';
 import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
+import { SalesQuoteItem } from './baseModels/SalesQuoteItem/SalesQuoteItem';
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
@@ -33,6 +35,12 @@ import { ShipmentItem } from './inventory/ShipmentItem';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
+import { ClosingAmounts } from './inventory/Point of Sale/ClosingAmounts';
+import { ClosingCash } from './inventory/Point of Sale/ClosingCash';
+import { OpeningAmounts } from './inventory/Point of Sale/OpeningAmounts';
+import { OpeningCash } from './inventory/Point of Sale/OpeningCash';
+import { POSSettings } from './inventory/Point of Sale/POSSettings';
+import { POSShift } from './inventory/Point of Sale/POSShift';
 
 export const models = {
   Account,
@@ -55,6 +63,8 @@ export const models = {
   PurchaseInvoiceItem,
   SalesInvoice,
   SalesInvoiceItem,
+  SalesQuote,
+  SalesQuoteItem,
   SerialNumber,
   SetupWizard,
   PrintTemplate,
@@ -70,6 +80,13 @@ export const models = {
   ShipmentItem,
   PurchaseReceipt,
   PurchaseReceiptItem,
+  // POS Models
+  ClosingAmounts,
+  ClosingCash,
+  OpeningAmounts,
+  OpeningCash,
+  POSSettings,
+  POSShift,
 } as ModelMap;
 
 export async function getRegionalModels(

@@ -64,12 +64,12 @@ export abstract class AccountReport extends LedgerReport {
     this._dateRanges = await this._getDateRanges();
   }
 
-  getRootNode(
+  getRootNodes(
     rootType: AccountRootType,
     accountTree: AccountTree
-  ): AccountTreeNode | undefined {
+  ): AccountTreeNode[] | undefined {
     const rootNodeList = Object.values(accountTree);
-    return rootNodeList.find((n) => n.rootType === rootType);
+    return rootNodeList.filter((n) => n.rootType === rootType);
   }
 
   getEmptyRow(): ReportRow {
@@ -88,8 +88,11 @@ export abstract class AccountReport extends LedgerReport {
     };
   }
 
-  getTotalNode(rootNode: AccountTreeNode, name: string): AccountListNode {
-    const accountTree = { [rootNode.name]: rootNode };
+  getTotalNode(rootNodes: AccountTreeNode[], name: string): AccountListNode {
+    const accountTree: Tree = {};
+    for (const rootNode of rootNodes) {
+      accountTree[rootNode.name] = rootNode;
+    }
     const leafNodes = getListOfLeafNodes(accountTree) as AccountTreeNode[];
 
     const totalMap = leafNodes.reduce((acc, node) => {
@@ -236,6 +239,17 @@ export abstract class AccountReport extends LedgerReport {
     return null;
   }
 
+  // Fix arythmetic on dates when adding or substracting months. If the
+  // reference date was the last day in month, ensure that the resulting date is
+  // also the last day.
+  _fixMonthsJump(refDate: DateTime, date: DateTime): DateTime {
+    if (refDate.day == refDate.daysInMonth && date.day != date.daysInMonth) {
+      return date.set({ day: date.daysInMonth });
+    } else {
+      return date;
+    }
+  }
+
   async _getDateRanges(): Promise<DateRange[]> {
     const endpoints = await this._getFromAndToDates();
     const fromDate = DateTime.fromISO(endpoints.fromDate);
@@ -252,7 +266,10 @@ export abstract class AccountReport extends LedgerReport {
 
     const months: number = monthsMap[this.periodicity];
     const dateRanges: DateRange[] = [
-      { toDate, fromDate: toDate.minus({ months }) },
+      {
+        toDate,
+        fromDate: this._fixMonthsJump(toDate, toDate.minus({ months })),
+      },
     ];
 
     let count = this.count ?? 1;
@@ -264,7 +281,10 @@ export abstract class AccountReport extends LedgerReport {
       const lastRange = dateRanges.at(-1)!;
       dateRanges.push({
         toDate: lastRange.fromDate,
-        fromDate: lastRange.fromDate.minus({ months }),
+        fromDate: this._fixMonthsJump(
+          toDate,
+          lastRange.fromDate.minus({ months })
+        ),
       });
     }
 
@@ -445,14 +465,15 @@ export async function getFiscalEndpoints(
 
   const fromDate = [
     fromYear,
-    fys.toISOString().split('T')[0].split('-').slice(1),
-  ]
-    .flat()
-    .join('-');
+    (fys.getMonth() + 1).toString().padStart(2, '0'),
+    fys.getDate().toString().padStart(2, '0'),
+  ].join('-');
 
-  const toDate = [toYear, fye.toISOString().split('T')[0].split('-').slice(1)]
-    .flat()
-    .join('-');
+  const toDate = [
+    toYear,
+    (fye.getMonth() + 1).toString().padStart(2, '0'),
+    fye.getDate().toString().padStart(2, '0'),
+  ].join('-');
 
   return { fromDate, toDate };
 }
@@ -573,15 +594,17 @@ function getPrunedChildren(children: AccountTreeNode[]): AccountTreeNode[] {
   });
 }
 
-export function convertAccountRootNodeToAccountList(
-  rootNode: AccountTreeNode
+export function convertAccountRootNodesToAccountList(
+  rootNodes: AccountTreeNode[]
 ): AccountList {
-  if (!rootNode) {
+  if (!rootNodes || rootNodes.length == 0) {
     return [];
   }
 
   const accountList: AccountList = [];
-  pushToAccountList(rootNode, accountList, 0);
+  for (const rootNode of rootNodes) {
+    pushToAccountList(rootNode, accountList, 0);
+  }
   return accountList;
 }
 
