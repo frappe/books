@@ -28,6 +28,19 @@ import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { ReturnDocItem } from 'models/inventory/types';
 import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
 
+export type TaxDetail = {
+  account: string;
+  payment_account?: string;
+  rate: number;
+};
+
+export type InvoiceTaxItem = {
+  details: TaxDetail;
+  exchangeRate?: number;
+  fullAmount: Money;
+  taxAmount: Money;
+};
+
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
@@ -58,7 +71,13 @@ export abstract class Invoice extends Transactional {
   returnAgainst?: string;
 
   get isSales() {
-    return this.schemaName === 'SalesInvoice';
+    return (
+      this.schemaName === 'SalesInvoice' || this.schemaName == 'SalesQuote'
+    );
+  }
+
+  get isQuote() {
+    return this.schemaName == 'SalesQuote';
   }
 
   get enableDiscounting() {
@@ -242,6 +261,38 @@ export abstract class Invoice extends Transactional {
     return safeParseFloat(exchangeRate.toFixed(2));
   }
 
+  async getTaxItems(): Promise<InvoiceTaxItem[]> {
+    const taxItems: InvoiceTaxItem[] = [];
+    for (const item of this.items ?? []) {
+      if (!item.tax) {
+        continue;
+      }
+
+      const tax = await this.getTax(item.tax);
+      for (const details of (tax.details ?? []) as TaxDetail[]) {
+        let amount = item.amount!;
+        if (
+          this.enableDiscounting &&
+          !this.discountAfterTax &&
+          !item.itemDiscountedTotal?.isZero()
+        ) {
+          amount = item.itemDiscountedTotal!;
+        }
+
+        const taxItem: InvoiceTaxItem = {
+          details,
+          exchangeRate: this.exchangeRate ?? 1,
+          fullAmount: amount,
+          taxAmount: amount.mul(details.rate / 100),
+        };
+
+        taxItems.push(taxItem);
+      }
+    }
+
+    return taxItems;
+  }
+
   async getTaxSummary() {
     const taxes: Record<
       string,
@@ -252,33 +303,16 @@ export abstract class Invoice extends Transactional {
       }
     > = {};
 
-    type TaxDetail = { account: string; rate: number };
+    for (const { details, taxAmount } of await this.getTaxItems()) {
+      const account = details.account;
 
-    for (const item of this.items ?? []) {
-      if (!item.tax) {
-        continue;
-      }
+      taxes[account] ??= {
+        account,
+        rate: details.rate,
+        amount: this.fyo.pesa(0),
+      };
 
-      const tax = await this.getTax(item.tax);
-      for (const { account, rate } of (tax.details ?? []) as TaxDetail[]) {
-        taxes[account] ??= {
-          account,
-          rate,
-          amount: this.fyo.pesa(0),
-        };
-
-        let amount = item.amount!;
-        if (
-          this.enableDiscounting &&
-          !this.discountAfterTax &&
-          !item.itemDiscountedTotal?.isZero()
-        ) {
-          amount = item.itemDiscountedTotal!;
-        }
-
-        const taxAmount = amount.mul(rate / 100);
-        taxes[account].amount = taxes[account].amount.add(taxAmount);
-      }
+      taxes[account].amount = taxes[account].amount.add(taxAmount);
     }
 
     type Summary = typeof taxes[string] & { idx: number };
@@ -465,7 +499,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async _updateIsItemsReturned() {
-    if (!this.isReturn || !this.returnAgainst) {
+    if (!this.isReturn || !this.returnAgainst || this.isQuote) {
       return;
     }
 
@@ -487,7 +521,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async _validateHasLinkedReturnInvoices() {
-    if (!this.name || this.isReturn) {
+    if (!this.name || this.isReturn || this.isQuote) {
       return;
     }
 
@@ -657,7 +691,10 @@ export abstract class Invoice extends Transactional {
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     backReference: () => !this.backReference,
-    priceList: () => !this.fyo.singles.AccountingSettings?.enablePriceList,
+    quote: () => !this.quote,
+    priceList: () =>
+      !this.fyo.singles.AccountingSettings?.enablePriceList ||
+      (!this.canEdit && !this.priceList),
     returnAgainst: () =>
       (this.isSubmitted || this.isCancelled) && !this.returnAgainst,
   };

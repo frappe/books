@@ -6,11 +6,19 @@
   "fields": [
     {
       "fieldname": "account",
-      "label": "Tax Account",
+      "label": "Tax Invoice Account",
       "fieldtype": "Link",
       "target": "Account",
       "create": true,
       "required": true
+    },
+    {
+      "fieldname": "payment_account",
+      "label": "Tax Payment Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": false
     },
     {
       "fieldname": "rate",
@@ -20,5 +28,5 @@
       "placeholder": "0%"
     }
   ],
-  "tableFields": ["account", "rate"]
+  "tableFields": ["account", "payment_account", "rate"]
 }
