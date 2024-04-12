@@ -9,7 +9,7 @@ module.exports = {
     'no-console': 'warn',
     'no-debugger': 'warn',
     'arrow-body-style': 'off',
-    'prettier/prettier': 'warn',
+    'prettier/prettier': ['warn',  {"endOfLine": "auto" }]
     'prefer-arrow-callback': 'warn',
     'vue/no-mutating-props': 'off',
     'vue/multi-word-component-names': 'off',
