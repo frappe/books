@@ -1,11 +1,23 @@
-<main class="bg-white h-full px-6" :style="{ 'font-family': print.font }">
+<main class="bg-white h-full px-6" :style="{ 'font-family': 'Vazirmatn UI FD', 'direction': 'rtl' }">
+
+  <div v-if="!doc.submitted" :style="{
+    'position': 'absolute',
+    'top': '50%',
+    'left': '50%',
+    'transform': 'translate(-50%, -50%) rotate(-45deg) scaleX(8.5) scaleY(6)',
+    'font-size': '24px',
+    'color': 'rgba(0, 0, 0, 0.1)'
+  }">
+    پیش فاکتور
+  </div>
+  
   <!-- Invoice Header -->
   <header class="py-6 flex text-sm text-gray-900 border-b">
     <!-- Company Logo & Name -->
     <section class="w-1/3">
       <img
         v-if="print.displayLogo"
-        class="h-12 max-w-32 object-contain"
+        class="h-14 max-w-32 object-contain"
         :src="print.logo"
       />
       <div class="text-xl text-gray-700 font-semibold" v-else>
@@ -15,13 +27,13 @@
 
     <!-- Company Contacts -->
     <section class="w-1/3">
-      <div>{{ print.email }}</div>
-      <div class="mt-1">{{ print.phone }}</div>
+      <div>ایمیل: {{ print.email }}</div>
+      <div class="mt-1">همراه: {{ print.phone }}</div>
     </section>
 
     <!-- Company Address & GSTIN -->
     <section class="w-1/3">
-      <div v-if="print.address">{{ print.links.address.addressDisplay }}</div>
+      <div v-if="print.address">{{ print.links.address.addressDisplay.replace(', Iran','') }}</div>
       <div v-if="print.gstin">GSTIN: {{ print.gstin }}</div>
     </section>
   </header>
@@ -31,7 +43,7 @@
     <!-- Invoice Details -->
     <section class="w-1/3">
       <h2 class="text-2xl font-semibold">{{ doc.name }}</h2>
-      <p class="py-2 text-base">{{ doc.date }}</p>
+      <p class="py-2 text-base">{{new Date(doc.date).toLocaleDateString('fa-IR') }}</p>
     </section>
 
     <!-- Party Details -->
@@ -41,7 +53,7 @@
         v-if="doc.links.party.address"
         class="mt-1 text-xs text-gray-600 text-right"
       >
-        {{ doc.links.party.links.address.addressDisplay }}
+        {{ doc.links.party.links.address.addressDisplay.replace(', Iran','') }}
       </p>
       <p
         v-if="doc.links.party.gstin"
@@ -56,13 +68,13 @@
   <section class="mt-8 text-base">
     <!-- Heading Row -->
     <section class="text-gray-600 w-full flex border-b">
-      <div class="py-4 w-5/12">{{ t`Item` }}</div>
-      <div class="py-4 text-right w-2/12" v-if="doc.showHSN">
+      <div class="py-2 w-5/12">نام کالا/خدمات</div>
+      <div class="py-2 text-right w-2/12" v-if="doc.showHSN">
         {{ t`HSN/SAC` }}
       </div>
-      <div class="py-4 text-right w-1/12">{{ t`Quantity` }}</div>
-      <div class="py-4 text-right w-3/12">{{ t`Rate` }}</div>
-      <div class="py-4 text-right w-3/12">{{ t`Amount` }}</div>
+      <div class="py-2 text-right w-1/12">تعداد</div>
+      <div class="py-2 text-right w-3/12">قیمت واحد</div>
+      <div class="py-2 text-right w-3/12">جمع کل</div>
     </section>
 
     <!-- Body Rows -->
@@ -71,13 +83,13 @@
       v-for="row in doc.items"
       :key="row.name"
     >
-      <div class="w-5/12 py-4">{{ row.item }}</div>
+      <div class="w-5/12 py-2">{{ row.item }}</div>
       <div class="w-2/12 text-right py-4" v-if="doc.showHSN">
         {{ row.hsnCode }}
       </div>
-      <div class="w-1/12 text-right py-4">{{ row.quantity }}</div>
-      <div class="w-3/12 text-right py-4">{{ row.rate }}</div>
-      <div class="w-3/12 text-right py-4">{{ row.amount }}</div>
+      <div class="w-1/12 text-right py-2">{{ row.quantity }}</div>
+      <div class="w-3/12 text-right py-2">{{ row.rate.replace('﷼','') + " ریال" }}</div>
+      <div class="w-3/12 text-right py-2" style="text-direction:right">{{ row.amount.replace('﷼','') + " ریال" }}</div>
     </section>
   </section>
 
@@ -86,7 +98,7 @@
     <!-- Invoice Terms -->
     <section class="w-1/2">
       <h3 class="text-sm tracking-widest text-gray-600 mt-2" v-if="doc.terms">
-        {{ t`Notes` }}
+        توضیحات
       </h3>
       <p class="my-4 text-lg whitespace-pre-line">{{ doc.terms }}</p>
     </section>
@@ -95,8 +107,8 @@
     <section class="w-1/2">
       <!-- Subtotal -->
       <div class="flex pl-2 justify-between py-3 border-b">
-        <h3>{{ t`Subtotal` }}</h3>
-        <p>{{ doc.netTotal }}</p>
+        <h3>جمع</h3>
+        <p>{{ doc.netTotal.replace('﷼','') + " ریال" }}</p>
       </div>
 
       <!-- Discount (if applied before tax) -->
@@ -104,8 +116,8 @@
         class="flex pl-2 justify-between py-3 border-b"
         v-if="doc.totalDiscount && !doc.discountAfterTax"
       >
-        <h3>{{ t`Discount` }}</h3>
-        <p>{{ doc.totalDiscount }}</p>
+        <h3>تخفیف</h3>
+        <p>{{ doc.totalDiscount.replace('﷼','') + " ریال" }}</p>
       </div>
 
       <!-- Tax Breakdown -->
@@ -123,7 +135,7 @@
         class="flex pl-2 justify-between py-3 border-t"
         v-if="doc.totalDiscount && doc.discountAfterTax"
       >
-        <h3>{{ t`Discount` }}</h3>
+        <h3>تخفیف</h3>
         <p>{{ doc.totalDiscount }}</p>
       </div>
 
@@ -140,8 +152,8 @@
           text-base
         "
       >
-        <h3>{{ t`Grand Total` }}</h3>
-        <p>{{ doc.grandTotal }}</p>
+        <h3>مبلغ نهایی</h3>
+        <p>{{ doc.grandTotal.replace('﷼','') + " ریال" }}</p>
       </div>
     </section>
   </footer>
