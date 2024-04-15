@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+>
+> Frappe Books is looking for a maintainer, please view [#775](https://github.com/frappe/books/issues/775) for more info.
+
+
 <div align="center" markdown="1">
 
 <img src="https://user-images.githubusercontent.com/29507195/207267672-d422db6c-d89a-4bbe-9822-468a55c15053.png" alt="Frappe Books logo" width="384"/>
@@ -139,10 +144,6 @@ If you want to contribute code then you can fork this repo, make changes and rai
 - [Telegram Group](https://t.me/frappebooks): Used for discussions and decisions regarding everything Frappe Books.
 - [GitHub Discussions](https://github.com/frappe/books/discussions): Used for discussions around a specific topic.
 - [Frappe Books Blog](https://tech.frappebooks.com/): Sporadically updated dev blog regarding the development of this project.
-
-## Maintainers
-
-Frappe Books is currently being maintained by [Mildred Ki'Lya](https://github.com/mildred) and [Isaac-GC](https://github.com/Isaac-GC).
 
 ## Translation Contributors
 
