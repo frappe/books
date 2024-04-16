@@ -1,7 +1,6 @@
 <template>
   <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
     <g fill="none" fill-rule="evenodd">
-      <path fill="#FFF" d="M-589-585H611v907H-589z" />
       <path
         d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12C23.98 5.38 18.62.02 12 0z"
         fill="#92D336"

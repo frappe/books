@@ -1,9 +1,9 @@
 <template>
   <div class="w-form">
     <FormHeader :form-title="t`Set Print Size`" />
-    <hr />
+    <hr class="dark:border-gray-800" />
     <div class="p-4 w-full flex flex-col gap-4">
-      <p class="text-base text-gray-900">
+      <p class="text-base text-gray-900 dark:text-gray-100">
         {{
           t`Select a pre-defined page size, or set a custom page size for your Print Template.`
         }}
@@ -34,7 +34,7 @@
         />
       </div>
     </div>
-    <div class="flex border-t p-4">
+    <div class="flex border-t dark:border-gray-800 p-4">
       <Button class="ml-auto" type="primary" @click="done">{{
         t`Done`
       }}</Button>

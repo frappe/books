@@ -97,7 +97,7 @@ export default {
           {
             component: markRaw({
               template:
-                '<span class="text-gray-600">{{ t`No results found` }}</span>',
+                '<span class="text-gray-600 dark:text-gray-400">{{ t`No results found` }}</span>',
             }),
             action: () => {},
             actionOnly: true,

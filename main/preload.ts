@@ -27,6 +27,42 @@ const ipc = {
     return ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
   },
 
+  minimizeWindow() {
+    return ipcRenderer.send(IPC_MESSAGES.MINIMIZE_MAIN_WINDOW);
+  },
+
+  toggleMaximize() {
+    return ipcRenderer.send(IPC_MESSAGES.MAXIMIZE_MAIN_WINDOW);
+  },
+
+  isMaximized() {
+    return new Promise((resolve, reject) => {
+      ipcRenderer.send(IPC_MESSAGES.ISMAXIMIZED_MAIN_WINDOW);
+      ipcRenderer.once(
+        IPC_MESSAGES.ISMAXIMIZED_RESULT,
+        (_event, isMaximized) => {
+          resolve(isMaximized);
+        }
+      );
+    });
+  },
+
+  isFullscreen() {
+    return new Promise((resolve, reject) => {
+      ipcRenderer.send(IPC_MESSAGES.ISFULLSCREEN_MAIN_WINDOW);
+      ipcRenderer.once(
+        IPC_MESSAGES.ISFULLSCREEN_RESULT,
+        (_event, isFullscreen) => {
+          resolve(isFullscreen);
+        }
+      );
+    });
+  },
+
+  closeWindow() {
+    return ipcRenderer.send(IPC_MESSAGES.CLOSE_MAIN_WINDOW);
+  },
+
   async getCreds() {
     return (await ipcRenderer.invoke(IPC_ACTIONS.GET_CREDS)) as Creds;
   },

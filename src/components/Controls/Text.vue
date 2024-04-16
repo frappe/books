@@ -7,7 +7,7 @@
       <textarea
         ref="input"
         :rows="rows"
-        :class="['resize-none', inputClasses, containerClasses]"
+        :class="['resize-none bg-transparent', inputClasses, containerClasses]"
         :value="value"
         :placeholder="inputPlaceholder"
         style="vertical-align: top"

@@ -1,7 +1,18 @@
 <template>
   <Row
     :ratio="ratio"
-    class="border flex items-center mt-4 px-2 rounded-t-md text-gray-600 w-full"
+    class="
+      border
+      dark:border-gray-800
+      flex
+      items-center
+      mt-4
+      px-2
+      rounded-t-md
+      text-gray-600
+      dark:text-gray-400
+      w-full
+    "
   >
     <div
       v-for="df in tableFields"
@@ -26,10 +37,12 @@
       :border="true"
       class="
         border-b border-l border-r
+        dark:border-gray-800
         flex
         group
         h-row-mid
         hover:bg-gray-25
+        dark:bg-gray-890
         items-center
         justify-center
         px-2

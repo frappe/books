@@ -11,6 +11,7 @@ import registerIpcRendererListeners from './renderer/registerIpcRendererListener
 import router from './router';
 import { stringifyCircular } from './utils';
 import { setLanguageMap } from './utils/language';
+import { setDarkMode } from './utils/theme';
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
@@ -19,6 +20,8 @@ import { setLanguageMap } from './utils/language';
     await setLanguageMap(language);
   }
   fyo.store.language = language || 'English';
+
+  setDarkMode();
 
   registerIpcRendererListeners();
   const { isDevelopment, platform, version } = await ipc.getEnv();
