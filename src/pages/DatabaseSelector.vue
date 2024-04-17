@@ -64,6 +64,25 @@
         </div>
       </div>
 
+      <!-- Existing Company Server (Green Icon) -->
+      <div
+        class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
+        :class="creatingDemo ? '' : 'hover:bg-gray-50 cursor-pointer'"
+        @click="openServerModal = true && !creatingDemo"
+      >
+        <div class="w-8 h-8 rounded-full bg-green-500 relative flex-center">
+          <feather-icon name="link" class="w-4 h-4 text-white" />
+        </div>
+        <div>
+          <p class="font-medium">
+            {{ t`Existing Company Server` }}
+          </p>
+          <p class="text-sm text-gray-600">
+            {{ t`Load an existing company from a frappe server` }}
+          </p>
+        </div>
+      </div>
+
       <!-- Create Demo (Pink Icon) -->
       <div
         v-if="!files?.length"
@@ -197,7 +216,7 @@
     />
 
     <!-- Base Count Selection when Dev -->
-    <Modal :open-modal="openModal" @closemodal="openModal = false">
+    <Modal :open-modal="openDemoModal" @closemodal="openDemoModal = false">
       <div class="p-4 text-gray-900 w-form">
         <h2 class="text-xl font-semibold select-none">Set Base Count</h2>
         <p class="text-base mt-2">
@@ -221,16 +240,55 @@
           />
         </div>
         <div class="flex justify-between">
-          <Button @click="openModal = false">Cancel</Button>
+          <Button @click="openDemoModal = false">Cancel</Button>
           <Button
             type="primary"
             @click="
               () => {
-                openModal = false;
+                openDemoModal = false;
                 startDummyInstanceSetup();
               }
             "
             >Create</Button
+          >
+        </div>
+      </div>
+    </Modal>
+
+    <Modal :open-modal="openServerModal" @closemodal="!openServerModal">
+      <div class="p-4 text-gray-900 w-form">
+        <h2 class="text-xl font-semibold select-none">Connect to Server</h2>
+        <p class="text-base mt-2">
+          Enter the adress of the server you want to connect to.
+        </p>
+        <div class="flex my-12 justify-center items-baseline gap-4 text-base">
+          <label for="basecount" class="text-gray-600">Adress</label>
+          <input
+            v-model="serverAdress"
+            type="url"
+            name="basecount"
+            class="
+              bg-gray-100
+              focus:bg-gray-200
+              rounded-md
+              px-2
+              py-1
+              w-2/3
+              outline-none
+            "
+          />
+        </div>
+        <div class="flex justify-between">
+          <Button @click="openServerModal = false">Cancel</Button>
+          <Button
+            type="primary"
+            @click="
+              () => {
+                openServerModal = false;
+                connectToServer();
+              }
+            "
+            >Connect</Button
           >
         </div>
       </div>
@@ -266,7 +324,9 @@ export default defineComponent({
   emits: ['file-selected', 'new-database'],
   data() {
     return {
-      openModal: false,
+      openDemoModal: false,
+      openServerModal: false,
+      serverAdress: '',
       baseCount: 100,
       creationMessage: '',
       creationPercent: 0,
@@ -274,7 +334,9 @@ export default defineComponent({
       loadingDatabase: false,
       files: [],
     } as {
-      openModal: boolean;
+      openDemoModal: boolean;
+      openServerModal: boolean;
+      serverAdress: string;
       baseCount: number;
       creationMessage: string;
       creationPercent: number;
@@ -333,7 +395,7 @@ export default defineComponent({
       if (!fyo.store.isDevelopment) {
         await this.startDummyInstanceSetup();
       } else {
-        this.openModal = true;
+        this.openDemoModal = true;
       }
     },
     async startDummyInstanceSetup() {
@@ -381,6 +443,9 @@ export default defineComponent({
 
       const filePath = (await getSelectedFilePath())?.filePaths?.[0];
       this.emitFileSelected(filePath);
+    },
+    connectToServer() {
+      this.emitFileSelected(this.serverAdress);
     },
     selectFile(file: ConfigFilesWithModified) {
       if (this.creatingDemo) {
