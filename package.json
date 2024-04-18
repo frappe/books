@@ -35,7 +35,8 @@
     "pesa": "^1.1.12",
     "source-map-support": "^0.5.21",
     "vue": "^3.2.40",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.12",
+    "vue3-persian-datetime-picker": "^1.2.2"
   },
   "devDependencies": {
     "@codemirror/language": "^6.0.0",

@@ -36,6 +36,13 @@ export default () => {
         dummy: path.resolve(__dirname, './dummy'),
         fixtures: path.resolve(__dirname, './fixtures'),
       },
+      mainFields: [
+        'browser',
+        'module',
+        'main',
+        'jsnext:main',
+        'jsnext'
+      ]
     },
   });
 };

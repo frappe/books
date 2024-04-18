@@ -1,0 +1,1058 @@
+﻿${0},
+${0} ${1} already exists.,${0} ${1} از قبل وجود دارد.
+${0} ${1} does not exist,${0} ${1} وجود ندارد
+${0} ${1} has been modified after loading please reload entry.,"${0} ${1} پس از بارگیری اصلاح شد، لطفاً ورودی را دوباره بارگیری کنید."
+${0} ${1} is linked with existing records.,${0} ${1} با رکوردهای موجود پیوند داده شده است.
+${0} account not set in Inventory Settings.,حساب ${0} در تنظیمات موجودی تنظیم نشده است.
+${0} already saved,${0} قبلاً ذخیره شده است
+${0} already submitted,${0} قبلا ثبت شده است
+${0} cancelled,${0} لغو شد
+${0} cannot be cancelled,${0} قابل لغو نیست
+${0} cannot be deleted,${0} قابل حذف نیست
+${0} deleted,${0} حذف شد
+${0} entries failed,${0} ورودی ناموفق بود
+${0} entries imported,${0} ورودی وارد شد
+${0} entry failed,ورودی ${0} ناموفق بود
+${0} entry imported,ورودی ${0} وارد شد
+${0} fields selected,${0} فیلد انتخاب شد
+${0} filters applied,فیلترهای ${0} اعمال شد
+${0} has linked child accounts.,${0} حساب‌های فرزند را مرتبط کرده است.
+${0} of type ${1} does not exist,${0} از نوع ${1} وجود ندارد
+${0} out of ${1},${0} از ${1}
+${0} party ${1} is different from ${2},${0} party ${1} با ${2} متفاوت است
+${0} quantity 1 added.,${0} مقدار 1 اضافه شد.
+${0} row added.,ردیف ${0} اضافه شد.
+${0} rows,${0} ردیف
+${0} rows added.,${0} ردیف اضافه شد.
+${0} saved,${0} ذخیره شد
+${0} shortcuts,میانبرهای ${0}
+${0} stored at ${1},${0} ذخیره شده در ${1}
+${0} submitted,${0} ثبت شد
+${0} value ${1} does not exist.,${0} مقدار ${1} وجود ندارد.
+0%,
+3/23/2022,
+3/23/2022,
+1 filter applied,
+3/23/2022,
+"23 Mar, 2022",
+23-03-2022,
+23.03.2022,
+23/03/2022,
+9888900000,
+A submittable entry is deleted only if it is in the cancelled state.,ورودی قابل ثبت فقط در صورتی حذف می شود که در حالت لغو شده باشد.
+Account,حساب
+Account ${0} does not exist.,حساب ${0} وجود ندارد.
+Account Entries,ورودی های حساب
+Account Name,نام حساب
+Account Type,نوع حساب
+Accounting,حسابداری
+Accounting Entries,ورودی های حسابداری
+Accounting Ledger Entry,ورود به دفتر حسابداری
+Accounting Settings,تنظیمات حسابداری
+Accounts,حساب ها
+Accounts Payable,حساب های قابل پرداخت
+Accounts Receivable,حساب های دریافت
+Accumulated Depreciation,استهلاک انباشته
+Action,عمل
+Active,فعال
+Add Account,اضافه کردن حساب
+Add Customers,اضافه کردن مشتریان
+Add Group,اضافه کردن گروه
+Add Items,اضافه کردن موارد
+Add Row,اضافه کردن ردیف
+Add Suppliers,اضافه کردن تامین کنندگان
+Add Taxes,اضافه کردن مالیات
+Add a few customers to create your first sales invoice,"برای ایجاد اولین فاکتور فروش، چند مشتری اضافه کنید"
+Add a few suppliers to create your first purchase invoice,"برای ایجاد اولین فاکتور خرید، چند تامین کننده اضافه کنید"
+Add a filter,یک فیلتر اضافه کنید
+Add a remark,یک نکته اضافه کنید
+Add attachment,پیوست را اضافه کنید
+Add invoice terms,اضافه کردن شرایط فاکتور
+Add products or services that you buy from your suppliers,محصولات یا خدماتی را که از تامین کنندگان خود خریداری می کنید اضافه کنید
+Add products or services that you sell to your customers,محصولات یا خدماتی را که به مشتریان خود می فروشید اضافه کنید
+Add transfer terms,اضافه کردن شرایط انتقال
+Add'l Discounts,اضافه کردن تخفیف
+Additional ${0} Serial Numbers required for ${1} quantity of ${2}.,شماره‌های سریال ${0} اضافی برای مقدار{1} از ${2} مورد نیاز است.
+Additional quantity (${0}) required${1} to make outward transfer of item ${2} from ${3} on ${4},مقدار اضافی (${0}) مورد نیاز ${1} برای انتقال خارجی مورد ${2} از ${3} در ${4}
+Address,نشانی
+Address Display,نمایش نشانی
+Address Line 1,آدرس خط 1
+Address Line 2,آدرس خط 2
+Address Name,نام آدرس
+Administrative Expenses,هزینه های اداری
+All,همه
+Amount,میزان
+Amount Paid,مبلغ پرداخت شده
+Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.,مبلغ: ${0} و حذف: ${1} کمتر از کل مبلغ تخصیص داده شده به منابع است: ${2}.
+Amount: ${0} is less than the total amount allocated to references: ${1}.,مبلغ: ${0} کمتر از کل مبلغ تخصیص یافته به مراجع است: ${1}.
+Amounts,مبالغ
+An entry is cancelled only if it is in the submitted state.,یک ورودی تنها در صورتی لغو می شود که در وضعیت ثبت شده باشد.
+An entry is submitted only if it is submittable and is in the saved state.,یک ورودی فقط در صورتی ثبت می شود که قابل ثبت باشد و در حالت ذخیره شده باشد.
+An error occurred.,خطایی رخ داد.
+Applicable anywhere in Frappe Books,قابل اجرا در همه جای برنامه
+Applicable when Quick Search is open,زمانی که جستجوی سریع باز است قابل استفاده است
+Applicable when Template Builder is open,زمانی که Template Builder باز است قابل استفاده است
+Applicable when a entry is open in the Form view or Quick Edit view,"زمانی که ورودی در نمای فرم یا نمای ویرایش سریع باز است، قابل استفاده است"
+Applicable when the List View of an entry type is open,"زمانی که نمای فهرست یک نوع ورودی باز است، قابل استفاده است"
+Application of Funds (Assets),کاربرد وجوه (دارایی)
+Apply Discount After Tax,اعمال تخفیف پس از کسر مالیات
+Apply and view changes made to the print template,اعمال و مشاهده تغییرات ایجاد شده در قالب چاپی
+April,آوریل
+Arial,Arial
+Ascending Order,ترتیب صعودی
+Asset,دارایی
+Attach Image,تصویر را ضمیمه کنید
+Attachment,پیوست
+August,اوت
+Auto Payments,پرداخت های خودکار
+Auto Stock Transfer,انتقال خودکار سهام
+Autocomplete,تکمیل خودکار
+Back,بازگشت
+Back Reference,بازگشت مرجع
+"Bad import data, could not read file.","داده‌های درون ریزی نامناسب، امکان خواندن فایل وجود ندارد."
+Balance,تراز
+Balance Amount,میزان تراز
+Balance Sheet,ترازنامه
+Bank,بانک
+Bank Accounts,حساب های بانکی
+Bank Entry,ورودی بانک
+Bank Name,نام بانک
+Bank Overdraft Account,حساب اضافه برداشت بانکی
+Barcode,بارکد
+Base Grand Total,مبلغ کل پایه
+Based On,بر اساس
+Batch,دسته ای
+Batch not set for row ${0}.,دسته برای ردیف ${0} تنظیم نشده است.
+Batch set for row ${0}.,مجموعه دسته ای برای ردیف ${0}.
+Bill Created,صورتحساب ایجاد شد
+Billing,صدور صورتحساب
+Black,مشکی
+Blue,آبی
+Both,هر دو
+Both From and To Location cannot be undefined,هر دو از و به مکان نمی توانند تعریف نشده باشند
+Buildings,ساختمان ها
+Cancel,انصراف
+Cancel ${0}?,${0} لغو شود؟
+Cancel or Delete an entry.,یک ورودی را لغو یا حذف کنید.
+Cancelled,لغو شد
+Cannot Commit Error,نمی توان خطا را مرتکب شد
+Cannot Delete,نمی توان حذف کرد
+Cannot Delete Account,نمی توان اکانت را حذف کرد
+Cannot Export,نمی توان صادر کرد
+Cannot Import,نمی توان وارد کرد
+Cannot Open File,نمی توان فایل را باز کرد
+Cannot cancel ${0} ${1} because of the following ${2}: ${3},نمی توان ${0} ${1} را به دلیل ${2} زیر لغو کرد: ${3}
+Cannot cancel ${0} because of the following ${1}: ${2},نمی توان ${0} را به دلیل ${1} زیر لغو کرد: ${2}
+"Cannot delete ${0} ""${1}"" because of linked entries.","نمی توان ${0} ""${1}"" را به دلیل ورودی های پیوند شده حذف کرد."
+Cannot open file,فایل باز نمی‌شود
+Cannot perform operation.,امکان انجام عملیات وجود ندارد
+Cannot read file,نمی توان فایل را خواند
+Capital Equipments,تجهیزات سرمایه ای
+Capital Stock,سرمایه سهامی
+Cash,پول نقد
+Cash Denominations,وجه نقد
+Cash Entry,ورود نقدی
+Cash In Hand,پول نقد در دست
+Cashflow,جریان نقدی
+Central Tax,مالیات مرکزی
+Change DB,DB را تغییر دهید
+Change File,تغییر فایل
+Change Ref Type,نوع مرجع را تغییر دهید
+Changes made to settings will be visible on reload.,تغییرات ایجاد شده در تنظیمات در بارگذاری مجدد قابل مشاهده خواهد بود.
+Chargeable,قابل شارژ
+Chart Of Accounts Reviewed,نمودار حساب ها بررسی شد
+Chart of Accounts,نمودار حساب
+Check,بررسی
+Cheque,چک
+City / Town,شهر / شهرک
+Clear,پاک کردن
+Clearance Date,تاریخ ترخیص
+Close,بستن
+Close Frappe Books and try manually.,برنامه را ببندید و دستی امتحان کنید.
+Close POS Shift,POS Shift را ببندید
+Close Quick Search,جستجوی سریع را ببندید
+Closing,بسته شدن
+Closing ${0} Amount can not be negative.,بستن مبلغ ${0} نمی تواند منفی باشد.
+Closing (Cr),بسته شدن (Cr)
+Closing (Dr),بسته شدن (دکتر)
+Closing Amount,مبلغ بسته شدن
+Closing Cash In Denominations,بستن وجه نقد به صورت اسمی
+Closing Date,تاریخ بسته شدن
+Collapse,سقوط - فروپاشی
+Color,رنگ
+Commission on Sales,کمیسیون فروش
+Common,مشترک
+Company,شرکت
+Company Logo,آرم شرکت
+Company Name,نام شرکت
+Company Setup,راه اندازی شرکت
+Completed,تکمیل شد
+Condition,وضعیت
+Consolidate Columns,ادغام ستون ها
+Contacts,مخاطب
+Contains,حاوی
+Continue submitting Sales Invoice?,به ثبت فاکتور فروش ادامه دهید؟
+Contra Entry,ضد ورود
+Conversion Error,خطای تبدیل
+Conversion Factor,ضریب تبدیل
+Cost Of Goods Sold Acc.,بهای تمام شده کالای فروخته شده Acc.
+Cost of Goods Sold,هزینه کالاهای فروخته شده
+"Could not connect to database file ${0}, please select the file manually","نمی توان به فایل پایگاه داده ${0} متصل شد، لطفاً فایل را به صورت دستی انتخاب کنید"
+Count,شمردن
+Counter Cash Account,حساب پیشخوان نقدی
+Country,کشور
+Country Code,کد کشور
+Country code used to initialize regional settings.,کد کشوری که برای مقداردهی اولیه تنظیمات منطقه ای استفاده می شود.
+Courier,Courier
+Cr.,
+Cr. ${0},
+Create,ایجاد
+Create Demo,ایجاد دمو
+Create Purchase,ایجاد خرید
+Create Purchase Invoice,ایجاد فاکتور خرید
+Create Sale,ایجاد فروش
+Create Sales Invoice,ایجاد فاکتور فروش
+Create a demo company to try out Frappe Books,یک شرکت نمایشی (دمو) برای آزمایش برنامه ایجاد کنید
+Create a new company and store it on your computer,یک شرکت جدید ایجاد کنید و آن را در کامپیوتر خود ذخیره کنید
+Create a new company or select an existing one from your computer,یک شرکت جدید تعریف کنید یا اینکه اگر یکی موجود دارید آن را از کامپیوتر خود انتخاب کنید
+Create a new entry of the same type as the List View,یک ورودی جدید از همان نوع نمای فهرست ایجاد کنید
+Create new ${0} entry?,ورودی ${0} جدید ایجاد شود؟
+Create your first purchase invoice from the created supplier,اولین فاکتور خرید خود را از تامین کننده ایجاد شده ایجاد کنید
+Create your first sales invoice for the created customer,اولین فاکتور فروش خود را برای مشتری ایجاد شده ایجاد کنید
+Created,ایجاد شده
+Created By,خلق شده توسط
+Creating Items and Parties,ایجاد آیتم ها و شرکا
+Creating Journal Entries,ایجاد مدخل های روزنامه
+Creating Purchase Invoices,ایجاد فاکتورهای خرید
+Credit,اعتبار
+Credit Card Entry,ورود کارت اعتباری
+Credit Note,یادداشت اعتباری
+Creditors,طلبکاران
+Currency,واحد پول
+Currency Name,نام ارز
+Current,جاری
+Current Assets,دارایی های جاری
+Current Liabilities,بدهی های جاری
+Custom Field,فیلد سفارشی
+Custom Fields,فیلدهای سفارشی
+Custom Form,فرم سفارشی
+Custom Hex,هگز سفارشی
+Customer,مشتری
+Customer Created,مشتری ایجاد شد
+Customer Currency,ارز مشتری
+Customers,مشتریان
+Customizations,سفارشی سازی ها
+Customize Form,سفارشی کردن فرم
+Customize your invoices by adding a logo and address details,"با افزودن آرم و جزئیات آدرس، فاکتورهای خود را سفارشی کنید"
+Dashboard,داشبورد
+Data,داده ها
+Database Error,خطای پایگاه داده
+Database file: ${0},فایل پایگاه داده: ${0}
+Date,تاریخ
+Date Format,فرمت تاریخ
+Date Time,زمان قرار
+Day,روز
+Debit,بدهی
+Debit Note,یادداشت بدهی
+Debtors,بدهکاران
+December,دسامبر
+Decrease print template display scale,مقیاس نمایش الگوی چاپ را کاهش دهید
+Default,پیش فرض
+Default Account,حساب پیش فرض
+Default Cash Denominations,وجه نقد پیش فرض
+Default Location,موقعیت مکانی پیش فرض
+Defaults,پیش فرض ها
+Delete,حذف
+Delete ${0}?,${0} حذف شود؟
+Delete Account,حذف حساب کاربری
+Delete Failed,حذف نشد
+Delete Group,حذف گروه
+Delivered,تحویل داده شده
+Denomination,فرقه
+Depreciation,استهلاک
+Depreciation Entry,ورود استهلاک
+Description,شرح
+Details,جزئیات
+Difference Amount,مقدار تفاوت
+Direct Expenses,هزینه های مستقیم
+Direct Income,درآمد مستقیم
+"Directory for database file ${0} does not exist, please select the file manually","فهرست راهنمای فایل پایگاه داده ${0} وجود ندارد، لطفاً فایل را به صورت دستی انتخاب کنید"
+Disabled,معلول
+Discount Account,حساب تخفیف
+Discount Account is not set.,حساب تخفیف تنظیم نشده است.
+Discount Amount,مبلغ تخفیف
+Discount Amount (${0}) cannot be greated than Amount (${1}).,مقدار تخفیف (${0}) نمی تواند از مقدار (${1}) بیشتر شود.
+Discount Percent,درصد تخفیف
+Discount Percent (${0}) cannot be greater than 100.,درصد تخفیف (${0}) نمی‌تواند بیشتر از 100 باشد.
+Discounted Amount,مبلغ با تخفیف
+Discounts,تخفیف
+Display Doc,نمایش Doc
+Display Logo in Invoice,نمایش لوگو در فاکتور
+Display Precision,دقت نمایش
+Display Precision should have a value between 0 and 9.,نمایش دقت باید مقداری بین 0 تا 9 داشته باشد.
+Display Scale,مقیاس نمایش
+Dividends Paid,سود سهام پرداخت شده
+Doc ${0} ${1} not set,سند ${0} ${1} تنظیم نشده است
+Docs,اسناد
+Documentation,مستندات
+Does Not Contain,شامل نمی شود
+Done,انجام شده
+Dr.,دکتر.
+Dr. ${0},دکتر ${0}
+Draft,پیش نویس
+Duplicate,تکراری
+Duplicate Entry,ورود تکراری
+Duplicate Template,قالب تکراری
+Duplicate columns found: ${0},ستون‌های تکراری پیدا شد: ${0}
+Duties and Taxes,عوارض و مالیات
+Dynamic Link,لینک پویا
+Earnest Money,بیعانه
+Electronic Equipments,تجهیزات الکترونیکی
+Email,پست الکترونیک
+Email Address,آدرس ایمیل
+Empty,خالی
+Empty file selected,فایل خالی انتخاب شد
+Enable Barcodes,بارکدها را فعال کنید
+Enable Batches,دسته ها را فعال کنید
+Enable Discount Accounting,حسابداری تخفیف را فعال کنید
+Enable Form Customization,سفارشی سازی فرم را فعال کنید
+Enable Inventory,موجودی را فعال کنید
+Enable Invoice Returns,بازگشت فاکتور را فعال کنید
+Enable Point of Sale,فعال کردن نقطه فروش
+Enable Price List,لیست قیمت را فعال کنید
+Enable Serial Number,شماره سریال را فعال کنید
+Enable Stock Returns,بازده سهام را فعال کنید
+Enable UOM Conversion,تبدیل UOM را فعال کنید
+Enabled,فعال شد
+Enabled For,فعال شده برای
+Enter Country to load States,کشور را برای بارگیری ایالات وارد کنید
+Enter State,ایالت را وارد کنید
+Enter barcode,بارکد را وارد کنید
+Entertainment Expenses,مخارج تفریحات
+Entry,ورود
+Entry Currency,ارز ورودی
+Entry Label,برچسب ورودی
+Entry No,شماره ورودی
+Entry No.,شماره ورودی
+Entry Type,نوع ورودی
+Entry has Grand Total ${0}. Please verify amounts.,ورودی دارای مجموع کل ${0} است. لطفاً مقادیر را تأیید کنید.
+Equity,دارایی خالص
+Error,خطا
+Exchange Gain/Loss,سود/زیان مبادله
+Exchange Rate,قیمت ارز
+Excise Entry,ورودی مالیات غیر مستقیم
+Existing Company,شرکت موجود
+Expand,بسط دادن
+Expected Amount,مقدار مورد انتظار
+Expense,هزینه
+Expense Account,حساب هزینه
+Expenses,مخارج
+Expenses Included In Valuation,هزینه های گنجانده شده در ارزش گذاری
+Expiry Date,تاریخ انقضا
+Export,صادرات
+Export Failed,صادرات انجام نشد
+Export Format,فرمت صادرات
+Export Successful,صادرات با موفقیت انجام شد
+Export Wizard,Export Wizard
+Failed,ناموفق
+Fax,فکس
+Features,امکانات
+February,فوریه
+Field,رشته
+Fieldname,نام زمینه
+Fieldname ${0} already exists for ${1},نام فیلد ${0} از قبل برای ${1} وجود دارد
+Fieldname ${0} already used for Custom Field ${1},نام فیلد ${0} قبلاً برای فیلد سفارشی ${1} استفاده شده است
+Fieldtype,نوع میدان
+File ${0} does not exist.,فایل ${0} وجود ندارد.
+File selection failed,انتخاب فایل انجام نشد
+Fill,پر کنید
+Filter,فیلتر کنید
+Fiscal Year,سال مالی
+Fiscal Year End Date,تاریخ پایان سال مالی
+Fiscal Year Start Date,تاریخ شروع سال مالی
+Fix Failed,رفع نشد
+Fixed Asset,دارایی ثابت
+Fixed Assets,دارایی های ثابت
+Float,شناور
+Following cells have errors: ${0}.,سلول های زیر دارای خطا هستند: ${0}.
+Following links do not exist: ${absentLinks .map((l) =>,پیوندهای زیر وجود ندارند: ${absentLinks .map((l) =>
+Font,فونت
+For Purchase,برای خرید
+For Sales,برای فروش
+Forbidden Error,خطای ممنوع
+Form Section,بخش فرم
+Form Tab,برگه فرم
+Form Type,نوع فرم
+Fr,Fr
+Fraction,کسر
+Fraction Units,واحدهای کسری
+Frappe Books does not have access to the selected file: ${0},برنامه به فایل انتخابی دسترسی ندارد: ${0}
+Freight and Forwarding Charges,هزینه باربری و حمل و نقل
+From,از جانب
+From Account,از حساب
+From Date,از تاریخ
+From Loc.,از Loc.
+From Year,از سال
+Full Name,نام و نام خانوادگی
+Furnitures and Fixtures,مبلمان و وسایل
+GST,GST
+GSTIN No.,شماره GSTIN
+GSTR1,GSTR1
+GSTR2,GSTR2
+Gain/Loss on Asset Disposal,سود / زیان در دفع دارایی
+General,عمومی
+General Ledger,دفتر کل
+Get Started,شروع کنید
+Global,جهانی
+Go back to the previous page,بازگشت به صفحه قبلی
+Gram,گرم
+Grand Total,کل بزرگ
+Greater Than,بزرگتر از
+Green,سبز
+Group By,دسته بندی بر اساس
+HSN/SAC,HSN/SAC
+HSN/SAC Code,کد HSN/SAC
+Half Yearly,نیم سال
+Half Years,نیم سال
+Has Batch,دارای دسته
+Has Serial Number,دارای شماره سریال
+Height (in cm),ارتفاع (بر حسب سانتی متر)
+Help,کمک
+Hex Value,ارزش هگز
+Hidden values will be visible on Print on.,مقادیر پنهان در Print on قابل مشاهده خواهند بود.
+Hide Get Started,پنهان کردن شروع کنید
+Hide Group Amounts,مخفی کردن مقادیر گروه
+Hide Month/Year,پنهان کردن ماه/سال
+Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.,"بخش Get Started را از نوار کناری پنهان می کند. با راه‌اندازی مجدد یا به‌روزرسانی برنامه، تغییر قابل مشاهده خواهد بود."
+Hour,ساعت
+INR,INR
+Image,تصویر
+Import Complete,واردات کامل شد
+Import Data,وارد کردن داده ها
+Import Data.,وارد کردن داده ها
+Import Type,نوع واردات
+Import Wizard,جادوگر واردات
+"Importer not set, reload tool","واردکننده تنظیم نشده است، ابزار را دوباره بارگیری کنید"
+Inactive,غیر فعال
+Include Cancelled,شامل لغو شد
+Income,درآمد
+Income Account,حساب درآمد
+Increase print template display scale,مقیاس نمایش الگوی چاپ را افزایش دهید
+Indigo,نیل
+Indirect Expenses,هزینه های غیر مستقیم
+Indirect Income,درآمد غیر مستقیم
+Inflow,ورودی
+Instance Id,شناسه نمونه
+Insufficient Quantity,مقدار ناکافی
+Insufficient Quantity.,مقدار ناکافی
+Insufficient Quantity. Item ${0} has only ${1} quantities available. you selected ${2},مقدار ناکافی مورد ${0} فقط تعداد ${1} موجود است. شما ${2} را انتخاب کردید
+Int,بین المللی
+Intergrated Tax,مالیات یکپارچه
+Internal Precision,دقت داخلی
+Invalid Key Error,خطای کلید نامعتبر
+Invalid Quantity for Item ${0},مقدار نامعتبر برای مورد ${0}
+Invalid barcode value ${0}.,مقدار بارکد ${0} نامعتبر است.
+Invalid value ${0} for ${1},مقدار نامعتبر ${0} برای ${1}
+Invalid value found for ${0},مقدار نامعتبر برای ${0} پیدا شد
+Inventory,فهرست
+Inventory Settings,تنظیمات موجودی
+Investments,سرمایه گذاری ها
+Invoice,صورتحساب
+Invoice Created,فاکتور ایجاد شد
+Invoice Date,تاریخ فاکتور
+Invoice Item,مورد فاکتور
+Invoice No,شماره فاکتور
+Invoice No.,شماره فاکتور.
+Invoice Value,ارزش فاکتور
+Invoices,فاکتورها
+Is,است
+Is Custom,سفارشی است
+Is Empty,خالی است
+Is Group,گروه است
+Is Landscape,منظره است
+Is Not,نیست
+Is Not Empty,خالی نیست
+Is POS Shift Open,آیا POS Shift باز است
+Is Price List Enabled,لیست قیمت فعال است
+Is Required,مورد نیاز است
+Is Whole,کل است
+Item,مورد
+Item ${0} has Zero Quantity,مورد ${0} دارای مقدار صفر است
+Item ${0} is a batched item,مورد ${0} یک مورد دسته‌ای است
+Item ${0} is not a batched item,مورد ${0} یک مورد دسته‌ای نیست
+Item ${0} not in Stock,مورد ${0} موجود نیست
+Item Description,توضیحات مورد
+Item Discounts,تخفیف اقلام
+Item Name,نام آیتم
+Item Prices,قیمت اقلام
+Item with From location not found,مورد با از مکان یافت نشد
+Item with To location not found,مورد با موقعیت مکانی یافت نشد
+Item with barcode ${0} not found.,مورد با بارکد ${0} یافت نشد.
+Items,موارد
+January,ژانویه
+John Doe,جان دو
+Journal Entries,ورودی روزنامه
+Journal Entry,ورودی دفتر روزنامه
+Journal Entry Account,حساب ورودی دفتر روزنامه
+Journal Entry Number Series,سری شماره مدخل روزنامه
+Journal Entry Print Template,قالب چاپی ورودی روزنامه
+July,جولای
+June,ژوئن
+Key Hints,نکات کلیدی
+Kg,کیلوگرم
+Label,برچسب
+Language,زبان
+Left Index,فهرست چپ
+Legal Expenses,هزینه های قانونی
+Less Filters,فیلترهای کمتر
+Less Than,کمتر از
+Liability,مسئولیت
+Limit,حد
+Link,ارتباط دادن
+Link Validation Error,خطای اعتبارسنجی پیوند
+Linked Entries,ورودی های مرتبط
+List,فهرست کنید
+List View,نمایش لیست
+Load an existing company from your computer,یک شرکت موجود را از رایانه خود بارگیری کنید
+Loading Report...,در حال بارگذاری گزارش...
+Loading instance...,در حال بارگیری نمونه...
+Loading...,بارگذاری...
+Loans (Liabilities),وام (بدهی)
+Loans and Advances (Assets),وام و پیش پرداخت (دارایی)
+Locale,محلی
+Location,محل
+Location Name,نام مکان
+Logo,لوگو
+Make Entry,ورود را انجام دهید
+Make Payment On Submit,پرداخت را در هنگام ثبت انجام دهید
+Make Purchase Receipt On Submit,"در صورت ثبت، رسید خرید را تهیه کنید"
+Make Shipment On Submit,ارسال را در صورت ثبت انجام دهید
+Mandatory Error,خطای اجباری
+Manufacture,ساخت
+Manufacture Date,تاریخ تولید
+23-Mar-22,23-مارس-22
+March,مارس
+Mark ${0} as submitted?,${0} به عنوان ثبت شده علامت‌گذاری شود؟
+Marketing Expenses,هزینه های بازاریابی
+Material Issue,مسئله مادی
+Material Receipt,رسید مواد
+Material Transfer,انتقال مواد
+May,ممکن است
+Meter,متر
+Misc,متفرقه
+Miscellaneous,متفرقه
+Miscellaneous Expenses,هزینه های متفرقه
+Mo,مو
+Modified,اصلاح شده
+Modified By,تغییر داده شده توسط
+Monthly,ماهانه
+Months,ماه ها
+More,بیشتر
+More Filters,فیلترهای بیشتر
+More shortcuts will be added soon.,به زودی میانبرهای بیشتری اضافه خواهد شد.
+Movement Type,نوع حرکت
+Name,نام
+Navigate,پیمایش کنید
+Need ${0} Serial Numbers for Item ${1}. You have provided ${2},به شماره سریال ${0} برای مورد ${1} نیاز دارید. شما ${2} ارائه کرده اید
+Net Total,کل خالص
+New ${0},${0} جدید
+New ${0} ${1},${0} ${1} جدید
+New Account,حساب جدید
+New Company,شرکت جدید
+New Entry,ورودی جدید
+New Template,قالب جدید
+No,خیر
+No Display Entries Found,هیچ ورودی نمایشی یافت نشد
+No Print Templates not found for entry type ${0},هیچ الگوی چاپی برای نوع ورودی ${0} یافت نشد
+No Value,بدون ارزش
+No Values to be Displayed,هیچ مقداری نمایش داده نمی شود
+No entries found,هیچ ورودی یافت نشد
+No entries were imported.,هیچ ورودی وارد نشد.
+No expenses in this period,بدون هیچ هزینه ای در این دوره
+No filters selected,هیچ فیلتری انتخاب نشده است
+No linked entries found,هیچ ورودی پیوندی یافت نشد
+No results found,نتیجه ای پیدا نشد
+No rows added. Select a file or add rows.,هیچ ردیفی اضافه نشد. یک فایل را انتخاب کنید یا ردیف اضافه کنید.
+No transactions yet,هنوز هیچ تراکنشی وجود ندارد
+Non Active Serial Number ${0} cannot be used as Manufacture raw material,شماره سریال غیر فعال ${0} را نمی توان به عنوان ماده اولیه ساخت استفاده کرد
+Non Active Serial Number ${0} cannot be used for Material Issue,شماره سریال غیرفعال ${0} را نمی‌توان برای مشکل مواد استفاده کرد
+Non Active Serial Number ${0} cannot be used for Material Transfer,شماره سریال غیر فعال ${0} را نمی توان برای انتقال مواد استفاده کرد
+Non Inactive Serial Number ${0} cannot be used for Material Receipt,شماره سریال غیرفعال ${0} را نمی توان برای دریافت مواد استفاده کرد
+None,هیچ یک
+Not Found,پیدا نشد
+Not Saved,ذخیره نشد
+Not Submitted,ثبت نشده
+Not Transferred,منتقل نشده است
+Notes,یادداشت
+November,نوامبر
+Number Display,نمایش شماره
+Number Series,سری شماره
+Number of ${0},تعداد ${0}
+Number of Rows,تعداد ردیف ها
+October,اکتبر
+Office Equipments,تجهیزات اداری
+Office Maintenance Expenses,هزینه های نگهداری دفتر
+Office Rent,اجاره دفتر کار
+Okay,باشه
+Onboarding Complete,ورود کامل شد
+Only From or To can be set for Manufacture,فقط From یا To را می توان برای Manufacture تنظیم کرد
+Open Count,تعداد را باز کنید
+Open Documentation,باز کردن اسناد
+Open Folder,پوشه را باز کنید
+Open Print View,نمای چاپی را باز کنید
+Open Print View if Print is available.,"اگر چاپ در دسترس است، نمای چاپ را باز کنید."
+Open Quick Search,جستجوی سریع را باز کنید
+Open Report Print View,نمای چاپ گزارش را باز کنید
+Open the Export Wizard modal,حالت Export Wizard را باز کنید
+Opening (Cr),باز کردن (Cr)
+Opening (Dr),افتتاحیه (دکتر)
+Opening Amount,مبلغ افتتاحیه
+Opening Balance Equity,دارایی موجودی افتتاحیه
+Opening Balances,ترازهای افتتاحیه
+Opening Cash Amount can not be negative.,باز کردن مبلغ نقدی نمی تواند منفی باشد.
+Opening Cash In Denominations,گشایش وجه نقد به صورت اسمی
+Opening Date,تاریخ افتتاحیه
+Opening Entry,باز کردن ورودی
+Options,گزینه ها
+Orange,نارنجی
+Organisation,سازمان
+Outflow,خروجی
+Outstanding,برجسته
+Outstanding Amount,مبلغ معوقه
+POS,POS
+POS Counter Cash Account is not set. Please set it on POS Settings,حساب نقدی پیشخوان POS تنظیم نشده است. لطفاً آن را در تنظیمات POS تنظیم کنید
+POS Customer,مشتری POS
+POS Inventory is not set. Please set it on POS Settings,موجودی POS تنظیم نشده است. لطفاً آن را در تنظیمات POS تنظیم کنید
+POS Settings,تنظیمات POS
+POS Shift Amount,مقدار شیفت POS
+POS Write Off Account is not set. Please set it on POS Settings,POS Write Off Account تنظیم نشده است. لطفاً آن را در تنظیمات POS تنظیم کنید
+Pad Zeros,پد صفر
+Page,صفحه
+Paid,پرداخت شده
+Paid ${0},پرداخت شده ${0}
+Paid Change,تغییر پرداخت شده
+Parent,والدین
+Parent Account,حساب والدین
+Party,شریک
+Patch Run,Patch Run
+Pay,پرداخت
+Payable,قابل پرداخت
+Payment,پرداخت
+Payment ${0} is Saved,پرداخت ${0} ذخیره شده است
+Payment For,پرداخت برای
+Payment Method,روش پرداخت
+Payment No,شماره پرداخت
+Payment Number Series,سری شماره پرداخت
+Payment Print Template,قالب چاپ پرداخت
+Payment Reference,مرجع پرداخت
+Payment Type,نوع پرداخت
+Payment amount cannot be ${0}.,مبلغ پرداخت نمی تواند ${0}  باشد.
+Payment amount cannot be less than zero.,مبلغ پرداختی نمی تواند کمتر از صفر باشد.
+Payment amount cannot exceed ${0}.,مبلغ پرداخت نمی تواند از ${0} تجاوز کند.
+Payment amount: ${0} should be greater than 0.,مبلغ پرداخت: ${0} باید بیشتر از 0 باشد.
+Payment amount: ${0} should be less than Outstanding amount: ${1}.,مبلغ پرداخت: ${0} باید کمتر از مبلغ معوقه: ${1} باشد.
+"Payment of ${0} will be made from account ""${1}"" to account ""${2}"" on Submit.","پرداخت ${0} از حساب ""${1}"" به حساب ""${2}"" در ثبت انجام می شود."
+Payments,مبلغ پرداختی
+Payroll Payable,حقوق و دستمزد قابل پرداخت
+Pending Qty. ${0},تعداد معلق ${0}
+Pending qty. ${0},تعداد معلق ${0}
+Periodicity,دوره ای
+Phone,تلفن
+Pick Columns,ستون ها را انتخاب کنید
+Pick Import Columns,ستون های وارداتی را انتخاب کنید
+Pink,رنگ صورتی
+Place,محل
+Place of supply,محل عرضه
+Plants and Machineries,گیاهان و ماشین آلات
+Please Wait,لطفا صبر کنید
+Please check Key Hints for valid key names,لطفاً نکات کلیدی را برای نام کلیدهای معتبر بررسی کنید
+Please create a ${0} entry to view Template Preview.,لطفاً یک ورودی ${0} برای مشاهده پیش‌نمایش الگو ایجاد کنید.
+Please fill all values.,لطفا تمام مقادیر را پر کنید.
+Please restart and try again.,لطفاً راه اندازی مجدد و دوباره امتحان کنید.
+Please select a Print Template,لطفاً یک الگوی چاپی انتخاب کنید
+Please select a valid reference type.,لطفاً یک نوع مرجع معتبر انتخاب کنید.
+Please set GSTIN in General Settings.,لطفاً GSTIN را در تنظیمات عمومی تنظیم کنید.
+Please set Round Off Account in the Settings.,لطفاً حساب گرد کردن را در تنظیمات تنظیم کنید.
+Please set a Display Doc,لطفاً یک سند نمایشی تنظیم کنید
+Point of Sale,نقطه فروش
+Postal Code,کد پستی
+Postal Expenses,هزینه های پستی
+Posting Date,تاریخ پست
+Prefix,پیشوند
+Price List,لیست قیمت
+Price List Item,آیتم لیست قیمت
+Prime Bank,پرایم بانک
+Print,چاپ
+Print ${0},چاپ ${0}
+Print Settings,تنظیمات چاپ
+Print Setup,راه اندازی چاپ
+Print Template,چاپ قالب
+Print Template Name not set,نام الگوی چاپ تنظیم نشده است
+Print Template is empty,قالب چاپ خالی است
+Print Templates,قالب های چاپی
+Print View,نمای چاپی
+Print and Stationery,چاپ و لوازم التحریر
+Product,تولید - محصول
+Profit And Loss,سود و زیان
+Profit and Loss,سود و زیان
+Purchase,خرید
+Purchase Acc.,خرید Acc.
+Purchase Invoice,فاکتور خرید
+Purchase Invoice Item,کالای فاکتور خرید
+Purchase Invoice Number Series,سری شماره فاکتور خرید
+Purchase Invoice Print Template,قالب چاپ فاکتور خرید
+Purchase Invoice Terms,شرایط فاکتور خرید
+Purchase Invoices,فاکتورهای خرید
+Purchase Item,خرید آیتم
+Purchase Item Created,خرید مورد ایجاد شد
+Purchase Items,خرید اقلام
+Purchase Payment,پرداخت خرید
+Purchase Payment Account,خرید حساب پرداخت
+Purchase Payments,پرداخت های خرید
+Purchase Receipt,رسید خرید
+Purchase Receipt Item,کالای رسید خرید
+Purchase Receipt Location,محل رسید خرید
+Purchase Receipt Number Series,سری شماره رسید خرید
+Purchase Receipt Print Template,قالب چاپ رسید خرید
+Purchase Receipt Terms,شرایط رسید خرید
+Purchases,خریدها
+Purple,رنگ بنفش
+Purpose,هدف
+Qty in Batch,تعداد در دسته
+Qty. ${0},تعداد ${0}
+Qty. in Transfer Unit,تعداد در واحد انتقال
+Quantity,تعداد
+Quantity (${0}) has to be greater than zero,مقدار ({0}$) باید بزرگتر از صفر باشد
+Quantity needs to be set,مقدار باید تنظیم شود
+Quarterly,سه ماه یکبار
+Quarters,ربع
+Quick Search,جستجوی سریع
+Quick edit error: ${0} entry has no name.,خطای ویرایش سریع: ورودی ${0} نامی ندارد.
+Quote,نقل قول
+Quote Reference,مرجع نقل قول
+Rate,نرخ
+Rate (${0}) cannot be less zero.,نرخ (${0}) نمی تواند کمتر از صفر باشد.
+Rate (${0}) has to be greater than zero,نرخ ({0}$) باید بزرگتر از صفر باشد
+Rate can't be negative.,نرخ نمی تواند منفی باشد.
+Rate needs to be set,نرخ باید تعیین شود
+Raw Value: ${0},ارزش خام: ${0}
+Receivable,قابل دریافت است
+Receive,دريافت كردن
+Red,قرمز
+Ref Name,نام مرجع
+Ref Type,نوع مرجع
+Ref. / Cheque No.,مرجع. / شماره چک
+Ref. Date,مرجع. تاریخ
+Ref. Name,مرجع. نام
+Ref. Type,مرجع. تایپ کنید
+Reference,ارجاع
+Reference Date,تاریخ مرجع
+Reference Number,شماره مرجع
+Reference Type,نوع مرجع
+References,منابع
+Reload Frappe Books?,بارگیری مجدد برنامه؟
+Report,گزارش
+Report Error,گزارش خطا
+Report Issue,گزارش مسئله
+Report will use more than one page if required.,در صورت لزوم گزارش از بیش از یک صفحه استفاده خواهد کرد.
+Reports,گزارش ها
+Required fields not selected: ${0},فیلدهای الزامی انتخاب نشده اند: ${0}
+Retained Earnings,سود انباشته
+Return,برگشت
+Return Against,بازگشت در مقابل
+Return Issued,بازگشت صادر شد
+Reverse Chrg.,معکوس Chrg.
+Reverted,برگردانده شد
+Reverts,برمی گردد
+Review Accounts,بررسی حساب ها
+"Review your chart of accounts, add any account or tax heads as needed","نمودار حساب های خود را مرور کنید، هر حساب یا سر مالیات را در صورت نیاز اضافه کنید"
+Right Index,شاخص سمت راست
+Role,نقش
+Root Type,نوع ریشه
+Round Off,گرد کردن
+Round Off Account,گرد کردن حساب
+Round Off Account Not Found,گرد کردن حساب پیدا نشد
+Rounded Off,گرد شده
+Row ${0},ردیف ${0}
+Sa,سا
+Salary,حقوق
+Sales,فروش ها
+Sales Acc.,فروش Acc.
+Sales Expenses,هزینه های فروش
+Sales Invoice,فاکتور فروش
+Sales Invoice ${0} is Submitted,فاکتور فروش ${0} ثبت شده است
+Sales Invoice Item,مورد فاکتور فروش
+Sales Invoice Number Series,سری شماره فاکتور فروش
+Sales Invoice Print Template,قالب چاپ فاکتور فروش
+Sales Invoice Terms,شرایط فاکتور فروش
+Sales Invoices,فاکتورهای فروش
+Sales Item,مورد فروش
+Sales Item Created,مورد فروش ایجاد شد
+Sales Items,اقلام فروش
+Sales Payment,پرداخت فروش
+Sales Payment Account,حساب پرداخت فروش
+Sales Payments,پرداخت های فروش
+Sales Quote,نقل قول فروش
+Sales Quote Item,مورد قیمت فروش
+Sales Quote Number Series,سری شماره نقل قول فروش
+Sales Quote Print Template,قالب چاپ قیمت فروش
+Sales Quotes,قیمت های فروش
+Sales and Purchase,فروش و خرید
+Save,ذخیره
+Save ${0}?,${0} ذخیره شود؟
+Save Customizations,سفارشی سازی ها را ذخیره کنید
+Save Template,ذخیره الگو
+Save Template File,ذخیره فایل الگو
+Save as PDF,ذخیره به صورت PDF
+Save as PDF Successful,ذخیره به عنوان PDF با موفقیت انجام شد
+Save changes made to ${0}?,تغییرات ایجاد شده در ${0} ذخیره شود؟
+Save or Submit an entry.,ذخیره یا ثبت یک ورودی
+Saved,ذخیره
+Search an Item,جستجوی یک آیتم
+Secured Loans,وام های تضمین شده
+Securities and Deposits,اوراق بهادار و سپرده ها
+Select,انتخاب کنید
+Select CoA,CoA را انتخاب کنید
+Select Color,رنگ را انتخاب کنید
+Select Country,کشور را انتخاب کنید
+Select File,فایل را انتخاب کنید
+Select Image,Image را انتخاب کنید
+Select Template File,فایل قالب را انتخاب کنید
+Select a Display Doc to view the Template,برای مشاهده الگو یک Display Doc را انتخاب کنید
+Select a Template type,یک نوع الگو را انتخاب کنید
+Select a form type to customize,یک نوع فرم را برای سفارشی کردن انتخاب کنید
+"Select a pre-defined page size, or set a custom page size for your Print Template.",اندازه صفحه از پیش تعریف شده را انتخاب کنید یا اندازه صفحه سفارشی را برای الگوی چاپی خود تنظیم کنید.
+Select column,ستون را انتخاب کنید
+Select file,فایل را انتخاب کنید
+Select folder,پوشه را انتخاب کنید
+Select the template type.,نوع قالب را انتخاب کنید.
+Selected,انتخاب شد
+September,سپتامبر
+Serial Number,شماره سریال
+Serial Number ${0} does not belong to the item ${1}.,شماره سریال ${0} به مورد ${1} تعلق ندارد.
+Serial Number ${0} does not exist.,شماره سریال ${0} وجود ندارد.
+Serial Number ${0} is not Active.,شماره سریال ${0} فعال نیست.
+Serial Number ${0} is not Inactive,شماره سریال ${0} غیرفعال نیست
+Serial Number ${0} status is not Active.,وضعیت شماره سریال ${0} فعال نیست.
+Serial Number Description,شرح شماره سریال
+Serial Number is enabled for Item ${0},شماره سریال برای مورد ${0} فعال است
+Serial Number is not enabled for Item ${0},شماره سریال برای مورد ${0} فعال نیست
+Serial Number not set for row ${0}.,شماره سریال برای ردیف ${0} تنظیم نشده است.
+Serial Number set for row ${0}.,شماره سریال برای ردیف ${0} تنظیم شد.
+Service,سرویس
+Set Discount Amount,مقدار تخفیف را تعیین کنید
+Set Period,تنظیم دوره
+Set Print Size,اندازه چاپ را تنظیم کنید
+Set Template Type,تنظیم نوع قالب
+Set Up,راه اندازی
+Set Up Your Workspace,فضای کاری خود را تنظیم کنید
+Set a Template value to see the Print Template,یک مقدار Template برای دیدن قالب چاپی تنظیم کنید
+Set an Import Type,یک نوع واردات تنظیم کنید
+Set the display language.,زبان نمایش را تنظیم کنید.
+Set the local code. This is used for number formatting.,کد محلی را تنظیم کنید. این برای قالب بندی اعداد استفاده می شود.
+"Set up your company information, email, country and fiscal year","اطلاعات شرکت، ایمیل، کشور و سال مالی خود را تنظیم کنید"
+Set up your opening balances before performing any accounting entries,"قبل از انجام هر گونه ثبت حسابداری، مانده های افتتاحیه خود را تنظیم کنید"
+Set up your organization,سازمان خود را راه اندازی کنید
+Set up your tax templates for your sales or purchase transactions,الگوهای مالیاتی خود را برای معاملات خرید یا فروش خود تنظیم کنید
+Sets how many digits are shown after the decimal point.,تعیین می کند که چند رقم بعد از نقطه اعشار نشان داده شود.
+Sets the app-wide date display format.,قالب نمایش تاریخ در سطح برنامه را تنظیم می کند.
+Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.,دقت داخلی مورد استفاده برای محاسبات پولی را تنظیم می کند. بالای 6 باید برای اکثر ارزها کافی باشد.
+Setting Up Instance,راه اندازی نمونه
+Settings,تنظیمات
+Setup,راه اندازی
+Setup Complete,راه اندازی کامل شد
+Setup Wizard,Setup Wizard
+Setup system defaults like date format and display precision,تنظیمات پیش فرض سیستم مانند فرمت تاریخ و دقت نمایش را تنظیم کنید
+Shipment,حمل و نقل
+Shipment ${0} is Submitted,ارسال ${0} ثبت شده است
+Shipment Item,کالای حمل و نقل
+Shipment Location,محل حمل و نقل
+Shipment Number Series,سری شماره حمل و نقل
+Shipment Print Template,قالب چاپ حمل و نقل
+Shipment Terms,شرایط حمل و نقل
+Shortcuts,میانبرها
+Should entries be submitted after syncing?,آیا ورودی ها باید پس از همگام سازی ثبت شوند؟
+Show HSN,نمایش HSN
+Show Me,به من نشان بده
+Show Month/Year,نمایش ماه/سال
+Single Value,ارزش واحد
+Skip Child Tables,از جداول کودک بگذرید
+Skip Transactions,رد شدن از معاملات
+Smallest Currency Fraction Value,کوچکترین ارزش کسری ارز
+Softwares,نرم افزارها
+Something has gone terribly wrong. Please check the console and raise an issue.,چیزی به طرز وحشتناکی اشتباه شده است. لطفا کنسول را بررسی کنید و مشکلی را مطرح کنید.
+Source of Funds (Liabilities),منبع وجوه (بدهی ها)
+Standard Chart of Accounts,نمودار استاندارد حسابداری
+Start,شروع کنید
+Start From Row Index,از فهرست ردیف شروع کنید
+State,حالت
+State Tax,مالیات استانی
+Status,وضعیت
+Stock,موجودی
+Stock Adjustment,تعدیل سهام
+Stock Assets,دارایی های سهام
+Stock Balance,موجودی سهام
+Stock Entries,ورودی های سهام
+Stock Expenses,مخارج سهام
+Stock In Hand,سهام در دست
+Stock In Hand Acc.,موجودی در دست Acc.
+Stock Ledger,دفتر کل سهام
+Stock Ledger Entry,ورود به دفتر کل سهام
+Stock Liabilities,بدهی های سهام
+Stock Movement,جنبش سهام
+Stock Movement Item,آیتم حرکت سهام
+Stock Movement No.,شماره حرکت سهام
+Stock Movement Number Series,سری شماره حرکت سهام
+Stock Movement Print Template,الگوی چاپ جنبش سهام
+Stock Movements,حرکات سهام
+Stock Not Received,سهام دریافت نشد
+Stock Not Shipped,سهام ارسال نشده است
+Stock Not Transferred,سهام منتقل نشده است
+Stock Received But Not Billed,سهام دریافت شد اما صورتحساب نشد
+Stock Received But Not Billed Acc.,سهام دریافت شده اما صورتحساب نشده Acc.
+Stock Transfer Item,کالای انتقال سهام
+Stock Unit,واحد سهام
+StockTransfer,انتقال سهام
+Stores,مغازه ها
+Su,سو
+Submit,ثبت
+Submit ${0}?,${0} ثبت شود؟
+Submit & Print,ثبت و چاپ
+Submit entries?,ورودی ها ثبت شود؟
+Submitted,ثبت شده
+Success,موفقیت
+Supplier,تامین کننده
+Supplier Created,تامین کننده ایجاد شد
+Suppliers,تامین کنندگان
+Symbol,سمبل
+System,سیستم
+System Settings,تنظیمات سیستم
+System Setup,راه اندازی سیستم
+Table,جدول
+Target,هدف
+Tax,مالیات
+Tax Account,حساب مالیاتی
+Tax Amount,مقدار مالیات
+Tax Assets,دارایی های مالیاتی
+Tax Detail,جزئیات مالیاتی
+Tax ID,شناسه مالیاتی
+Tax Invoice Account,حساب فاکتور مالیاتی
+Tax Payment Account,حساب پرداخت مالیات
+Tax Rate,نرخ مالیات
+Tax Summary,خلاصه مالیات
+Tax Template,الگوی مالیاتی
+Tax Templates,الگوهای مالیاتی
+Tax and Totals,مالیات و کل
+Taxable Value,ارزش مشمول مالیات
+Taxed Amount,مقدار مالیات
+Taxes,مالیات
+Taxes and Charges,مالیات و عوارض
+Teal,آبی رنگ
+Telephone Expenses,هزینه های تلفن
+Template,قالب
+Template Builder,قالب ساز
+Template Compilation Error,خطای تدوین الگو
+Template Name,نام الگو
+Template Type,نوع قالب
+Template file saved,فایل الگو ذخیره شد
+Temporary,موقت
+Temporary Accounts,حساب های موقت
+Temporary Opening,افتتاح موقت
+Terms,مقررات
+Text,متن
+Th,Th
+The following characters cannot be used ${0} in a Number Series name.,از نویسه‌های زیر نمی‌توان از ${0} در نام سری Number استفاده کرد.
+The following items have insufficient quantity for Shipment: ${0},تعداد موارد زیر برای ارسال ناکافی است: ${0}
+This Month,این ماه
+This Quarter,این سه ماهه
+This Year,امسال
+This action is permanent,این عمل دائمی است
+This action is permanent and will cancel the following payment: ${0},این اقدام دائمی است و پرداخت زیر را لغو می‌کند: ${0}
+This action is permanent and will cancel the following payments: ${0},این اقدام دائمی است و پرداخت‌های زیر را لغو می‌کند: ${0}
+This action is permanent and will delete associated ledger entries.,این اقدام دائمی است و ورودی های دفتر مرتبط را حذف می کند.
+This action is permanent.,این عمل دائمی است.
+Times New Roman,Times New Roman
+To,به
+To Account,به حساب
+To Account and From Account can't be the same: ${0},To Account و From Account نمی توانند یکسان باشند: ${0}
+To Date,به روز
+To Loc.,به محل.
+To Year,به سال
+Toggle Edit Mode,حالت ویرایش را تغییر دهید
+Toggle Key Hints,نکات کلیدی را تغییر دهید
+"Toggle Linked Entries widget, not available in Quick Edit view.","ویجت ورودی های پیوندی را تغییر دهید، در نمای ویرایش سریع موجود نیست."
+Toggle between form and full width,بین فرم و عرض کامل جابه‌جا شوید
+Toggle sidebar,جابجایی نوار کناری
+Toggle the Create filter,فیلتر ایجاد را تغییر دهید
+Toggle the Docs filter,فیلتر Docs را تغییر دهید
+Toggle the List filter,فیلتر لیست را تغییر دهید
+Toggle the Page filter,فیلتر صفحه را تغییر دهید
+Toggle the Report filter,فیلتر گزارش را تغییر دهید
+Top Expenses,هزینه های برتر
+Total,جمع
+Total Amount,مقدار کل
+Total Asset (Debit),کل دارایی (بدهی)
+Total Debit: ${0} must be equal to Total Credit: ${1},کل بدهی: ${0} باید برابر با کل اعتبار باشد: ${1}
+Total Discount,مجموع تخفیف
+Total Equity (Credit),کل حقوق صاحبان سهام (اعتبار)
+Total Expense (Debit),کل هزینه (بدهی)
+Total Income (Credit),کل درآمد (اعتبار)
+Total Liability (Credit),کل بدهی (اعتبار)
+Total Profit,سود کل
+Total Quantity,مقدار کل
+Total Spending,کل هزینه
+Track Inventory,ردیابی موجودی
+Transfer,انتقال
+Transfer No,شماره انتقال
+Transfer Type,نوع انتقال
+Transfer Unit,واحد انتقال
+Transfer Unit ${0} is not applicable for Item ${1},واحد انتقال ${0} برای مورد ${1} قابل اجرا نیست
+Transfer will cause future entries to have negative stock.,انتقال باعث می شود ورودی های آینده دارای سهام منفی باشند.
+Travel Expenses,مخارج سفر
+Trial Balance,تراز آزمایشی
+Tu,تو
+Type,تایپ کنید
+Type to search...,برای جستجو تایپ کنید...
+UOM,UOM
+UOM Conversion Item,مورد تبدیل UOM
+UOM Conversions,تبدیل UOM
+Unit,واحد
+Unit Type,نوع واحد
+Unpaid,پرداخت نشده
+Unpaid ${0},${0} پرداخت نشده
+Unsecured Loans,وام های بدون وثیقه
+Until Date,تا تاریخ
+Use Full Width,از عرض کامل استفاده کنید
+Use List Filters,از List Filt استفاده کنید
+User Remark,نظر کاربر
+Utility Expenses,هزینه های آب و برق
+Validation Error,خطای اعتبار سنجی
+Value,ارزش
+Value missing for ${0},مقدار از دست رفته برای ${0}
+Value: ${0},ارزش: ${0}
+Version,نسخه
+View,چشم انداز
+View Accounting Entries,مشاهده ورودی های حسابداری
+View Paid Invoices,مشاهده فاکتورهای پرداخت شده
+View Purchases,مشاهده خریدها
+View Sales,مشاهده فروش
+View Stock Entries,مشاهده ورودی های سهام
+View Unpaid Invoices,مشاهده فاکتورهای پرداخت نشده
+View linked entries,مشاهده ورودی های مرتبط
+We,ما
+Welcome to Frappe Books,به برنامه Frappe Books خوش آمدید
+Width (in cm),عرض (بر حسب سانتی متر)
+Write Off,کسر ارزش
+Write Off Account,حساب کسر ارزش
+Write Off Account ${0} does not exist. Please set Write Off Account in General Settings,حساب کسر ارزش ${0} وجود ندارد. لطفاً آنرا را در تنظیمات عمومی تنظیم کنید
+Write Off Account not set. Please set Write Off Account in General Settings,حساب کسر ارزش تنظیم نشده است. لطفاً آن را در تنظیمات عمومی تنظیم کنید
+Write Off Entry,ورودی کسر ارزش
+Year to Date,سال به تاریخ
+Yearly,سالانه
+Years,سال ها
+Yellow,رنگ زرد
+Yes,بلی
+check values and click on,مقادیر را بررسی کرده و روی آن کلیک کنید
+in Batch ${0},در دسته ${0}
+john@doe.com,john@doe.com
+to apply changes,برای اعمال تغییرات
