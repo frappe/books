@@ -1,4 +1,5 @@
 export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid' | 'Return' | 'ReturnIssued';
+export type LeadStatuses = 'Replied' | 'Opportunity' | 'Interested' | 'Converted' | 'Quotation' | 'DonotContact';
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',
@@ -18,6 +19,7 @@ export enum ModelNameEnum {
   Misc = 'Misc',
   NumberSeries = 'NumberSeries',
   Party = 'Party',
+  Lead = 'Lead',
   Payment = 'Payment',
   PaymentFor = 'PaymentFor',
   PriceList = 'PriceList',

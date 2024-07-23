@@ -259,6 +259,12 @@ function getCompleteSidebar(): SidebarConfig {
           filters: { role: 'Both' },
         },
         {
+          label: t`Lead`,
+          name: 'lead',
+          route: '/list/Lead',
+          schemaName: 'Lead',
+        },
+        {
           label: t`Items`,
           name: 'common-items',
           route: `/list/Item/${t`Items`}`,
