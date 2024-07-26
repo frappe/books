@@ -13,6 +13,7 @@ export const languageCodeMap: Record<string, string> = {
   French: 'fr',
   German: 'de',
   Gujarati: 'gu',
+  Hindi: 'hi',
   Korean: 'ko',
   Nepali: 'np',
   Portuguese: 'pt',
