@@ -157,6 +157,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Dutch              | [FastAct](https://github.com/FastAct)                                                                                                                            |
 | Spanish            | [talmax1124](https://github.com/talmax1124), [delbertf](https://github.com/delbertf)                                                                             |
 | Gujarati           | [dhruvilxcode](https://github.com/dhruvilxcode), [4silvertooth](https://github.com/4silvertooth)                                                                 |
+| Hindi              | [bnsinghgit](https://github.com/bnsinghgit)                                                                                                                      |
 | Korean             | [Isaac-Kwon](https://github.com/Isaac-Kwon)                                                                                                                      |
 | Simplified Chinese | [wcxu21](https://github.com/wcxu21), [wolone](https://github.com/wolone)                                                                                         |
 | Swedish            | [papplo](https://github.com/papplo)                                                                                                                              |
