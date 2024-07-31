@@ -1,12 +1,6 @@
 import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import {
-  Action,
-  ColumnConfig,
-  DocStatus,
-  LeadStatus,
-  RenderData,
-} from 'fyo/model/types';
+import { Action, ColumnConfig, DocStatus, RenderData } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
@@ -20,8 +14,7 @@ import { Invoice } from './baseModels/Invoice/Invoice';
 import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
-import { InvoiceStatus, LeadStatuses, ModelNameEnum } from './types';
-import { Lead } from './baseModels/Lead/Lead';
+import { InvoiceStatus, ModelNameEnum } from './types';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -236,54 +229,21 @@ export function getTransactionStatusColumn(): ColumnConfig {
     },
   };
 }
-export function getLeadStatusColumn(): ColumnConfig {
-  return {
-    label: t`Status`,
-    fieldname: 'status',
-    fieldtype: 'Select',
-    render(doc) {
-      const status = getLeadStatus(doc) as LeadStatuses;
-      const color = statusColorForLead[status] ?? 'gray';
-      const label = getStatusTextOfLead(status);
-
-      return {
-        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
-      };
-    },
-  };
-}
 
 export const statusColor: Record<
-  DocStatus | InvoiceStatus | LeadStatus,
+  DocStatus | InvoiceStatus,
   string | undefined
 > = {
   '': 'gray',
   Draft: 'gray',
-  Open: 'gray',
-  Replied: 'yellow',
-  Opportunity: 'yellow',
   Unpaid: 'orange',
   Paid: 'green',
-  Interested: 'yellow',
-  Converted: 'green',
-  Quotation: 'green',
   Saved: 'gray',
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
-  DonotContact: 'red',
   Return: 'green',
   ReturnIssued: 'green',
-};
-export const statusColorForLead: Record<LeadStatus, string | undefined> = {
-  '': 'gray',
-  Open: 'gray',
-  Replied: 'yellow',
-  Opportunity: 'yellow',
-  Converted: 'green',
-  Quotation: 'green',
-  Interested: 'yellow',
-  DonotContact: 'red',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -309,37 +269,6 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
     default:
       return '';
   }
-}
-
-export function getStatusTextOfLead(status: LeadStatus): string {
-  switch (status) {
-    case 'Open':
-      return t`Open`;
-    case 'Replied':
-      return t`Replied`;
-    case 'Opportunity':
-      return t`Opportunity`;
-    case 'Interested':
-      return t`Interested`;
-    case 'Converted':
-      return t`Converted`;
-    case 'Quotation':
-      return t`Quotation`;
-    case 'DonotContact':
-      return t`Do not Contact`;
-    default:
-      return '';
-  }
-}
-
-export function getLeadStatus(
-  doc?: Lead | Doc | RenderData
-): LeadStatus | DocStatus {
-  if (!doc || !doc.status) {
-    return '';
-  }
-
-  return doc.status as LeadStatus;
 }
 
 export function getDocStatus(

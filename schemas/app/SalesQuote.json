@@ -16,29 +16,10 @@
       "section": "Default"
     },
     {
-      "fieldname": "referenceType",
-      "label": "Type",
-      "placeholder": "Type",
-      "fieldtype": "Select",
-      "readOnly": true,
-      "default": "Party",
-      "options": [
-        {
-          "value": "Party",
-          "label": "Party"
-        },
-        {
-          "value": "Lead",
-          "label": "Lead"
-        }
-      ],
-      "required": true
-    },
-    {
       "fieldname": "party",
       "label": "Customer",
-      "fieldtype": "DynamicLink",
-      "references": "referenceType",
+      "fieldtype": "Link",
+      "target": "Party",
       "create": true,
       "required": true,
       "section": "Default"

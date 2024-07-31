@@ -202,13 +202,6 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'Item',
           filters: routeFilters.SalesItems,
         },
-        {
-          label: t`Loyalty Program`,
-          name: 'loyalty-program',
-          route: '/list/LoyaltyProgram',
-          schemaName: 'LoyaltyProgram',
-          hidden: () => !fyo.singles.AccountingSettings?.enableLoyaltyProgram,
-        },
       ] as SidebarItem[],
     },
     {
@@ -264,12 +257,6 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/list/Party',
           schemaName: 'Party',
           filters: { role: 'Both' },
-        },
-        {
-          label: t`Lead`,
-          name: 'lead',
-          route: '/list/Lead',
-          schemaName: 'Lead',
         },
         {
           label: t`Items`,
