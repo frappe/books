@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
+import installExtension from 'electron-devtools-installer';
 import { Main } from '../main';
 import { rendererLog } from './helpers';
 import { emitMainProcessError } from 'backend/helpers';
@@ -28,7 +28,7 @@ export default function registerAppLifecycleListeners(main: Main) {
 
 async function installDevTools(main: Main) {
   try {
-    await installExtension(VUEJS3_DEVTOOLS);
+    await installExtension('nhdogjmejiglipccpnnnanhbledajbpd');
   } catch (e) {
     rendererLog(main, 'Vue Devtools failed to install', e);
   }

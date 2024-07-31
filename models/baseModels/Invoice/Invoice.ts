@@ -166,29 +166,31 @@ export abstract class Invoice extends Transactional {
     await super.afterSubmit();
 
     // update outstanding amounts
-    await this.fyo.db.update(this.schemaName, {
-      name: this.name as string,
-      outstandingAmount: this.baseGrandTotal!,
-    });
+    if (this.schemaName !== 'SalesQuote') {
+      await this.fyo.db.update(this.schemaName, {
+        name: this.name as string,
+        outstandingAmount: this.baseGrandTotal!,
+      });
 
-    const party = (await this.fyo.doc.getDoc('Party', this.party)) as Party;
-    await party.updateOutstandingAmount();
+      const party = (await this.fyo.doc.getDoc('Party', this.party)) as Party;
+      await party.updateOutstandingAmount();
 
-    if (this.makeAutoPayment && this.autoPaymentAccount) {
-      const payment = this.getPayment();
-      await payment?.sync();
-      await payment?.submit();
-      await this.load();
+      if (this.makeAutoPayment && this.autoPaymentAccount) {
+        const payment = this.getPayment();
+        await payment?.sync();
+        await payment?.submit();
+        await this.load();
+      }
+
+      if (this.makeAutoStockTransfer && this.autoStockTransferLocation) {
+        const stockTransfer = await this.getStockTransfer(true);
+        await stockTransfer?.sync();
+        await stockTransfer?.submit();
+        await this.load();
+      }
+
+      await this._updateIsItemsReturned();
     }
-
-    if (this.makeAutoStockTransfer && this.autoStockTransferLocation) {
-      const stockTransfer = await this.getStockTransfer(true);
-      await stockTransfer?.sync();
-      await stockTransfer?.submit();
-      await this.load();
-    }
-
-    await this._updateIsItemsReturned();
   }
 
   async afterCancel() {

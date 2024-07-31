@@ -1,6 +1,6 @@
 import { Fyo } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
-import { Action, ListViewSettings } from 'fyo/model/types';
+import { Action, FiltersMap, ListViewSettings } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 import { getQuoteActions, getTransactionStatusColumn } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
@@ -9,6 +9,9 @@ import { Defaults } from '../Defaults/Defaults';
 
 export class SalesQuote extends Invoice {
   items?: SalesQuoteItem[];
+  party?: string;
+  name?: string;
+  referenceType?: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
 
   // This is an inherited method and it must keep the async from the parent
   // class
@@ -46,6 +49,14 @@ export class SalesQuote extends Invoice {
     }
 
     return invoice;
+  }
+
+  static filters: FiltersMap = {};
+
+  async afterSubmit(): Promise<void> {
+    await super.afterSubmit();
+    const leadData = await this.fyo.doc.getDoc(ModelNameEnum.Lead, this.party);
+    await leadData.setAndSync('status', 'Quotation');
   }
 
   static getListViewSettings(): ListViewSettings {

@@ -101,6 +101,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableLoyaltyProgram",
+      "label": "Enable Loyalty Program",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",

@@ -71,6 +71,14 @@
       "section": "References"
     },
     {
+      "fieldname": "loyaltyProgram",
+      "fieldtype": "Link",
+      "target": "LoyaltyProgram",
+      "label": "Loyalty Program",
+      "section": "References",
+      "readOnly": true
+    },
+    {
       "fieldname": "isPOS",
       "fieldtype": "Check",
       "default": false,

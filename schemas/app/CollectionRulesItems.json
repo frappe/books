@@ -1,0 +1,23 @@
+{
+  "name": "CollectionRulesItems",
+  "label": "Collection Rules",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "tierName",
+      "label": "Tier Name",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "collectionFactor",
+      "label": "Collection Factor (=1 LP)",
+      "fieldtype": "Float"
+    },
+    {
+      "fieldname": "minimumTotalSpent",
+      "label": "Minimum Total Spent",
+      "fieldtype": "Currency"
+    }
+  ],
+  "tableFields": ["tierName", "collectionFactor", "minimumTotalSpent"]
+}
