@@ -255,7 +255,7 @@ export default defineComponent({
     reportIssue,
     toggleSidebar,
     openDocumentation() {
-      ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
+      ipc.openLink('https://docs.frappebooks.com/' + docsPathRef.value);
     },
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;

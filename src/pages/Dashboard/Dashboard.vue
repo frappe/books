@@ -86,7 +86,7 @@ export default {
     return { period: 'This Year' };
   },
   activated() {
-    docsPathRef.value = 'books/dashboard';
+    docsPathRef.value = 'analytics/dashboard';
   },
   deactivated() {
     docsPathRef.value = '';

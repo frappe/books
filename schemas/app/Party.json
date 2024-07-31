@@ -79,30 +79,6 @@
       "section": "Billing"
     },
     {
-      "fieldname": "loyaltyProgram",
-      "label": "Loyalty Program",
-      "fieldtype": "Link",
-      "target": "LoyaltyProgram",
-      "create": true,
-      "section": "Loyalty Program"
-    },
-    {
-      "fieldname": "loyaltyPoints",
-      "label": "Loyalty Points",
-      "fieldtype": "Int",
-      "readOnly": true,
-      "default": 0,
-      "section": "Loyalty Program"
-    },
-    {
-      "fieldname": "fromLead",
-      "label": "From Lead",
-      "fieldtype": "Link",
-      "target": "Lead",
-      "readOnly": true,
-      "section": "References"
-    },
-    {
       "fieldname": "taxId",
       "label": "Tax ID",
       "fieldtype": "Data",
@@ -120,7 +96,6 @@
     "phone",
     "address",
     "defaultAccount",
-    "loyaltyProgram",
     "currency",
     "role",
     "taxId"

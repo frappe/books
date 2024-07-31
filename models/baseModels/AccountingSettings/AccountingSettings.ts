@@ -16,7 +16,6 @@ export class AccountingSettings extends Doc {
   enableInventory?: boolean;
   enablePriceList?: boolean;
   enableFormCustomization?: boolean;
-  enableLoyaltyProgram?: boolean;
   enableInvoiceReturns?: boolean;
 
   static filters: FiltersMap = {
@@ -48,9 +47,6 @@ export class AccountingSettings extends Doc {
     },
     enableInventory: () => {
       return !!this.enableInventory;
-    },
-    enableLoyaltyProgram: () => {
-      return !!this.enableLoyaltyProgram;
     },
     enableInvoiceReturns: () => {
       return !!this.enableInvoiceReturns;

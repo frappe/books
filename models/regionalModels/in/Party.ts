@@ -4,7 +4,6 @@ import { GSTType } from './types';
 
 export class Party extends BaseParty {
   gstin?: string;
-  fromLead?: string;
   gstType?: GSTType;
 
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -19,8 +18,5 @@ export class Party extends BaseParty {
 
   hidden: HiddenMap = {
     gstin: () => (this.gstType as GSTType) !== 'Registered Regular',
-    fromLead: () => {
-      return this.fromLead ? false : true;
-    },
   };
 }

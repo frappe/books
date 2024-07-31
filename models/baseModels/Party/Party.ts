@@ -13,12 +13,9 @@ import {
 } from 'fyo/model/validationFunction';
 import { Money } from 'pesa';
 import { PartyRole } from './types';
-import { ModelNameEnum } from 'models/types';
 
 export class Party extends Doc {
   role?: PartyRole;
-  party?: string;
-  fromLead?: string;
   defaultAccount?: string;
   outstandingAmount?: Money;
   async updateOutstandingAmount() {
@@ -126,23 +123,6 @@ export class Party extends Doc {
     return {
       columns: ['name', 'email', 'phone', 'outstandingAmount'],
     };
-  }
-
-  async afterDelete() {
-    await super.afterDelete();
-    const leadData = await this.fyo.doc.getDoc(ModelNameEnum.Lead, this.name);
-    await leadData.setAndSync('status', 'Interested');
-  }
-
-  async afterSync() {
-    await super.afterSync();
-
-    if (!this.fromLead) {
-      return;
-    }
-
-    const leadData = await this.fyo.doc.getDoc(ModelNameEnum.Lead, this.name);
-    await leadData.setAndSync('status', 'Converted');
   }
 
   static getActions(fyo: Fyo): Action[] {
