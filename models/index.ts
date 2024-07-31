@@ -10,6 +10,9 @@ import { JournalEntryAccount } from './baseModels/JournalEntryAccount/JournalEnt
 import { Misc } from './baseModels/Misc';
 import { Party } from './baseModels/Party/Party';
 import { Lead } from './baseModels/Lead/Lead';
+import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
+import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEntry';
+import { CollectionRulesItems } from './baseModels/CollectionRulesItems.ts/CollectionRulesItems';
 import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
 import { PriceList } from './baseModels/PriceList/PriceList';
@@ -55,6 +58,9 @@ export const models = {
   JournalEntryAccount,
   Misc,
   Lead,
+  LoyaltyProgram,
+  LoyaltyPointEntry,
+  CollectionRulesItems,
   Party,
   Payment,
   PaymentFor,

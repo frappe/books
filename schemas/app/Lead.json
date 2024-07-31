@@ -8,7 +8,7 @@
       "label": "Name",
       "fieldtype": "Data",
       "required": true,
-      "placeholder": "Full Name",
+      "placeholder": "name",
       "section": "Default"
     },
     {
@@ -72,6 +72,5 @@
       "section": "Contacts"
     }
   ],
-  "quickEditFields": ["address"],
   "keywordFields": ["name", "email", "mobile"]
 }
