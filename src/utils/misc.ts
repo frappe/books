@@ -103,40 +103,40 @@ export function updateConfigFiles(fyo: Fyo): ConfigFile {
 
 export const docsPathMap: Record<string, string | undefined> = {
   // Analytics
-  Dashboard: 'analytics/dashboard',
-  Reports: 'analytics/reports',
-  GeneralLedger: 'analytics/general-ledger',
-  ProfitAndLoss: 'analytics/profit-and-loss',
-  BalanceSheet: 'analytics/balance-sheet',
-  TrialBalance: 'analytics/trial-balance',
+  Dashboard: 'dashboard',
+  Reports: 'reports',
+  GeneralLedger: 'general-ledger',
+  ProfitAndLoss: 'profit-and-loss',
+  BalanceSheet: 'balance-sheet',
+  TrialBalance: 'trial-balance',
 
   // Transactions
-  [ModelNameEnum.SalesInvoice]: 'transactions/sales-invoices',
-  [ModelNameEnum.PurchaseInvoice]: 'transactions/purchase-invoices',
-  [ModelNameEnum.Payment]: 'transactions/payments',
-  [ModelNameEnum.JournalEntry]: 'transactions/journal-entries',
+  [ModelNameEnum.SalesInvoice]: 'sales-invoices',
+  [ModelNameEnum.PurchaseInvoice]: 'purchase-invoices',
+  [ModelNameEnum.Payment]: 'payments',
+  [ModelNameEnum.JournalEntry]: 'journal-entries',
 
   // Inventory
-  [ModelNameEnum.StockMovement]: 'inventory/stock-movement',
-  [ModelNameEnum.Shipment]: 'inventory/shipment',
-  [ModelNameEnum.PurchaseReceipt]: 'inventory/purchase-receipt',
-  StockLedger: 'inventory/stock-ledger',
-  StockBalance: 'inventory/stock-balance',
-  [ModelNameEnum.Batch]: 'inventory/batches',
+  [ModelNameEnum.StockMovement]: 'stock-movement',
+  [ModelNameEnum.Shipment]: 'shipment',
+  [ModelNameEnum.PurchaseReceipt]: 'purchase-receipt',
+  StockLedger: 'stock-ledger',
+  StockBalance: 'stock-balance',
+  [ModelNameEnum.Batch]: 'batches',
 
   // Entries
-  Entries: 'entries/entries',
-  [ModelNameEnum.Party]: 'entries/party',
-  [ModelNameEnum.Item]: 'entries/items',
-  [ModelNameEnum.Tax]: 'entries/taxes',
-  [ModelNameEnum.PrintTemplate]: 'miscellaneous/print-templates',
+  Entries: 'entries',
+  [ModelNameEnum.Party]: 'party',
+  [ModelNameEnum.Item]: 'items',
+  [ModelNameEnum.Tax]: 'taxes',
+  [ModelNameEnum.PrintTemplate]: 'print-templates',
 
   // Miscellaneous
-  Search: 'miscellaneous/search',
-  NumberSeries: 'miscellaneous/number-series',
-  ImportWizard: 'miscellaneous/import-wizard',
-  Settings: 'miscellaneous/settings',
-  ChartOfAccounts: 'miscellaneous/chart-of-accounts',
+  Search: 'quick-search',
+  NumberSeries: 'number-series',
+  ImportWizard: 'import-wizard',
+  Settings: 'settings',
+  ChartOfAccounts: 'chart-of-accounts',
 };
 
 export async function getDataURL(type: string, data: Uint8Array) {
