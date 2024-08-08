@@ -90,7 +90,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "homepage": "https://frappebooks.com",
+  "homepage": "https://frappe.io/books",
   "repository": {
     "url": "https://github.com/frappe/books"
   },
