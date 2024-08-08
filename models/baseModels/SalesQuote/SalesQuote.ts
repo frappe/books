@@ -34,6 +34,7 @@ export class SalesQuote extends Invoice {
       numberSeries,
       quote: this.name,
       items: [],
+      submitted: false,
     };
 
     const invoice = this.fyo.doc.getNewDoc(schemaName, data) as Invoice;
