@@ -15,6 +15,7 @@ export class AccountingSettings extends Doc {
   enableDiscounting?: boolean;
   enableInventory?: boolean;
   enablePriceList?: boolean;
+  enableLead?: boolean;
   enableFormCustomization?: boolean;
   enableInvoiceReturns?: boolean;
 
@@ -47,6 +48,9 @@ export class AccountingSettings extends Doc {
     },
     enableInventory: () => {
       return !!this.enableInventory;
+    },
+    enableLead: () => {
+      return !!this.enableLead;
     },
     enableInvoiceReturns: () => {
       return !!this.enableInvoiceReturns;

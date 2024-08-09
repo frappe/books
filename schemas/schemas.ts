@@ -15,6 +15,7 @@ import JournalEntryAccount from './app/JournalEntryAccount.json';
 import Misc from './app/Misc.json';
 import NumberSeries from './app/NumberSeries.json';
 import Party from './app/Party.json';
+import Lead from './app/Lead.json';
 import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
 import PriceList from './app/PriceList.json';
@@ -96,6 +97,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   AccountingLedgerEntry as Schema,
 
   Party as Schema,
+  Lead as Schema,
   Address as Schema,
   Item as Schema,
   UOM as Schema,
