@@ -117,3 +117,13 @@ export type DocStatus =
   | 'NotSaved'
   | 'Submitted'
   | 'Cancelled';
+
+  export type LeadStatus =
+  | ''
+  | 'Open'
+  | 'Replied'
+  | 'Interested'
+  | 'Opportunity'
+  | 'Converted'
+  | 'Quotation'
+  | 'DonotContact'

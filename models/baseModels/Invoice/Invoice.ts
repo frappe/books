@@ -165,6 +165,10 @@ export abstract class Invoice extends Transactional {
   async afterSubmit() {
     await super.afterSubmit();
 
+    if (this.schemaName === ModelNameEnum.SalesQuote) {
+      return;
+    }
+
     // update outstanding amounts
     await this.fyo.db.update(this.schemaName, {
       name: this.name as string,

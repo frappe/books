@@ -9,6 +9,7 @@ import { JournalEntry } from './baseModels/JournalEntry/JournalEntry';
 import { JournalEntryAccount } from './baseModels/JournalEntryAccount/JournalEntryAccount';
 import { Misc } from './baseModels/Misc';
 import { Party } from './baseModels/Party/Party';
+import { Lead } from './baseModels/Lead/Lead';
 import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
 import { PriceList } from './baseModels/PriceList/PriceList';
@@ -53,6 +54,7 @@ export const models = {
   JournalEntry,
   JournalEntryAccount,
   Misc,
+  Lead,
   Party,
   Payment,
   PaymentFor,
