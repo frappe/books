@@ -124,16 +124,12 @@ export function getCreateCustomerAction(fyo: Fyo): Action {
     group: fyo.t`Create`,
     label: fyo.t`Customer`,
     action: async (doc: Doc, router) => {
-      const partyDoc = fyo.doc.getNewDoc(ModelNameEnum.Party, {
-        ...doc.getValidDict(),
-        fromLead: doc.name,
-        phone: doc.mobile as string,
-        role: 'Customer',
-      });
-      if (!partyDoc.name) {
+      const customerData = (doc as Lead).createCustomer();
+
+      if (!customerData.name) {
         return;
       }
-      await router.push(`/edit/Party/${partyDoc.name}`);
+      await router.push(`/edit/Party/${customerData.name}`);
     },
   };
 }
@@ -143,15 +139,11 @@ export function getSalesQuoteAction(fyo: Fyo): Action {
     group: fyo.t`Create`,
     label: fyo.t`Sales Quote`,
     action: async (doc, router) => {
-      const data: { party: string | undefined; referenceType: string } = {
-        party: doc.name,
-        referenceType: ModelNameEnum.Lead,
-      };
-      const salesQuoteDoc = fyo.doc.getNewDoc(ModelNameEnum.SalesQuote, data);
-      if (!salesQuoteDoc.name) {
+      const salesQuoteData = (doc as Lead).createSalesQuote();
+      if (!salesQuoteData.name) {
         return;
       }
-      await router.push(`/edit/SalesQuote/${salesQuoteDoc.name}`);
+      await router.push(`/edit/SalesQuote/${salesQuoteData.name}`);
     },
   };
 }
@@ -294,6 +286,16 @@ export function getLeadStatusColumn(): ColumnConfig {
     },
   };
 }
+
+// export async function createCustomer(fyo: Fyo, doc: Doc) {
+//   const partyDoc = fyo.doc.getNewDoc(ModelNameEnum.Party, {
+//     ...doc.getValidDict(),
+//     fromLead: doc.name,
+//     phone: doc.mobile as string,
+//     role: 'Customer',
+//   });
+//   return partyDoc;
+// }
 
 export const statusColor: Record<
   DocStatus | InvoiceStatus | LeadStatus,
