@@ -11,7 +11,7 @@ const leadData = {
   name: 'name2',
   status: 'Open',
   email: 'sample@gmail.com',
-  mobile: '1231233545',
+  mobile: '7356203811',
 };
 
 const itemData: { name: string; rate: number } = {
@@ -40,29 +40,24 @@ test('create a Lead doc', async (t) => {
 test('create Customer from Lead', async (t) => {
   const leadDoc = (await fyo.doc.getDoc(ModelNameEnum.Lead, 'name2')) as Lead;
 
-  const newPartyDoc = fyo.doc.getNewDoc(ModelNameEnum.Party, {
-    ...leadDoc.getValidDict(),
-    fromLead: leadData.name,
-    role: 'Customer',
-    phone: leadData.mobile as string,
-  });
+  const newCustomer = leadDoc.createCustomer();
 
   t.equals(
     leadDoc.status,
     'Open',
-    'Before Customer created the status must be Open'
+    'status must be Open before Customer is created'
   );
 
-  await newPartyDoc.sync();
+  await newCustomer.sync();
 
   t.equals(
     leadDoc.status,
     'Converted',
-    'After Customer created the status change to Converted'
+    'status should change to Converted after Customer is created'
   );
 
   t.ok(
-    await fyo.db.exists(ModelNameEnum.Party, newPartyDoc.name),
+    await fyo.db.exists(ModelNameEnum.Party, newCustomer.name),
     'Customer created from Lead'
   );
 });
@@ -70,26 +65,23 @@ test('create Customer from Lead', async (t) => {
 test('create SalesQuote', async (t) => {
   const leadDoc = (await fyo.doc.getDoc(ModelNameEnum.Lead, 'name2')) as Lead;
 
-  const docData = leadDoc.getValidDict(true, true);
-  const newSalesQuoteDoc = fyo.doc.getNewDoc(ModelNameEnum.SalesQuote, {
-    ...docData,
-    party: docData.name,
-    referenceType: ModelNameEnum.Lead,
-    items: [
-      {
-        item: itemData.name,
-        rate: itemData.rate,
-      },
-    ],
-  }) as Lead;
+  const newSalesQuote = leadDoc.createSalesQuote();
+
+  newSalesQuote.items = [];
+  newSalesQuote.append('items', {
+    item: itemData.name,
+    quantity: 1,
+    rate: itemData.rate,
+  });
 
   t.equals(
     leadDoc.status,
     'Converted',
     'status must be Open before SQUOT is created'
   );
-  await newSalesQuoteDoc.sync();
-  await newSalesQuoteDoc.submit();
+
+  await newSalesQuote.sync();
+  await newSalesQuote.submit();
 
   t.equals(
     leadDoc.status,
@@ -98,7 +90,7 @@ test('create SalesQuote', async (t) => {
   );
 
   t.ok(
-    await fyo.db.exists(ModelNameEnum.SalesQuote, newSalesQuoteDoc.name),
+    await fyo.db.exists(ModelNameEnum.SalesQuote, newSalesQuote.name),
     'SalesQuote Created from Lead'
   );
 });
@@ -108,6 +100,7 @@ test('delete Customer then lead status changes to Interested', async (t) => {
     ModelNameEnum.Party,
     'name2'
   )) as Party;
+
   await partyDoc.delete();
 
   t.equals(
@@ -115,12 +108,13 @@ test('delete Customer then lead status changes to Interested', async (t) => {
     false,
     'Customer deleted'
   );
+
   const leadDoc = (await fyo.doc.getDoc(ModelNameEnum.Lead, 'name2')) as Lead;
 
   t.equals(
     leadDoc.status,
     'Interested',
-    'After Customer deleted the status changed to Interested'
+    'status should change to Interested after Customer is deleted'
   );
 });
 
