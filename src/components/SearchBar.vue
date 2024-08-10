@@ -307,7 +307,7 @@ export default defineComponent({
   },
   methods: {
     openDocs() {
-      ipc.openLink('https://docs.frappebooks.com/' + docsPathMap.Search);
+      ipc.openLink('https://docs.frappe.io/' + docsPathMap.Search);
     },
     getShortcuts() {
       const ifOpen = (cb: Function) => () => this.openModal && cb();

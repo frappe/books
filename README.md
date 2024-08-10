@@ -14,7 +14,7 @@
 
 Free Desktop book-keeping software for small businesses and freelancers.
 
-[frappebooks.com](https://frappebooks.com/)
+[frappe.io/books](https://frappe.io/books/)
 
 <img src="https://user-images.githubusercontent.com/29507195/207267857-4ae48890-3fb2-4046-80cf-3256b46c72a0.png" alt="Frappe Books Preview"/>
 
@@ -53,8 +53,7 @@ Free Desktop book-keeping software for small businesses and freelancers.
 ## Installation
 
 Download and install the latest release for your platform from the [releases
-page](https://github.com/frappe/books/releases) or the [download
-page](https://frappebooks.com/download).
+page](https://github.com/frappe/books/releases) .
 
 ## Development
 
