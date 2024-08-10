@@ -132,7 +132,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   [ModelNameEnum.PrintTemplate]: 'books/print-templates',
 
   // Miscellaneous
-  Search: 'books/search',
+  Search: 'books/quick-search',
   NumberSeries: 'books/number-series',
   ImportWizard: 'books/import-wizard',
   Settings: 'books/settings',
