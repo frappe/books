@@ -107,7 +107,7 @@ export class StockManager {
       throw new ValidationError(t`Rate needs to be set`);
     }
 
-    if (details.rate.lte(0)) {
+    if (details.rate.lt(0)) {
       throw new ValidationError(
         t`Rate (${details.rate.float}) has to be greater than zero`
       );
