@@ -4,7 +4,7 @@ on: workflow_dispatch
 
 jobs:
   build-macos:
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
       - name: Setup node
         uses: actions/setup-node@v2

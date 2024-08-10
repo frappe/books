@@ -12,7 +12,7 @@ on:
 
 jobs:
   setup_and_test:
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
       - name: Setup node
         uses: actions/setup-node@v2
@@ -32,7 +32,7 @@ jobs:
         run: yarn test
 
   setup_and_uitest:
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
       - name: Setup node
         uses: actions/setup-node@v2
