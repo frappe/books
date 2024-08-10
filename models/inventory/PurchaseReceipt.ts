@@ -24,6 +24,6 @@ export class PurchaseReceipt extends StockTransfer {
   }
 
   static getActions(fyo: Fyo): Action[] {
-    return getStockTransferActions(fyo, ModelNameEnum.Shipment);
+    return getStockTransferActions(fyo, ModelNameEnum.PurchaseReceipt);
   }
 }
