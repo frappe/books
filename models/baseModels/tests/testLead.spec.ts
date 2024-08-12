@@ -11,7 +11,7 @@ const leadData = {
   name: 'name2',
   status: 'Open',
   email: 'sample@gmail.com',
-  mobile: '7356203811',
+  mobile: '1234567890',
 };
 
 const itemData: { name: string; rate: number } = {
