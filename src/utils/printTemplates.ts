@@ -56,8 +56,8 @@ export async function getPrintTemplatePropValues(
     ...printValues,
     ...accountingValues,
   };
-
-  if (doc.schemaName?.endsWith('Invoice')) {
+  const discountSchema = ['Invoice', 'Quote'];
+  if (discountSchema.some(value => doc.schemaName?.endsWith(value))) {
     (values.doc as PrintTemplateData).totalDiscount =
       formattedTotalDiscount(doc);
     (values.doc as PrintTemplateData).showHSN = showHSN(doc);
