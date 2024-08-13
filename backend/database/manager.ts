@@ -35,7 +35,16 @@ export class DatabaseManager extends DatabaseDemuxBase {
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {
+    if (dbPath.startsWith('http://') || dbPath.startsWith('https://')) {
+      return await this.connectToRemoteDatabase(dbPath, countryCode);
+    }
     countryCode = await this._connect(dbPath, countryCode);
+    await this.#migrate();
+    return countryCode;
+  }
+
+  async connectToRemoteDatabase(dbPath: string, countryCode?: string) {
+    countryCode = await this._connectRemote(dbPath, countryCode);
     await this.#migrate();
     return countryCode;
   }
@@ -44,6 +53,16 @@ export class DatabaseManager extends DatabaseDemuxBase {
     countryCode ??= await DatabaseCore.getCountryCode(dbPath);
     this.db = new DatabaseCore(dbPath);
     await this.db.connect();
+    await this.setRawCustomFields();
+    const schemaMap = getSchemas(countryCode, this.rawCustomFields);
+    this.db.setSchemaMap(schemaMap);
+    return countryCode;
+  }
+
+  async _connectRemote(dbPath: string, countryCode?: string) {
+    countryCode ??= await DatabaseCore.getCountryCode(dbPath);
+    this.db = new DatabaseCore(dbPath);
+    await this.db.connectToRemoteDatabase(dbPath);
     await this.setRawCustomFields();
     const schemaMap = getSchemas(countryCode, this.rawCustomFields);
     this.db.setSchemaMap(schemaMap);
