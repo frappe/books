@@ -287,16 +287,6 @@ export function getLeadStatusColumn(): ColumnConfig {
   };
 }
 
-// export async function createCustomer(fyo: Fyo, doc: Doc) {
-//   const partyDoc = fyo.doc.getNewDoc(ModelNameEnum.Party, {
-//     ...doc.getValidDict(),
-//     fromLead: doc.name,
-//     phone: doc.mobile as string,
-//     role: 'Customer',
-//   });
-//   return partyDoc;
-// }
-
 export const statusColor: Record<
   DocStatus | InvoiceStatus | LeadStatus,
   string | undefined
