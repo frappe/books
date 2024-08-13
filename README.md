@@ -38,6 +38,7 @@ Free Desktop book-keeping software for small businesses and freelancers.
 ## Features
 
 1. Double-entry accounting
+1. Point of Sale
 1. Invoicing
 1. Billing
 1. Payments
