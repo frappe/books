@@ -14,6 +14,7 @@ export class POSSettings extends Doc {
     cashAccount: () => ({
       rootType: AccountRootTypeEnum.Asset,
       accountType: AccountTypeEnum.Cash,
+      isGroup: false,
     }),
   };
 }
