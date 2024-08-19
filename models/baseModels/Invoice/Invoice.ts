@@ -646,11 +646,12 @@ export abstract class Invoice extends Transactional {
         }
 
         const pricingRule = await this.getPricingRule();
-        if (pricingRule) {
-          await this.appendPricingRuleDetail(pricingRule);
+        if (!pricingRule) {
+          return false;
         }
 
-        return !!pricingRule?.length;
+        await this.appendPricingRuleDetail(pricingRule);
+        return !!pricingRule;
       },
       dependsOn: ['items'],
     },
@@ -954,6 +955,8 @@ export abstract class Invoice extends Transactional {
 
     if (this.pricingRuleDetail?.length) {
       await this.applyProductDiscount();
+    } else {
+      this.clearFreeItems();
     }
   }
 
@@ -1099,21 +1102,39 @@ export abstract class Invoice extends Transactional {
     }
   }
 
+  clearFreeItems() {
+    if (this.pricingRuleDetail?.length || !this.items) {
+      return;
+    }
+
+    for (const item of this.items) {
+      if (item.isFreeItem) {
+        this.items = this.items?.filter(
+          (invoiceItem) => invoiceItem.name !== item.name
+        );
+      }
+    }
+  }
+
   async applyProductDiscount() {
-    if (!this.pricingRuleDetail || !this.items) {
+    if (!this.items) {
+      return;
+    }
+
+    if (!this.pricingRuleDetail?.length || !this.pricingRuleDetail.length) {
       return;
     }
 
     this.items = this.items.filter((item) => !item.isFreeItem);
 
     for (const item of this.items) {
-      if (item.isFreeItem) {
-        continue;
-      }
-
       const pricingRuleDetailForItem = this.pricingRuleDetail.filter(
         (doc) => doc.referenceItem === item.item
       );
+
+      if (!pricingRuleDetailForItem.length) {
+        return;
+      }
 
       const pricingRuleDoc = (await this.fyo.doc.getDoc(
         ModelNameEnum.PricingRule,
