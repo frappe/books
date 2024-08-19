@@ -101,6 +101,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableLead",
+      "label": "Enable Lead",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",

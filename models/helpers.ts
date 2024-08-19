@@ -1,6 +1,12 @@
 import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import { Action, ColumnConfig, DocStatus, RenderData } from 'fyo/model/types';
+import {
+  Action,
+  ColumnConfig,
+  DocStatus,
+  LeadStatus,
+  RenderData,
+} from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
@@ -15,12 +21,17 @@ import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
+import { Lead } from './baseModels/Lead/Lead';
 
 export function getQuoteActions(
   fyo: Fyo,
   schemaName: ModelNameEnum.SalesQuote
 ): Action[] {
   return [getMakeInvoiceAction(fyo, schemaName)];
+}
+
+export function getLeadActions(fyo: Fyo): Action[] {
+  return [getCreateCustomerAction(fyo), getSalesQuoteAction(fyo)];
 }
 
 export function getInvoiceActions(
@@ -104,6 +115,35 @@ export function getMakeInvoiceAction(
       const { routeTo } = await import('src/utils/ui');
       const path = `/edit/${invoice.schemaName}/${invoice.name}`;
       await routeTo(path);
+    },
+  };
+}
+
+export function getCreateCustomerAction(fyo: Fyo): Action {
+  return {
+    group: fyo.t`Create`,
+    label: fyo.t`Customer`,
+    action: async (doc: Doc, router) => {
+      const customerData = (doc as Lead).createCustomer();
+
+      if (!customerData.name) {
+        return;
+      }
+      await router.push(`/edit/Party/${customerData.name}`);
+    },
+  };
+}
+
+export function getSalesQuoteAction(fyo: Fyo): Action {
+  return {
+    group: fyo.t`Create`,
+    label: fyo.t`Sales Quote`,
+    action: async (doc, router) => {
+      const salesQuoteData = (doc as Lead).createSalesQuote();
+      if (!salesQuoteData.name) {
+        return;
+      }
+      await router.push(`/edit/SalesQuote/${salesQuoteData.name}`);
     },
   };
 }
@@ -230,18 +270,42 @@ export function getTransactionStatusColumn(): ColumnConfig {
   };
 }
 
+export function getLeadStatusColumn(): ColumnConfig {
+  return {
+    label: t`Status`,
+    fieldname: 'status',
+    fieldtype: 'Select',
+    render(doc) {
+      const status = getLeadStatus(doc) as LeadStatus;
+      const color = statusColor[status] ?? 'gray';
+      const label = getStatusTextOfLead(status);
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+      };
+    },
+  };
+}
+
 export const statusColor: Record<
-  DocStatus | InvoiceStatus,
+  DocStatus | InvoiceStatus | LeadStatus,
   string | undefined
 > = {
   '': 'gray',
   Draft: 'gray',
+  Open: 'gray',
+  Replied: 'yellow',
+  Opportunity: 'yellow',
   Unpaid: 'orange',
   Paid: 'green',
+  Interested: 'yellow',
+  Converted: 'green',
+  Quotation: 'green',
   Saved: 'gray',
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
+  DonotContact: 'red',
   Return: 'green',
   ReturnIssued: 'green',
 };
@@ -269,6 +333,37 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
     default:
       return '';
   }
+}
+
+export function getStatusTextOfLead(status: LeadStatus): string {
+  switch (status) {
+    case 'Open':
+      return t`Open`;
+    case 'Replied':
+      return t`Replied`;
+    case 'Opportunity':
+      return t`Opportunity`;
+    case 'Interested':
+      return t`Interested`;
+    case 'Converted':
+      return t`Converted`;
+    case 'Quotation':
+      return t`Quotation`;
+    case 'DonotContact':
+      return t`Do not Contact`;
+    default:
+      return '';
+  }
+}
+
+export function getLeadStatus(
+  doc?: Lead | Doc | RenderData
+): LeadStatus | DocStatus {
+  if (!doc) {
+    return '';
+  }
+
+  return doc.status as LeadStatus;
 }
 
 export function getDocStatus(
