@@ -141,7 +141,7 @@ test('pricing rule is applied when filtered by min and max qty', async (t) => {
   );
 });
 
-test('pricing rule is not applied when item qty is < min  qty ', async (t) => {
+test('pricing rule is not applied when item qty is < min  qty', async (t) => {
   const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
     date: new Date(),
     party: partyMap.partyOne.name,
@@ -548,7 +548,6 @@ test('create a product discount, recurse 2', async (t) => {
   await sinv.runFormulas();
   await sinv.sync();
 
-  console.log('freeQty', sinv.items![1].quantity);
   t.equal(!!sinv.items![1].isFreeItem, true);
   t.equal(sinv.items![1].rate!.float, pricingRuleMap[1].freeItemRate);
   t.equal(sinv.items![1].quantity, pricingRuleMap[1].freeItemQuantity);

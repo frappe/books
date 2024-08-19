@@ -663,13 +663,13 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
 
 export async function getPricingRule(
   doc: Invoice
-): Promise<ApplicablePricingRules[] | undefined> {
+): Promise<ApplicablePricingRules[] | null> {
   if (
     !doc.fyo.singles.AccountingSettings?.enablePricingRule ||
     !doc.isSales ||
     !doc.items
   ) {
-    return;
+    return null;
   }
 
   const pricingRules: ApplicablePricingRules[] = [];
@@ -786,13 +786,15 @@ export function canApplyPricingRule(
   // Filter by Validity
   if (
     pricingRuleDoc.validFrom &&
-    sinvDate.toISOString() < pricingRuleDoc.validFrom.toISOString()
+    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
+      pricingRuleDoc.validFrom.toISOString()
   ) {
     return false;
   }
   if (
     pricingRuleDoc.validTo &&
-    sinvDate.toISOString() > pricingRuleDoc.validTo.toISOString()
+    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
+      pricingRuleDoc.validTo.toISOString()
   ) {
     return false;
   }
