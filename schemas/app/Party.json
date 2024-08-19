@@ -79,6 +79,14 @@
       "section": "Billing"
     },
     {
+      "fieldname": "fromLead",
+      "label": "From Lead",
+      "fieldtype": "Link",
+      "target": "Lead",
+      "readOnly": true,
+      "section": "References"
+    },
+    {
       "fieldname": "taxId",
       "label": "Tax ID",
       "fieldtype": "Data",
