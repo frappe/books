@@ -1,33 +1,69 @@
 <template>
   <div>
-    <svg ref="chartSvg" :viewBox="`0 0 ${viewBoxWidth} ${viewBoxHeight}`" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      ref="chartSvg"
+      :viewBox="`0 0 ${viewBoxWidth} ${viewBoxHeight}`"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <!-- x Grid Lines -->
-      <path v-if="drawXGrid" :d="xGrid" :stroke="gridColor" :stroke-width="gridThickness" stroke-linecap="round"
-        fill="transparent" />
+      <path
+        v-if="drawXGrid"
+        :d="xGrid"
+        :stroke="gridColor"
+        :stroke-width="gridThickness"
+        stroke-linecap="round"
+        fill="transparent"
+      />
 
       <!-- zero line -->
-      <path v-if="drawZeroLine" :d="zLine" :stroke="zeroLineColor" :stroke-width="gridThickness" stroke-linecap="round"
-        fill="transparent" />
+      <path
+        v-if="drawZeroLine"
+        :d="zLine"
+        :stroke="zeroLineColor"
+        :stroke-width="gridThickness"
+        stroke-linecap="round"
+        fill="transparent"
+      />
 
       <!-- Axis -->
-      <path v-if="drawAxis" :d="axis" :stroke-width="axisThickness" :stroke="axisColor" fill="transparent" />
+      <path
+        v-if="drawAxis"
+        :d="axis"
+        :stroke-width="axisThickness"
+        :stroke="axisColor"
+        fill="transparent"
+      />
 
       <!-- x Labels -->
       <template v-if="xLabels.length > 0">
-        <text v-for="(i, j) in count" :key="j + '-xlabels'" :style="fontStyle" :y="viewBoxHeight -
-          axisPadding +
-          yLabelOffset +
-          fontStyle.fontSize / 2 -
-          bottom
-          " :x="xs[i - 1]" text-anchor="middle">
+        <text
+          v-for="(i, j) in count"
+          :key="j + '-xlabels'"
+          :style="fontStyle"
+          :y="
+            viewBoxHeight -
+            axisPadding +
+            yLabelOffset +
+            fontStyle.fontSize / 2 -
+            bottom
+          "
+          :x="xs[i - 1]"
+          text-anchor="middle"
+        >
           {{ j % skipXLabel === 0 ? formatX(xLabels[i - 1] || '') : '' }}
         </text>
       </template>
 
       <!-- y Labels -->
       <template v-if="yLabelDivisions > 0">
-        <text v-for="(i, j) in yLabelDivisions + 1" :key="j + '-ylabels'" :style="fontStyle" :y="yScalerLocation(i - 1)"
-          :x="axisPadding - xLabelOffset + left" text-anchor="end">
+        <text
+          v-for="(i, j) in yLabelDivisions + 1"
+          :key="j + '-ylabels'"
+          :style="fontStyle"
+          :y="yScalerLocation(i - 1)"
+          :x="axisPadding - xLabelOffset + left"
+          text-anchor="end"
+        >
           {{ yScalerValue(i - 1) }}
         </text>
       </template>
@@ -37,21 +73,64 @@
           <rect x="0" y="0" :width="viewBoxWidth" :height="z" />
         </clipPath>
         <clipPath id="negative-rect-clip">
-          <rect x="0" :y="z" :width="viewBoxWidth" :height="viewBoxHeight - z" />
+          <rect
+            x="0"
+            :y="z"
+            :width="viewBoxWidth"
+            :height="viewBoxHeight - z"
+          />
         </clipPath>
       </defs>
 
-      <rect v-for="(rec, i) in positiveRects" :key="i + 'prec'" :rx="radius" :ry="radius" :x="rec.x" :y="rec.y"
-        :width="width" :height="rec.height" :fill="rec.color" clip-path="url(#positive-rect-clip)"
-        @mouseenter="() => create(rec.xi, rec.yi)" @mousemove="update" @mouseleave="destroy" />
+      <rect
+        v-for="(rec, i) in positiveRects"
+        :key="i + 'prec'"
+        :rx="radius"
+        :ry="radius"
+        :x="rec.x"
+        :y="rec.y"
+        :width="width"
+        :height="rec.height"
+        :fill="rec.color"
+        clip-path="url(#positive-rect-clip)"
+        @mouseenter="() => create(rec.xi, rec.yi)"
+        @mousemove="update"
+        @mouseleave="destroy"
+      />
 
-      <rect v-for="(rec, i) in negativeRects" :key="i + 'nrec'" :rx="radius" :ry="radius" :x="rec.x" :y="rec.y"
-        :width="width" :height="rec.height" :fill="rec.color" clip-path="url(#negative-rect-clip)"
-        @mouseenter="() => create(rec.xi, rec.yi)" @mousemove="update" @mouseleave="destroy" />
+      <rect
+        v-for="(rec, i) in negativeRects"
+        :key="i + 'nrec'"
+        :rx="radius"
+        :ry="radius"
+        :x="rec.x"
+        :y="rec.y"
+        :width="width"
+        :height="rec.height"
+        :fill="rec.color"
+        clip-path="url(#negative-rect-clip)"
+        @mouseenter="() => create(rec.xi, rec.yi)"
+        @mousemove="update"
+        @mouseleave="destroy"
+      />
     </svg>
-    <Tooltip ref="tooltip" :offset="15" placement="top"
-      class="text-sm shadow-md px-2 py-1 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 border-s-4"
-      :style="{ borderColor: activeColor }">
+    <Tooltip
+      ref="tooltip"
+      :offset="15"
+      placement="top"
+      class="
+        text-sm
+        shadow-md
+        px-2
+        py-1
+        bg-white
+        dark:bg-gray-900
+        text-gray-900
+        dark:text-gray-200
+        border-s-4
+      "
+      :style="{ borderColor: activeColor }"
+    >
       <div class="flex flex-col justify-center items-center">
         <p>
           {{ xi > -1 ? formatX(xLabels[xi]) : '' }}
@@ -127,7 +206,7 @@ export default {
             this.padding +
             this.left +
             (i * (this.viewBoxWidth - this.left - 2 * this.padding)) /
-            (this.count - 1 || 1) // The "or" one (1) prevents accidentally dividing by 0
+              (this.count - 1 || 1) // The "or" one (1) prevents accidentally dividing by 0
         );
     },
     z() {
@@ -146,8 +225,9 @@ export default {
       return Math.max(...this.points.flat());
     },
     axis() {
-      return `M ${this.axisPadding + this.left} ${this.axisPadding} V ${this.viewBoxHeight - this.axisPadding - this.bottom
-        } H ${this.viewBoxWidth - this.axisPadding}`;
+      return `M ${this.axisPadding + this.left} ${this.axisPadding} V ${
+        this.viewBoxHeight - this.axisPadding - this.bottom
+      } H ${this.viewBoxWidth - this.axisPadding}`;
     },
     padding() {
       return this.axisPadding + this.pointsPadding;
@@ -235,7 +315,7 @@ export default {
       return (
         ((this.yLabelDivisions - i) *
           (this.viewBoxHeight - this.padding * 2 - this.bottom)) /
-        this.yLabelDivisions +
+          this.yLabelDivisions +
         this.padding
       );
     },

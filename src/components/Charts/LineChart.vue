@@ -1,30 +1,60 @@
 <template>
   <div>
-    <svg ref="chartSvg" :viewBox="`0 0 ${viewBoxWidth} ${viewBoxHeight}`" xmlns="http://www.w3.org/2000/svg"
-      @mousemove="update">
+    <svg
+      ref="chartSvg"
+      :viewBox="`0 0 ${viewBoxWidth} ${viewBoxHeight}`"
+      xmlns="http://www.w3.org/2000/svg"
+      @mousemove="update"
+    >
       <!-- x Grid Lines -->
-      <path v-if="drawXGrid" :d="xGrid" :stroke="gridColor" :stroke-width="gridThickness" stroke-linecap="round"
-        fill="transparent" />
+      <path
+        v-if="drawXGrid"
+        :d="xGrid"
+        :stroke="gridColor"
+        :stroke-width="gridThickness"
+        stroke-linecap="round"
+        fill="transparent"
+      />
 
       <!-- Axis -->
-      <path v-if="drawAxis" :d="axis" :stroke-width="axisThickness" :stroke="axisColor" fill="transparent" />
+      <path
+        v-if="drawAxis"
+        :d="axis"
+        :stroke-width="axisThickness"
+        :stroke="axisColor"
+        fill="transparent"
+      />
 
       <!-- x Labels -->
       <template v-if="drawLabels && xLabels.length > 0">
-        <text v-for="(i, j) in count" :key="j + '-xlabels'" :style="fontStyle" :y="viewBoxHeight -
-          axisPadding +
-          yLabelOffset +
-          fontStyle.fontSize / 2 -
-          bottom
-          " :x="xs[i - 1]" text-anchor="middle">
+        <text
+          v-for="(i, j) in count"
+          :key="j + '-xlabels'"
+          :style="fontStyle"
+          :y="
+            viewBoxHeight -
+            axisPadding +
+            yLabelOffset +
+            fontStyle.fontSize / 2 -
+            bottom
+          "
+          :x="xs[i - 1]"
+          text-anchor="middle"
+        >
           {{ formatX(xLabels[i - 1] || '') }}
         </text>
       </template>
 
       <!-- y Labels -->
       <template v-if="drawLabels && yLabelDivisions > 0">
-        <text v-for="(i, j) in yLabelDivisions + 1" :key="j + '-ylabels'" :style="fontStyle" :y="yScalerLocation(i - 1)"
-          :x="axisPadding - xLabelOffset + left" text-anchor="end">
+        <text
+          v-for="(i, j) in yLabelDivisions + 1"
+          :key="j + '-ylabels'"
+          :style="fontStyle"
+          :y="yScalerLocation(i - 1)"
+          :x="axisPadding - xLabelOffset + left"
+          text-anchor="end"
+        >
           {{ yScalerValue(i - 1) }}
         </text>
       </template>
@@ -38,28 +68,68 @@
         </linearGradient>
 
         <mask v-for="(i, j) in num" :id="'rect-mask-' + i" :key="j + '-mask'">
-          <rect x="0" :y="gradY(j)" :height="viewBoxHeight - gradY(j)" width="100%" fill="url('#grad')" />
+          <rect
+            x="0"
+            :y="gradY(j)"
+            :height="viewBoxHeight - gradY(j)"
+            width="100%"
+            fill="url('#grad')"
+          />
         </mask>
       </defs>
 
       <g v-for="(i, j) in num" :key="j + '-gpath'">
         <!-- Gradient Paths -->
-        <path stroke-linejoin="round" :d="getGradLine(i - 1)" :stroke-width="thickness" stroke-linecap="round"
-          :fill="colors[i - 1] || getRandomColor()" :mask="`url('#rect-mask-${i}')`" />
+        <path
+          stroke-linejoin="round"
+          :d="getGradLine(i - 1)"
+          :stroke-width="thickness"
+          stroke-linecap="round"
+          :fill="colors[i - 1] || getRandomColor()"
+          :mask="`url('#rect-mask-${i}')`"
+        />
 
         <!-- Lines -->
-        <path stroke-linejoin="round" :d="getLine(i - 1)" :stroke="colors[i - 1] || getRandomColor()"
-          :stroke-width="thickness" stroke-linecap="round" fill="transparent" />
+        <path
+          stroke-linejoin="round"
+          :d="getLine(i - 1)"
+          :stroke="colors[i - 1] || getRandomColor()"
+          :stroke-width="thickness"
+          stroke-linecap="round"
+          fill="transparent"
+        />
       </g>
 
       <!-- Tooltip Reference -->
-      <circle v-if="xi > -1 && yi > -1" r="12" :cx="cx" :cy="cy" :fill="colors[yi]" style="
+      <circle
+        v-if="xi > -1 && yi > -1"
+        r="12"
+        :cx="cx"
+        :cy="cy"
+        :fill="colors[yi]"
+        style="
           filter: brightness(115%) drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.25));
-        " />
+        "
+      />
     </svg>
-    <Tooltip v-if="showTooltip" ref="tooltip" :offset="15" placement="top"
-      class="text-sm shadow-md px-2 py-1 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 border-s-4"
-      :style="{ borderColor: colors[yi] }">
+    <Tooltip
+      v-if="showTooltip"
+      ref="tooltip"
+      :offset="15"
+      placement="top"
+      class="
+        text-sm
+        shadow-md
+        px-2
+        py-1
+        bg-white
+        dark:bg-gray-900
+        text-gray-900
+        dark:text-gray-200
+        border-s-4
+      "
+      :style="{ borderColor: colors[yi] }"
+    >
       <div class="flex flex-col justify-center items-center">
         <p>
           {{ xi > -1 ? formatX(xLabels[xi]) : '' }}
@@ -133,7 +203,7 @@ export default {
             this.padding +
             this.left +
             (i * (this.viewBoxWidth - this.left - 2 * this.padding)) /
-            (this.count - 1 || 1) // The "or" one (1) prevents accidentally dividing by 0
+              (this.count - 1 || 1) // The "or" one (1) prevents accidentally dividing by 0
         );
     },
     ys() {
@@ -144,7 +214,7 @@ export default {
           (p) =>
             this.padding +
             (1 - (p - min) / (max - min)) *
-            (this.viewBoxHeight - 2 * this.padding - this.bottom)
+              (this.viewBoxHeight - 2 * this.padding - this.bottom)
         )
       );
     },
@@ -158,8 +228,9 @@ export default {
       return Math.max(...this.points.flat());
     },
     axis() {
-      return `M ${this.axisPadding + this.left} ${this.axisPadding} V ${this.viewBoxHeight - this.axisPadding - this.bottom
-        } H ${this.viewBoxWidth - this.axisPadding}`;
+      return `M ${this.axisPadding + this.left} ${this.axisPadding} V ${
+        this.viewBoxHeight - this.axisPadding - this.bottom
+      } H ${this.viewBoxWidth - this.axisPadding}`;
     },
     padding() {
       return this.axisPadding + this.pointsPadding;
@@ -200,7 +271,7 @@ export default {
       return (
         ((this.yLabelDivisions - i) *
           (this.viewBoxHeight - this.padding * 2 - this.bottom)) /
-        this.yLabelDivisions +
+          this.yLabelDivisions +
         this.padding
       );
     },

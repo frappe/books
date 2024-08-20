@@ -17,7 +17,6 @@ import { toggleSidebar } from 'src/utils/ui';
         "
         :darkMode="darkMode"
         @change-db-file="$emit('change-db-file')"
-        @toggle-darkmode="$emit('toggle-darkmode')"
       />
     </Transition>
 
@@ -89,7 +88,7 @@ export default defineComponent({
   props: {
     darkMode: { type: Boolean, default: false },
   },
-  emits: ['change-db-file', 'toggle-darkmode'],
+  emits: ['change-db-file'],
 });
 </script>
 
