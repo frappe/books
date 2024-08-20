@@ -3,8 +3,6 @@ import { Money } from 'pesa';
 import { PricingRuleItem } from '../PricingRuleItem/PricingRuleItem';
 import { getIsDocEnabledColumn } from 'models/helpers';
 import {
-  FiltersMap,
-  FormulaMap,
   HiddenMap,
   ListViewSettings,
   RequiredMap,
@@ -53,8 +51,6 @@ export class PricingRule extends Doc {
   get isDiscountTypeIsPriceDiscount() {
     return this.discountType === 'Price Discount';
   }
-
-  formulas: FormulaMap = {};
 
   validations: ValidationMap = {
     minQuantity: (value: DocValue) => {
@@ -167,6 +163,4 @@ export class PricingRule extends Doc {
     recurseEvery: () => this.isDiscountTypeIsPriceDiscount || !this.isRecursive,
     recurseOver: () => this.isDiscountTypeIsPriceDiscount || !this.isRecursive,
   };
-
-  static filters: FiltersMap = {};
 }
