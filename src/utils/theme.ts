@@ -1,6 +1,6 @@
 import { fyo } from 'src/initFyo';
 
-export async function toggleDarkMode(): Promise<void> {
+export function toggleDarkMode(): void {
   const darkMode = fyo.config.get('darkMode');
   if (darkMode) {
     document.documentElement.classList.remove('dark');
@@ -12,7 +12,7 @@ export async function toggleDarkMode(): Promise<void> {
 }
 
 export function setDarkMode(): void {
-  var darkMode = fyo.config.get('darkMode');
+  let darkMode = fyo.config.get('darkMode');
 
   /* Fetching system theme */
   if (darkMode === undefined){
