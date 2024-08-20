@@ -260,7 +260,7 @@ export default defineComponent({
       this.searcher = null;
       this.companyName = '';
     },
-    async toggleDMode(): Promise<void> {
+    toggleDMode(): void {
       toggleDarkMode();
       this.darkMode = fyo.config.get('darkMode');
     },
