@@ -62,6 +62,10 @@
         {
           "value": "PurchaseReceipt",
           "label": "Purchase Receipt"
+        },
+        {
+          "value": "PricingRule",
+          "label": "Pricing Rule"
         }
       ],
       "default": "-",

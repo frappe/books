@@ -19,6 +19,7 @@ import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { PriceList } from '../PriceList/PriceList';
 import { isPesa } from 'fyo/utils';
+import { PricingRule } from '../PricingRule/PricingRule';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -45,6 +46,8 @@ export abstract class InvoiceItem extends Doc {
   itemDiscountPercent?: number;
   itemDiscountedTotal?: Money;
   itemTaxedTotal?: Money;
+
+  isFreeItem?: boolean;
 
   get isSales() {
     return (
@@ -91,6 +94,10 @@ export abstract class InvoiceItem extends Doc {
 
   get isReturn() {
     return !!this.parentdoc?.isReturn;
+  }
+
+  get pricingRuleDetail() {
+    return this.parentdoc?.pricingRuleDetail;
   }
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
@@ -169,6 +176,7 @@ export abstract class InvoiceItem extends Doc {
         'itemTaxedTotal',
         'itemDiscountedTotal',
         'setItemDiscountAmount',
+        'pricingRuleDetail',
       ],
     },
     unit: {
@@ -404,6 +412,80 @@ export abstract class InvoiceItem extends Doc {
       },
       dependsOn: ['item', 'quantity'],
     },
+    setItemDiscountAmount: {
+      formula: async () => {
+        if (
+          !this.fyo.singles.AccountingSettings?.enablePricingRule ||
+          !this.parentdoc?.pricingRuleDetail
+        ) {
+          return this.setItemDiscountAmount;
+        }
+
+        const pricingRule = this.parentdoc?.pricingRuleDetail?.filter(
+          (prDetail) => prDetail.referenceItem === this.item
+        );
+
+        if (!pricingRule) {
+          return this.setItemDiscountAmount;
+        }
+
+        const pricingRuleDoc = (await this.fyo.doc.getDoc(
+          ModelNameEnum.PricingRule,
+          pricingRule[0].referenceName
+        )) as PricingRule;
+
+        if (pricingRuleDoc.discountType === 'Product Discount') {
+          return this.setItemDiscountAmount;
+        }
+
+        if (pricingRuleDoc.priceDiscountType === 'amount') {
+          const discountAmount = pricingRuleDoc.discountAmount?.mul(
+            this.quantity as number
+          );
+          await this.set('itemDiscountAmount', discountAmount);
+          return true;
+        }
+
+        return this.setItemDiscountAmount;
+      },
+      dependsOn: ['pricingRuleDetail'],
+    },
+    itemDiscountPercent: {
+      formula: async () => {
+        if (
+          !this.fyo.singles.AccountingSettings?.enablePricingRule ||
+          !this.parentdoc?.pricingRuleDetail
+        ) {
+          return this.itemDiscountPercent;
+        }
+
+        const pricingRule = this.parentdoc?.pricingRuleDetail?.filter(
+          (prDetail) => prDetail.referenceItem === this.item
+        );
+
+        if (!pricingRule) {
+          return this.itemDiscountPercent;
+        }
+
+        const pricingRuleDoc = (await this.fyo.doc.getDoc(
+          ModelNameEnum.PricingRule,
+          pricingRule[0].referenceName
+        )) as PricingRule;
+
+        if (pricingRuleDoc.discountType === 'Product Discount') {
+          return this.itemDiscountPercent;
+        }
+
+        if (pricingRuleDoc.priceDiscountType === 'percentage') {
+          await this.set('setItemDiscountAmount', false);
+
+          return pricingRuleDoc.discountPercentage;
+        }
+
+        return this.itemDiscountPercent;
+      },
+      dependsOn: ['pricingRuleDetail'],
+    },
   };
 
   validations: ValidationMap = {
@@ -531,7 +613,21 @@ export abstract class InvoiceItem extends Doc {
 }
 
 async function getItemRate(doc: InvoiceItem): Promise<Money | undefined> {
+  if (doc.isFreeItem) {
+    return doc.rate;
+  }
+
+  let pricingRuleRate: Money | undefined;
+  if (doc.fyo.singles.AccountingSettings?.enablePricingRule) {
+    pricingRuleRate = await getItemRateFromPricingRule(doc);
+  }
+
+  if (pricingRuleRate) {
+    return pricingRuleRate;
+  }
+
   let priceListRate: Money | undefined;
+
   if (doc.fyo.singles.AccountingSettings?.enablePriceList) {
     priceListRate = await getItemRateFromPriceList(doc);
   }
@@ -550,6 +646,33 @@ async function getItemRate(doc: InvoiceItem): Promise<Money | undefined> {
   }
 
   return;
+}
+
+async function getItemRateFromPricingRule(
+  doc: InvoiceItem
+): Promise<Money | undefined> {
+  const pricingRule = doc.parentdoc?.pricingRuleDetail?.filter(
+    (prDetail) => prDetail.referenceItem === doc.item
+  );
+
+  if (!pricingRule) {
+    return;
+  }
+
+  const pricingRuleDoc = (await doc.fyo.doc.getDoc(
+    ModelNameEnum.PricingRule,
+    pricingRule[0].referenceName
+  )) as PricingRule;
+
+  if (pricingRuleDoc.discountType !== 'Price Discount') {
+    return;
+  }
+
+  if (pricingRuleDoc.priceDiscountType !== 'rate') {
+    return;
+  }
+
+  return pricingRuleDoc.discountRate;
 }
 
 async function getItemRateFromPriceList(
