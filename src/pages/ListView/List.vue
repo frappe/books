@@ -16,7 +16,14 @@
         <div
           v-for="(column, i) in columns"
           :key="column.label"
-          class="overflow-x-auto no-scrollbar whitespace-nowrap h-row items-center flex"
+          class="
+            overflow-x-auto
+            no-scrollbar
+            whitespace-nowrap
+            h-row
+            items-center
+            flex
+          "
           :class="{
             'ms-auto': isNumeric(column.fieldtype),
             'pe-4': i === columns.length - 1,
@@ -31,7 +38,11 @@
     <!-- Data Rows -->
     <div
       v-if="dataSlice.length !== 0"
-      class="overflow-y-auto dark:dark-scroll custom-scroll custom-scroll-thumb1"
+      class="
+        overflow-y-auto
+        dark:dark-scroll
+        custom-scroll custom-scroll-thumb1
+      "
     >
       <div v-for="(row, i) in dataSlice" :key="(row.name as string)">
         <!-- Row Content -->
@@ -41,7 +52,13 @@
           </p>
           <Row
             gap="1rem"
-            class="cursor-pointer text-gray-900 dark:text-gray-300 flex-1 h-row-mid"
+            class="
+              cursor-pointer
+              text-gray-900
+              dark:text-gray-300
+              flex-1
+              h-row-mid
+            "
             :column-count="columns.length"
             @click="$emit('openDoc', row.name)"
           >

@@ -40,11 +40,15 @@ export function getColorClass(
   value = 300,
   darkvalue = 600
 ) {
-  return `${type}-${getValidColor(color)}-${value} dark:${type}-${getValidColor(color)}-${darkvalue}`;
+  return `${type}-${getValidColor(color)}-${value} dark:${type}-${getValidColor(
+    color
+  )}-${darkvalue}`;
 }
 
 export function getTextColorClass(color: string) {
-  return `text-${getValidColor(color)}-700 dark:text-${getValidColor(color)}-200`;
+  return `text-${getValidColor(color)}-700 dark:text-${getValidColor(
+    color
+  )}-200`;
 }
 
 export function getBgTextColorClass(color: string) {

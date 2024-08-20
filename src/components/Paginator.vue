@@ -1,6 +1,13 @@
 <template>
   <div
-    class="grid grid-cols-3 text-gray-800 dark:text-gray-100 text-sm select-none items-center"
+    class="
+      grid grid-cols-3
+      text-gray-800
+      dark:text-gray-100
+      text-sm
+      select-none
+      items-center
+    "
     style="height: 50px"
   >
     <!-- Length Display -->
@@ -25,7 +32,14 @@
       <div class="flex gap-1 bg-gray-100 dark:bg-gray-890 rounded">
         <input
           type="number"
-          class="w-7 text-end outline-none bg-transparent focus:text-gray-900 dark:focus:text-gray-25"
+          class="
+            w-7
+            text-end
+            outline-none
+            bg-transparent
+            focus:text-gray-900
+            dark:focus:text-gray-25
+          "
           :value="pageNo"
           min="1"
           :max="maxPages"
@@ -52,7 +66,13 @@
     <!-- Count Selector -->
     <div
       v-if="filteredCounts.length"
-      class="border border-gray-100 dark:border-gray-800 rounded flex justify-self-end"
+      class="
+        border border-gray-100
+        dark:border-gray-800
+        rounded
+        flex
+        justify-self-end
+      "
     >
       <template v-for="c in filteredCounts" :key="c + '-count'">
         <button

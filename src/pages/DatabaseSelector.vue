@@ -7,7 +7,16 @@
     }"
   >
     <div
-      class="w-full w-form shadow-lg rounded-lg border dark:border-gray-800 relative bg-white dark:bg-gray-875"
+      class="
+        w-full w-form
+        shadow-lg
+        rounded-lg
+        border
+        dark:border-gray-800
+        relative
+        bg-white
+        dark:bg-gray-875
+      "
       style="height: 700px"
     >
       <!-- Welcome to Frappe Books -->
@@ -22,17 +31,24 @@
         </p>
       </div>
 
-      <hr class="dark:border-gray-800"/>
+      <hr class="dark:border-gray-800" />
 
       <!-- New File (Blue Icon) -->
       <div
         data-testid="create-new-file"
         class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
-        :class="creatingDemo ? '' : 'hover:bg-gray-50 dark:hover:bg-gray-890 cursor-pointer'"
+        :class="
+          creatingDemo
+            ? ''
+            : 'hover:bg-gray-50 dark:hover:bg-gray-890 cursor-pointer'
+        "
         @click="newDatabase"
       >
         <div class="w-8 h-8 rounded-full bg-blue-500 relative flex-center">
-          <feather-icon name="plus" class="text-white dark:text-gray-900 w-5 h-5" />
+          <feather-icon
+            name="plus"
+            class="text-white dark:text-gray-900 w-5 h-5"
+          />
         </div>
 
         <div>
@@ -48,11 +64,28 @@
       <!-- Existing File (Green Icon) -->
       <div
         class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
-        :class="creatingDemo ? '' : 'hover:bg-gray-50 dark:hover:bg-gray-890 cursor-pointer'"
+        :class="
+          creatingDemo
+            ? ''
+            : 'hover:bg-gray-50 dark:hover:bg-gray-890 cursor-pointer'
+        "
         @click="existingDatabase"
       >
-        <div class="w-8 h-8 rounded-full bg-green-500 dark:bg-green-600 relative flex-center">
-          <feather-icon name="upload" class="w-4 h-4 text-white dark:text-gray-900" />
+        <div
+          class="
+            w-8
+            h-8
+            rounded-full
+            bg-green-500
+            dark:bg-green-600
+            relative
+            flex-center
+          "
+        >
+          <feather-icon
+            name="upload"
+            class="w-4 h-4 text-white dark:text-gray-900"
+          />
         </div>
         <div>
           <p class="font-medium dark:text-gray-200">
@@ -68,10 +101,24 @@
       <div
         v-if="!files?.length"
         class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
-        :class="creatingDemo ? '' : 'hover:bg-gray-50 dark:hover:bg-gray-890 cursor-pointer'"
+        :class="
+          creatingDemo
+            ? ''
+            : 'hover:bg-gray-50 dark:hover:bg-gray-890 cursor-pointer'
+        "
         @click="createDemo"
       >
-        <div class="w-8 h-8 rounded-full bg-pink-500 dark:bg-pink-600 relative flex-center">
+        <div
+          class="
+            w-8
+            h-8
+            rounded-full
+            bg-pink-500
+            dark:bg-pink-600
+            relative
+            flex-center
+          "
+        >
           <feather-icon name="monitor" class="w-4 h-4 text-white" />
         </div>
         <div>
@@ -83,7 +130,7 @@
           </p>
         </div>
       </div>
-      <hr class="dark:border-gray-800"/>
+      <hr class="dark:border-gray-800" />
 
       <!-- File List -->
       <div class="overflow-y-auto" style="max-height: 340px">
@@ -91,7 +138,11 @@
           v-for="(file, i) in files"
           :key="file.dbPath"
           class="h-row-largest px-4 flex gap-4 items-center"
-          :class="creatingDemo ? '' : 'hover:bg-gray-50 dark:hover:bg-gray-890 cursor-pointer'"
+          :class="
+            creatingDemo
+              ? ''
+              : 'hover:bg-gray-50 dark:hover:bg-gray-890 cursor-pointer'
+          "
           :title="t`${file.companyName} stored at ${file.dbPath}`"
           @click="selectFile(file)"
         >
@@ -103,7 +154,8 @@
               flex
               justify-center
               items-center
-              bg-gray-200 dark:bg-gray-800
+              bg-gray-200
+              dark:bg-gray-800
               text-gray-500
               font-semibold
               flex-shrink-0
@@ -117,13 +169,20 @@
               <h2 class="font-medium dark:text-gray-200">
                 {{ file.companyName }}
               </h2>
-              <p class="whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+              <p
+                class="
+                  whitespace-nowrap
+                  text-sm text-gray-600
+                  dark:text-gray-400
+                "
+              >
                 {{ formatDate(file.modified) }}
               </p>
             </div>
             <p
               class="
-                text-sm text-gray-600 dark:text-gray-400
+                text-sm text-gray-600
+                dark:text-gray-400
                 overflow-x-auto
                 no-scrollbar
                 whitespace-nowrap
@@ -136,12 +195,15 @@
             class="
               ms-auto
               p-2
-              hover:bg-red-200 dark:hover:bg-red-900 dark:hover:bg-opacity-40
+              hover:bg-red-200
+              dark:hover:bg-red-900 dark:hover:bg-opacity-40
               rounded-full
               w-8
               h-8
-              text-gray-600 dark:text-gray-400
-              hover:text-red-400 dark:hover:text-red-200
+              text-gray-600
+              dark:text-gray-400
+              hover:text-red-400
+              dark:hover:text-red-200
             "
             @click.stop="() => deleteDb(i)"
           >
@@ -149,7 +211,7 @@
           </button>
         </div>
       </div>
-      <hr v-if="files?.length" class="dark:border-gray-800"/>
+      <hr v-if="files?.length" class="dark:border-gray-800" />
 
       <!-- Language Selector -->
       <div
@@ -160,7 +222,8 @@
           items-center
           absolute
           p-4
-          text-gray-900 dark:text-gray-100
+          text-gray-900
+          dark:text-gray-100
         "
         style="top: 100%; transform: translateY(-100%)"
       >
@@ -169,8 +232,10 @@
           v-if="files?.length"
           class="
             text-sm
-            bg-gray-100 dark:bg-gray-890
-            hover:bg-gray-200 dark:hover:bg-gray-900
+            bg-gray-100
+            dark:bg-gray-890
+            hover:bg-gray-200
+            dark:hover:bg-gray-900
             rounded
             px-4
             py-1.5
@@ -205,14 +270,18 @@
           creating the dummy instance.
         </p>
         <div class="flex my-12 justify-center items-baseline gap-4 text-base">
-          <label for="basecount" class="text-gray-600 dark:text-gray-400">Base Count</label>
+          <label for="basecount" class="text-gray-600 dark:text-gray-400"
+            >Base Count</label
+          >
           <input
             v-model="baseCount"
             type="number"
             name="basecount"
             class="
-              bg-gray-100 dark:bg-gray-875
-              focus:bg-gray-200 dark:focus:bg-gray-890
+              bg-gray-100
+              dark:bg-gray-875
+              focus:bg-gray-200
+              dark:focus:bg-gray-890
               rounded-md
               px-2
               py-1
