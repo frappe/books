@@ -12,7 +12,17 @@
         v-show="isOpen"
         ref="popover"
         :class="popoverClass"
-        class="bg-white dark:bg-gray-850 rounded-md border dark:border-gray-875 shadow-lg popover-container relative z-10"
+        class="
+          bg-white
+          dark:bg-gray-850
+          rounded-md
+          border
+          dark:border-gray-875
+          shadow-lg
+          popover-container
+          relative
+          z-10
+        "
         :style="{ 'transition-delay': `${isOpen ? entryDelay : exitDelay}ms` }"
       >
         <slot name="content" :toggle-popover="togglePopover"></slot>

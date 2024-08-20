@@ -4,7 +4,11 @@
     <!-- Back Button -->
     <a
       ref="backlink"
-      class="nav-link border-l border-r border-white dark:border-gray-850 dark:bg-gray-900"
+      class="
+        nav-link
+        border-l border-r border-white
+        dark:border-gray-850 dark:bg-gray-900
+      "
       :class="
         historyState.back
           ? 'text-gray-700 dark:text-gray-300 cursor-pointer'

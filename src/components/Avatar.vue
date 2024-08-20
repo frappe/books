@@ -14,7 +14,8 @@
         h-full
         items-center
         justify-center
-        text-white dark:text-gray-900
+        text-white
+        dark:text-gray-900
         w-full
         text-base
         uppercase

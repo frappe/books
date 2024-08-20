@@ -15,7 +15,7 @@ export function setDarkMode(): void {
   let darkMode = fyo.config.get('darkMode');
 
   /* Fetching system theme */
-  if (darkMode === undefined){
+  if (darkMode === undefined) {
     darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     fyo.config.set('darkMode', darkMode);
   }

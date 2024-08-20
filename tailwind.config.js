@@ -76,7 +76,7 @@ module.exports = {
       'dark',
     ],
     display: ['group-hover'],
-    borderWidth:['last'],
+    borderWidth: ['last'],
     fontWeight: ['dark'],
   },
   plugins: [require('tailwindcss-rtl')],
