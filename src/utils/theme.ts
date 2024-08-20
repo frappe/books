@@ -1,24 +1,4 @@
-import { fyo } from 'src/initFyo';
-
-export function toggleDarkMode(): void {
-  const darkMode = fyo.config.get('darkMode');
-  if (darkMode) {
-    document.documentElement.classList.remove('dark');
-    fyo.config.set('darkMode', false);
-    return;
-  }
-  document.documentElement.classList.add('dark');
-  fyo.config.set('darkMode', true);
-}
-
-export function setDarkMode(): void {
-  let darkMode = fyo.config.get('darkMode');
-
-  /* Fetching system theme */
-  if (darkMode === undefined) {
-    darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    fyo.config.set('darkMode', darkMode);
-  }
+export function setDarkMode(darkMode: boolean): void {
   if (darkMode) {
     document.documentElement.classList.add('dark');
     return;

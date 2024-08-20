@@ -36,7 +36,6 @@ export type ConfigMap = {
   lastSelectedFilePath: null | string;
   language: string 
   deviceId: string
-  darkMode: boolean
 };
 
 export interface ConfigFile {

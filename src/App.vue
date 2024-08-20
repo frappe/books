@@ -23,7 +23,6 @@
       class="flex-1"
       :darkMode="darkMode"
       @change-db-file="showDbSelector"
-      @toggle-darkmode="toggleDMode"
     />
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
@@ -70,7 +69,7 @@ import { Search } from './utils/search';
 import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { useKeys } from './utils/vueUtils';
-import { toggleDarkMode } from 'src/utils/theme';
+import { setDarkMode } from 'src/utils/theme';
 
 enum Screen {
   Desk = 'Desk',
@@ -136,7 +135,9 @@ export default defineComponent({
   },
   async mounted() {
     await this.setInitialScreen();
-    this.darkMode = fyo.config.get('darkMode') as boolean;
+    const { darkMode } = await fyo.doc.getDoc('SystemSettings');
+    setDarkMode(!!darkMode);
+    this.darkMode = !!darkMode;
   },
   methods: {
     async setInitialScreen(): Promise<void> {
@@ -259,10 +260,6 @@ export default defineComponent({
       this.dbPath = '';
       this.searcher = null;
       this.companyName = '';
-    },
-    toggleDMode(): void {
-      toggleDarkMode();
-      this.darkMode = fyo.config.get('darkMode');
     },
   },
 });
