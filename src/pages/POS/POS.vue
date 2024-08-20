@@ -217,6 +217,7 @@ import {
   validateSinv,
 } from 'src/utils/pos';
 import Barcode from 'src/components/Controls/Barcode.vue';
+import { getPricingRule } from 'models/helpers';
 
 export default defineComponent({
   name: 'POS',
@@ -361,10 +362,27 @@ export default defineComponent({
     setTransferRefNo(ref: string) {
       this.transferRefNo = ref;
     },
+    removeFreeItems() {
+      if (!this.sinvDoc || !this.sinvDoc.items) {
+        return;
+      }
+
+      if (!!this.sinvDoc.isPricingRuleApplied) {
+        return;
+      }
+
+      for (const item of this.sinvDoc.items) {
+        if (item.isFreeItem) {
+          this.sinvDoc.items = this.sinvDoc.items?.filter(
+            (invoiceItem) => invoiceItem.name !== item.name
+          );
+        }
+      }
+    },
 
     async addItem(item: POSItem | Item | undefined) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.sinvDoc.runFormulas();
+      await this.sinvDoc.runFormulas();
 
       if (!item) {
         return;
@@ -384,17 +402,21 @@ export default defineComponent({
 
       const existingItems =
         this.sinvDoc.items?.filter(
-          (invoiceItem) => invoiceItem.item === item.name
+          (invoiceItem) =>
+            invoiceItem.item === item.name && !invoiceItem.isFreeItem
         ) ?? [];
 
       if (item.hasBatch) {
-        for (const item of existingItems) {
-          const itemQty = item.quantity ?? 0;
+        for (const invItem of existingItems) {
+          const itemQty = invItem.quantity ?? 0;
           const qtyInBatch =
-            this.itemQtyMap[item.item as string][item.batch as string] ?? 0;
+            this.itemQtyMap[invItem.item as string][invItem.batch as string] ??
+            0;
 
           if (itemQty < qtyInBatch) {
-            item.quantity = (item.quantity as number) + 1;
+            invItem.quantity = (invItem.quantity as number) + 1;
+            invItem.rate = item.rate as Money;
+
             return;
           }
         }
@@ -414,7 +436,10 @@ export default defineComponent({
       }
 
       if (existingItems.length) {
+        existingItems[0].rate = item.rate as Money;
         existingItems[0].quantity = (existingItems[0].quantity as number) + 1;
+        await this.applyPricingRule();
+        await this.sinvDoc.runFormulas();
         return;
       }
 
@@ -561,6 +586,21 @@ export default defineComponent({
     async validate() {
       validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
       await validateShipment(this.itemSerialNumbers);
+    },
+    async applyPricingRule() {
+      const hasPricingRules = await getPricingRule(
+        this.sinvDoc as SalesInvoice
+      );
+
+      if (!hasPricingRules || !hasPricingRules.length) {
+        this.sinvDoc.pricingRuleDetail = undefined;
+        this.sinvDoc.isPricingRuleApplied = false;
+        this.removeFreeItems();
+        return;
+      }
+
+      await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
+      await this.sinvDoc.applyProductDiscount();
     },
 
     getItem,

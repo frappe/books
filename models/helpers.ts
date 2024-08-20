@@ -22,6 +22,9 @@ import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
 import { Lead } from './baseModels/Lead/Lead';
+import { PricingRule } from './baseModels/PricingRule/PricingRule';
+import { ValidationError } from 'fyo/utils/errors';
+import { ApplicablePricingRules } from './baseModels/Invoice/types';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -517,7 +520,7 @@ export function getPriceListStatusColumn(): ColumnConfig {
   };
 }
 
-export function getPriceListEnabledColumn(): ColumnConfig {
+export function getIsDocEnabledColumn(): ColumnConfig {
   return {
     label: t`Enabled`,
     fieldname: 'enabled',
@@ -656,4 +659,184 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   }
 
   await item.set('item', name);
+}
+
+export async function getPricingRule(
+  doc: Invoice
+): Promise<ApplicablePricingRules[] | null> {
+  if (
+    !doc.fyo.singles.AccountingSettings?.enablePricingRule ||
+    !doc.isSales ||
+    !doc.items
+  ) {
+    return null;
+  }
+
+  const pricingRules: ApplicablePricingRules[] = [];
+
+  for (const item of doc.items) {
+    if (item.isFreeItem) {
+      continue;
+    }
+
+    const pricingRuleDocNames = (
+      await doc.fyo.db.getAll(ModelNameEnum.PricingRuleItem, {
+        fields: ['parent'],
+        filters: {
+          item: item.item as string,
+          unit: item.unit as string,
+        },
+      })
+    ).map((doc) => doc.parent) as string[];
+
+    const pricingRuleDocsForItem = (await doc.fyo.db.getAll(
+      ModelNameEnum.PricingRule,
+      {
+        fields: ['*'],
+        filters: {
+          name: ['in', pricingRuleDocNames],
+          isEnabled: true,
+        },
+        orderBy: 'priority',
+        order: 'desc',
+      }
+    )) as PricingRule[];
+
+    const filtered = filterPricingRules(
+      pricingRuleDocsForItem,
+      doc.date as Date,
+      item.quantity as number,
+      item.amount as Money
+    );
+
+    if (!filtered.length) {
+      continue;
+    }
+
+    const isPricingRuleHasConflicts = getPricingRulesConflicts(
+      filtered,
+      item.item as string
+    );
+
+    if (isPricingRuleHasConflicts) {
+      continue;
+    }
+
+    pricingRules.push({
+      applyOnItem: item.item as string,
+      pricingRule: filtered[0],
+    });
+  }
+
+  return pricingRules;
+}
+
+export function filterPricingRules(
+  pricingRuleDocsForItem: PricingRule[],
+  sinvDate: Date,
+  quantity: number,
+  amount: Money
+): PricingRule[] | [] {
+  const filteredPricingRules: PricingRule[] | undefined = [];
+
+  for (const pricingRuleDoc of pricingRuleDocsForItem) {
+    if (canApplyPricingRule(pricingRuleDoc, sinvDate, quantity, amount)) {
+      filteredPricingRules.push(pricingRuleDoc);
+    }
+  }
+  return filteredPricingRules;
+}
+
+export function canApplyPricingRule(
+  pricingRuleDoc: PricingRule,
+  sinvDate: Date,
+  quantity: number,
+  amount: Money
+): boolean {
+  // Filter by Quantity
+  if (
+    (pricingRuleDoc.minQuantity as number) > 0 &&
+    quantity < (pricingRuleDoc.minQuantity as number)
+  ) {
+    return false;
+  }
+
+  if (
+    (pricingRuleDoc.maxQuantity as number) > 0 &&
+    quantity > (pricingRuleDoc.maxQuantity as number)
+  ) {
+    return false;
+  }
+
+  // Filter by Amount
+  if (
+    !pricingRuleDoc.minAmount?.isZero() &&
+    amount.lte(pricingRuleDoc.minAmount as Money)
+  ) {
+    return false;
+  }
+
+  if (
+    !pricingRuleDoc.maxAmount?.isZero() &&
+    amount.gte(pricingRuleDoc.maxAmount as Money)
+  ) {
+    return false;
+  }
+
+  // Filter by Validity
+  if (
+    pricingRuleDoc.validFrom &&
+    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
+      pricingRuleDoc.validFrom.toISOString()
+  ) {
+    return false;
+  }
+  if (
+    pricingRuleDoc.validTo &&
+    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
+      pricingRuleDoc.validTo.toISOString()
+  ) {
+    return false;
+  }
+  return true;
+}
+
+export function getPricingRulesConflicts(
+  pricingRules: PricingRule[],
+  item: string
+): string[] | undefined {
+  const pricingRuleDocs = Array.from(pricingRules);
+
+  const firstPricingRule = pricingRuleDocs.shift();
+  if (!firstPricingRule) {
+    return;
+  }
+
+  const conflictingPricingRuleNames: string[] = [];
+  for (const pricingRuleDoc of pricingRuleDocs.slice(0)) {
+    if (pricingRuleDoc.priority !== firstPricingRule?.priority) {
+      continue;
+    }
+
+    conflictingPricingRuleNames.push(pricingRuleDoc.name as string);
+  }
+
+  if (!conflictingPricingRuleNames.length) {
+    return;
+  }
+
+  throw new ValidationError(
+    t`Pricing Rules ${
+      firstPricingRule.name as string
+    }, ${conflictingPricingRuleNames.join(
+      ', '
+    )} has the same Priority for the Item ${item}.`
+  );
+}
+
+export function roundFreeItemQty(
+  quantity: number,
+  roundingMethod: 'round' | 'floor' | 'ceil'
+): number {
+  return Math[roundingMethod](quantity);
 }

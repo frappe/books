@@ -108,6 +108,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enablePricingRule",
+      "label": "Enable Pricing Rule",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",
