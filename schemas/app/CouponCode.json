@@ -19,12 +19,23 @@
       "required": true
     },
     {
-      "fieldname": "isEnabled",
-      "label": "Is Enabled",
-      "fieldtype": "Check",
-      "default": true,
-      "required": true,
-      "section": "Validity and Usage"
+      "fieldname": "pricingRule",
+      "label": "Pricing Rule",
+      "fieldtype": "Link",
+      "target": "PricingRule",
+      "required": true
+    },
+    {
+      "fieldname": "minAmount",
+      "label": "Min Amount",
+      "fieldtype": "Currency",
+      "section": "Amount"
+    },
+    {
+      "fieldname": "maxAmount",
+      "label": "Max Amount",
+      "fieldtype": "Currency",
+      "section": "Amount"
     },
     {
       "fieldname": "validFrom",
@@ -37,6 +48,14 @@
       "fieldname": "validTo",
       "label": "Valid To",
       "fieldtype": "Date",
+      "required": true,
+      "section": "Validity and Usage"
+    },
+    {
+      "fieldname": "isEnabled",
+      "label": "Is Enabled",
+      "fieldtype": "Check",
+      "default": true,
       "required": true,
       "section": "Validity and Usage"
     },
@@ -61,6 +80,7 @@
   "quickEditFields": [
     "name",
     "couponCode",
+    "pricingRule",
     "validFrom",
     "validTo",
     "maximumUse",
