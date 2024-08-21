@@ -6,17 +6,17 @@
   "fields": [
     {
       "fieldname": "name",
+      "label": "Coupon Code",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "couponName",
       "label": "Name",
       "fieldtype": "Data",
       "required": true,
       "placeholder": "Coupon Name",
       "section": "Default"
-    },
-    {
-      "fieldname": "couponCode",
-      "label": "Coupon Code",
-      "fieldtype": "Data",
-      "required": true
     },
     {
       "fieldname": "pricingRule",
