@@ -54,6 +54,40 @@ export class Party extends Doc {
     await this.setAndSync({ outstandingAmount });
   }
 
+  async updateLoyaltyPoints() {
+    let loyaltyPoints = 0;
+
+    if (this.role === 'Customer' || this.role === 'Both') {
+      loyaltyPoints = await this._getTotalLoyaltyPoints();
+    }
+
+    await this.setAndSync({ loyaltyPoints });
+  }
+
+  async _getTotalLoyaltyPoints() {
+    const data = (await this.fyo.db.getAll(ModelNameEnum.LoyaltyPointEntry, {
+      fields: ['name', 'loyaltyPoints', 'expiryDate', 'postingDate'],
+      filters: {
+        customer: this.name as string,
+      },
+    })) as {
+      name: string;
+      loyaltyPoints: number;
+      expiryDate: Date;
+      postingDate: Date;
+    }[];
+
+    const totalLoyaltyPoints = data.reduce((total, entry) => {
+      if (entry.expiryDate > entry.postingDate) {
+        return total + entry.loyaltyPoints;
+      }
+
+      return total;
+    }, 0);
+
+    return totalLoyaltyPoints;
+  }
+
   async _getTotalOutstandingAmount(
     schemaName: 'SalesInvoice' | 'PurchaseInvoice'
   ) {
