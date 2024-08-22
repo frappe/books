@@ -16,6 +16,9 @@ import Misc from './app/Misc.json';
 import NumberSeries from './app/NumberSeries.json';
 import Party from './app/Party.json';
 import Lead from './app/Lead.json';
+import LoyaltyProgram from './app/LoyaltyProgram.json';
+import LoyaltyPointEntry from './app/LoyaltyPointEntry.json';
+import CollectionRulesItems from './app/CollectionRulesItems.json';
 import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
 import PriceList from './app/PriceList.json';
@@ -105,6 +108,10 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Item as Schema,
   UOM as Schema,
   UOMConversionItem as Schema,
+
+  LoyaltyProgram as Schema,
+  LoyaltyPointEntry as Schema,
+  CollectionRulesItems as Schema,
 
   Payment as Schema,
   PaymentFor as Schema,
