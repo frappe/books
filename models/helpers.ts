@@ -681,18 +681,24 @@ export async function createLoyaltyPointEntry(doc: Invoice) {
     expiryDate.getDate() + (loyaltyProgramDoc.expiryDuration || 0)
   );
 
-  const loyaltyProgramTier = getLoyaltyProgramTier(
-    loyaltyProgramDoc,
-    doc?.grandTotal as Money
-  ) as CollectionRulesItems;
+  let loyaltyProgramTier;
+  let loyaltyPoint: number;
 
-  if (!loyaltyProgramTier) {
-    return;
+  if (doc.redeemLoyaltyPoints) {
+    loyaltyPoint = -(doc.loyaltyPoints || 0);
+  } else {
+    loyaltyProgramTier = getLoyaltyProgramTier(
+      loyaltyProgramDoc,
+      doc?.grandTotal as Money
+    ) as CollectionRulesItems;
+
+    if (!loyaltyProgramTier) {
+      return;
+    }
+
+    const collectionFactor = loyaltyProgramTier.collectionFactor as number;
+    loyaltyPoint = Math.round(doc?.grandTotal?.float || 0) * collectionFactor;
   }
-
-  const collectionFactor = loyaltyProgramTier.collectionFactor as number;
-  const loyaltyPoint =
-    Math.round(doc?.grandTotal?.float || 0) * collectionFactor;
 
   const newLoyaltyPointEntry = doc.fyo.doc.getNewDoc(
     ModelNameEnum.LoyaltyPointEntry,

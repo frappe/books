@@ -194,7 +194,11 @@ export abstract class Invoice extends Transactional {
       outstandingAmount: this.baseGrandTotal!,
     });
 
-    const party = (await this.fyo.doc.getDoc('Party', this.party)) as Party;
+    const party = (await this.fyo.doc.getDoc(
+      ModelNameEnum.Party,
+      this.party
+    )) as Party;
+
     await party.updateOutstandingAmount();
 
     if (this.makeAutoPayment && this.autoPaymentAccount) {
@@ -659,12 +663,15 @@ export abstract class Invoice extends Transactional {
       dependsOn: ['grandTotal', 'exchangeRate'],
     },
     outstandingAmount: {
-      formula: () => {
+      formula: async () => {
         if (this.submitted) {
           return;
         }
+        if (this.redeemLoyaltyPoints) {
+          return await this.getLPAddedBaseGrandTotal();
+        }
 
-        return this.baseGrandTotal!;
+        return this.baseGrandTotal;
       },
     },
     stockNotTransferred: {
@@ -774,6 +781,9 @@ export abstract class Invoice extends Transactional {
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
     backReference: () => !this.backReference,
     quote: () => !this.quote,
+    loyaltyProgram: () => !this.loyaltyProgram,
+    loyaltyPoints: () => !this.redeemLoyaltyPoints || this.isReturn,
+    redeemLoyaltyPoints: () => !this.loyaltyProgram || this.isReturn,
     priceList: () =>
       !this.fyo.singles.AccountingSettings?.enablePriceList ||
       (!this.canEdit && !this.priceList),

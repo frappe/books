@@ -2,9 +2,10 @@ import { Fyo } from 'fyo';
 import { Action, ListViewSettings } from 'fyo/model/types';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
-import { getInvoiceActions, getTransactionStatusColumn } from '../../helpers';
+import { getAddedLPWithGrandTotal, getInvoiceActions, getTransactionStatusColumn } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
 import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
+import { LoyaltyProgram } from '../LoyaltyProgram/LoyaltyProgram';
 
 export class SalesInvoice extends Invoice {
   items?: SalesInvoiceItem[];
@@ -25,6 +26,27 @@ export class SalesInvoice extends Invoice {
       }
       await posting.credit(item.account!, item.amount!.mul(exchangeRate));
     }
+
+    if (this.redeemLoyaltyPoints) {
+      const loyaltyProgramDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.LoyaltyProgram,
+        this.loyaltyProgram
+      )) as LoyaltyProgram;
+
+      const totalAmount = await getAddedLPWithGrandTotal(
+        this.fyo,
+        this.loyaltyProgram as string,
+        this.loyaltyPoints as number
+      );
+
+      await posting.debit(
+        loyaltyProgramDoc.expenseAccount as string,
+        totalAmount
+      );
+
+      await posting.credit(this.account!, totalAmount);
+    }
+
 
     if (this.taxes) {
       for (const tax of this.taxes) {
