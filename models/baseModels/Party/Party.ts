@@ -20,6 +20,7 @@ export class Party extends Doc {
   party?: string;
   fromLead?: string;
   defaultAccount?: string;
+  loyaltyPoints?: number;
   outstandingAmount?: Money;
   async updateOutstandingAmount() {
     /**
