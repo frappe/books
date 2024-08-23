@@ -20,6 +20,7 @@ import {
   getExchangeRate,
   getNumberSeries,
   getPricingRulesConflicts,
+  removeLoyaltyPoint,
   roundFreeItemQty,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
@@ -184,14 +185,24 @@ export abstract class Invoice extends Transactional {
   async afterSubmit() {
     await super.afterSubmit();
 
+    if (this.isReturn) {
+      await this._removeLoyaltyPointEntry();
+    }
+
     if (this.isQuote) {
       return;
+    }
+
+    let lpAddedBaseGrandTotal: Money | undefined;
+
+    if (this.redeemLoyaltyPoints) {
+      lpAddedBaseGrandTotal = await this.getLPAddedBaseGrandTotal();
     }
 
     // update outstanding amounts
     await this.fyo.db.update(this.schemaName, {
       name: this.name as string,
-      outstandingAmount: this.baseGrandTotal!,
+      outstandingAmount: lpAddedBaseGrandTotal! || this.baseGrandTotal!,
     });
 
     const party = (await this.fyo.doc.getDoc(
@@ -224,6 +235,14 @@ export abstract class Invoice extends Transactional {
     await this._cancelPayments();
     await this._updatePartyOutStanding();
     await this._updateIsItemsReturned();
+    await this._removeLoyaltyPointEntry();
+  }
+
+  async _removeLoyaltyPointEntry() {
+    if (!this.loyaltyProgram) {
+      return;
+    }
+    await removeLoyaltyPoint(this);
   }
 
   async _cancelPayments() {
