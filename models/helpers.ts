@@ -28,6 +28,7 @@ import { ApplicablePricingRules } from './baseModels/Invoice/types';
 import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
 import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
 import { isPesa } from 'fyo/utils';
+import { Party } from './baseModels/Party/Party';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -759,6 +760,31 @@ export function getLoyaltyProgramTier(
     }
   }
   return loyaltyProgramTier;
+}
+
+export async function removeLoyaltyPoint(doc: Doc) {
+  const data = (await doc.fyo.db.getAll(ModelNameEnum.LoyaltyPointEntry, {
+    fields: ['name', 'loyaltyPoints', 'expiryDate'],
+    filters: {
+      loyaltyProgram: doc.loyaltyProgram as string,
+      invoice: doc.isReturn
+        ? (doc.returnAgainst as string)
+        : (doc.name as string),
+    },
+  })) as { name: string; loyaltyPoints: number; expiryDate: Date }[];
+
+  const loyalityPointEntryDoc = await doc.fyo.doc.getDoc(
+    ModelNameEnum.LoyaltyPointEntry,
+    data[0].name
+  );
+
+  const party = (await doc.fyo.doc.getDoc(
+    ModelNameEnum.Party,
+    doc.party as string
+  )) as Party;
+
+  await loyalityPointEntryDoc.delete();
+  await party.updateLoyaltyPoints();
 }
 
 export async function getPricingRule(
