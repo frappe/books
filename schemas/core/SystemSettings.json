@@ -122,7 +122,7 @@
       "fieldname": "darkMode",
       "label": "Dark mode",
       "fieldtype": "Check",
-      "default": "false",
+      "default": false,
       "description": "Sets the theme of the app.",
       "section": "Theme"
     }
