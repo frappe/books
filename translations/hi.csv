@@ -1,0 +1,1058 @@
+${0},${0}
+${0} ${1} already exists.,${0} ${1} पहले से मौजूद है।
+${0} ${1} does not exist,${0} ${1} मौजूद नहीं है
+${0} ${1} has been modified after loading please reload entry.,${0} ${1} को लोड करने के बाद संशोधित किया गया है कृपया प्रविष्टि पुनः लोड करें।
+${0} ${1} is linked with existing records.,${0} ${1} मौजूदा रिकॉर्ड से जुड़ा हुआ है।
+${0} account not set in Inventory Settings.,${0} खाता इन्वेंट्री सेटिंग में सेट नहीं है।
+${0} already saved,${0} पहले से सहेजा गया है
+${0} already submitted,${0} पहले से सबमिट किया गया है
+${0} cancelled,${0} रद्द किया गया
+${0} cannot be cancelled,${0} रद्द नहीं किया जा सकता
+${0} cannot be deleted,${0} हटाया नहीं जा सकता
+${0} deleted,${0} हटाया गया
+${0} entries failed,${0} प्रविष्टियाँ विफल
+${0} entries imported,${0} प्रविष्टियाँ आयात की गईं
+${0} entry failed,${0} प्रविष्टि विफल
+${0} entry imported,${0} प्रविष्टि आयात की गईं
+${0} fields selected,${0} फ़ील्ड चयनित
+${0} filters applied,${0} फ़िल्टर लागू किए गए
+${0} has linked child accounts.,${0} ने चाइल्ड अकाउंट लिंक किए हैं।
+${0} of type ${1} does not exist,${1} प्रकार का ${0} मौजूद नहीं है
+${0} out of ${1},${1} में से ${0}
+${0} party ${1} is different from ${2},${0} पार्टी ${1} ${2} से भिन्न है
+${0} quantity 1 added.,${0} मात्रा 1 जोड़ी गई।
+${0} row added.,${0} पंक्ति जोड़ी गई।
+${0} rows,${0} पंक्तियाँ
+${0} rows added.,${0} पंक्तियाँ जोड़ी गईं।
+${0} saved,${0} सहेजे गए
+${0} shortcuts,${0} शॉर्टकट
+${0} stored at ${1},${0} ${1} पर संग्रहीत
+${0} submitted,${0} सबमिट किए गए
+${0} value ${1} does not exist.,${0} मान ${1} मौजूद नहीं है।
+0%,0%
+03-23-2022,03-23-2022
+03/23/2022,03/23/2022
+1 filter applied,1 फ़िल्टर लागू किया गया
+2022-03-23,2022-03-23
+"23 Mar, 2022","23 मार्च, 2022"
+23-03-2022,23-03-2022
+23.03.2022,23.03.2022
+23/03/2022,23/03/2022
+9888900000,9888900000
+A submittable entry is deleted only if it is in the cancelled state.,सबमिट करने योग्य प्रविष्टि केवल तभी हटाई जाती है जब वह रद्द की गई स्थिति में हो।
+Account,खाता
+Account ${0} does not exist.,खाता ${0} मौजूद नहीं है।
+Account Entries,खाता प्रविष्टियाँ
+Account Name,खाता नाम
+Account Type,खाता प्रकार
+Accounting,लेखांकन
+Accounting Entries,लेखांकन प्रविष्टियाँ
+Accounting Ledger Entry,लेखांकन खाता बही प्रविष्टि
+Accounting Settings,लेखांकन सेटिंग
+Accounts,खाते
+Accounts Payable,देय खाते
+Accounts Receivable,प्राप्य खाते
+Accumulated Depreciation,संचित मूल्यह्रास
+Action,कार्रवाई
+Active,सक्रिय
+Add Account,खाता जोड़ें
+Add Customers,ग्राहक जोड़ें
+Add Group,समूह जोड़ें
+Add Items,आइटम जोड़ें
+Add Row,पंक्ति जोड़ें
+Add Suppliers,आपूर्तिकर्ता जोड़ें
+Add Taxes,कर जोड़ें
+Add a few customers to create your first sales invoice,अपना पहला बिक्री चालान बनाने के लिए कुछ ग्राहक जोड़ें
+Add a few suppliers to create your first purchase invoice,अपना पहला खरीद चालान बनाने के लिए कुछ आपूर्तिकर्ता जोड़ें
+Add a filter,फ़िल्टर जोड़ें
+Add a remark,टिप्पणी जोड़ें
+Add attachment,अनुलग्नक जोड़ें
+Add invoice terms,चालान शर्तें जोड़ें
+Add products or services that you buy from your suppliers,अपने आपूर्तिकर्ताओं से खरीदे गए उत्पाद या सेवाएँ जोड़ें
+Add products or services that you sell to your customers,अपने ग्राहकों को बेचे जाने वाले उत्पाद या सेवाएँ जोड़ें
+Add transfer terms,स्थानांतरण शर्तें जोड़ें
+Add'l Discounts,अतिरिक्त छूट
+Additional ${0} Serial Numbers required for ${1} quantity of ${2}.,${2} की ${1} मात्रा के लिए अतिरिक्त ${0} सीरियल नंबर की आवश्यकता है।
+Additional quantity (${0}) required${1} to make outward transfer of item ${2} from ${3} on ${4},${3} से ${4} पर आइटम ${2} का बाहरी हस्तांतरण करने के लिए अतिरिक्त मात्रा (${0}) की आवश्यकता है
+Address,पता
+Address Display,पता प्रदर्शित करें
+Address Line 1,पता पंक्ति 1
+Address Line 2,पता पंक्ति 2
+Address Name,पता नाम
+Administrative Expenses,प्रशासनिक व्यय
+All,सभी
+Amount,राशि
+Amount Paid,भुगतान की गई राशि
+Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.,राशि: ${0} और राइटऑफ: ${1} संदर्भों को आवंटित कुल राशि से कम है: ${2}.
+Amount: ${0} is less than the total amount allocated to references: ${1}.,राशि: ${0} संदर्भों को आवंटित कुल राशि से कम है: ${1}.
+Amounts,राशियाँ
+An entry is cancelled only if it is in the submitted state.,एक प्रविष्टि केवल तभी रद्द की जाती है जब वह सबमिट की गई स्थिति में हो.
+An entry is submitted only if it is submittable and is in the saved state.,एक प्रविष्टि केवल तभी सबमिट की जाती है जब वह सबमिट करने योग्य हो और सहेजी गई स्थिति में हो.
+An error occurred.,एक त्रुटि हुई.
+Applicable anywhere in Frappe Books,फ्रैपी बुक्स में कहीं भी लागू
+Applicable when Quick Search is open,त्वरित खोज के खुले होने पर लागू
+Applicable when Template Builder is open,टेम्पलेट बिल्डर के खुले होने पर लागू
+Applicable when a entry is open in the Form view or Quick Edit view,फॉर्म व्यू या त्वरित संपादन व्यू में प्रविष्टि के खुले होने पर लागू
+Applicable when the List View of an entry type is open,प्रविष्टि प्रकार का सूची दृश्य खुला होने पर लागू
+Application of Funds (Assets),निधियों (संपत्तियों) का आवेदन
+Apply Discount After Tax,कर के बाद छूट लागू करें
+Apply and view changes made to the print template,प्रिंट टेम्पलेट में किए गए परिवर्तनों को लागू करें और देखें
+April,अप्रैल
+Arial,एरियल
+Ascending Order,आरोही क्रम
+Asset,संपत्ति
+Attach Image,छवि संलग्न करें
+Attachment,संलग्नक
+August,अगस्त
+Auto Payments,स्वतः भुगतान
+Auto Stock Transfer,स्वतः स्टॉक स्थानांतरण
+Autocomplete,स्वतः पूर्ण
+Back,वापस
+Back Reference,वापसी संदर्भ
+"Bad import data, could not read file.","गलत आयात डेटा, फ़ाइल नहीं पढ़ सका।"
+Balance,शेष राशि
+Balance Amount,शेष राशि
+Balance Sheet,शेष पत्र
+Bank,बैंक
+Bank Accounts,बैंक खाते
+Bank Entry,बैंक प्रविष्टि
+Bank Name,बैंक का नाम
+Bank Overdraft Account,बैंक ओवरड्राफ्ट खाता
+Barcode,बारकोड
+Base Grand Total,आधार कुल योग
+Based On,आधारित
+Batch,बैच
+Batch not set for row ${0}.,पंक्ति ${0} के लिए बैच सेट नहीं है।
+Batch set for row ${0}.,पंक्ति ${0} के लिए बैच सेट है।
+Bill Created,बिल बनाया गया
+Billing,बिलिंग
+Black,काला
+Blue,नीला
+Both,दोनों
+Both From and To Location cannot be undefined,"स्थान से और स्थान तक, दोनों अपरिभाषित नहीं रखा जा सकता"
+Buildings,इमारतें
+Cancel,रद्द करें
+Cancel ${0}?,${0} रद्द करें?
+Cancel or Delete an entry.,प्रविष्टि रद्द करें या हटाएँ।
+Cancelled,रद्द किया गया
+Cannot Commit Error,त्रुटि प्रतिबद्ध नहीं कर सकता
+Cannot Delete,हटा नहीं सकता
+Cannot Delete Account,खाता हटा नहीं सकता
+Cannot Export,निर्यात नहीं कर सकता
+Cannot Import,आयात नहीं कर सकता
+Cannot Open File,फ़ाइल नहीं खोल सकता
+Cannot cancel ${0} ${1} because of the following ${2}: ${3},निम्नलिखित ${2} : ${3} के कारण ${0} ${1} रद्द नहीं कर सकता
+Cannot cancel ${0} because of the following ${1}: ${2},निम्नलिखित ${1}: ${2} के कारण ${0} रद्द नहीं कर सकता
+"Cannot delete ${0} ""${1}"" because of linked entries.","लिंक की गई प्रविष्टियों के कारण ${0} ""${1}"" हटा नहीं सकता।"
+Cannot open file,फ़ाइल नहीं खोल सकता
+Cannot perform operation.,संचालन नहीं कर सकता।
+Cannot read file,फ़ाइल नहीं पढ़ सकता
+Capital Equipments,पूंजीगत उपकरण
+Capital Stock,पूंजीगत स्टॉक
+Cash,नकद
+Cash Denominations,नकद मूल्यवर्ग
+Cash Entry,नकद प्रविष्टि
+Cash In Hand,नकद इन हैंड
+Cashflow,नकदी प्रवाह
+Central Tax,केंद्रीय कर
+Change DB,DB बदलें
+Change File,फ़ाइल बदलें
+Change Ref Type,संदर्भ टाइप बदलें
+Changes made to settings will be visible on reload.,सेटिंग्स में किए गए परिवर्तन पुनः लोड होने पर दिखाई देंगे।
+Chargeable,प्रभार्य
+Chart Of Accounts Reviewed,खातों के चार्ट की समीक्षा की गई
+Chart of Accounts,खातों का चार्ट
+Check,चेक
+Cheque,चेक
+City / Town,शहर / कस्बा
+Clear,साफ़
+Clearance Date,समापन तिथि
+Close,बंद करें
+Close Frappe Books and try manually.,फ्रेपे बुक्स बंद करें और मैन्युअल रूप से प्रयास करें।
+Close POS Shift,POS शिफ्ट बंद करें
+Close Quick Search,त्वरित खोज बंद करें
+Closing,समापन
+Closing ${0} Amount can not be negative.,समापन ${0} राशि ऋणात्मक नहीं हो सकती।
+Closing (Cr),समापन (Cr)
+Closing (Dr),समापन (Dr)
+Closing Amount,समापन राशि
+Closing Cash In Denominations,मूल्यवर्ग में समापन नकद
+Closing Date,समापन तिथि
+Collapse,संक्षिप्त करें
+Color,रंग
+Commission on Sales,बिक्री पर कमीशन
+Common,सामान्य
+Company,कंपनी
+Company Logo,कंपनी लोगो
+Company Name,कंपनी का नाम
+Company Setup,कंपनी सेटअप
+Completed,पूरा हुआ
+Condition,स्थिति
+Consolidate Columns,कॉलम समेकित करें
+Contacts,संपर्क
+Contains,इसमें शामिल है
+Continue submitting Sales Invoice?,बिक्री चालान जमा करना जारी रखें?
+Contra Entry,कॉन्ट्रा एंट्री
+Conversion Error,रूपांतरण त्रुटि
+Conversion Factor,रूपांतरण कारक
+Cost Of Goods Sold Acc.,बेचे गए माल के लिए लागत खाता
+Cost of Goods Sold,बेचे गए माल की लागत
+"Could not connect to database file ${0}, please select the file manually","डेटाबेस फ़ाइल ${0} से कनेक्ट नहीं हो सका, कृपया फ़ाइल को मैन्युअल रूप से चुनें"
+Count,गणना
+Counter Cash Account,काउंटर कैश अकाउंट
+Country,देश
+Country Code,देश कोड
+Country code used to initialize regional settings.,क्षेत्रीय सेटिंग आरंभ करने के लिए उपयोग किया जाने वाला देश कोड।
+Courier,कूरियर
+Cr.,Cr.
+Cr. ${0},Cr. ${0}
+Create,बनाएँ
+Create Demo,डेमो बनाएँ
+Create Purchase,खरीद बनाएँ
+Create Purchase Invoice,खरीद चालान बनाएँ
+Create Sale,बिक्री बनाएँ
+Create Sales Invoice,बिक्री चालान बनाएँ
+Create a demo company to try out Frappe Books,Frappe Books आज़माने के लिए एक डेमो कंपनी बनाएँ
+Create a new company and store it on your computer,एक नई कंपनी बनाएँ और इसे अपने कंप्यूटर पर संग्रहीत करें
+Create a new company or select an existing one from your computer,एक नई कंपनी बनाएँ या अपने कंप्यूटर से एक मौजूदा कंपनी का चयन करें
+Create a new entry of the same type as the List View,सूची दृश्य के समान प्रकार की एक नई प्रविष्टि बनाएँ
+Create new ${0} entry?,नई ${0} प्रविष्टि बनाएँ?
+Create your first purchase invoice from the created supplier,बनाए गए आपूर्तिकर्ता से अपना पहला खरीद चालान बनाएँ
+Create your first sales invoice for the created customer,बनाए गए ग्राहक के लिए अपना पहला बिक्री चालान बनाएँ
+Created,बनाया गया
+Created By,द्वारा बनाया गया
+Creating Items and Parties,आइटम और पार्टियाँ बनाना
+Creating Journal Entries,जर्नल प्रविष्टियाँ बनाना
+Creating Purchase Invoices,खरीद चालान बनाना
+Credit,क्रेडिट
+Credit Card Entry,क्रेडिट कार्ड प्रविष्टि
+Credit Note,क्रेडिट नोट
+Creditors,लेनदार
+Currency,मुद्रा
+Currency Name,मुद्रा नाम
+Current,वर्तमान
+Current Assets,वर्तमान संपत्तियाँ
+Current Liabilities,वर्तमान देयताएँ
+Custom Field,कस्टम फ़ील्ड
+Custom Fields,कस्टम फ़ील्ड
+Custom Form,कस्टम फॉर्म
+Custom Hex,कस्टम हेक्स
+Customer,ग्राहक
+Customer Created,ग्राहक द्वारा बनाया गया
+Customer Currency,ग्राहक मुद्रा
+Customers,ग्राहक
+Customizations,अनुकूलन
+Customize Form,फ़ॉर्म को अनुकूलित करें
+Customize your invoices by adding a logo and address details,लोगो और पता विवरण जोड़कर अपने चालान को अनुकूलित करें
+Dashboard,डैशबोर्ड
+Data,डेटा
+Database Error,डेटाबेस त्रुटि
+Database file: ${0},डेटाबेस फ़ाइल: ${0}
+Date,दिनांक
+Date Format,दिनांक प्रारूप
+Date Time,दिनांक समय
+Day,दिन
+Debit,डेबिट
+Debit Note,डेबिट नोट
+Debtors,देनदार
+December,दिसंबर
+Decrease print template display scale,प्रिंट टेम्पलेट डिस्प्ले स्केल घटाएँ
+Default,डिफ़ॉल्ट
+Default Account,डिफ़ॉल्ट खाता
+Default Cash Denominations,डिफ़ॉल्ट नकद मूल्यवर्ग
+Default Location,डिफ़ॉल्ट स्थान
+Defaults,डिफ़ॉल्ट
+Delete,हटाएँ
+Delete ${0}?,हटाएँ ${0}?
+Delete Account,खाता हटाएं
+Delete Failed,विफल रहा
+Delete Group,समूह हटाएं
+Delivered,वितरित
+Denomination,मूल्यवर्ग
+Depreciation,मूल्यह्रास
+Depreciation Entry,मूल्यह्रास प्रविष्टि
+Description,विवरण
+Details,विवरण
+Difference Amount,अंतर राशि
+Direct Expenses,प्रत्यक्ष व्यय
+Direct Income,प्रत्यक्ष आय
+"Directory for database file ${0} does not exist, please select the file manually","डेटाबेस फ़ाइल ${0} के लिए निर्देशिका मौजूद नहीं है, कृपया फ़ाइल को मैन्युअल रूप से चुनें"
+Disabled,अक्षम
+Discount Account,छूट खाता
+Discount Account is not set.,छूट खाता सेट नहीं है।
+Discount Amount,छूट राशि
+Discount Amount (${0}) cannot be greated than Amount (${1}).,छूट राशि (${0}) को राशि (${1}) से अधिक नहीं किया जा सकता।
+Discount Percent,छूट प्रतिशत
+Discount Percent (${0}) cannot be greater than 100.,छूट प्रतिशत (${0}) 100 से अधिक नहीं हो सकता।
+Discounted Amount,छूट राशि
+Discounts,छूट
+Display Doc,दस्तावेज़ प्रदर्शित करें
+Display Logo in Invoice,चालान में लोगो प्रदर्शित करें
+Display Precision,प्रदर्शन परिशुद्धता
+Display Precision should have a value between 0 and 9.,प्रदर्शन परिशुद्धता का मान 0 से 9 के बीच होना चाहिए।
+Display Scale,प्रदर्शन स्केल
+Dividends Paid,भुगतान किए गए लाभांश
+Doc ${0} ${1} not set,दस्तावेज़ ${0} ${1} सेट नहीं है
+Docs,दस्तावेज़
+Documentation,दस्तावेज़ीकरण
+Does Not Contain,इसमें शामिल नहीं है
+Done,पूर्ण
+Dr.,Dr.
+Dr. ${0},Dr. ${0}
+Draft,ड्राफ़्ट
+Duplicate,डुप्लिकेट
+Duplicate Entry,डुप्लिकेट प्रविष्टि
+Duplicate Template,डुप्लिकेट टेम्पलेट
+Duplicate columns found: ${0},डुप्लिकेट कॉलम पाए गए: ${0}
+Duties and Taxes,शुल्क और कर
+Dynamic Link,डायनेमिक लिंक
+Earnest Money,बयाना राशि
+Electronic Equipments,इलेक्ट्रॉनिक उपकरण
+Email,ईमेल
+Email Address,ईमेल पता
+Empty,खाली
+Empty file selected,खाली फ़ाइल चुनी गई
+Enable Barcodes,बारकोड सक्षम करें
+Enable Batches,बैच सक्षम करें
+Enable Discount Accounting,छूट लेखांकन सक्षम करें
+Enable Form Customization,फ़ॉर्म अनुकूलन सक्षम करें
+Enable Inventory,इन्वेंट्री सक्षम करें
+Enable Invoice Returns,चालान रिटर्न सक्षम करें
+Enable Point of Sale,बिक्री बिंदु सक्षम करें
+Enable Price List,मूल्य सूची सक्षम करें
+Enable Serial Number,सीरियल सक्षम करें संख्या
+Enable Stock Returns,स्टॉक रिटर्न सक्षम करें
+Enable UOM Conversion,UOM रूपांतरण सक्षम करें
+Enabled,सक्षम
+Enabled For,के लिए सक्षम
+Enter Country to load States,राज्यों को लोड करने के लिए देश दर्ज करें
+Enter State,राज्य दर्ज करें
+Enter barcode,बारकोड दर्ज करें
+Entertainment Expenses,मनोरंजन व्यय
+Entry,प्रविष्टि
+Entry Currency,प्रविष्टि मुद्रा
+Entry Label,प्रविष्टि लेबल
+Entry No,प्रविष्टि संख्या
+Entry No.,प्रविष्टि संख्या
+Entry Type,प्रविष्टि प्रकार
+Entry has Grand Total ${0}. Please verify amounts.,प्रविष्टि का कुल योग ${0} है। कृपया राशियों की पुष्टि करें।
+Equity,इक्विटी
+Error,त्रुटि
+Exchange Gain/Loss,विनिमय लाभ/हानि
+Exchange Rate,विनिमय दर
+Excise Entry,उत्पाद शुल्क प्रविष्टि
+Existing Company,मौजूदा कंपनी
+Expand,विस्तार
+Expected Amount,अपेक्षित राशि
+Expense,व्यय
+Expense Account,व्यय खाता
+Expenses,व्यय
+Expenses Included In Valuation,मूल्यांकन में शामिल व्यय
+Expiry Date,समाप्ति तिथि
+Export,निर्यात
+Export Failed,निर्यात विफल
+Export Format,निर्यात प्रारूप
+Export Successful,निर्यात सफल
+Export Wizard,निर्यात विज़ार्ड
+Failed,विफल
+Fax,फैक्स
+Features,विशेषताएँ
+February,फ़रवरी
+Field,फ़ील्ड
+Fieldname,फ़ील्डनाम
+Fieldname ${0} already exists for ${1},फ़ील्डनाम ${0} पहले से ही ${1} के लिए मौजूद है
+Fieldname ${0} already used for Custom Field ${1},फ़ील्डनाम ${0} पहले से ही कस्टम फ़ील्ड ${1} के लिए उपयोग किया गया है
+Fieldtype,फ़ील्डटाइप
+File ${0} does not exist.,फ़ाइल ${0} मौजूद नहीं है।
+File selection failed,फ़ाइल चयन विफल
+Fill,भरें
+Filter,फ़िल्टर
+Fiscal Year,वित्तीय वर्ष
+Fiscal Year End Date,वित्तीय वर्ष समाप्ति तिथि
+Fiscal Year Start Date,वित्तीय वर्ष आरंभ तिथि
+Fix Failed,फ़िक्स विफल
+Fixed Asset,स्थिर संपत्ति
+Fixed Assets,स्थिर संपत्ति
+Float,फ़्लोट
+Following cells have errors: ${0}.,निम्नलिखित कक्षों में त्रुटियाँ हैं: ${0}.
+Following links do not exist: ${absentLinks .map((l) =>,निम्नलिखित लिंक मौजूद नहीं हैं: ${absentLinks .map((l) =>
+Font,फ़ॉन्ट
+For Purchase,खरीद के लिए
+For Sales,बिक्री के लिए
+Forbidden Error,निषिद्ध त्रुटि
+Form Section,फ़ॉर्म अनुभाग
+Form Tab,फ़ॉर्म टैब
+Form Type,फ़ॉर्म प्रकार
+Fr,शु
+Fraction,अंश
+Fraction Units,अंश इकाइयाँ
+Frappe Books does not have access to the selected file: ${0},Frappe Books के पास चयनित फ़ाइल तक पहुँच नहीं है: ${0}
+Freight and Forwarding Charges,माल ढुलाई और अग्रेषण शुल्क
+From,से
+From Account,खाते से
+From Date,तारीख से
+From Loc.,स्थान से
+From Year,वर्ष से
+Full Name,पूरा नाम
+Furnitures and Fixtures,फर्नीचर और फिक्स्चर
+GST,जीएसटी
+GSTIN No.,जीएसटीआईएन नंबर
+GSTR1,जीएसटीआर1
+GSTR2,जीएसटीआर2
+Gain/Loss on Asset Disposal,संपत्ति निपटान पर लाभ/हानि
+General,सामान्य
+General Ledger,सामान्य खाता बही
+Get Started,आरंभ करें
+Global,वैश्विक
+Go back to the previous page,पिछले पृष्ठ पर वापस जाएँ
+Gram,ग्राम
+Grand Total,कुल योग
+Greater Than,इससे अधिक
+Green,हरा
+Group By,समूह द्वारा
+HSN/SAC,HSN/SAC
+HSN/SAC Code,HSN/SAC कोड
+Half Yearly,अर्धवार्षिक
+Half Years,अर्धवर्ष
+Has Batch,बैच है
+Has Serial Number,सीरियल नंबर है
+Height (in cm),ऊँचाई (सेंटीमीटर में)
+Help,सहायता
+Hex Value,हेक्स मान
+Hidden values will be visible on Print on.,छिपे हुए मान प्रिंट पर दिखाई देंगे।
+Hide Get Started,आरंभ करें छिपाएँ
+Hide Group Amounts,समूह राशियाँ छिपाएँ
+Hide Month/Year,महीना/वर्ष छिपाएँ
+Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.,साइडबार से आरंभ करें अनुभाग छिपाता है। ऐप को पुनः आरंभ या रिफ्रेश करने पर परिवर्तन दिखाई देगा।
+Hour,घंटा
+INR,₹
+Image,छवि
+Import Complete,आयात पूर्ण
+Import Data,डेटा आयात 
+Import Data.,डेटा आयात।
+Import Type,आयात प्रकार
+Import Wizard,आयात विज़ार्ड
+"Importer not set, reload tool","आयातकर्ता सेट नहीं है, उपकरण पुनः लोड करें"
+Inactive,निष्क्रिय
+Include Cancelled,रद्द हुए को शामिल करें 
+Income,आय
+Income Account,आय खाता
+Increase print template display scale,प्रिंट टेम्पलेट डिस्प्ले स्केल बढ़ाएँ
+Indigo,इंडिगो
+Indirect Expenses,अप्रत्यक्ष व्यय
+Indirect Income,अप्रत्यक्ष आय
+Inflow,इनफ़्लो
+Instance Id,इंस्टेंस आईडी
+Insufficient Quantity,अपर्याप्त मात्रा
+Insufficient Quantity.,अपर्याप्त मात्रा।
+Insufficient Quantity. Item ${0} has only ${1} quantities available. you selected ${2},अपर्याप्त मात्रा। आइटम ${0} में केवल ${1} मात्राएँ उपलब्ध हैं। आपने ${2} चुना
+Int,इंट
+Intergrated Tax,एकीकृत कर
+Internal Precision,आंतरिक परिशुद्धता
+Invalid Key Error,अमान्य कुंजी त्रुटि
+Invalid Quantity for Item ${0},आइटम ${0} के लिए अमान्य मात्रा
+Invalid barcode value ${0}.,अमान्य बारकोड मान ${0}।
+Invalid value ${0} for ${1},${1} के लिए अमान्य मान ${0}
+Invalid value found for ${0},${0} के लिए अमान्य मान मिला
+Inventory,इन्वेंट्री
+Inventory Settings,इन्वेंट्री सेटिंग
+Investments,निवेश
+Invoice,इनवॉइस
+Invoice Created,इनवॉइस बनाया गया
+Invoice Date,इनवॉइस दिनांक
+Invoice Item,इनवॉइस आइटम
+Invoice No,इनवॉइस संख्या
+Invoice No.,इनवॉइस संख्या
+Invoice Value,इनवॉइस मूल्य
+Invoices,इनवॉइस
+Is,है
+Is Custom,कस्टम है
+Is Empty,खाली है
+Is Group,समूह है
+Is Landscape,लैंडस्केप है
+Is Not,नहीं है
+Is Not Empty,खाली नहीं है
+Is POS Shift Open,क्या POS शिफ्ट खुला है
+Is Price List Enabled,क्या मूल्य सूची सक्षम है
+Is Required,आवश्यक है
+Is Whole,क्या संपूर्ण
+Item,आइटम
+Item ${0} has Zero Quantity,आइटम ${0} में शून्य मात्रा है
+Item ${0} is a batched item,आइटम ${0} एक बैच आइटम है
+Item ${0} is not a batched item,आइटम ${0} एक बैच आइटम नहीं है
+Item ${0} not in Stock,आइटम ${0} स्टॉक में नहीं है
+Item Description,आइटम विवरण
+Item Discounts,आइटम छूट
+Item Name,आइटम का नाम
+Item Prices,आइटम की कीमतें
+Item with From location not found,स्थान-से वाला आइटम नहीं मिला
+Item with To location not found,स्थान-को वाला आइटम नहीं मिला
+Item with barcode ${0} not found.,बारकोड वाला आइटम ${0} नहीं मिला।
+Items,आइटम
+January,जनवरी
+John Doe,जॉन डो
+Journal Entries,जर्नल प्रविष्टियाँ
+Journal Entry,जर्नल प्रविष्टि
+Journal Entry Account,जर्नल प्रविष्टि खाता
+Journal Entry Number Series,जर्नल प्रविष्टि संख्या श्रृंखला
+Journal Entry Print Template,जर्नल प्रविष्टि प्रिंट टेम्पलेट
+July,जुलाई
+June,जून
+Key Hints,मुख्य संकेत
+Kg,Kg
+Label,लेबल
+Language,भाषा
+Left Index,बायां सूचकांक
+Legal Expenses,कानूनी व्यय
+Less Filters,कम फ़िल्टर
+Less Than,से कम
+Liability,देयता
+Limit,सीमा
+Link,लिंक
+Link Validation Error,लिंक सत्यापन त्रुटि
+Linked Entries,लिंक की गई प्रविष्टियाँ
+List,सूची
+List View,सूची दृश्य
+Load an existing company from your computer,अपने कंप्यूटर से मौजूदा कंपनी लोड करें
+Loading Report...,रिपोर्ट लोड हो रही है...
+Loading instance...,इंस्टेंस लोड हो रहा है...
+Loading...,लोड हो रहा है...
+Loans (Liabilities),ऋण (देयताएँ)
+Loans and Advances (Assets),ऋण और अग्रिम (संपत्तियाँ)
+Locale,स्थानिक
+Location,स्थान
+Location Name,स्थान का नाम
+Logo,लोगो
+Make Entry,प्रविष्टि बनाएँ
+Make Payment On Submit,सबमिट करते समय भुगतान करें
+Make Purchase Receipt On Submit,सबमिट करते समय खरीद रसीद बनाएँ
+Make Shipment On Submit,सबमिट करते समय शिपमेंट बनाएँ
+Mandatory Error,अनिवार्य त्रुटि
+Manufacture,निर्माण
+Manufacture Date,निर्माण तिथि
+"Mar 23, 2022","मार्च 23, 2022"
+March,मार्च
+Mark ${0} as submitted?,${0} को सबमिट के रूप में चिह्नित करें?
+Marketing Expenses,मार्केटिंग व्यय
+Material Issue,सामग्री जारी
+Material Receipt,सामग्री प्राप्ति
+Material Transfer,सामग्री हस्तांतरण
+May,मई
+Meter,मीटर
+Misc,विविध
+Miscellaneous,विविध
+Miscellaneous Expenses,विविध व्यय
+Mo,सो
+Modified,संशोधित
+Modified By,द्वारा संशोधित
+Monthly,मासिक
+Months,महीने
+More,अधिक
+More Filters,अधिक फ़िल्टर
+More shortcuts will be added soon.,अधिक शॉर्टकट जल्द ही जोड़े जाएंगे।
+Movement Type,गतिविधि प्रकार
+Name,नाम
+Navigate,नेविगेट
+Need ${0} Serial Numbers for Item ${1}. You have provided ${2},आइटम ${1} के लिए ${0} सीरियल नंबर की आवश्यकता है। आपने ${2} प्रदान किया है
+Net Total,कुल योग
+New ${0},नया ${0}
+New ${0} ${1},नया ${0} ${1}
+New Account,नया खाता
+New Company,नई कंपनी
+New Entry,नई प्रविष्टि
+New Template,नया टेम्पलेट
+No,नहीं
+No Display Entries Found,कोई प्रदर्शन प्रविष्टियाँ नहीं मिलीं
+No Print Templates not found for entry type ${0},प्रविष्टि प्रकार ${0} के लिए कोई प्रिंट टेम्पलेट नहीं मिला
+No Value,कोई मूल्य नहीं
+No Values to be Displayed,प्रदर्शित किए जाने वाले कोई मूल्य नहीं
+No entries found,कोई प्रविष्टि नहीं मिली
+No entries were imported.,कोई प्रविष्टि आयात नहीं की गई।
+No expenses in this period,इस अवधि में कोई व्यय नहीं
+No filters selected,कोई फ़िल्टर नहीं चुना गया
+No linked entries found,कोई लिंक की गई प्रविष्टियाँ नहीं मिलीं
+No results found,कोई परिणाम नहीं मिला
+No rows added. Select a file or add rows.,कोई पंक्ति नहीं जोड़ी गई। कोई फ़ाइल चुनें या पंक्तियाँ जोड़ें।
+No transactions yet,अभी तक कोई लेन-देन नहीं
+Non Active Serial Number ${0} cannot be used as Manufacture raw material,गैर-सक्रिय सीरियल नंबर ${0} का उपयोग विनिर्माण कच्चे माल के रूप में नहीं किया जा सकता
+Non Active Serial Number ${0} cannot be used for Material Issue,गैर-सक्रिय सीरियल नंबर ${0} का उपयोग सामग्री जारी करने के लिए नहीं किया जा सकता
+Non Active Serial Number ${0} cannot be used for Material Transfer,गैर-सक्रिय सीरियल नंबर ${0} का उपयोग सामग्री हस्तांतरण के लिए नहीं किया जा सकता
+Non Inactive Serial Number ${0} cannot be used for Material Receipt,गैर-निष्क्रिय सीरियल नंबर ${0} का उपयोग सामग्री प्राप्ति के लिए नहीं किया जा सकता
+None,कोई नहीं
+Not Found,नहीं मिला
+Not Saved,सहेज नहीं गया
+Not Submitted,सबमिट नहीं किया गया
+Not Transferred,स्थानांतरित नहीं किया गया
+Notes,नोट्स
+November,नवंबर
+Number Display,संख्या प्रदर्शन
+Number Series,संख्या श्रृंखला
+Number of ${0},${0} की संख्या
+Number of Rows,पंक्तियों की संख्या
+October,अक्टूबर
+Office Equipments,कार्यालय उपकरण
+Office Maintenance Expenses,कार्यालय रखरखाव व्यय
+Office Rent,कार्यालय किराया
+Okay,ठीक है
+Onboarding Complete,ऑनबोर्डिंग पूर्ण
+Only From or To can be set for Manufacture,केवल निर्माण के लिए से या तक सेट किया जा सकता है
+Open Count,गिनती दिखाएं
+Open Documentation,दस्तावेज़ खोलें
+Open Folder,फोल्डर खोलें
+Open Print View,प्रिंट दृश्य खोलें
+Open Print View if Print is available.,यदि प्रिंट उपलब्ध है तो प्रिंट दृश्य खोलें।
+Open Quick Search,त्वरित खोज खोलें
+Open Report Print View,रिपोर्ट प्रिंट दृश्य खोलें
+Open the Export Wizard modal,निर्यात विज़ार्ड मोडल खोलें
+Opening (Cr),प्रारंभिक (सीआर)
+Opening (Dr),प्रारंभिक (डीआर)
+Opening Amount,प्रारंभिक राशि
+Opening Balance Equity,प्रारंभिक शेष इक्विटी
+Opening Balances,प्रारंभिक शेष
+Opening Cash Amount can not be negative.,प्रारंभिक नकद राशि ऋणात्मक नहीं हो सकती।
+Opening Cash In Denominations,मूल्यवर्ग में आरंभिक नकद
+Opening Date,प्रारंभिक तिथि
+Opening Entry,प्रारंभिक प्रविष्टि
+Options,विकल्प
+Orange,नारंगी
+Organisation,संगठन
+Outflow,बहिर्वाह
+Outstanding,बकाया
+Outstanding Amount,बकाया राशि
+POS,पीओएस
+POS Counter Cash Account is not set. Please set it on POS Settings,पीओएस काउंटर कैश खाता सेट नहीं है। कृपया इसे पीओएस सेटिंग्स पर सेट करें
+POS Customer,पीओएस ग्राहक
+POS Inventory is not set. Please set it on POS Settings,पीओएस इन्वेंट्री सेट नहीं है। कृपया इसे पीओएस सेटिंग्स पर सेट करें
+POS Settings,पीओएस सेटिंग्स
+POS Shift Amount,पीओएस शिफ्ट राशि
+POS Write Off Account is not set. Please set it on POS Settings,पीओएस राइट ऑफ खाता सेट नहीं है। कृपया इसे POS सेटिंग्स पर सेट करें
+Pad Zeros,जीरो से भरें
+Page,पेज
+Paid,भुगतान किया
+Paid ${0},भुगतान किया गया ${0}
+Paid Change,भुगतान किया गया परिवर्तन
+Parent,पैरेंट
+Parent Account,पैरेंट अकाउंट
+Party,पार्टी
+Patch Run,पैच रन
+Pay,भुगतान करें
+Payable,भुगतान योग्य
+Payment,भुगतान
+Payment ${0} is Saved,भुगतान ${0} सहेजा गया है
+Payment For,इसके लिए भुगतान
+Payment Method,भुगतान विधि
+Payment No,भुगतान संख्या
+Payment Number Series,भुगतान संख्या श्रृंखला
+Payment Print Template,भुगतान प्रिंट टेम्पलेट
+Payment Reference,भुगतान संदर्भ
+Payment Type,भुगतान प्रकार
+Payment amount cannot be ${0}.,भुगतान राशि ${0} नहीं हो सकती।
+Payment amount cannot be less than zero.,भुगतान राशि शून्य से कम नहीं हो सकती।
+Payment amount cannot exceed ${0}.,भुगतान राशि ${0} से अधिक नहीं हो सकती।
+Payment amount: ${0} should be greater than 0.,भुगतान राशि: ${0} 0 से अधिक होनी चाहिए।
+Payment amount: ${0} should be less than Outstanding amount: ${1}.,भुगतान राशि: ${0} बकाया राशि: ${1} से कम होनी चाहिए।
+"Payment of ${0} will be made from account ""${1}"" to account ""${2}"" on Submit.","${0} का भुगतान सबमिट करने पर खाता ""${1}"" से खाता ""${2}"" में किया जाएगा।"
+Payments,भुगतान
+Payroll Payable,भुगतान योग्य वेतन-निधि
+Pending Qty. ${0},लंबित मात्रा ${0}
+Pending qty. ${0},लंबित मात्रा ${0}
+Periodicity,आवधिकता
+Phone,फ़ोन
+Pick Columns,कॉलम चुनें
+Pick Import Columns,आयात कॉलम चुनें
+Pink,गुलाबी
+Place,स्थान
+Place of supply,आपूर्ति का स्थान
+Plants and Machineries,संयंत्र और मशीनरी
+Please Wait,कृपया प्रतीक्षा करें
+Please check Key Hints for valid key names,कृपया मान्य कुंजी नामों के लिए कुंजी संकेत जाँचें
+Please create a ${0} entry to view Template Preview.,कृपया टेम्पलेट पूर्वावलोकन देखने के लिए ${0} प्रविष्टि बनाएँ।
+Please fill all values.,कृपया सभी मान भरें।
+Please restart and try again.,कृपया पुनः आरंभ करें और पुनः प्रयास करें।
+Please select a Print Template,कृपया प्रिंट टेम्पलेट चुनें
+Please select a valid reference type.,कृपया मान्य संदर्भ प्रकार चुनें।
+Please set GSTIN in General Settings.,कृपया सामान्य सेटिंग में GSTIN सेट करें।
+Please set Round Off Account in the Settings.,कृपया सेटिंग में राउंड ऑफ़ अकाउंट सेट करें।
+Please set a Display Doc,कृपया एक डिस्प्ले डॉक सेट करें
+Point of Sale,बिक्री का स्थान
+Postal Code,डाक कोड
+Postal Expenses,डाक खर्च
+Posting Date,पोस्टिंग तिथि
+Prefix,उपसर्ग
+Price List,मूल्य सूची
+Price List Item,मूल्य सूची आइटम
+Prime Bank,प्राइम बैंक
+Print,प्रिंट
+Print ${0},प्रिंट ${0}
+Print Settings,प्रिंट सेटिंग
+Print Setup,प्रिंट सेटअप
+Print Template,प्रिंट टेम्पलेट
+Print Template Name not set,प्रिंट टेम्पलेट नाम सेट नहीं है
+Print Template is empty,प्रिंट टेम्पलेट खाली है
+Print Templates,प्रिंट टेम्पलेट
+Print View,प्रिंट दृश्य
+Print and Stationery,प्रिंट और स्टेशनरी
+Product,उत्पाद
+Profit And Loss,लाभ और हानि
+Profit and Loss,लाभ और हानि
+Purchase,खरीद
+Purchase Acc.,खरीद खाता
+Purchase Invoice,खरीद चालान
+Purchase Invoice Item,खरीद चालान आइटम
+Purchase Invoice Number Series,खरीद चालान संख्या श्रृंखला
+Purchase Invoice Print Template,खरीद चालान प्रिंट टेम्पलेट
+Purchase Invoice Terms,खरीद चालान शर्तें
+Purchase Invoices,खरीद चालान
+Purchase Item,खरीद आइटम
+Purchase Item Created,खरीद आइटम बनाया गया
+Purchase Items,खरीद आइटम
+Purchase Payment,खरीद भुगतान
+Purchase Payment Account,खरीद भुगतान खाता
+Purchase Payments,खरीद भुगतान
+Purchase Receipt,खरीद रसीद
+Purchase Receipt Item,खरीद रसीद आइटम
+Purchase Receipt Location,खरीद रसीद स्थान
+Purchase Receipt Number Series,खरीद रसीद संख्या श्रृंखला
+Purchase Receipt Print Template,खरीद रसीद प्रिंट टेम्पलेट
+Purchase Receipt Terms,खरीद रसीद शर्तें
+Purchases,खरीद
+Purple,बैंगनी
+Purpose,उद्देश्य
+Qty in Batch,बैच में मात्रा
+Qty. ${0},मात्रा ${0}
+Qty. in Transfer Unit,स्थानांतरण इकाई में मात्रा
+Quantity,मात्रा
+Quantity (${0}) has to be greater than zero,मात्रा (${0}) शून्य से अधिक होनी चाहिए
+Quantity needs to be set,मात्रा सेट करने की आवश्यकता है
+Quarterly,तिमाही
+Quarters,तिमाही
+Quick Search,त्वरित खोज
+Quick edit error: ${0} entry has no name.,त्वरित संपादन त्रुटि: ${0} प्रविष्टि का कोई नाम नहीं है।
+Quote,उद्धरण
+Quote Reference,उद्धरण संदर्भ
+Rate,दर
+Rate (${0}) cannot be less zero.,दर (${0}) शून्य से कम नहीं हो सकती।
+Rate (${0}) has to be greater than zero,दर (${0}) शून्य से अधिक होनी चाहिए
+Rate can't be negative.,दर ऋणात्मक नहीं हो सकती।
+Rate needs to be set,दर निर्धारित की जानी चाहिए
+Raw Value: ${0},कच्चा मूल्य: ${0}
+Receivable,प्राप्य
+Receive,प्राप्त करें
+Red,लाल
+Ref Name,संदर्भ नाम
+Ref Type,संदर्भ प्रकार
+Ref. / Cheque No.,संदर्भ / चेक संख्या
+Ref. Date,संदर्भ तिथि
+Ref. Name,संदर्भ नाम
+Ref. Type,संदर्भ प्रकार
+Reference,संदर्भ
+Reference Date,संदर्भ तिथि
+Reference Number,संदर्भ संख्या
+Reference Type,संदर्भ प्रकार
+References,संदर्भ
+Reload Frappe Books?,फ्रैपे बुक्स पुनः लोड करें?
+Report,रिपोर्ट
+Report Error,रिपोर्ट त्रुटि
+Report Issue,रिपोर्ट समस्या
+Report will use more than one page if required.,यदि आवश्यक हो तो रिपोर्ट एक से अधिक पृष्ठों का उपयोग करेगी।
+Reports,रिपोर्ट
+Required fields not selected: ${0},आवश्यक फ़ील्ड चयनित नहीं हैं: ${0}
+Retained Earnings,प्रतिधारित आय
+Return,रिटर्न
+Return Against,रिटर्न अगेंस्ट
+Return Issued,रिटर्न जारी
+Reverse Chrg.,रिवर्स चार्ज
+Reverted,वापस लाया गया
+Reverts,वापस लाया गया
+Review Accounts,खातों की समीक्षा करें
+"Review your chart of accounts, add any account or tax heads as needed","अपने खातों के चार्ट की समीक्षा करें, आवश्यकतानुसार कोई भी खाता या कर शीर्ष जोड़ें"
+Right Index,दायाँ सूचकांक
+Role,भूमिका
+Root Type,रूट प्रकार
+Round Off,राउंड ऑफ
+Round Off Account,राउंड ऑफ खाता
+Round Off Account Not Found,राउंड ऑफ खाता नहीं मिला
+Rounded Off,राउंड ऑफ
+Row ${0},पंक्ति ${0}
+Sa,श
+Salary,वेतन
+Sales,बिक्री
+Sales Acc.,बिक्री खाता
+Sales Expenses,बिक्री व्यय
+Sales Invoice,बिक्री चालान
+Sales Invoice ${0} is Submitted,बिक्री चालान ${0} सबमिट किया गया है
+Sales Invoice Item,बिक्री चालान आइटम
+Sales Invoice Number Series,बिक्री चालान संख्या श्रृंखला
+Sales Invoice Print Template,बिक्री चालान प्रिंट टेम्पलेट
+Sales Invoice Terms,बिक्री चालान शर्तें
+Sales Invoices,बिक्री चालान
+Sales Item,बिक्री आइटम
+Sales Item Created,बिक्री आइटम बनाया गया
+Sales Items,बिक्री आइटम
+Sales Payment,बिक्री भुगतान
+Sales Payment Account,बिक्री भुगतान खाता
+Sales Payments,बिक्री भुगतान
+Sales Quote,बिक्री उद्धरण
+Sales Quote Item,बिक्री उद्धरण आइटम
+Sales Quote Number Series,बिक्री उद्धरण संख्या श्रृंखला
+Sales Quote Print Template,बिक्री उद्धरण प्रिंट टेम्पलेट
+Sales Quotes,बिक्री उद्धरण
+Sales and Purchase,बिक्री और खरीद
+Save,सहेजें
+Save ${0}?,${0} सहेजें?
+Save Customizations,अनुकूलन सहेजें
+Save Template,टेम्पलेट सहेजें
+Save Template File,टेम्पलेट फ़ाइल सहेजें
+Save as PDF,PDF के रूप में सहेजें
+Save as PDF Successful,PDF के रूप में सहेजें सफल
+Save changes made to ${0}?,${0} में किए गए परिवर्तन सहेजें?
+Save or Submit an entry.,प्रविष्टि सहेजें या सबमिट करें।
+Saved,सहेजा गया
+Search an Item,कोई आइटम खोजें
+Secured Loans,सुरक्षित ऋण
+Securities and Deposits,प्रतिभूतियाँ और जमाराशियाँ
+Select,चुनें
+Select CoA,CoA चुनें
+Select Color,रंग चुनें
+Select Country,देश चुनें
+Select File,फ़ाइल चुनें
+Select Image,छवि चुनें
+Select Template File,टेम्पलेट फ़ाइल चुनें
+Select a Display Doc to view the Template,टेम्पलेट देखने के लिए कोई डिस्प्ले डॉक चुनें
+Select a Template type,टेम्पलेट प्रकार चुनें
+Select a form type to customize,अनुकूलित करने के लिए कोई फ़ॉर्म प्रकार चुनें
+"Select a pre-defined page size, or set a custom page size for your Print Template.","पूर्व-निर्धारित पृष्ठ आकार चुनें, या अपने प्रिंट टेम्पलेट के लिए कोई कस्टम पृष्ठ आकार सेट करें।"
+Select column,स्तंभ चुनें
+Select file,फ़ाइल चुनें
+Select folder,फ़ोल्डर चुनें
+Select the template type.,टेम्पलेट प्रकार चुनें।
+Selected,चयनित
+September,सितंबर
+Serial Number,सीरियल नंबर
+Serial Number ${0} does not belong to the item ${1}.,सीरियल नंबर ${0} आइटम ${1} से संबंधित नहीं है।
+Serial Number ${0} does not exist.,सीरियल नंबर ${0} मौजूद नहीं है।
+Serial Number ${0} is not Active.,सीरियल नंबर ${0} सक्रिय नहीं है।
+Serial Number ${0} is not Inactive,सीरियल नंबर ${0} निष्क्रिय नहीं है
+Serial Number ${0} status is not Active.,सीरियल नंबर ${0} स्थिति सक्रिय नहीं है।
+Serial Number Description,सीरियल नंबर विवरण
+Serial Number is enabled for Item ${0},सीरियल नंबर आइटम ${0} के लिए सक्षम है
+Serial Number is not enabled for Item ${0},सीरियल नंबर आइटम ${0} के लिए सक्षम नहीं है
+Serial Number not set for row ${0}.,सीरियल नंबर पंक्ति ${0} के लिए सेट नहीं है।
+Serial Number set for row ${0}.,सीरियल नंबर पंक्ति ${0} के लिए सेट है।
+Service,सेवा
+Set Discount Amount,छूट राशि सेट करें
+Set Period,अवधि सेट करें
+Set Print Size,प्रिंट आकार सेट करें
+Set Template Type,टेम्पलेट प्रकार सेट करें
+Set Up,सेट अप करें
+Set Up Your Workspace,अपना कार्यक्षेत्र सेट करें
+Set a Template value to see the Print Template,प्रिंट टेम्पलेट देखने के लिए एक टेम्पलेट मान सेट करें
+Set an Import Type,एक आयात प्रकार सेट करें
+Set the display language.,प्रदर्शन भाषा सेट करें।
+Set the local code. This is used for number formatting.,स्थानीय कोड सेट करें। इसका उपयोग संख्या स्वरूपण के लिए किया जाता है।
+"Set up your company information, email, country and fiscal year","अपनी कंपनी की जानकारी, ईमेल, देश और वित्तीय वर्ष सेट करें"
+Set up your opening balances before performing any accounting entries,कोई भी लेखांकन प्रविष्टि करने से पहले अपना प्रारंभिक शेष सेट करें
+Set up your organization,अपना संगठन सेट करें
+Set up your tax templates for your sales or purchase transactions,अपनी बिक्री या खरीद लेनदेन के लिए अपने कर टेम्पलेट सेट करें
+Sets how many digits are shown after the decimal point.,"दशमलव बिंदु के बाद कितने अंक दिखाए जाते हैं, यह सेट करता है।"
+Sets the app-wide date display format.,ऐप-वाइड दिनांक प्रदर्शन प्रारूप सेट करता है।
+Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.,मौद्रिक गणनाओं के लिए उपयोग की जाने वाली आंतरिक परिशुद्धता सेट करता है। ज़्यादातर मुद्राओं के लिए 6 से ज़्यादा होना चाहिए।
+Setting Up Instance,इंस्टेंस सेट करना
+Settings,सेटिंग्स
+Setup,सेटअप
+Setup Complete,सेटअप पूरा
+Setup Wizard,सेटअप विज़ार्ड
+Setup system defaults like date format and display precision,सेटअप सिस्टम डिफ़ॉल्ट जैसे दिनांक फ़ॉर्मेट और डिस्प्ले प्रिसिज़न
+Shipment,शिपमेंट
+Shipment ${0} is Submitted,शिपमेंट ${0} सबमिट किया गया है
+Shipment Item,शिपमेंट आइटम
+Shipment Location,शिपमेंट स्थान
+Shipment Number Series,शिपमेंट नंबर सीरीज़
+Shipment Print Template,शिपमेंट प्रिंट टेम्प्लेट
+Shipment Terms,शिपमेंट शर्तें
+Shortcuts,शॉर्टकट
+Should entries be submitted after syncing?,क्या प्रविष्टियाँ सिंक करने के बाद सबमिट की जानी चाहिए?
+Show HSN,HSN दिखाएँ
+Show Me,मुझे दिखाएँ
+Show Month/Year,महीना/वर्ष दिखाएँ
+Single Value,एकल मान
+Skip Child Tables,चाइल्ड टेबल छोड़ें
+Skip Transactions,लेनदेन छोड़ें
+Smallest Currency Fraction Value,सबसे छोटी मुद्रा अंश मान
+Softwares,सॉफ़्टवेयर
+Something has gone terribly wrong. Please check the console and raise an issue.,कुछ बहुत ग़लत हो गया है। कृपया कंसोल की जाँच करें और कोई समस्या उठाएँ।
+Source of Funds (Liabilities),निधियों का स्रोत (देयताएँ)
+Standard Chart of Accounts,खातों का मानक चार्ट
+Start,शुरू करें
+Start From Row Index,पंक्ति सूचकांक से शुरू करें
+State,राज्य
+State Tax,राज्य कर
+Status,स्थिति
+Stock,स्टॉक
+Stock Adjustment,स्टॉक समायोजन
+Stock Assets,स्टॉक संपत्तियाँ
+Stock Balance,स्टॉक शेष
+Stock Entries,स्टॉक प्रविष्टियाँ
+Stock Expenses,स्टॉक व्यय
+Stock In Hand,हाथ में स्टॉक
+Stock In Hand Acc.,हाथ में स्टॉक खाता
+Stock Ledger,स्टॉक लेजर
+Stock Ledger Entry,स्टॉक लेजर प्रविष्टि
+Stock Liabilities,स्टॉक देयताएँ
+Stock Movement,स्टॉक मूवमेंट
+Stock Movement Item,स्टॉक मूवमेंट आइटम
+Stock Movement No.,स्टॉक मूवमेंट संख्या
+Stock Movement Number Series,स्टॉक मूवमेंट संख्या श्रृंखला
+Stock Movement Print Template,स्टॉक मूवमेंट प्रिंट टेम्पलेट
+Stock Movements,स्टॉक मूवमेंट
+Stock Not Received,स्टॉक प्राप्त नहीं हुआ
+Stock Not Shipped,स्टॉक शिप नहीं किया गया
+Stock Not Transferred,स्टॉक स्थानांतरित नहीं हुआ
+Stock Received But Not Billed,स्टॉक प्राप्त हुआ लेकिन बिल नहीं किया गया
+Stock Received But Not Billed Acc.,स्टॉक प्राप्त हुआ लेकिन बिल नहीं किया गया खाता
+Stock Transfer Item,स्टॉक ट्रांसफर आइटम
+Stock Unit,स्टॉक यूनिट
+StockTransfer,स्टॉक ट्रांसफर
+Stores,स्टोर
+Su,र
+Submit,सबमिट करें
+Submit ${0}?,${0} सबमिट करें?
+Submit & Print,सबमिट करके प्रिंट करें
+Submit entries?,प्रविष्टियाँ सबमिट करें?
+Submitted,सबमिट किया गया
+Success,सफल
+Supplier,आपूर्तिकर्ता
+Supplier Created,आपूर्तिकर्ता बनाया गया
+Suppliers,आपूर्तिकर्ता
+Symbol,प्रतीक
+System,प्रणाली
+System Settings,प्रणाली सेटिंग
+System Setup,प्रणाली सेटअप
+Table,तालिका
+Target,लक्ष्य
+Tax,कर
+Tax Account,कर खाता
+Tax Amount,कर राशि
+Tax Assets,कर संपत्ति
+Tax Detail,कर विवरण
+Tax ID,कर आईडी
+Tax Invoice Account,कर चालान खाता
+Tax Payment Account,कर भुगतान खाता
+Tax Rate,कर दर
+Tax Summary,कर सारांश
+Tax Template,कर टेम्पलेट
+Tax Templates,कर टेम्पलेट
+Tax and Totals,कर और योग
+Taxable Value,कर योग्य मूल्य
+Taxed Amount,कर राशि
+Taxes,कर
+Taxes and Charges,कर और शुल्क
+Teal,टील
+Telephone Expenses,टेलीफोन व्यय
+Template,टेम्पलेट
+Template Builder,टेम्पलेट बिल्डर
+Template Compilation Error,टेम्पलेट संकलन त्रुटि
+Template Name,टेम्पलेट नाम
+Template Type,टेम्पलेट प्रकार
+Template file saved,टेम्पलेट फ़ाइल सहेजी गई
+Temporary,अस्थायी
+Temporary Accounts,अस्थायी खाते
+Temporary Opening,अस्थायी उद्घाटन
+Terms,शर्तें
+Text,पाठ
+Th,गु
+The following characters cannot be used ${0} in a Number Series name.,निम्न वर्णों का उपयोग संख्या श्रृंखला नाम में ${0} नहीं किया जा सकता है।
+The following items have insufficient quantity for Shipment: ${0},निम्नलिखित आइटम में शिपमेंट के लिए अपर्याप्त मात्रा है: ${0}
+This Month,इस महीने
+This Quarter,इस तिमाही
+This Year,इस वर्ष
+This action is permanent,यह क्रिया स्थायी है
+This action is permanent and will cancel the following payment: ${0},यह क्रिया स्थायी है और निम्नलिखित भुगतान रद्द कर देगी: ${0}
+This action is permanent and will cancel the following payments: ${0},यह क्रिया स्थायी है और निम्नलिखित भुगतान रद्द कर देगी: ${0}
+This action is permanent and will delete associated ledger entries.,यह क्रिया स्थायी है और संबंधित लेज़र प्रविष्टियों को हटा देगी।
+This action is permanent.,यह क्रिया स्थायी है।
+Times New Roman,टाइम्स न्यू रोमन
+To,को
+To Account,अकाउंट को
+To Account and From Account can't be the same: ${0},"अकाउंट को और अकाउंट से, दोनों एक ही नहीं हो सकते: ${0}"
+To Date,इस दिन तक
+To Loc.,स्थान को
+To Year,इस वर्ष तक
+Toggle Edit Mode,टॉगल एडिट मोड
+Toggle Key Hints,टॉगल की हिंट
+"Toggle Linked Entries widget, not available in Quick Edit view.","टॉगल लिंक्ड एंट्री विजेट, क्विक एडिट व्यू में उपलब्ध नहीं है।"
+Toggle between form and full width,फ़ॉर्म और पूरी चौड़ाई के बीच टॉगल करें
+Toggle sidebar,साइडबार टॉगल करें
+Toggle the Create filter,फ़िल्टर बनाएँ टॉगल करें
+Toggle the Docs filter,दस्तावेज़ फ़िल्टर टॉगल करें
+Toggle the List filter,सूची फ़िल्टर टॉगल करें
+Toggle the Page filter,पृष्ठ फ़िल्टर टॉगल करें
+Toggle the Report filter,रिपोर्ट फ़िल्टर टॉगल करें
+Top Expenses,शीर्ष व्यय
+Total,कुल
+Total Amount,कुल राशि
+Total Asset (Debit),कुल संपत्ति (डेबिट)
+Total Debit: ${0} must be equal to Total Credit: ${1},कुल डेबिट: ${0} कुल क्रेडिट के बराबर होना चाहिए: ${1}
+Total Discount,कुल छूट
+Total Equity (Credit),कुल इक्विटी (क्रेडिट)
+Total Expense (Debit),कुल व्यय (डेबिट)
+Total Income (Credit),कुल आय (क्रेडिट)
+Total Liability (Credit),कुल देयता (क्रेडिट)
+Total Profit,कुल लाभ
+Total Quantity,कुल मात्रा
+Total Spending,कुल खर्च
+Track Inventory,इन्वेंट्री ट्रैक करें
+Transfer,स्थानांतरण
+Transfer No,स्थानांतरण संख्या
+Transfer Type,स्थानांतरण प्रकार
+Transfer Unit,स्थानांतरण इकाई
+Transfer Unit ${0} is not applicable for Item ${1},स्थानांतरण इकाई ${0} आइटम ${1} के लिए लागू नहीं है
+Transfer will cause future entries to have negative stock.,स्थानांतरण के कारण भविष्य की प्रविष्टियों में नकारात्मक स्टॉक होगा।
+Travel Expenses,यात्रा व्यय
+Trial Balance,ट्रायल बैलेंस
+Tu,मं
+Type,प्रकार
+Type to search...,खोजने के लिए टाइप करें...
+UOM,UOM
+UOM Conversion Item,UOM रूपांतरण आइटम
+UOM Conversions,UOM रूपांतरण
+Unit,इकाई
+Unit Type,इकाई प्रकार
+Unpaid,अवैतनिक
+Unpaid ${0},अवैतनिक ${0}
+Unsecured Loans,असुरक्षित ऋण
+Until Date,आज तक
+Use Full Width,पूर्ण चौड़ाई का उपयोग करें
+Use List Filters,सूची फ़िल्टर का उपयोग करें
+User Remark,उपयोगकर्ता टिप्पणी
+Utility Expenses,उपयोगिता व्यय
+Validation Error,सत्यापन त्रुटि
+Value,मूल्य
+Value missing for ${0},${0} के लिए मूल्य अनुपलब्ध
+Value: ${0},मूल्य: ${0}
+Version,संस्करण
+View,देखें
+View Accounting Entries,लेखांकन प्रविष्टियाँ देखें
+View Paid Invoices,भुगतान किए गए चालान देखें
+View Purchases,खरीदारी देखें
+View Sales,बिक्री देखें
+View Stock Entries,स्टॉक प्रविष्टियाँ देखें
+View Unpaid Invoices,अवैतनिक चालान देखें
+View linked entries,लिंक की गई प्रविष्टियाँ देखें
+We,बु
+Welcome to Frappe Books,Frappe Books में आपका स्वागत है
+Width (in cm),चौड़ाई (सें.मी. में)
+Write Off,राइट ऑफ़
+Write Off Account,राइट ऑफ़ अकाउंट
+Write Off Account ${0} does not exist. Please set Write Off Account in General Settings,राइट ऑफ़ अकाउंट ${0} मौजूद नहीं है। कृपया सामान्य सेटिंग में राइट ऑफ़ अकाउंट सेट करें
+Write Off Account not set. Please set Write Off Account in General Settings,राइट ऑफ़ अकाउंट सेट नहीं है। कृपया सामान्य सेटिंग में राइट ऑफ अकाउंट सेट करें
+Write Off Entry,राइट ऑफ एंट्री
+Year to Date,वर्ष में आज तक
+Yearly,वार्षिक
+Years,वर्ष
+Yellow,पीला
+Yes,हाँ
+check values and click on,मूल्यों की जाँच करें और  क्लिक करें
+in Batch ${0},बैच में  ${0}
+john@doe.com,john@doe.com
+to apply changes,परिवर्तन लागू करने के लिए
