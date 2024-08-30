@@ -179,7 +179,7 @@ export abstract class Invoice extends Transactional {
   async afterSubmit() {
     await super.afterSubmit();
 
-    if (this.schemaName === ModelNameEnum.SalesQuote) {
+    if (this.isQuote) {
       return;
     }
 

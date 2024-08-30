@@ -126,6 +126,7 @@ export function getCreateCustomerAction(fyo: Fyo): Action {
   return {
     group: fyo.t`Create`,
     label: fyo.t`Customer`,
+    condition: (doc: Doc) => !doc.notInserted,
     action: async (doc: Doc, router) => {
       const customerData = (doc as Lead).createCustomer();
 
@@ -141,6 +142,7 @@ export function getSalesQuoteAction(fyo: Fyo): Action {
   return {
     group: fyo.t`Create`,
     label: fyo.t`Sales Quote`,
+    condition: (doc: Doc) => !doc.notInserted,
     action: async (doc, router) => {
       const salesQuoteData = (doc as Lead).createSalesQuote();
       if (!salesQuoteData.name) {
