@@ -1133,7 +1133,7 @@ export abstract class Invoice extends Transactional {
       );
 
       if (!pricingRuleDetailForItem.length) {
-        return;
+        continue;
       }
 
       const pricingRuleDoc = (await this.fyo.doc.getDoc(
