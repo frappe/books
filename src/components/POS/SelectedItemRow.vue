@@ -88,8 +88,8 @@
         :border="true"
         :show-label="true"
         :value="row.quantity"
-        @change="(value:number) => (row.quantity = value)"
-        :read-only="false"
+        @change="(value:number) => setQuantity((row.quantity = value))"
+        :read-only="isReadOnly"
       />
     </div>
 
@@ -147,8 +147,8 @@
         :show-label="true"
         :border="true"
         :value="row.rate"
-        :read-only="false"
-        @change="(value:Money) => (row.rate = value)"
+        :read-only="isReadOnly"
+        @change="(value:Money) => setRate((row.rate = value))"
       />
       <feather-icon
         name="refresh-ccw"
@@ -169,7 +169,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountAmount"
-        :read-only="row.itemDiscountPercent as number > 0"
+        :read-only="row.itemDiscountPercent as number > 0 || isReadOnly"
         @change="(value:number) => setItemDiscount('amount', value)"
       />
     </div>
@@ -186,7 +186,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountPercent"
-        :read-only="!row.itemDiscountAmount?.isZero()"
+        :read-only="!row.itemDiscountAmount?.isZero() || isReadOnly"
         @change="(value:number) => setItemDiscount('percent', value)"
       />
     </div>
@@ -296,6 +296,9 @@ export default defineComponent({
     hasSerialNumber(): boolean {
       return !!(this.row.links?.item && this.row.links?.item.hasSerialNumber);
     },
+    isReadOnly() {
+      return this.row.isFreeItem;
+    },
   },
   methods: {
     async getAvailableQtyInBatch(): Promise<number> {
@@ -338,6 +341,14 @@ export default defineComponent({
       }
       this.row.setItemDiscountAmount = true;
       this.row.itemDiscountAmount = value as Money;
+      this.$emit('runSinvFormulas');
+    },
+    setRate(rate: Money) {
+      this.row.setRate = rate;
+      this.$emit('runSinvFormulas');
+    },
+    setQuantity(quantity: number) {
+      this.row.setQuantity = quantity;
       this.$emit('runSinvFormulas');
     },
     setTransferUnit(unit: string) {
