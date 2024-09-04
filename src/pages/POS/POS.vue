@@ -602,8 +602,16 @@ export default defineComponent({
         return;
       }
 
-      await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
-      await this.sinvDoc.applyProductDiscount();
+      setTimeout(async () => {
+        const appliedPricingRuleCount = this.sinvDoc?.items?.filter(
+          (val) => val.isFreeItem
+        ).length;
+
+        if (appliedPricingRuleCount !== hasPricingRules?.length) {
+          await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
+          await this.sinvDoc.applyProductDiscount();
+        }
+      }, 1);
     },
 
     getItem,
