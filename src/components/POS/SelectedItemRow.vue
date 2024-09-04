@@ -107,12 +107,14 @@
         :border="true"
         :value="row.transferUnit"
         @change="(value:string) => setTransferUnit((row.transferUnit = value))"
+        :read-only="isReadOnly"
       />
       <feather-icon
         v-if="isUOMConversionEnabled"
         name="refresh-ccw"
         class="w-3.5 ml-2 mt-4 text-blue-500"
         @click="row.transferUnit = row.unit"
+        :read-only="isReadOnly"
       />
     </div>
 
@@ -129,7 +131,7 @@
         :show-label="true"
         :value="row.transferQuantity"
         @change="(value:number) => setTransferQty((row.transferQuantity = value))"
-        :read-only="false"
+        :read-only="isReadOnly"
       />
     </div>
 
