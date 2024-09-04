@@ -8,6 +8,11 @@
       "fieldtype": "Check",
       "default": false,
       "hidden": true
+    },
+    {
+      "fieldname": "pricingRule",
+      "fieldtype": "Data",
+      "hidden": true
     }
   ]
 }

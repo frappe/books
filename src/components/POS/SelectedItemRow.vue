@@ -5,17 +5,27 @@
     @click="isExapanded = !isExapanded"
   />
 
-  <Link
-    :df="{
-      fieldname: 'item',
-      fieldtype: 'Data',
-      label: 'item',
-    }"
-    size="small"
-    :border="false"
-    :value="row.item"
-    :read-only="true"
-  />
+  <div class="relative">
+    <Link
+      class="pt-2"
+      :df="{
+        fieldname: 'item',
+        fieldtype: 'Data',
+        label: 'item',
+      }"
+      size="small"
+      :border="false"
+      :value="row.item"
+      :read-only="true"
+    />
+    <p
+      v-if="row.isFreeItem"
+      class="absolute flex top-0 font-medium text-xs ml-2 text-green-800"
+      style="font-size: 0.6rem"
+    >
+      {{ row.pricingRule }}
+    </p>
+  </div>
 
   <Int
     :df="{

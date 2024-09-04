@@ -1179,6 +1179,7 @@ export abstract class Invoice extends Transactional {
         item: pricingRuleDoc.freeItem as string,
         quantity: freeItemQty,
         isFreeItem: true,
+        pricingRule: pricingRuleDoc.title,
         rate: pricingRuleDoc.freeItemRate,
         unit: pricingRuleDoc.freeItemUnit,
       });
