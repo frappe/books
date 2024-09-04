@@ -447,6 +447,7 @@ export default defineComponent({
         rate: item.rate as Money,
         item: item.name,
       });
+
       await this.applyPricingRule();
       await this.sinvDoc.runFormulas();
     },
