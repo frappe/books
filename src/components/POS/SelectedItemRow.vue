@@ -69,7 +69,7 @@
     <feather-icon
       name="trash"
       class="w-4 text-xl text-red-500"
-      @click="$emit('removeItem', row.idx)"
+      @click="removeAddedItem(row)"
     />
   </div>
 
@@ -273,7 +273,7 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
   },
-  emits: ['removeItem', 'runSinvFormulas', 'setItemSerialNumbers'],
+  emits: ['runSinvFormulas', 'setItemSerialNumbers', 'addItem'],
   setup() {
     return {
       isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
@@ -361,6 +361,28 @@ export default defineComponent({
       this.row.transferQuantity = quantity;
       this.row._applyFormula('transferQuantity');
       this.$emit('runSinvFormulas');
+    },
+    removeAddedItem(row: SalesInvoiceItem) {
+      this.row.parentdoc?.remove('items', row?.idx as number);
+
+      if (!row.isFreeItem) {
+        this.updatePricingRuleItem();
+      }
+    },
+    async updatePricingRuleItem() {
+      const pricingRule = await this.row.parentdoc?.getPricingRule() as ApplicablePricingRules[];
+
+      setTimeout(() => {
+        const appliedPricingRuleCount = this.row.parentdoc?.items?.filter(
+          (val) => val.isFreeItem
+        ).length;
+
+        if (appliedPricingRuleCount !== pricingRule?.length) {
+           this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
+
+          this.row.parentdoc?.applyProductDiscount();
+        }
+      }, 1);
     },
   },
 });

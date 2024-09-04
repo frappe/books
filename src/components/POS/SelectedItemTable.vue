@@ -37,7 +37,6 @@
     >
       <SelectedItemRow
         :row="(row as SalesInvoiceItem)"
-        @remove-item="removeItem"
         @run-sinv-formulas="runSinvFormulas"
       />
     </Row>
@@ -138,9 +137,6 @@ export default defineComponent({
     },
   },
   methods: {
-    removeItem(idx: number) {
-      this.sinvDoc.remove('items', idx);
-    },
     async runSinvFormulas() {
       await this.sinvDoc.runFormulas();
     },
