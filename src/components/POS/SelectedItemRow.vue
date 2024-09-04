@@ -106,7 +106,7 @@
         :show-label="true"
         :border="true"
         :value="row.transferUnit"
-        @change="(value:string) => setTransferUnit((row.transferUnit = value))"
+        @change="(value:string) => row.set('transferUnit', value)"
         :read-only="isReadOnly"
       />
       <feather-icon
@@ -130,7 +130,7 @@
         :border="true"
         :show-label="true"
         :value="row.transferQuantity"
-        @change="(value:number) => setTransferQty((row.transferQuantity = value))"
+        @change="(value:string) => row.set('transferQuantity', value)"
         :read-only="isReadOnly"
       />
     </div>
@@ -266,6 +266,7 @@ import { Money } from 'pesa';
 import { DiscountType } from './types';
 import { t } from 'fyo';
 import { validateSerialNumberCount } from 'src/utils/pos';
+import { ApplicablePricingRules } from 'models/baseModels/Invoice/types';
 
 export default defineComponent({
   name: 'SelectedItemRow',
@@ -319,7 +320,7 @@ export default defineComponent({
       );
     },
     async setBatch(batch: string) {
-      this.row.batch = batch;
+      this.row.set('batch', batch);
       this.availableQtyInBatch = await this.getAvailableQtyInBatch();
     },
     setSerialNumber(serialNumber: string) {
@@ -336,14 +337,12 @@ export default defineComponent({
     },
     setItemDiscount(type: DiscountType, value: Money | number) {
       if (type === 'percent') {
-        this.row.setItemDiscountAmount = false;
-        this.row.itemDiscountPercent = value as number;
-        this.$emit('runSinvFormulas');
+        this.row.set('setItemDiscountAmount', false);
+        this.row.set('itemDiscountPercent', value as number);
         return;
       }
-      this.row.setItemDiscountAmount = true;
-      this.row.itemDiscountAmount = value as Money;
-      this.$emit('runSinvFormulas');
+      this.row.set('setItemDiscountAmount', true);
+      this.row.set('itemDiscountAmount', value as Money);
     },
     setRate(rate: Money) {
       this.row.setRate = rate;
