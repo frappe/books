@@ -358,38 +358,34 @@ export default defineComponent({
       this.row.setRate = rate;
       this.$emit('runSinvFormulas');
     },
-    setQuantity(quantity: number) {
-      this.row.setQuantity = quantity;
-      this.$emit('runSinvFormulas');
+    async setQuantity(quantity: number) {
+      this.row.set('quantity', quantity);
+
+      if (!this.row.isFreeItem) {
+        await this.updatePricingRuleItem();
+        this.$emit('runSinvFormulas');
+      }
     },
-    setTransferUnit(unit: string) {
-      this.row.setTransferUnit = unit;
-      this.row._applyFormula('transferUnit');
-    },
-    setTransferQty(quantity: number) {
-      this.row.transferQuantity = quantity;
-      this.row._applyFormula('transferQuantity');
-      this.$emit('runSinvFormulas');
-    },
-    removeAddedItem(row: SalesInvoiceItem) {
+    async removeAddedItem(row: SalesInvoiceItem) {
       this.row.parentdoc?.remove('items', row?.idx as number);
 
       if (!row.isFreeItem) {
-        this.updatePricingRuleItem();
+        await this.updatePricingRuleItem();
       }
     },
     async updatePricingRuleItem() {
-      const pricingRule = await this.row.parentdoc?.getPricingRule() as ApplicablePricingRules[];
+      const pricingRule =
+        (await this.row.parentdoc?.getPricingRule()) as ApplicablePricingRules[];
 
-      setTimeout(() => {
+      setTimeout(async () => {
         const appliedPricingRuleCount = this.row.parentdoc?.items?.filter(
           (val) => val.isFreeItem
         ).length;
 
         if (appliedPricingRuleCount !== pricingRule?.length) {
-           this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
+          await this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
 
-          this.row.parentdoc?.applyProductDiscount();
+          await this.row.parentdoc?.applyProductDiscount();
         }
       }, 1);
     },
