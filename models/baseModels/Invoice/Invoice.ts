@@ -1121,18 +1121,14 @@ export abstract class Invoice extends Transactional {
       return;
     }
 
-    if (!this.pricingRuleDetail?.length || !this.pricingRuleDetail.length) {
-      return;
-    }
-
     this.items = this.items.filter((item) => !item.isFreeItem);
 
     for (const item of this.items) {
-      const pricingRuleDetailForItem = this.pricingRuleDetail.filter(
+      const pricingRuleDetailForItem = this.pricingRuleDetail?.filter(
         (doc) => doc.referenceItem === item.item
       );
 
-      if (!pricingRuleDetailForItem.length) {
+      if (!pricingRuleDetailForItem?.length) {
         continue;
       }
 
