@@ -1229,7 +1229,7 @@ export abstract class Invoice extends Transactional {
 
       const isPricingRuleHasConflicts = getPricingRulesConflicts(
         filtered,
-        item.item as string
+        filtered[0].priority as number
       );
 
       if (isPricingRuleHasConflicts) {

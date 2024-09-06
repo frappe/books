@@ -377,12 +377,10 @@ export default defineComponent({
       const pricingRule =
         (await this.row.parentdoc?.getPricingRule()) as ApplicablePricingRules[];
 
+      let appliedPricingRuleCount: number;
       setTimeout(async () => {
-        const appliedPricingRuleCount = this.row.parentdoc?.items?.filter(
-          (val) => val.isFreeItem
-        ).length;
-
         if (appliedPricingRuleCount !== pricingRule?.length) {
+          appliedPricingRuleCount = pricingRule?.length;
           await this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
 
           await this.row.parentdoc?.applyProductDiscount();

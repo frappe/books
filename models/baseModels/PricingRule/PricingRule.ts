@@ -1,7 +1,10 @@
 import { Doc } from 'fyo/model/doc';
 import { Money } from 'pesa';
 import { PricingRuleItem } from '../PricingRuleItem/PricingRuleItem';
-import { getIsDocEnabledColumn } from 'models/helpers';
+import {
+  getIsDocEnabledColumn,
+  getPricingRulesConflicts,
+} from 'models/helpers';
 import {
   HiddenMap,
   ListViewSettings,
@@ -11,6 +14,7 @@ import {
 import { DocValue } from 'fyo/core/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { t } from 'fyo';
+import { ModelNameEnum } from 'models/types';
 
 export class PricingRule extends Doc {
   isEnabled?: boolean;
@@ -123,6 +127,48 @@ export class PricingRule extends Doc {
         throw new ValidationError(
           t`Valid To Date should be greater than Valid From Date.`
         );
+      }
+    },
+    priority: async (value: DocValue) => {
+      const items = this.appliedItems?.map((item) => item.item) as string[];
+
+      for (const item of items) {
+        const duplicatePricingRuleItems = (await this.fyo.db.getAll(
+          ModelNameEnum.PricingRuleItem,
+          {
+            fields: ['parent'],
+            filters: {
+              item: item,
+            },
+          }
+        )) as PricingRuleItem[];
+
+        const pricingRules = duplicatePricingRuleItems.map(
+          (item) => item.parent
+        );
+
+        const pricingRuleItems = (await this.fyo.db.getAll(
+          ModelNameEnum.PricingRule,
+          {
+            fields: ['*'],
+            filters: {
+              name: ['in', pricingRules as string[]],
+            },
+          }
+        )) as PricingRule[];
+
+        const isPricingRuleHasConflicts = getPricingRulesConflicts(
+          pricingRuleItems,
+          value as number
+        );
+
+        if (isPricingRuleHasConflicts) {
+          throw new ValidationError(
+            t`Pricing Rules ${isPricingRuleHasConflicts.join(
+              ', '
+            )} has the same Priority for the Item ${item}.`
+          );
+        }
       }
     },
   };

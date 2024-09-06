@@ -23,7 +23,6 @@ import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
 import { Lead } from './baseModels/Lead/Lead';
 import { PricingRule } from './baseModels/PricingRule/PricingRule';
-import { ValidationError } from 'fyo/utils/errors';
 import { ApplicablePricingRules } from './baseModels/Invoice/types';
 
 export function getQuoteActions(
@@ -715,7 +714,7 @@ export async function getPricingRule(
 
     const isPricingRuleHasConflicts = getPricingRulesConflicts(
       filtered,
-      item.item as string
+      filtered[0].priority as number
     );
 
     if (isPricingRuleHasConflicts) {
@@ -803,16 +802,17 @@ export function canApplyPricingRule(
 
 export function getPricingRulesConflicts(
   pricingRules: PricingRule[],
-  item: string
+  priority: number
 ): string[] | undefined {
   const pricingRuleDocs = Array.from(pricingRules);
 
   const firstPricingRule = pricingRuleDocs.shift();
-  if (!firstPricingRule) {
+  if (!priority) {
     return;
   }
 
   const conflictingPricingRuleNames: string[] = [];
+
   for (const pricingRuleDoc of pricingRuleDocs.slice(0)) {
     if (pricingRuleDoc.priority !== firstPricingRule?.priority) {
       continue;
@@ -825,13 +825,7 @@ export function getPricingRulesConflicts(
     return;
   }
 
-  throw new ValidationError(
-    t`Pricing Rules ${
-      firstPricingRule.name as string
-    }, ${conflictingPricingRuleNames.join(
-      ', '
-    )} has the same Priority for the Item ${item}.`
-  );
+  return conflictingPricingRuleNames;
 }
 
 export function roundFreeItemQty(
