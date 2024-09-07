@@ -22,6 +22,36 @@
         class="border border-gray-300 p-1 flex flex-col text-sm text-center"
         @click="handleChange(item as POSItem)"
       >
+        <div
+          class="self-center w-32 h-32 border border-gray-200 rounded-lg mb-2"
+        >
+          <div class="relative">
+            <img
+              v-if="item.image"
+              :src="item.image"
+              alt="hii"
+              class="rounded-lg shadow-sm w-32 h-32 object-cover"
+            />
+            <div
+              v-else
+              class="rounded-lg w-32 h-32 flex justify-center items-center"
+            >
+              <p class="text-4xl font-semibold text-gray-400">
+                {{ getExtractedWords(item.name) }}
+              </p>
+            </div>
+            <p
+              class="absolute top-1 right-1 rounded-full p-1"
+              :class="
+                item.availableQty > 0
+                  ? 'bg-green-100 text-green-900'
+                  : 'bg-red-100 text-red-900'
+              "
+            >
+              {{ item.availableQty }}
+            </p>
+          </div>
+        </div>
         <h3 class="text-lg font-medium mb-1">{{ item.name }}</h3>
 
         <p class="text-lg font-semibold mb-1">
