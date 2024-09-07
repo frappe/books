@@ -69,6 +69,15 @@
           </div>
 
           <ItemsTable @add-item="addItem" />
+          <div
+            class="bg-gray-100 p-2 fixed bottom-0 mb-7 rounded-md"
+            @click="toggleView"
+          >
+            <FeatherIcon
+              :name="tableView ? 'grid' : 'list'"
+              class="w-6 h-6 text-black"
+            />
+          </div>
         </div>
       </div>
 
@@ -251,6 +260,8 @@ export default defineComponent({
   },
   data() {
     return {
+      tableView: true,
+
       isItemsSeeded: false,
       openPaymentModal: false,
       openShiftCloseModal: false,
@@ -323,6 +334,9 @@ export default defineComponent({
     toggleSidebar(true);
   },
   methods: {
+    toggleView() {
+      this.tableView = !this.tableView; // Toggle between table and grid view
+    },
     setCashAmount(amount: Money) {
       this.cashAmount = amount;
     },
