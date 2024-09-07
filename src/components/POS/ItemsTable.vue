@@ -18,7 +18,7 @@
     </div>
   </Row>
 
-  <div class="overflow-y-auto" style="height: 72.5vh">
+  <div class="overflow-y-auto" style="height: 80vh">
     <Row
       v-if="items"
       v-for="row in items"
@@ -68,6 +68,9 @@ export default defineComponent({
   name: 'ItemsTable',
   components: { FormControl, Row },
   emits: ['addItem', 'updateValues'],
+  async mounted() {
+    await this.setItems();
+  },
   setup() {
     return {
       itemQtyMap: inject('itemQtyMap') as ItemQtyMap,

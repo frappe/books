@@ -68,7 +68,8 @@
             />
           </div>
 
-          <ItemsTable @add-item="addItem" />
+          <ItemsTable v-if="tableView" @add-item="addItem" />
+          <ItemsGrid v-else @add-item="addItem" />
           <div
             class="bg-gray-100 p-2 fixed bottom-0 mb-7 rounded-md"
             @click="toggleView"
@@ -202,6 +203,7 @@ import { fyo } from 'src/initFyo';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { ModelNameEnum } from 'models/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import ItemsGrid from 'src/components/POS/ItemsGrid.vue';
 import { t } from 'fyo';
 import {
   ItemQtyMap,
@@ -236,6 +238,7 @@ export default defineComponent({
     FloatingLabelCurrencyInput,
     FloatingLabelFloatInput,
     ItemsTable,
+    ItemsGrid,
     Link,
     OpenPOSShiftModal,
     PageHeader,
