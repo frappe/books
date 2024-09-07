@@ -159,7 +159,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Hindi              | [bnsinghgit](https://github.com/bnsinghgit)                                                                                                                      |
 | Korean             | [Isaac-Kwon](https://github.com/Isaac-Kwon)                                                                                                                      |
 | Simplified Chinese | [wcxu21](https://github.com/wcxu21), [wolone](https://github.com/wolone), [Ji Qu](https://github.com/winkidney)                                                  |
-| Swedish            | [papplo](https://github.com/papplo)                                                                                                                              |
+| Swedish            | [papplo](https://github.com/papplo), [Crims-on](https://github.com/Crims-on)                                                                                     |
 | Turkish            | Eyuq, [XTechnology-TR](https://github.com/XTechnology-TR)                                                                                                        |
 | Danish             | [Tummas Joensen](https://github.com/slang123)                                                                                                                    |
 
