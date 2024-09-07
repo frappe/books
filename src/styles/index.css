@@ -24,12 +24,19 @@ html {
   color: theme('colors.black');
 }
 
+html.dark {
+  color: theme('colors.white');
+  background-color: theme('colors.gray.900');
+}
+
 input[type='number']::-webkit-inner-spin-button {
   appearance: none;
 }
+
 input[type='date']::-webkit-calendar-picker-indicator {
   background-color: theme('colors.gray.900');
 }
+
 .window-drag {
   -webkit-app-region: drag;
 }
@@ -173,26 +180,32 @@ input[type='date']::-webkit-calendar-picker-indicator {
   background: transparent;
 }
 
+.dark.custom-scroll::-webkit-scrollbar-track:vertical,
 .dark .custom-scroll::-webkit-scrollbar-track:vertical {
   border-left-color: theme('colors.gray.800');
 }
 
+.dark.custom-scroll::-webkit-scrollbar-track:horizontal,
 .dark .custom-scroll::-webkit-scrollbar-track:horizontal {
   border-top-color: theme('colors.gray.800');
 }
 
+.dark.custom-scroll-thumb1::-webkit-scrollbar-thumb,
 .dark .custom-scroll-thumb1::-webkit-scrollbar-thumb {
   background: theme('colors.gray.850');
 }
 
+.dark.custom-scroll-thumb1::-webkit-scrollbar-thumb:hover,
 .dark .custom-scroll-thumb1::-webkit-scrollbar-thumb:hover {
   background: theme('colors.gray.800');
 }
 
+.dark.custom-scroll-thumb2::-webkit-scrollbar-thumb,
 .dark .custom-scroll-thumb2::-webkit-scrollbar-thumb {
   background: theme('colors.gray.800');
 }
 
+.dark.custom-scroll-thumb2::-webkit-scrollbar-thumb:hover,
 .dark .custom-scroll-thumb2::-webkit-scrollbar-thumb:hover {
   background: theme('colors.gray.875');
 }
@@ -232,6 +245,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
   border-right: solid 1px theme('colors.gray.200');
 }
 
+[dir='rtl'].dark.custom-scroll::-webkit-scrollbar-track:vertical,
 [dir='rtl'].dark .custom-scroll::-webkit-scrollbar-track:vertical {
   border-right: solid 1px theme('colors.gray.850');
 }
