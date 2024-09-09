@@ -1227,19 +1227,21 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
-      const isPricingRuleHasConflicts = getPricingRulesConflicts(
-        filtered,
-        filtered[0].priority as number
-      );
+      for (const filteredDoc of filtered) {
+        const isPricingRuleHasConflicts = await getPricingRulesConflicts(
+          filteredDoc,
+          filteredDoc.priority as number
+        );
 
-      if (isPricingRuleHasConflicts) {
-        continue;
+        if (isPricingRuleHasConflicts) {
+          continue;
+        }
+
+        pricingRules.push({
+          applyOnItem: item.item as string,
+          pricingRule: filtered[0],
+        });
       }
-
-      pricingRules.push({
-        applyOnItem: item.item as string,
-        pricingRule: filtered[0],
-      });
     }
 
     return pricingRules;
