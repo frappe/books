@@ -1,7 +1,13 @@
 <template>
   <div
     ref="hr"
-    class="h-full bg-gray-300 transition-opacity hover:opacity-100"
+    class="
+      h-full
+      bg-gray-300
+      dark:bg-gray-700
+      transition-opacity
+      hover:opacity-100
+    "
     :class="resizing ? 'opacity-100' : 'opacity-0'"
     style="width: 3px; cursor: col-resize; margin-left: -3px"
     @mousedown="onMouseDown"
@@ -13,6 +19,7 @@
         px-1
         py-0.5
         border
+        dark:border-gray-800
         rounded-md
         shadow
         text-sm text-center

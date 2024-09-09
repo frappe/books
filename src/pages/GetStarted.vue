@@ -1,13 +1,19 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader :title="t`Set Up Your Workspace`" />
-    <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scroll">
+    <div
+      class="
+        flex-1
+        overflow-y-auto overflow-x-hidden
+        custom-scroll custom-scroll-thumb1
+      "
+    >
       <div
         v-for="section in sections"
         :key="section.label"
-        class="p-4 border-b"
+        class="p-4 border-b dark:border-gray-800"
       >
-        <h2 class="font-medium">{{ section.label }}</h2>
+        <h2 class="font-medium dark:text-gray-25">{{ section.label }}</h2>
         <div class="flex mt-4 gap-4">
           <div
             v-for="item in section.items"
@@ -15,7 +21,15 @@
             class="w-full md:w-1/3 sm:w-1/2"
           >
             <div
-              class="flex flex-col justify-between h-40 p-4 border rounded-lg"
+              class="
+                flex flex-col
+                justify-between
+                h-40
+                p-4
+                border
+                dark:border-gray-800 dark:text-gray-50
+                rounded-lg
+              "
               @mouseenter="() => (activeCard = item.key)"
               @mouseleave="() => (activeCard = null)"
             >
@@ -32,7 +46,7 @@
                   class="w-5 h-5 mb-4"
                 />
                 <h3 class="font-medium">{{ item.label }}</h3>
-                <p class="mt-2 text-sm text-gray-800">
+                <p class="mt-2 text-sm text-gray-800 dark:text-gray-400">
                   {{ item.description }}
                 </p>
               </div>
@@ -42,23 +56,19 @@
               >
                 <Button
                   v-if="item.action"
-                  class="leading-tight"
+                  class="leading-tight text-base"
                   type="primary"
                   @click="handleAction(item)"
                 >
-                  <span class="text-base text-white">
-                    {{ t`Set Up` }}
-                  </span>
+                  {{ t`Set Up` }}
                 </Button>
                 <Button
                   v-if="item.documentation"
-                  class="leading-tight"
+                  class="leading-tight text-base"
                   :class="{ 'ms-4': item.action }"
                   @click="handleDocumentation(item)"
                 >
-                  <span class="text-base">
-                    {{ t`Documentation` }}
-                  </span>
+                  {{ t`Documentation` }}
                 </Button>
               </div>
             </div>
@@ -87,6 +97,9 @@ export default defineComponent({
     PageHeader,
     Button,
     Icon,
+  },
+  props: {
+    darkMode: { type: Boolean, default: false },
   },
   data() {
     return {
