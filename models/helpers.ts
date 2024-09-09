@@ -24,6 +24,7 @@ import { InvoiceStatus, ModelNameEnum } from './types';
 import { Lead } from './baseModels/Lead/Lead';
 import { PricingRule } from './baseModels/PricingRule/PricingRule';
 import { ApplicablePricingRules } from './baseModels/Invoice/types';
+import { PricingRuleItem } from './baseModels/PricingRuleItem/PricingRuleItem';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -662,13 +663,13 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
 
 export async function getPricingRule(
   doc: Invoice
-): Promise<ApplicablePricingRules[] | null> {
+): Promise<ApplicablePricingRules[] | undefined> {
   if (
     !doc.fyo.singles.AccountingSettings?.enablePricingRule ||
     !doc.isSales ||
     !doc.items
   ) {
-    return null;
+    return;
   }
 
   const pricingRules: ApplicablePricingRules[] = [];
@@ -712,22 +713,23 @@ export async function getPricingRule(
       continue;
     }
 
-    const isPricingRuleHasConflicts = getPricingRulesConflicts(
-      filtered,
-      filtered[0].priority as number
-    );
+    for (const filteredPricingRule of filtered) {
+      const isPricingRuleHasConflicts = await getPricingRulesConflicts(
+        filteredPricingRule,
+        filteredPricingRule.priority as number
+      );
 
-    if (isPricingRuleHasConflicts) {
-      continue;
+      if (isPricingRuleHasConflicts) {
+        continue;
+      }
+
+      pricingRules.push({
+        applyOnItem: item.item as string,
+        pricingRule: filtered[0],
+      });
     }
-
-    pricingRules.push({
-      applyOnItem: item.item as string,
-      pricingRule: filtered[0],
-    });
+    return pricingRules;
   }
-
-  return pricingRules;
 }
 
 export function filterPricingRules(
@@ -800,32 +802,71 @@ export function canApplyPricingRule(
   return true;
 }
 
-export function getPricingRulesConflicts(
-  pricingRules: PricingRule[],
+export async function getPricingRulesConflicts(
+  pricingRule: PricingRule,
   priority: number
-): string[] | undefined {
-  const pricingRuleDocs = Array.from(pricingRules);
+): Promise<{ item: string; pricingRule: string } | undefined> {
+  const items = pricingRule.appliedItems?.map((item) => item.item) as string[];
 
-  const firstPricingRule = pricingRuleDocs.shift();
-  if (!priority) {
-    return;
-  }
+  for (const item of items) {
+    const duplicatePricingRuleItems = (
+      await pricingRule.fyo.db.getAll(ModelNameEnum.PricingRuleItem, {
+        fields: ['parent'],
+        filters: {
+          item: item,
+        },
+      })
+    ).filter(
+      (doc) => doc.parent !== (pricingRule.name as string)
+    ) as PricingRuleItem[];
 
-  const conflictingPricingRuleNames: string[] = [];
+    const pricingRuleNames = duplicatePricingRuleItems.map(
+      (item) => item.parent
+    ) as string[];
 
-  for (const pricingRuleDoc of pricingRuleDocs.slice(0)) {
-    if (pricingRuleDoc.priority !== firstPricingRule?.priority) {
-      continue;
+    const pricingRuleDocs = (await pricingRule.fyo.db.getAll(
+      ModelNameEnum.PricingRule,
+      {
+        fields: ['*'],
+        filters: {
+          name: ['in', pricingRuleNames],
+        },
+      }
+    )) as PricingRule[];
+
+    for (const pricingRuleDoc of pricingRuleDocs) {
+      const minQtys = [
+        pricingRuleDoc.minQuantity,
+        pricingRule.minQuantity,
+      ].sort() as number[];
+
+      const maxQtys = [
+        pricingRuleDoc.maxQuantity,
+        pricingRule.maxQuantity,
+      ].sort() as number[];
+
+      const qtyHasConflicts = minQtys[1] <= maxQtys[0];
+
+      const minAmounts = [
+        pricingRuleDoc.minAmount?.float,
+        pricingRule.minAmount?.float,
+      ].sort() as number[];
+
+      const maxAmounts = [
+        pricingRuleDoc.maxAmount?.float,
+        pricingRule.maxAmount?.float,
+      ].sort() as number[];
+
+      const amountHasConflicts = minAmounts[1] <= maxAmounts[0];
+
+      if (
+        (amountHasConflicts || qtyHasConflicts) &&
+        pricingRuleDoc.priority === priority
+      ) {
+        return { pricingRule: pricingRuleDoc.name as string, item: item };
+      }
     }
-
-    conflictingPricingRuleNames.push(pricingRuleDoc.name as string);
   }
-
-  if (!conflictingPricingRuleNames.length) {
-    return;
-  }
-
-  return conflictingPricingRuleNames;
 }
 
 export function roundFreeItemQty(

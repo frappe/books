@@ -14,7 +14,6 @@ import {
 import { DocValue } from 'fyo/core/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { t } from 'fyo';
-import { ModelNameEnum } from 'models/types';
 
 export class PricingRule extends Doc {
   isEnabled?: boolean;
@@ -130,46 +129,18 @@ export class PricingRule extends Doc {
       }
     },
     priority: async (value: DocValue) => {
-      const items = this.appliedItems?.map((item) => item.item) as string[];
+      const pricingRuleConflicts = await getPricingRulesConflicts(
+        this,
+        value as number
+      );
 
-      for (const item of items) {
-        const duplicatePricingRuleItems = (await this.fyo.db.getAll(
-          ModelNameEnum.PricingRuleItem,
-          {
-            fields: ['parent'],
-            filters: {
-              item: item,
-            },
-          }
-        )) as PricingRuleItem[];
-
-        const pricingRules = duplicatePricingRuleItems.map(
-          (item) => item.parent
-        );
-
-        const pricingRuleItems = (await this.fyo.db.getAll(
-          ModelNameEnum.PricingRule,
-          {
-            fields: ['*'],
-            filters: {
-              name: ['in', pricingRules as string[]],
-            },
-          }
-        )) as PricingRule[];
-
-        const isPricingRuleHasConflicts = getPricingRulesConflicts(
-          pricingRuleItems,
-          value as number
-        );
-
-        if (isPricingRuleHasConflicts) {
-          throw new ValidationError(
-            t`Pricing Rules ${isPricingRuleHasConflicts.join(
-              ', '
-            )} has the same Priority for the Item ${item}.`
-          );
-        }
+      if (!pricingRuleConflicts) {
+        return;
       }
+
+      throw new ValidationError(
+        t`Pricing Rules ${pricingRuleConflicts.pricingRule} has the same Priority for the Item ${pricingRuleConflicts.item}.`
+      );
     },
   };
 
