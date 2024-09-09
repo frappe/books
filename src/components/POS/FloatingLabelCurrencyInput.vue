@@ -17,9 +17,12 @@
         w-full
         font-medium
         text-gray-900
+        dark:text-gray-100
         bg-gray-25
+        dark:bg-gray-850
         rounded-lg
         border border-gray-200
+        dark:border-gray-800
         appearance-none
         focus:outline-none focus:ring-0
         peer

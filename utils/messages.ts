@@ -5,6 +5,13 @@ export enum IPC_MESSAGES {
   OPEN_EXTERNAL = 'open-external',
   SHOW_ITEM_IN_FOLDER = 'show-item-in-folder',
   RELOAD_MAIN_WINDOW = 'reload-main-window',
+  MINIMIZE_MAIN_WINDOW = 'minimize-main-window',
+  MAXIMIZE_MAIN_WINDOW = 'maximize-main-window',
+  ISMAXIMIZED_MAIN_WINDOW = 'ismaximized-main-window',
+  ISMAXIMIZED_RESULT = 'ismaximized-result',
+  ISFULLSCREEN_MAIN_WINDOW = 'isfullscreen-main-window',
+  ISFULLSCREEN_RESULT = 'isfullscreen-result',
+  CLOSE_MAIN_WINDOW = 'close-main-window',
 }
 
 // ipcRenderer.invoke(...)

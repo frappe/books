@@ -117,6 +117,14 @@
       "fieldtype": "Data",
       "readOnly": true,
       "hidden": true
+    },
+    {
+      "fieldname": "darkMode",
+      "label": "Dark mode",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "Sets the theme of the app.",
+      "section": "Theme"
     }
   ],
   "quickEditFields": [

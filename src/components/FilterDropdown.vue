@@ -7,7 +7,11 @@
     <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
-          <Icon name="filter" size="12" class="stroke-current text-gray-700" />
+          <Icon
+            name="filter"
+            size="12"
+            class="stroke-current text-gray-700 dark:text-gray-400"
+          />
           <span class="ms-1">
             <template v-if="activeFilterCount > 0">
               {{ filterAppliedMessage }}
@@ -38,7 +42,9 @@
                     items-center
                     justify-center
                     text-gray-600
+                    dark:text-gray-400
                     hover:text-gray-800
+                    dark:hover:text-gray-300
                     rounded-md
                     group
                   "
@@ -100,7 +106,7 @@
             </div>
           </template>
           <template v-else>
-            <span class="text-base text-gray-600">{{
+            <span class="text-base text-gray-600 dark:text-gray-500">{{
               t`No filters selected`
             }}</span>
           </template>
@@ -109,12 +115,15 @@
           class="
             text-base
             border-t
+            dark:border-gray-800
             p-2
             flex
             items-center
             text-gray-600
+            dark:text-gray-500
             cursor-pointer
             hover:bg-gray-100
+            dark:hover:bg-gray-875
           "
           @click="addNewFilter"
         >

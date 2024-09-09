@@ -8,7 +8,9 @@
       rounded
       px-2
       bg-gray-50
+      dark:bg-gray-890
       focus-within:bg-gray-100
+      dark:focus-within:bg-gray-900
     "
   >
     <input
@@ -20,7 +22,7 @@
     />
     <feather-icon
       name="maximize"
-      class="w-3 h-3 text-gray-600 cursor-text"
+      class="w-3 h-3 text-gray-600 dark:text-gray-400 cursor-text"
       @click="() => ($refs.scanner as HTMLInputElement).focus()"
     />
   </div>
