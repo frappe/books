@@ -417,6 +417,9 @@ export default defineComponent({
             invItem.quantity = (invItem.quantity as number) + 1;
             invItem.rate = item.rate as Money;
 
+            await this.applyPricingRule();
+            await this.sinvDoc.runFormulas();
+
             return;
           }
         }
@@ -432,6 +435,7 @@ export default defineComponent({
             message: t`${error as string}`,
           });
         }
+
         return;
       }
 
