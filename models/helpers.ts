@@ -24,6 +24,10 @@ import { InvoiceStatus, ModelNameEnum } from './types';
 import { Lead } from './baseModels/Lead/Lead';
 import { PricingRule } from './baseModels/PricingRule/PricingRule';
 import { ApplicablePricingRules } from './baseModels/Invoice/types';
+import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
+import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
+import { isPesa } from 'fyo/utils';
+import { Party } from './baseModels/Party/Party';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -660,6 +664,130 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   }
 
   await item.set('item', name);
+}
+
+export async function createLoyaltyPointEntry(doc: Invoice) {
+  const loyaltyProgramDoc = (await doc.fyo.doc.getDoc(
+    ModelNameEnum.LoyaltyProgram,
+    doc?.loyaltyProgram
+  )) as LoyaltyProgram;
+
+  if (!loyaltyProgramDoc.isEnabled) {
+    return;
+  }
+  const expiryDate = new Date(Date.now());
+
+  expiryDate.setDate(
+    expiryDate.getDate() + (loyaltyProgramDoc.expiryDuration || 0)
+  );
+
+  let loyaltyProgramTier;
+  let loyaltyPoint: number;
+
+  if (doc.redeemLoyaltyPoints) {
+    loyaltyPoint = -(doc.loyaltyPoints || 0);
+  } else {
+    loyaltyProgramTier = getLoyaltyProgramTier(
+      loyaltyProgramDoc,
+      doc?.grandTotal as Money
+    ) as CollectionRulesItems;
+
+    if (!loyaltyProgramTier) {
+      return;
+    }
+
+    const collectionFactor = loyaltyProgramTier.collectionFactor as number;
+    loyaltyPoint = Math.round(doc?.grandTotal?.float || 0) * collectionFactor;
+  }
+
+  const newLoyaltyPointEntry = doc.fyo.doc.getNewDoc(
+    ModelNameEnum.LoyaltyPointEntry,
+    {
+      loyaltyProgram: doc.loyaltyProgram,
+      customer: doc.party,
+      invoice: doc.name,
+      postingDate: doc.date,
+      purchaseAmount: doc.grandTotal,
+      expiryDate: expiryDate,
+      loyaltyProgramTier: loyaltyProgramTier?.tierName,
+      loyaltyPoints: loyaltyPoint,
+    }
+  );
+
+  return await newLoyaltyPointEntry.sync();
+}
+
+export async function getAddedLPWithGrandTotal(
+  fyo: Fyo,
+  loyaltyProgram: string,
+  loyaltyPoints: number
+) {
+  const loyaltyProgramDoc = (await fyo.doc.getDoc(
+    ModelNameEnum.LoyaltyProgram,
+    loyaltyProgram
+  )) as LoyaltyProgram;
+
+  const conversionFactor = loyaltyProgramDoc.conversionFactor as number;
+
+  return fyo.pesa((loyaltyPoints || 0) * conversionFactor);
+}
+
+export function getLoyaltyProgramTier(
+  loyaltyProgramData: LoyaltyProgram,
+  grandTotal: Money
+): CollectionRulesItems | undefined {
+  if (!loyaltyProgramData.collectionRules) {
+    return;
+  }
+
+  let loyaltyProgramTier: CollectionRulesItems | undefined;
+
+  for (const row of loyaltyProgramData.collectionRules) {
+    if (isPesa(row.minimumTotalSpent)) {
+      const minimumSpent = row.minimumTotalSpent;
+
+      if (!minimumSpent.lte(grandTotal)) {
+        continue;
+      }
+
+      if (
+        !loyaltyProgramTier ||
+        minimumSpent.gt(loyaltyProgramTier.minimumTotalSpent as Money)
+      ) {
+        loyaltyProgramTier = row;
+      }
+    }
+  }
+  return loyaltyProgramTier;
+}
+
+export async function removeLoyaltyPoint(doc: Doc) {
+  const data = (await doc.fyo.db.getAll(ModelNameEnum.LoyaltyPointEntry, {
+    fields: ['name', 'loyaltyPoints', 'expiryDate'],
+    filters: {
+      loyaltyProgram: doc.loyaltyProgram as string,
+      invoice: doc.isReturn
+        ? (doc.returnAgainst as string)
+        : (doc.name as string),
+    },
+  })) as { name: string; loyaltyPoints: number; expiryDate: Date }[];
+
+  if (!data.length) {
+    return;
+  }
+
+  const loyalityPointEntryDoc = await doc.fyo.doc.getDoc(
+    ModelNameEnum.LoyaltyPointEntry,
+    data[0].name
+  );
+
+  const party = (await doc.fyo.doc.getDoc(
+    ModelNameEnum.Party,
+    doc.party as string
+  )) as Party;
+
+  await loyalityPointEntryDoc.delete();
+  await party.updateLoyaltyPoints();
 }
 
 export async function getPricingRule(
