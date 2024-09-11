@@ -1,10 +1,7 @@
 import { Doc } from 'fyo/model/doc';
 import { Money } from 'pesa';
 import { PricingRuleItem } from '../PricingRuleItem/PricingRuleItem';
-import {
-  getIsDocEnabledColumn,
-  getPricingRulesConflicts,
-} from 'models/helpers';
+import { getIsDocEnabledColumn } from 'models/helpers';
 import {
   HiddenMap,
   ListViewSettings,
@@ -127,20 +124,6 @@ export class PricingRule extends Doc {
           t`Valid To Date should be greater than Valid From Date.`
         );
       }
-    },
-    priority: async (value: DocValue) => {
-      const pricingRuleConflicts = await getPricingRulesConflicts(
-        this,
-        value as number
-      );
-
-      if (!pricingRuleConflicts) {
-        return;
-      }
-
-      throw new ValidationError(
-        t`Pricing Rules ${pricingRuleConflicts.pricingRule} has the same Priority for the Item ${pricingRuleConflicts.item}.`
-      );
     },
   };
 
