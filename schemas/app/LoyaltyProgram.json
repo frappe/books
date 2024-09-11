@@ -1,0 +1,72 @@
+{
+  "name": "LoyaltyProgram",
+  "label": "Loyalty Program",
+  "naming": "manual",
+
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true,
+      "placeholder": "Name",
+      "section": "Default"
+    },
+    {
+      "fieldname": "fromDate",
+      "label": "From Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "toDate",
+      "label": "To Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "isEnabled",
+      "label": "Is Enabled",
+      "fieldtype": "Check",
+      "default": true,
+      "required": true
+    },
+    {
+      "fieldname": "collectionRules",
+      "label": "Collection Rules",
+      "fieldtype": "Table",
+      "target": "CollectionRulesItems",
+      "required": false
+    },
+    {
+      "fieldname": "conversionFactor",
+      "label": "Conversion Factor",
+      "fieldtype": "Float",
+      "default": 1,
+      "required": true
+    },
+    {
+      "fieldname": "expiryDuration",
+      "label": "Expiry Duration",
+      "fieldtype": "Int",
+      "default": 1,
+      "required": true
+    },
+    {
+      "fieldname": "expenseAccount",
+      "label": "Expense Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true
+    }
+  ],
+  "quickEditFields": [
+    "name",
+    "fromDate",
+    "toDate",
+    "conversionFactor",
+    "expenseAccount",
+    "expiryDuration"
+  ],
+  "keywordFields": ["name"]
+}

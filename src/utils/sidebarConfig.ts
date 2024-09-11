@@ -203,6 +203,13 @@ function getCompleteSidebar(): SidebarConfig {
           filters: routeFilters.SalesItems,
         },
         {
+          label: t`Loyalty Program`,
+          name: 'loyalty-program',
+          route: '/list/LoyaltyProgram',
+          schemaName: 'LoyaltyProgram',
+          hidden: () => !fyo.singles.AccountingSettings?.enableLoyaltyProgram,
+        },
+        {
           label: t`Lead`,
           name: 'lead',
           route: '/list/Lead',
