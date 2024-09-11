@@ -23,6 +23,8 @@ export class PricingRule extends Doc {
   discountPercentage?: number;
   discountAmount?: Money;
 
+  isCouponCodeBased?: boolean;
+
   forPriceList?: string;
 
   freeItem?: string;
