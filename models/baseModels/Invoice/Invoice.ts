@@ -13,6 +13,7 @@ import { ValidationError } from 'fyo/utils/errors';
 import { Transactional } from 'models/Transactional/Transactional';
 import {
   addItem,
+  canApplyCouponCode,
   canApplyPricingRule,
   createLoyaltyPointEntry,
   filterPricingRules,
@@ -42,6 +43,8 @@ import { PricingRule } from '../PricingRule/PricingRule';
 import { ApplicablePricingRules } from './types';
 import { PricingRuleDetail } from '../PricingRuleDetail/PricingRuleDetail';
 import { LoyaltyProgram } from '../LoyaltyProgram/LoyaltyProgram';
+import { AppliedCouponCodes } from '../AppliedCouponCodes/AppliedCouponCodes';
+import { CouponCode } from '../CouponCode/CouponCode';
 
 export type TaxDetail = {
   account: string;
@@ -61,6 +64,7 @@ export abstract class Invoice extends Transactional {
   taxes?: TaxSummary[];
 
   items?: InvoiceItem[];
+  coupons?: AppliedCouponCodes[];
   party?: string;
   account?: string;
   currency?: string;
@@ -727,7 +731,7 @@ export abstract class Invoice extends Transactional {
         await this.appendPricingRuleDetail(pricingRule);
         return !!pricingRule;
       },
-      dependsOn: ['items'],
+      dependsOn: ['items', 'coupons'],
     },
   };
 
@@ -1298,6 +1302,41 @@ export abstract class Invoice extends Transactional {
         })
       ).map((doc) => doc.parent) as string[];
 
+      if (!pricingRuleDocNames.length) {
+        continue;
+      }
+
+      if (this.coupons?.length) {
+        for (const coupon of this.coupons) {
+          const couponCodeDatas = await this.fyo.db.getAll(
+            ModelNameEnum.CouponCode,
+            {
+              fields: ['*'],
+              filters: {
+                name: coupon?.coupons as string,
+                isEnabled: true,
+              },
+            }
+          );
+
+          const couponPricingRuleDocNames = couponCodeDatas
+            .map((doc) => doc.pricingRule)
+            .filter((val) =>
+              pricingRuleDocNames.includes(val as string)
+            ) as string[];
+
+          const filtered = canApplyCouponCode(
+            couponCodeDatas[0] as CouponCode,
+            this.grandTotal as Money,
+            this.date as Date
+          );
+
+          if (filtered) {
+            pricingRuleDocNames.push(...couponPricingRuleDocNames);
+          }
+        }
+      }
+
       const pricingRuleDocsForItem = (await this.fyo.db.getAll(
         ModelNameEnum.PricingRule,
         {
@@ -1310,6 +1349,50 @@ export abstract class Invoice extends Transactional {
           order: 'desc',
         }
       )) as PricingRule[];
+
+      if (pricingRuleDocsForItem[0].isCouponCodeBased) {
+        if (!this.coupons?.length) {
+          continue;
+        }
+
+        const data = await Promise.allSettled(
+          this.coupons?.map(async (val) => {
+            if (!val.coupons) {
+              return false;
+            }
+
+            const [pricingRule] = (
+              await this.fyo.db.getAll(ModelNameEnum.CouponCode, {
+                fields: ['pricingRule'],
+                filters: {
+                  name: val?.coupons,
+                },
+              })
+            ).map((doc) => doc.pricingRule);
+
+            if (!pricingRule) {
+              return false;
+            }
+
+            if (pricingRuleDocsForItem[0].name === pricingRule) {
+              return pricingRule;
+            }
+
+            return false;
+          })
+        );
+
+        const fulfilledData = data
+          .filter(
+            (result): result is PromiseFulfilledResult<string | false> =>
+              result.status === 'fulfilled'
+          )
+          .map((result) => result.value as string);
+
+        if (!fulfilledData[0] && !fulfilledData.filter((val) => val).length) {
+          continue;
+        }
+      }
 
       const filtered = filterPricingRules(
         pricingRuleDocsForItem,
