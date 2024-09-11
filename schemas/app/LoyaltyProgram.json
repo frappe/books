@@ -9,7 +9,7 @@
       "label": "Name",
       "fieldtype": "Data",
       "required": true,
-      "placeholder": "Full Name",
+      "placeholder": "Name",
       "section": "Default"
     },
     {
