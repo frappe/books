@@ -773,6 +773,10 @@ export async function removeLoyaltyPoint(doc: Doc) {
     },
   })) as { name: string; loyaltyPoints: number; expiryDate: Date }[];
 
+  if (!data.length) {
+    return;
+  }
+
   const loyalityPointEntryDoc = await doc.fyo.doc.getDoc(
     ModelNameEnum.LoyaltyPointEntry,
     data[0].name
