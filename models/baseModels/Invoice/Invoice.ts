@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
@@ -1121,19 +1121,15 @@ export abstract class Invoice extends Transactional {
       return;
     }
 
-    if (!this.pricingRuleDetail?.length || !this.pricingRuleDetail.length) {
-      return;
-    }
-
     this.items = this.items.filter((item) => !item.isFreeItem);
 
     for (const item of this.items) {
-      const pricingRuleDetailForItem = this.pricingRuleDetail.filter(
+      const pricingRuleDetailForItem = this.pricingRuleDetail?.filter(
         (doc) => doc.referenceItem === item.item
       );
 
-      if (!pricingRuleDetailForItem.length) {
-        return;
+      if (!pricingRuleDetailForItem?.length) {
+        continue;
       }
 
       const pricingRuleDoc = (await this.fyo.doc.getDoc(
@@ -1179,6 +1175,7 @@ export abstract class Invoice extends Transactional {
         item: pricingRuleDoc.freeItem as string,
         quantity: freeItemQty,
         isFreeItem: true,
+        pricingRule: pricingRuleDoc.title,
         rate: pricingRuleDoc.freeItemRate,
         unit: pricingRuleDoc.freeItemUnit,
       });
@@ -1189,10 +1186,28 @@ export abstract class Invoice extends Transactional {
     if (!this.isSales || !this.items) {
       return;
     }
+
     const pricingRules: ApplicablePricingRules[] = [];
 
     for (const item of this.items) {
       if (item.isFreeItem) {
+        continue;
+      }
+
+      const duplicatePricingRule = this.pricingRuleDetail?.filter(
+        (pricingrule: PricingRuleDetail) =>
+          pricingrule.referenceItem == item.item
+      );
+
+      if (duplicatePricingRule && duplicatePricingRule?.length >= 2) {
+        const { showToast } = await import('src/utils/interactive');
+        const message = t`Pricing Rule '${
+          duplicatePricingRule[0]?.referenceName as string
+        }' is already applied to item '${
+          item.item as string
+        }' in another batch.`;
+        showToast({ type: 'error', message });
+
         continue;
       }
 
@@ -1230,10 +1245,7 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
-      const isPricingRuleHasConflicts = getPricingRulesConflicts(
-        filtered,
-        item.item as string
-      );
+      const isPricingRuleHasConflicts = getPricingRulesConflicts(filtered);
 
       if (isPricingRuleHasConflicts) {
         continue;
