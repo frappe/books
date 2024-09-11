@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
@@ -1186,10 +1186,28 @@ export abstract class Invoice extends Transactional {
     if (!this.isSales || !this.items) {
       return;
     }
+
     const pricingRules: ApplicablePricingRules[] = [];
 
     for (const item of this.items) {
       if (item.isFreeItem) {
+        continue;
+      }
+
+      const duplicatePricingRule = this.pricingRuleDetail?.filter(
+        (pricingrule: PricingRuleDetail) =>
+          pricingrule.referenceItem == item.item
+      );
+
+      if (duplicatePricingRule && duplicatePricingRule?.length >= 2) {
+        const { showToast } = await import('src/utils/interactive');
+        const message = t`Pricing Rule '${
+          duplicatePricingRule[0]?.referenceName as string
+        }' is already applied to item '${
+          item.item as string
+        }' in another batch.`;
+        showToast({ type: 'error', message });
+
         continue;
       }
 
@@ -1227,21 +1245,16 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
-      for (const filteredDoc of filtered) {
-        const isPricingRuleHasConflicts = await getPricingRulesConflicts(
-          filteredDoc,
-          filteredDoc.priority as number
-        );
+      const isPricingRuleHasConflicts = getPricingRulesConflicts(filtered);
 
-        if (isPricingRuleHasConflicts) {
-          continue;
-        }
-
-        pricingRules.push({
-          applyOnItem: item.item as string,
-          pricingRule: filtered[0],
-        });
+      if (isPricingRuleHasConflicts) {
+        continue;
       }
+
+      pricingRules.push({
+        applyOnItem: item.item as string,
+        pricingRule: filtered[0],
+      });
     }
 
     return pricingRules;

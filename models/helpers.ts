@@ -24,7 +24,6 @@ import { InvoiceStatus, ModelNameEnum } from './types';
 import { Lead } from './baseModels/Lead/Lead';
 import { PricingRule } from './baseModels/PricingRule/PricingRule';
 import { ApplicablePricingRules } from './baseModels/Invoice/types';
-import { PricingRuleItem } from './baseModels/PricingRuleItem/PricingRuleItem';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -713,23 +712,18 @@ export async function getPricingRule(
       continue;
     }
 
-    for (const filteredPricingRule of filtered) {
-      const isPricingRuleHasConflicts = await getPricingRulesConflicts(
-        filteredPricingRule,
-        filteredPricingRule.priority as number
-      );
+    const isPricingRuleHasConflicts = getPricingRulesConflicts(filtered);
 
-      if (isPricingRuleHasConflicts) {
-        continue;
-      }
-
-      pricingRules.push({
-        applyOnItem: item.item as string,
-        pricingRule: filtered[0],
-      });
+    if (isPricingRuleHasConflicts) {
+      continue;
     }
-    return pricingRules;
+
+    pricingRules.push({
+      applyOnItem: item.item as string,
+      pricingRule: filtered[0],
+    });
   }
+  return pricingRules;
 }
 
 export function filterPricingRules(
@@ -801,72 +795,30 @@ export function canApplyPricingRule(
   }
   return true;
 }
+export function getPricingRulesConflicts(
+  pricingRules: PricingRule[]
+): undefined | boolean {
+  const pricingRuleDocs = Array.from(pricingRules);
 
-export async function getPricingRulesConflicts(
-  pricingRule: PricingRule,
-  priority: number
-): Promise<{ item: string; pricingRule: string } | undefined> {
-  const items = pricingRule.appliedItems?.map((item) => item.item) as string[];
-
-  for (const item of items) {
-    const duplicatePricingRuleItems = (
-      await pricingRule.fyo.db.getAll(ModelNameEnum.PricingRuleItem, {
-        fields: ['parent'],
-        filters: {
-          item: item,
-        },
-      })
-    ).filter(
-      (doc) => doc.parent !== (pricingRule.name as string)
-    ) as PricingRuleItem[];
-
-    const pricingRuleNames = duplicatePricingRuleItems.map(
-      (item) => item.parent
-    ) as string[];
-
-    const pricingRuleDocs = (await pricingRule.fyo.db.getAll(
-      ModelNameEnum.PricingRule,
-      {
-        fields: ['*'],
-        filters: {
-          name: ['in', pricingRuleNames],
-        },
-      }
-    )) as PricingRule[];
-
-    for (const pricingRuleDoc of pricingRuleDocs) {
-      const minQtys = [
-        pricingRuleDoc.minQuantity,
-        pricingRule.minQuantity,
-      ].sort() as number[];
-
-      const maxQtys = [
-        pricingRuleDoc.maxQuantity,
-        pricingRule.maxQuantity,
-      ].sort() as number[];
-
-      const qtyHasConflicts = minQtys[1] <= maxQtys[0];
-
-      const minAmounts = [
-        pricingRuleDoc.minAmount?.float,
-        pricingRule.minAmount?.float,
-      ].sort() as number[];
-
-      const maxAmounts = [
-        pricingRuleDoc.maxAmount?.float,
-        pricingRule.maxAmount?.float,
-      ].sort() as number[];
-
-      const amountHasConflicts = minAmounts[1] <= maxAmounts[0];
-
-      if (
-        (amountHasConflicts || qtyHasConflicts) &&
-        pricingRuleDoc.priority === priority
-      ) {
-        return { pricingRule: pricingRuleDoc.name as string, item: item };
-      }
-    }
+  const firstPricingRule = pricingRuleDocs.shift();
+  if (!firstPricingRule) {
+    return;
   }
+
+  const conflictingPricingRuleNames: string[] = [];
+  for (const pricingRuleDoc of pricingRuleDocs.slice(0)) {
+    if (pricingRuleDoc.priority !== firstPricingRule?.priority) {
+      continue;
+    }
+
+    conflictingPricingRuleNames.push(pricingRuleDoc.name as string);
+  }
+
+  if (!conflictingPricingRuleNames.length) {
+    return;
+  }
+
+  return true;
 }
 
 export function roundFreeItemQty(
