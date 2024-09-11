@@ -28,6 +28,7 @@ import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
 import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
 import { isPesa } from 'fyo/utils';
 import { Party } from './baseModels/Party/Party';
+import { CouponCode } from './baseModels/CouponCode/CouponCode';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -584,8 +585,6 @@ export async function getExchangeRate({
     };
     exchangeRate = data.rates[toCurrency];
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
     exchangeRate ??= 1;
   }
 
@@ -916,6 +915,7 @@ export function canApplyPricingRule(
   ) {
     return false;
   }
+  
   if (
     pricingRuleDoc.validTo &&
     new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
@@ -925,6 +925,47 @@ export function canApplyPricingRule(
   }
   return true;
 }
+
+export function canApplyCouponCode(
+  couponCodeData: CouponCode,
+  amount: Money,
+  sinvDate: Date
+): boolean {
+  // Filter by Amount
+  if (
+    !couponCodeData.minAmount?.isZero() &&
+    amount.lte(couponCodeData.minAmount as Money)
+  ) {
+    return false;
+  }
+
+  if (
+    !couponCodeData.maxAmount?.isZero() &&
+    amount.gte(couponCodeData.maxAmount as Money)
+  ) {
+    return false;
+  }
+
+  // Filter by Validity
+  if (
+    couponCodeData.validFrom &&
+    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
+      couponCodeData.validFrom.toISOString()
+  ) {
+    return false;
+  }
+
+  if (
+    couponCodeData.validTo &&
+    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
+      couponCodeData.validTo.toISOString()
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 export function getPricingRulesConflicts(
   pricingRules: PricingRule[]
 ): undefined | boolean {
