@@ -13,6 +13,7 @@ import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
 import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEntry';
 import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
 import { Lead } from './baseModels/Lead/Lead';
+import { AppliedCouponCodes } from './baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import { CouponCode } from './baseModels/CouponCode/CouponCode';
 import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
@@ -77,6 +78,7 @@ export const models = {
   PurchaseInvoiceItem,
   SalesInvoice,
   SalesInvoiceItem,
+  AppliedCouponCodes,
   SalesQuote,
   SalesQuoteItem,
   SerialNumber,
