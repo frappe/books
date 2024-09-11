@@ -216,7 +216,7 @@
           target: 'Batch',
           label: t`Batch`,
         }"
-        value=""
+        :value="row.batch"
         :border="true"
         :show-label="true"
         :read-only="false"
