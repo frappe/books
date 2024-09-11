@@ -5,17 +5,27 @@
     @click="isExapanded = !isExapanded"
   />
 
-  <Link
-    :df="{
-      fieldname: 'item',
-      fieldtype: 'Data',
-      label: 'item',
-    }"
-    size="small"
-    :border="false"
-    :value="row.item"
-    :read-only="true"
-  />
+  <div class="relative">
+    <Link
+      class="pt-2"
+      :df="{
+        fieldname: 'item',
+        fieldtype: 'Data',
+        label: 'item',
+      }"
+      size="small"
+      :border="false"
+      :value="row.item"
+      :read-only="true"
+    />
+    <p
+      v-if="row.isFreeItem"
+      class="absolute flex top-0 font-medium text-xs ml-2 text-green-800"
+      style="font-size: 0.6rem"
+    >
+      {{ row.pricingRule }}
+    </p>
+  </div>
 
   <Int
     :df="{
@@ -69,7 +79,7 @@
     <feather-icon
       name="trash"
       class="w-4 text-xl text-red-500"
-      @click="$emit('removeItem', row.idx)"
+      @click="removeAddedItem(row)"
     />
   </div>
 
@@ -88,8 +98,8 @@
         :border="true"
         :show-label="true"
         :value="row.quantity"
-        @change="(value:number) => (row.quantity = value)"
-        :read-only="false"
+        @change="(value:number) => setQuantity((row.quantity = value))"
+        :read-only="isReadOnly"
       />
     </div>
 
@@ -106,13 +116,15 @@
         :show-label="true"
         :border="true"
         :value="row.transferUnit"
-        @change="(value:string) => setTransferUnit((row.transferUnit = value))"
+        @change="(value:string) => row.set('transferUnit', value)"
+        :read-only="isReadOnly"
       />
       <feather-icon
         v-if="isUOMConversionEnabled"
         name="refresh-ccw"
         class="w-3.5 ml-2 mt-4 text-blue-500"
         @click="row.transferUnit = row.unit"
+        :read-only="isReadOnly"
       />
     </div>
 
@@ -128,8 +140,8 @@
         :border="true"
         :show-label="true"
         :value="row.transferQuantity"
-        @change="(value:number) => setTransferQty((row.transferQuantity = value))"
-        :read-only="false"
+        @change="(value:string) => row.set('transferQuantity', value)"
+        :read-only="isReadOnly"
       />
     </div>
 
@@ -147,8 +159,8 @@
         :show-label="true"
         :border="true"
         :value="row.rate"
-        :read-only="false"
-        @change="(value:Money) => (row.rate = value)"
+        :read-only="isReadOnly"
+        @change="(value:Money) => setRate((row.rate = value))"
       />
       <feather-icon
         name="refresh-ccw"
@@ -169,7 +181,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountAmount"
-        :read-only="row.itemDiscountPercent as number > 0"
+        :read-only="row.itemDiscountPercent as number > 0 || isReadOnly"
         @change="(value:number) => setItemDiscount('amount', value)"
       />
     </div>
@@ -186,7 +198,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountPercent"
-        :read-only="!row.itemDiscountAmount?.isZero()"
+        :read-only="!row.itemDiscountAmount?.isZero() || isReadOnly"
         @change="(value:number) => setItemDiscount('percent', value)"
       />
     </div>
@@ -204,7 +216,7 @@
           target: 'Batch',
           label: t`Batch`,
         }"
-        value=""
+        :value="row.batch"
         :border="true"
         :show-label="true"
         :read-only="false"
@@ -264,6 +276,7 @@ import { Money } from 'pesa';
 import { DiscountType } from './types';
 import { t } from 'fyo';
 import { validateSerialNumberCount } from 'src/utils/pos';
+import { ApplicablePricingRules } from 'models/baseModels/Invoice/types';
 
 export default defineComponent({
   name: 'SelectedItemRow',
@@ -271,7 +284,7 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
   },
-  emits: ['removeItem', 'runSinvFormulas', 'setItemSerialNumbers'],
+  emits: ['runSinvFormulas', 'setItemSerialNumbers', 'addItem'],
   setup() {
     return {
       isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
@@ -296,6 +309,9 @@ export default defineComponent({
     hasSerialNumber(): boolean {
       return !!(this.row.links?.item && this.row.links?.item.hasSerialNumber);
     },
+    isReadOnly() {
+      return this.row.isFreeItem;
+    },
   },
   methods: {
     async getAvailableQtyInBatch(): Promise<number> {
@@ -314,7 +330,7 @@ export default defineComponent({
       );
     },
     async setBatch(batch: string) {
-      this.row.batch = batch;
+      this.row.set('batch', batch);
       this.availableQtyInBatch = await this.getAvailableQtyInBatch();
     },
     setSerialNumber(serialNumber: string) {
@@ -331,23 +347,45 @@ export default defineComponent({
     },
     setItemDiscount(type: DiscountType, value: Money | number) {
       if (type === 'percent') {
-        this.row.setItemDiscountAmount = false;
-        this.row.itemDiscountPercent = value as number;
-        this.$emit('runSinvFormulas');
+        this.row.set('setItemDiscountAmount', false);
+        this.row.set('itemDiscountPercent', value as number);
         return;
       }
-      this.row.setItemDiscountAmount = true;
-      this.row.itemDiscountAmount = value as Money;
+      this.row.set('setItemDiscountAmount', true);
+      this.row.set('itemDiscountAmount', value as Money);
+    },
+    setRate(rate: Money) {
+      this.row.setRate = rate;
       this.$emit('runSinvFormulas');
     },
-    setTransferUnit(unit: string) {
-      this.row.setTransferUnit = unit;
-      this.row._applyFormula('transferUnit');
+    async setQuantity(quantity: number) {
+      this.row.set('quantity', quantity);
+
+      if (!this.row.isFreeItem) {
+        await this.updatePricingRuleItem();
+        this.$emit('runSinvFormulas');
+      }
     },
-    setTransferQty(quantity: number) {
-      this.row.transferQuantity = quantity;
-      this.row._applyFormula('transferQuantity');
-      this.$emit('runSinvFormulas');
+    async removeAddedItem(row: SalesInvoiceItem) {
+      this.row.parentdoc?.remove('items', row?.idx as number);
+
+      if (!row.isFreeItem) {
+        await this.updatePricingRuleItem();
+      }
+    },
+    async updatePricingRuleItem() {
+      const pricingRule =
+        (await this.row.parentdoc?.getPricingRule()) as ApplicablePricingRules[];
+
+      let appliedPricingRuleCount: number;
+      setTimeout(async () => {
+        if (appliedPricingRuleCount !== pricingRule?.length) {
+          appliedPricingRuleCount = pricingRule?.length;
+          await this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
+
+          await this.row.parentdoc?.applyProductDiscount();
+        }
+      }, 1);
     },
   },
 });

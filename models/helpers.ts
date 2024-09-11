@@ -23,7 +23,6 @@ import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
 import { Lead } from './baseModels/Lead/Lead';
 import { PricingRule } from './baseModels/PricingRule/PricingRule';
-import { ValidationError } from 'fyo/utils/errors';
 import { ApplicablePricingRules } from './baseModels/Invoice/types';
 
 export function getQuoteActions(
@@ -665,13 +664,13 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
 
 export async function getPricingRule(
   doc: Invoice
-): Promise<ApplicablePricingRules[] | null> {
+): Promise<ApplicablePricingRules[] | undefined> {
   if (
     !doc.fyo.singles.AccountingSettings?.enablePricingRule ||
     !doc.isSales ||
     !doc.items
   ) {
-    return null;
+    return;
   }
 
   const pricingRules: ApplicablePricingRules[] = [];
@@ -715,10 +714,7 @@ export async function getPricingRule(
       continue;
     }
 
-    const isPricingRuleHasConflicts = getPricingRulesConflicts(
-      filtered,
-      item.item as string
-    );
+    const isPricingRuleHasConflicts = getPricingRulesConflicts(filtered);
 
     if (isPricingRuleHasConflicts) {
       continue;
@@ -729,7 +725,6 @@ export async function getPricingRule(
       pricingRule: filtered[0],
     });
   }
-
   return pricingRules;
 }
 
@@ -802,11 +797,9 @@ export function canApplyPricingRule(
   }
   return true;
 }
-
 export function getPricingRulesConflicts(
-  pricingRules: PricingRule[],
-  item: string
-): string[] | undefined {
+  pricingRules: PricingRule[]
+): undefined | boolean {
   const pricingRuleDocs = Array.from(pricingRules);
 
   const firstPricingRule = pricingRuleDocs.shift();
@@ -827,13 +820,7 @@ export function getPricingRulesConflicts(
     return;
   }
 
-  throw new ValidationError(
-    t`Pricing Rules ${
-      firstPricingRule.name as string
-    }, ${conflictingPricingRuleNames.join(
-      ', '
-    )} has the same Priority for the Item ${item}.`
-  );
+  return true;
 }
 
 export function roundFreeItemQty(
