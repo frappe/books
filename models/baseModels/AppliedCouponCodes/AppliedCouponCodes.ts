@@ -4,6 +4,8 @@ import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
+import { getApplicableCouponCodesName } from 'models/helpers';
+import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 
 export class AppliedCouponCodes extends InvoiceItem {
   coupons?: string;
@@ -20,10 +22,23 @@ export class AppliedCouponCodes extends InvoiceItem {
           'maxAmount',
           'pricingRule',
           'validFrom',
-          'validTO',
+          'validTo',
         ],
         filters: { name: value as string },
       });
+
+      const applicableCouponCodesNames = await getApplicableCouponCodesName(
+        value as string,
+        this.parentdoc as SalesInvoice
+      );
+
+      if (!applicableCouponCodesNames?.length) {
+        throw new ValidationError(
+          this.fyo.t`Coupon ${
+            value as string
+          } is not applicable for applied items.`
+        );
+      }
 
       const couponExist = this.parentdoc?.coupons?.some(
         (coupon) => coupon?.coupons === value

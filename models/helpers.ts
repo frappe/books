@@ -29,6 +29,7 @@ import { CollectionRulesItems } from './baseModels/CollectionRulesItems/Collecti
 import { isPesa } from 'fyo/utils';
 import { Party } from './baseModels/Party/Party';
 import { CouponCode } from './baseModels/CouponCode/CouponCode';
+import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -964,6 +965,41 @@ export function canApplyCouponCode(
   }
 
   return true;
+}
+
+export async function getApplicableCouponCodesName(
+  couponName: string,
+  sinvDoc: SalesInvoice
+) {
+  const couponCodeDatas = (await sinvDoc.fyo.db.getAll(
+    ModelNameEnum.CouponCode,
+    {
+      fields: ['*'],
+      filters: {
+        name: couponName,
+        isEnabled: true,
+      },
+    }
+  )) as CouponCode[];
+
+  if (!couponCodeDatas || couponCodeDatas.length === 0) {
+    return [];
+  }
+
+  const applicablePricingRules = await getPricingRule(sinvDoc);
+
+  if (!applicablePricingRules?.length) {
+    return [];
+  }
+
+  return applicablePricingRules
+    ?.filter(
+      (rule) => rule?.pricingRule?.name === couponCodeDatas[0].pricingRule
+    )
+    .map((rule) => ({
+      pricingRule: rule.pricingRule.name,
+      coupon: couponCodeDatas[0].name,
+    }));
 }
 
 export function getPricingRulesConflicts(
