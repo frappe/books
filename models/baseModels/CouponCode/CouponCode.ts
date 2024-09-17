@@ -9,6 +9,7 @@ import {
 import { ValidationError } from 'fyo/utils/errors';
 import { t } from 'fyo';
 import { Money } from 'pesa';
+import { ModelNameEnum } from 'models/types';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 import { ApplicableCouponCodes } from '../Invoice/types';
 
@@ -46,14 +47,32 @@ export class CouponCode extends Doc {
     },
   };
 
+  async pricingRuleData() {
+    return await this.fyo.db.getAll(ModelNameEnum.PricingRule, {
+      fields: ['minAmount', 'maxAmount', 'validFrom', 'validFrom'],
+      filters: {
+        name: this.pricingRule as string,
+      },
+    });
+  }
+
   validations: ValidationMap = {
-    minAmount: (value: DocValue) => {
-      if (!value || !this.maxAmount) {
+    minAmount: async (value: DocValue) => {
+      if (!value || !this.maxAmount || !this.pricingRule) {
         return;
       }
 
+      const [pricingRuleData] = await this.pricingRuleData();
+      const { minAmount } = pricingRuleData;
+
       if ((value as Money).isZero() && this.maxAmount.isZero()) {
         return;
+      }
+
+      if ((value as Money).lt(minAmount as Money)) {
+        throw new ValidationError(
+          t`Minimum Amount should be greather than the Pricing Rule's Minimum Amount.`
+        );
       }
 
       if ((value as Money).gte(this.maxAmount)) {
@@ -62,13 +81,22 @@ export class CouponCode extends Doc {
         );
       }
     },
-    maxAmount: (value: DocValue) => {
-      if (!this.minAmount || !value) {
+    maxAmount: async (value: DocValue) => {
+      if (!this.minAmount || !value || !this.pricingRule) {
         return;
       }
 
+      const [pricingRuleData] = await this.pricingRuleData();
+      const { maxAmount } = pricingRuleData;
+
       if (this.minAmount.isZero() && (value as Money).isZero()) {
         return;
+      }
+
+      if ((value as Money).gt(maxAmount as Money)) {
+        throw new ValidationError(
+          t`Maximum Amount should be lesser than Pricing Rule's Maximum Amount`
+        );
       }
 
       if ((value as Money).lte(this.minAmount)) {
@@ -77,23 +105,47 @@ export class CouponCode extends Doc {
         );
       }
     },
-    validFrom: (value: DocValue) => {
-      if (!value || !this.validTo) {
+    validFrom: async (value: DocValue) => {
+      if (!value || !this.validTo || !this.pricingRule) {
         return;
       }
 
-      if ((value as Date).toISOString() > this.validTo.toISOString()) {
+      const [pricingRuleData] = await this.pricingRuleData();
+      const { validFrom } = pricingRuleData;
+
+      if (
+        validFrom &&
+        (value as Date).toISOString() < (validFrom as Date).toISOString()
+      ) {
         throw new ValidationError(
           t`Valid From Date should be less than Valid To Date.`
         );
       }
+
+      if ((value as Date).toISOString() >= this.validTo.toISOString()) {
+        throw new ValidationError(
+          t`Valid From Date should be greather than Pricing Rule's Valid From Date.`
+        );
+      }
     },
-    validTo: (value: DocValue) => {
-      if (!this.validFrom || !value) {
+    validTo: async (value: DocValue) => {
+      if (!this.validFrom || !value || !this.pricingRule) {
         return;
       }
 
-      if ((value as Date).toISOString() < this.validFrom.toISOString()) {
+      const [pricingRuleData] = await this.pricingRuleData();
+      const { validTo } = pricingRuleData;
+
+      if (
+        validTo &&
+        (value as Date).toISOString() > (validTo as Date).toISOString()
+      ) {
+        throw new ValidationError(
+          t`Valid To Date should be lesser than Pricing Rule's Valid To Date.`
+        );
+      }
+
+      if ((value as Date).toISOString() <= this.validFrom.toISOString()) {
         throw new ValidationError(
           t`Valid To Date should be greater than Valid From Date.`
         );
