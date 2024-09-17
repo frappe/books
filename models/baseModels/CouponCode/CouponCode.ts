@@ -9,6 +9,8 @@ import {
 import { ValidationError } from 'fyo/utils/errors';
 import { t } from 'fyo';
 import { Money } from 'pesa';
+import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
+import { ApplicableCouponCodes } from '../Invoice/types';
 
 export class CouponCode extends Doc {
   name?: string;
@@ -20,6 +22,20 @@ export class CouponCode extends Doc {
 
   minAmount?: Money;
   maxAmount?: Money;
+
+  removeUnusedCoupons(coupons: ApplicableCouponCodes[], sinvDoc: SalesInvoice) {
+    if (!coupons.length) {
+      sinvDoc.coupons = [];
+
+      return;
+    }
+
+    sinvDoc.coupons = sinvDoc.coupons!.filter((coupon) => {
+      return coupons.find((c: ApplicableCouponCodes) =>
+        coupon?.coupons?.includes(c?.coupon)
+      );
+    });
+  }
 
   formulas: FormulaMap = {
     name: {

@@ -18,6 +18,7 @@ import {
   createLoyaltyPointEntry,
   filterPricingRules,
   getAddedLPWithGrandTotal,
+  getApplicableCouponCodesName,
   getExchangeRate,
   getNumberSeries,
   getPricingRulesConflicts,
@@ -40,11 +41,14 @@ import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { ReturnDocItem } from 'models/inventory/types';
 import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
 import { PricingRule } from '../PricingRule/PricingRule';
-import { ApplicablePricingRules } from './types';
+import { ApplicableCouponCodes, ApplicablePricingRules } from './types';
 import { PricingRuleDetail } from '../PricingRuleDetail/PricingRuleDetail';
 import { LoyaltyProgram } from '../LoyaltyProgram/LoyaltyProgram';
 import { AppliedCouponCodes } from '../AppliedCouponCodes/AppliedCouponCodes';
 import { CouponCode } from '../CouponCode/CouponCode';
+import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
+import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
+import { PriceListItem } from '../PriceList/PriceListItem';
 
 export type TaxDetail = {
   account: string;
@@ -1039,6 +1043,31 @@ export abstract class Invoice extends Transactional {
     } else {
       this.clearFreeItems();
     }
+
+    if (!this.coupons?.length) {
+      return;
+    }
+
+    const applicableCouponCodes = await Promise.all(
+      this.coupons?.map(async (coupon) => {
+        return await getApplicableCouponCodesName(
+          coupon.coupons as string,
+          this as SalesInvoice
+        );
+      })
+    );
+
+    const flattedApplicableCouponCodes = applicableCouponCodes?.flat();
+
+    const couponCodeDoc = (await this.fyo.doc.getDoc(
+      ModelNameEnum.CouponCode,
+      this.coupons[0].coupons
+    )) as CouponCode;
+
+    couponCodeDoc.removeUnusedCoupons(
+      flattedApplicableCouponCodes as ApplicableCouponCodes[],
+      this as SalesInvoice
+    );
   }
 
   async beforeCancel(): Promise<void> {
@@ -1263,6 +1292,21 @@ export abstract class Invoice extends Transactional {
     }
   }
 
+  async getPricingRuleDocNames(
+    item: SalesInvoiceItem,
+    sinvDoc: SalesInvoice
+  ): Promise<string[]> {
+    const docs = (await sinvDoc.fyo.db.getAll(ModelNameEnum.PricingRuleItem, {
+      fields: ['parent'],
+      filters: {
+        item: item.item as string,
+        unit: item.unit as string,
+      },
+    })) as PriceListItem[];
+
+    return docs.map((doc) => doc.parent) as string[];
+  }
+
   async getPricingRule(): Promise<ApplicablePricingRules[] | undefined> {
     if (!this.isSales || !this.items) {
       return;
@@ -1292,15 +1336,10 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
-      const pricingRuleDocNames = (
-        await this.fyo.db.getAll(ModelNameEnum.PricingRuleItem, {
-          fields: ['parent'],
-          filters: {
-            item: item.item as string,
-            unit: item.unit as string,
-          },
-        })
-      ).map((doc) => doc.parent) as string[];
+      const pricingRuleDocNames = await this.getPricingRuleDocNames(
+        item,
+        this as SalesInvoice
+      );
 
       if (!pricingRuleDocNames.length) {
         continue;
@@ -1324,6 +1363,10 @@ export abstract class Invoice extends Transactional {
             .filter((val) =>
               pricingRuleDocNames.includes(val as string)
             ) as string[];
+
+          if (!couponPricingRuleDocNames.length) {
+            continue;
+          }
 
           const filtered = canApplyCouponCode(
             couponCodeDatas[0] as CouponCode,

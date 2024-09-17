@@ -2,10 +2,6 @@ import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { ModelNameEnum } from 'models/types';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
-import {
-  assertDoesNotThrow,
-  assertThrows,
-} from 'backend/database/tests/helpers';
 import { getItem } from 'models/inventory/tests/helpers';
 import { PricingRule } from '../PricingRule/PricingRule';
 
@@ -104,7 +100,7 @@ test('disabled pricing rule is not applied', async (t) => {
   await sinv.append('items', { item: itemMap.Jacket.name, quantity: 5 });
   await sinv.runFormulas();
 
-  t.equal(sinv.pricingRuleDetail?.length, undefined);
+  t.equal(sinv.pricingRuleDetail?.length, 0);
 });
 
 test('pricing rule is applied when filtered by min and max qty', async (t) => {
