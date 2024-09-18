@@ -916,7 +916,7 @@ export function canApplyPricingRule(
   ) {
     return false;
   }
-  
+
   if (
     pricingRuleDoc.validTo &&
     new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
