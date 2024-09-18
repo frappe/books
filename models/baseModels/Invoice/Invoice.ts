@@ -236,6 +236,10 @@ export abstract class Invoice extends Transactional {
 
     await this._updateIsItemsReturned();
     await this._createLoyaltyPointEntry();
+
+    if (this.schemaName === ModelNameEnum.SalesInvoice) {
+      this.updateUsedCountOfCoupons();
+    }
   }
 
   async afterCancel() {
@@ -551,6 +555,17 @@ export abstract class Invoice extends Transactional {
 
     await newReturnDoc.runFormulas();
     return newReturnDoc;
+  }
+
+  updateUsedCountOfCoupons() {
+    this.coupons?.map(async (coupon) => {
+      const couponDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.CouponCode,
+        coupon.coupons
+      );
+
+      await couponDoc.setAndSync({ used: (couponDoc.used as number) + 1 });
+    });
   }
 
   async _updateIsItemsReturned() {

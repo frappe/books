@@ -23,9 +23,17 @@ export class AppliedCouponCodes extends InvoiceItem {
           'pricingRule',
           'validFrom',
           'validTo',
+          'maximumUse',
+          'used',
         ],
         filters: { name: value as string },
       });
+
+      if ((coupon[0]?.maximumUse as number) <= (coupon[0]?.used as number)) {
+        throw new ValidationError(
+          'Coupon code has been used maximum number of times'
+        );
+      }
 
       const applicableCouponCodesNames = await getApplicableCouponCodesName(
         value as string,
