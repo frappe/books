@@ -21,7 +21,7 @@
   <div class="overflow-y-auto" style="height: 80vh">
     <Row
       v-if="items"
-      v-for="row in items"
+      v-for="row in items as any"
       :ratio="ratio"
       :border="true"
       class="
@@ -35,7 +35,7 @@
         px-2
         w-full
       "
-      @click="handleChange(row as POSItem)"
+      @click="handleChange(row)"
     >
       <FormControl
         v-for="df in tableFields"
@@ -54,32 +54,17 @@
 import FormControl from '../Controls/FormControl.vue';
 import Row from 'src/components/Row.vue';
 import { isNumeric } from 'src/utils';
-import { inject } from 'vue';
-import { fyo } from 'src/initFyo';
 import { defineComponent } from 'vue';
-import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
-import { ItemQtyMap } from './types';
-import { Item } from 'models/baseModels/Item/Item';
 import { POSItem } from './types';
-import { Money } from 'pesa';
 
 export default defineComponent({
   name: 'ItemsTable',
   components: { FormControl, Row },
   emits: ['addItem', 'updateValues'],
-  async mounted() {
-    await this.setItems();
-  },
-  setup() {
-    return {
-      itemQtyMap: inject('itemQtyMap') as ItemQtyMap,
-    };
-  },
-  data() {
-    return {
-      items: [] as POSItem[],
-    };
+  props: {
+    items: Array,
+    itemQtyMap: Object,
   },
   computed: {
     ratio() {
@@ -119,46 +104,7 @@ export default defineComponent({
       ] as Field[];
     },
   },
-  watch: {
-    itemQtyMap: {
-      async handler() {
-        this.setItems();
-      },
-      deep: true,
-    },
-  },
-  async activated() {
-    await this.setItems();
-  },
   methods: {
-    async setItems() {
-      const items = (await fyo.db.getAll(ModelNameEnum.Item, {
-        fields: [],
-        filters: { trackItem: true },
-      })) as Item[];
-
-      this.items = [] as POSItem[];
-      for (const item of items) {
-        let availableQty = 0;
-
-        if (!!this.itemQtyMap[item.name as string]) {
-          availableQty = this.itemQtyMap[item.name as string].availableQty;
-        }
-
-        if (!item.name) {
-          return;
-        }
-
-        this.items.push({
-          availableQty,
-          name: item.name,
-          rate: item.rate as Money,
-          unit: item.unit as string,
-          hasBatch: !!item.hasBatch,
-          hasSerialNumber: !!item.hasSerialNumber,
-        });
-      }
-    },
     handleChange(value: POSItem) {
       this.$emit('addItem', value);
       this.$emit('updateValues');

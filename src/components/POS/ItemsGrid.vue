@@ -22,9 +22,7 @@
         class="border border-gray-300 p-1 flex flex-col text-sm text-center"
         @click="handleChange(item as POSItem)"
       >
-        <div
-          class="self-center w-32 h-32 rounded-lg mb-1"
-        >
+        <div class="self-center w-32 h-32 rounded-lg mb-1">
           <div class="relative">
             <img
               v-if="item.image"
@@ -34,7 +32,15 @@
             />
             <div
               v-else
-              class="rounded-lg w-32 h-32 flex bg-gray-100 justify-center items-center"
+              class="
+                rounded-lg
+                w-32
+                h-32
+                flex
+                bg-gray-100
+                justify-center
+                items-center
+              "
             >
               <p class="text-4xl font-semibold text-gray-400">
                 {{ getExtractedWords(item.name) }}
@@ -66,70 +72,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from 'vue';
+import { defineComponent } from 'vue';
 import { fyo } from 'src/initFyo';
-import { ModelNameEnum } from 'models/types';
-import { Item } from 'models/baseModels/Item/Item';
-import { ItemQtyMap, POSItem } from './types';
-import { Money } from 'pesa';
+import { POSItem } from './types';
 
 export default defineComponent({
   name: 'ItemsGrid',
   emits: ['addItem', 'updateValues'],
-  setup() {
-    return {
-      itemQtyMap: inject('itemQtyMap') as ItemQtyMap,
-    };
-  },
-  data() {
-    return {
-      items: [] as POSItem[],
-    };
-  },
-  async mounted() {
-    await this.setItems();
-  },
-  watch: {
+  props: {
+    items: {
+      type: Array,
+    },
     itemQtyMap: {
-      async handler() {
-        this.setItems();
-      },
-      deep: true,
+      type: Object,
     },
   },
   methods: {
-    async setItems() {
-      console.log('setItems');
-
-      const items = (await fyo.db.getAll(ModelNameEnum.Item, {
-        fields: [],
-        filters: { trackItem: true },
-      })) as Item[];
-
-      this.items = [] as POSItem[];
-      for (const item of items) {
-        let availableQty = 0;
-
-        if (!!this.itemQtyMap[item.name as string]) {
-          availableQty = this.itemQtyMap[item.name as string].availableQty;
-        }
-
-        if (!item.name) {
-          return;
-        }
-
-        this.items.push({
-          availableQty,
-          image: item?.image as string,
-          name: item.name,
-          rate: item.rate as Money,
-          unit: item.unit as string,
-          hasBatch: !!item.hasBatch,
-          hasSerialNumber: !!item.hasSerialNumber,
-        });
-      }
-      console.log(this.items, 'this.items');
-    },
     getExtractedWords(item: string) {
       const initials = item.split(' ').map((word) => {
         return word[0].toUpperCase();

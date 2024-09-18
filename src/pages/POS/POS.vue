@@ -68,8 +68,18 @@
             />
           </div>
 
-          <ItemsTable v-if="tableView" @add-item="addItem" />
-          <ItemsGrid v-else @add-item="addItem" />
+          <ItemsTable
+            v-if="tableView"
+            :items="items"
+            :item-qty-map="itemQtyMap"
+            @add-item="addItem"
+          />
+          <ItemsGrid
+            v-else
+            :items="items"
+            :item-qty-map="itemQtyMap"
+            @add-item="addItem"
+          />
           <div
             class="bg-gray-100 p-2 fixed bottom-0 mb-7 rounded-md"
             @click="toggleView"
@@ -263,6 +273,8 @@ export default defineComponent({
   },
   data() {
     return {
+      items: [] as POSItem[],
+
       tableView: true,
 
       isItemsSeeded: false,
@@ -326,19 +338,52 @@ export default defineComponent({
       deep: true,
     },
   },
+  async mounted() {
+    await this.setItems();
+  },
   async activated() {
     toggleSidebar(false);
     validateIsPosSettingsSet(fyo);
     this.setSinvDoc();
     this.setDefaultCustomer();
     await this.setItemQtyMap();
+    await this.setItems();
   },
   deactivated() {
     toggleSidebar(true);
   },
   methods: {
+    async setItems() {
+      const items = (await fyo.db.getAll(ModelNameEnum.Item, {
+        fields: [],
+        filters: { trackItem: true },
+      })) as Item[];
+
+      this.items = [] as POSItem[];
+      for (const item of items) {
+        let availableQty = 0;
+
+        if (!!this.itemQtyMap[item.name as string]) {
+          availableQty = this.itemQtyMap[item.name as string].availableQty;
+        }
+
+        if (!item.name) {
+          return;
+        }
+
+        this.items.push({
+          availableQty,
+          name: item.name,
+          image: item?.image as string,
+          rate: item.rate as Money,
+          unit: item.unit as string,
+          hasBatch: !!item.hasBatch,
+          hasSerialNumber: !!item.hasSerialNumber,
+        });
+      }
+    },
     toggleView() {
-      this.tableView = !this.tableView; // Toggle between table and grid view
+      this.tableView = !this.tableView;
     },
     setCashAmount(amount: Money) {
       this.cashAmount = amount;
