@@ -17,24 +17,24 @@
     <!-- Items Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
       <div
-        v-for="item in items"
+        v-for="item in items as POSItem[]"
         :key="item.name"
         class="border border-gray-300 p-1 flex flex-col text-sm text-center"
         @click="handleChange(item as POSItem)"
       >
         <div
-          class="self-center w-32 h-32 border border-gray-200 rounded-lg mb-2"
+          class="self-center w-32 h-32 rounded-lg mb-1"
         >
           <div class="relative">
             <img
               v-if="item.image"
               :src="item.image"
-              alt="hii"
-              class="rounded-lg shadow-sm w-32 h-32 object-cover"
+              alt=""
+              class="rounded-lg w-32 h-32 object-cover"
             />
             <div
               v-else
-              class="rounded-lg w-32 h-32 flex justify-center items-center"
+              class="rounded-lg w-32 h-32 flex bg-gray-100 justify-center items-center"
             >
               <p class="text-4xl font-semibold text-gray-400">
                 {{ getExtractedWords(item.name) }}
@@ -52,16 +52,14 @@
             </p>
           </div>
         </div>
-        <h3 class="text-lg font-medium mb-1">{{ item.name }}</h3>
+        <h3 class="text-lg font-medium">{{ item.name }}</h3>
 
-        <p class="text-lg font-semibold mb-1">
+        <p class="text-lg font-medium">
           {{
             item.rate ? fyo.currencySymbols[item.rate.getCurrency()] : undefined
           }}
           {{ item.rate }}
         </p>
-
-        <p class="font-medium">{{ item.unit }}</p>
       </div>
     </div>
   </div>
