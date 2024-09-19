@@ -5,17 +5,28 @@
     </div>
     <input
       v-show="showInput"
+      :id="componentID"
       ref="input"
       :class="[inputClasses, containerClasses]"
-      :type="inputType"
+      type="text"
       :value="inputValue"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
       :tabindex="isReadOnly ? '-1' : '0'"
-      @blur="onBlur"
-      @focus="onFocus"
-      @input="(e) => $emit('input', e)"
     />
+
+    <date-picker 
+      v-show="showInput"
+      ref="persianDatePicker"
+      @close="showInput=false"
+      @change="onChange"
+      v-model="selectedDate"
+      format="YYYY-MM-DD"
+      :show = "showInput"
+      :custom-input="datePickerID"
+      locale="fa,en"
+    />
+    
     <div
       v-show="!showInput"
       class="flex"
@@ -50,17 +61,29 @@
 <script lang="ts">
 import { DateTime } from 'luxon';
 import { fyo } from 'src/initFyo';
-import { defineComponent, nextTick } from 'vue';
+import { defineComponent, nextTick} from 'vue';
 import Base from './Base.vue';
+import DatePicker from 'vue3-persian-datetime-picker';
+
+let uidCounter = 0;
 
 export default defineComponent({
   extends: Base,
+  name: "Date",
   emits: ['input', 'focus'],
   data() {
     return {
       showInput: false,
+      selectedDate: this.value,
+      componentID: '',
+      datePickerID: '',
     };
   },
+  mounted (){
+    this.componentID = this.$options.name + '-' + uidCounter++;
+    this.datePickerID = '#' + this.componentID;
+  },
+  components: { DatePicker },
   computed: {
     inputValue(): string {
       let value = this.value;
@@ -79,7 +102,8 @@ export default defineComponent({
     },
     formattedValue() {
       const value = this.parse(this.value);
-      return fyo.format(value, this.df, this.doc);
+      //return fyo.format(value, this.df, this.doc);
+      return new Date(fyo.format(value, this.df, this.doc)).toLocaleDateString('fa-IR');
     },
     borderClasses(): string {
       if (!this.border) {
@@ -100,6 +124,15 @@ export default defineComponent({
     },
   },
   methods: {
+    onChange(e: Event){
+      const target = e.target;
+      this.showInput = false;
+      let value: Date | null = DateTime.fromISO(e.toISOString()).toJSDate();
+      if (Number.isNaN(value.valueOf())) {
+        value = null;
+      }
+      this.triggerChange(value);      
+    },
     onFocus(e: FocusEvent) {
       const target = e.target;
       if (!(target instanceof HTMLInputElement)) {
@@ -134,7 +167,7 @@ export default defineComponent({
         this.focus();
 
         // @ts-ignore
-        this.$refs.input.showPicker();
+        //this.$refs.input.showPicker();
       });
     },
   },

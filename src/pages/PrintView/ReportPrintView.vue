@@ -59,7 +59,7 @@
 
             <div class="border-t p-2">
               <p class="text-xs text-right w-full">
-                {{ fyo.format(new Date(), 'Datetime') }}
+                {{ new Date(fyo.format(new Date(), 'Datetime')).toLocaleDateString('fa-IR') }}
               </p>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default defineComponent({
         return;
       }
 
-      const name = this.title + ' - ' + this.fyo.format(new Date(), 'Date');
+      const name = this.title + ' - ' + new Date(this.fyo.format(new Date(), 'Date')).toLocaleDateString('fa-IR');
       await getPathAndMakePDF(
         name,
         innerHTML,

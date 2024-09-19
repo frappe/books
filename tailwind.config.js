@@ -8,7 +8,7 @@ module.exports = {
   purge: false,
   theme: {
     fontFamily: {
-      sans: ['Inter', 'sans-serif'],
+      sans: ['Vazirmatn UI FD', 'Tahoma'],
     },
     screens: {
       sm: '640px',

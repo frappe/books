@@ -225,7 +225,7 @@ export class Fyo {
 
   store = {
     isDevelopment: false,
-    skipTelemetryLogging: false,
+    skipTelemetryLogging: true,
     appVersion: '',
     platform: '',
     language: '',

@@ -74,7 +74,7 @@
               "
               :class="[getCellColorClass(cell)]"
             >
-              {{ cell.value }}
+              {{ (cell.rawValue instanceof Date) ? new Date(cell.value).toLocaleDateString('fa-IR') : cell.value }}
             </div>
           </div>
         </template>
