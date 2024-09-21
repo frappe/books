@@ -47,7 +47,9 @@
           <path
             d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
             class="stroke-current"
-            :class="showMandatory ? 'text-red-400' : 'text-gray-400'"
+            :class="
+              showMandatory ? 'text-red-400 dark:text-red-600' : 'text-gray-400'
+            "
             fill="none"
             fill-rule="evenodd"
             stroke-linecap="round"
@@ -70,7 +72,7 @@
             <template #target>
               <feather-icon
                 name="chevron-right"
-                class="w-4 h-4 text-gray-600"
+                class="w-4 h-4 text-gray-600 dark:text-gray-400"
               />
             </template>
             <template #content>

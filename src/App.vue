@@ -1,7 +1,14 @@
 <template>
   <div
     id="app"
-    class="h-screen flex flex-col font-sans overflow-hidden antialiased"
+    class="
+      dark:bg-gray-900
+      h-screen
+      flex flex-col
+      font-sans
+      overflow-hidden
+      antialiased
+    "
     :dir="languageDirection"
     :language="language"
   >
@@ -14,6 +21,7 @@
     <Desk
       v-if="activeScreen === 'Desk'"
       class="flex-1"
+      :darkMode="darkMode"
       @change-db-file="showDbSelector"
     />
     <DatabaseSelector
@@ -61,6 +69,7 @@ import { Search } from './utils/search';
 import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { useKeys } from './utils/vueUtils';
+import { setDarkMode } from 'src/utils/theme';
 
 enum Screen {
   Desk = 'Desk',
@@ -106,10 +115,12 @@ export default defineComponent({
       activeScreen: null,
       dbPath: '',
       companyName: '',
+      darkMode: false,
     } as {
       activeScreen: null | Screen;
       dbPath: string;
       companyName: string;
+      darkMode: boolean | undefined;
     };
   },
   computed: {
@@ -124,6 +135,9 @@ export default defineComponent({
   },
   async mounted() {
     await this.setInitialScreen();
+    const { darkMode } = await fyo.doc.getDoc('SystemSettings');
+    setDarkMode(!!darkMode);
+    this.darkMode = !!darkMode;
   },
   methods: {
     async setInitialScreen(): Promise<void> {

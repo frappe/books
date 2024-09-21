@@ -1,7 +1,18 @@
 <template>
   <Row
     :ratio="ratio"
-    class="border rounded-t px-2 text-gray-600 w-full flex items-center mt-4"
+    class="
+      border
+      dark:border-gray-800
+      rounded-t
+      px-2
+      text-gray-600
+      dark:text-gray-400
+      w-full
+      flex
+      items-center
+      mt-4
+    "
   >
     <div
       v-if="tableFields"
@@ -25,6 +36,7 @@
       :ratio="ratio"
       class="
         border
+        dark:border-gray-800
         w-full
         px-2
         py-2
@@ -33,11 +45,11 @@
         items-center
         justify-center
         hover:bg-gray-25
+        dark:bg-gray-890
       "
     >
       <SelectedItemRow
         :row="(row as SalesInvoiceItem)"
-        @remove-item="removeItem"
         @run-sinv-formulas="runSinvFormulas"
       />
     </Row>
@@ -138,9 +150,6 @@ export default defineComponent({
     },
   },
   methods: {
-    removeItem(idx: number) {
-      this.sinvDoc.remove('items', idx);
-    },
     async runSinvFormulas() {
       await this.sinvDoc.runFormulas();
     },

@@ -102,13 +102,6 @@ export class Main {
       resizable: true,
     };
 
-    if (!this.isMac) {
-      options.titleBarOverlay = {
-        color: '#FFFFFF',
-        height: 26,
-      };
-    }
-
     if (this.isDevelopment || this.isLinux) {
       Object.assign(options, { icon: this.icon });
     }
