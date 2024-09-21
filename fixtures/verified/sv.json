@@ -1,0 +1,136 @@
+{
+  "countryCode": "se",
+  "name": "Sverige - BAS Minimikontoplan",
+  "tree": {
+    "Tillgångar": {
+      "Immateriella anläggningstillgångar": {
+        "accountType": "Fixed Asset"
+      },
+      "Byggnader och markanläggningar": {
+        "accountType": "Fixed Asset"
+      },
+      "Mark": {
+        "accountType": "Fixed Asset"
+      },
+      "Maskiner och inventarier": {
+        "accountType": "Fixed Asset"
+      },
+      "Finansiella anläggningstillgångar": {
+        "accountType": "Fixed Asset"
+      },
+      "Varulager": {
+        "accountType": "Stock"
+      },
+      "Kundfordringar": {
+        "accountType": "Receivable"
+      },
+      "Övriga fordringar": {
+        "accountType": "Receivable"
+      },
+      "Kassa och bank": {
+        "Kassa": {
+          "accountType": "Cash"
+        },
+        "Bank": {
+          "accountType": "Bank"
+        }
+      }
+    },
+    "Eget kapital och Skulder": {
+      "Eget kapital": {
+        "accountType": "Equity"
+      },
+      "Långfristiga Skulder": {
+        "Checkräkningskredit": {
+          "accountType": "Liability"
+        },
+        "Övriga Långfristiga Skulder": {
+          "accountType": "Liability"
+        }
+      },
+      "Kortfristiga skulder till kreditinstitut, kunder och leverantörer": {
+        "Leverantörsskulder": {
+          "accountType": "Liability"
+        }
+      },
+      "Moms och punktskatter": {
+        "Utgående Moms, 25%": {
+          "accountType": "Tax"
+        },
+        "Utgående Moms, 12%": {
+          "accountType": "Tax"
+        },
+        "Utgående Moms, 6%": {
+          "accountType": "Tax"
+        },
+        "Ingående Moms": {
+          "accountType": "Tax"
+        },
+        "Redovisningskonto för moms": {
+          "accountType": "Tax"
+        },
+        
+      },
+      
+      "Övriga skulder": {
+        "accountType": "Liability"
+      },
+      "Periodiseringsfonder": {
+          "accountType": "Equity"
+      },
+      "Expansionsfond": {
+          "accountType": "Equity"
+      },
+      "Ersättningsfonder": {
+          "accountType": "Equity"
+      },
+      "Insatsemission, skogskonto, upphovsmannakonto, avbetalningsplan på skog och dylikt.": {
+          "accountType": "Equity"
+      },
+    },
+    "Rörelsens inkomster/intäkter": {
+      "Huvudintäkter": {
+        "Försäljning inom Sverige": {
+          "accountType": "Income"
+        },
+      },
+      "Momsfria intäkter": {
+        "Försäljning av varor utanför Sverige": {
+          "accountType": "Income"
+        },
+      },
+      "Försäljning VMB och omvänd moms": {
+          "accountType": "Income"
+        },
+      "Intäktskorrigeringar": {
+          "accountType": "Income"
+        },
+      "Övriga rörelseintäkter": {
+          "accountType": "Income"
+        },
+      "Ränteintäkter": {
+        "accountType": "Income"
+      },
+    },
+    "Kostnader": {
+      "Inköp av varor från Sverige": {
+        "accountType": "Expense"
+      },
+      "Övriga externa kostnader": {
+        "accountType": "Expense"
+      },
+      "Löner till kolektivanställda": {
+        "accountType": "Expense"
+      },
+      "Räntekostnader för långfristiga skulder": {
+        "accountType": "Expense"
+      },
+      "Avskrivningar och nedskrivningar av byggnader och markanläggningar": {
+        "accountType": "Depreciation"
+      },
+      "Avskrivningar och nedskrivningar av maskiner och inventarier och immateriella tillgångar": {
+        "accountType": "Depreciation"
+      }
+    }
+  }
+}
