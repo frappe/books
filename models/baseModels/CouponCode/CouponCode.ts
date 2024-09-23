@@ -63,6 +63,14 @@ export class CouponCode extends Doc {
       }
 
       const [pricingRuleData] = await this.pricingRuleData();
+
+      if (
+        (pricingRuleData?.minAmount as Money).isZero() &&
+        (pricingRuleData.maxAmount as Money).isZero()
+      ) {
+        return;
+      }
+
       const { minAmount } = pricingRuleData;
 
       if ((value as Money).isZero() && this.maxAmount.isZero()) {
@@ -87,6 +95,14 @@ export class CouponCode extends Doc {
       }
 
       const [pricingRuleData] = await this.pricingRuleData();
+
+      if (
+        (pricingRuleData?.minAmount as Money).isZero() &&
+        (pricingRuleData.maxAmount as Money).isZero()
+      ) {
+        return;
+      }
+
       const { maxAmount } = pricingRuleData;
 
       if (this.minAmount.isZero() && (value as Money).isZero()) {
