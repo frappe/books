@@ -25,9 +25,16 @@ export class AppliedCouponCodes extends InvoiceItem {
           'validTo',
           'maximumUse',
           'used',
+          'isEnabled',
         ],
         filters: { name: value as string },
       });
+
+      if (!coupon[0].isEnabled) {
+        throw new ValidationError(
+          'Coupon code cannot be applied as it is not enabled'
+        );
+      }
 
       if ((coupon[0]?.maximumUse as number) <= (coupon[0]?.used as number)) {
         throw new ValidationError(

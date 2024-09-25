@@ -49,7 +49,7 @@ export class CouponCode extends Doc {
 
   async pricingRuleData() {
     return await this.fyo.db.getAll(ModelNameEnum.PricingRule, {
-      fields: ['minAmount', 'maxAmount', 'validFrom', 'validFrom'],
+      fields: ['minAmount', 'maxAmount', 'validFrom', 'validTo'],
       filters: {
         name: this.pricingRule as string,
       },
@@ -127,20 +127,24 @@ export class CouponCode extends Doc {
       }
 
       const [pricingRuleData] = await this.pricingRuleData();
-      const { validFrom } = pricingRuleData;
 
+      if (!pricingRuleData?.validFrom && !pricingRuleData.validTo) {
+        return;
+      }
+
+      const { validFrom } = pricingRuleData;
       if (
         validFrom &&
         (value as Date).toISOString() < (validFrom as Date).toISOString()
       ) {
         throw new ValidationError(
-          t`Valid From Date should be less than Valid To Date.`
+          t`Valid From Date should be greather than Pricing Rule's Valid From Date.`
         );
       }
 
       if ((value as Date).toISOString() >= this.validTo.toISOString()) {
         throw new ValidationError(
-          t`Valid From Date should be greather than Pricing Rule's Valid From Date.`
+          t`Valid From Date should be less than Valid To Date.`
         );
       }
     },
@@ -150,6 +154,11 @@ export class CouponCode extends Doc {
       }
 
       const [pricingRuleData] = await this.pricingRuleData();
+
+      if (!pricingRuleData?.validFrom && !pricingRuleData.validTo) {
+        return;
+      }
+
       const { validTo } = pricingRuleData;
 
       if (
