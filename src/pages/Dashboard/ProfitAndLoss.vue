@@ -15,8 +15,8 @@
       class="mt-4"
       :aspect-ratio="2.05"
       :colors="chartData.colors"
-      :gridColor="chartData.gridColor"
-      :fontColor="chartData.fontColor"
+      :grid-color="chartData.gridColor"
+      :font-color="chartData.fontColor"
       :points="chartData.points"
       :x-labels="chartData.xLabels"
       :format="chartData.format"
@@ -55,10 +55,10 @@ export default defineComponent({
     SectionHeader,
     BarChart,
   },
+  extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
   },
-  extends: DashboardChartBase,
   data: () => ({
     data: [] as { yearmonth: string; balance: number }[],
     hasData: false,

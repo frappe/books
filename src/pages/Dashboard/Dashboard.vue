@@ -31,7 +31,7 @@
         <Cashflow
           class="p-4"
           :common-period="period"
-          :darkMode="darkMode"
+          :dark-mode="darkMode"
           @period-change="handlePeriodChange"
         />
         <hr class="dark:border-gray-800" />
@@ -39,14 +39,14 @@
           <UnpaidInvoices
             :schema-name="'SalesInvoice'"
             :common-period="period"
-            :darkMode="darkMode"
+            :dark-mode="darkMode"
             class="border-e dark:border-gray-800"
             @period-change="handlePeriodChange"
           />
           <UnpaidInvoices
             :schema-name="'PurchaseInvoice'"
             :common-period="period"
-            :darkMode="darkMode"
+            :dark-mode="darkMode"
             @period-change="handlePeriodChange"
           />
         </div>
@@ -55,13 +55,13 @@
           <ProfitAndLoss
             class="w-full p-4 border-e dark:border-gray-800"
             :common-period="period"
-            :darkMode="darkMode"
+            :dark-mode="darkMode"
             @period-change="handlePeriodChange"
           />
           <Expenses
             class="w-full p-4"
             :common-period="period"
-            :darkMode="darkMode"
+            :dark-mode="darkMode"
             @period-change="handlePeriodChange"
           />
         </div>
