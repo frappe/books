@@ -15,7 +15,7 @@ import { toggleSidebar } from 'src/utils/ui';
           whitespace-nowrap
           w-sidebar
         "
-        :darkMode="darkMode"
+        :dark-mode="darkMode"
         @change-db-file="$emit('change-db-file')"
       />
     </Transition>
@@ -34,7 +34,7 @@ import { toggleSidebar } from 'src/utils/ui';
           <component
             :is="Component"
             :key="$route.path"
-            :darkMode="darkMode"
+            :dark-mode="darkMode"
             class="flex-1"
           />
         </keep-alive>
@@ -46,7 +46,7 @@ import { toggleSidebar } from 'src/utils/ui';
             <component
               :is="Component"
               :key="route.query.schemaName + route.query.name"
-              :darkMode="darkMode"
+              :dark-mode="darkMode"
             />
           </div>
         </Transition>
