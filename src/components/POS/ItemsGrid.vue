@@ -42,7 +42,7 @@
                 items-center
               "
             >
-              <p class="text-4xl font-semibold text-gray-400">
+              <p class="text-4xl font-semibold text-gray-400 select-none">
                 {{ getExtractedWords(item.name) }}
               </p>
             </div>
