@@ -38,8 +38,8 @@
       class="mt-4"
       :aspect-ratio="4.15"
       :colors="chartData.colors"
-      :gridColor="chartData.gridColor"
-      :fontColor="chartData.fontColor"
+      :grid-color="chartData.gridColor"
+      :font-color="chartData.fontColor"
       :points="chartData.points"
       :x-labels="chartData.xLabels"
       :format="chartData.format"
@@ -76,10 +76,10 @@ export default defineComponent({
     PeriodSelector,
     LineChart,
   },
+  extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
   },
-  extends: DashboardChartBase,
   data: () => ({
     data: [] as { inflow: number; outflow: number; yearmonth: string }[],
     periodList: [],

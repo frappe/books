@@ -36,7 +36,7 @@ const ipc = {
   },
 
   isMaximized() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       ipcRenderer.send(IPC_MESSAGES.ISMAXIMIZED_MAIN_WINDOW);
       ipcRenderer.once(
         IPC_MESSAGES.ISMAXIMIZED_RESULT,
@@ -48,7 +48,7 @@ const ipc = {
   },
 
   isFullscreen() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       ipcRenderer.send(IPC_MESSAGES.ISFULLSCREEN_MAIN_WINDOW);
       ipcRenderer.once(
         IPC_MESSAGES.ISFULLSCREEN_RESULT,
