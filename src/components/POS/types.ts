@@ -11,6 +11,7 @@ export type DiscountType = "percent" | "amount";
 export type ModalName = 'ShiftOpen' | 'ShiftClose' | 'Payment'
 
 export interface POSItem {
+    image?:string,
     name: string,
     rate: Money,
     availableQty: number,
