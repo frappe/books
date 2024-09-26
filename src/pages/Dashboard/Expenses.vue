@@ -36,7 +36,7 @@
         :text-offset-x="6.5"
         :value-formatter="(value: number) => fyo.format(value, 'Currency')"
         :total-label="t`Total Spending`"
-        :darkMode="darkMode"
+        :dark-mode="darkMode"
         @change="(value: number) => (active = value)"
       />
     </div>
@@ -77,10 +77,10 @@ export default defineComponent({
     PeriodSelector,
     SectionHeader,
   },
+  extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
   },
-  extends: DashboardChartBase,
   data: () => ({
     active: null as null | number,
     expenses: [] as {

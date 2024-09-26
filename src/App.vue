@@ -21,7 +21,7 @@
     <Desk
       v-if="activeScreen === 'Desk'"
       class="flex-1"
-      :darkMode="darkMode"
+      :dark-mode="darkMode"
       @change-db-file="showDbSelector"
     />
     <DatabaseSelector
