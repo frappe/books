@@ -27,6 +27,7 @@
       :border="true"
       :value="sinvDoc.loyaltyPoints"
       :df="sinvDoc.fieldMap.loyaltyPoints"
+      @change="updateLoyaltyPoints"
     />
 
     <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto mb-2 px-10">
@@ -34,6 +35,7 @@
         <Button
           class="w-full bg-green-500"
           style="padding: 1.35rem"
+          @click="setLoyaltyPoints()"
           :disabled="validationError"
         >
           <slot>
@@ -110,7 +112,56 @@ export default defineComponent({
     };
   },
   methods: {
-    
+    async updateLoyaltyPoints(newValue: number) {
+      try {
+        if (this.loyaltyPoints >= newValue) {
+          this.sinvDoc.loyaltyPoints = newValue;
+        } else {
+          throw new Error(
+            `${this.sinvDoc.party as string} only has ${
+              this.loyaltyPoints as number
+            } points`
+          );
+        }
+
+        const loyaltyProgramDoc = await this.fyo.db.getAll(
+          ModelNameEnum.LoyaltyProgram,
+          {
+            fields: ['conversionFactor'],
+            filters: { name: this.loyaltyProgram as string },
+          }
+        );
+
+        const loyaltyPoint =
+          newValue * ((loyaltyProgramDoc[0]?.conversionFactor as number) || 0);
+
+        if (this.sinvDoc.baseGrandTotal?.lt(loyaltyPoint)) {
+          throw new Error(
+            t`no need ${newValue as number} points to purchase this item`
+          );
+        }
+        this.validationError = false;
+      } catch (error) {
+        this.validationError = true;
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+
+        return;
+      }
+    },
+    setLoyaltyPoints() {
+      if (
+        !this.sinvDoc.loyaltyPoints ||
+        this.sinvDoc.loyaltyPoints > this.loyaltyPoints
+      ) {
+        return;
+      }
+
+      this.$emit('setLoyaltyPoints', this.sinvDoc.loyaltyPoints);
+      this.$emit('toggleModal', 'LoyaltyProgram');
+    },
   },
 });
 </script>

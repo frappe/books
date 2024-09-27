@@ -27,6 +27,7 @@
       :sinvDoc="sinvDoc"
       :loyalty-points="loyaltyPoints"
       :loyalty-program="loyaltyProgram"
+      @set-loyalty-points="setLoyaltyPoints"
       @toggle-modal="toggleModal"
     />
 
@@ -552,6 +553,23 @@ export default defineComponent({
     },
     setTotalTaxedAmount() {
       this.totalTaxedAmount = getTotalTaxedAmount(this.sinvDoc as SalesInvoice);
+    },
+    async setLoyaltyPoints(value: number) {
+      this.appliedLoyaltyPoints = value;
+
+      this.sinvDoc.redeemLoyaltyPoints = true;
+
+      const totalLotaltyAmount = await getAddedLPWithGrandTotal(
+        this.fyo,
+        this.loyaltyProgram as string,
+        value as number
+      );
+
+      const total = totalLotaltyAmount
+        .sub(this.sinvDoc.baseGrandTotal as Money)
+        .abs();
+
+      this.sinvDoc.grandTotal = total;
     },
     setTransferAmount(amount: Money = fyo.pesa(0)) {
       this.transferAmount = amount;
