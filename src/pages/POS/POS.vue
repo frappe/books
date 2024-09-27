@@ -22,6 +22,14 @@
       @toggle-modal="toggleModal"
     />
 
+    <LoyaltyProgramModal
+      :open-modal="openLoyaltyProgramModal"
+      :sinvDoc="sinvDoc"
+      :loyalty-points="loyaltyPoints"
+      :loyalty-program="loyaltyProgram"
+      @toggle-modal="toggleModal"
+    />
+
     <PaymentModal
       :open-modal="openPaymentModal"
       @create-transaction="createTransaction"
@@ -92,14 +100,89 @@
             :item-qty-map="itemQtyMap"
             @add-item="addItem"
           />
-          <div
-            class="bg-gray-100 p-2 fixed bottom-0 mb-7 rounded-md"
-            @click="toggleView"
-          >
-            <FeatherIcon
-              :name="tableView ? 'grid' : 'list'"
-              class="w-6 h-6 text-black"
-            />
+
+          <div class="flex fixed bottom-0 p-1 mb-7 gap-x-3">
+            <div class="relative group">
+              <div class="bg-gray-100 p-1 rounded-md" @click="toggleView">
+                <FeatherIcon
+                  :name="tableView ? 'grid' : 'list'"
+                  class="w-6 h-6 text-black"
+                />
+              </div>
+              <span
+                class="
+                  absolute
+                  bottom-full
+                  left-1/2
+                  transform
+                  -translate-x-1/2
+                  mb-2
+                  bg-gray-800
+                  text-white text-xs
+                  rounded-md
+                  p-2
+                  w-20
+                  text-center
+                  opacity-0
+                  group-hover:opacity-100
+                  transition-opacity
+                  duration-300
+                "
+              >
+                {{ tableView ? 'Grid View' : 'List View' }}
+              </span>
+            </div>
+
+            <div class="relative group">
+              <div
+                class="p-1 rounded-md bg-gray-100"
+                :class="{
+                  'bg-gray-100': loyaltyPoints,
+                  'bg-gray-600 cursor-not-allowed':
+                    !loyaltyPoints || !sinvDoc.party,
+                }"
+                @click="
+                  loyaltyPoints && sinvDoc.party
+                    ? toggleModal('LoyaltyProgram', true)
+                    : null
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="26px"
+                  viewBox="0 -960 960 960"
+                  width="26px"
+                  fill="#000"
+                >
+                  <path
+                    d="M100-180v-600h760v600H100Zm50.26-50.26h659.48v-499.48H150.26v499.48Zm0 0v-499.48 499.48Zm181.64-56.77h50.25v-42.56h48.67q14.37 0 23.6-10.38 9.22-10.38 9.22-24.25v-106.93q0-14.71-9.22-24.88-9.23-10.17-23.6-10.17H298.77v-73.95h164.87v-50.26h-81.49v-42.56H331.9v42.56h-48.41q-14.63 0-24.8 10.38-10.18 10.38-10.18 25v106.27q0 14.62 10.18 23.71 10.17 9.1 24.8 9.1h129.9v76.1H248.51v50.26h83.39v42.56Zm312.97-27.94L705.9-376H583.85l61.02 61.03ZM583.85-574H705.9l-61.03-61.03L583.85-574Z"
+                  />
+                </svg>
+              </div>
+
+              <span
+                class="
+                  absolute
+                  bottom-full
+                  left-1/2
+                  transform
+                  -translate-x-1/2
+                  mb-2
+                  bg-gray-800
+                  text-white text-xs
+                  rounded-md
+                  p-2
+                  w-28
+                  text-center
+                  opacity-0
+                  group-hover:opacity-100
+                  transition-opacity
+                  duration-300
+                "
+              >
+                Loyalty Program
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -125,7 +208,7 @@
               :border="true"
               :value="sinvDoc.party"
               :df="sinvDoc.fieldMap.party"
-              @change="(value:string) => (sinvDoc.party = value)"
+              @change="(value:string) => setCustomer(value)"
             />
 
             <SelectedItemTable />
@@ -270,7 +353,8 @@ import {
   validateSinv,
 } from 'src/utils/pos';
 import Barcode from 'src/components/Controls/Barcode.vue';
-import { getPricingRule } from 'models/helpers';
+import { getAddedLPWithGrandTotal, getPricingRule } from 'models/helpers';
+import LoyaltyProgramModal from './LoyaltyprogramModal.vue';
 
 export default defineComponent({
   name: 'POS',
@@ -285,6 +369,7 @@ export default defineComponent({
     OpenPOSShiftModal,
     PageHeader,
     PaymentModal,
+    LoyaltyProgramModal,
     SelectedItemTable,
     Barcode,
   },
@@ -311,6 +396,7 @@ export default defineComponent({
 
       isItemsSeeded: false,
       openPaymentModal: false,
+      openLoyaltyProgramModal: false,
       openShiftCloseModal: false,
       openShiftOpenModal: false,
 
@@ -321,6 +407,10 @@ export default defineComponent({
       transferAmount: fyo.pesa(0),
 
       totalQuantity: 0,
+
+      loyaltyPoints: 0,
+      appliedLoyaltyPoints: 0,
+      loyaltyProgram: '' as string,
 
       defaultCustomer: undefined as string | undefined,
       itemSearchTerm: '',
@@ -385,6 +475,22 @@ export default defineComponent({
     toggleSidebar(true);
   },
   methods: {
+    async setCustomer(value: string) {
+      if (!value) {
+        this.sinvDoc.party = '';
+        return;
+      }
+
+      this.sinvDoc.party = value;
+
+      const party = await this.fyo.db.getAll(ModelNameEnum.Party, {
+        fields: ['loyaltyProgram', 'loyaltyPoints'],
+        filters: { name: value as string },
+      });
+
+      this.loyaltyProgram = party[0]?.loyaltyProgram as string;
+      this.loyaltyPoints = party[0].loyaltyPoints as number;
+    },
     async setItems() {
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
         fields: [],
