@@ -117,8 +117,9 @@
                   transform
                   -translate-x-1/2
                   mb-2
-                  bg-gray-800
-                  text-white text-xs
+                  bg-gray-100
+                  dark:bg-gray-850 dark:text-white
+                  text-black text-xs
                   rounded-md
                   p-2
                   w-20
@@ -138,7 +139,7 @@
                 class="p-1 rounded-md bg-gray-100"
                 :class="{
                   'bg-gray-100': loyaltyPoints,
-                  'bg-gray-600 cursor-not-allowed':
+                  'dark:bg-gray-600 cursor-not-allowed':
                     !loyaltyPoints || !sinvDoc.party || !sinvDoc.items?.length,
                 }"
                 @click="
@@ -149,7 +150,7 @@
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  height="26px"
+                  height="24px"
                   viewBox="0 -960 960 960"
                   width="26px"
                   fill="#000"
@@ -168,8 +169,9 @@
                   transform
                   -translate-x-1/2
                   mb-2
-                  bg-gray-800
-                  text-white text-xs
+                  bg-gray-100
+                  dark:bg-gray-850 dark:text-white
+                  text-black text-xs
                   rounded-md
                   p-2
                   w-28
