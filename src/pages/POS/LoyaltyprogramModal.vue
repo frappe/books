@@ -35,8 +35,8 @@
         <Button
           class="w-full bg-green-500"
           style="padding: 1.35rem"
-          @click="setLoyaltyPoints()"
           :disabled="validationError"
+          @click="setLoyaltyPoints()"
         >
           <slot>
             <p class="uppercase text-lg text-white font-semibold">
@@ -67,9 +67,7 @@
 
 <script lang="ts">
 import Button from 'src/components/Button.vue';
-import Currency from 'src/components/Controls/Currency.vue';
 import Data from 'src/components/Controls/Data.vue';
-import Date from 'src/components/Controls/Date.vue';
 import Modal from 'src/components/Modal.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
@@ -81,17 +79,10 @@ export default defineComponent({
   name: 'LoyaltyProgramModal',
   components: {
     Modal,
-    Currency,
     Button,
     Data,
-    Date,
   },
-  emits: ['setLoyaltyPoints', 'toggleModal'],
   props: {
-    sinvDoc: {
-      type: Object,
-      required: true,
-    },
     loyaltyPoints: {
       type: Number,
       required: true,
@@ -101,14 +92,15 @@ export default defineComponent({
       required: true,
     },
   },
-  data() {
-    return {
-      validationError: false,
-    };
-  },
+  emits: ['setLoyaltyPoints', 'toggleModal'],
   setup() {
     return {
       sinvDoc: inject('sinvDoc') as SalesInvoice,
+    };
+  },
+  data() {
+    return {
+      validationError: false,
     };
   },
   methods: {
@@ -119,7 +111,7 @@ export default defineComponent({
         } else {
           throw new Error(
             `${this.sinvDoc.party as string} only has ${
-              this.loyaltyPoints as number
+              this.loyaltyPoints
             } points`
           );
         }
@@ -128,7 +120,7 @@ export default defineComponent({
           ModelNameEnum.LoyaltyProgram,
           {
             fields: ['conversionFactor'],
-            filters: { name: this.loyaltyProgram as string },
+            filters: { name: this.loyaltyProgram },
           }
         );
 
@@ -136,9 +128,7 @@ export default defineComponent({
           newValue * ((loyaltyProgramDoc[0]?.conversionFactor as number) || 0);
 
         if (this.sinvDoc.baseGrandTotal?.lt(loyaltyPoint)) {
-          throw new Error(
-            t`no need ${newValue as number} points to purchase this item`
-          );
+          throw new Error(t`no need ${newValue} points to purchase this item`);
         }
         this.validationError = false;
       } catch (error) {
