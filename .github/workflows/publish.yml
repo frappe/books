@@ -48,7 +48,7 @@ jobs:
         run: tar -cvf dist-macOS.tar dist_electron
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: dist-macOS
           path: dist-macOS.tar
@@ -92,7 +92,7 @@ jobs:
         run: tar -cvf dist-linux.tar dist_electron
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: dist-linux
           path: dist-linux.tar
@@ -138,7 +138,7 @@ jobs:
         run: tar -cvf dist-windows.tar dist_electron
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: dist-windows
           path: dist-windows.tar
