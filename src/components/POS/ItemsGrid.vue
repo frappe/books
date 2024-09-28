@@ -4,7 +4,7 @@
       flex flex-col
       gap-4
       p-4
-      border
+      border border-none
       items-center
       mt-4
       px-2
@@ -17,10 +17,16 @@
     <!-- Items Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
       <div
+        class="
+          border border-gray-300
+          dark:border-gray-800
+          p-1
+          flex flex-col
+          text-sm text-center
+        "
+        @click="handleChange(item as POSItem)"
         v-for="item in items as POSItem[]"
         :key="item.name"
-        class="border border-gray-300 p-1 flex flex-col text-sm text-center"
-        @click="handleChange(item as POSItem)"
       >
         <div class="self-center w-32 h-32 rounded-lg mb-1">
           <div class="relative">
@@ -38,6 +44,7 @@
                 h-32
                 flex
                 bg-gray-100
+                dark:bg-gray-850
                 justify-center
                 items-center
               "
@@ -58,9 +65,9 @@
             </p>
           </div>
         </div>
-        <h3 class="text-lg font-medium">{{ item.name }}</h3>
+        <h3 class="text-lg font-medium dark:text-white">{{ item.name }}</h3>
 
-        <p class="text-lg font-medium">
+        <p class="text-lg font-medium dark:text-white">
           {{
             item.rate ? fyo.currencySymbols[item.rate.getCurrency()] : undefined
           }}
