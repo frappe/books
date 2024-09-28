@@ -143,6 +143,7 @@ export default defineComponent({
         this.validationError = false;
       } catch (error) {
         this.validationError = true;
+
         showToast({
           type: 'error',
           message: t`${error as string}`,
@@ -152,15 +153,23 @@ export default defineComponent({
       }
     },
     setLoyaltyPoints() {
-      if (
-        !this.sinvDoc.loyaltyPoints ||
-        this.sinvDoc.loyaltyPoints > this.loyaltyPoints
-      ) {
-        return;
-      }
+      try {
+        if (!this.sinvDoc.loyaltyPoints || this.sinvDoc.loyaltyPoints < 0) {
+          throw new Error(t`Points must be greater than 0`);
+        }
 
-      this.$emit('setLoyaltyPoints', this.sinvDoc.loyaltyPoints);
-      this.$emit('toggleModal', 'LoyaltyProgram');
+        this.$emit('setLoyaltyPoints', this.sinvDoc.loyaltyPoints);
+        this.$emit('toggleModal', 'LoyaltyProgram');
+
+        this.validationError = false;
+      } catch (error) {
+        this.validationError = true;
+
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
     },
   },
 });
