@@ -24,7 +24,6 @@
 
     <LoyaltyProgramModal
       :open-modal="openLoyaltyProgramModal"
-      :sinvDoc="sinvDoc"
       :loyalty-points="loyaltyPoints"
       :loyalty-program="loyaltyProgram"
       @set-loyalty-points="setLoyaltyPoints"
@@ -486,7 +485,7 @@ export default defineComponent({
 
       const party = await this.fyo.db.getAll(ModelNameEnum.Party, {
         fields: ['loyaltyProgram', 'loyaltyPoints'],
-        filters: { name: value as string },
+        filters: { name: value },
       });
 
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
@@ -561,8 +560,8 @@ export default defineComponent({
 
       const totalLotaltyAmount = await getAddedLPWithGrandTotal(
         this.fyo,
-        this.loyaltyProgram as string,
-        value as number
+        this.loyaltyProgram,
+        value
       );
 
       const total = totalLotaltyAmount
