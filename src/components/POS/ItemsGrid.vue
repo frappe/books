@@ -4,7 +4,6 @@
       flex flex-col
       gap-4
       p-4
-      border border-none
       items-center
       mt-4
       px-2
