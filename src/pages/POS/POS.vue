@@ -140,10 +140,10 @@
                 :class="{
                   'bg-gray-100': loyaltyPoints,
                   'bg-gray-600 cursor-not-allowed':
-                    !loyaltyPoints || !sinvDoc.party,
+                    !loyaltyPoints || !sinvDoc.party || !sinvDoc.items?.length,
                 }"
                 @click="
-                  loyaltyPoints && sinvDoc.party
+                  loyaltyPoints && sinvDoc.party && sinvDoc.items?.length
                     ? toggleModal('LoyaltyProgram', true)
                     : null
                 "
