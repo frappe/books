@@ -219,7 +219,7 @@ function getCompleteSidebar(): SidebarConfig {
         {
           label: t`Coupon Code`,
           name: 'coupon-code',
-          route: `/list/CouponCode/CouponCode`,
+          route: `/list/CouponCode`,
           schemaName: 'CouponCode',
           hidden: () => !fyo.singles.AccountingSettings?.enableCouponCode,
         },
