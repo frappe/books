@@ -138,6 +138,7 @@
               <div
                 class="p-1 rounded-md bg-gray-100"
                 :class="{
+                  hidden: !fyo.singles.AccountingSettings?.enableLoyaltyProgram,
                   'bg-gray-100': loyaltyPoints,
                   'dark:bg-gray-600 cursor-not-allowed':
                     !loyaltyPoints || !sinvDoc.party || !sinvDoc.items?.length,
