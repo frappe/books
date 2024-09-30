@@ -19,6 +19,13 @@
       "section": "Default"
     },
     {
+      "fieldname": "isEnabled",
+      "label": "Is Enabled",
+      "fieldtype": "Check",
+      "default": true,
+      "required": true
+    },
+    {
       "fieldname": "pricingRule",
       "label": "Pricing Rule",
       "fieldtype": "Link",
@@ -48,14 +55,6 @@
       "fieldname": "validTo",
       "label": "Valid To",
       "fieldtype": "Date",
-      "required": true,
-      "section": "Validity and Usage"
-    },
-    {
-      "fieldname": "isEnabled",
-      "label": "Is Enabled",
-      "fieldtype": "Check",
-      "default": true,
       "required": true,
       "section": "Validity and Usage"
     },
