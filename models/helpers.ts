@@ -762,6 +762,10 @@ export function getLoyaltyProgramTier(
 }
 
 export async function removeLoyaltyPoint(doc: Doc) {
+  if (!doc.loyaltyProgram) {
+    return;
+  }
+
   const data = (await doc.fyo.db.getAll(ModelNameEnum.LoyaltyPointEntry, {
     fields: ['name', 'loyaltyPoints', 'expiryDate'],
     filters: {

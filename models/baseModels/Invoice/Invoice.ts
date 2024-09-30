@@ -195,6 +195,9 @@ export abstract class Invoice extends Transactional {
 
     if (this.isReturn) {
       await this._removeLoyaltyPointEntry();
+      await this.reduceUsedCountOfCoupons();
+
+      return;
     }
 
     if (this.isQuote) {
@@ -248,12 +251,14 @@ export abstract class Invoice extends Transactional {
     await this._updatePartyOutStanding();
     await this._updateIsItemsReturned();
     await this._removeLoyaltyPointEntry();
+    await this._reduceUsedCountOfCoupon();
+  }
+
+  async _reduceUsedCountOfCoupon() {
+    await this.reduceUsedCountOfCoupons();
   }
 
   async _removeLoyaltyPointEntry() {
-    if (!this.loyaltyProgram) {
-      return;
-    }
     await removeLoyaltyPoint(this);
   }
 
@@ -565,6 +570,20 @@ export abstract class Invoice extends Transactional {
       );
 
       await couponDoc.setAndSync({ used: (couponDoc.used as number) + 1 });
+    });
+  }
+  async reduceUsedCountOfCoupons() {
+    if (!this.coupons?.length) {
+      return;
+    }
+
+    this.coupons?.map(async (coupon) => {
+      const couponDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.CouponCode,
+        coupon.coupons
+      );
+
+      await couponDoc.setAndSync({ used: (couponDoc.used as number) - 1 });
     });
   }
 
