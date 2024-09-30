@@ -195,7 +195,7 @@ export abstract class Invoice extends Transactional {
 
     if (this.isReturn) {
       await this._removeLoyaltyPointEntry();
-      await this.reduceUsedCountOfCoupons();
+      this.reduceUsedCountOfCoupons();
 
       return;
     }
@@ -251,11 +251,7 @@ export abstract class Invoice extends Transactional {
     await this._updatePartyOutStanding();
     await this._updateIsItemsReturned();
     await this._removeLoyaltyPointEntry();
-    await this._reduceUsedCountOfCoupon();
-  }
-
-  async _reduceUsedCountOfCoupon() {
-    await this.reduceUsedCountOfCoupons();
+    this.reduceUsedCountOfCoupons();
   }
 
   async _removeLoyaltyPointEntry() {
@@ -572,7 +568,7 @@ export abstract class Invoice extends Transactional {
       await couponDoc.setAndSync({ used: (couponDoc.used as number) + 1 });
     });
   }
-  async reduceUsedCountOfCoupons() {
+  reduceUsedCountOfCoupons() {
     if (!this.coupons?.length) {
       return;
     }
