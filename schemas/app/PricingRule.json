@@ -55,6 +55,18 @@
       ]
     },
     {
+      "fieldname": "isCouponCodeBased",
+      "label": "Is Coupon Code Based",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "isMultiple",
+      "label": "Is Multiple",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
       "fieldname": "priceDiscountType",
       "label": "Price Discount Type",
       "fieldtype": "Select",

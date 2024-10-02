@@ -1,0 +1,89 @@
+{
+  "name": "CouponCode",
+  "label": "Coupon Code",
+  "naming": "manual",
+
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Coupon Code",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "couponName",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true,
+      "placeholder": "Coupon Name",
+      "section": "Default"
+    },
+    {
+      "fieldname": "isEnabled",
+      "label": "Is Enabled",
+      "fieldtype": "Check",
+      "default": true,
+      "required": true
+    },
+    {
+      "fieldname": "pricingRule",
+      "label": "Pricing Rule",
+      "fieldtype": "Link",
+      "target": "PricingRule",
+      "required": true
+    },
+    {
+      "fieldname": "minAmount",
+      "label": "Min Amount",
+      "fieldtype": "Currency",
+      "section": "Amount"
+    },
+    {
+      "fieldname": "maxAmount",
+      "label": "Max Amount",
+      "fieldtype": "Currency",
+      "section": "Amount"
+    },
+    {
+      "fieldname": "validFrom",
+      "label": "Valid From",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Validity and Usage"
+    },
+    {
+      "fieldname": "validTo",
+      "label": "Valid To",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Validity and Usage"
+    },
+    {
+      "fieldname": "maximumUse",
+      "label": "Maximum Use",
+      "fieldtype": "Int",
+      "default": 0,
+      "required": true,
+      "section": "Validity and Usage"
+    },
+    {
+      "fieldname": "used",
+      "label": "Used",
+      "fieldtype": "Int",
+      "default": 0,
+      "required": true,
+      "readOnly": true,
+      "section": "Validity and Usage"
+    }
+  ],
+  "quickEditFields": [
+    "name",
+    "couponCode",
+    "pricingRule",
+    "validFrom",
+    "validTo",
+    "maximumUse",
+    "used"
+  ],
+  "keywordFields": ["name"]
+}

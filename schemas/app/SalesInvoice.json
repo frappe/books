@@ -25,6 +25,13 @@
       "section": "Default"
     },
     {
+      "fieldname": "coupons",
+      "label": "Coupons",
+      "fieldtype": "Table",
+      "target": "AppliedCouponCodes",
+      "section": "Coupons"
+    },
+    {
       "fieldname": "backReference",
       "label": "Back Reference",
       "fieldtype": "Link",
