@@ -122,6 +122,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableCouponCode",
+      "label": "Enable Coupon Code",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",

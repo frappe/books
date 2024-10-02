@@ -1,0 +1,15 @@
+{
+  "name": "AppliedCouponCodes",
+  "label": "Applied Coupon Codes",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "coupons",
+      "label": "Coupons",
+      "fieldtype": "Link",
+      "target": "CouponCode"
+    }
+  ],
+  "tableFields": ["coupons"],
+  "quickEditFields": ["coupons"]
+}

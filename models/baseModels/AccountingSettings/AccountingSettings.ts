@@ -16,6 +16,7 @@ export class AccountingSettings extends Doc {
   enableInventory?: boolean;
   enablePriceList?: boolean;
   enableLead?: boolean;
+  enableCouponCode?: boolean;
   enableFormCustomization?: boolean;
   enableInvoiceReturns?: boolean;
   enableLoyaltyProgram?: boolean;
@@ -67,6 +68,8 @@ export class AccountingSettings extends Doc {
     gstin: () => this.fyo.singles.SystemSettings?.countryCode !== 'in',
     enablePricingRule: () =>
       !this.fyo.singles.AccountingSettings?.enableDiscounting,
+    enableCouponCode: () =>
+      !this.fyo.singles.AccountingSettings?.enablePricingRule,
   };
 
   async change(ch: ChangeArg) {

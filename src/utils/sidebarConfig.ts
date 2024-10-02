@@ -216,6 +216,13 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'Lead',
           hidden: () => !fyo.singles.AccountingSettings?.enableLead,
         },
+        {
+          label: t`Coupon Code`,
+          name: 'coupon-code',
+          route: `/list/CouponCode`,
+          schemaName: 'CouponCode',
+          hidden: () => !fyo.singles.AccountingSettings?.enableCouponCode,
+        },
       ] as SidebarItem[],
     },
     {

@@ -28,6 +28,8 @@ import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
 import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
 import { isPesa } from 'fyo/utils';
 import { Party } from './baseModels/Party/Party';
+import { CouponCode } from './baseModels/CouponCode/CouponCode';
+import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -584,8 +586,6 @@ export async function getExchangeRate({
     };
     exchangeRate = data.rates[toCurrency];
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
     exchangeRate ??= 1;
   }
 
@@ -762,6 +762,10 @@ export function getLoyaltyProgramTier(
 }
 
 export async function removeLoyaltyPoint(doc: Doc) {
+  if (!doc.loyaltyProgram) {
+    return;
+  }
+
   const data = (await doc.fyo.db.getAll(ModelNameEnum.LoyaltyPointEntry, {
     fields: ['name', 'loyaltyPoints', 'expiryDate'],
     filters: {
@@ -916,6 +920,7 @@ export function canApplyPricingRule(
   ) {
     return false;
   }
+
   if (
     pricingRuleDoc.validTo &&
     new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
@@ -925,6 +930,82 @@ export function canApplyPricingRule(
   }
   return true;
 }
+
+export function canApplyCouponCode(
+  couponCodeData: CouponCode,
+  amount: Money,
+  sinvDate: Date
+): boolean {
+  // Filter by Amount
+  if (
+    !couponCodeData.minAmount?.isZero() &&
+    amount.lte(couponCodeData.minAmount as Money)
+  ) {
+    return false;
+  }
+
+  if (
+    !couponCodeData.maxAmount?.isZero() &&
+    amount.gte(couponCodeData.maxAmount as Money)
+  ) {
+    return false;
+  }
+
+  // Filter by Validity
+  if (
+    couponCodeData.validFrom &&
+    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
+      couponCodeData.validFrom.toISOString()
+  ) {
+    return false;
+  }
+
+  if (
+    couponCodeData.validTo &&
+    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
+      couponCodeData.validTo.toISOString()
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+export async function getApplicableCouponCodesName(
+  couponName: string,
+  sinvDoc: SalesInvoice
+) {
+  const couponCodeDatas = (await sinvDoc.fyo.db.getAll(
+    ModelNameEnum.CouponCode,
+    {
+      fields: ['*'],
+      filters: {
+        name: couponName,
+        isEnabled: true,
+      },
+    }
+  )) as CouponCode[];
+
+  if (!couponCodeDatas || couponCodeDatas.length === 0) {
+    return [];
+  }
+
+  const applicablePricingRules = await getPricingRule(sinvDoc);
+
+  if (!applicablePricingRules?.length) {
+    return [];
+  }
+
+  return applicablePricingRules
+    ?.filter(
+      (rule) => rule?.pricingRule?.name === couponCodeDatas[0].pricingRule
+    )
+    .map((rule) => ({
+      pricingRule: rule.pricingRule.name,
+      coupon: couponCodeDatas[0].name,
+    }));
+}
+
 export function getPricingRulesConflicts(
   pricingRules: PricingRule[]
 ): undefined | boolean {
