@@ -153,7 +153,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Portuguese         | [DeepL](https://www.deepl.com/), [Valdir Amaral](https://github.com/valdir-amaral)                                                                               |
 | Arabic             | [taha2002](https://github.com/taha2002), [Faridget](https://github.com/faridget)                                                                                 |
 | Catalan            | Dídac E. Jiménez                                                                                                                                                 |
-| Dutch              | [FastAct](https://github.com/FastAct)                                                                                                                            |
+| Dutch              | [RijckAlex](https://github.com/RijckAlex)                                                                                                                        |
 | Spanish            | [talmax1124](https://github.com/talmax1124), [delbertf](https://github.com/delbertf)                                                                             |
 | Gujarati           | [dhruvilxcode](https://github.com/dhruvilxcode), [4silvertooth](https://github.com/4silvertooth)                                                                 |
 | Hindi              | [bnsinghgit](https://github.com/bnsinghgit)                                                                                                                      |
