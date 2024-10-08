@@ -203,6 +203,7 @@ export default defineComponent({
       );
 
       await updatePricingRule(this.sinvDoc);
+      this.$emit('setCouponsCount', this.sinvDoc.coupons?.length);
     },
   },
 });
