@@ -288,6 +288,31 @@
               >
                 Coupon Code
               </span>
+              <div
+                v-if="appliedCouponsCount !== 0"
+                class="
+                  absolute
+                  top-0
+                  right-0
+                  transform
+                  translate-x-1/2
+                  -translate-y-1/2
+                  h-4
+                  w-4
+                  bg-green-400
+                  text-green-900
+                  rounded-full
+                  flex
+                  items-center
+                  justify-center
+                  text-xs
+                  cursor-pointer
+                  border-red-500
+                  p-2
+                "
+              >
+                {{ appliedCouponsCount }}
+              </div>
             </div>
           </div>
         </div>
