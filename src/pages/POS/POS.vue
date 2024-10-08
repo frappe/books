@@ -36,6 +36,11 @@
       @toggle-modal="toggleModal"
     />
 
+    <CouponCodeModal
+      :open-modal="openCouponCodeModal"
+      @toggle-modal="toggleModal"
+    />
+
     <PaymentModal
       :open-modal="openPaymentModal"
       @create-transaction="createTransaction"
@@ -197,6 +202,7 @@
                 Loyalty Program
               </span>
             </div>
+
             <div class="relative group">
               <div class="p-1 rounded-md bg-gray-100" @click="routeToSinvList">
                 <svg
@@ -235,6 +241,126 @@
               >
                 Sales Invoice List
               </span>
+            </div>
+
+            <div class="relative group">
+              <div
+                class="p-0.5 rounded-md bg-gray-100"
+                :class="{
+                  hidden: !fyo.singles.AccountingSettings?.enableLoyaltyProgram,
+                  'bg-gray-100': loyaltyPoints,
+                  'dark:bg-gray-600 cursor-not-allowed':
+                    !sinvDoc.party || !sinvDoc.items?.length,
+                }"
+                @click="
+                  sinvDoc.party && sinvDoc.items?.length
+                    ? toggleModal('CouponCode', true)
+                    : null
+                "
+              >
+                <svg
+                  fill="#000000"
+                  width="28px"
+                  height="28px"
+                  viewBox="0 0 512.00 512.00"
+                  enable-background="new 0 0 512 512"
+                  version="1.1"
+                  xml:space="preserve"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  stroke="#000000"
+                  stroke-width="9.312000000000001"
+                  transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)"
+                >
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke="#CCCCCC"
+                    stroke-width="19.456"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <g id="Layer_1"></g>
+                    <g id="Layer_2">
+                      <g>
+                        <path
+                          d="M412.7,134.4H229.6c-2,0-3.9,0.8-5.3,2.2l-27.8,27.8L169.1,137c-1.4-1.4-3.3-2.2-5.3-2.2H99.3c-4.1,0-7.5,3.4-7.5,7.5 v227.4c0,4.1,3.4,7.5,7.5,7.5h64.5c2,0,3.9-0.8,5.3-2.2l27.4-27.4l27.8,27.8c1.4,1.4,3.3,2.2,5.3,2.2h183.1c4.1,0,7.5-3.4,7.5-7.5 V141.9C420.2,137.7,416.8,134.4,412.7,134.4z M405.2,362.6H232.7l-30.9-30.9c-2.9-2.9-7.7-2.9-10.6,0l-30.5,30.5h-53.9V149.8h53.9 l30.5,30.5c2.9,2.9,7.7,2.9,10.6,0l30.9-30.9h172.5V362.6z"
+                        ></path>
+                        <path
+                          d="M276.9,235.2c15.4,0,28-12.6,28-28s-12.6-28-28-28s-28,12.6-28,28S261.4,235.2,276.9,235.2z M276.9,194.2 c7.2,0,13,5.8,13,13s-5.8,13-13,13s-13-5.8-13-13S269.7,194.2,276.9,194.2z"
+                        ></path>
+                        <path
+                          d="M360,262.4c-15.4,0-28,12.6-28,28s12.6,28,28,28s28-12.6,28-28S375.4,262.4,360,262.4z M360,303.4c-7.2,0-13-5.8-13-13 s5.8-13,13-13s13,5.8,13,13S367.2,303.4,360,303.4z"
+                        ></path>
+                        <path
+                          d="M256.6,310.7c1.5,1.5,3.4,2.2,5.3,2.2s3.8-0.7,5.3-2.2l113.1-113.1c2.9-2.9,2.9-7.7,0-10.6c-2.9-2.9-7.7-2.9-10.6,0 L256.6,300.1C253.6,303,253.6,307.7,256.6,310.7z"
+                        ></path>
+                        <path
+                          d="M196.5,202.5c-2,0-3.9,0.8-5.3,2.2c-1.4,1.4-2.2,3.3-2.2,5.3c0,2,0.8,3.9,2.2,5.3c1.4,1.4,3.3,2.2,5.3,2.2 c2,0,3.9-0.8,5.3-2.2c1.4-1.4,2.2-3.3,2.2-5.3c0-2-0.8-3.9-2.2-5.3C200.4,203.3,198.4,202.5,196.5,202.5z"
+                        ></path>
+                        <path
+                          d="M196.5,233.2c-2,0-3.9,0.8-5.3,2.2c-1.4,1.4-2.2,3.3-2.2,5.3c0,2,0.8,3.9,2.2,5.3c1.4,1.4,3.3,2.2,5.3,2.2 c2,0,3.9-0.8,5.3-2.2c1.4-1.4,2.2-3.3,2.2-5.3c0-2-0.8-3.9-2.2-5.3C200.4,234,198.4,233.2,196.5,233.2z"
+                        ></path>
+                        <path
+                          d="M196.5,263.8c-2,0-3.9,0.8-5.3,2.2c-1.4,1.4-2.2,3.3-2.2,5.3c0,2,0.8,3.9,2.2,5.3c1.4,1.4,3.3,2.2,5.3,2.2 c2,0,3.9-0.8,5.3-2.2c1.4-1.4,2.2-3.3,2.2-5.3c0-2-0.8-3.9-2.2-5.3C200.4,264.6,198.4,263.8,196.5,263.8z"
+                        ></path>
+                        <path
+                          d="M196.5,294.5c-2,0-3.9,0.8-5.3,2.2c-1.4,1.4-2.2,3.3-2.2,5.3c0,2,0.8,3.9,2.2,5.3c1.4,1.4,3.3,2.2,5.3,2.2 c2,0,3.9-0.8,5.3-2.2c1.4-1.4,2.2-3.3,2.2-5.3c0-2-0.8-3.9-2.2-5.3C200.4,295.3,198.4,294.5,196.5,294.5z"
+                        ></path>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <span
+                class="
+                  absolute
+                  bottom-full
+                  left-1/2
+                  transform
+                  -translate-x-1/2
+                  mb-2
+                  bg-gray-100
+                  dark:bg-gray-850 dark:text-white
+                  text-black text-xs
+                  rounded-md
+                  p-2
+                  w-28
+                  text-center
+                  opacity-0
+                  group-hover:opacity-100
+                  transition-opacity
+                  duration-300
+                "
+              >
+                Coupon Code
+              </span>
+              <div
+                v-if="appliedCouponsCount !== 0"
+                class="
+                  absolute
+                  top-0
+                  right-0
+                  transform
+                  translate-x-1/2
+                  -translate-y-1/2
+                  h-4
+                  w-4
+                  bg-green-400
+                  text-green-900
+                  rounded-full
+                  flex
+                  items-center
+                  justify-center
+                  text-xs
+                  cursor-pointer
+                  border-red-500
+                  p-2
+                "
+              >
+                {{ appliedCouponsCount }}
+              </div>
             </div>
           </div>
         </div>
@@ -430,10 +556,16 @@ import {
   validateSinv,
 } from 'src/utils/pos';
 import Barcode from 'src/components/Controls/Barcode.vue';
-import { getAddedLPWithGrandTotal, getPricingRule } from 'models/helpers';
+import {
+  getAddedLPWithGrandTotal,
+  getPricingRule,
+  removeFreeItems,
+} from 'models/helpers';
 import LoyaltyProgramModal from './LoyaltyprogramModal.vue';
 import AlertModal from './AlertModal.vue';
 import SavedInvoiceModal from './SavedInvoiceModal.vue';
+import CouponCodeModal from './CouponCodeModal.vue';
+import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 
 export default defineComponent({
   name: 'POS',
@@ -451,6 +583,7 @@ export default defineComponent({
     PaymentModal,
     LoyaltyProgramModal,
     SavedInvoiceModal,
+    CouponCodeModal,
     SelectedItemTable,
     Barcode,
   },
@@ -463,6 +596,8 @@ export default defineComponent({
       itemQtyMap: computed(() => this.itemQtyMap),
       itemSerialNumbers: computed(() => this.itemSerialNumbers),
       sinvDoc: computed(() => this.sinvDoc),
+      appliedCoupons: computed(() => this.sinvDoc.coupons),
+      coupons: computed(() => this.coupons),
       totalTaxedAmount: computed(() => this.totalTaxedAmount),
       transferAmount: computed(() => this.transferAmount),
       transferClearanceDate: computed(() => this.transferClearanceDate),
@@ -479,6 +614,8 @@ export default defineComponent({
       openPaymentModal: false,
       openLoyaltyProgramModal: false,
       openSavedInvoiceModal: false,
+      openCouponCodeModal: false,
+      openAppliedCouponsModal: false,
       openShiftCloseModal: false,
       openShiftOpenModal: false,
       openRouteToInvoiceListModal: false,
@@ -495,6 +632,9 @@ export default defineComponent({
       appliedLoyaltyPoints: 0,
       loyaltyProgram: '' as string,
 
+      appliedCoupons: [] as AppliedCouponCodes[],
+      appliedCouponsCount: 0,
+
       defaultCustomer: undefined as string | undefined,
       itemSearchTerm: '',
       transferRefNo: undefined as string | undefined,
@@ -505,6 +645,7 @@ export default defineComponent({
       itemSerialNumbers: {} as ItemSerialNumbers,
       paymentDoc: {} as Payment,
       sinvDoc: {} as SalesInvoice,
+      coupons: {} as AppliedCouponCodes,
     };
   },
   computed: {
@@ -543,6 +684,7 @@ export default defineComponent({
       deep: true,
     },
   },
+
   async mounted() {
     await this.setItems();
   },
@@ -690,23 +832,6 @@ export default defineComponent({
     },
     setTransferRefNo(ref: string) {
       this.transferRefNo = ref;
-    },
-    removeFreeItems() {
-      if (!this.sinvDoc || !this.sinvDoc.items) {
-        return;
-      }
-
-      if (!!this.sinvDoc.isPricingRuleApplied) {
-        return;
-      }
-
-      for (const item of this.sinvDoc.items) {
-        if (item.isFreeItem) {
-          this.sinvDoc.items = this.sinvDoc.items?.filter(
-            (invoiceItem) => invoiceItem.name !== item.name
-          );
-        }
-      }
     },
 
     async addItem(item: POSItem | Item | undefined) {
@@ -940,7 +1065,7 @@ export default defineComponent({
       if (!hasPricingRules || !hasPricingRules.length) {
         this.sinvDoc.pricingRuleDetail = undefined;
         this.sinvDoc.isPricingRuleApplied = false;
-        this.removeFreeItems();
+        removeFreeItems(this.sinvDoc as SalesInvoice);
         return;
       }
 
