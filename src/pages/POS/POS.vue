@@ -38,6 +38,7 @@
 
     <CouponCodeModal
       :open-modal="openCouponCodeModal"
+      @set-coupons-count="setCouponsCount"
       @toggle-modal="toggleModal"
     />
 
@@ -48,6 +49,7 @@
       @set-cash-amount="setCashAmount"
       @set-transfer-amount="setTransferAmount"
       @set-transfer-ref-no="setTransferRefNo"
+      @set-coupons-count="setCouponsCount"
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
 
@@ -691,6 +693,7 @@ export default defineComponent({
   async activated() {
     toggleSidebar(false);
     validateIsPosSettingsSet(fyo);
+    this.setCouponCodeDoc();
     this.setSinvDoc();
     this.setDefaultCustomer();
     await this.setItemQtyMap();
@@ -790,6 +793,14 @@ export default defineComponent({
         isPOS: true,
       }) as SalesInvoice;
     },
+    setCouponCodeDoc() {
+      this.coupons = this.fyo.doc.getNewDoc(
+        ModelNameEnum.AppliedCouponCodes
+      ) as AppliedCouponCodes;
+    },
+    setAppliedCoupons() {
+      this.appliedCoupons = this.sinvDoc.coupons as AppliedCouponCodes[];
+    },
     setTotalQuantity() {
       this.totalQuantity = getTotalQuantity(
         this.sinvDoc.items as SalesInvoiceItem[]
@@ -797,6 +808,9 @@ export default defineComponent({
     },
     setTotalTaxedAmount() {
       this.totalTaxedAmount = getTotalTaxedAmount(this.sinvDoc as SalesInvoice);
+    },
+    setCouponsCount(value: number) {
+      this.appliedCouponsCount = value;
     },
     async setLoyaltyPoints(value: number) {
       this.appliedLoyaltyPoints = value;
