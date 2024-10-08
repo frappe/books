@@ -482,7 +482,7 @@ export default defineComponent({
       const styles: Record<string, string> = {};
 
       styles.height = `calc(100vh - var(--h-row-largest) - 1px - ${
-        this.platform == 'Windows' ? 'var(--h-row-smallest)' : 0
+        this.platform == 'Windows' ? 'var(--h-row-smallest)' : '0px'
       }`;
       return styles;
     },
