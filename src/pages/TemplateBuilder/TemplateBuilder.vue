@@ -40,7 +40,7 @@
       <!-- Template Display Area -->
       <div
         class="overflow-auto no-scrollbar flex flex-col"
-        style="height: calc(100vh - var(--h-row-largest) - 1px)"
+        :style="templateDisplayStyles"
       >
         <!-- Template Container -->
         <div
@@ -151,7 +151,7 @@
           dark:bg-gray-890
           flex flex-col
         "
-        style="height: calc(100vh - var(--h-row-largest) - 1px)"
+        :style="templateDisplayStyles"
       >
         <!-- Template Editor -->
         <div class="min-h-0">
@@ -476,6 +476,14 @@ export default defineComponent({
       styles['grid-template-columns'] = `auto 0px ${this.panelWidth}px`;
       styles['height'] = 'calc(100vh - var(--h-row-largest) - 1px)';
 
+      return styles;
+    },
+    templateDisplayStyles(): Record<string, string> {
+      const styles: Record<string, string> = {};
+
+      styles.height = `calc(100vh - var(--h-row-largest) - 1px - ${
+        this.platform == 'Windows' ? 'var(--h-row-smallest)' : 0
+      }`;
       return styles;
     },
   },
