@@ -3,7 +3,46 @@
     <p class="text-center py-3">Apply Coupon Code</p>
     <div class="px-10">
       <hr class="dark:border-gray-800" />
-     
+      <p v-if="appliedCoupons.length" class="text-xs ml-1 mb-1 text-gray-500">
+        Applied Coupon Codes
+      </p>
+      <div
+        v-if="appliedCoupons.length"
+        class="overflow-y-auto mt-2 custom-scroll custom-scroll-thumb2"
+        :style="{ height: appliedCoupons.length > 2 ? '11vh' : '10vh' }"
+      >
+        <Row
+          v-for="(coupon,index) in appliedCoupons as any"
+          :key="index"
+          :ratio="ratio"
+          :border="true"
+          class="
+            border-b border-l border-r
+            dark:border-gray-800
+            relative
+            group
+            h-coupon-mid
+            hover:bg-gray-25
+            dark:bg-gray-890
+            items-center
+            justify-center
+          "
+        >
+          <div class="flex flex-row w-full items-center">
+            <div class="flex flex-row">
+              <FormControl
+                v-for="df in tableFields"
+                :key="df.fieldname"
+                size="large"
+                class="w-full"
+                :df="df"
+                :value="coupon[df.fieldname]"
+                :read-only="true"
+              />
+            </div>
+          </div>
+        </Row>
+      </div>
 
       <div
         v-if="coupons.fieldMap"
