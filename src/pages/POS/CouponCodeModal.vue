@@ -41,6 +41,13 @@
               />
             </div>
           </div>
+          <div class="absolute right-3">
+            <feather-icon
+              name="trash"
+              class="w-4 text-xl text-red-500 cursor-pointer"
+              @click="removeAppliedCoupon(coupon)"
+            />
+          </div>
         </Row>
       </div>
 
@@ -189,6 +196,13 @@ export default defineComponent({
           message: t`${error as string}`,
         });
       }
+    },
+    async removeAppliedCoupon(coupon: AppliedCouponCodes) {
+      this.sinvDoc.coupons = this.sinvDoc.coupons?.filter(
+        (coup) => coup.coupons !== coupon?.coupons
+      );
+
+      await updatePricingRule(this.sinvDoc);
     },
   },
 });
