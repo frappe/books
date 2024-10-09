@@ -126,6 +126,23 @@ computer) check the _Building_ section at
 
 So to build for linux you could use the `--linux` flag like so: `yarn build --linux`.
 
+## Remote Database Connection
+
+Frappe Books now supports connecting to a remote database when importing an existing database. Follow the steps below to configure and use the remote database connection feature:
+
+1. Open Frappe Books and navigate to the "Database Connections" section.
+2. Click on "New Database Connection" to add a new remote database connection.
+3. Fill in the required details:
+   - **ID**: A unique identifier for the database connection.
+   - **Database type**: Select the database type (e.g., SQL Server).
+   - **Authentication method**: Choose the authentication method.
+   - **Connection String**: Enter the connection string for the remote database.
+   - **Connection timeout (ms)**: Specify the connection timeout in milliseconds (optional).
+   - **Request timeout (ms)**: Specify the request timeout in milliseconds (optional).
+4. Click on "Test Connection" to verify the connection details.
+5. If the connection is successful, click "Save" to save the remote database connection.
+6. You can now use the remote database connection when importing an existing database.
+
 ## Contributions and Community
 
 If you want to contribute to Frappe Books, please check our [Contribution Guidelines](https://github.com/frappe/books/blob/master/.github/CONTRIBUTING.md). There are many ways you can contribute even if you don't code:
