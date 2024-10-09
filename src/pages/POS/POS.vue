@@ -792,12 +792,17 @@ export default defineComponent({
       this.setSinvDoc();
       this.toggleModal('Payment', false);
     },
-    clearValues() {
+    async clearValues() {
       this.setSinvDoc();
       this.itemSerialNumbers = {};
 
       this.cashAmount = fyo.pesa(0);
       this.transferAmount = fyo.pesa(0);
+      await this.setItems();
+
+      if (!this.defaultCustomer) {
+        this.sinvDoc.party = '';
+      }
     },
     toggleModal(modal: ModalName, value?: boolean) {
       if (value) {
