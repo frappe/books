@@ -1355,14 +1355,6 @@ export abstract class Invoice extends Transactional {
       );
 
       if (duplicatePricingRule && duplicatePricingRule?.length >= 2) {
-        const { showToast } = await import('src/utils/interactive');
-        const message = t`Pricing Rule '${
-          duplicatePricingRule[0]?.referenceName as string
-        }' is already applied to item '${
-          item.item as string
-        }' in another batch.`;
-        showToast({ type: 'error', message });
-
         continue;
       }
 
