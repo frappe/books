@@ -788,7 +788,7 @@ export default defineComponent({
 
     async afterTransaction() {
       await this.setItemQtyMap();
-      this.clearValues();
+      await this.clearValues();
       this.setSinvDoc();
       this.toggleModal('Payment', false);
     },
