@@ -29,7 +29,7 @@ export function getDatesAndPeriodList(period: PeriodKey): {
   } else if (period === 'This Quarter') {
     fromDate = toDate.minus({ months: 3 });
   } else if (period === 'This Month') {
-    fromDate = toDate.minus({ months: 1 });
+    fromDate = toDate.startOf('month');
   } else {
     fromDate = toDate.minus({ days: 1 });
   }
