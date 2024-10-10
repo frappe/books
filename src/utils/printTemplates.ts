@@ -29,6 +29,7 @@ const printSettingsFields = [
   'phone',
   'address',
   'companyName',
+  'amountInWords',
 ];
 const accountingSettingsFields = ['gstin', 'taxId'];
 
