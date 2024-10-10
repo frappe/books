@@ -114,6 +114,12 @@
       "label": "Display Logo in Invoice",
       "fieldtype": "Check",
       "section": "Customizations"
+    },
+    {
+      "fieldname": "amountInWords",
+      "label": "Display Amount In Words",
+      "fieldtype": "Check",
+      "section": "Customizations"
     }
   ]
 }
