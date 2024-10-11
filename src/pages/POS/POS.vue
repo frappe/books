@@ -325,31 +325,49 @@
                   />
                 </div>
               </div>
+              <div class="flex w-full gap-2">
+                <div class="w-full">
+                  <Button
+                    class="w-full bg-green-500 dark:bg-green-700 py-6"
+                    @click="
+                      sinvDoc.party && sinvDoc.items?.length
+                        ? null
+                        : null
+                    "
+                    :disabled="!sinvDoc.party || !sinvDoc.items?.length"
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`Save` }}
+                      </p>
+                    </slot>
+                  </Button>
+                </div>
+                <div class="w-full">
+                  <Button
+                    class="w-full bg-red-500 dark:bg-red-700 py-6"
+                    :disabled="!sinvDoc.items?.length"
+                    @click="clearValues"
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`Cancel` }}
+                      </p>
+                    </slot>
+                  </Button>
 
-              <div class="">
-                <Button
-                  class="w-full bg-red-500 dark:bg-red-700 py-6"
-                  :disabled="!sinvDoc.items?.length"
-                  @click="clearValues"
-                >
-                  <slot>
-                    <p class="uppercase text-lg text-white font-semibold">
-                      {{ t`Cancel` }}
-                    </p>
-                  </slot>
-                </Button>
-
-                <Button
-                  class="mt-4 w-full bg-green-500 dark:bg-green-700 py-6"
-                  :disabled="disablePayButton"
-                  @click="toggleModal('Payment', true)"
-                >
-                  <slot>
-                    <p class="uppercase text-lg text-white font-semibold">
-                      {{ t`Pay` }}
-                    </p>
-                  </slot>
-                </Button>
+                  <Button
+                    class="mt-4 w-full bg-green-500 dark:bg-green-700 py-6"
+                    :disabled="disablePayButton"
+                    @click="toggleModal('Payment', true)"
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`Pay` }}
+                      </p>
+                    </slot>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
