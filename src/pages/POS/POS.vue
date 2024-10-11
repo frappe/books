@@ -331,7 +331,7 @@
                     class="w-full bg-green-500 dark:bg-green-700 py-6"
                     @click="
                       sinvDoc.party && sinvDoc.items?.length
-                        ? null
+                        ? saveOrder()
                         : null
                     "
                     :disabled="!sinvDoc.party || !sinvDoc.items?.length"
@@ -558,6 +558,26 @@ export default defineComponent({
 
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
       this.loyaltyPoints = party[0].loyaltyPoints as number;
+    },
+    async saveOrder() {
+      try {
+        await this.validate();
+        await this.sinvDoc.runFormulas();
+        await this.sinvDoc.sync();
+      } catch (error) {
+        return showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
+
+      showToast({
+        type: 'success',
+        message: t`Sales Invoice ${this.sinvDoc.name as string} is Saved`,
+        duration: 'short',
+      });
+
+      await this.afterSync();
     },
     async setItems() {
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
@@ -850,7 +870,10 @@ export default defineComponent({
         });
       }
     },
-
+    async afterSync() {
+      this.clearValues();
+      this.setSinvDoc();
+    },
     async afterTransaction() {
       await this.setItemQtyMap();
       await this.clearValues();
