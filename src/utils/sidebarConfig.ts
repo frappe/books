@@ -217,6 +217,13 @@ function getCompleteSidebar(): SidebarConfig {
           hidden: () => !fyo.singles.AccountingSettings?.enableLead,
         },
         {
+          label: t`Pricing Rule`,
+          name: 'pricing-rule',
+          route: '/list/PricingRule',
+          schemaName: 'PricingRule',
+          hidden: () => !fyo.singles.AccountingSettings?.enablePricingRule,
+        },
+        {
           label: t`Coupon Code`,
           name: 'coupon-code',
           route: `/list/CouponCode`,
@@ -292,13 +299,6 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/list/PriceList',
           schemaName: 'PriceList',
           hidden: () => !fyo.singles.AccountingSettings?.enablePriceList,
-        },
-        {
-          label: t`Pricing Rule`,
-          name: 'pricing-rule',
-          route: '/list/PricingRule',
-          schemaName: 'PricingRule',
-          hidden: () => !fyo.singles.AccountingSettings?.enablePricingRule,
         },
       ] as SidebarItem[],
     },
