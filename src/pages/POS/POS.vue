@@ -29,6 +29,12 @@
       @set-loyalty-points="setLoyaltyPoints"
       @toggle-modal="toggleModal"
     />
+    <SavedInvoiceModal
+      :open-modal="openSavedInvoiceModal"
+      :modal-status="openSavedInvoiceModal"
+      @selected-invoice-name="selectedInvoiceName"
+      @toggle-modal="toggleModal"
+    />
 
     <PaymentModal
       :open-modal="openPaymentModal"
@@ -342,6 +348,16 @@
                       </p>
                     </slot>
                   </Button>
+                  <Button
+                    class="w-full mt-4 bg-orange-500 dark:bg-green-700 py-6"
+                    @click="toggleModal('SavedInvoice', true)"
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`held` }}
+                      </p>
+                    </slot>
+                  </Button>
                 </div>
                 <div class="w-full">
                   <Button
@@ -421,6 +437,7 @@ import Barcode from 'src/components/Controls/Barcode.vue';
 import { getAddedLPWithGrandTotal, getPricingRule } from 'models/helpers';
 import LoyaltyProgramModal from './LoyaltyprogramModal.vue';
 import AlertModal from './AlertModal.vue';
+import SavedInvoiceModal from './SavedInvoiceModal.vue';
 
 export default defineComponent({
   name: 'POS',
@@ -437,6 +454,7 @@ export default defineComponent({
     PageHeader,
     PaymentModal,
     LoyaltyProgramModal,
+    SavedInvoiceModal,
     SelectedItemTable,
     Barcode,
   },
@@ -464,6 +482,7 @@ export default defineComponent({
       isItemsSeeded: false,
       openPaymentModal: false,
       openLoyaltyProgramModal: false,
+      openSavedInvoiceModal: false,
       openShiftCloseModal: false,
       openShiftOpenModal: false,
       openRouteToInvoiceListModal: false,
@@ -657,6 +676,11 @@ export default defineComponent({
         .abs();
 
       this.sinvDoc.grandTotal = total;
+    },
+    async selectedInvoiceName(doc: SalesInvoice) {
+      const salesInvoiceDoc = await this.fyo.doc.getDoc(ModelNameEnum.SalesInvoice,doc.name) as SalesInvoice
+      this.sinvDoc = salesInvoiceDoc
+      this.toggleModal('SavedInvoice', false);
     },
     setTransferAmount(amount: Money = fyo.pesa(0)) {
       this.transferAmount = amount;
