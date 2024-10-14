@@ -154,5 +154,39 @@ export default defineComponent({
       sinvDoc: inject('sinvDoc') as SalesInvoice,
     };
   },
+  async mounted() {
+    await this.setSavedInvoices();
+  },
+  async activated() {
+    await this.setSavedInvoices();
+  },
+  watch: {
+    modalStatus(newVal) {
+      if (newVal) {
+        this.setSavedInvoices();
+      }
+    },
+  },
+
+  methods: {
+    async setSavedInvoices() {
+      this.savedInvoices = (await this.fyo.db.getAll(
+        ModelNameEnum.SalesInvoice,
+        {
+          fields: [],
+          filters: { isPOS: true, submitted: false },
+        }
+      )) as SalesInvoice[];
+    },
+    async selectedInvoice(row: SalesInvoice) {
+      let selectedInvoideDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        row.name
+      )) as SalesInvoice;
+
+      this.sinvDoc = selectedInvoideDoc;
+      this.$emit('toggleModal', 'SavedInvoice');
+    },
+  },
 });
 </script>
