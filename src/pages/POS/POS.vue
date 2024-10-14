@@ -335,12 +335,12 @@
                 <div class="w-full">
                   <Button
                     class="w-full bg-violet-500 dark:bg-violet-700 py-6"
+                    :disabled="!sinvDoc.party || !sinvDoc.items?.length"
                     @click="
                       sinvDoc.party && sinvDoc.items?.length
                         ? saveOrder()
                         : null
                     "
-                    :disabled="!sinvDoc.party || !sinvDoc.items?.length"
                   >
                     <slot>
                       <p class="uppercase text-lg text-white font-semibold">
@@ -596,7 +596,7 @@ export default defineComponent({
         duration: 'short',
       });
 
-      await this.afterSync();
+      this.afterSync();
     },
     async setItems() {
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
@@ -678,8 +678,12 @@ export default defineComponent({
       this.sinvDoc.grandTotal = total;
     },
     async selectedInvoiceName(doc: SalesInvoice) {
-      const salesInvoiceDoc = await this.fyo.doc.getDoc(ModelNameEnum.SalesInvoice,doc.name) as SalesInvoice
-      this.sinvDoc = salesInvoiceDoc
+      const salesInvoiceDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        doc.name
+      )) as SalesInvoice;
+
+      this.sinvDoc = salesInvoiceDoc;
       this.toggleModal('SavedInvoice', false);
     },
     setTransferAmount(amount: Money = fyo.pesa(0)) {
@@ -894,7 +898,7 @@ export default defineComponent({
         });
       }
     },
-    async afterSync() {
+    afterSync() {
       this.clearValues();
       this.setSinvDoc();
     },

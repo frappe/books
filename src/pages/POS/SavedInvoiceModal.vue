@@ -31,10 +31,14 @@
       </div>
     </Row>
 
-    <div class="overflow-y-auto" style="height: 65vh; width: 60vh">
+    <div
+      v-if="savedInvoices.length"
+      class="overflow-y-auto"
+      style="height: 65vh; width: 60vh"
+    >
       <Row
-        v-if="savedInvoices.length"
         v-for="row in savedInvoices as any"
+        :key="row.name"
         :ratio="ratio"
         :border="true"
         class="
@@ -50,16 +54,15 @@
           px-2
           w-full
         "
-            @click="$emit('selectedInvoiceName', row)"
-  >
+        @click="$emit('selectedInvoiceName', row)"
+      >
         <FormControl
           v-for="df in tableFields"
           :key="df.fieldname"
           size="large"
-          class=""
           :df="df"
           :value="row[df.fieldname]"
-          :readOnly="true"
+          :read-only="true"
         />
       </Row>
     </div>
@@ -67,7 +70,7 @@
     <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto p-10">
       <div class="col-span-2">
         <Button
-          class="w-full bg-red-500"
+          class="w-full bg-red-500 dark:bg-red-700"
           style="padding: 1.35rem"
           @click="$emit('toggleModal', 'SavedInvoice')"
         >
@@ -84,11 +87,9 @@
 
 <script lang="ts">
 import Button from 'src/components/Button.vue';
-import Data from 'src/components/Controls/Data.vue';
 import Modal from 'src/components/Modal.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
-import { t } from 'fyo';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
 import Row from 'src/components/Row.vue';
@@ -99,9 +100,17 @@ export default defineComponent({
   components: {
     Modal,
     Button,
-    Data,
     FormControl,
     Row,
+  },
+  props: {
+    modalStatus: Boolean,
+  },
+  emits: ['toggleModal', 'selectedInvoiceName'],
+  setup() {
+    return {
+      sinvDoc: inject('sinvDoc') as SalesInvoice,
+    };
   },
   data() {
     return {
@@ -145,27 +154,18 @@ export default defineComponent({
       ] as Field[];
     },
   },
-  props: {
-    modalStatus: Boolean,
-  },
-  emits: ['toggleModal' , 'selectedInvoiceName'],
-  setup() {
-    return {
-      sinvDoc: inject('sinvDoc') as SalesInvoice,
-    };
+  watch: {
+    async modalStatus(newVal) {
+      if (newVal) {
+        await this.setSavedInvoices();
+      }
+    },
   },
   async mounted() {
     await this.setSavedInvoices();
   },
   async activated() {
     await this.setSavedInvoices();
-  },
-  watch: {
-    modalStatus(newVal) {
-      if (newVal) {
-        this.setSavedInvoices();
-      }
-    },
   },
 
   methods: {
