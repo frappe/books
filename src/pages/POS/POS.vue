@@ -334,7 +334,7 @@
               <div class="flex w-full gap-2">
                 <div class="w-full">
                   <Button
-                    class="w-full bg-green-500 dark:bg-green-700 py-6"
+                    class="w-full bg-violet-500 dark:bg-violet-700 py-6"
                     @click="
                       sinvDoc.party && sinvDoc.items?.length
                         ? saveOrder()
@@ -349,7 +349,7 @@
                     </slot>
                   </Button>
                   <Button
-                    class="w-full mt-4 bg-orange-500 dark:bg-green-700 py-6"
+                    class="w-full mt-4 bg-blue-500 dark:bg-blue-700 py-6"
                     @click="toggleModal('SavedInvoice', true)"
                   >
                     <slot>
