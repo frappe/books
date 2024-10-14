@@ -40,6 +40,11 @@
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
 
+    <AlertModal
+      :open-modal="openInvoiceListAlertModal"
+      @toggle-modal="toggleModal"
+    />
+
     <div
       class="bg-gray-25 dark:bg-gray-875 gap-2 grid grid-cols-12 p-4"
       style="height: calc(100vh - var(--h-row-largest))"
@@ -409,6 +414,7 @@ import {
 import Barcode from 'src/components/Controls/Barcode.vue';
 import { getAddedLPWithGrandTotal, getPricingRule } from 'models/helpers';
 import LoyaltyProgramModal from './LoyaltyprogramModal.vue';
+import AlertModal from './AlertModal.vue';
 
 export default defineComponent({
   name: 'POS',
@@ -420,6 +426,7 @@ export default defineComponent({
     ItemsTable,
     ItemsGrid,
     Link,
+    AlertModal,
     OpenPOSShiftModal,
     PageHeader,
     PaymentModal,
@@ -453,6 +460,7 @@ export default defineComponent({
       openLoyaltyProgramModal: false,
       openShiftCloseModal: false,
       openShiftOpenModal: false,
+      openInvoiceListAlertModal: false,
 
       additionalDiscounts: fyo.pesa(0),
       cashAmount: fyo.pesa(0),
