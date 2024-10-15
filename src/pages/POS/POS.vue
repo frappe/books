@@ -29,6 +29,12 @@
       @set-loyalty-points="setLoyaltyPoints"
       @toggle-modal="toggleModal"
     />
+    <SavedInvoiceModal
+      :open-modal="openSavedInvoiceModal"
+      :modal-status="openSavedInvoiceModal"
+      @selected-invoice-name="selectedInvoiceName"
+      @toggle-modal="toggleModal"
+    />
 
     <PaymentModal
       :open-modal="openPaymentModal"
@@ -325,31 +331,55 @@
                   />
                 </div>
               </div>
+              <div class="flex w-full gap-2">
+                <div class="w-full">
+                  <Button
+                    class="w-full bg-violet-500 dark:bg-violet-700 py-6"
+                    :disabled="!sinvDoc.party || !sinvDoc.items?.length"
+                    @click="handleSaveInvoiceAction"
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`Save` }}
+                      </p>
+                    </slot>
+                  </Button>
+                  <Button
+                    class="w-full mt-4 bg-blue-500 dark:bg-blue-700 py-6"
+                    @click="toggleModal('SavedInvoice', true)"
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`held` }}
+                      </p>
+                    </slot>
+                  </Button>
+                </div>
+                <div class="w-full">
+                  <Button
+                    class="w-full bg-red-500 dark:bg-red-700 py-6"
+                    :disabled="!sinvDoc.items?.length"
+                    @click="clearValues"
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`Cancel` }}
+                      </p>
+                    </slot>
+                  </Button>
 
-              <div class="">
-                <Button
-                  class="w-full bg-red-500 dark:bg-red-700 py-6"
-                  :disabled="!sinvDoc.items?.length"
-                  @click="clearValues"
-                >
-                  <slot>
-                    <p class="uppercase text-lg text-white font-semibold">
-                      {{ t`Cancel` }}
-                    </p>
-                  </slot>
-                </Button>
-
-                <Button
-                  class="mt-4 w-full bg-green-500 dark:bg-green-700 py-6"
-                  :disabled="disablePayButton"
-                  @click="toggleModal('Payment', true)"
-                >
-                  <slot>
-                    <p class="uppercase text-lg text-white font-semibold">
-                      {{ t`Pay` }}
-                    </p>
-                  </slot>
-                </Button>
+                  <Button
+                    class="mt-4 w-full bg-green-500 dark:bg-green-700 py-6"
+                    :disabled="disablePayButton"
+                    @click="toggleModal('Payment', true)"
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`Pay` }}
+                      </p>
+                    </slot>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -403,6 +433,7 @@ import Barcode from 'src/components/Controls/Barcode.vue';
 import { getAddedLPWithGrandTotal, getPricingRule } from 'models/helpers';
 import LoyaltyProgramModal from './LoyaltyprogramModal.vue';
 import AlertModal from './AlertModal.vue';
+import SavedInvoiceModal from './SavedInvoiceModal.vue';
 
 export default defineComponent({
   name: 'POS',
@@ -419,6 +450,7 @@ export default defineComponent({
     PageHeader,
     PaymentModal,
     LoyaltyProgramModal,
+    SavedInvoiceModal,
     SelectedItemTable,
     Barcode,
   },
@@ -446,6 +478,7 @@ export default defineComponent({
       isItemsSeeded: false,
       openPaymentModal: false,
       openLoyaltyProgramModal: false,
+      openSavedInvoiceModal: false,
       openShiftCloseModal: false,
       openShiftOpenModal: false,
       openRouteToInvoiceListModal: false,
@@ -541,6 +574,26 @@ export default defineComponent({
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
       this.loyaltyPoints = party[0].loyaltyPoints as number;
     },
+    async saveOrder() {
+      try {
+        await this.validate();
+        await this.sinvDoc.runFormulas();
+        await this.sinvDoc.sync();
+      } catch (error) {
+        return showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
+
+      showToast({
+        type: 'success',
+        message: t`Sales Invoice ${this.sinvDoc.name as string} is Saved`,
+        duration: 'short',
+      });
+
+      await this.afterSync();
+    },
     async setItems() {
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
         fields: [],
@@ -619,6 +672,15 @@ export default defineComponent({
         .abs();
 
       this.sinvDoc.grandTotal = total;
+    },
+    async selectedInvoiceName(doc: SalesInvoice) {
+      const salesInvoiceDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        doc.name
+      )) as SalesInvoice;
+
+      this.sinvDoc = salesInvoiceDoc;
+      this.toggleModal('SavedInvoice', false);
     },
     setTransferAmount(amount: Money = fyo.pesa(0)) {
       this.transferAmount = amount;
@@ -832,7 +894,10 @@ export default defineComponent({
         });
       }
     },
-
+    async afterSync() {
+      await this.clearValues();
+      this.setSinvDoc();
+    },
     async afterTransaction() {
       await this.setItemQtyMap();
       await this.clearValues();
@@ -890,11 +955,17 @@ export default defineComponent({
       }, 1);
     },
     async routeToSinvList() {
-      if (!this.sinvDoc.items.length) {
+      if (!this.sinvDoc.items?.length) {
         return await routeTo('/list/SalesInvoice');
       }
 
       this.openRouteToInvoiceListModal = true;
+    },
+    async handleSaveInvoiceAction() {
+      if (!this.sinvDoc.party && !this.sinvDoc.items?.length) {
+        return;
+      }
+      await this.saveOrder();
     },
     routeTo,
     getItem,
