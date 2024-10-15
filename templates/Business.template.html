@@ -126,5 +126,9 @@
       <h3 class="text-lg font-semibold">Notes</h3>
       <p class="mt-4 text-lg whitespace-pre-line">{{ doc.terms }}</p>
     </section>
+    <div v-if="print.amountInWords" class="flex justify-end mt-10">
+      <h3 class="text-lg font-semibold mr-2">Grand Total In Words:</h3>
+      <p>{{doc.grandTotalInWords}}</p>
+    </div>
   </footer>
 </main>
