@@ -41,7 +41,7 @@
     />
 
     <AlertModal
-      :open-modal="openInvoiceListAlertModal"
+      :open-modal="openRouteToInvoiceListModal"
       @toggle-modal="toggleModal"
     />
 
@@ -192,25 +192,14 @@
               </span>
             </div>
             <div class="relative group">
-              <div
-                class="p-1 px-1.5 rounded-md bg-gray-100"
-                @click="
-                  sinvDoc.items?.length
-                    ? (openInvoiceListAlertModal = true)
-                    : routeTo('/list/SalesInvoice')
-                "
-              >
+              <div class="p-1 rounded-md bg-gray-100" @click="routeToSinvList">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
+                  height="24"
                   viewBox="0 -960 960 960"
-                  width="24px"
+                  width="24"
                   fill="currentColor"
-                  class="
-                    feather feather-search
-                    text-gray-700
-                    dark:text-gray-300
-                  "
+                  class="text-gray-700 dark:text-gray-300"
                 >
                   <path
                     d="M240-100q-41.92 0-70.96-29.04Q140-158.08 140-199.82V-300h120v-552.31l55.39 47.7 56.15-47.7 56.15 47.7 56.16-47.7 56.15 47.7 56.15-47.7 56.16 47.7 56.15-47.7 56.15 47.7 55.39-47.7V-200q0 41.92-29.04 70.96Q761.92-100 720-100H240Zm480-60q17 0 28.5-11.5T760-200v-560H320v460h360v100q0 17 11.5 28.5T720-160ZM367.69-610v-60h226.92v60H367.69Zm0 120v-60h226.92v60H367.69Zm310-114.62q-14.69 0-25.04-10.34-10.34-10.35-10.34-25.04t10.34-25.04q10.35-10.34 25.04-10.34t25.04 10.34q10.35 10.35 10.35 25.04t-10.35 25.04q-10.35 10.34-25.04 10.34Zm0 120q-14.69 0-25.04-10.34-10.34-10.35-10.34-25.04t10.34-25.04q10.35-10.34 25.04-10.34t25.04 10.34q10.35 10.35 10.35 25.04t-10.35 25.04q-10.35 10.34-25.04 10.34ZM240-160h380v-80H200v40q0 17 11.5 28.5T240-160Zm-40 0v-80 80Z"
@@ -225,15 +214,14 @@
                   left-1/2
                   transform
                   -translate-x-1/2
-                  mb-2
+                  rounded-md
+                  opacity-0
                   bg-gray-100
                   dark:bg-gray-850 dark:text-white
-                  text-black text-xs
-                  rounded-md
+                  text-black text-xs text-center
+                  mb-2
                   p-2
                   w-28
-                  text-center
-                  opacity-0
                   group-hover:opacity-100
                   transition-opacity
                   duration-300
@@ -460,7 +448,7 @@ export default defineComponent({
       openLoyaltyProgramModal: false,
       openShiftCloseModal: false,
       openShiftOpenModal: false,
-      openInvoiceListAlertModal: false,
+      openRouteToInvoiceListModal: false,
 
       additionalDiscounts: fyo.pesa(0),
       cashAmount: fyo.pesa(0),
@@ -537,7 +525,6 @@ export default defineComponent({
     toggleSidebar(true);
   },
   methods: {
-    routeTo,
     async setCustomer(value: string) {
       if (!value) {
         this.sinvDoc.party = '';
@@ -897,7 +884,14 @@ export default defineComponent({
         }
       }, 1);
     },
+    async routeToSinvList() {
+      if (!this.sinvDoc.items.length) {
+        return await routeTo('/list/SalesInvoice');
+      }
 
+      this.openRouteToInvoiceListModal = true;
+    },
+    routeTo,
     getItem,
   },
 });
