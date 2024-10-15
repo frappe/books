@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Books
+Comment= Open source Accounting Software
+Icon=io.frappe.books
+Exec=run.sh
+Categories=Office;Finance;
+Keywords=accounting;frappe; books;
