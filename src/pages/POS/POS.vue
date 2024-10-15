@@ -596,7 +596,7 @@ export default defineComponent({
         duration: 'short',
       });
 
-      this.afterSync();
+      await this.afterSync();
     },
     async setItems() {
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
@@ -898,8 +898,8 @@ export default defineComponent({
         });
       }
     },
-    afterSync() {
-      this.clearValues();
+    async afterSync() {
+      await this.clearValues();
       this.setSinvDoc();
     },
     async afterTransaction() {
