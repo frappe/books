@@ -8,7 +8,7 @@ export type ItemSerialNumbers = { [item: string]: string };
 
 export type DiscountType = "percent" | "amount";
 
-export type ModalName = 'ShiftOpen' | 'ShiftClose' | 'Payment' | 'LoyaltyProgram' | 'InvoiceListAlert'
+export type ModalName = 'ShiftOpen' | 'ShiftClose' | 'Payment' | 'LoyaltyProgram' | 'RouteToInvoiceList'
 
 export interface POSItem {
     image?:string,
