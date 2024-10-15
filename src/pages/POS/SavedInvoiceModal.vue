@@ -1,31 +1,27 @@
 <template>
-  <Modal class="h-auto w-auto px-10" :set-close-listener="false">
-    <p class="text-center py-4">Saved Invoices</p>
+  <Modal class="h-auto w-auto p-6" :set-close-listener="false">
+    <p class="text-center font-semibold">{{ t`Saved Invoices` }}</p>
 
-    <hr class="dark:border-gray-800" />
+    <hr class="mt-2 dark:border-gray-800" />
 
     <Row
       :ratio="ratio"
       class="
         border
-        dark:border-gray-800
         flex
         items-center
         mt-4
         px-2
+        w-full
         rounded-t-md
         text-gray-600
-        dark:text-gray-400
-        w-full
+        dark:border-gray-800 dark:text-gray-400
       "
     >
       <div
         v-for="df in tableFields"
         :key="df.fieldname"
         class="flex items-center px-2 py-2 text-lg"
-        :style="{
-          height: ``,
-        }"
       >
         {{ df.label }}
       </div>
@@ -33,7 +29,7 @@
 
     <div
       v-if="savedInvoices.length"
-      class="overflow-y-auto"
+      class="overflow-y-auto custom-scroll custom-scroll-thumb2"
       style="height: 65vh; width: 60vh"
     >
       <Row
@@ -43,12 +39,11 @@
         :border="true"
         class="
           border-b border-l border-r
-          dark:border-gray-800
+          dark:border-gray-800 dark:bg-gray-890
           flex
           group
           h-row-mid
           hover:bg-gray-25
-          dark:bg-gray-890
           items-center
           justify-center
           px-2
@@ -67,11 +62,10 @@
       </Row>
     </div>
 
-    <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto p-10">
+    <div class="row-start-6 grid grid-cols-2 gap-4 mt-4">
       <div class="col-span-2">
         <Button
-          class="w-full bg-red-500 dark:bg-red-700"
-          style="padding: 1.35rem"
+          class="w-full p-5 bg-red-500 dark:bg-red-700"
           @click="$emit('toggleModal', 'SavedInvoice')"
         >
           <slot>
@@ -88,12 +82,12 @@
 <script lang="ts">
 import Button from 'src/components/Button.vue';
 import Modal from 'src/components/Modal.vue';
+import Row from 'src/components/Row.vue';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
-import Row from 'src/components/Row.vue';
-import FormControl from 'src/components/Controls/FormControl.vue';
 
 export default defineComponent({
   name: 'SavedInvoiceModal',
@@ -179,12 +173,12 @@ export default defineComponent({
       )) as SalesInvoice[];
     },
     async selectedInvoice(row: SalesInvoice) {
-      let selectedInvoideDoc = (await this.fyo.doc.getDoc(
+      let selectedInvoiceDoc = (await this.fyo.doc.getDoc(
         ModelNameEnum.SalesInvoice,
         row.name
       )) as SalesInvoice;
 
-      this.sinvDoc = selectedInvoideDoc;
+      this.sinvDoc = selectedInvoiceDoc;
       this.$emit('toggleModal', 'SavedInvoice');
     },
   },
