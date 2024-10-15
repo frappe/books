@@ -336,11 +336,7 @@
                   <Button
                     class="w-full bg-violet-500 dark:bg-violet-700 py-6"
                     :disabled="!sinvDoc.party || !sinvDoc.items?.length"
-                    @click="
-                      sinvDoc.party && sinvDoc.items?.length
-                        ? saveOrder()
-                        : null
-                    "
+                    @click="handleSaveInvoiceAction"
                   >
                     <slot>
                       <p class="uppercase text-lg text-white font-semibold">
@@ -959,11 +955,17 @@ export default defineComponent({
       }, 1);
     },
     async routeToSinvList() {
-      if (!this.sinvDoc.items.length) {
+      if (!this.sinvDoc.items?.length) {
         return await routeTo('/list/SalesInvoice');
       }
 
       this.openRouteToInvoiceListModal = true;
+    },
+    async handleSaveInvoiceAction() {
+      if (!this.sinvDoc.party && !this.sinvDoc.items?.length) {
+        return;
+      }
+      await this.saveOrder();
     },
     routeTo,
     getItem,
