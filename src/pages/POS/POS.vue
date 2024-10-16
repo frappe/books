@@ -682,6 +682,7 @@ export default defineComponent({
         await this.makePayment();
         await this.makeStockTransfer();
         await this.afterTransaction();
+        await this.setItems();
       } catch (error) {
         showToast({
           type: 'error',
