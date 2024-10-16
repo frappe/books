@@ -439,7 +439,7 @@ function getPrintTemplateUpdateList(
 
   for (const { name, type } of getNameAndTypeFromTemplateFile(file, fyo)) {
     const fileModified = nameModifiedMap[name];
-    if (fileModified && dbModified.valueOf() >= fileModified.valueOf()) {
+    if (fileModified && dbModified.valueOf() <= fileModified.valueOf()) {
       continue;
     }
 
