@@ -1,15 +1,15 @@
 <template>
-  <Modal class="h-96 w-96" :set-close-listener="false">
-    <p class="text-center py-3">Apply Coupon Code</p>
+  <Modal class="h-auto w-96" :set-close-listener="false">
+    <p class="text-center font-semibold py-3">Apply Coupon Code</p>
     <div class="px-10">
       <hr class="dark:border-gray-800" />
-      <p v-if="appliedCoupons.length" class="text-xs ml-1 mb-1 text-gray-500">
-        Applied Coupon Codes
+      <p v-if="appliedCoupons.length" class="text-xs m-2 text-gray-500">
+        {{ t`Applied Coupon Codes` }}
       </p>
       <div
         v-if="appliedCoupons.length"
         class="overflow-y-auto mt-2 custom-scroll custom-scroll-thumb2"
-        :style="{ height: appliedCoupons.length > 2 ? '11vh' : '10vh' }"
+        :style="{ height: appliedCoupons.length >= 2 ? '11vh' : '8vh' }"
       >
         <Row
           v-for="(coupon,index) in appliedCoupons as any"
@@ -72,7 +72,7 @@
       <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto mb-2">
         <div class="col-span-2">
           <Button
-            class="w-full bg-green-500"
+            class="w-full bg-green-500 dark:bg-green-700"
             style="padding: 1.35rem"
             :disabled="validationError"
             @click="setCouponCode()"
@@ -86,12 +86,12 @@
         </div>
       </div>
 
-      <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto">
+      <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto mb-8">
         <div class="col-span-2">
           <Button
-            class="w-full bg-red-500"
+            class="w-full bg-red-500 dark:bg-red-700"
             style="padding: 1.35rem"
-            @click="$emit('toggleModal', 'CouponCode')"
+            @click="cancelApplyCouponCode()"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
@@ -204,6 +204,10 @@ export default defineComponent({
 
       await updatePricingRule(this.sinvDoc);
       this.$emit('setCouponsCount', this.sinvDoc.coupons?.length);
+    },
+    cancelApplyCouponCode() {
+      this.couponCode = '';
+      this.$emit('toggleModal', 'CouponCode');
     },
   },
 });
