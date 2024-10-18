@@ -112,6 +112,7 @@
             :item-qty-map="itemQtyMap"
             @add-item="addItem"
           />
+
           <ItemsGrid
             v-else
             :items="items"
@@ -254,11 +255,7 @@
                   'dark:bg-gray-600 cursor-not-allowed':
                     !sinvDoc.party || !sinvDoc.items?.length,
                 }"
-                @click="
-                  sinvDoc.party && sinvDoc.items?.length
-                    ? toggleModal('CouponCode', true)
-                    : null
-                "
+                @click="openCouponModal()"
               >
                 <svg
                   fill="#000000"
@@ -1004,6 +1001,11 @@ export default defineComponent({
           type: 'error',
           message: t`${error as string}`,
         });
+      }
+    },
+    openCouponModal() {
+      if (this.sinvDoc.party && this.sinvDoc.items?.length) {
+        this.toggleModal('CouponCode', true);
       }
     },
     async submitSinvDoc(shouldPrint: boolean) {
