@@ -1,4 +1,4 @@
-import { Fyo, t } from 'fyo';
+import { Fyo } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
