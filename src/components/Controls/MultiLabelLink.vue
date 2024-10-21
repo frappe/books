@@ -38,7 +38,7 @@ export default {
       const value = newValue ?? this.value;
       const { fieldname, target } = this.df ?? {};
       const linkDisplayField = fyo.schemaMap[target ?? '']?.linkDisplayField;
-      
+
       if (!linkDisplayField) {
         return (this.linkValue = value);
       }
