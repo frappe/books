@@ -255,9 +255,10 @@
             "
           >
             <!-- Customer Search -->
-            <Link
+            <MultiLabelLink
               v-if="sinvDoc.fieldMap"
               class="flex-shrink-0"
+              new-link="phone"
               :border="true"
               :value="sinvDoc.party"
               :df="sinvDoc.fieldMap.party"
@@ -434,6 +435,7 @@ import { getAddedLPWithGrandTotal, getPricingRule } from 'models/helpers';
 import LoyaltyProgramModal from './LoyaltyprogramModal.vue';
 import AlertModal from './AlertModal.vue';
 import SavedInvoiceModal from './SavedInvoiceModal.vue';
+import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 
 export default defineComponent({
   name: 'POS',
@@ -445,6 +447,7 @@ export default defineComponent({
     ItemsTable,
     ItemsGrid,
     Link,
+    MultiLabelLink,
     AlertModal,
     OpenPOSShiftModal,
     PageHeader,
@@ -572,7 +575,7 @@ export default defineComponent({
       });
 
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
-      this.loyaltyPoints = party[0].loyaltyPoints as number;
+      this.loyaltyPoints = party[0]?.loyaltyPoints as number;
     },
     async saveOrder() {
       try {
