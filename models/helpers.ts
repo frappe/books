@@ -809,22 +809,16 @@ export async function getPricingRulesOfCoupons(
 
   const couponsToFetch = couponName
     ? [couponName]
-    : doc?.coupons?.map((coupon) => coupon.coupons);
+    : (doc?.coupons?.map((coupon) => coupon.coupons) as string[] | []);
 
   if (couponsToFetch?.length) {
-    const result = (
-      await Promise.all(
-        couponsToFetch.map(async (name) => {
-          return (await doc.fyo.db.getAll(ModelNameEnum.CouponCode, {
-            fields: ['*'],
-            filters: { name: name as string },
-          })) as CouponCode[];
-        })
-      )
-    ).flat();
-
-    appliedCoupons = [...appliedCoupons, ...result];
+    appliedCoupons = (await doc.fyo.db.getAll(ModelNameEnum.CouponCode, {
+      fields: ['*'],
+      filters: { name: ['in', couponsToFetch] },
+    })) as CouponCode[];
   }
+
+  console.log('pricingRuleDocNames', pricingRuleDocNames);
 
   const filteredPricingRuleNames = appliedCoupons.filter(
     (val) => val.pricingRule === pricingRuleDocNames![0]
@@ -848,6 +842,7 @@ export async function getPricingRulesOfCoupons(
     }
   )) as PricingRule[];
 
+  console.log('pricingRuleDocsForItem', pricingRuleDocsForItem);
   return pricingRuleDocsForItem;
 }
 
@@ -1067,7 +1062,7 @@ export async function getApplicableCouponCodesName(
     }
   )) as CouponCode[];
 
-  if (!couponCodeDatas || couponCodeDatas.length === 0) {
+  if (!couponCodeDatas || !couponCodeDatas.length) {
     return [];
   }
 
