@@ -572,7 +572,7 @@ export default defineComponent({
       });
 
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
-      this.loyaltyPoints = party[0].loyaltyPoints as number;
+      this.loyaltyPoints = party[0]?.loyaltyPoints as number;
     },
     async saveOrder() {
       try {
