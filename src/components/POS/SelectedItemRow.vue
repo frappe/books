@@ -274,8 +274,9 @@ import { defineComponent } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { Money } from 'pesa';
 import { DiscountType } from './types';
-import { t } from 'fyo';
 import { validateSerialNumberCount } from 'src/utils/pos';
+import { getPricingRule } from 'models/helpers';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { ApplicablePricingRules } from 'models/baseModels/Invoice/types';
 
 export default defineComponent({
@@ -374,8 +375,9 @@ export default defineComponent({
       }
     },
     async updatePricingRuleItem() {
-      const pricingRule =
-        (await this.row.parentdoc?.getPricingRule()) as ApplicablePricingRules[];
+      const pricingRule = (await getPricingRule(
+        this.row.parentdoc as SalesInvoice
+      )) as ApplicablePricingRules[];
 
       let appliedPricingRuleCount =
         this.row.parentdoc?.pricingRuleDetail?.length;
