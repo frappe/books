@@ -29,12 +29,13 @@ html.dark {
   background-color: theme('colors.gray.900');
 }
 
-input[type='number']::-webkit-inner-spin-button {
-  appearance: none;
+html.dark input[type='date']::-webkit-calendar-picker-indicator {
+  background-color: transparent;
+  color-scheme: dark;
 }
 
-input[type='date']::-webkit-calendar-picker-indicator {
-  background-color: theme('colors.gray.900');
+input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
 }
 
 .window-drag {
