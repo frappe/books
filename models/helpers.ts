@@ -818,8 +818,6 @@ export async function getPricingRulesOfCoupons(
     })) as CouponCode[];
   }
 
-  console.log('pricingRuleDocNames', pricingRuleDocNames);
-
   const filteredPricingRuleNames = appliedCoupons.filter(
     (val) => val.pricingRule === pricingRuleDocNames![0]
   );
@@ -842,7 +840,6 @@ export async function getPricingRulesOfCoupons(
     }
   )) as PricingRule[];
 
-  console.log('pricingRuleDocsForItem', pricingRuleDocsForItem);
   return pricingRuleDocsForItem;
 }
 
