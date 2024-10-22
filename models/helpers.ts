@@ -1199,12 +1199,12 @@ export async function updatePricingRule(sinvDoc: SalesInvoice) {
     return;
   }
 
+  const appliedPricingRuleCount = sinvDoc?.items?.filter(
+    (val) => val.isFreeItem
+  ).length;
+
   setTimeout(() => {
     (async () => {
-      const appliedPricingRuleCount = sinvDoc?.items?.filter(
-        (val) => val.isFreeItem
-      ).length;
-
       if (appliedPricingRuleCount !== applicablePricingRuleNames?.length) {
         await sinvDoc.appendPricingRuleDetail(applicablePricingRuleNames);
         await sinvDoc.applyProductDiscount();

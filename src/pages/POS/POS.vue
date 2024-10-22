@@ -1085,11 +1085,11 @@ export default defineComponent({
         return;
       }
 
-      setTimeout(async () => {
-        const appliedPricingRuleCount = this.sinvDoc?.items?.filter(
-          (val) => val.isFreeItem
-        ).length;
+      const appliedPricingRuleCount = this.sinvDoc?.items?.filter(
+        (val) => val.isFreeItem
+      ).length;
 
+      setTimeout(async () => {
         if (appliedPricingRuleCount !== hasPricingRules?.length) {
           await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
           await this.sinvDoc.applyProductDiscount();

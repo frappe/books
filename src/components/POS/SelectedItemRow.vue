@@ -377,15 +377,15 @@ export default defineComponent({
       const pricingRule =
         (await this.row.parentdoc?.getPricingRule()) as ApplicablePricingRules[];
 
-      let appliedPricingRuleCount: number;
-      setTimeout(async () => {
-        if (appliedPricingRuleCount !== pricingRule?.length) {
-          appliedPricingRuleCount = pricingRule?.length;
-          await this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
+      let appliedPricingRuleCount =
+        this.row.parentdoc?.pricingRuleDetail?.length;
 
-          await this.row.parentdoc?.applyProductDiscount();
-        }
-      }, 1);
+      if (appliedPricingRuleCount !== pricingRule?.length) {
+        appliedPricingRuleCount = pricingRule?.length;
+
+        await this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
+        await this.row.parentdoc?.applyProductDiscount();
+      }
     },
   },
 });
