@@ -33,7 +33,7 @@
     <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto mb-2 px-10">
       <div class="col-span-2">
         <Button
-          class="w-full bg-green-500"
+          class="w-full bg-green-500 dark:bg-green-700"
           style="padding: 1.35rem"
           :disabled="validationError"
           @click="setLoyaltyPoints()"
@@ -50,7 +50,7 @@
     <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto px-10">
       <div class="col-span-2">
         <Button
-          class="w-full bg-red-500"
+          class="w-full bg-red-500 dark:bg-red-700"
           style="padding: 1.35rem"
           @click="$emit('toggleModal', 'LoyaltyProgram')"
         >
@@ -85,11 +85,12 @@ export default defineComponent({
   props: {
     loyaltyPoints: {
       type: Number,
-      required: true,
+      default: 0,
     },
+
     loyaltyProgram: {
       type: String,
-      required: true,
+      default: '',
     },
   },
   emits: ['setLoyaltyPoints', 'toggleModal'],
@@ -130,6 +131,7 @@ export default defineComponent({
         if (this.sinvDoc.baseGrandTotal?.lt(loyaltyPoint)) {
           throw new Error(t`no need ${newValue} points to purchase this item`);
         }
+
         this.validationError = false;
       } catch (error) {
         this.validationError = true;
