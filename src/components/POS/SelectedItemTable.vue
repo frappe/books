@@ -30,7 +30,10 @@
     </div>
   </Row>
 
-  <div class="overflow-y-auto" style="height: 50vh">
+  <div
+    class="overflow-y-auto overflow-x-auto custom-scroll custom-scroll-thumb1"
+    style="height: 50vh"
+  >
     <Row
       v-for="row in sinvDoc.items"
       :ratio="ratio"
