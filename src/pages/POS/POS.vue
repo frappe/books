@@ -250,7 +250,7 @@
               <div
                 class="p-0.5 rounded-md bg-gray-100"
                 :class="{
-                  hidden: !fyo.singles.AccountingSettings?.enableLoyaltyProgram,
+                  hidden: !fyo.singles.AccountingSettings?.enableCouponCode,
                   'bg-gray-100': loyaltyPoints,
                   'dark:bg-gray-600 cursor-not-allowed':
                     !sinvDoc.party || !sinvDoc.items?.length,
