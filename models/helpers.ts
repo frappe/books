@@ -30,6 +30,8 @@ import { isPesa } from 'fyo/utils';
 import { Party } from './baseModels/Party/Party';
 import { CouponCode } from './baseModels/CouponCode/CouponCode';
 import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
+import { AppliedCouponCodes } from './baseModels/AppliedCouponCodes/AppliedCouponCodes';
+import { ValidationError } from 'fyo/utils/errors';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -794,8 +796,59 @@ export async function removeLoyaltyPoint(doc: Doc) {
   await party.updateLoyaltyPoints();
 }
 
+export async function getPricingRulesOfCoupons(
+  doc: SalesInvoice,
+  couponName?: string,
+  pricingRuleDocNames?: string[]
+): Promise<PricingRule[] | undefined> {
+  if (!doc?.coupons?.length && !couponName) {
+    return;
+  }
+
+  let appliedCoupons: CouponCode[] = [];
+
+  const couponsToFetch = couponName
+    ? [couponName]
+    : (doc?.coupons?.map((coupon) => coupon.coupons) as string[] | []);
+
+  if (couponsToFetch?.length) {
+    appliedCoupons = (await doc.fyo.db.getAll(ModelNameEnum.CouponCode, {
+      fields: ['*'],
+      filters: { name: ['in', couponsToFetch] },
+    })) as CouponCode[];
+  }
+
+  console.log('pricingRuleDocNames', pricingRuleDocNames);
+
+  const filteredPricingRuleNames = appliedCoupons.filter(
+    (val) => val.pricingRule === pricingRuleDocNames![0]
+  );
+
+  if (!filteredPricingRuleNames.length) {
+    return;
+  }
+
+  const pricingRuleDocsForItem = (await doc.fyo.db.getAll(
+    ModelNameEnum.PricingRule,
+    {
+      fields: ['*'],
+      filters: {
+        name: ['in', pricingRuleDocNames as string[]],
+        isEnabled: true,
+        isCouponCodeBased: true,
+      },
+      orderBy: 'priority',
+      order: 'desc',
+    }
+  )) as PricingRule[];
+
+  console.log('pricingRuleDocsForItem', pricingRuleDocsForItem);
+  return pricingRuleDocsForItem;
+}
+
 export async function getPricingRule(
-  doc: Invoice
+  doc: Invoice,
+  couponName?: string
 ): Promise<ApplicablePricingRules[] | undefined> {
   if (
     !doc.fyo.singles.AccountingSettings?.enablePricingRule ||
@@ -822,18 +875,40 @@ export async function getPricingRule(
       })
     ).map((doc) => doc.parent) as string[];
 
-    const pricingRuleDocsForItem = (await doc.fyo.db.getAll(
+    let pricingRuleDocsForItem;
+
+    const pricingRuleDocs = (await doc.fyo.db.getAll(
       ModelNameEnum.PricingRule,
       {
         fields: ['*'],
         filters: {
           name: ['in', pricingRuleDocNames],
           isEnabled: true,
+          isCouponCodeBased: false,
         },
         orderBy: 'priority',
         order: 'desc',
       }
     )) as PricingRule[];
+
+    if (pricingRuleDocs.length) {
+      pricingRuleDocsForItem = pricingRuleDocs;
+    }
+
+    if (!pricingRuleDocs.length || couponName) {
+      const couponPricingRules: PricingRule[] | undefined =
+        await getPricingRulesOfCoupons(
+          doc as SalesInvoice,
+          couponName,
+          pricingRuleDocNames
+        );
+
+      pricingRuleDocsForItem = couponPricingRules as PricingRule[];
+    }
+
+    if (!pricingRuleDocsForItem) {
+      continue;
+    }
 
     const filtered = filterPricingRules(
       pricingRuleDocsForItem,
@@ -857,6 +932,7 @@ export async function getPricingRule(
       pricingRule: filtered[0],
     });
   }
+
   return pricingRules;
 }
 
@@ -986,11 +1062,11 @@ export async function getApplicableCouponCodesName(
     }
   )) as CouponCode[];
 
-  if (!couponCodeDatas || couponCodeDatas.length === 0) {
+  if (!couponCodeDatas || !couponCodeDatas.length) {
     return [];
   }
 
-  const applicablePricingRules = await getPricingRule(sinvDoc);
+  const applicablePricingRules = await getPricingRule(sinvDoc, couponName);
 
   if (!applicablePricingRules?.length) {
     return [];
@@ -1004,6 +1080,137 @@ export async function getApplicableCouponCodesName(
       pricingRule: rule.pricingRule.name,
       coupon: couponCodeDatas[0].name,
     }));
+}
+
+export async function validateCouponCode(
+  doc: AppliedCouponCodes,
+  value: string,
+  sinvDoc?: SalesInvoice
+) {
+  const coupon = await doc.fyo.db.getAll(ModelNameEnum.CouponCode, {
+    fields: [
+      'minAmount',
+      'maxAmount',
+      'pricingRule',
+      'validFrom',
+      'validTo',
+      'maximumUse',
+      'used',
+      'isEnabled',
+    ],
+    filters: { name: value },
+  });
+
+  if (!coupon[0]?.isEnabled) {
+    throw new ValidationError(
+      'Coupon code cannot be applied as it is not enabled'
+    );
+  }
+
+  if ((coupon[0]?.maximumUse as number) <= (coupon[0]?.used as number)) {
+    throw new ValidationError(
+      'Coupon code has been used maximum number of times'
+    );
+  }
+
+  if (!doc.parentdoc) {
+    doc.parentdoc = sinvDoc;
+  }
+
+  const applicableCouponCodesNames = await getApplicableCouponCodesName(
+    value,
+    doc.parentdoc as SalesInvoice
+  );
+
+  if (!applicableCouponCodesNames?.length) {
+    throw new ValidationError(
+      t`Coupon ${value} is not applicable for applied items.`
+    );
+  }
+
+  const couponExist = doc.parentdoc?.coupons?.some(
+    (coupon) => coupon?.coupons === value
+  );
+
+  if (couponExist) {
+    throw new ValidationError(t`${value} already applied.`);
+  }
+
+  if (
+    (coupon[0].minAmount as Money).gte(doc.parentdoc?.grandTotal as Money) &&
+    !(coupon[0].minAmount as Money).isZero()
+  ) {
+    throw new ValidationError(
+      t`The Grand Total must exceed ${
+        (coupon[0].minAmount as Money).float
+      } to apply the coupon ${value}.`
+    );
+  }
+
+  if (
+    (coupon[0].maxAmount as Money).lte(doc.parentdoc?.grandTotal as Money) &&
+    !(coupon[0].maxAmount as Money).isZero()
+  ) {
+    throw new ValidationError(
+      t`The Grand Total must be less than ${
+        (coupon[0].maxAmount as Money).float
+      } to apply this coupon.`
+    );
+  }
+
+  if ((coupon[0].validFrom as Date) > (doc.parentdoc?.date as Date)) {
+    throw new ValidationError(
+      t`Valid From Date should be less than Valid To Date.`
+    );
+  }
+
+  if ((coupon[0].validTo as Date) < (doc.parentdoc?.date as Date)) {
+    throw new ValidationError(
+      t`Valid To Date should be greater than Valid From Date.`
+    );
+  }
+}
+
+export function removeFreeItems(sinvDoc: SalesInvoice) {
+  if (!sinvDoc || !sinvDoc.items) {
+    return;
+  }
+
+  if (!!sinvDoc.isPricingRuleApplied) {
+    return;
+  }
+
+  for (const item of sinvDoc.items) {
+    if (item.isFreeItem) {
+      sinvDoc.items = sinvDoc.items?.filter(
+        (invoiceItem) => invoiceItem.name !== item.name
+      );
+    }
+  }
+}
+
+export async function updatePricingRule(sinvDoc: SalesInvoice) {
+  const applicablePricingRuleNames = await getPricingRule(sinvDoc);
+
+  if (!applicablePricingRuleNames || !applicablePricingRuleNames.length) {
+    sinvDoc.pricingRuleDetail = undefined;
+    sinvDoc.isPricingRuleApplied = false;
+    removeFreeItems(sinvDoc);
+    return;
+  }
+
+  const appliedPricingRuleCount = sinvDoc?.items?.filter(
+    (val) => val.isFreeItem
+  ).length;
+
+  setTimeout(() => {
+    (async () => {
+      if (appliedPricingRuleCount !== applicablePricingRuleNames?.length) {
+        await sinvDoc.appendPricingRuleDetail(applicablePricingRuleNames);
+        await sinvDoc.applyProductDiscount();
+      }
+    })();
+  }, 1);
 }
 
 export function getPricingRulesConflicts(

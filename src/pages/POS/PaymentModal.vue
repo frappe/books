@@ -169,7 +169,7 @@
             class="w-full bg-blue-500"
             style="padding: 1.35rem"
             :disabled="disableSubmitButton"
-            @click="$emit('createTransaction')"
+            @click="submitTransaction()"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
@@ -224,6 +224,7 @@ export default defineComponent({
     'setTransferClearanceDate',
     'setTransferRefNo',
     'toggleModal',
+    'setCouponsCount',
   ],
   setup() {
     return {
@@ -319,6 +320,10 @@ export default defineComponent({
       }
       this.$emit('setTransferAmount', fyo.pesa(0));
       this.$emit('setCashAmount', this.sinvDoc?.grandTotal);
+    },
+    submitTransaction() {
+      this.$emit('createTransaction');
+      this.$emit('setCouponsCount', 0);
     },
   },
 });
