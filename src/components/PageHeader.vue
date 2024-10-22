@@ -14,7 +14,7 @@
       platform !== 'Windows' ? 'window-drag' : '',
     ]"
   >
-    <Transition name="spacer">
+    <Transition name="spacer" class="border-none">
       <div
         v-if="!showSidebar && platform === 'Mac' && languageDirection !== 'rtl'"
         class="h-full"
