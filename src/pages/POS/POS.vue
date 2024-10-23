@@ -1091,8 +1091,15 @@ export default defineComponent({
         (val) => val.isFreeItem
       ).length;
 
+      const recursivePricingRules = hasPricingRules?.filter(
+        (val) => val.pricingRule.isRecursive
+      );
+
       setTimeout(async () => {
-        if (appliedPricingRuleCount !== hasPricingRules?.length) {
+        if (
+          appliedPricingRuleCount !== hasPricingRules?.length ||
+          recursivePricingRules
+        ) {
           await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
           await this.sinvDoc.applyProductDiscount();
         }
