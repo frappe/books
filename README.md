@@ -56,6 +56,12 @@ Free Desktop book-keeping software for small businesses and freelancers.
 Download and install the latest release for your platform from the [releases
 page](https://github.com/frappe/books/releases) .
 
+### Using Homebrew (for MacOS and Linux)
+
+```zsh
+brew install --cask frappe-books
+```
+
 ## Development
 
 Frappe Books is built on Vue.js and Electron. It is offline by default and uses
