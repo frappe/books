@@ -382,9 +382,10 @@
             "
           >
             <!-- Customer Search -->
-            <Link
+            <MultiLabelLink
               v-if="sinvDoc.fieldMap"
               class="flex-shrink-0"
+              secondary-link="phone"
               :border="true"
               :value="sinvDoc.party"
               :df="sinvDoc.fieldMap.party"
@@ -567,6 +568,7 @@ import AlertModal from './AlertModal.vue';
 import SavedInvoiceModal from './SavedInvoiceModal.vue';
 import CouponCodeModal from './CouponCodeModal.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
+import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 
 export default defineComponent({
   name: 'POS',
@@ -578,6 +580,7 @@ export default defineComponent({
     ItemsTable,
     ItemsGrid,
     Link,
+    MultiLabelLink,
     AlertModal,
     OpenPOSShiftModal,
     PageHeader,
