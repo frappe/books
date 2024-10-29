@@ -57,6 +57,12 @@ Download and install the latest release for your platform from the [releases
 page](https://github.com/frappe/books/releases) or the [download
 page](https://frappebooks.com/download).
 
+### Using Homebrew (for MacOS and Linux)
+
+```zsh
+brew install --cask frappe-books
+```
+
 ## Development
 
 Frappe Books is built on Vue.js and Electron. It is offline by default and uses
