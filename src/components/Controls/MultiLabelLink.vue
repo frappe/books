@@ -22,7 +22,7 @@ export default {
     },
   },
   props: {
-    newLink: String,
+    secondaryLink: String,
   },
   mounted() {
     if (this.value) {
@@ -64,7 +64,12 @@ export default {
       const filters = await this.getFilters();
 
       const fields = [
-        ...new Set(['name', this.newLink, schema.titleField, this.df.groupBy]),
+        ...new Set([
+          'name',
+          this.secondaryLink,
+          schema.titleField,
+          this.df.groupBy,
+        ]),
       ].filter(Boolean);
 
       const results = await fyo.db.getAll(schemaName, {
@@ -75,11 +80,11 @@ export default {
       return (this.results = results
         .map((r) => {
           const option = {
-            label: r[this.newLink]
-              ? `${r[schema.titleField]}  ` + `  ${r[this.newLink]}`
+            label: r[this.secondaryLink]
+              ? `${r[schema.titleField]}  ` + `  ${r[this.secondaryLink]}`
               : r[schema.titleField],
             value: r.name,
-            value2: r[this.newLink],
+            value2: r[this.secondaryLink],
           };
 
           if (this.df.groupBy) {

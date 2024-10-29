@@ -385,7 +385,7 @@
             <MultiLabelLink
               v-if="sinvDoc.fieldMap"
               class="flex-shrink-0"
-              new-link="phone"
+              secondary-link="phone"
               :border="true"
               :value="sinvDoc.party"
               :df="sinvDoc.fieldMap.party"
