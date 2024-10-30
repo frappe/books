@@ -3,18 +3,28 @@
     class="
       flex flex-col
       gap-4
-      p-4
+      p-2
       items-center
-      mt-4
       px-2
       rounded-t-md
       text-black
       w-full
+      overflow-y-auto
+      custom-scroll custom-scroll-thumb2
     "
-    style="height: 80vh"
+    style="height: 83vh"
   >
     <!-- Items Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
+    <div
+      class="
+        grid grid-cols-1
+        md:grid-cols-2
+        lg:grid-cols-3
+        xl:grid-cols-4
+        gap-2
+        w-full
+      "
+    >
       <div
         class="
           border border-gray-300
@@ -27,20 +37,21 @@
         v-for="item in items as POSItem[]"
         :key="item.name"
       >
-        <div class="self-center w-32 h-32 rounded-lg mb-1">
-          <div class="relative">
+        <div class="self-center w-32 h-32 p-1 rounded-lg">
+          <div class="relative w-full h-full p-2">
             <img
               v-if="item.image"
               :src="item.image"
               alt=""
-              class="rounded-lg w-32 h-32 object-cover"
+              class="rounded-lg w-full h-full object-cover"
             />
+
             <div
               v-else
               class="
                 rounded-lg
-                w-32
-                h-32
+                w-full
+                h-full
                 flex
                 bg-gray-100
                 dark:bg-gray-850
@@ -53,7 +64,17 @@
               </p>
             </div>
             <p
-              class="absolute top-1 right-1 rounded-full p-1"
+              class="
+                absolute
+                top-1
+                right-1
+                rounded-full
+                w-6
+                h-6
+                flex
+                justify-center
+                items-center
+              "
               :class="
                 item.availableQty > 0
                   ? 'bg-green-100 text-green-900'
@@ -80,7 +101,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { fyo } from 'src/initFyo';
-import { POSItem } from './types';
+import { POSItem } from '../types';
 
 export default defineComponent({
   name: 'ItemsGrid',
