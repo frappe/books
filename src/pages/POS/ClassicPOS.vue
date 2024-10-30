@@ -514,7 +514,6 @@ import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.
 import ItemsTable from 'src/components/POS/Classic/ItemsTable.vue';
 import Link from 'src/components/Controls/Link.vue';
 import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
-import PageHeader from 'src/components/PageHeader.vue';
 import PaymentModal from './PaymentModal.vue';
 import SelectedItemTable from 'src/components/POS/Classic/SelectedItemTable.vue';
 import { computed, defineComponent } from 'vue';
@@ -559,7 +558,6 @@ import CouponCodeModal from './CouponCodeModal.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 
-
 export default defineComponent({
   name: 'ClassicPOS',
   components: {
@@ -573,7 +571,6 @@ export default defineComponent({
     MultiLabelLink,
     AlertModal,
     OpenPOSShiftModal,
-    PageHeader,
     PaymentModal,
     LoyaltyProgramModal,
     SavedInvoiceModal,
@@ -1054,8 +1051,6 @@ export default defineComponent({
       }
     },
     toggleModal(modal: ModalName, value?: boolean) {
-      console.log("toggleModal");
-      
       if (value) {
         return (this[`open${modal}Modal`] = value);
       }
