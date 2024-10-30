@@ -39,14 +39,14 @@
       "options": [
         {
           "value": "Classic",
-          "label": "POS1"
+          "label": "Classic"
         },
         {
           "value": "Modern",
-          "label": "POS2"
+          "label": "Modern"
         }
       ],
-      "default": "POS1",
+      "default": "Classic",
       "required": true,
       "section": "Default"
     }

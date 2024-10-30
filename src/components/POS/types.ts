@@ -17,7 +17,18 @@ export type ModalName =
   | 'RouteToInvoiceList'
   | 'CouponCode';
 
+export type ModernPosModalName =
+  | 'Keyboard'
+  | 'ShiftOpen'
+  | 'ShiftClose'
+  | 'Payment'
+  | 'LoyaltyProgram'
+  | 'SavedInvoice'
+  | 'RouteToInvoiceList'
+  | 'CouponCode';
+
 export interface POSItem {
+  id?: number;
   image?: string;
   name: string;
   rate: Money;

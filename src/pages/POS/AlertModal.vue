@@ -49,7 +49,7 @@ export default defineComponent({
     Modal,
     Button,
   },
-  emits: ['toggleModal', 'selectedInvoiceName'],
+  emits: ['toggleModal'],
   methods: {
     routeTo,
   },

@@ -1,5 +1,7 @@
-import { Fyo, t } from 'fyo';
-import { Doc } from 'fyo/model/doc';
+import {
+  AccountRootType,
+  AccountRootTypeEnum,
+} from './baseModels/Account/types';
 import {
   Action,
   ColumnConfig,
@@ -7,31 +9,30 @@ import {
   LeadStatus,
   RenderData,
 } from 'fyo/model/types';
+import { Fyo, t } from 'fyo';
+import { InvoiceStatus, ModelNameEnum } from './types';
+
+import { ApplicablePricingRules } from './baseModels/Invoice/types';
+import { AppliedCouponCodes } from './baseModels/AppliedCouponCodes/AppliedCouponCodes';
+import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
+import { CouponCode } from './baseModels/CouponCode/CouponCode';
 import { DateTime } from 'luxon';
-import { Money } from 'pesa';
-import { safeParseFloat } from 'utils/index';
-import { Router } from 'vue-router';
-import {
-  AccountRootType,
-  AccountRootTypeEnum,
-} from './baseModels/Account/types';
-import { numberSeriesDefaultsMap } from './baseModels/Defaults/Defaults';
+import { Doc } from 'fyo/model/doc';
 import { Invoice } from './baseModels/Invoice/Invoice';
+import { Lead } from './baseModels/Lead/Lead';
+import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
+import { Money } from 'pesa';
+import { Party } from './baseModels/Party/Party';
+import { PricingRule } from './baseModels/PricingRule/PricingRule';
+import { Router } from 'vue-router';
+import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
 import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
-import { InvoiceStatus, ModelNameEnum } from './types';
-import { Lead } from './baseModels/Lead/Lead';
-import { PricingRule } from './baseModels/PricingRule/PricingRule';
-import { ApplicablePricingRules } from './baseModels/Invoice/types';
-import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
-import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
-import { isPesa } from 'fyo/utils';
-import { Party } from './baseModels/Party/Party';
-import { CouponCode } from './baseModels/CouponCode/CouponCode';
-import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
-import { AppliedCouponCodes } from './baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import { ValidationError } from 'fyo/utils/errors';
+import { isPesa } from 'fyo/utils';
+import { numberSeriesDefaultsMap } from './baseModels/Defaults/Defaults';
+import { safeParseFloat } from 'utils/index';
 
 export function getQuoteActions(
   fyo: Fyo,
