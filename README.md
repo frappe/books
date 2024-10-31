@@ -50,8 +50,9 @@ Free Desktop book-keeping software for small businesses and freelancers.
 ## Installation
 
 ### Via Flatpak
+
 <a href='https://flathub.org/apps/io.frappe.books'>
-    <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+    <img width='120' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
 </a>
 
 ### Using Homebrew (for MacOS and Linux)
