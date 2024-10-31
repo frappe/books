@@ -49,14 +49,22 @@ Free Desktop book-keeping software for small businesses and freelancers.
 
 ## Installation
 
-Download and install the latest release for your platform from the [releases
-page](https://github.com/frappe/books/releases) .
+### Via Flatpak
+
+<a href='https://flathub.org/apps/io.frappe.books'>
+    <img width='120' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+</a>
 
 ### Using Homebrew (for MacOS and Linux)
 
 ```zsh
 brew install --cask frappe-books
 ```
+
+### Manual
+
+Download and install the latest release for your platform from the [releases
+page](https://github.com/frappe/books/releases) .
 
 ## Development
 
