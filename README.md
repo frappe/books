@@ -156,22 +156,22 @@ If you want to contribute code then you can fork this repo, make changes and rai
 
 ## Translation Contributors
 
-| Language           | Contributors                                                                                                                                                     |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| French             | [DeepL](https://www.deepl.com/), [mael-chouteau](https://github.com/mael-chouteau), [joandreux](https://github.com/joandreux)                                    |
-| German             | [DeepL](https://www.deepl.com/), [barredterra](https://github.com/barredterra), [promexio](https://github.com/promexio), [C2H6-383](https://github.com/C2H6-383) |
-| Portuguese         | [DeepL](https://www.deepl.com/), [Valdir Amaral](https://github.com/valdir-amaral)                                                                               |
-| Arabic             | [taha2002](https://github.com/taha2002), [Faridget](https://github.com/faridget)                                                                                 |
-| Catalan            | Dídac E. Jiménez                                                                                                                                                 |
-| Dutch              | [RijckAlex](https://github.com/RijckAlex)                                                                                                                        |
-| Spanish            | [talmax1124](https://github.com/talmax1124), [delbertf](https://github.com/delbertf)                                                                             |
-| Gujarati           | [dhruvilxcode](https://github.com/dhruvilxcode), [4silvertooth](https://github.com/4silvertooth)                                                                 |
-| Hindi              | [bnsinghgit](https://github.com/bnsinghgit)                                                                                                                      |
-| Korean             | [Isaac-Kwon](https://github.com/Isaac-Kwon)                                                                                                                      |
-| Simplified Chinese | [wcxu21](https://github.com/wcxu21), [wolone](https://github.com/wolone), [Ji Qu](https://github.com/winkidney)                                                  |
-| Swedish            | [papplo](https://github.com/papplo), [Crims-on](https://github.com/Crims-on)                                                                                     |
-| Turkish            | Eyuq, [XTechnology-TR](https://github.com/XTechnology-TR)                                                                                                        |
-| Danish             | [Tummas Joensen](https://github.com/slang123)                                                                                                                    |
+| Language           | Contributors                                                                                                                                                                                              |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| French             | [DeepL](https://www.deepl.com/), [mael-chouteau](https://github.com/mael-chouteau), [joandreux](https://github.com/joandreux)                                                                             |
+| German             | [DeepL](https://www.deepl.com/), [barredterra](https://github.com/barredterra), [promexio](https://github.com/promexio), [C2H6-383](https://github.com/C2H6-383), [0xflotus](https://github.com/0xflotus) |
+| Portuguese         | [DeepL](https://www.deepl.com/), [Valdir Amaral](https://github.com/valdir-amaral)                                                                                                                        |
+| Arabic             | [taha2002](https://github.com/taha2002), [Faridget](https://github.com/faridget)                                                                                                                          |
+| Catalan            | Dídac E. Jiménez                                                                                                                                                                                          |
+| Dutch              | [RijckAlex](https://github.com/RijckAlex)                                                                                                                                                                 |
+| Spanish            | [talmax1124](https://github.com/talmax1124), [delbertf](https://github.com/delbertf)                                                                                                                      |
+| Gujarati           | [dhruvilxcode](https://github.com/dhruvilxcode), [4silvertooth](https://github.com/4silvertooth)                                                                                                          |
+| Hindi              | [bnsinghgit](https://github.com/bnsinghgit)                                                                                                                                                               |
+| Korean             | [Isaac-Kwon](https://github.com/Isaac-Kwon)                                                                                                                                                               |
+| Simplified Chinese | [wcxu21](https://github.com/wcxu21), [wolone](https://github.com/wolone), [Ji Qu](https://github.com/winkidney)                                                                                           |
+| Swedish            | [papplo](https://github.com/papplo), [Crims-on](https://github.com/Crims-on)                                                                                                                              |
+| Turkish            | Eyuq, [XTechnology-TR](https://github.com/XTechnology-TR)                                                                                                                                                 |
+| Danish             | [Tummas Joensen](https://github.com/slang123)                                                                                                                                                             |
 
 ## License
 
