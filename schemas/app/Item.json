@@ -113,7 +113,7 @@
     {
       "fieldname": "hsnCode",
       "label": "HSN/SAC",
-      "fieldtype": "Int",
+      "fieldtype": "Data",
       "placeholder": "HSN/SAC Code",
       "section": "Inventory"
     },
