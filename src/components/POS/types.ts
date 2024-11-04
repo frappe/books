@@ -9,22 +9,12 @@ export type ItemSerialNumbers = { [item: string]: string };
 export type DiscountType = 'percent' | 'amount';
 
 export type ModalName =
-  | 'ShiftOpen'
-  | 'ShiftClose'
-  | 'Payment'
-  | 'LoyaltyProgram'
-  | 'SavedInvoice'
-  | 'RouteToInvoiceList'
-  | 'CouponCode';
-
-export type ModernPosModalName =
   | 'Keyboard'
-  | 'ShiftOpen'
-  | 'ShiftClose'
   | 'Payment'
+  | 'ShiftClose'
   | 'LoyaltyProgram'
   | 'SavedInvoice'
-  | 'RouteToInvoiceList'
+  | 'Alert'
   | 'CouponCode';
 
 export interface POSItem {
