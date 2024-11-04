@@ -107,6 +107,15 @@ export default defineComponent({
   methods: {
     async updateLoyaltyPoints(newValue: number) {
       try {
+        const partyData = await this.fyo.db.get(
+          ModelNameEnum.Party,
+          this.sinvDoc.party as string
+        );
+
+        if (!partyData.loyaltyProgram) {
+          return;
+        }
+
         if (this.loyaltyPoints >= newValue) {
           this.sinvDoc.loyaltyPoints = newValue;
         } else {
@@ -121,7 +130,7 @@ export default defineComponent({
           ModelNameEnum.LoyaltyProgram,
           {
             fields: ['conversionFactor'],
-            filters: { name: this.loyaltyProgram },
+            filters: { name: partyData.loyaltyProgram as string },
           }
         );
 
