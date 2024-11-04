@@ -6,6 +6,7 @@ import testPatch from './testPatch';
 import updateSchemas from './updateSchemas';
 import setPaymentReferenceType from './setPaymentReferenceType';
 import fixLedgerDateTime from './v0_21_0/fixLedgerDateTime';
+import fixItemHSNField from './fixItemHSNField';
 
 export default [
   { name: 'testPatch', version: '0.5.0-beta.0', patch: testPatch },
@@ -40,4 +41,5 @@ export default [
     version: '0.21.2',
     patch: fixLedgerDateTime,
   },
+  { name: 'fixItemHSNField', version: '0.24.0', patch: fixItemHSNField },
 ] as Patch[];
