@@ -7,6 +7,7 @@
       w-36
       rounded
       px-2
+      dark:border-gray-800
       bg-gray-50
       dark:bg-gray-890
       focus-within:bg-gray-100
