@@ -85,6 +85,7 @@ export default defineComponent({
       isExapanded: false,
     };
   },
+  emits: ['toggleModal'],
   computed: {
     ratio() {
       return [0.1, 0.8, 0.4, 0.8, 0.8, 0.3];
@@ -138,7 +139,7 @@ export default defineComponent({
   },
   methods: {
     handleToggleModal(modal: string) {
-      this.$emit('toggle-modal', modal);
+      this.$emit('toggleModal', modal);
     },
     async runSinvFormulas() {
       await this.sinvDoc.runFormulas();

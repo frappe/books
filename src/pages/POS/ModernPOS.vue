@@ -257,10 +257,10 @@
 
         <div class="flex fixed bottom-0 p-1 ml-3 mb-7 gap-x-3">
           <POSQuickActions
+            :sinv-doc="sinvDoc"
             :loyalty-points="loyaltyPoints"
             :loyalty-program="loyaltyProgram"
             :applied-coupons-count="appliedCouponsCount"
-            :sinv-doc="sinvDoc"
             @toggle-view="toggleView"
             @toggle-modal="toggleModal"
             @emit-route-to-sinv-list="emitRouteToSinvList"
@@ -337,7 +337,6 @@ export default defineComponent({
     disablePayButton: Boolean,
     openPaymentModal: Boolean,
     openKeyboardModal: Boolean,
-    coupons: AppliedCouponCodes,
     openCouponCodeModal: Boolean,
     openShiftCloseModal: Boolean,
     openSavedInvoiceModal: Boolean,
@@ -355,9 +354,13 @@ export default defineComponent({
       type: Number,
       default: 0,
     },
-    sinvDoc: {
-      type: SalesInvoice || undefined,
+    coupons: {
+      type: Object as PropType<AppliedCouponCodes>,
       default: () => ({}),
+    },
+    sinvDoc: {
+      type: Object as PropType<SalesInvoice | undefined>,
+      default: undefined,
     },
     itemQuantityMap: {
       type: Object as PropType<ItemQtyMap>,

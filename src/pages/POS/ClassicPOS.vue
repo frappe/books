@@ -107,7 +107,15 @@
           />
 
           <div class="flex fixed bottom-0 p-1 mb-7 gap-x-3">
-            <POSQuickActions />
+            <POSQuickActions
+              :sinv-doc="sinvDoc"
+              :loyalty-points="loyaltyPoints"
+              :loyalty-program="loyaltyProgram"
+              :applied-coupons-count="appliedCouponsCount"
+              @toggle-view="toggleView"
+              @toggle-modal="toggleModal"
+              @emit-route-to-sinv-list="emitRouteToSinvList"
+            />
           </div>
         </div>
       </div>
@@ -394,6 +402,9 @@ export default defineComponent({
   methods: {
     setTransferRefNo(ref: string) {
       this.transferRefNo = ref;
+    },
+    emitRouteToSinvList() {
+      this.$emit('routeToSinvList');
     },
     toggleView() {
       this.tableView = !this.tableView;
