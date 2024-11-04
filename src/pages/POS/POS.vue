@@ -16,32 +16,95 @@
         </Button>
       </slot>
     </PageHeader>
-    <ClassicPOS v-if="fyo.singles.POSSettings?.posUI == 'Classic'" />
-    <ModernPOS v-else />
+    <ClassicPOS
+      v-if="fyo.singles.POSSettings?.posUI == 'Classic'"
+      :item-quantity-qap="itemQtyMap"
+      :loyalty-points="loyaltyPoints"
+      :open-alert-modal="openAlertModal"
+      :default-customer="defaultCustomer"
+      :items="(items as [] as POSItem[])"
+      :cash-amount="(cashAmount as Money)"
+      :sinv-doc="(sinvDoc as SalesInvoice)"
+      :disable-pay-button="disablePayButton"
+      :open-payment-modal="openPaymentModal"
+      :item-discounts="(itemDiscounts as Money)"
+      :coupons="(coupons as AppliedCouponCodes)"
+      :applied-coupons-count="appliedCouponsCount"
+      :open-shift-close-modal="openShiftCloseModal"
+      :open-coupon-code-modal="openCouponCodeModal"
+      :open-saved-invoice-modal="openSavedInvoiceModal"
+      :open-loyalty-program-modal="openLoyaltyProgramModal"
+      :open-applied-coupons-modal="openAppliedCouponsModal"
+      @add-item="addItem"
+      @set-sinv-doc="setSinvDoc"
+      @clear-values="clearValues"
+      @set-customer="setCustomer"
+      @toggle-modal="toggleModal"
+      @set-cash-amount="setCashAmount"
+      @route-to-sinv-list="routeToSinvList"
+      @set-coupons-count="setCouponsCount"
+      @set-loyalty-points="setLoyaltyPoints"
+      @save-invoice-action="saveInvoiceAction"
+      @create-transaction="createTransaction"
+      @set-transfer-amount="setTransferAmount"
+      @selected-invoice-name="selectedInvoiceName"
+    />
+    <ModernPOS
+      v-else
+      :item-quantity-qap="itemQtyMap"
+      :loyalty-points="loyaltyPoints"
+      :open-alert-modal="openAlertModal"
+      :default-customer="defaultCustomer"
+      :items="(items as [] as POSItem[])"
+      :cash-amount="(cashAmount as Money)"
+      :sinv-doc="(sinvDoc as SalesInvoice)"
+      :disable-pay-button="disablePayButton"
+      :open-payment-modal="openPaymentModal"
+      :open-keyboard-modal="openKeyboardModal"
+      :item-discounts="(itemDiscounts as Money)"
+      :coupons="(coupons as AppliedCouponCodes)"
+      :applied-coupons-count="appliedCouponsCount"
+      :open-shift-close-modal="openShiftCloseModal"
+      :open-coupon-code-modal="openCouponCodeModal"
+      :open-saved-invoice-modal="openSavedInvoiceModal"
+      :open-loyalty-program-modal="openLoyaltyProgramModal"
+      :open-applied-coupons-modal="openAppliedCouponsModal"
+      @add-item="addItem"
+      @set-sinv-doc="setSinvDoc"
+      @clear-values="clearValues"
+      @set-customer="setCustomer"
+      @toggle-modal="toggleModal"
+      @set-cash-amount="setCashAmount"
+      @route-to-sinv-list="routeToSinvList"
+      @set-coupons-count="setCouponsCount"
+      @set-loyalty-points="setLoyaltyPoints"
+      @save-invoice-action="saveInvoiceAction"
+      @create-transaction="createTransaction"
+      @set-transfer-amount="setTransferAmount"
+      @selected-invoice-name="selectedInvoiceName"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import Button from 'src/components/Button.vue';
-import PageHeader from 'src/components/PageHeader.vue';
-import { computed, defineComponent } from 'vue';
-import { fyo } from 'src/initFyo';
-import { routeTo, toggleSidebar } from 'src/utils/ui';
-import { ModelNameEnum } from 'models/types';
-import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { t } from 'fyo';
-import {
-  ItemQtyMap,
-  ItemSerialNumbers,
-  POSItem,
-} from 'src/components/POS/types';
+import { Money } from 'pesa';
+import { fyo } from 'src/initFyo';
+import ModernPOS from './ModernPOS.vue';
+import ClassicPOS from './ClassicPOS.vue';
+import { ModelNameEnum } from 'models/types';
+import Button from 'src/components/Button.vue';
+import { computed, defineComponent } from 'vue';
+import { showToast } from 'src/utils/interactive';
 import { Item } from 'models/baseModels/Item/Item';
 import { ModalName } from 'src/components/POS/types';
-import { Money } from 'pesa';
-import { Payment } from 'models/baseModels/Payment/Payment';
-import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { Shipment } from 'models/inventory/Shipment';
-import { showToast } from 'src/utils/interactive';
+import { routeTo, toggleSidebar } from 'src/utils/ui';
+import PageHeader from 'src/components/PageHeader.vue';
+import { Payment } from 'models/baseModels/Payment/Payment';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import {
   getItem,
   getItemDiscounts,
@@ -57,77 +120,76 @@ import {
   getPricingRule,
   removeFreeItems,
 } from 'models/helpers';
-import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
-import ClassicPOS from './ClassicPOS.vue';
-import ModernPOS from './ModernPOS.vue';
+import {
+  ItemQtyMap,
+  ItemSerialNumbers,
+  POSItem,
+} from 'src/components/POS/types';
 
 export default defineComponent({
   name: 'POS',
   components: {
     Button,
+    ModernPOS,
     PageHeader,
     ClassicPOS,
-    ModernPOS,
   },
   provide() {
     return {
-      cashAmount: computed(() => this.cashAmount),
       doc: computed(() => this.sinvDoc),
-      isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
-      itemDiscounts: computed(() => this.itemDiscounts),
-      itemQtyMap: computed(() => this.itemQtyMap),
-      itemSerialNumbers: computed(() => this.itemSerialNumbers),
       sinvDoc: computed(() => this.sinvDoc),
-      appliedCoupons: computed(() => this.sinvDoc.coupons),
       coupons: computed(() => this.coupons),
-      totalTaxedAmount: computed(() => this.totalTaxedAmount),
-      transferAmount: computed(() => this.transferAmount),
-      transferClearanceDate: computed(() => this.transferClearanceDate),
+      itemQtyMap: computed(() => this.itemQtyMap),
+      cashAmount: computed(() => this.cashAmount),
       transferRefNo: computed(() => this.transferRefNo),
+      itemDiscounts: computed(() => this.itemDiscounts),
+      transferAmount: computed(() => this.transferAmount),
+      appliedCoupons: computed(() => this.sinvDoc.coupons),
+      totalTaxedAmount: computed(() => this.totalTaxedAmount),
+      itemSerialNumbers: computed(() => this.itemSerialNumbers),
+      isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
+      transferClearanceDate: computed(() => this.transferClearanceDate),
     };
   },
   data() {
     return {
-      items: [] as POSItem[],
-
       tableView: true,
 
-      isItemsSeeded: false,
-      openPaymentModal: false,
-      openLoyaltyProgramModal: false,
-      openSavedInvoiceModal: false,
-      openCouponCodeModal: false,
-      openAppliedCouponsModal: false,
-      openShiftCloseModal: false,
-      openShiftOpenModal: false,
-      openRouteToInvoiceListModal: false,
+      items: [] as POSItem[],
 
-      additionalDiscounts: fyo.pesa(0),
-      cashAmount: fyo.pesa(0),
-      itemDiscounts: fyo.pesa(0),
-      totalTaxedAmount: fyo.pesa(0),
-      transferAmount: fyo.pesa(0),
+      openAlertModal: false,
+      openPaymentModal: false,
+      openKeyboardModal: false,
+      openCouponCodeModal: false,
+      openShiftCloseModal: false,
+      openSavedInvoiceModal: false,
+      openLoyaltyProgramModal: false,
+      openAppliedCouponsModal: false,
 
       totalQuantity: 0,
+      cashAmount: fyo.pesa(0),
+      itemDiscounts: fyo.pesa(0),
+      transferAmount: fyo.pesa(0),
+      totalTaxedAmount: fyo.pesa(0),
+      additionalDiscounts: fyo.pesa(0),
 
       loyaltyPoints: 0,
       appliedLoyaltyPoints: 0,
       loyaltyProgram: '' as string,
 
-      appliedCoupons: [] as AppliedCouponCodes[],
       appliedCouponsCount: 0,
+      appliedCoupons: [] as AppliedCouponCodes[],
 
-      defaultCustomer: undefined as string | undefined,
       itemSearchTerm: '',
       transferRefNo: undefined as string | undefined,
-
+      defaultCustomer: undefined as string | undefined,
       transferClearanceDate: undefined as Date | undefined,
 
-      itemQtyMap: {} as ItemQtyMap,
-      itemSerialNumbers: {} as ItemSerialNumbers,
       paymentDoc: {} as Payment,
       sinvDoc: {} as SalesInvoice,
+      itemQtyMap: {} as ItemQtyMap,
       coupons: {} as AppliedCouponCodes,
+      itemSerialNumbers: {} as ItemSerialNumbers,
     };
   },
   computed: {
@@ -137,24 +199,11 @@ export default defineComponent({
       return !!fyo.singles.AccountingSettings?.enableDiscounting;
     },
     isPosShiftOpen: () => !!fyo.singles.POSShift?.isShiftOpen,
-    isPaymentAmountSet(): boolean {
-      if (this.sinvDoc.grandTotal?.isZero()) {
-        return true;
-      }
-
-      if (this.cashAmount.isZero() && this.transferAmount.isZero()) {
-        return false;
-      }
-      return true;
-    },
     disablePayButton(): boolean {
-      if (!this.sinvDoc.items?.length) {
+      if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
         return true;
       }
 
-      if (!this.sinvDoc.party) {
-        return true;
-      }
       return false;
     },
   },
@@ -186,6 +235,7 @@ export default defineComponent({
     async setCustomer(value: string) {
       if (!value) {
         this.sinvDoc.party = '';
+
         return;
       }
 
@@ -390,8 +440,10 @@ export default defineComponent({
       if (existingItems.length) {
         existingItems[0].rate = item.rate as Money;
         existingItems[0].quantity = (existingItems[0].quantity as number) + 1;
+
         await this.applyPricingRule();
         await this.sinvDoc.runFormulas();
+
         return;
       }
 
@@ -421,6 +473,7 @@ export default defineComponent({
     async makePayment() {
       this.paymentDoc = this.sinvDoc.getPayment() as Payment;
       const paymentMethod = this.cashAmount.isZero() ? 'Transfer' : 'Cash';
+
       await this.paymentDoc.set('paymentMethod', paymentMethod);
 
       if (paymentMethod === 'Transfer') {
@@ -545,6 +598,7 @@ export default defineComponent({
       if (value) {
         return (this[`open${modal}Modal`] = value);
       }
+
       return (this[`open${modal}Modal`] = !this[`open${modal}Modal`]);
     },
     updateValues() {
@@ -565,6 +619,7 @@ export default defineComponent({
         this.sinvDoc.pricingRuleDetail = undefined;
         this.sinvDoc.isPricingRuleApplied = false;
         removeFreeItems(this.sinvDoc as SalesInvoice);
+
         return;
       }
 
@@ -591,12 +646,13 @@ export default defineComponent({
         return await routeTo('/list/SalesInvoice');
       }
 
-      this.openRouteToInvoiceListModal = true;
+      this.openAlertModal = true;
     },
-    async handleSaveInvoiceAction() {
+    async saveInvoiceAction() {
       if (!this.sinvDoc.party && !this.sinvDoc.items?.length) {
         return;
       }
+
       await this.saveOrder();
     },
     routeTo,

@@ -10,7 +10,7 @@
       <div class="flex col-span-2 gap-5">
         <Button
           class="py-5 w-full bg-red-500 dark:bg-red-700"
-          @click="$emit('toggleModal', 'RouteToInvoiceList')"
+          @click="$emit('toggleModal', 'Alert')"
         >
           <slot>
             <p class="uppercase text-lg text-white font-semibold">
@@ -23,7 +23,7 @@
           class="w-full py-5 bg-green-500 dark:bg-green-700"
           @click="
             routeTo('/list/SalesInvoice');
-            $emit('toggleModal', 'RouteToInvoiceList');
+            $emit('toggleModal', 'Alert');
           "
         >
           <slot>
