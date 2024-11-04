@@ -152,7 +152,7 @@
       <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto">
         <div class="col-span-2">
           <Button
-            class="w-full bg-red-500"
+            class="w-full bg-red-500 dark:bg-red-700"
             style="padding: 1.35rem"
             @click="$emit('toggleModal', 'Payment')"
           >
@@ -166,7 +166,7 @@
 
         <div class="col-span-1">
           <Button
-            class="w-full bg-blue-500"
+            class="w-full bg-blue-500 dark:bg-blue-700"
             style="padding: 1.35rem"
             :disabled="disableSubmitButton"
             @click="submitTransaction()"
@@ -180,7 +180,7 @@
         </div>
         <div class="col-span-1">
           <Button
-            class="w-full bg-green-500"
+            class="w-full bg-green-500 dark:bg-green-700"
             style="padding: 1.35rem"
             :disabled="disableSubmitButton"
             @click="$emit('createTransaction', true)"
