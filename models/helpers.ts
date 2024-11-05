@@ -1201,7 +1201,7 @@ export async function updatePricingRule(sinvDoc: SalesInvoice) {
   ).length;
 
   setTimeout(() => {
-    (async () => {
+    void (async () => {
       if (appliedPricingRuleCount !== applicablePricingRuleNames?.length) {
         await sinvDoc.appendPricingRuleDetail(applicablePricingRuleNames);
         await sinvDoc.applyProductDiscount();
