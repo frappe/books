@@ -76,6 +76,11 @@ export class Item extends Doc {
         throw new ValidationError(this.fyo.t`Rate can't be negative.`);
       }
     },
+    hsnCode: (value: DocValue) => {
+      if (value && !(value as string).match(/^\d{4,8}$/)) {
+        throw new ValidationError(this.fyo.t`Invalid HSN Code.`);
+      }
+    },
   };
 
   static getActions(fyo: Fyo): Action[] {
