@@ -764,6 +764,19 @@ export function getLoyaltyProgramTier(
   return loyaltyProgramTier;
 }
 
+export async function updatePricingRuleItem(doc: SalesInvoice) {
+  const pricingRule = (await getPricingRule(doc)) as ApplicablePricingRules[];
+
+  let appliedPricingRuleCount = doc?.pricingRuleDetail?.length;
+
+  if (appliedPricingRuleCount !== pricingRule?.length) {
+    appliedPricingRuleCount = pricingRule?.length;
+
+    await doc?.appendPricingRuleDetail(pricingRule);
+    await doc?.applyProductDiscount();
+  }
+}
+
 export async function removeLoyaltyPoint(doc: Doc) {
   if (!doc.loyaltyProgram) {
     return;

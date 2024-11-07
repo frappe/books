@@ -46,8 +46,11 @@
     <AlertModal :open-modal="openAlertModal" @toggle-modal="toggleModal" />
 
     <KeyboardModal
+      v-if="selectedItemField && selectedItemRow"
       :open-modal="openKeyboardModal"
       :modal-status="openKeyboardModal"
+      :selected-item-field="selectedItemField"
+      :selected-item-row="(selectedItemRow as SalesInvoiceItem)"
       @toggle-modal="toggleModal"
     />
 
@@ -77,7 +80,10 @@
               :df="sinvDoc?.fieldMap.party"
               @change="(value:string) => $emit('setCustomer',value)"
             />
-            <ModernPOSSelectedItemTable @toggle-modal="toggleModal" />
+            <ModernPOSSelectedItemTable
+              @selected-row="selectedRow"
+              @toggle-modal="toggleModal"
+            />
           </div>
 
           <div
@@ -90,7 +96,7 @@
               rounded-md
             "
           >
-            <div class="grid grid-cols-2 gap-1">
+            <div class="grid grid-cols-2 gap-2">
               <FloatingLabelFloatInput
                 :df="{
                   label: t`Total Quantity`,
@@ -298,6 +304,7 @@ import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import ModernPOSItemsGrid from 'src/components/POS/Modern/ModernPOSItemsGrid.vue';
 import ModernPOSItemsTable from 'src/components/POS/Modern/ModernPOSItemsTable.vue';
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
+import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import ModernPOSSelectedItemTable from 'src/components/POS/Modern/ModernPOSSelectedItemTable.vue';
@@ -396,6 +403,9 @@ export default defineComponent({
       paymentDoc: {} as Payment,
       itemSerialNumbers: {} as ItemSerialNumbers,
 
+      selectedItemField: '',
+      selectedItemRow: {} as SalesInvoiceItem,
+
       itemSearchTerm: '',
       transferRefNo: undefined as string | undefined,
       transferClearanceDate: undefined as Date | undefined,
@@ -434,6 +444,10 @@ export default defineComponent({
     },
     emitCreateTransaction(shouldPrint = false) {
       this.$emit('createTransaction', shouldPrint);
+    },
+    selectedRow(row: SalesInvoiceItem, field: string) {
+      this.selectedItemRow = row;
+      this.selectedItemField = field;
     },
     emitSetTransferAmount(amount: Money = fyo.pesa(0)) {
       this.$emit('setTransferAmount', amount);

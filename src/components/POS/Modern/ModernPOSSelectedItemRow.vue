@@ -84,13 +84,12 @@
             fieldtype: 'Float',
             label: 'Quantity',
           }"
-          @click="handleOpenKeyboard(row)"
+          @click="handleOpenKeyboard(row, 'quantity')"
           size="medium"
           :min="0"
           :border="true"
           :show-label="true"
           :value="row.quantity"
-          @change="(value:number) => setQuantity((row.quantity = value))"
           :read-only="isReadOnly"
         />
       </div>
@@ -108,7 +107,6 @@
           :show-label="true"
           :border="true"
           :value="row.transferUnit"
-          @change="(value:string) => row.set('transferUnit', value)"
           :read-only="isReadOnly"
         />
       </div>
@@ -121,11 +119,11 @@
             fieldname: 'transferQuantity',
             label: 'Transfer Quantity',
           }"
+          @click="!isReadOnly && handleOpenKeyboard(row, 'transferQuantity')"
           size="medium"
           :border="true"
           :show-label="true"
           :value="row.transferQuantity"
-          @change="(value:string) => row.set('transferQuantity', value)"
           :read-only="isReadOnly"
         />
       </div>
@@ -136,12 +134,12 @@
             fieldname: 'rate',
             label: 'Rate',
           }"
+          @click="!isReadOnly && handleOpenKeyboard(row, 'rate')"
           size="medium"
           :show-label="true"
           :border="true"
           :value="row.rate"
           :read-only="isReadOnly"
-          @change="(value:Money) => setRate((row.rate = value))"
         />
       </div>
       <div class="px-4 col-span-2 mt-5">
@@ -152,13 +150,13 @@
             fieldname: 'discountAmount',
             label: 'Discount Amount',
           }"
+          @click="handleOpenKeyboard(row, 'itemDiscountAmount')"
           class="col-span-2"
           size="medium"
           :show-label="true"
           :border="true"
           :value="row.itemDiscountAmount"
           :read-only="row.itemDiscountPercent as number > 0 || isReadOnly"
-          @change="(value:number) => setItemDiscount('amount', value)"
         />
       </div>
 
@@ -170,12 +168,12 @@
             fieldname: 'itemDiscountPercent',
             label: 'Discount Percent',
           }"
+          @click="handleOpenKeyboard(row, 'itemDiscountPercent')"
           size="medium"
           :show-label="true"
           :border="true"
           :value="row.itemDiscountPercent"
           :read-only="!row.itemDiscountAmount?.isZero() || isReadOnly"
-          @change="(value:number) => setItemDiscount('percent', value)"
         />
       </div>
 
@@ -219,7 +217,7 @@
         />
       </div>
 
-      <div v-if="hasSerialNumber" class="px-2 pt-8 col-span-4">
+      <div v-if="hasSerialNumber" class="px-4 pt-6 col-span-4">
         <Text
           :df="{
             label: t`Serial Number`,
@@ -251,9 +249,8 @@ import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoic
 import { Money } from 'pesa';
 import { DiscountType } from '../types';
 import { validateSerialNumberCount } from 'src/utils/pos';
-import { getPricingRule } from 'models/helpers';
+import { updatePricingRuleItem } from 'models/helpers';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
-import { ApplicablePricingRules } from 'models/baseModels/Invoice/types';
 
 export default defineComponent({
   name: 'ModernPOSSelectedItemRow',
@@ -261,7 +258,7 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
   },
-  emits: ['toggleModal', 'runSinvFormulas', 'selectedItem'],
+  emits: ['toggleModal', 'runSinvFormulas', 'selectedRow'],
 
   setup() {
     return {
@@ -292,11 +289,20 @@ export default defineComponent({
     },
   },
   methods: {
-    handleOpenKeyboard(row: SalesInvoiceItem) {
+    handleOpenKeyboard(row: SalesInvoiceItem, field: string) {
       if (this.isReadOnly) {
         return;
       }
-      this.$emit('selectedItem', row);
+
+      if (
+        (field == 'itemDiscountAmount' || field == 'itemDiscountPercent') &&
+        ((row.itemDiscountPercent as number) > 0 ||
+          !row.itemDiscountAmount?.isZero())
+      ) {
+        return;
+      }
+
+      this.$emit('selectedRow', row, field);
       this.$emit('toggleModal', 'Keyboard');
     },
     async getAvailableQtyInBatch(): Promise<number> {
@@ -330,47 +336,11 @@ export default defineComponent({
         this.row.item!
       );
     },
-    setItemDiscount(type: DiscountType, value: Money | number) {
-      if (type === 'percent') {
-        this.row.set('setItemDiscountAmount', false);
-        this.row.set('itemDiscountPercent', value as number);
-        return;
-      }
-      this.row.set('setItemDiscountAmount', true);
-      this.row.set('itemDiscountAmount', value as Money);
-    },
-    setRate(rate: Money) {
-      this.row.setRate = rate;
-      this.$emit('runSinvFormulas');
-    },
-    async setQuantity(quantity: number) {
-      this.row.set('quantity', quantity);
-
-      if (!this.row.isFreeItem) {
-        await this.updatePricingRuleItem();
-        this.$emit('runSinvFormulas');
-      }
-    },
     async removeAddedItem(row: SalesInvoiceItem) {
       this.row.parentdoc?.remove('items', row?.idx as number);
 
       if (!row.isFreeItem) {
-        await this.updatePricingRuleItem();
-      }
-    },
-    async updatePricingRuleItem() {
-      const pricingRule = (await getPricingRule(
-        this.row.parentdoc as SalesInvoice
-      )) as ApplicablePricingRules[];
-
-      let appliedPricingRuleCount =
-        this.row.parentdoc?.pricingRuleDetail?.length;
-
-      if (appliedPricingRuleCount !== pricingRule?.length) {
-        appliedPricingRuleCount = pricingRule?.length;
-
-        await this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
-        await this.row.parentdoc?.applyProductDiscount();
+        await updatePricingRuleItem(this.row.parentdoc as SalesInvoice);
       }
     },
   },

@@ -16,7 +16,7 @@
       v-if="tableFields"
       v-for="df in tableFields"
       :key="df.fieldname"
-      class="text-lg flex px-2 py-2"
+      class="text-lg flex mx-2 my-2"
       :class="{
       'ms-auto': isNumeric(df as Field),
     }"
@@ -44,6 +44,7 @@
     >
       <ModernPOSSelectedItemRow
         :row="(row as SalesInvoiceItem)"
+        @selected-row="selectedItemRow"
         @run-sinv-formulas="runSinvFormulas"
         @toggle-modal="handleToggleModal"
       />
@@ -85,7 +86,7 @@ export default defineComponent({
       isExapanded: false,
     };
   },
-  emits: ['toggleModal'],
+  emits: ['toggleModal', 'selectedRow'],
   computed: {
     ratio() {
       return [0.1, 0.8, 0.4, 0.8, 0.8, 0.3];
@@ -143,6 +144,9 @@ export default defineComponent({
     },
     async runSinvFormulas() {
       await this.sinvDoc.runFormulas();
+    },
+    selectedItemRow(row: SalesInvoiceItem, field: string) {
+      this.$emit('selectedRow', row, field);
     },
     isNumeric,
   },
