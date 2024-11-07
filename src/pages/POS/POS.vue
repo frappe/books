@@ -41,11 +41,11 @@
       @set-customer="setCustomer"
       @toggle-modal="toggleModal"
       @set-cash-amount="setCashAmount"
-      @route-to-sinv-list="routeToSinvList"
       @set-coupons-count="setCouponsCount"
+      @route-to-sinv-list="routeToSinvList"
       @set-loyalty-points="setLoyaltyPoints"
-      @save-invoice-action="saveInvoiceAction"
       @create-transaction="createTransaction"
+      @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
     />
@@ -75,11 +75,11 @@
       @set-customer="setCustomer"
       @toggle-modal="toggleModal"
       @set-cash-amount="setCashAmount"
-      @route-to-sinv-list="routeToSinvList"
       @set-coupons-count="setCouponsCount"
+      @route-to-sinv-list="routeToSinvList"
       @set-loyalty-points="setLoyaltyPoints"
-      @save-invoice-action="saveInvoiceAction"
       @create-transaction="createTransaction"
+      @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
     />
@@ -107,23 +107,23 @@ import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoic
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import {
   getItem,
-  getItemDiscounts,
+  validateSinv,
   getItemQtyMap,
+  getItemDiscounts,
+  validateShipment,
   getTotalQuantity,
   getTotalTaxedAmount,
   validateIsPosSettingsSet,
-  validateShipment,
-  validateSinv,
 } from 'src/utils/pos';
 import {
-  getAddedLPWithGrandTotal,
   getPricingRule,
   removeFreeItems,
+  getAddedLPWithGrandTotal,
 } from 'models/helpers';
 import {
+  POSItem,
   ItemQtyMap,
   ItemSerialNumbers,
-  POSItem,
 } from 'src/components/POS/types';
 
 export default defineComponent({
