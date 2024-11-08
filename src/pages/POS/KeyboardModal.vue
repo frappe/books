@@ -1,9 +1,9 @@
 <template>
   <Modal class="h-auto" :set-close-listener="false">
-    <div class="px-5" style="width: 40vw">
+    <div class="px-5" style="width: 30vw">
       <p class="text-center font-semibold py-3">Keyboard</p>
       <hr class="dark:border-gray-800" />
-      <div class="m-6">
+      <div class="mx-6 my-3">
         <component
           :is="selectedItemRow?.fieldMap[selectedItemField!].fieldtype"
           ref="dynamicInput"
@@ -22,98 +22,248 @@
 
         <div
           id="keypad"
-          class="text-4xl grid grid-cols-4 gap-3 py-3 rounded font-bold"
+          class="text-4xl grid grid-cols-4 gap-3 rounded font-bold p-4"
         >
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('7')"
           >
             7
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('8')"
           >
             8
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('9')"
           >
             9
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="deleteLast()"
           >
             Del
           </button>
 
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('4')"
           >
             4
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('5')"
           >
             5
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('6')"
           >
             6
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('-')"
           >
             -
           </button>
 
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('1')"
           >
             1
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('2')"
           >
             2
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('3')"
           >
             3
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('+')"
           >
             +
           </button>
 
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('.')"
           >
             •
           </button>
           <button
-            class="bg-gray-900 p-3 border-transparent rounded-lg"
+            class="
+              bg-gray-100
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
+              text-2xl
+              py-2.5
+              border-transparent
+              rounded-lg
+              transition-colors
+              duration-200
+            "
             @click="appendValue('0')"
           >
             0
           </button>
           <div class="grid col-span-2">
             <button
-              class="bg-gray-900 p-3 border-transparent rounded-lg"
+              class="
+                bg-gray-100
+                hover:bg-gray-200
+                dark:bg-gray-875 dark:hover:bg-gray-900
+                text-2xl
+                py-2.5
+                border-transparent
+                rounded-lg
+                transition-colors
+                duration-200
+              "
               @click="reset()"
             >
               Clear
