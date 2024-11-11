@@ -9,22 +9,25 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-14
-            opt: '--mac'
-            dist: 'dist-macOS-arm'
-
-          - os: macos-13
-            opt: '--mac'
-            dist: 'dist-macOS-x86_64'
-
-          - os: ubuntu-latest
-            opt: '--linux'
-            dist: 'dist-linux'
-
-          - os: windows-2019
-            opt: '--win'
-            dist: 'dist-windows'
-            shell: bash
+          - { os: macos-14, shell: bash, opt: '--mac', dist: 'dist-macOS-arm' },
+          - {
+              os: macos-13,
+              shell: bash,
+              opt: '--mac',
+              dist: 'dist-macOS-x86_64',
+            },
+          - {
+              os: ubuntu-latest,
+              shell: bash,
+              opt: '--linux',
+              dist: 'dist-linux',
+            },
+          - {
+              os: windows-2019,
+              shell: bash,
+              opt: '--win',
+              dist: 'dist-windows',
+            }
 
     steps:
       - name: Setup node
