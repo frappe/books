@@ -12,7 +12,7 @@ jobs:
           node-version: '18.19.0'
 
       - name: Checkout Books
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Dependencies
         run: |
@@ -62,7 +62,7 @@ jobs:
           node-version: '18.19.0'
 
       - name: Checkout Books
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Dependencies
         run: |
@@ -112,7 +112,7 @@ jobs:
           node-version: '18.19.0'
 
       - name: Checkout Books
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Dependencies
         run: |
@@ -160,7 +160,7 @@ jobs:
           node-version: '18.19.0'
 
       - name: Checkout Books
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Dependencies
         run: yarn
