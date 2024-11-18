@@ -31,7 +31,7 @@
 
   <div
     class="overflow-y-auto custom-scroll custom-scroll-thumb2"
-    style="height: calc(70vh)"
+    style="height: 70vh"
   >
     <Row
       v-if="items"
