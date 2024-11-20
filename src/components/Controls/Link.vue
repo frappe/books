@@ -11,7 +11,7 @@ export default {
   name: 'Link',
   extends: AutoComplete,
   data() {
-    return { results: [] };
+    return { results: [], filtersDisabled: false };
   },
   watch: {
     value: {
@@ -45,7 +45,7 @@ export default {
     getTargetSchemaName() {
       return this.df.target;
     },
-    async getOptions() {
+    async getOptions(filters) {
       const schemaName = this.getTargetSchemaName();
       if (!schemaName) {
         return [];
@@ -56,7 +56,6 @@ export default {
       }
 
       const schema = fyo.schemaMap[schemaName];
-      const filters = await this.getFilters();
 
       const fields = [
         ...new Set(['name', schema.titleField, this.df.groupBy]),
@@ -78,7 +77,8 @@ export default {
         .filter(Boolean));
     },
     async getSuggestions(keyword = '') {
-      let options = await this.getOptions();
+      let filters = this.filtersDisabled ? null : await this.getFilters();
+      let options = await this.getOptions(filters || {});
 
       if (keyword) {
         options = options
@@ -88,21 +88,34 @@ export default {
           .map(({ item }) => item);
       }
 
-      if (this.doc && this.df.create) {
-        options = options.concat(this.getCreateNewOption());
+      if (options.length === 0 && !this.df.emptyMessage) {
+        if (filters && !!fyo.singles.SystemSettings?.allowFilterBypass) {
+          options = [
+            {
+              component: markRaw({
+                template:
+                  '<span class="text-gray-600 dark:text-gray-400">{{ t`No results found, disable filters` }}</span>',
+              }),
+              action: () => this.disableFiltering(),
+              actionOnly: true,
+            },
+          ];
+        } else if (!this.doc || !this.df.create) {
+          options = [
+            {
+              component: markRaw({
+                template:
+                  '<span class="text-gray-600 dark:text-gray-400">{{ t`No results found` }}</span>',
+              }),
+              action: () => {},
+              actionOnly: true,
+            },
+          ];
+        }
       }
 
-      if (options.length === 0 && !this.df.emptyMessage) {
-        return [
-          {
-            component: markRaw({
-              template:
-                '<span class="text-gray-600 dark:text-gray-400">{{ t`No results found` }}</span>',
-            }),
-            action: () => {},
-            actionOnly: true,
-          },
-        ];
+      if (this.doc && this.df.create) {
+        options = options.concat(this.getCreateNewOption());
       }
 
       return options;
@@ -128,6 +141,14 @@ export default {
           components: { Badge },
         }),
       };
+    },
+    disableFiltering(keyword) {
+      this.filtersDisabled = true;
+      this.results = [];
+      setTimeout(() => {
+        this.toggleDropdown(true);
+        this.updateSuggestions(keyword);
+      }, 1);
     },
     async openNewDoc() {
       const schemaName = this.df.target;
@@ -155,7 +176,7 @@ export default {
         return createFilters;
       }
 
-      const filters = await this.getFilters();
+      const filters = (await this.getFilters()) ?? {};
       return getCreateFiltersFromListViewFilters(filters);
     },
     async getFilters() {
@@ -163,17 +184,17 @@ export default {
       const getFilters = fyo.models[schemaName]?.filters?.[fieldname];
 
       if (getFilters === undefined) {
-        return {};
+        return null;
       }
 
       if (this.doc) {
-        return (await getFilters(this.doc)) ?? {};
+        return await getFilters(this.doc);
       }
 
       try {
-        return (await getFilters()) ?? {};
+        return await getFilters();
       } catch {
-        return {};
+        return null;
       }
     },
   },

@@ -65,6 +65,14 @@
       "section": "Default"
     },
     {
+      "fieldname": "allowFilterBypass",
+      "label": "Allow to bypass filters",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "When linking documents, if no match is found and filtering is in effect, allow to disable filters.",
+      "section": "Default"
+    },
+    {
       "fieldname": "locale",
       "label": "Locale",
       "fieldtype": "AutoComplete",
