@@ -193,6 +193,7 @@ export function getActionsForDoc(doc?: Doc): Action[] {
     ...getActions(doc),
     getDuplicateAction(doc),
     getDeleteAction(doc),
+    getSubmitUndoAction(doc),
     getCancelAction(doc),
   ];
 
@@ -232,6 +233,19 @@ export function getGroupedActionsForDoc(doc?: Doc): ActionGroup[] {
     .map((k) => actionsMap[k]);
 
   return [grouped, actionsMap['']].flat().filter(Boolean);
+}
+
+function getSubmitUndoAction(doc: Doc): Action {
+  return {
+    label: t`Undo Submit`,
+    component: {
+      template: '<span class="text-red-700">{{ t`Undo Submit` }}</span>',
+    },
+    condition: (doc: Doc) => doc.canUndoSubmit,
+    async action() {
+      await commonDocUndoSubmit(doc);
+    },
+  };
 }
 
 function getCancelAction(doc: Doc): Action {
@@ -514,6 +528,21 @@ export async function commongDocDelete(
   return true;
 }
 
+export async function commonDocUndoSubmit(doc: Doc): Promise<boolean> {
+  let res = false;
+  try {
+    res = doc.submitUndo();
+  } catch (err) {
+    await handleErrorWithDialog(err as Error, doc);
+  }
+  if (!res) {
+    return false;
+  }
+
+  showActionToast(doc, 'submitUndo');
+  return true;
+}
+
 export async function commonDocCancel(doc: Doc): Promise<boolean> {
   const res = await cancelDocWithPrompt(doc);
   if (!res) {
@@ -726,10 +755,14 @@ function getDocSubmitMessage(doc: Doc): string {
   return details.join(' ');
 }
 
-function showActionToast(doc: Doc, type: 'sync' | 'cancel' | 'delete') {
+function showActionToast(
+  doc: Doc,
+  type: 'submitUndo' | 'sync' | 'cancel' | 'delete'
+) {
   const label = getDocReferenceLabel(doc);
   const message = {
     sync: t`${label} saved`,
+    submitUndo: t`${label} submission undone`,
     cancel: t`${label} cancelled`,
     delete: t`${label} deleted`,
   }[type];
