@@ -318,6 +318,9 @@ export default defineComponent({
     });
     this.shortcuts?.set(COMPONENT_NAME, ['F1'], () => this.openDocumentation());
 
+    fyo.doc.observer.on('sync:SidebarEntry', async () => await this.refreshSidebar())
+    fyo.doc.observer.on('delete:SidebarEntry', async () => await this.refreshSidebar())
+
     this.showDevMode = this.fyo.store.isDevelopment;
   },
   unmounted() {
@@ -327,6 +330,9 @@ export default defineComponent({
     routeTo,
     reportIssue,
     toggleSidebar,
+    async refreshSidebar(){
+      this.groups = await getSidebarConfig()
+    },
     async toggleProvisionalMode() {
       let title, detail, provisionalModeSince, showUnlimited;
       if (fyo.singles.SystemSettings?.provisionalModeSince != null) {
