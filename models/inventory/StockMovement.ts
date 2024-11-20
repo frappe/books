@@ -69,6 +69,11 @@ export class StockMovement extends Transfer {
     await updateSerialNumbers(this, false);
   }
 
+  async afterSubmitUndo(): Promise<void> {
+    await super.afterSubmitUndo();
+    await updateSerialNumbers(this, true);
+  }
+
   async afterCancel(): Promise<void> {
     await super.afterCancel();
     await updateSerialNumbers(this, true);
