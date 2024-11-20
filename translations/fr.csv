@@ -572,6 +572,7 @@ No,Non,
 "No filters selected","Aucun filtre sélectionné",
 "No linked entries found",,
 "No results found","Aucun résultat trouvé",
+"No results found, disable filters","Aucun résultat trouvé, désactiver les filtres",
 "No rows added. Select a file or add rows.",,
 "No transactions yet","Aucune transaction pour le moment",
 "Non Active Serial Number ${0} cannot be used as Manufacture raw material",,
@@ -1056,3 +1057,5 @@ Yes,Oui,
 "in Batch ${0}",,
 john@doe.com,,
 "to apply changes","pour appliquer les changements",
+"Allow to bypass filters","Autoriser la désactivation des filtres"
+"When linking documents, if no match is found and filtering is in effect, allow to disable filters.","Lors de la sélection d'un document lié, autoriser à désactiver les filtres si aucun résultat n'est trouvé"
