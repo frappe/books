@@ -27,6 +27,7 @@ export class GeneralLedger extends LedgerReport {
   usePagination = true;
   loading = false;
 
+  includeOpenings = true;
   ascending = false;
   reverted = false;
   referenceType: ReferenceType = 'All';
@@ -52,7 +53,60 @@ export class GeneralLedger extends LedgerReport {
       sort = false;
     }
 
-    const map = this._getGroupedMap(sort);
+    let reportData = this._rawData
+    let mapOpenings: GroupedMap
+    let openingCredit = 0
+    let openingDebit = 0
+    if (this.fromDate && this.includeOpenings) {
+      let fromDate = new Date(this.fromDate)
+      reportData = []
+      let openingData = []
+      for(let entry of this._rawData) {
+        if (entry.date < fromDate) {
+          openingData.push(entry)
+        } else {
+          reportData.push(entry)
+        }
+      }
+
+      mapOpenings = this._getGroupedMap(sort, null, openingData);
+      this._setIndexOnEntries(mapOpenings);
+      this._getTotalsAndSetBalance(mapOpenings);
+
+      // console.log({rawData: this._rawData, openingData, reportData})
+    }
+
+    const map = this._getGroupedMap(sort, null, reportData);
+
+    if (mapOpenings) {
+      for (const key of mapOpenings.keys()) {
+        let {balance, debit, credit} = this._getBalance(mapOpenings.get(key)!)
+
+        openingDebit += debit
+        openingCredit += credit
+
+        console.log(this.groupBy, key, balance, debit, credit)
+
+        if (this.groupBy !== 'none') {
+          map.get(key)?.unshift({
+            name: -1, // Italics
+            account: t`Opening`,
+            date: null,
+            debit,
+            credit,
+            balance: debit - credit,
+            referenceType: '',
+            referenceName: '',
+            party: '',
+            reverted: false,
+            reverts: '',
+          });
+        }
+      }
+    }
+
+    console.log(map, openingCredit, openingDebit)
+
     this._setIndexOnEntries(map);
     const { totalDebit, totalCredit } = this._getTotalsAndSetBalance(map);
     const consolidated = this._consolidateEntries(map);
@@ -64,6 +118,22 @@ export class GeneralLedger extends LedgerReport {
       this._pushBlankEntry(consolidated);
     }
 
+    if (this.groupBy === 'none') {
+      consolidated.unshift({
+        name: -2, // Bold
+        account: t`Opening`,
+        date: null,
+        debit: openingDebit,
+        credit: openingCredit,
+        balance: openingDebit - openingCredit,
+        referenceType: '',
+        referenceName: '',
+        party: '',
+        reverted: false,
+        reverts: '',
+      })
+    }
+
     /**
      * Set the closing row
      */
@@ -71,9 +141,9 @@ export class GeneralLedger extends LedgerReport {
       name: -2, // Bold
       account: t`Closing`,
       date: null,
-      debit: totalDebit,
-      credit: totalCredit,
-      balance: totalDebit - totalCredit,
+      debit: openingDebit + totalDebit,
+      credit: openingCredit + totalCredit,
+      balance: openingDebit + totalDebit - openingCredit - totalCredit,
       referenceType: '',
       referenceName: '',
       party: '',
@@ -192,23 +262,29 @@ export class GeneralLedger extends LedgerReport {
     });
   }
 
+  _getBalance(entries) {
+    let balance = 0;
+    let debit = 0;
+    let credit = 0;
+
+    for (const entry of entries) {
+      debit += entry.debit!;
+      credit += entry.credit!;
+
+      const diff = entry.debit! - entry.credit!;
+      balance += diff;
+      entry.balance = balance;
+    }
+
+    return {balance, debit, credit}
+  }
+
   _getTotalsAndSetBalance(map: GroupedMap) {
     let totalDebit = 0;
     let totalCredit = 0;
 
     for (const key of map.keys()) {
-      let balance = 0;
-      let debit = 0;
-      let credit = 0;
-
-      for (const entry of map.get(key)!) {
-        debit += entry.debit!;
-        credit += entry.credit!;
-
-        const diff = entry.debit! - entry.credit!;
-        balance += diff;
-        entry.balance = balance;
-      }
+      let {balance, debit, credit} = this._getBalance(map.get(key)!)
 
       /**
        * Total row incase groupBy is used
@@ -261,7 +337,7 @@ export class GeneralLedger extends LedgerReport {
       (filters.date as string[]).push('<=', this.toDate as string);
     }
 
-    if (this.fromDate) {
+    if (!this.includeOpenings && this.fromDate) {
       filters.date ??= [];
       (filters.date as string[]).push('>=', this.fromDate as string);
     }
@@ -351,6 +427,11 @@ export class GeneralLedger extends LedgerReport {
         fieldtype: 'Check',
         label: t`Ascending Order`,
         fieldname: 'ascending',
+      },
+      {
+        fieldtype: 'Check',
+        label: t`Include Openings`,
+        fieldname: 'includeOpenings',
       },
     ] as Field[];
   }
