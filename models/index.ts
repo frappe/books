@@ -30,6 +30,7 @@ import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem
 import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { SalesQuoteItem } from './baseModels/SalesQuoteItem/SalesQuoteItem';
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
+import { SidebarEntry } from './baseModels/SidebarEntry/SidebarEntry';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
 import { Batch } from './inventory/Batch';
@@ -83,6 +84,7 @@ export const models = {
   SalesQuoteItem,
   SerialNumber,
   SetupWizard,
+  SidebarEntry,
   PrintTemplate,
   Tax,
   TaxSummary,
