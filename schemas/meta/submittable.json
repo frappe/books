@@ -10,6 +10,14 @@
       "section": "System"
     },
     {
+      "fieldname": "submittedAt",
+      "label": "Submition Date",
+      "fieldtype": "Datetime",
+      "required": false,
+      "meta": true,
+      "section": "System"
+    },
+    {
       "fieldname": "cancelled",
       "label": "Cancelled",
       "fieldtype": "Check",
