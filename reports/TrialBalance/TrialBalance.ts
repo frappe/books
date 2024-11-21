@@ -37,6 +37,7 @@ export class TrialBalance extends AccountReport {
   toDate?: string;
   showOnlyBalance = false;
   hideGroupAmounts = false;
+  showTotal = false;
   loading = false;
 
   _rawData: LedgerEntry[] = [];
@@ -149,11 +150,13 @@ export class TrialBalance extends AccountReport {
         toDate: fromDate,
       },
       { fromDate, toDate },
-      {
-        fromDate: toDate,
-        toDate: DateTime.fromISO('9999-12-31'),
-      },
-    ];
+      this.showTotal
+        ? null
+        : {
+            fromDate: toDate,
+            toDate: DateTime.fromISO('9999-12-31'),
+          },
+    ].filter((x) => x);
   }
 
   getRowFromAccountListNode(al: AccountListNode) {
@@ -166,9 +169,15 @@ export class TrialBalance extends AccountReport {
       indent: al.level ?? 0,
     } as ReportCell;
 
+    let totalDebit = 0,
+      totalCredit = 0;
+    const hide = this.hideGroupAmounts && al.isGroup;
+
     const balanceCells = this._dateRanges!.map((k) => {
       const map = al.valueMap?.get(k);
-      const hide = this.hideGroupAmounts && al.isGroup;
+
+      totalDebit += map?.debit ?? 0;
+      totalCredit += map?.credit ?? 0;
 
       if (this.showOnlyBalance) {
         const balance = (map?.debit ?? 0) - (map?.credit ?? 0);
@@ -197,6 +206,35 @@ export class TrialBalance extends AccountReport {
         ];
       }
     });
+
+    if (this.showTotal) {
+      if (this.showOnlyBalance) {
+        const balance = totalDebit - totalCredit;
+        balanceCells.push([
+          {
+            rawValue: balance,
+            value: hide ? '' : this.fyo.format(balance, 'Currency'),
+            align: 'right',
+            width: ACC_BAL_WIDTH,
+          } as ReportCell,
+        ]);
+      } else {
+        balanceCells.push([
+          {
+            rawValue: totalDebit,
+            value: hide ? '' : this.fyo.format(totalDebit, 'Currency'),
+            align: 'right',
+            width: ACC_BAL_WIDTH,
+          },
+          {
+            rawValue: totalCredit,
+            value: hide ? '' : this.fyo.format(totalCredit, 'Currency'),
+            align: 'right',
+            width: ACC_BAL_WIDTH,
+          } as ReportCell,
+        ]);
+      }
+    }
 
     return {
       cells: [nameCell, balanceCells].flat(2),
@@ -248,6 +286,11 @@ export class TrialBalance extends AccountReport {
         fieldtype: 'Check',
         label: t`Hide Group Amounts`,
         fieldname: 'hideGroupAmounts',
+      },
+      {
+        fieldtype: 'Check',
+        label: t`Show totals`,
+        fieldname: 'showTotal',
       },
       {
         fieldtype: 'Check',
