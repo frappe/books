@@ -34,6 +34,10 @@ export class GeneralLedger extends LedgerReport {
   groupBy: 'none' | 'party' | 'account' | 'referenceName' = 'none';
   _rawData: LedgerEntry[] = [];
 
+  get acceptSingleTimePeriod() {
+    return true;
+  }
+
   constructor(fyo: Fyo) {
     super(fyo);
   }

@@ -47,7 +47,15 @@ export abstract class AccountReport extends LedgerReport {
 
   accountMap?: Record<string, Account>;
 
+  get acceptSingleTimePeriod() {
+    return true;
+  }
+
   async setDefaultFilters(): Promise<void> {
+    if (this.basedOn === 'Period' && !this.toDate) {
+      this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
+    }
+
     if (this.basedOn === 'Until Date' && !this.toDate) {
       this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
     }
@@ -55,6 +63,11 @@ export abstract class AccountReport extends LedgerReport {
     if (this.basedOn === 'Fiscal Year' && !this.toYear) {
       this.fromYear = DateTime.now().year;
       this.toYear = this.fromYear + 1;
+    }
+
+    if (this.basedOn === 'Period' && !this.fromDate) {
+      this.fromDate = DateTime.now().plus({ days: 1 }).minus({month: 1}).toISODate();
+      this.count = 3
     }
 
     await this._setDateRanges();
@@ -255,47 +268,90 @@ export abstract class AccountReport extends LedgerReport {
     const fromDate = DateTime.fromISO(endpoints.fromDate);
     const toDate = DateTime.fromISO(endpoints.toDate);
 
-    if (this.consolidateColumns) {
-      return [
+    if (this.basedOn === 'Period') {
+
+      const dateRanges: DateRange[] = [
         {
           toDate,
           fromDate,
         },
       ];
-    }
 
-    const months: number = monthsMap[this.periodicity];
-    const dateRanges: DateRange[] = [
-      {
-        toDate,
-        fromDate: this._fixMonthsJump(toDate, toDate.minus({ months })),
-      },
-    ];
+      const interval = toDate.diff(fromDate, ['years', 'months', 'days'])
+      const count = this.count ?? 1;
 
-    let count = this.count ?? 1;
-    if (this.basedOn === 'Fiscal Year') {
-      count = Math.ceil(((this.toYear! - this.fromYear!) * 12) / months);
-    }
+      for (let i = 1; i < count; i++) {
+        const lastRange = dateRanges.at(-1)!;
+        dateRanges.push({
+          toDate: lastRange.fromDate,
+          fromDate: this._fixMonthsJump(
+            toDate,
+            lastRange.fromDate.minus(interval)
+          ),
+        });
+      }
 
-    for (let i = 1; i < count; i++) {
-      const lastRange = dateRanges.at(-1)!;
-      dateRanges.push({
-        toDate: lastRange.fromDate,
-        fromDate: this._fixMonthsJump(
+      if (this.consolidateColumns) {
+        const firstRange = dateRanges.at(0)!;
+        const lastRange = dateRanges.at(-1)!;
+        return [
+          {
+            toDate: firstRange.toDate,
+            fromDate: lastRange.fromDate,
+          },
+        ];
+      }
+
+      return dateRanges
+
+    } else {
+
+      if (this.consolidateColumns) {
+        return [
+          {
+            toDate,
+            fromDate,
+          },
+        ];
+      }
+
+      const months: number = monthsMap[this.periodicity];
+      const interval = {months}
+      const dateRanges: DateRange[] = [
+        {
           toDate,
-          lastRange.fromDate.minus({ months })
-        ),
-      });
-    }
+          fromDate: this._fixMonthsJump(toDate, toDate.minus(interval)),
+        },
+      ];
 
-    return dateRanges.sort((b, a) => b.toDate.toMillis() - a.toDate.toMillis());
+      let count = this.count ?? 1;
+      if (this.basedOn === 'Fiscal Year') {
+        count = Math.ceil(((this.toYear! - this.fromYear!) * 12) / months);
+      }
+
+      for (let i = 1; i < count; i++) {
+        const lastRange = dateRanges.at(-1)!;
+        dateRanges.push({
+          toDate: lastRange.fromDate,
+          fromDate: this._fixMonthsJump(
+            toDate,
+            lastRange.fromDate.minus({ months })
+          ),
+        });
+      }
+
+      return dateRanges.sort((b, a) => b.toDate.toMillis() - a.toDate.toMillis());
+    }
   }
 
   async _getFromAndToDates() {
     let toDate: string;
     let fromDate: string;
 
-    if (this.basedOn === 'Until Date') {
+    if (this.basedOn === 'Period') {
+      toDate = DateTime.fromISO(this.toDate!).plus({ days: 1 }).toISODate();
+      fromDate = this.fromDate;
+    } else if (this.basedOn === 'Until Date') {
       toDate = DateTime.fromISO(this.toDate!).plus({ days: 1 }).toISODate();
       const months = monthsMap[this.periodicity] * Math.max(this.count ?? 1, 1);
       fromDate = DateTime.fromISO(this.toDate!).minus({ months }).toISODate();
@@ -339,23 +395,29 @@ export abstract class AccountReport extends LedgerReport {
         options: [
           { label: t`Fiscal Year`, value: 'Fiscal Year' },
           { label: t`Until Date`, value: 'Until Date' },
+          { label: t`Period`, value: 'Period' },
         ],
         label: t`Based On`,
         fieldname: 'basedOn',
       },
-      {
-        fieldtype: 'Select',
-        options: [
-          { label: t`Monthly`, value: 'Monthly' },
-          { label: t`Quarterly`, value: 'Quarterly' },
-          { label: t`Half Yearly`, value: 'Half Yearly' },
-          { label: t`Yearly`, value: 'Yearly' },
-        ],
-        label: t`Periodicity`,
-        fieldname: 'periodicity',
-      },
-      ,
     ] as Field[];
+
+    let periodicityFilters = [] as Field[];
+    if (this.basedOn !== 'Period') {
+      periodicityFilters = [
+        {
+          fieldtype: 'Select',
+          options: [
+            { label: t`Monthly`, value: 'Monthly' },
+            { label: t`Quarterly`, value: 'Quarterly' },
+            { label: t`Half Yearly`, value: 'Half Yearly' },
+            { label: t`Yearly`, value: 'Yearly' },
+          ],
+          label: t`Periodicity`,
+          fieldname: 'periodicity',
+        },
+      ] as Field[];
+    }
 
     let dateFilters = [
       {
@@ -376,7 +438,32 @@ export abstract class AccountReport extends LedgerReport {
       },
     ] as Field[];
 
-    if (this.basedOn === 'Until Date') {
+    if (this.basedOn === 'Period') {
+      dateFilters = [
+        {
+          fieldtype: 'Date',
+          fieldname: 'fromDate',
+          placeholder: t`From Date`,
+          label: t`From Date`,
+          required: true,
+        },
+        {
+          fieldtype: 'Date',
+          fieldname: 'toDate',
+          placeholder: t`To Date`,
+          label: t`To Date`,
+          required: true,
+        },
+        {
+          fieldtype: 'Int',
+          fieldname: 'count',
+          minvalue: 1,
+          placeholder: t`Number of periods`,
+          label: t`Number of periods`,
+          required: true,
+        },
+      ] as Field[];
+    } else if (this.basedOn === 'Until Date') {
       dateFilters = [
         {
           fieldtype: 'Date',
@@ -398,6 +485,7 @@ export abstract class AccountReport extends LedgerReport {
 
     return [
       filters,
+      periodicityFilters,
       dateFilters,
       {
         fieldtype: 'Check',
