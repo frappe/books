@@ -39,6 +39,7 @@ export abstract class AccountReport extends LedgerReport {
   toYear?: number;
   consolidateColumns = false;
   hideGroupAmounts = false;
+  showOpeningAndClosing = false;
   periodicity: Periodicity = 'Monthly';
   basedOn: BasedOn = 'Until Date';
 
@@ -137,12 +138,16 @@ export abstract class AccountReport extends LedgerReport {
       indent: al.level ?? 0,
     } as ReportCell;
 
+    let sumValue = 0
+
     const balanceCells = this._dateRanges!.map((k) => {
       const rawValue = al.valueMap?.get(k)?.balance ?? 0;
       let value = this.fyo.format(rawValue, 'Currency');
       if (this.hideGroupAmounts && al.isGroup) {
         value = '';
       }
+
+      sumValue += rawValue
 
       return {
         rawValue,
@@ -151,6 +156,15 @@ export abstract class AccountReport extends LedgerReport {
         width: ACC_BAL_WIDTH,
       } as ReportCell;
     });
+
+    if (this.showOpeningAndClosing) {
+      balanceCells.push({
+        rawValue: sumValue,
+        value: (this.hideGroupAmounts && al.isGroup) ? '' : this.fyo.format(sumValue, 'Currency'),
+        align: 'right',
+        width: ACC_BAL_WIDTH,
+      })
+    }
 
     return {
       cells: [nameCell, balanceCells].flat(),
@@ -345,6 +359,19 @@ export abstract class AccountReport extends LedgerReport {
 
     dateRanges = dateRanges.sort((b, a) => b.toDate.toMillis() - a.toDate.toMillis());
 
+    if (this.showOpeningAndClosing) {
+      const openingPeriod = {
+        fromDate: DateTime.fromISO('0001-01-01'),
+        toDate: dateRanges[0].fromDate,
+      }
+      const closingPeriod = {
+        fromDate: DateTime.fromISO('0001-01-01'),
+        toDate: dateRanges[dateRanges.length-1].toDate,
+      }
+      dateRanges = dateRanges.reverse()
+      dateRanges.unshift(openingPeriod)
+      // dateRanges.push(closingPeriod)
+    }
 
     return dateRanges
   }
@@ -374,9 +401,16 @@ export abstract class AccountReport extends LedgerReport {
 
   _getDateBoundaries() {
     const last = this._dateRanges.length - 1
-    return {
-      fromDate: this._dateRanges[last].fromDate,
-      toDate:   this._dateRanges[0].toDate,
+    if (this.showOpeningAndClosing) {
+      return {
+        fromDate: this._dateRanges[0].fromDate,
+        toDate:   this._dateRanges[last].toDate,
+      }
+    } else {
+      return {
+        fromDate: this._dateRanges[last].fromDate,
+        toDate:   this._dateRanges[0].toDate,
+      }
     }
   }
 
@@ -509,6 +543,11 @@ export abstract class AccountReport extends LedgerReport {
         label: t`Hide Group Amounts`,
         fieldname: 'hideGroupAmounts',
       } as Field,
+      {
+        fieldtype: 'Check',
+        label: t`Show Openings and Closings`,
+        fieldname: 'showOpeningAndClosing',
+      } as Field,
     ].flat();
   }
 
@@ -523,11 +562,16 @@ export abstract class AccountReport extends LedgerReport {
       },
     ] as ColumnField[];
 
-    const dateColumns = this._dateRanges!.sort(
-      (a, b) => b.toDate.toMillis() - a.toDate.toMillis()
-    ).map((d) => {
+    let ranges = this._dateRanges!.sort((a, b) => b.toDate.toMillis() - a.toDate.toMillis())
+    if (this.showOpeningAndClosing) {
+      ranges = ranges.reverse()
+    }
+
+    const dateColumns = ranges.map((d) => {
       const toDate = d.toDate.minus({ days: 1 });
-      const label = this.fyo.format(toDate.toJSDate(), 'Date');
+      const label =
+        // this.fyo.format(d.fromDate.toJSDate(), 'Date') + " - " +
+        this.fyo.format(toDate.toJSDate(), 'Date');
 
       return {
         label,
@@ -537,6 +581,18 @@ export abstract class AccountReport extends LedgerReport {
         width: ACC_BAL_WIDTH,
       } as ColumnField;
     });
+
+    if (this.showOpeningAndClosing) {
+      dateColumns[0].label = t`Opening`
+      // dateColumns[dateColumns.length-1].label = t`Closing`
+      dateColumns.push({
+        label: t`Closing`,
+        fieldtype: 'Data',
+        fieldname: 'toDate',
+        align: 'right',
+        width: ACC_BAL_WIDTH,
+      })
+    }
 
     return [columns, dateColumns].flat();
   }
