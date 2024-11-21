@@ -5,36 +5,42 @@ import { Main } from '../main';
 import { IPC_MESSAGES } from '../utils/messages';
 import { emitMainProcessError } from 'backend/helpers';
 
-function parseDataURL(url) {
+type DataURLParseResult = {
+  mediaType: string;
+  contentType: string;
+  base64: string;
+  data: string;
+  encoding: string;
+  buffer: Buffer;
+};
+function parseDataURL(url: string): null | DataURLParseResult {
   const regex =
     /^data:([a-z]+\/[a-z0-9-+.]+(;[a-z0-9-.!#$%*+.{}|~`]+=[a-z0-9-.!#$%*+.{}()_|~`]+)*)?(;base64)?,([a-z0-9!$&',()*+;=\-._~:@\/?%\s<>]*?)$/i;
 
   const parts = url.trim().match(regex);
   if (!parts) return null;
 
-  const parsed = {};
+  const mediaType = (parts[1] || 'text/plain;charset=us-ascii').toLowerCase();
 
-  parsed.mediaType = (parts[1] || 'text/plain;charset=us-ascii').toLowerCase();
-
-  const mediaTypeParts = parsed.mediaType
+  const mediaTypeParts: string[] = mediaType
     .split(';')
-    .map((x) => x.toLowerCase());
-  parsed.contentType = mediaTypeParts[0];
+    .map((x: string) => x.toLowerCase());
+  const contentType = mediaTypeParts[0];
 
   mediaTypeParts.slice(1).forEach((attribute) => {
     const p = attribute.split('=');
-    parsed[p[0]] = p[1];
+    if (p.length >= 2) (parsed as object)[p[0]] = p[1];
   });
 
-  parsed.base64 = !!parts[parts.length - 2];
-  parsed.data = parts[parts.length - 1] || '';
-  parsed.encoding = parsed.base64 ? 'base64' : 'utf8';
-  parsed.buffer = Buffer.from(
-    parsed.base64 ? parsed.data : decodeURIComponent(parsed.data),
-    parsed.encoding
+  const base64 = !!parts[parts.length - 2];
+  const data = parts[parts.length - 1] || '';
+  const encoding = base64 ? 'base64' : 'utf8';
+  const buffer = Buffer.from(
+    base64 ? data : decodeURIComponent(data),
+    encoding
   );
 
-  return parsed;
+  return { mediaType, contentType, base64, data, encoding, buffer };
 }
 
 export default function registerIpcMainMessageListeners(main: Main) {
@@ -88,16 +94,13 @@ export default function registerIpcMainMessageListeners(main: Main) {
     (_, { link, filename }: { link: string; filename: string }) => {
       const data = parseDataURL(link);
       if (data) {
-        const s =
-          'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const temp = Array.apply(null, Array(16))
-          .map(() => {
-            return s.charAt(Math.floor(Math.random() * s.length));
-          })
-          .join('');
-        const filepath = path.join(app.getPath('temp'), temp + ' ' + filename);
+        const s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const temp = Array.from(Array(16), () =>
+          s.charAt(Math.floor(Math.random() * s.length))
+        ).join('');
+        const filepath = path.join(app.getPath('temp'), `${temp} ${filename}`);
         fs.writeFileSync(filepath, data.buffer);
-        shell.openPath(filepath);
+        void shell.openPath(filepath);
       }
     }
   );

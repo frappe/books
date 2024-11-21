@@ -6,7 +6,6 @@ require('source-map-support').install({
 
 import { emitMainProcessError } from 'backend/helpers';
 import {
-  shell,
   app,
   BrowserWindow,
   BrowserWindowConstructorOptions,
@@ -22,19 +21,6 @@ import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
-
-const EXTENSIONS = {
-  '.js': 'text/javascript',
-  '.css': 'text/css',
-  '.html': 'text/html',
-  '.svg': 'image/svg+xml',
-  '.json': 'application/json',
-  '.pdf': 'application/pdf',
-};
-
-const MIME_TYPES = Object.fromEntries(
-  Object.entries(EXTENSIONS).map(([ext, mime]) => [mime, ext])
-);
 
 export class Main {
   title = 'Frappe Books';
@@ -133,11 +119,6 @@ export class Main {
     const options = this.getOptions();
     this.mainWindow = new BrowserWindow(options);
 
-    this.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-      shell.openExternal(url);
-      return { action: 'deny' };
-    });
-
     if (this.isDevelopment) {
       this.setViteServerURL();
     } else {
@@ -208,7 +189,14 @@ function bufferProtocolCallback(
 
   fs.readFile(filePath, (_, data) => {
     const extension = path.extname(filePath).toLowerCase();
-    const mimeType = EXTENSIONS[extension] ?? '';
+    const mimeType =
+      {
+        '.js': 'text/javascript',
+        '.css': 'text/css',
+        '.html': 'text/html',
+        '.svg': 'image/svg+xml',
+        '.json': 'application/json',
+      }[extension] ?? '';
 
     callback({ mimeType, data });
   });
