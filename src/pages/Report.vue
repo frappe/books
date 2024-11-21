@@ -161,6 +161,8 @@ export default defineComponent({
       }
 
       if (this.report.acceptSingleTimePeriod && this.report?.basedOn != null) await this.report?.set('basedOn', 'Period')
+      if (this.startDate) await this.report.set('fromDate', this.startDate.toISODate())
+      if (this.lastDate)  await this.report.set('toDate', this.lastDate.toISODate())
 
       if (!this.report.reportData.length) {
         await this.report.setReportData();
@@ -177,6 +179,8 @@ export default defineComponent({
     },
     async periodChanged({start, stop, last}){
       console.log('periodChanged', start.toISODate(), stop.toISODate(), last.toISODate())
+      this.startDate = start
+      this.lastDate  = last
       await this.report?.set('fromDate', start.toISODate())
       await this.report?.set('toDate', last.toISODate())
       if (this.report?.basedOn != null) await this.report?.set('basedOn', 'Period')

@@ -176,9 +176,7 @@ export default defineComponent({
       };
     });
 
-    this.stopDate  = DateTime.now().startOf('day').plus({days: 1});
-    this.startDate = this.stopDate.minus(this.period(this.value, 1));
-    this.emitChanged()
+    this.selectAnchor(this.anchorValue)
   },
   methods: {
     async selectAnchor(value: PeriodKey) {
