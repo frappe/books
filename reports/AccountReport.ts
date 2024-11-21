@@ -264,13 +264,13 @@ export abstract class AccountReport extends LedgerReport {
   }
 
   async _getDateRanges(): Promise<DateRange[]> {
-    const endpoints = await this._getFromAndToDates();
-    const fromDate = DateTime.fromISO(endpoints.fromDate);
-    const toDate = DateTime.fromISO(endpoints.toDate);
+    let dateRanges: DateRange[]
 
     if (this.basedOn === 'Period') {
+      const toDate   = DateTime.fromISO(this.toDate!).plus({ days: 1 });
+      const fromDate = DateTime.fromISO(this.fromDate);
 
-      const dateRanges: DateRange[] = [
+      dateRanges = [
         {
           toDate,
           fromDate,
@@ -302,9 +302,11 @@ export abstract class AccountReport extends LedgerReport {
         ];
       }
 
-      return dateRanges
-
     } else {
+
+      const endpoints = await this._getFromAndToDates();
+      const fromDate = DateTime.fromISO(endpoints.fromDate);
+      const toDate = DateTime.fromISO(endpoints.toDate);
 
       if (this.consolidateColumns) {
         return [
@@ -317,7 +319,7 @@ export abstract class AccountReport extends LedgerReport {
 
       const months: number = monthsMap[this.periodicity];
       const interval = {months}
-      const dateRanges: DateRange[] = [
+      dateRanges = [
         {
           toDate,
           fromDate: this._fixMonthsJump(toDate, toDate.minus(interval)),
@@ -339,9 +341,12 @@ export abstract class AccountReport extends LedgerReport {
           ),
         });
       }
-
-      return dateRanges.sort((b, a) => b.toDate.toMillis() - a.toDate.toMillis());
     }
+
+    dateRanges = dateRanges.sort((b, a) => b.toDate.toMillis() - a.toDate.toMillis());
+
+
+    return dateRanges
   }
 
   async _getFromAndToDates() {
@@ -349,8 +354,7 @@ export abstract class AccountReport extends LedgerReport {
     let fromDate: string;
 
     if (this.basedOn === 'Period') {
-      toDate = DateTime.fromISO(this.toDate!).plus({ days: 1 }).toISODate();
-      fromDate = this.fromDate;
+      throw new Error('_getFromAndToDates should not be called with period basedOn');
     } else if (this.basedOn === 'Until Date') {
       toDate = DateTime.fromISO(this.toDate!).plus({ days: 1 }).toISODate();
       const months = monthsMap[this.periodicity] * Math.max(this.count ?? 1, 1);
@@ -368,13 +372,21 @@ export abstract class AccountReport extends LedgerReport {
     return { fromDate, toDate };
   }
 
+  _getDateBoundaries() {
+    const last = this._dateRanges.length - 1
+    return {
+      fromDate: this._dateRanges[last].fromDate,
+      toDate:   this._dateRanges[0].toDate,
+    }
+  }
+
   async _getQueryFilters(): Promise<QueryFilter> {
     const filters: QueryFilter = {};
-    const { fromDate, toDate } = await this._getFromAndToDates();
+    const { fromDate, toDate } = this._getDateBoundaries()
 
     const dateFilter: string[] = [];
-    dateFilter.push('<', toDate);
-    dateFilter.push('>=', fromDate);
+    dateFilter.push('<', toDate.toISODate());
+    dateFilter.push('>=', fromDate.toISODate());
 
     filters.date = dateFilter;
     filters.reverted = false;
