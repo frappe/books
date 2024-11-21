@@ -35,6 +35,7 @@ export class TrialBalance extends AccountReport {
 
   fromDate?: string;
   toDate?: string;
+  showOnlyBalance = false;
   hideGroupAmounts = false;
   loading = false;
 
@@ -42,6 +43,10 @@ export class TrialBalance extends AccountReport {
   _dateRanges?: DateRange[];
 
   accountMap?: Record<string, Account>;
+
+  get acceptSingleTimePeriod() {
+    return true;
+  }
 
   get rootTypes(): AccountRootType[] {
     return [
@@ -165,20 +170,32 @@ export class TrialBalance extends AccountReport {
       const map = al.valueMap?.get(k);
       const hide = this.hideGroupAmounts && al.isGroup;
 
-      return [
-        {
-          rawValue: map?.debit ?? 0,
-          value: hide ? '' : this.fyo.format(map?.debit ?? 0, 'Currency'),
-          align: 'right',
-          width: ACC_BAL_WIDTH,
-        },
-        {
-          rawValue: map?.credit ?? 0,
-          value: hide ? '' : this.fyo.format(map?.credit ?? 0, 'Currency'),
-          align: 'right',
-          width: ACC_BAL_WIDTH,
-        } as ReportCell,
-      ];
+      if (this.showOnlyBalance) {
+        const balance = (map?.debit ?? 0) - (map?.credit ?? 0);
+        return [
+          {
+            rawValue: balance,
+            value: hide ? '' : this.fyo.format(balance, 'Currency'),
+            align: 'right',
+            width: ACC_BAL_WIDTH,
+          } as ReportCell,
+        ];
+      } else {
+        return [
+          {
+            rawValue: map?.debit ?? 0,
+            value: hide ? '' : this.fyo.format(map?.debit ?? 0, 'Currency'),
+            align: 'right',
+            width: ACC_BAL_WIDTH,
+          },
+          {
+            rawValue: map?.credit ?? 0,
+            value: hide ? '' : this.fyo.format(map?.credit ?? 0, 'Currency'),
+            align: 'right',
+            width: ACC_BAL_WIDTH,
+          } as ReportCell,
+        ];
+      }
     });
 
     return {
@@ -231,61 +248,99 @@ export class TrialBalance extends AccountReport {
         fieldtype: 'Check',
         label: t`Hide Group Amounts`,
         fieldname: 'hideGroupAmounts',
+      },
+      {
+        fieldtype: 'Check',
+        label: t`Show Balance`,
+        fieldname: 'showOnlyBalance',
       } as Field,
     ] as Field[];
   }
 
   getColumns(): ColumnField[] {
-    return [
-      {
-        label: t`Account`,
-        fieldtype: 'Link',
-        fieldname: 'account',
-        align: 'left',
-        width: ACC_NAME_WIDTH,
-      },
-      {
-        label: t`Opening (Dr)`,
-        fieldtype: 'Data',
-        fieldname: 'openingDebit',
-        align: 'right',
-        width: ACC_BAL_WIDTH,
-      },
-      {
-        label: t`Opening (Cr)`,
-        fieldtype: 'Data',
-        fieldname: 'openingCredit',
-        align: 'right',
-        width: ACC_BAL_WIDTH,
-      },
-      {
-        label: t`Debit`,
-        fieldtype: 'Data',
-        fieldname: 'debit',
-        align: 'right',
-        width: ACC_BAL_WIDTH,
-      },
-      {
-        label: t`Credit`,
-        fieldtype: 'Data',
-        fieldname: 'credit',
-        align: 'right',
-        width: ACC_BAL_WIDTH,
-      },
-      {
-        label: t`Closing (Dr)`,
-        fieldtype: 'Data',
-        fieldname: 'closingDebit',
-        align: 'right',
-        width: ACC_BAL_WIDTH,
-      },
-      {
-        label: t`Closing (Cr)`,
-        fieldtype: 'Data',
-        fieldname: 'closingCredit',
-        align: 'right',
-        width: ACC_BAL_WIDTH,
-      },
-    ] as ColumnField[];
+    if (this.showOnlyBalance) {
+      return [
+        {
+          label: t`Account`,
+          fieldtype: 'Link',
+          fieldname: 'account',
+          align: 'left',
+          width: ACC_NAME_WIDTH,
+        },
+        {
+          label: t`Opening`,
+          fieldtype: 'Data',
+          fieldname: 'openingBalance',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+        {
+          label: t`Balance`,
+          fieldtype: 'Data',
+          fieldname: 'balance',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+        {
+          label: t`Closing`,
+          fieldtype: 'Data',
+          fieldname: 'closingBalance',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+      ] as ColumnField[];
+    } else {
+      return [
+        {
+          label: t`Account`,
+          fieldtype: 'Link',
+          fieldname: 'account',
+          align: 'left',
+          width: ACC_NAME_WIDTH,
+        },
+        {
+          label: t`Opening (Dr)`,
+          fieldtype: 'Data',
+          fieldname: 'openingDebit',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+        {
+          label: t`Opening (Cr)`,
+          fieldtype: 'Data',
+          fieldname: 'openingCredit',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+        {
+          label: t`Debit`,
+          fieldtype: 'Data',
+          fieldname: 'debit',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+        {
+          label: t`Credit`,
+          fieldtype: 'Data',
+          fieldname: 'credit',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+        {
+          label: t`Closing (Dr)`,
+          fieldtype: 'Data',
+          fieldname: 'closingDebit',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+        {
+          label: t`Closing (Cr)`,
+          fieldtype: 'Data',
+          fieldname: 'closingCredit',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        },
+      ] as ColumnField[];
+    }
   }
 }
