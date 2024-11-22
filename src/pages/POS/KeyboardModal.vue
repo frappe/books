@@ -316,10 +316,9 @@ import { defineComponent, inject } from 'vue';
 import Button from 'src/components/Button.vue';
 import Float from 'src/components/Controls/Float.vue';
 import Currency from 'src/components/Controls/Currency.vue';
-import { updatePricingRule, updatePricingRuleItem } from 'models/helpers';
+import { updatePricingRuleItem } from 'models/helpers';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
-import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 
 export default defineComponent({
   name: 'KeyboardModal',
@@ -337,7 +336,7 @@ export default defineComponent({
       default: '',
     },
   },
-  emits: ['setCouponsCount', 'toggleModal'],
+  emits: ['toggleModal'],
   setup() {
     return {
       sinvDoc: inject('sinvDoc') as SalesInvoice,
@@ -420,7 +419,9 @@ export default defineComponent({
           );
         }
       } else {
-        this.selectedItemRow![this.selectedItemField] = this.selectedValue;
+        this.selectedItemRow![this.selectedItemField] = Number(
+          this.selectedValue
+        );
 
         if (this.selectedItemField === 'itemDiscountPercent') {
           await this.selectedItemRow?.set('setItemDiscountAmount', false);
@@ -449,14 +450,6 @@ export default defineComponent({
     async focusInput() {
       await this.$nextTick();
       (this.$refs.dynamicInput as HTMLInputElement)?.focus();
-    },
-    async removeAppliedCoupon(coupon: AppliedCouponCodes) {
-      this.sinvDoc.coupons = this.sinvDoc.coupons?.filter(
-        (coup) => coup.coupons !== coupon?.coupons
-      );
-
-      await updatePricingRule(this.sinvDoc);
-      this.$emit('setCouponsCount', this.sinvDoc.coupons?.length);
     },
     async closeKeyboardModal() {
       await this.reset();
