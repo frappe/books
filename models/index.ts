@@ -52,6 +52,7 @@ import { POSSettings } from './inventory/Point of Sale/POSSettings';
 import { POSOpeningShift } from './inventory/Point of Sale/POSOpeningShift';
 import { POSClosingShift } from './inventory/Point of Sale/POSClosingShift';
 import { ERPNextSyncSettings } from './baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
+import { ERPNextSyncQueue } from './baseModels/ERPNextSyncQueue/ERPNextSyncQueue';
 
 export const models = {
   Account,
@@ -110,6 +111,7 @@ export const models = {
   POSClosingShift,
   // ERPNext Sync
   ERPNextSyncSettings,
+  ERPNextSyncQueue,
 } as ModelMap;
 
 export async function getRegionalModels(
