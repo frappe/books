@@ -26,15 +26,15 @@
         >
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('7')"
           >
@@ -42,15 +42,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('8')"
           >
@@ -58,15 +58,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('9')"
           >
@@ -74,15 +74,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="deleteLast()"
           >
@@ -91,15 +91,15 @@
 
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('4')"
           >
@@ -107,15 +107,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('5')"
           >
@@ -123,15 +123,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('6')"
           >
@@ -139,15 +139,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('-')"
           >
@@ -156,15 +156,15 @@
 
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('1')"
           >
@@ -172,15 +172,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('2')"
           >
@@ -188,15 +188,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('3')"
           >
@@ -204,15 +204,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('+')"
           >
@@ -221,15 +221,15 @@
 
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('.')"
           >
@@ -237,15 +237,15 @@
           </button>
           <button
             class="
-              bg-gray-100
-              hover:bg-gray-200
-              dark:bg-gray-875 dark:hover:bg-gray-900
-              text-2xl
               py-2.5
+              bg-gray-100
+              text-2xl
               border-transparent
               rounded-lg
               transition-colors
               duration-200
+              hover:bg-gray-200
+              dark:bg-gray-875 dark:hover:bg-gray-900
             "
             @click="appendValue('0')"
           >
@@ -254,15 +254,15 @@
           <div class="grid col-span-2">
             <button
               class="
-                bg-gray-100
-                hover:bg-gray-200
-                dark:bg-gray-875 dark:hover:bg-gray-900
-                text-2xl
                 py-2.5
+                bg-gray-100
+                text-2xl
                 border-transparent
                 rounded-lg
                 transition-colors
                 duration-200
+                hover:bg-gray-200
+                dark:bg-gray-875 dark:hover:bg-gray-900
               "
               @click="reset()"
             >
@@ -273,7 +273,7 @@
       </div>
 
       <div class="px-5">
-        <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto mb-3">
+        <div class="grid row-start-6 grid-cols-2 gap-4 mt-auto mb-3">
           <div class="col-span-2">
             <Button
               class="w-full bg-green-500 dark:bg-green-700"
@@ -289,7 +289,7 @@
           </div>
         </div>
 
-        <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto mb-8">
+        <div class="grid row-start-6 grid-cols-2 gap-4 mt-auto mb-8">
           <div class="col-span-2">
             <Button
               class="w-full bg-red-500 dark:bg-red-700"

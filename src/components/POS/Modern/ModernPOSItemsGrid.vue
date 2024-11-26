@@ -2,11 +2,11 @@
   <div
     class="
       flex flex-col
-      gap-4
-      p-2
-      my-3
       items-center
-      px-2
+      gap-4
+      my-3
+      px-4
+      py-2
       rounded-t-md
       text-black
       w-full
@@ -54,9 +54,9 @@
                 rounded-lg
                 w-full
                 h-full
-                flex
                 bg-gray-100
                 dark:bg-gray-850
+                flex
                 justify-center
                 items-center
               "

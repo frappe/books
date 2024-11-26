@@ -7,16 +7,15 @@
       mt-2
       border
       rounded-t
-      dark:border-gray-800
       text-gray-600
-      dark:text-gray-400
+      dark:border-gray-800 dark:text-gray-400
     "
   >
     <div
       v-if="tableFields"
       v-for="df in tableFields"
       :key="df.fieldname"
-      class="text-lg flex mx-2 my-2"
+      class="text-lg flex m-2"
       :class="{
       'ms-auto': isNumeric(df as Field),
     }"
@@ -26,20 +25,18 @@
   </Row>
 
   <div
-    class="overflow-y-auto overflow-x-auto custom-scroll custom-scroll-thumb1"
+    class="overflow-auto custom-scroll custom-scroll-thumb1"
     style="height: calc(90vh - 25rem)"
   >
     <Row
       v-for="row in sinvDoc.items"
       :ratio="ratio"
       class="
+        p-2
         border
-        dark:border-gray-800
         w-full
-        px-2
-        py-2
         hover:bg-gray-25
-        dark:bg-gray-890
+        dark:border-gray-800 dark:bg-gray-890
       "
     >
       <ModernPOSSelectedItemRow
@@ -60,8 +57,7 @@ import Row from 'src/components/Row.vue';
 import RowEditForm from 'src/pages/CommonForm/RowEditForm.vue';
 import ModernPOSSelectedItemRow from './ModernPOSSelectedItemRow.vue';
 import { isNumeric } from 'src/utils';
-import { inject } from 'vue';
-import { defineComponent } from 'vue';
+import { inject, defineComponent } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { Field } from 'schemas/types';

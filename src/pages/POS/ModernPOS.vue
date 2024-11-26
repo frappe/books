@@ -59,15 +59,14 @@
         <div class="grid grid-rows-5 w-full gap-3">
           <div
             class="
-              bg-white
-              dark:bg-gray-850
-              border
-              dark:border-gray-800
-              grow
-              row-span-5
-              h-full
               p-4
+              grow
+              h-full
+              row-span-5
+              bg-white
+              border
               rounded-md
+              dark:bg-gray-850 dark:border-gray-800
             "
           >
             <!-- Customer Search -->
@@ -88,12 +87,11 @@
 
           <div
             class="
-              bg-white
-              dark:bg-gray-850
-              border
-              dark:border-gray-800
               p-4
+              bg-white
+              border
               rounded-md
+              dark:bg-gray-850 dark:border-gray-800
             "
           >
             <div class="grid grid-cols-2 gap-2">
@@ -205,12 +203,11 @@
       <div
         class="
           bg-white
-          dark:bg-gray-850
           border
-          dark:border-gray-800
-          col-span-6
           rounded-md
+          col-span-6
           flex flex-col
+          dark:bg-gray-850 dark:border-gray-800
         "
         style="height: calc(100vh - 6rem)"
       >

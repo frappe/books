@@ -8,23 +8,23 @@
     </div>
     <span
       class="
+        p-2
+        mb-2
+        w-20
         absolute
         bottom-full
         left-1/2
         transform
         -translate-x-1/2
-        mb-2
-        bg-gray-100
-        dark:bg-gray-800 dark:text-white
-        text-black text-xs
-        rounded-md
-        p-2
-        w-20
         text-center
         opacity-0
-        group-hover:opacity-100
+        bg-gray-100
+        text-black text-xs
+        rounded-md
         transition-opacity
         duration-300
+        group-hover:opacity-100
+        dark:bg-gray-800 dark:text-white
       "
     >
       {{ tableView ? 'Grid View' : 'List View' }}
@@ -51,6 +51,9 @@
 
     <span
       class="
+        mb-2
+        p-2
+        w-28
         absolute
         bottom-full
         left-1/2
@@ -59,14 +62,11 @@
         rounded-md
         opacity-0
         bg-gray-100
-        dark:bg-gray-800 dark:text-white
         text-black text-xs text-center
-        mb-2
-        p-2
-        w-28
-        group-hover:opacity-100
         transition-opacity
         duration-300
+        group-hover:opacity-100
+        dark:bg-gray-800 dark:text-white
       "
     >
       Sales Invoice List
@@ -103,23 +103,23 @@
 
     <span
       class="
+        mb-2
+        p-2
+        w-28
         absolute
         bottom-full
         left-1/2
         transform
         -translate-x-1/2
-        mb-2
         bg-gray-100
-        dark:bg-gray-800 dark:text-white
         text-black text-xs
         rounded-md
-        p-2
-        w-28
         text-center
         opacity-0
-        group-hover:opacity-100
         transition-opacity
         duration-300
+        group-hover:opacity-100
+        dark:bg-gray-800 dark:text-white
       "
     >
       Loyalty Program
@@ -194,23 +194,23 @@
     </div>
     <span
       class="
+        mb-2
+        p-2
+        w-28
         absolute
         bottom-full
         left-1/2
         transform
         -translate-x-1/2
-        mb-2
         bg-gray-100
-        dark:bg-gray-800 dark:text-white
         text-black text-xs
         rounded-md
-        p-2
-        w-28
         text-center
         opacity-0
-        group-hover:opacity-100
         transition-opacity
         duration-300
+        group-hover:opacity-100
+        dark:bg-gray-800 dark:text-white
       "
     >
       Coupon Code
@@ -218,24 +218,24 @@
     <div
       v-if="appliedCouponsCount !== 0"
       class="
+        h-4
+        w-4
+        p-2
         absolute
         top-0
         right-0
         transform
         translate-x-1/2
         -translate-y-1/2
-        h-4
-        w-4
         bg-green-400
         text-green-900
+        border-red-500
         rounded-full
         flex
         items-center
         justify-center
         text-xs
         cursor-pointer
-        border-red-500
-        p-2
       "
     >
       {{ appliedCouponsCount }}

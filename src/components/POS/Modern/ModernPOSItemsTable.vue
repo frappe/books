@@ -2,33 +2,29 @@
   <div class="flex gap-2">
     <div
       class="w-1/2 overflow-y-auto custom-scroll custom-scroll-thumb2"
-      style="height: calc(81vh)"
+      style="height: 81vh"
     >
       <Row
         :ratio="ratio"
         class="
           border
-          dark:border-gray-800
           flex
           items-center
           mt-2
           px-2
           rounded-t-md
           text-gray-600
-          dark:text-gray-400
+          dark:border-gray-800 dark:text-gray-400
           w-full
         "
       >
         <div
           v-for="df in tableFields"
           :key="df.fieldname"
-          class="flex items-center px-2 py-2 text-lg"
+          class="flex items-center p-2 text-lg"
           :class="{
         'ms-auto': isNumeric(df as Field),
       }"
-          :style="{
-            height: ``,
-          }"
         >
           {{ df.label }}
         </div>
@@ -40,17 +36,17 @@
         :ratio="ratio"
         :border="true"
         class="
-          border-b border-l border-r
+          border-b border-x
           dark:border-gray-800
           flex
-          group
-          h-row-mid
-          hover:bg-gray-25
-          dark:bg-gray-890
           items-center
           justify-center
+          group
+          h-row-mid
           px-2
           w-full
+          hover:bg-gray-25
+          dark:bg-gray-890
         "
         @click="handleChange(row)"
       >
@@ -73,27 +69,23 @@
         :ratio="ratio"
         class="
           border
-          dark:border-gray-800
           flex
           items-center
           mt-2
           px-2
           rounded-t-md
           text-gray-600
-          dark:text-gray-400
           w-full
+          dark:border-gray-800 dark:text-gray-400
         "
       >
         <div
           v-for="df in tableFields"
           :key="df.fieldname"
-          class="flex items-center px-2 py-2 text-lg"
+          class="flex items-center p-2 text-lg"
           :class="{
         'ms-auto': isNumeric(df as Field),
       }"
-          :style="{
-            height: ``,
-          }"
         >
           {{ df.label }}
         </div>
@@ -104,17 +96,16 @@
         :ratio="ratio"
         :border="true"
         class="
-          border-b border-l border-r
-          dark:border-gray-800
+          border-b border-x
           flex
-          group
-          h-row-mid
-          hover:bg-gray-25
-          dark:bg-gray-890
           items-center
           justify-center
+          group
+          h-row-mid
           px-2
           w-full
+          hover:bg-gray-25
+          dark:bg-gray-890 dark:border-gray-800
         "
         @click="handleChange(row)"
       >

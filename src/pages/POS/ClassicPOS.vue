@@ -45,17 +45,16 @@
     <AlertModal :open-modal="openAlertModal" @toggle-modal="toggleModal" />
 
     <div
-      class="bg-gray-25 dark:bg-gray-875 gap-2 grid grid-cols-12 p-4"
+      class="bg-gray-25 dark:bg-gray-875 grid grid-cols-12 gap-2 p-4"
       style="height: calc(100vh - var(--h-row-largest))"
     >
       <div
         class="
-          bg-white
-          dark:bg-gray-850
-          border
-          dark:border-gray-800
           col-span-5
+          bg-white
+          border
           rounded-md
+          dark:border-gray-800 dark:bg-gray-850
         "
       >
         <div class="rounded-md p-4 col-span-5">
@@ -124,14 +123,13 @@
         <div class="flex flex-col gap-3" style="height: calc(100vh - 6rem)">
           <div
             class="
+              p-4
               bg-white
-              dark:bg-gray-850
               border
-              dark:border-gray-800
+              rounded-md
               grow
               h-full
-              p-4
-              rounded-md
+              dark:border-gray-800 dark:bg-gray-850
             "
           >
             <!-- Customer Search -->
@@ -150,12 +148,11 @@
 
           <div
             class="
-              bg-white
-              dark:bg-gray-850
-              border
-              dark:border-gray-800
               p-4
+              bg-white
+              border
               rounded-md
+              dark:border-gray-800 dark:bg-gray-850
             "
           >
             <div class="w-full grid grid-cols-2 gap-y-2 gap-x-3">
