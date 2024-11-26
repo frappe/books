@@ -52,7 +52,8 @@ export function initERPNSync(fyo: Fyo) {
     return;
   }
 
-  const syncInterval = fyo.singles.ERPNextSyncSettings?.dataSyncInterval;
+  const syncInterval = fyo.singles.ERPNextSyncSettings
+    ?.dataSyncInterval as number;
 
   if (!syncInterval) {
     return;
@@ -72,8 +73,8 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
     return;
   }
 
-  const token = fyo.singles.ERPNextSyncSettings?.authToken;
-  const endpoint = fyo.singles.ERPNextSyncSettings?.endpoint;
+  const token = fyo.singles.ERPNextSyncSettings?.authToken as string;
+  const endpoint = fyo.singles.ERPNextSyncSettings?.endpoint as string;
 
   if (!token || !endpoint) {
     return;
@@ -104,7 +105,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
           );
 
           await existingDoc.setMultiple(doc);
-          await performPreSync(fyo, doc, existingDoc);
+          await performPreSync(fyo, doc);
           existingDoc._addDocToSyncQueue = false;
 
           await existingDoc.sync();
@@ -125,7 +126,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
     try {
       const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
 
-      await performPreSync(fyo, doc, newDoc);
+      await performPreSync(fyo, doc);
       newDoc._addDocToSyncQueue = false;
 
       await newDoc.sync();
@@ -497,7 +498,7 @@ export function getShouldDocSyncToERPNext(
         syncSettings.supplierSyncType !== 'ERPNext to FBooks'
       );
 
-    case ModelNameEnum.PriceListItem:
+    case 'PriceListItem':
       const isPriceListSyncEnabled = !!syncSettings.syncPriceList;
 
       return (
