@@ -1359,6 +1359,30 @@ export function removeFreeItems(sinvDoc: SalesInvoice) {
   }
 }
 
+export async function updatePricingRule(sinvDoc: SalesInvoice) {
+  const applicablePricingRuleNames = await getPricingRule(sinvDoc);
+
+  if (!applicablePricingRuleNames || !applicablePricingRuleNames.length) {
+    sinvDoc.pricingRuleDetail = undefined;
+    sinvDoc.isPricingRuleApplied = false;
+    removeFreeItems(sinvDoc);
+    return;
+  }
+
+  const appliedPricingRuleCount = sinvDoc?.items?.filter(
+    (val) => val.isFreeItem
+  ).length;
+
+  setTimeout(() => {
+    void (async () => {
+      if (appliedPricingRuleCount !== applicablePricingRuleNames?.length) {
+        await sinvDoc.appendPricingRuleDetail(applicablePricingRuleNames);
+        await sinvDoc.applyProductDiscount();
+      }
+    })();
+  }, 1);
+}
+
 export function getPricingRulesConflicts(
   pricingRules: PricingRule[]
 ): undefined | boolean {
