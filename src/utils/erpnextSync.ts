@@ -506,6 +506,7 @@ async function afterDocSync(
   erpnDocName: string,
   fbooksDocName: string
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
   const res = await ipc.sendAPIRequest(
     `${endpoint}/api/method/books_integration.api.update_status`,
     {
@@ -523,6 +524,7 @@ async function afterDocSync(
       }),
     }
   );
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return res;
 }
 
