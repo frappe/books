@@ -28,7 +28,7 @@
             'text-gray-500': !value,
           }"
         >
-          <span v-if="value" class="cursor-text w-full">{{ value }}</span>
+          <span v-if="value" class="cursor-text w-full">{{ selectValue }}</span>
           <span v-else>{{ inputPlaceholder }}</span>
           <svg
             v-if="!isReadOnly"
@@ -87,10 +87,10 @@
                 dark:hover:bg-gray-875
                 flex
               "
-              :class="value !== option.label ? 'pl-6' : 'pl-2'"
+              :class="value !== option.value ? 'pl-6' : 'pl-2'"
             >
               <svg
-                v-if="value === option.label"
+                v-if="value === option.value"
                 xmlns="http://www.w3.org/2000/svg"
                 x="0px"
                 y="0px"
@@ -125,6 +125,7 @@ export default defineComponent({
   data() {
     return {
       dropdownVisible: false,
+      selectValue: '',
     };
   },
   computed: {
@@ -144,6 +145,7 @@ export default defineComponent({
     },
     selectOption(option: SelectOption) {
       this.dropdownVisible = false;
+      this.selectValue = option.label;
       this.triggerChange(option.value);
       this.dropdownVisible = !this.dropdownVisible;
     },
