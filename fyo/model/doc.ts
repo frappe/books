@@ -249,7 +249,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return true;
   }
 
-  get shouldDocSyncToERPNext() {
+  get shouldDocSyncToERPNext(): boolean {
     const syncEnabled = !!this.fyo.singles.ERPNextSyncSettings?.isEnabled;
     if (!syncEnabled) {
       return false;
