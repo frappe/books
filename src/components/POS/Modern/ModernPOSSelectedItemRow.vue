@@ -76,7 +76,7 @@
   <div></div>
 
   <template v-if="isExapanded">
-    <div class="rounded-md grid grid-cols-4 my-3" style="width: calc(27vw)">
+    <div class="rounded-md grid grid-cols-4 my-3" style="width: 27vw">
       <div class="px-4 col-span-2">
         <Float
           :df="{
