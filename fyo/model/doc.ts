@@ -44,6 +44,8 @@ import {
   ValidationMap,
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
+import { getShouldDocSyncToERPNext } from 'src/utils/erpnextSync';
+import { ModelNameEnum } from 'models/types';
 
 export class Doc extends Observable<DocValue | Doc[]> {
   /* eslint-disable @typescript-eslint/no-floating-promises */
@@ -245,6 +247,22 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     return true;
+  }
+
+  get shouldDocSyncToERPNext() {
+    const syncEnabled = !!this.fyo.singles.ERPNextSyncSettings?.isEnabled;
+    if (!syncEnabled) {
+      return false;
+    }
+
+    if (!this.schemaName || !this.fyo.singles.ERPNextSyncSettings) {
+      return false;
+    }
+
+    return getShouldDocSyncToERPNext(
+      this.fyo.singles.ERPNextSyncSettings,
+      this
+    );
   }
 
   _setValuesWithoutChecks(data: DocValueMap, convertToDocValue: boolean) {
@@ -912,6 +930,28 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this._notInserted = false;
     await this.trigger('afterSync');
     this.fyo.doc.observer.trigger(`sync:${this.schemaName}`, this.name);
+
+    if (this._addDocToSyncQueue && !!this.shouldDocSyncToERPNext) {
+      const isDocExistsInQueue = await this.fyo.db.getAll(
+        ModelNameEnum.ERPNextSyncQueue,
+        {
+          filters: {
+            referenceType: this.schemaName,
+            documentName: this.name as string,
+          },
+        }
+      );
+
+      if (!isDocExistsInQueue.length) {
+        this.fyo.doc
+          .getNewDoc(ModelNameEnum.ERPNextSyncQueue, {
+            referenceType: this.schemaName,
+            documentName: this.name,
+          })
+          .sync();
+      }
+    }
+
     this._syncing = false;
     return doc;
   }

@@ -180,6 +180,18 @@ const ipc = {
     await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, body);
   },
 
+  async sendAPIRequest(endpoint: string, options: RequestInit | undefined) {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.SEND_API_REQUEST,
+      endpoint,
+      options
+    )) as Promise<
+      {
+        [key: string]: string | number | boolean | Date | object | object[];
+      }[]
+    >;
+  },
+
   registerMainProcessErrorListener(listener: IPCRendererListener) {
     ipcRenderer.on(IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR, listener);
   },
