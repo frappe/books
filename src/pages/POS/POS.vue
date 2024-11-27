@@ -26,6 +26,7 @@
       :open-payment-modal="openPaymentModal"
       :item-discounts="(itemDiscounts as Money)"
       :coupons="(coupons as AppliedCouponCodes)"
+      :open-price-list-modal="openPriceListModal"
       :applied-coupons-count="appliedCouponsCount"
       :open-shift-close-modal="openShiftCloseModal"
       :open-coupon-code-modal="openCouponCodeModal"
@@ -66,6 +67,7 @@
       :open-keyboard-modal="openKeyboardModal"
       :item-discounts="(itemDiscounts as Money)"
       :coupons="(coupons as AppliedCouponCodes)"
+      :open-price-list-modal="openPriceListModal"
       :applied-coupons-count="appliedCouponsCount"
       :open-shift-close-modal="openShiftCloseModal"
       :open-coupon-code-modal="openCouponCodeModal"
@@ -165,6 +167,7 @@ export default defineComponent({
       openAlertModal: false,
       openPaymentModal: false,
       openKeyboardModal: false,
+      openPriceListModal: false,
       openCouponCodeModal: false,
       openShiftCloseModal: false,
       openSavedInvoiceModal: false,
@@ -440,7 +443,10 @@ export default defineComponent({
       }
 
       if (existingItems.length) {
-        existingItems[0].rate = item.rate as Money;
+        if (!this.sinvDoc.priceList) {
+          existingItems[0].rate = item.rate as Money;
+        }
+
         existingItems[0].quantity = (existingItems[0].quantity as number) + 1;
 
         await this.applyPricingRule();
