@@ -9,6 +9,7 @@ export class POSSettings extends Doc {
   inventory?: string;
   cashAccount?: string;
   writeOffAccount?: string;
+  posUI?: 'Classic' | 'Modern';
 
   static filters: FiltersMap = {
     cashAccount: () => ({

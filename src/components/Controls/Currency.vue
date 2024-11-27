@@ -15,7 +15,7 @@
       :tabindex="isReadOnly ? '-1' : '0'"
       @blur="onBlur"
       @focus="onFocus"
-      @input="(e) => $emit('input', e)"
+      @input="(e:Event) => $emit('input', e)"
     />
     <div
       v-show="!showInput"
@@ -46,6 +46,17 @@ export default defineComponent({
       showInput: false,
       currencySymbol: '',
     };
+  },
+  props: {
+    focusInput: Boolean,
+  },
+  created() {
+    if (this.focusInput) {
+      this.showInput = true;
+      nextTick(() => {
+        this.focus();
+      });
+    }
   },
   computed: {
     formattedValue() {
