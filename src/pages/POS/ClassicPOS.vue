@@ -3,46 +3,56 @@
     <OpenPOSShiftModal
       v-if="!isPosShiftOpen"
       :open-modal="!isPosShiftOpen"
-      @toggle-modal="toggleModal"
+      @toggle-modal="emitEvent('toggleModal', 'ShiftOpen')"
     />
 
     <ClosePOSShiftModal
       :open-modal="openShiftCloseModal"
-      @toggle-modal="toggleModal"
+      @toggle-modal="emitEvent('toggleModal', 'ShiftClose')"
     />
 
     <LoyaltyProgramModal
       :open-modal="openLoyaltyProgramModal"
       :loyalty-points="loyaltyPoints"
       :loyalty-program="loyaltyProgram"
-      @set-loyalty-points="emitSetLoyaltyPoints"
-      @toggle-modal="toggleModal"
+      @toggle-modal="emitEvent('toggleModal', 'LoyaltyProgram')"
+      @set-loyalty-points="(points) => emitEvent('setLoyaltyPoints', points)"
     />
+
     <SavedInvoiceModal
       :open-modal="openSavedInvoiceModal"
       :modal-status="openSavedInvoiceModal"
-      @selected-invoice-name="emitSelectedInvoice"
-      @toggle-modal="toggleModal"
+      @toggle-modal="emitEvent('toggleModal', 'SavedInvoice')"
+      @selected-invoice-name="
+        (invName) => emitEvent('selectedInvoiceName', invName)
+      "
     />
 
     <CouponCodeModal
       :open-modal="openCouponCodeModal"
-      @toggle-modal="toggleModal"
-      @set-coupons-count="emitCouponsCount"
+      @toggle-modal="emitEvent('toggleModal', 'CouponCode')"
+      @set-coupons-count="(count) => emitEvent('setCouponsCount', count)"
     />
 
     <PaymentModal
       :open-modal="openPaymentModal"
-      @toggle-modal="toggleModal"
-      @set-cash-amount="emitSetCashAmount"
-      @set-coupons-count="emitCouponsCount"
-      @set-transfer-ref-no="setTransferRefNo"
-      @set-transfer-amount="emitSetTransferAmount"
-      @create-transaction="emitCreateTransaction"
-      @set-transfer-clearance-date="setTransferClearanceDate"
+      @toggle-modal="emitEvent('toggleModal', 'Payment')"
+      @set-cash-amount="(amount) => emitEvent('setCashAmount', amount)"
+      @set-transfer-ref-no="(ref) => emitEvent('setTransferRefNo', ref)"
+      @set-coupons-count="(count) => emitEvent('setCouponsCount', count)"
+      @set-transfer-amount="(amount) => emitEvent('setTransferAmount', amount)"
+      @set-transfer-clearance-date="
+        (date) => emitEvent('setTransferClearanceDate', date)
+      "
+      @create-transaction="
+        (createTransaction) => emitEvent('createTransaction', createTransaction)
+      "
     />
 
-    <AlertModal :open-modal="openAlertModal" @toggle-modal="toggleModal" />
+    <AlertModal
+      :open-modal="openAlertModal"
+      @toggle-modal="emitEvent('toggleModal', 'Alert')"
+    />
 
     <div
       class="bg-gray-25 dark:bg-gray-875 grid grid-cols-12 gap-2 p-4"
@@ -75,7 +85,7 @@
               :border="true"
               :value="itemSearchTerm"
               @keyup.enter="
-                async () => await selectItem(await getItem(itemSearchTerm))
+                async () => emitEvent('addItem', await getItem(itemSearchTerm) as Item)
               "
               @change="(item: string) =>itemSearchTerm= item"
             />
@@ -85,7 +95,7 @@
               class="w-1/3"
               @item-selected="
                 async (name: string) => {
-                  await selectItem(await getItem(name));
+                  emitEvent('addItem', await getItem(name) as Item);
                 }
               "
             />
@@ -95,14 +105,14 @@
             v-if="tableView"
             :items="items"
             :item-qty-map="itemQuantityMap as ItemQtyMap"
-            @add-item="selectItem"
+            @add-item="(item) => emitEvent('addItem', item)"
           />
 
           <ItemsGrid
             v-else
             :items="items"
             :item-qty-map="itemQuantityMap as ItemQtyMap"
-            @add-item="selectItem"
+            @add-item="(item) => emitEvent('addItem', item)"
           />
 
           <div class="flex fixed bottom-0 p-1 mb-7 gap-x-3">
@@ -111,9 +121,9 @@
               :loyalty-points="loyaltyPoints"
               :loyalty-program="loyaltyProgram"
               :applied-coupons-count="appliedCouponsCount"
-              @toggle-view="toggleView"
-              @toggle-modal="toggleModal"
-              @emit-route-to-sinv-list="emitRouteToSinvList"
+              @toggle-view="emitEvent('toggleView')"
+              @emit-route-to-sinv-list="emitEvent('routeToSinvList')"
+              @toggle-modal="(modalName) => emitEvent('toggleModal', modalName)"
             />
           </div>
         </div>
@@ -199,6 +209,7 @@
                     :read-only="true"
                     :text-right="true"
                   />
+
                   <FloatingLabelCurrencyInput
                     v-if="sinvDoc?.fieldMap"
                     :df="sinvDoc?.fieldMap.grandTotal"
@@ -222,9 +233,10 @@
                       </p>
                     </slot>
                   </Button>
+
                   <Button
                     class="w-full mt-4 bg-blue-500 dark:bg-blue-700 py-6"
-                    @click="toggleModal('SavedInvoice', true)"
+                    @click="emitEvent('toggleModal', 'SavedInvoice', true)"
                   >
                     <slot>
                       <p class="uppercase text-lg text-white font-semibold">
@@ -249,7 +261,7 @@
                   <Button
                     class="mt-4 w-full bg-green-500 dark:bg-green-700 py-6"
                     :disabled="disablePayButton"
-                    @click="toggleModal('Payment', true)"
+                    @click="emitEvent('toggleModal', 'Payment', true)"
                   >
                     <slot>
                       <p class="uppercase text-lg text-white font-semibold">
@@ -279,27 +291,21 @@ import { Item } from 'models/baseModels/Item/Item';
 import Link from 'src/components/Controls/Link.vue';
 import CouponCodeModal from './CouponCodeModal.vue';
 import POSQuickActions from './POSQuickActions.vue';
-import { ModalName } from 'src/components/POS/types';
+import { PosEmits } from 'src/components/POS/types';
 import SavedInvoiceModal from './SavedInvoiceModal.vue';
 import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
 import Barcode from 'src/components/Controls/Barcode.vue';
-import { Payment } from 'models/baseModels/Payment/Payment';
 import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
+import { POSItem, ItemQtyMap } from 'src/components/POS/types';
 import ItemsGrid from 'src/components/POS/Classic/ItemsGrid.vue';
 import ItemsTable from 'src/components/POS/Classic/ItemsTable.vue';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
-import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import SelectedItemTable from 'src/components/POS/Classic/SelectedItemTable.vue';
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
-import {
-  ItemQtyMap,
-  ItemSerialNumbers,
-  POSItem,
-} from 'src/components/POS/types';
 
 export default defineComponent({
   name: 'ClassicPOS',
@@ -312,11 +318,11 @@ export default defineComponent({
     ItemsTable,
     PaymentModal,
     MultiLabelLink,
-    CouponCodeModal,
     POSQuickActions,
+    CouponCodeModal,
     OpenPOSShiftModal,
-    SavedInvoiceModal,
     SelectedItemTable,
+    SavedInvoiceModal,
     ClosePOSShiftModal,
     LoyaltyProgramModal,
     FloatingLabelFloatInput,
@@ -324,8 +330,10 @@ export default defineComponent({
   },
   props: {
     cashAmount: Money,
+    tableView: Boolean,
     itemDiscounts: Money,
     openAlertModal: Boolean,
+    isPosShiftOpen: Boolean,
     disablePayButton: Boolean,
     openPaymentModal: Boolean,
     openCouponCodeModal: Boolean,
@@ -333,6 +341,10 @@ export default defineComponent({
     openSavedInvoiceModal: Boolean,
     openLoyaltyProgramModal: Boolean,
     openAppliedCouponsModal: Boolean,
+    totalQuantity: {
+      type: Number,
+      default: 0,
+    },
     loyaltyPoints: {
       type: Number,
       default: 0,
@@ -364,78 +376,30 @@ export default defineComponent({
   },
   emits: [
     'addItem',
+    'toggleView',
     'toggleModal',
     'setCustomer',
     'clearValues',
     'setCashAmount',
     'setCouponsCount',
     'routeToSinvList',
+    'setTransferRefNo',
     'setLoyaltyPoints',
     'saveInvoiceAction',
     'createTransaction',
     'setTransferAmount',
     'selectedInvoiceName',
+    'setTransferClearanceDate',
   ],
   data() {
     return {
-      tableView: true,
-
-      totalQuantity: 0,
-      totalTaxedAmount: fyo.pesa(0),
       additionalDiscounts: fyo.pesa(0),
-
-      paymentDoc: {} as Payment,
-      itemSerialNumbers: {} as ItemSerialNumbers,
-
       itemSearchTerm: '',
-      transferRefNo: undefined as string | undefined,
-      transferClearanceDate: undefined as Date | undefined,
     };
   },
-  computed: {
-    isPosShiftOpen: () => !!fyo.singles.POSShift?.isShiftOpen,
-  },
   methods: {
-    setTransferRefNo(ref: string) {
-      this.transferRefNo = ref;
-    },
-    emitRouteToSinvList() {
-      this.$emit('routeToSinvList');
-    },
-    toggleView() {
-      this.tableView = !this.tableView;
-    },
-    emitSetCashAmount(amount: Money) {
-      this.$emit('setCashAmount', amount);
-    },
-    setTransferClearanceDate(date: Date) {
-      this.transferClearanceDate = date;
-    },
-    emitCouponsCount(value: number) {
-      this.$emit('setCouponsCount', value);
-    },
-    emitSetLoyaltyPoints(value: string) {
-      this.$emit('setLoyaltyPoints', value);
-    },
-    emitSelectedInvoice(doc: InvoiceItem) {
-      this.$emit('selectedInvoiceName', doc);
-    },
-    toggleModal(modal: ModalName, value: boolean) {
-      this.$emit('toggleModal', modal, value);
-    },
-    emitCreateTransaction(shouldPrint = false) {
-      this.$emit('createTransaction', shouldPrint);
-    },
-    emitSetTransferAmount(amount: Money = fyo.pesa(0)) {
-      this.$emit('setTransferAmount', amount);
-    },
-    selectItem(item: POSItem | Item | undefined) {
-      this.$emit('addItem', item);
-    },
-    openCouponModal() {
-      if (this.sinvDoc?.party && this.sinvDoc?.items?.length) {
-        this.toggleModal('CouponCode', true);
-      }
+    emitEvent(eventName: PosEmits, ...args: (string | boolean | Item)[]) {
+      this.$emit(eventName, ...args);
     },
     getItem,
   },

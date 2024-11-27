@@ -88,7 +88,7 @@
       }"
       @click="
         loyaltyPoints && sinvDoc?.party && sinvDoc?.items?.length
-          ? toggleModal('LoyaltyProgram', true)
+          ? $emit('toggleModal', 'LoyaltyProgram')
           : null
       "
     >
@@ -254,7 +254,6 @@
 <script lang="ts">
 import { fyo } from 'src/initFyo';
 import { defineComponent, PropType } from 'vue';
-import { ModalName } from 'src/components/POS/types';
 import { Payment } from 'models/baseModels/Payment/Payment';
 import { ItemSerialNumbers } from 'src/components/POS/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
@@ -305,14 +304,11 @@ export default defineComponent({
     },
     toggleItemsView() {
       this.tableView = !this.tableView;
-      this.$emit('toggleView', !this.tableView);
-    },
-    toggleModal(modal: ModalName, value: boolean) {
-      this.$emit('toggleModal', modal, value);
+      this.$emit('toggleView');
     },
     openCouponModal() {
       if (this.sinvDoc?.party && this.sinvDoc?.items?.length) {
-        this.toggleModal('CouponCode', true);
+        this.$emit('toggleModal', 'CouponCode');
       }
     },
   },
