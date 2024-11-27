@@ -1,14 +1,13 @@
 <template>
   <div
     class="
-      flex flex-col
       gap-4
-      p-2
+      py-2
+      w-full
+      flex flex-col
       items-center
-      px-2
       rounded-t-md
       text-black
-      w-full
       overflow-y-auto
       custom-scroll custom-scroll-thumb2
     "
@@ -17,21 +16,21 @@
     <!-- Items Grid -->
     <div
       class="
+        gap-2
+        w-full
         grid grid-cols-1
         md:grid-cols-2
         lg:grid-cols-3
         xl:grid-cols-4
-        gap-2
-        w-full
       "
     >
       <div
         class="
-          border border-gray-300
-          dark:border-gray-800
           p-1
+          border border-gray-300
           flex flex-col
           text-sm text-center
+          dark:border-gray-800
         "
         @click="handleChange(item as POSItem)"
         v-for="item in items as POSItem[]"
@@ -52,11 +51,11 @@
                 rounded-lg
                 w-full
                 h-full
-                flex
                 bg-gray-100
-                dark:bg-gray-850
+                flex
                 justify-center
                 items-center
+                dark:bg-gray-850
               "
             >
               <p class="text-4xl font-semibold text-gray-400 select-none">

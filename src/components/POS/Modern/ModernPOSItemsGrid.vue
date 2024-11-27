@@ -18,9 +18,9 @@
     <!-- Items Grid -->
     <div
       class="
-        grid grid-cols-1
-        gap-2
-        w-full
+      gap-2
+      w-full
+      grid grid-cols-1
         sm:grid-cols-2
         md:grid-cols-4
         lg:grid-cols-6
@@ -29,9 +29,9 @@
     >
       <div
         class="
+        p-1
           border border-gray-300
           dark:border-gray-800
-          p-1
           flex flex-col
           text-sm text-center
         "
@@ -52,13 +52,13 @@
               v-else
               class="
                 rounded-lg
+                bg-gray-100
                 w-full
                 h-full
-                bg-gray-100
-                dark:bg-gray-850
                 flex
                 justify-center
                 items-center
+                dark:bg-gray-850
               "
             >
               <p class="text-4xl font-semibold text-gray-400 select-none">
@@ -67,12 +67,12 @@
             </div>
             <p
               class="
+              w-6
+              h-6
+              top-1
+              right-1
                 absolute
-                top-1
-                right-1
                 rounded-full
-                w-6
-                h-6
                 flex
                 justify-center
                 items-center
