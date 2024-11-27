@@ -12,10 +12,13 @@
     </PageHeader>
     <ClassicPOS
       v-if="fyo.singles.POSSettings?.posUI == 'Classic'"
+      :table-view="tableView"
+      :total-quantity="totalQuantity"
       :item-quantity-qap="itemQtyMap"
       :loyalty-points="loyaltyPoints"
       :open-alert-modal="openAlertModal"
       :default-customer="defaultCustomer"
+      :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
       :cash-amount="(cashAmount as Money)"
       :sinv-doc="(sinvDoc as SalesInvoice)"
@@ -30,6 +33,7 @@
       :open-loyalty-program-modal="openLoyaltyProgramModal"
       :open-applied-coupons-modal="openAppliedCouponsModal"
       @add-item="addItem"
+      @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
       @clear-values="clearValues"
       @set-customer="setCustomer"
@@ -38,17 +42,22 @@
       @set-coupons-count="setCouponsCount"
       @route-to-sinv-list="routeToSinvList"
       @set-loyalty-points="setLoyaltyPoints"
+      @set-transfer-ref-no="setTransferRefNo"
       @create-transaction="createTransaction"
       @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
+      @set-transfer-clearance-date="setTransferClearanceDate"
     />
     <ModernPOS
       v-else
+      :table-view="tableView"
+      :total-quantity="totalQuantity"
       :item-quantity-qap="itemQtyMap"
       :loyalty-points="loyaltyPoints"
       :open-alert-modal="openAlertModal"
       :default-customer="defaultCustomer"
+      :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
       :cash-amount="(cashAmount as Money)"
       :sinv-doc="(sinvDoc as SalesInvoice)"
@@ -64,6 +73,7 @@
       :open-loyalty-program-modal="openLoyaltyProgramModal"
       :open-applied-coupons-modal="openAppliedCouponsModal"
       @add-item="addItem"
+      @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
       @clear-values="clearValues"
       @set-customer="setCustomer"
@@ -72,10 +82,12 @@
       @set-coupons-count="setCouponsCount"
       @route-to-sinv-list="routeToSinvList"
       @set-loyalty-points="setLoyaltyPoints"
+      @set-transfer-ref-no="setTransferRefNo"
       @create-transaction="createTransaction"
       @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
+      @set-transfer-clearance-date="setTransferClearanceDate"
     />
   </div>
 </template>
@@ -527,11 +539,6 @@ export default defineComponent({
           type: 'error',
           message: t`${error as string}`,
         });
-      }
-    },
-    openCouponModal() {
-      if (this.sinvDoc.party && this.sinvDoc.items?.length) {
-        this.toggleModal('CouponCode', true);
       }
     },
     async submitSinvDoc(shouldPrint: boolean) {

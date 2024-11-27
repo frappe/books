@@ -88,7 +88,7 @@
       }"
       @click="
         loyaltyPoints && sinvDoc?.party && sinvDoc?.items?.length
-          ? toggleModal('LoyaltyProgram', true)
+          ?  $emit('toggleModal','LoyaltyProgram')
           : null
       "
     >
@@ -305,14 +305,11 @@ export default defineComponent({
     },
     toggleItemsView() {
       this.tableView = !this.tableView;
-      this.$emit('toggleView', !this.tableView);
-    },
-    toggleModal(modal: ModalName, value: boolean) {
-      this.$emit('toggleModal', modal, value);
+      this.$emit('toggleView');
     },
     openCouponModal() {
       if (this.sinvDoc?.party && this.sinvDoc?.items?.length) {
-        this.toggleModal('CouponCode', true);
+        this.$emit('toggleModal','CouponCode');
       }
     },
   },

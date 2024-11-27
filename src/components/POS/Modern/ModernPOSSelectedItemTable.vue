@@ -43,7 +43,7 @@
         :row="(row as SalesInvoiceItem)"
         @selected-row="selectedItemRow"
         @run-sinv-formulas="runSinvFormulas"
-        @toggle-modal="handleToggleModal"
+        @toggle-modal="$emit('toggleModal')"
       />
     </Row>
   </div>
@@ -135,9 +135,6 @@ export default defineComponent({
     },
   },
   methods: {
-    handleToggleModal(modal: string) {
-      this.$emit('toggleModal', modal);
-    },
     async runSinvFormulas() {
       await this.sinvDoc.runFormulas();
     },
