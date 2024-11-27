@@ -247,7 +247,6 @@ import { fyo } from 'src/initFyo';
 import { defineComponent } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { Money } from 'pesa';
-import { DiscountType } from '../types';
 import { validateSerialNumberCount } from 'src/utils/pos';
 import { updatePricingRuleItem } from 'models/helpers';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
