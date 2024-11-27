@@ -31,6 +31,24 @@
       "create": true,
       "default": "Write Off",
       "section": "Default"
+    },
+    {
+      "fieldname": "posUI",
+      "label": "Pos Ui",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Classic",
+          "label": "Classic"
+        },
+        {
+          "value": "Modern",
+          "label": "Modern"
+        }
+      ],
+      "default": "Classic",
+      "required": true,
+      "section": "Default"
     }
   ]
 }

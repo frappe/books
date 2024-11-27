@@ -29,7 +29,10 @@
     </div>
   </Row>
 
-  <div class="overflow-y-auto" style="height: 80vh">
+  <div
+    class="overflow-y-auto custom-scroll custom-scroll-thumb2"
+    style="height: 70vh"
+  >
     <Row
       v-if="items"
       v-for="row in items as any"
@@ -64,12 +67,12 @@
 </template>
 
 <script lang="ts">
-import FormControl from '../Controls/FormControl.vue';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import Row from 'src/components/Row.vue';
 import { isNumeric } from 'src/utils';
 import { defineComponent } from 'vue';
 import { Field } from 'schemas/types';
-import { POSItem } from './types';
+import { POSItem } from '../types';
 
 export default defineComponent({
   name: 'ItemsTable',

@@ -1,16 +1,15 @@
 <template>
   <div
     class="
+      px-2
+      w-36
       flex
       items-center
       border
-      w-36
       rounded
-      px-2
       bg-gray-50
-      dark:bg-gray-890
+      dark:border-gray-800 dark:bg-gray-890 dark:focus-within:bg-gray-900
       focus-within:bg-gray-100
-      dark:focus-within:bg-gray-900
     "
   >
     <input

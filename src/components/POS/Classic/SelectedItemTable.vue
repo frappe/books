@@ -11,7 +11,7 @@
       w-full
       flex
       items-center
-      mt-4
+      mt-2
     "
   >
     <div
@@ -60,10 +60,10 @@
 </template>
 
 <script lang="ts">
-import FormContainer from '../FormContainer.vue';
-import FormControl from '../Controls/FormControl.vue';
-import Link from '../Controls/Link.vue';
-import Row from '../Row.vue';
+import FormContainer from 'src/components/FormContainer.vue';
+import FormControl from 'src/components/Controls/FormControl.vue';
+import Link from 'src/components/Controls/Link.vue';
+import Row from 'src/components/Row.vue';
 import RowEditForm from 'src/pages/CommonForm/RowEditForm.vue';
 import SelectedItemRow from './SelectedItemRow.vue';
 import { isNumeric } from 'src/utils';

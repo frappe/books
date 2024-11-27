@@ -102,16 +102,12 @@ function getInventorySidebar(): SidebarRoot[] {
 }
 
 function getPOSSidebar() {
-  const isPOSEnabled = !!fyo.singles.InventorySettings?.enablePointOfSale;
-  if (!isPOSEnabled) {
-    return [];
-  }
-
   return {
     label: t`POS`,
     name: 'pos',
     route: '/pos',
     icon: 'pos',
+    hidden: () => !fyo.singles.InventorySettings?.enablePointOfSale,
   };
 }
 

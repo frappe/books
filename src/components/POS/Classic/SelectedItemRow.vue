@@ -262,18 +262,18 @@
 </template>
 
 <script lang="ts">
-import Currency from '../Controls/Currency.vue';
-import Data from '../Controls/Data.vue';
-import Float from '../Controls/Float.vue';
-import Int from '../Controls/Int.vue';
-import Link from '../Controls/Link.vue';
-import Text from '../Controls/Text.vue';
+import Currency from 'src/components/Controls/Currency.vue';
+import Data from 'src/components/Controls/Data.vue';
+import Float from 'src/components/Controls/Float.vue';
+import Int from 'src/components/Controls/Int.vue';
+import Link from 'src/components/Controls/Link.vue';
+import Text from 'src/components/Controls/Text.vue';
 import { inject } from 'vue';
 import { fyo } from 'src/initFyo';
 import { defineComponent } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { Money } from 'pesa';
-import { DiscountType } from './types';
+import { DiscountType } from '../types';
 import { validateSerialNumberCount } from 'src/utils/pos';
 import { getPricingRule } from 'models/helpers';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
