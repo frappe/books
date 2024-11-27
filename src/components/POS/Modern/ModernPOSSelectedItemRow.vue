@@ -293,14 +293,6 @@ export default defineComponent({
         return;
       }
 
-      if (
-        (field == 'itemDiscountAmount' || field == 'itemDiscountPercent') &&
-        ((row.itemDiscountPercent as number) > 0 ||
-          !row.itemDiscountAmount?.isZero())
-      ) {
-        return;
-      }
-
       this.$emit('selectedRow', row, field);
       this.$emit('toggleModal', 'Keyboard');
     },
