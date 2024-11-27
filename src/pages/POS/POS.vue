@@ -43,6 +43,7 @@
       @route-to-sinv-list="routeToSinvList"
       @set-loyalty-points="setLoyaltyPoints"
       @set-transfer-ref-no="setTransferRefNo"
+      @apply-pricing-rule="applyPricingRule"
       @create-transaction="createTransaction"
       @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
@@ -81,6 +82,7 @@
       @set-cash-amount="setCashAmount"
       @set-coupons-count="setCouponsCount"
       @route-to-sinv-list="routeToSinvList"
+      @apply-pricing-rule="applyPricingRule"
       @set-loyalty-points="setLoyaltyPoints"
       @set-transfer-ref-no="setTransferRefNo"
       @create-transaction="createTransaction"
@@ -215,6 +217,10 @@ export default defineComponent({
   watch: {
     sinvDoc: {
       handler() {
+        if (this.sinvDoc.coupons?.length) {
+          this.setCouponsCount(this.sinvDoc.coupons?.length);
+        }
+
         this.updateValues();
       },
       deep: true,
@@ -617,26 +623,12 @@ export default defineComponent({
         this.sinvDoc.isPricingRuleApplied = false;
         removeFreeItems(this.sinvDoc as SalesInvoice);
 
+        await this.sinvDoc.applyProductDiscount();
         return;
       }
 
-      const appliedPricingRuleCount = this.sinvDoc?.items?.filter(
-        (val) => val.isFreeItem
-      ).length;
-
-      const recursivePricingRules = hasPricingRules?.filter(
-        (val) => val.pricingRule.isRecursive
-      );
-
-      setTimeout(async () => {
-        if (
-          appliedPricingRuleCount !== hasPricingRules?.length ||
-          recursivePricingRules
-        ) {
-          await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
-          await this.sinvDoc.applyProductDiscount();
-        }
-      }, 1);
+      await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
+      await this.sinvDoc.applyProductDiscount();
     },
     async routeToSinvList() {
       if (!this.sinvDoc.items?.length) {

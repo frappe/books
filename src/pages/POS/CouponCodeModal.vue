@@ -12,7 +12,7 @@
         :style="{ height: appliedCoupons.length >= 2 ? '11vh' : '8vh' }"
       >
         <Row
-          v-for="(coupon,index) in appliedCoupons as any"
+          v-for="(coupon,index) in appliedCoupons as AppliedCouponCodes[]"
           :key="index"
           :ratio="ratio"
           :border="true"
@@ -115,10 +115,11 @@ import { showToast } from 'src/utils/interactive';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import Link from 'src/components/Controls/Link.vue';
 import { ModelNameEnum } from 'models/types';
-import { updatePricingRule, validateCouponCode } from 'models/helpers';
+import { validateCouponCode } from 'models/helpers';
 import { Field } from 'schemas/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import Row from 'src/components/Row.vue';
+import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 
 export default defineComponent({
   name: 'CouponCodeModal',
@@ -129,7 +130,7 @@ export default defineComponent({
     FormControl,
     Row,
   },
-  emits: ['setCouponsCount', 'toggleModal'],
+  emits: ['setCouponsCount', 'toggleModal', 'applyPricingRule'],
 
   setup() {
     return {
@@ -181,13 +182,11 @@ export default defineComponent({
 
         await this.sinvDoc.append('coupons', { coupons: this.couponCode });
 
-        await updatePricingRule(this.sinvDoc);
+        this.$emit('applyPricingRule');
         this.$emit('toggleModal', 'CouponCode');
 
         this.couponCode = '';
         this.validationError = false;
-
-        this.$emit('setCouponsCount', this.sinvDoc.coupons?.length);
       } catch (error) {
         this.validationError = true;
 
@@ -198,12 +197,16 @@ export default defineComponent({
       }
     },
     async removeAppliedCoupon(coupon: AppliedCouponCodes) {
-      this.sinvDoc.coupons = this.sinvDoc.coupons?.filter(
-        (coup) => coup.coupons !== coupon?.coupons
-      );
+      this.sinvDoc?.items?.map((item: InvoiceItem) => {
+        item.itemDiscountAmount = this.fyo.pesa(0);
+        item.itemDiscountPercent = 0;
+        item.setItemDiscountAmount = false;
+      });
 
-      await updatePricingRule(this.sinvDoc);
-      this.$emit('setCouponsCount', this.sinvDoc.coupons?.length);
+      await coupon?.parentdoc?.remove('coupons', coupon.idx as number);
+
+      this.$emit('applyPricingRule');
+      this.$emit('setCouponsCount', this.coupons?.length);
     },
     cancelApplyCouponCode() {
       this.couponCode = '';

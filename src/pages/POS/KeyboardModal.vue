@@ -316,7 +316,6 @@ import { defineComponent, inject } from 'vue';
 import Button from 'src/components/Button.vue';
 import Float from 'src/components/Controls/Float.vue';
 import Currency from 'src/components/Controls/Currency.vue';
-import { updatePricingRuleItem } from 'models/helpers';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { ValidationError } from 'fyo/utils/errors';
@@ -338,7 +337,7 @@ export default defineComponent({
       default: '',
     },
   },
-  emits: ['toggleModal'],
+  emits: ['toggleModal', 'applyPricingRule'],
   setup() {
     return {
       sinvDoc: inject('sinvDoc') as SalesInvoice,
@@ -460,7 +459,7 @@ export default defineComponent({
           }
 
           if (this.selectedItemField === 'quantity') {
-            await updatePricingRuleItem(this.sinvDoc);
+            this.$emit('applyPricingRule');
           }
         }
 
@@ -471,6 +470,10 @@ export default defineComponent({
           type: 'error',
           message: this.t`${error as string}`,
         });
+
+        if (this.selectedItemField === 'quantity') {
+          this.$emit('applyPricingRule');
+        }
       }
     },
     async deleteLast() {
