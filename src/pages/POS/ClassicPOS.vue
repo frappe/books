@@ -30,6 +30,7 @@
 
     <CouponCodeModal
       :open-modal="openCouponCodeModal"
+      @apply-pricing-rule="emitEvent('applyPricingRule')"
       @toggle-modal="emitEvent('toggleModal', 'CouponCode')"
       @set-coupons-count="(count) => emitEvent('setCouponsCount', count)"
     />
@@ -39,7 +40,6 @@
       @toggle-modal="emitEvent('toggleModal', 'Payment')"
       @set-cash-amount="(amount) => emitEvent('setCashAmount', amount)"
       @set-transfer-ref-no="(ref) => emitEvent('setTransferRefNo', ref)"
-      @set-coupons-count="(count) => emitEvent('setCouponsCount', count)"
       @set-transfer-amount="(amount) => emitEvent('setTransferAmount', amount)"
       @set-transfer-clearance-date="
         (date) => emitEvent('setTransferClearanceDate', date)
@@ -153,7 +153,9 @@
               @change="(value:string) => $emit('setCustomer',value)"
             />
 
-            <SelectedItemTable />
+            <SelectedItemTable
+              @apply-pricing-rule="emitEvent('applyPricingRule')"
+            />
           </div>
 
           <div
@@ -385,6 +387,7 @@ export default defineComponent({
     'routeToSinvList',
     'setTransferRefNo',
     'setLoyaltyPoints',
+    'applyPricingRule',
     'saveInvoiceAction',
     'createTransaction',
     'setTransferAmount',
