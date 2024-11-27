@@ -3,8 +3,8 @@
     <PageHeader
       :title="
         fyo.singles.POSSettings?.posUI === 'Classic'
-          ? t`Point of Sale (Classic)`
-          : t`Point of Sale (Modern)`
+          ? t`Point of Sale`
+          : t`Point of Sale`
       "
     >
       <slot>
