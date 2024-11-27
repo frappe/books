@@ -22,7 +22,7 @@
 
         <div
           id="keypad"
-          class="text-4xl grid grid-cols-4 gap-3 rounded font-bold p-4"
+          class="text-4xl grid grid-cols-4 gap-3 rounded font-bold py-4"
         >
           <button
             class="
