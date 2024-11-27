@@ -253,8 +253,6 @@
 
 <script lang="ts">
 import { fyo } from 'src/initFyo';
-import { routeTo } from 'src/utils/ui';
-import { getItem } from 'src/utils/pos';
 import { defineComponent, PropType } from 'vue';
 import { ModalName } from 'src/components/POS/types';
 import { Payment } from 'models/baseModels/Payment/Payment';
@@ -317,8 +315,6 @@ export default defineComponent({
         this.toggleModal('CouponCode', true);
       }
     },
-    routeTo,
-    getItem,
   },
 });
 </script>
