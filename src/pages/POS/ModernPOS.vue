@@ -342,7 +342,6 @@ export default defineComponent({
   props: {
     cashAmount: Money,
     tableView: Boolean,
-    totalQuantity:Number,
     itemDiscounts: Money,
     openAlertModal: Boolean,
     isPosShiftOpen: Boolean,
@@ -354,6 +353,10 @@ export default defineComponent({
     openSavedInvoiceModal: Boolean,
     openLoyaltyProgramModal: Boolean,
     openAppliedCouponsModal: Boolean,
+    totalQuantity: {
+      type: Number,
+      default: 0,
+    },
     loyaltyPoints: {
       type: Number,
       default: 0,
