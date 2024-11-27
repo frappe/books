@@ -102,7 +102,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { fyo } from 'src/initFyo';
 import { POSItem } from '../types';
 
 export default defineComponent({
