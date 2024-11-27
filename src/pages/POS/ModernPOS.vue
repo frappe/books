@@ -294,7 +294,7 @@ import SavedInvoiceModal from './SavedInvoiceModal.vue';
 import Barcode from 'src/components/Controls/Barcode.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
 import { Payment } from 'models/baseModels/Payment/Payment';
-import LoyaltyProgramModal from './LoyaltyprogramModal.vue';
+import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';

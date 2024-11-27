@@ -286,7 +286,7 @@ import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
 import Barcode from 'src/components/Controls/Barcode.vue';
 import { Payment } from 'models/baseModels/Payment/Payment';
-import LoyaltyProgramModal from './LoyaltyprogramModal.vue';
+import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
 import ItemsGrid from 'src/components/POS/Classic/ItemsGrid.vue';
 import ItemsTable from 'src/components/POS/Classic/ItemsTable.vue';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
