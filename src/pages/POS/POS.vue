@@ -126,6 +126,7 @@ import {
   getPricingRule,
   removeFreeItems,
   getAddedLPWithGrandTotal,
+  getItemRateFromPriceList,
 } from 'models/helpers';
 import {
   POSItem,
@@ -459,6 +460,17 @@ export default defineComponent({
         rate: item.rate as Money,
         item: item.name,
       });
+
+      if (this.sinvDoc.priceList) {
+        let itemData = this.sinvDoc.items?.filter(
+          (val) => val.item == item.name
+        ) as SalesInvoiceItem[];
+
+        itemData[0].rate = await getItemRateFromPriceList(
+          itemData[0],
+          this.sinvDoc.priceList
+        );
+      }
 
       await this.applyPricingRule();
       await this.sinvDoc.runFormulas();

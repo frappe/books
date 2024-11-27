@@ -33,6 +33,9 @@ import { ValidationError } from 'fyo/utils/errors';
 import { isPesa } from 'fyo/utils';
 import { numberSeriesDefaultsMap } from './baseModels/Defaults/Defaults';
 import { safeParseFloat } from 'utils/index';
+import { PriceList } from './baseModels/PriceList/PriceList';
+import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
+import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -945,6 +948,43 @@ export async function getPricingRule(
   }
 
   return pricingRules;
+}
+
+export async function getItemRateFromPriceList(
+  doc: InvoiceItem | SalesInvoiceItem,
+  priceListName: string
+): Promise<Money | undefined> {
+  const item = doc.item;
+  if (!priceListName || !item) {
+    return;
+  }
+
+  const priceList = await doc.fyo.doc.getDoc(
+    ModelNameEnum.PriceList,
+    priceListName
+  );
+
+  if (!(priceList instanceof PriceList)) {
+    return;
+  }
+
+  const unit = doc.unit;
+  const transferUnit = doc.transferUnit;
+  const plItem = priceList.priceListItem?.find((pli) => {
+    if (pli.item !== item) {
+      return false;
+    }
+
+    if (transferUnit && pli.unit !== transferUnit) {
+      return false;
+    } else if (unit && pli.unit !== unit) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return plItem?.rate;
 }
 
 export function filterPricingRules(
