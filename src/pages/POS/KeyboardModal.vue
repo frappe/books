@@ -344,7 +344,7 @@ export default defineComponent({
   },
   data() {
     return {
-      selectedValue: '' as string,
+      selectedValue: '',
     };
   },
   watch: {

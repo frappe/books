@@ -279,7 +279,6 @@ import { Money } from 'pesa';
 import { PropType } from 'vue';
 import { fyo } from 'src/initFyo';
 import { defineComponent } from 'vue';
-import { routeTo } from 'src/utils/ui';
 import { getItem } from 'src/utils/pos';
 import AlertModal from './AlertModal.vue';
 import PaymentModal from './PaymentModal.vue';
@@ -457,7 +456,6 @@ export default defineComponent({
         this.toggleModal('CouponCode', true);
       }
     },
-    routeTo,
     getItem,
   },
 });

@@ -18,9 +18,9 @@
     <!-- Items Grid -->
     <div
       class="
-      gap-2
-      w-full
-      grid grid-cols-1
+        gap-2
+        w-full
+        grid grid-cols-1
         sm:grid-cols-2
         md:grid-cols-4
         lg:grid-cols-6
@@ -29,7 +29,7 @@
     >
       <div
         class="
-        p-1
+          p-1
           border border-gray-300
           dark:border-gray-800
           flex flex-col
@@ -67,10 +67,10 @@
             </div>
             <p
               class="
-              w-6
-              h-6
-              top-1
-              right-1
+                w-6
+                h-6
+                top-1
+                right-1
                 absolute
                 rounded-full
                 flex

@@ -1,12 +1,6 @@
 <template>
   <div class="flex-col">
-    <PageHeader
-      :title="
-        fyo.singles.POSSettings?.posUI === 'Classic'
-          ? t`Point of Sale`
-          : t`Point of Sale`
-      "
-    >
+    <PageHeader :title="t`Point of Sale`">
       <slot>
         <Button
           class="bg-red-500 dark:bg-red-700"
@@ -106,7 +100,6 @@ import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import {
-  getItem,
   validateSinv,
   getItemQtyMap,
   getItemDiscounts,
@@ -235,7 +228,6 @@ export default defineComponent({
     async setCustomer(value: string) {
       if (!value) {
         this.sinvDoc.party = '';
-
         return;
       }
 
@@ -344,7 +336,6 @@ export default defineComponent({
     },
     async setLoyaltyPoints(value: number) {
       this.appliedLoyaltyPoints = value;
-
       this.sinvDoc.redeemLoyaltyPoints = true;
 
       const totalLotaltyAmount = await getAddedLPWithGrandTotal(
@@ -379,7 +370,6 @@ export default defineComponent({
     },
 
     async addItem(item: POSItem | Item | undefined) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       await this.sinvDoc.runFormulas();
 
       if (!item) {
@@ -656,7 +646,6 @@ export default defineComponent({
       await this.saveOrder();
     },
     routeTo,
-    getItem,
   },
 });
 </script>
