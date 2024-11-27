@@ -24,6 +24,7 @@ export type PosEmits =
   | 'setCashAmount'
   | 'setCouponsCount'
   | 'routeToSinvList'
+  | 'applyPricingRule'
   | 'setTransferRefNo'
   | 'setLoyaltyPoints'
   | 'setTransferAmount'
