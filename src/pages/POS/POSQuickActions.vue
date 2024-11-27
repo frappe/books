@@ -139,7 +139,6 @@
     <div
       class="p-0.5 rounded-md bg-gray-100"
       :class="{
-        'bg-gray-100': loyaltyPoints,
         'dark:bg-gray-600 cursor-not-allowed':
           !sinvDoc?.party || !sinvDoc?.items?.length,
       }"
@@ -248,6 +247,54 @@
     >
       {{ appliedCouponsCount }}
     </div>
+  </div>
+
+  <div
+    class="relative group"
+    :class="{
+      hidden: !fyo.singles.AccountingSettings?.enablePriceList,
+    }"
+  >
+    <div
+      class="p-1 rounded-md bg-gray-100"
+      @click="$emit('toggleModal','PriceList')"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        height="23px"
+        viewBox="0 -960 960 960"
+        width="24px"
+        fill="#000"
+      >
+        <path
+          d="M180.31-164q-27.01 0-45.66-18.65Q116-201.3 116-228.31v-503.38q0-27.01 18.65-45.66Q153.3-796 180.31-796h599.38q27.01 0 45.66 18.65Q844-758.7 844-731.69v503.38q0 27.01-18.65 45.66Q806.7-164 779.69-164H180.31Zm0-52h599.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-503.38q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H180.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v503.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM221-297h172v-52H221v52Zm361-77.23L737.77-530 701-566.77l-119 119-51-51L494.23-462 582-374.23ZM221-454h172v-52H221v52Zm0-156h172v-52H221v52Zm-53 394v-528 528Z"
+        />
+      </svg>
+    </div>
+
+    <span
+      class="
+        absolute
+        bottom-full
+        left-1/2
+        transform
+        -translate-x-1/2
+        mb-2
+        bg-gray-100
+        dark:bg-gray-800 dark:text-white
+        text-black text-xs
+        rounded-md
+        p-2
+        w-28
+        text-center
+        opacity-0
+        group-hover:opacity-100
+        transition-opacity
+        duration-300
+      "
+    >
+      Price List
+    </span>
   </div>
 </template>
 
