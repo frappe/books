@@ -17,6 +17,20 @@ export type ModalName =
   | 'Alert'
   | 'CouponCode';
 
+export type PosEmits =
+  | 'addItem'
+  | 'toggleView'
+  | 'toggleModal'
+  | 'setCashAmount'
+  | 'setCouponsCount'
+  | 'routeToSinvList'
+  | 'setTransferRefNo'
+  | 'setLoyaltyPoints'
+  | 'setTransferAmount'
+  | 'createTransaction'
+  | 'selectedInvoiceName'
+  | 'setTransferClearanceDate';
+
 export interface POSItem {
   id?: number;
   image?: string;
