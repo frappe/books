@@ -7,15 +7,15 @@
       <Row
         :ratio="ratio"
         class="
-          border
-          flex
-          items-center
-          mt-2
-          px-2
+        mt-2
+        px-2
+        w-full
+        flex
+        items-center
+        border
           rounded-t-md
           text-gray-600
           dark:border-gray-800 dark:text-gray-400
-          w-full
         "
       >
         <div
@@ -36,16 +36,16 @@
         :ratio="ratio"
         :border="true"
         class="
+        px-2
+        w-full
           border-b border-x
-          dark:border-gray-800
           flex
           items-center
           justify-center
           group
           h-row-mid
-          px-2
-          w-full
           hover:bg-gray-25
+          dark:border-gray-800
           dark:bg-gray-890
         "
         @click="handleChange(row)"
@@ -68,14 +68,14 @@
       <Row
         :ratio="ratio"
         class="
-          border
-          flex
-          items-center
-          mt-2
-          px-2
-          rounded-t-md
+        mt-2
+        px-2
+        w-full
+        flex
+        items-center
+        border
+        rounded-t-md
           text-gray-600
-          w-full
           dark:border-gray-800 dark:text-gray-400
         "
       >
@@ -96,14 +96,14 @@
         :ratio="ratio"
         :border="true"
         class="
+        px-2
+        w-full
           border-b border-x
           flex
           items-center
           justify-center
           group
           h-row-mid
-          px-2
-          w-full
           hover:bg-gray-25
           dark:bg-gray-890 dark:border-gray-800
         "
