@@ -257,7 +257,7 @@
   >
     <div
       class="p-1 rounded-md bg-gray-100"
-      @click="$emit('toggleModal','PriceList')"
+      @click="$emit('toggleModal', 'PriceList')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
