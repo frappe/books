@@ -146,7 +146,7 @@ test('pricing rule is not applied when item qty is < min  qty', async (t) => {
   await sinv.append('items', { item: itemMap.Jacket.name, quantity: 3 });
   await sinv.runFormulas();
 
-  t.equal(sinv.pricingRuleDetail?.length, undefined);
+  t.equal(sinv.pricingRuleDetail?.length, 0);
 });
 
 test('pricing rule is not applied when item qty is > max  qty', async (t) => {
@@ -158,7 +158,7 @@ test('pricing rule is not applied when item qty is > max  qty', async (t) => {
   await sinv.append('items', { item: itemMap.Jacket.name, quantity: 10 });
   await sinv.runFormulas();
 
-  t.equal(sinv.pricingRuleDetail?.length, undefined);
+  t.equal(sinv.pricingRuleDetail?.length, 0);
 });
 
 test('pricing rule is applied when filtered by min and max amount', async (t) => {
@@ -200,11 +200,7 @@ test('Pricing Rule is not applied when item amount is < min  amount', async (t) 
   });
   await sinv.runFormulas();
 
-  t.equal(
-    sinv.pricingRuleDetail?.length,
-    undefined,
-    'Pricing Rule is not applied'
-  );
+  t.equal(sinv.pricingRuleDetail?.length, 0, 'Pricing Rule is not applied');
 });
 
 test('Pricing Rule is not applied when item amount is > max amount', async (t) => {
@@ -220,11 +216,7 @@ test('Pricing Rule is not applied when item amount is > max amount', async (t) =
   });
   await sinv.runFormulas();
 
-  t.equal(
-    sinv.pricingRuleDetail?.length,
-    undefined,
-    'Pricing Rule is not applied'
-  );
+  t.equal(sinv.pricingRuleDetail?.length, 0, 'Pricing Rule is not applied');
 });
 
 test('Pricing Rule is not applied when sinvDate < validFrom date', async (t) => {
@@ -240,11 +232,7 @@ test('Pricing Rule is not applied when sinvDate < validFrom date', async (t) => 
   });
   await sinv.runFormulas();
 
-  t.equal(
-    sinv.pricingRuleDetail?.length,
-    undefined,
-    'Pricing Rule is not applied'
-  );
+  t.equal(sinv.pricingRuleDetail?.length, 0, 'Pricing Rule is not applied');
 });
 
 test('Pricing Rule is not applied when sinvDate > validFrom date', async (t) => {
@@ -260,11 +248,7 @@ test('Pricing Rule is not applied when sinvDate > validFrom date', async (t) => 
   });
   await sinv.runFormulas();
 
-  t.equal(
-    sinv.pricingRuleDetail?.length,
-    undefined,
-    'Pricing Rule is not applied'
-  );
+  t.equal(sinv.pricingRuleDetail?.length, 0, 'Pricing Rule is not applied');
 });
 
 test('Pricing Rule is applied when filtered by qty, amount and dates', async (t) => {
@@ -320,11 +304,7 @@ test('Pricing Rule is not applied when qty condition is false, rest is true', as
   });
   await sinv.runFormulas();
 
-  t.equal(
-    sinv.pricingRuleDetail?.length,
-    undefined,
-    'Pricing Rule is not applied'
-  );
+  t.equal(sinv.pricingRuleDetail?.length, 0, 'Pricing Rule is not applied');
 });
 
 test('Pricing Rule is not applied when amount condition is false, rest is true', async (t) => {
@@ -340,11 +320,7 @@ test('Pricing Rule is not applied when amount condition is false, rest is true',
   });
   await sinv.runFormulas();
 
-  t.equal(
-    sinv.pricingRuleDetail?.length,
-    undefined,
-    'Pricing Rule is not applied'
-  );
+  t.equal(sinv.pricingRuleDetail?.length, 0, 'Pricing Rule is not applied');
 });
 
 test('Pricing Rule is not applied when validity condition is false, rest is true', async (t) => {
@@ -360,11 +336,7 @@ test('Pricing Rule is not applied when validity condition is false, rest is true
   });
   await sinv.runFormulas();
 
-  t.equal(
-    sinv.pricingRuleDetail?.length,
-    undefined,
-    'Pricing Rule is not applied'
-  );
+  t.equal(sinv.pricingRuleDetail?.length, 0, 'Pricing Rule is not applied');
 });
 
 test('create two pricing rules, Highest priority pricing rule is applied', async (t) => {
