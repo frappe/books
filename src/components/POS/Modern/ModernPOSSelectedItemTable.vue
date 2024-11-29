@@ -82,7 +82,7 @@ export default defineComponent({
       isExapanded: false,
     };
   },
-  emits: ['toggleModal', 'selectedRow'],
+  emits: ['toggleModal', 'selectedRow', 'applyPricingRule'],
   computed: {
     ratio() {
       return [0.1, 0.8, 0.4, 0.8, 0.8, 0.3];
@@ -140,6 +140,9 @@ export default defineComponent({
     },
     selectedItemRow(row: SalesInvoiceItem, field: string) {
       this.$emit('selectedRow', row, field);
+    },
+    emitApplyPricingRule() {
+      this.$emit('applyPricingRule');
     },
     isNumeric,
   },
