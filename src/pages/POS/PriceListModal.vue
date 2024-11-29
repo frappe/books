@@ -4,15 +4,24 @@
     <div class="px-10">
       <hr class="dark:border-gray-800" />
       <div class="flex justify-center pt-10">
-        <div class="w-80 mb-20">
-          <Link
-            v-if="sinvDoc.fieldMap"
-            class="flex-shrink-0"
-            :border="true"
-            :value="priceList"
-            :df="sinvDoc.fieldMap.priceList"
-            @change="(value) => (priceList = value)"
-          />
+        <div class="flex justify-between w-full mb-20">
+          <div class="w-full">
+            <Link
+              v-if="sinvDoc.fieldMap"
+              class="flex-shrink-0 w-full"
+              :border="true"
+              :value="priceList"
+              :df="sinvDoc.fieldMap.priceList"
+              @change="(value) => (priceList = value)"
+            />
+          </div>
+          <div class="w-10 flex justify-end items-center">
+            <feather-icon
+              name="trash"
+              class="w-5 text-xl text-red-500"
+              @click="removePriceList()"
+            />
+          </div>
         </div>
       </div>
 
@@ -79,6 +88,10 @@ export default defineComponent({
     };
   },
   methods: {
+    async removePriceList() {
+      this.priceList = '';
+      await this.setPriceList();
+    },
     async setPriceList() {
       try {
         await this.sinvDoc.set('priceList', this.priceList);
