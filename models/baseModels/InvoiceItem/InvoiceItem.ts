@@ -17,9 +17,9 @@ import { safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
-import { PriceList } from '../PriceList/PriceList';
 import { isPesa } from 'fyo/utils';
 import { PricingRule } from '../PricingRule/PricingRule';
+import { getItemRateFromPriceList } from 'models/helpers';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -629,7 +629,10 @@ async function getItemRate(doc: InvoiceItem): Promise<Money | undefined> {
   let priceListRate: Money | undefined;
 
   if (doc.fyo.singles.AccountingSettings?.enablePriceList) {
-    priceListRate = await getItemRateFromPriceList(doc);
+    priceListRate = await getItemRateFromPriceList(
+      doc,
+      doc.parentdoc?.priceList as string
+    );
   }
 
   if (priceListRate) {
@@ -673,43 +676,6 @@ async function getItemRateFromPricingRule(
   }
 
   return pricingRuleDoc.discountRate;
-}
-
-async function getItemRateFromPriceList(
-  doc: InvoiceItem
-): Promise<Money | undefined> {
-  const priceListName = doc.parentdoc?.priceList;
-  const item = doc.item;
-  if (!priceListName || !item) {
-    return;
-  }
-
-  const priceList = await doc.fyo.doc.getDoc(
-    ModelNameEnum.PriceList,
-    priceListName
-  );
-
-  if (!(priceList instanceof PriceList)) {
-    return;
-  }
-
-  const unit = doc.unit;
-  const transferUnit = doc.transferUnit;
-  const plItem = priceList.priceListItem?.find((pli) => {
-    if (pli.item !== item) {
-      return false;
-    }
-
-    if (transferUnit && pli.unit !== transferUnit) {
-      return false;
-    } else if (unit && pli.unit !== unit) {
-      return false;
-    }
-
-    return true;
-  });
-
-  return plItem?.rate;
 }
 
 function getDiscountedTotalBeforeTaxation(
