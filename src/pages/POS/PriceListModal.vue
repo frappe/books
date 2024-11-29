@@ -1,6 +1,6 @@
 <template>
   <Modal class="h-auto w-96" :set-close-listener="false">
-    <p class="text-center font-semibold py-3">Apply Price List</p>
+    <p class="text-center font-semibold py-3">{{ t`Apply Price List` }}</p>
     <div class="px-10">
       <hr class="dark:border-gray-800" />
       <div class="flex justify-center pt-10">
@@ -19,7 +19,7 @@
             <feather-icon
               name="trash"
               class="w-5 text-xl text-red-500"
-              @click="removePriceList()"
+              @click="removePriceList"
             />
           </div>
         </div>
@@ -30,7 +30,7 @@
           <Button
             class="w-full bg-green-500 dark:bg-green-700"
             style="padding: 1.35rem"
-            @click="setPriceList()"
+            @click="setPriceList"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
