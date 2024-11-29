@@ -48,7 +48,7 @@ import { AppliedCouponCodes } from '../AppliedCouponCodes/AppliedCouponCodes';
 import { CouponCode } from '../CouponCode/CouponCode';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
-import { PriceListItem } from '../PriceList/PriceListItem';
+import { PricingRuleItem } from '../PricingRuleItem/PricingRuleItem';
 
 export type TaxDetail = {
   account: string;
@@ -1332,7 +1332,7 @@ export abstract class Invoice extends Transactional {
         item: item.item as string,
         unit: item.unit as string,
       },
-    })) as PriceListItem[];
+    })) as PricingRuleItem[];
 
     return docs.map((doc) => doc.parent) as string[];
   }

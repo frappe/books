@@ -34,6 +34,11 @@
       @set-coupons-count="(count) => emitEvent('setCouponsCount', count)"
     />
 
+    <PriceListModal
+      :open-modal="openPriceListModal"
+      @toggle-modal="emitEvent('toggleModal', 'PriceList')"
+    />
+
     <PaymentModal
       :open-modal="openPaymentModal"
       @toggle-modal="emitEvent('toggleModal', 'Payment')"
@@ -297,6 +302,7 @@ import AlertModal from './AlertModal.vue';
 import PaymentModal from './PaymentModal.vue';
 import Button from 'src/components/Button.vue';
 import KeyboardModal from './KeyboardModal.vue';
+import PriceListModal from './PriceListModal.vue';
 import { Item } from 'models/baseModels/Item/Item';
 import Link from 'src/components/Controls/Link.vue';
 import CouponCodeModal from './CouponCodeModal.vue';
@@ -327,6 +333,7 @@ export default defineComponent({
     PaymentModal,
     KeyboardModal,
     MultiLabelLink,
+    PriceListModal,
     POSQuickActions,
     CouponCodeModal,
     OpenPOSShiftModal,
@@ -348,6 +355,7 @@ export default defineComponent({
     disablePayButton: Boolean,
     openPaymentModal: Boolean,
     openKeyboardModal: Boolean,
+    openPriceListModal: Boolean,
     openCouponCodeModal: Boolean,
     openShiftCloseModal: Boolean,
     openSavedInvoiceModal: Boolean,

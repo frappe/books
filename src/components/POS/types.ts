@@ -15,7 +15,8 @@ export type ModalName =
   | 'LoyaltyProgram'
   | 'SavedInvoice'
   | 'Alert'
-  | 'CouponCode';
+  | 'CouponCode'
+  | 'PriceList';
 
 export type PosEmits =
   | 'addItem'
