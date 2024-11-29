@@ -54,6 +54,7 @@
       <SelectedItemRow
         :row="(row as SalesInvoiceItem)"
         @run-sinv-formulas="runSinvFormulas"
+        @apply-pricing-rule="$emit('applyPricingRule')"
       />
     </Row>
   </div>
@@ -93,6 +94,7 @@ export default defineComponent({
       isExapanded: false,
     };
   },
+  emits: ['applyPricingRule'],
   computed: {
     ratio() {
       return [0.1, 1, 0.8, 0.8, 0.8, 0.8, 0.2];

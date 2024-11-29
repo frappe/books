@@ -12,7 +12,10 @@ import {
 import { Fyo, t } from 'fyo';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
-import { ApplicablePricingRules } from './baseModels/Invoice/types';
+import {
+  ApplicableCouponCodes,
+  ApplicablePricingRules,
+} from './baseModels/Invoice/types';
 import { AppliedCouponCodes } from './baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
 import { CouponCode } from './baseModels/CouponCode/CouponCode';
@@ -767,19 +770,6 @@ export function getLoyaltyProgramTier(
   return loyaltyProgramTier;
 }
 
-export async function updatePricingRuleItem(doc: SalesInvoice) {
-  const pricingRule = (await getPricingRule(doc)) as ApplicablePricingRules[];
-
-  let appliedPricingRuleCount = doc?.pricingRuleDetail?.length;
-
-  if (appliedPricingRuleCount !== pricingRule?.length) {
-    appliedPricingRuleCount = pricingRule?.length;
-
-    await doc?.appendPricingRuleDetail(pricingRule);
-    await doc?.applyProductDiscount();
-  }
-}
-
 export async function removeLoyaltyPoint(doc: Doc) {
   if (!doc.loyaltyProgram) {
     return;
@@ -1098,6 +1088,33 @@ export function canApplyCouponCode(
   return true;
 }
 
+export async function removeUnusedCoupons(sinvDoc: SalesInvoice) {
+  if (!sinvDoc.coupons?.length) {
+    return;
+  }
+
+  const applicableCouponCodes = await Promise.all(
+    sinvDoc.coupons?.map(async (coupon) => {
+      return await getApplicableCouponCodesName(
+        coupon.coupons as string,
+        sinvDoc
+      );
+    })
+  );
+
+  const flattedApplicableCouponCodes = applicableCouponCodes?.flat();
+
+  const couponCodeDoc = (await sinvDoc.fyo.doc.getDoc(
+    ModelNameEnum.CouponCode,
+    sinvDoc.coupons[0].coupons
+  )) as CouponCode;
+
+  couponCodeDoc.removeUnusedCoupons(
+    flattedApplicableCouponCodes as ApplicableCouponCodes[],
+    sinvDoc
+  );
+}
+
 export async function getApplicableCouponCodesName(
   couponName: string,
   sinvDoc: SalesInvoice
@@ -1238,30 +1255,6 @@ export function removeFreeItems(sinvDoc: SalesInvoice) {
       );
     }
   }
-}
-
-export async function updatePricingRule(sinvDoc: SalesInvoice) {
-  const applicablePricingRuleNames = await getPricingRule(sinvDoc);
-
-  if (!applicablePricingRuleNames || !applicablePricingRuleNames.length) {
-    sinvDoc.pricingRuleDetail = undefined;
-    sinvDoc.isPricingRuleApplied = false;
-    removeFreeItems(sinvDoc);
-    return;
-  }
-
-  const appliedPricingRuleCount = sinvDoc?.items?.filter(
-    (val) => val.isFreeItem
-  ).length;
-
-  setTimeout(() => {
-    void (async () => {
-      if (appliedPricingRuleCount !== applicablePricingRuleNames?.length) {
-        await sinvDoc.appendPricingRuleDetail(applicablePricingRuleNames);
-        await sinvDoc.applyProductDiscount();
-      }
-    })();
-  }, 1);
 }
 
 export function getPricingRulesConflicts(

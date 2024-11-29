@@ -30,6 +30,7 @@
 
     <CouponCodeModal
       :open-modal="openCouponCodeModal"
+      @apply-pricing-rule="emitEvent('applyPricingRule')"
       @toggle-modal="emitEvent('toggleModal', 'CouponCode')"
       @set-coupons-count="(count) => emitEvent('setCouponsCount', count)"
     />
@@ -44,7 +45,6 @@
       @toggle-modal="emitEvent('toggleModal', 'Payment')"
       @set-cash-amount="(amount) => emitEvent('setCashAmount', amount)"
       @set-transfer-ref-no="(ref) => emitEvent('setTransferRefNo', ref)"
-      @set-coupons-count="(count) => emitEvent('setCouponsCount', count)"
       @set-transfer-amount="(amount) => emitEvent('setTransferAmount', amount)"
       @set-transfer-clearance-date="
         (date) => emitEvent('setTransferClearanceDate', date)
@@ -66,6 +66,7 @@
       :selected-item-field="selectedItemField"
       :selected-item-row="(selectedItemRow as SalesInvoiceItem)"
       @toggle-modal="emitEvent('toggleModal', 'Keyboard')"
+      @apply-pricing-rule="emitEvent('applyPricingRule')"
     />
 
     <div class="bg-gray-25 dark:bg-gray-875 grid grid-cols-9 gap-3 p-4">
@@ -96,6 +97,7 @@
 
             <ModernPOSSelectedItemTable
               @selected-row="selectedRow"
+              @apply-pricing-rule="emitEvent('applyPricingRule')"
               @toggle-modal="emitEvent('toggleModal', 'Keyboard')"
             />
           </div>
@@ -405,6 +407,7 @@ export default defineComponent({
     'routeToSinvList',
     'setLoyaltyPoints',
     'setTransferRefNo',
+    'applyPricingRule',
     'saveInvoiceAction',
     'createTransaction',
     'setTransferAmount',

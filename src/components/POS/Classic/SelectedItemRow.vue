@@ -275,9 +275,6 @@ import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoic
 import { Money } from 'pesa';
 import { DiscountType } from '../types';
 import { validateSerialNumberCount } from 'src/utils/pos';
-import { getPricingRule } from 'models/helpers';
-import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
-import { ApplicablePricingRules } from 'models/baseModels/Invoice/types';
 
 export default defineComponent({
   name: 'SelectedItemRow',
@@ -285,7 +282,7 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
   },
-  emits: ['runSinvFormulas', 'setItemSerialNumbers', 'addItem'],
+  emits: ['runSinvFormulas', 'applyPricingRule'],
   setup() {
     return {
       isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
@@ -363,7 +360,7 @@ export default defineComponent({
       this.row.set('quantity', quantity);
 
       if (!this.row.isFreeItem) {
-        await this.updatePricingRuleItem();
+        this.$emit('applyPricingRule');
         this.$emit('runSinvFormulas');
       }
     },
@@ -371,22 +368,7 @@ export default defineComponent({
       this.row.parentdoc?.remove('items', row?.idx as number);
 
       if (!row.isFreeItem) {
-        await this.updatePricingRuleItem();
-      }
-    },
-    async updatePricingRuleItem() {
-      const pricingRule = (await getPricingRule(
-        this.row.parentdoc as SalesInvoice
-      )) as ApplicablePricingRules[];
-
-      let appliedPricingRuleCount =
-        this.row.parentdoc?.pricingRuleDetail?.length;
-
-      if (appliedPricingRuleCount !== pricingRule?.length) {
-        appliedPricingRuleCount = pricingRule?.length;
-
-        await this.row.parentdoc?.appendPricingRuleDetail(pricingRule);
-        await this.row.parentdoc?.applyProductDiscount();
+        this.$emit('applyPricingRule');
       }
     },
   },

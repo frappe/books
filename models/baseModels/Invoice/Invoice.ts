@@ -18,9 +18,9 @@ import {
   createLoyaltyPointEntry,
   filterPricingRules,
   getAddedLPWithGrandTotal,
-  getApplicableCouponCodesName,
   getExchangeRate,
   getNumberSeries,
+  removeUnusedCoupons,
   getPricingRulesConflicts,
   removeLoyaltyPoint,
   roundFreeItemQty,
@@ -41,7 +41,7 @@ import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { ReturnDocItem } from 'models/inventory/types';
 import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
 import { PricingRule } from '../PricingRule/PricingRule';
-import { ApplicableCouponCodes, ApplicablePricingRules } from './types';
+import { ApplicablePricingRules } from './types';
 import { PricingRuleDetail } from '../PricingRuleDetail/PricingRuleDetail';
 import { LoyaltyProgram } from '../LoyaltyProgram/LoyaltyProgram';
 import { AppliedCouponCodes } from '../AppliedCouponCodes/AppliedCouponCodes';
@@ -758,7 +758,8 @@ export abstract class Invoice extends Transactional {
         }
 
         const pricingRule = await this.getPricingRule();
-        if (!pricingRule) {
+
+        if (!pricingRule || !pricingRule.length) {
           return false;
         }
 
@@ -1074,30 +1075,7 @@ export abstract class Invoice extends Transactional {
       this.clearFreeItems();
     }
 
-    if (!this.coupons?.length) {
-      return;
-    }
-
-    const applicableCouponCodes = await Promise.all(
-      this.coupons?.map(async (coupon) => {
-        return await getApplicableCouponCodesName(
-          coupon.coupons as string,
-          this as SalesInvoice
-        );
-      })
-    );
-
-    const flattedApplicableCouponCodes = applicableCouponCodes?.flat();
-
-    const couponCodeDoc = (await this.fyo.doc.getDoc(
-      ModelNameEnum.CouponCode,
-      this.coupons[0].coupons
-    )) as CouponCode;
-
-    couponCodeDoc.removeUnusedCoupons(
-      flattedApplicableCouponCodes as ApplicableCouponCodes[],
-      this as SalesInvoice
-    );
+    await removeUnusedCoupons(this as SalesInvoice);
   }
 
   async beforeCancel(): Promise<void> {

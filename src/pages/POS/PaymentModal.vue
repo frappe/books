@@ -224,7 +224,6 @@ export default defineComponent({
     'setTransferClearanceDate',
     'setTransferRefNo',
     'toggleModal',
-    'setCouponsCount',
   ],
   setup() {
     return {
@@ -323,7 +322,6 @@ export default defineComponent({
     },
     submitTransaction() {
       this.$emit('createTransaction');
-      this.$emit('setCouponsCount', 0);
     },
   },
 });

@@ -248,8 +248,6 @@ import { defineComponent } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { Money } from 'pesa';
 import { validateSerialNumberCount } from 'src/utils/pos';
-import { updatePricingRuleItem } from 'models/helpers';
-import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 
 export default defineComponent({
   name: 'ModernPOSSelectedItemRow',
@@ -257,7 +255,7 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
   },
-  emits: ['toggleModal', 'runSinvFormulas', 'selectedRow'],
+  emits: ['toggleModal', 'runSinvFormulas', 'selectedRow', 'applyPricingRule'],
 
   setup() {
     return {
@@ -331,7 +329,7 @@ export default defineComponent({
       this.row.parentdoc?.remove('items', row?.idx as number);
 
       if (!row.isFreeItem) {
-        await updatePricingRuleItem(this.row.parentdoc as SalesInvoice);
+        this.$emit('applyPricingRule');
       }
     },
   },
