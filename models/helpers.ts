@@ -39,6 +39,7 @@ import { safeParseFloat } from 'utils/index';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { getItemQtyMap } from 'src/utils/pos';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -914,7 +915,7 @@ export async function getPricingRule(
       continue;
     }
 
-    const filtered = filterPricingRules(
+    const filtered = await filterPricingRules(
       pricingRuleDocsForItem,
       doc.date as Date,
       item.quantity as number,
@@ -977,16 +978,31 @@ export async function getItemRateFromPriceList(
   return plItem?.rate;
 }
 
-export function filterPricingRules(
+export async function filterPricingRules(
   pricingRuleDocsForItem: PricingRule[],
   sinvDate: Date,
   quantity: number,
   amount: Money
-): PricingRule[] | [] {
-  const filteredPricingRules: PricingRule[] | undefined = [];
+): Promise<PricingRule[] | []> {
+  const filteredPricingRules: PricingRule[] = [];
 
   for (const pricingRuleDoc of pricingRuleDocsForItem) {
-    if (canApplyPricingRule(pricingRuleDoc, sinvDate, quantity, amount)) {
+    let freeItemQty: number | undefined;
+
+    if (pricingRuleDoc?.freeItem) {
+      const itemQtyMap = await getItemQtyMap();
+      freeItemQty = itemQtyMap[pricingRuleDoc.freeItem].availableQty;
+    }
+
+    if (
+      canApplyPricingRule(
+        pricingRuleDoc,
+        sinvDate,
+        quantity,
+        amount,
+        freeItemQty ?? 0
+      )
+    ) {
       filteredPricingRules.push(pricingRuleDoc);
     }
   }
@@ -997,9 +1013,19 @@ export function canApplyPricingRule(
   pricingRuleDoc: PricingRule,
   sinvDate: Date,
   quantity: number,
-  amount: Money
+  amount: Money,
+  freeItemQty: number
 ): boolean {
   // Filter by Quantity
+  if (
+    pricingRuleDoc.freeItem &&
+    pricingRuleDoc.freeItemQuantity! >= freeItemQty
+  ) {
+    throw new ValidationError(
+      t`Free item '${pricingRuleDoc.freeItem}' does not have a specified quantity`
+    );
+  }
+
   if (
     (pricingRuleDoc.minQuantity as number) > 0 &&
     quantity < (pricingRuleDoc.minQuantity as number)
