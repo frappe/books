@@ -1264,22 +1264,23 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
-      const canApplyPRLOnItem = canApplyPricingRule(
-        pricingRuleDoc,
-        this.date as Date,
-        item.quantity as number,
-        item.amount as Money
-      );
-
-      if (!canApplyPRLOnItem) {
-        continue;
-      }
-
       let freeItemQty = pricingRuleDoc.freeItemQuantity as number;
 
       if (pricingRuleDoc.isRecursive) {
         freeItemQty =
           (item.quantity as number) / (pricingRuleDoc.recurseEvery as number);
+      }
+
+      const canApplyPRLOnItem = canApplyPricingRule(
+        pricingRuleDoc,
+        this.date as Date,
+        item.quantity as number,
+        item.amount as Money,
+        freeItemQty
+      );
+
+      if (!canApplyPRLOnItem) {
+        continue;
       }
 
       if (pricingRuleDoc.roundFreeItemQty) {
@@ -1437,14 +1438,14 @@ export abstract class Invoice extends Transactional {
         }
       }
 
-      const filtered = filterPricingRules(
+      const filtered = await filterPricingRules(
         pricingRuleDocsForItem,
         this.date as Date,
         item.quantity as number,
         item.amount as Money
       );
 
-      if (!filtered.length) {
+      if (!filtered || !filtered.length) {
         continue;
       }
 
