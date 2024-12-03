@@ -224,6 +224,12 @@ export class Shortcuts {
     return this;
   }
 
+  get pmodShift() {
+    this.modMap['meta'] = true;
+    this.modMap['shift'] = true;
+    return this;
+  }
+
   get repeat() {
     this.modMap['repeat'] = true;
     return this;
