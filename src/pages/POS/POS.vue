@@ -104,14 +104,15 @@ import ModernPOS from './ModernPOS.vue';
 import ClassicPOS from './ClassicPOS.vue';
 import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
-import { computed, defineComponent } from 'vue';
 import { showToast } from 'src/utils/interactive';
 import { Item } from 'models/baseModels/Item/Item';
-import { ModalName } from 'src/components/POS/types';
 import { Shipment } from 'models/inventory/Shipment';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
+import { shortcutsKey } from 'src/utils/injectionKeys';
 import PageHeader from 'src/components/PageHeader.vue';
+import { computed, defineComponent, inject } from 'vue';
 import { Payment } from 'models/baseModels/Payment/Payment';
+import { ModalName, modalNames } from 'src/components/POS/types';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
@@ -138,6 +139,8 @@ import {
   ItemSerialNumbers,
 } from 'src/components/POS/types';
 
+const COMPONENT_NAME = 'POS';
+
 export default defineComponent({
   name: 'POS',
   components: {
@@ -161,6 +164,11 @@ export default defineComponent({
       itemSerialNumbers: computed(() => this.itemSerialNumbers),
       isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
       transferClearanceDate: computed(() => this.transferClearanceDate),
+    };
+  },
+  setup() {
+    return {
+      shortcuts: inject(shortcutsKey),
     };
   },
   data() {
@@ -242,10 +250,13 @@ export default defineComponent({
     this.setCouponCodeDoc();
     this.setSinvDoc();
     this.setDefaultCustomer();
+    this.setShortcuts();
+
     await this.setItemQtyMap();
     await this.setItems();
   },
   deactivated() {
+    this.shortcuts?.delete(COMPONENT_NAME);
     toggleSidebar(true);
   },
   methods: {
@@ -264,6 +275,71 @@ export default defineComponent({
 
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
       this.loyaltyPoints = party[0]?.loyaltyPoints as number;
+    },
+    setShortcuts() {
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyS'], async () => {
+        this.routeToSinvList();
+      });
+
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyV'], async () => {
+        this.toggleView();
+      });
+
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyP'], async () => {
+        this.toggleModal('PriceList');
+      });
+
+      this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['KeyH'], async () => {
+        this.toggleModal('SavedInvoice');
+      });
+
+      this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['Backspace'], async () => {
+        let anyModalClosed = false;
+
+        modalNames.forEach((modal: ModalName) => {
+          if (modal && this[`open${modal}Modal`]) {
+            this[`open${modal}Modal`] = false;
+            anyModalClosed = true;
+          }
+        });
+
+        if (!anyModalClosed) {
+          this.clearValues();
+        }
+      });
+
+      this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['KeyP'], async () => {
+        if (!this.disablePayButton) {
+          this.toggleModal('Payment');
+        }
+      });
+
+      this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['KeyS'], async () => {
+        if (this.sinvDoc.party && this.sinvDoc.items?.length) {
+          this.saveOrder();
+        }
+      });
+
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyL'], async () => {
+        if (
+          this.fyo.singles.AccountingSettings?.enablePriceList &&
+          this.loyaltyPoints &&
+          this.sinvDoc.party &&
+          this.sinvDoc.items?.length
+        ) {
+          this.toggleModal('LoyaltyProgram', true);
+        }
+      });
+
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyC'], async () => {
+        if (
+          this.fyo.singles.AccountingSettings?.enableCouponCode &&
+          this.sinvDoc?.party &&
+          this.sinvDoc?.items?.length
+        ) {
+          this.toggleModal('CouponCode');
+        }
+      });
     },
     async saveOrder() {
       try {
@@ -482,6 +558,7 @@ export default defineComponent({
       await this.applyPricingRule();
       await this.sinvDoc.runFormulas();
     },
+
     async createTransaction(shouldPrint = false) {
       try {
         await this.validate();
@@ -640,9 +717,10 @@ export default defineComponent({
       if (!hasPricingRules || !hasPricingRules.length) {
         this.sinvDoc.pricingRuleDetail = undefined;
         this.sinvDoc.isPricingRuleApplied = false;
-        removeFreeItems(this.sinvDoc as SalesInvoice);
 
+        removeFreeItems(this.sinvDoc as SalesInvoice);
         await this.sinvDoc.applyProductDiscount();
+
         return;
       }
 
