@@ -191,6 +191,52 @@ export default defineComponent({
           },
         ],
       },
+      {
+        label: t`POS`,
+        description: t`Applicable when POS is open`,
+        collapsed: false,
+        shortcuts: [
+          {
+            shortcut: [ShortcutKey.shift, 'V'],
+            description: t`Toggle between grid and list view`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'S'],
+            description: t`Navigate to Sales Invoice`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'L'],
+            description: t`Set Loyalty Program`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'C'],
+            description: t`Set Coupon Code`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'P'],
+            description: t`Set Price List`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'H'],
+            description: t`Open Saved or Submitted Invoice list.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'S'],
+            description: t`Save Invoice.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'P'],
+            description: t`Set Payment.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, ShortcutKey.delete],
+            description: [
+              t`If any modal is open, your entry will be canceled.`,
+              t`If no modals are open, the selected items will be removed.`,
+            ].join(' '),
+          },
+        ],
+      },
     ];
   },
 });
