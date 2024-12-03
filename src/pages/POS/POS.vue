@@ -138,6 +138,7 @@ import {
   removeFreeItems,
   getAddedLPWithGrandTotal,
   getItemRateFromPriceList,
+  getItemQtyMap,
 } from 'models/helpers';
 import {
   POSItem,
