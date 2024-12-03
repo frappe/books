@@ -117,7 +117,6 @@ import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoic
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import {
   validateSinv,
-  getItemQtyMap,
   getItemDiscounts,
   validateShipment,
   getTotalQuantity,
@@ -129,6 +128,7 @@ import {
   removeFreeItems,
   getAddedLPWithGrandTotal,
   getItemRateFromPriceList,
+  getItemQtyMap,
 } from 'models/helpers';
 import {
   POSItem,
@@ -328,7 +328,7 @@ export default defineComponent({
       );
     },
     async setItemQtyMap() {
-      this.itemQtyMap = await getItemQtyMap();
+      this.itemQtyMap = await getItemQtyMap(this.sinvDoc as SalesInvoice);
     },
     setSinvDoc() {
       this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
