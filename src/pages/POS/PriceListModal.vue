@@ -105,7 +105,7 @@ export default defineComponent({
     cancelPriceList() {
       this.$emit('toggleModal', 'PriceList');
     },
-    async setPriceList() {
+    setPriceList() {
       this.$emit('toggleModal', 'PriceList');
     },
   },
