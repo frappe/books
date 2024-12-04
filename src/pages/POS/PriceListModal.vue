@@ -10,9 +10,10 @@
               v-if="sinvDoc.fieldMap"
               class="flex-shrink-0 w-full"
               :border="true"
-              :value="priceList"
+              :value="sinvDoc?.priceList"
+              :focus-input="true"
               :df="sinvDoc.fieldMap.priceList"
-              @change="(value) => (priceList = value)"
+              @change="(value) => applyPriceList(value)"
             />
           </div>
           <div class="w-10 flex justify-end items-center">
@@ -46,7 +47,7 @@
           <Button
             class="w-full bg-red-500 dark:bg-red-700"
             style="padding: 1.35rem"
-            @click="$emit('toggleModal', 'PriceList')"
+            @click="cancelPriceList"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
@@ -82,20 +83,17 @@ export default defineComponent({
       sinvDoc: inject('sinvDoc') as SalesInvoice,
     };
   },
-  data() {
-    return {
-      priceList: '',
-    };
-  },
   methods: {
     async removePriceList() {
-      this.priceList = '';
-      await this.setPriceList();
+      await this.sinvDoc.set('priceList', '');
     },
-    async setPriceList() {
+    async applyPriceList(value?: string) {
       try {
-        await this.sinvDoc.set('priceList', this.priceList);
+        if (!value || value == this.sinvDoc.priceList) {
+          return;
+        }
 
+        await this.sinvDoc.set('priceList', value);
         this.$emit('toggleModal', 'PriceList');
       } catch (error) {
         showToast({
@@ -103,6 +101,12 @@ export default defineComponent({
           message: t`${error as string}`,
         });
       }
+    },
+    cancelPriceList() {
+      this.$emit('toggleModal', 'PriceList');
+    },
+    async setPriceList() {
+      this.$emit('toggleModal', 'PriceList');
     },
   },
 });

@@ -63,6 +63,7 @@
             :show-label="true"
             :border="true"
             :value="couponCode"
+            :focus-input="true"
             :df="coupons.fieldMap.coupons"
             @change="updateCouponCode"
           />
@@ -161,15 +162,18 @@ export default defineComponent({
     },
   },
   methods: {
-    updateCouponCode(value: string) {
-      (this.validationError = false), (this.couponCode = value);
-    },
-    async setCouponCode() {
+    async updateCouponCode(value: string | Event) {
       try {
-        if (!this.couponCode) {
-          throw new Error(t`Must be select a coupon code`);
+        if (!value) {
+          return;
+        }
+        this.validationError = false;
+
+        if ((value as Event).type === 'keydown') {
+          value = ((value as Event).target as HTMLInputElement).value;
         }
 
+        this.couponCode = value as string;
         const appliedCouponCodes = this.fyo.doc.getNewDoc(
           ModelNameEnum.AppliedCouponCodes
         );
@@ -183,8 +187,6 @@ export default defineComponent({
         await this.sinvDoc.append('coupons', { coupons: this.couponCode });
 
         this.$emit('applyPricingRule');
-        this.$emit('toggleModal', 'CouponCode');
-
         this.couponCode = '';
         this.validationError = false;
       } catch (error) {
@@ -195,6 +197,9 @@ export default defineComponent({
           message: t`${error as string}`,
         });
       }
+    },
+     setCouponCode() {
+      this.$emit('toggleModal', 'CouponCode');
     },
     async removeAppliedCoupon(coupon: AppliedCouponCodes) {
       this.sinvDoc?.items?.map((item: InvoiceItem) => {
