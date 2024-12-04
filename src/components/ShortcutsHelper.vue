@@ -198,11 +198,11 @@ export default defineComponent({
         shortcuts: [
           {
             shortcut: [ShortcutKey.shift, 'V'],
-            description: t`Toggle between grid and list view`,
+            description: t`Toggle between Grid and List view`,
           },
           {
             shortcut: [ShortcutKey.shift, 'S'],
-            description: t`Navigate to Sales Invoice`,
+            description: t`Open Sales Invoice List`,
           },
           {
             shortcut: [ShortcutKey.shift, 'L'],
@@ -218,22 +218,19 @@ export default defineComponent({
           },
           {
             shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'H'],
-            description: t`Open Saved or Submitted Invoice list.`,
+            description: t`Open Saved or Submitted Invoice List.`,
           },
           {
             shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'S'],
-            description: t`Save Invoice.`,
+            description: t`If any entry form is open, save the details. Otherwise, save the invoice.`,
           },
           {
             shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'P'],
-            description: t`Set Payment.`,
+            description: t`Create Payment.`,
           },
           {
             shortcut: [ShortcutKey.pmod, ShortcutKey.shift, ShortcutKey.delete],
-            description: [
-              t`If any modal is open, your entry will be canceled.`,
-              t`If no modals are open, the selected items will be removed.`,
-            ].join(' '),
+            description: t`If any entry form is open, your entry will be canceled. Otherwise the selected items will be removed.`,
           },
         ],
       },
