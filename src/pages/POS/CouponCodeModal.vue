@@ -198,7 +198,7 @@ export default defineComponent({
         });
       }
     },
-     setCouponCode() {
+    setCouponCode() {
       this.$emit('toggleModal', 'CouponCode');
     },
     async removeAppliedCoupon(coupon: AppliedCouponCodes) {
