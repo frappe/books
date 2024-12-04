@@ -26,6 +26,14 @@ export default {
       this.setLinkValue();
     }
   },
+  props: {
+    focusInput: Boolean,
+  },
+  async created() {
+    if (this.focusInput) {
+      this.focusInputTag();
+    }
+  },
   methods: {
     async setLinkValue(newValue, isInput) {
       if (isInput) {

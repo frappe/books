@@ -276,6 +276,14 @@ export default defineComponent({
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
       this.loyaltyPoints = party[0]?.loyaltyPoints as number;
     },
+    isModalOpen() {
+      for (const modal of modalNames) {
+        if (modal && this[`open${modal}Modal`]) {
+          this[`open${modal}Modal`] = false;
+          return `open${modal}Modal`;
+        }
+      }
+    },
     setShortcuts() {
       this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyS'], async () => {
         this.routeToSinvList();
@@ -294,16 +302,9 @@ export default defineComponent({
       });
 
       this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['Backspace'], async () => {
-        let anyModalClosed = false;
+        const modalStatus = this.isModalOpen();
 
-        modalNames.forEach((modal: ModalName) => {
-          if (modal && this[`open${modal}Modal`]) {
-            this[`open${modal}Modal`] = false;
-            anyModalClosed = true;
-          }
-        });
-
-        if (!anyModalClosed) {
+        if (!modalStatus) {
           this.clearValues();
         }
       });
@@ -315,7 +316,9 @@ export default defineComponent({
       });
 
       this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['KeyS'], async () => {
-        if (this.sinvDoc.party && this.sinvDoc.items?.length) {
+        const modalStatus = this.isModalOpen();
+
+        if (!modalStatus && this.sinvDoc.party && this.sinvDoc.items?.length) {
           this.saveOrder();
         }
       });
