@@ -286,18 +286,18 @@ export default defineComponent({
     },
     setShortcuts() {
       this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyS'], async () => {
-        this.routeToSinvList();
+        await this.routeToSinvList();
       });
 
-      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyV'], async () => {
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyV'], () => {
         this.toggleView();
       });
 
-      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyP'], async () => {
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyP'], () => {
         this.toggleModal('PriceList');
       });
 
-      this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['KeyH'], async () => {
+      this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['KeyH'], () => {
         this.toggleModal('SavedInvoice');
       });
 
@@ -305,11 +305,11 @@ export default defineComponent({
         const modalStatus = this.isModalOpen();
 
         if (!modalStatus) {
-          this.clearValues();
+          await this.clearValues();
         }
       });
 
-      this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['KeyP'], async () => {
+      this.shortcuts?.pmodShift.set(COMPONENT_NAME, ['KeyP'], () => {
         if (!this.disablePayButton) {
           this.toggleModal('Payment');
         }
@@ -319,11 +319,11 @@ export default defineComponent({
         const modalStatus = this.isModalOpen();
 
         if (!modalStatus && this.sinvDoc.party && this.sinvDoc.items?.length) {
-          this.saveOrder();
+          await this.saveOrder();
         }
       });
 
-      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyL'], async () => {
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyL'], () => {
         if (
           this.fyo.singles.AccountingSettings?.enablePriceList &&
           this.loyaltyPoints &&
@@ -334,7 +334,7 @@ export default defineComponent({
         }
       });
 
-      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyC'], async () => {
+      this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyC'], () => {
         if (
           this.fyo.singles.AccountingSettings?.enableCouponCode &&
           this.sinvDoc?.party &&
