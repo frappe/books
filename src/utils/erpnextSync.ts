@@ -6,6 +6,7 @@ import { DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { ERPNextSyncQueue } from 'models/baseModels/ERPNextSyncQueue/ERPNextSyncQueue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { StockMovementItem } from 'models/inventory/StockMovementItem';
 
 export async function updateERPNSyncSettings(fyo: Fyo) {
   const syncSettingsDoc = (await fyo.doc.getDoc(
@@ -193,16 +194,17 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
       }
       return;
 
-    case ModelNameEnum.Party:
+    case 'Customer':
+    case 'Supplier':
       const isAddressExists = await fyo.db.exists(
         ModelNameEnum.Address,
-        doc.addressName as string
+        doc.address as string
       );
 
       if (!isAddressExists) {
         await addToFetchFromERPNextQueue(fyo, {
           referenceType: ModelNameEnum.Address,
-          documentName: doc.addressName,
+          documentName: doc.address,
         });
       }
 
@@ -210,6 +212,23 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
 
     case ModelNameEnum.SalesInvoice:
       return await preSyncSalesInvoice(fyo, doc as SalesInvoice);
+
+    case ModelNameEnum.StockMovement:
+      if (!doc || !doc.items) {
+        return;
+      }
+
+      for (const item of doc.items as StockMovementItem[]) {
+        const isItemExists = await fyo.db.exists(ModelNameEnum.Item, item.item);
+
+        if (!isItemExists) {
+          await addToFetchFromERPNextQueue(fyo, {
+            referenceType: ModelNameEnum.Item,
+            documentName: item.item,
+          });
+        }
+      }
+      return;
     default:
       return;
   }
@@ -364,7 +383,9 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
         await logDoc.delete();
       }
     }
-  } catch (error) {}
+  } catch (error) {
+    return error;
+  }
 }
 
 async function syncFetchFromERPNextQueue(fyo: Fyo) {
@@ -549,6 +570,12 @@ export interface ERPNSyncDocsResponse {
     data: DocValueMap[];
     success_log?: DocValueMap[];
     failed_log?: DocValueMap[];
+  };
+}
+export interface FetchFromBooksResponse {
+  message: {
+    success: boolean;
+    data?: DocValueMap[];
   };
 }
 
