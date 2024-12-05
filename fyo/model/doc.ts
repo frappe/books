@@ -68,6 +68,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
   _notInserted = true;
 
   _syncing = false;
+  _addDocToSyncQueue = true;
+
   constructor(
     schema: Schema,
     data: DocValueMap,

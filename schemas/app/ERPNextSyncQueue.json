@@ -51,6 +51,10 @@
         {
           "value": "Shipment",
           "label": "Shipment"
+        },
+        {
+          "value": "Address",
+          "label": "Address"
         }
       ],
       "required": true
