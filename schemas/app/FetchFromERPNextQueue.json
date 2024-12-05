@@ -43,6 +43,10 @@
         {
           "value": "UOM",
           "label": "UOM"
+        },
+        {
+          "value": "Address",
+          "label": "Address"
         }
       ],
       "required": true
