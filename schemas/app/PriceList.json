@@ -32,7 +32,6 @@
       "label": "Item Prices",
       "fieldtype": "Table",
       "target": "PriceListItem",
-      "required": true,
       "section": "Item Prices"
     }
   ]
