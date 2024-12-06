@@ -843,6 +843,7 @@ export abstract class Invoice extends Transactional {
     loyaltyProgram: () => !this.loyaltyProgram,
     loyaltyPoints: () => !this.redeemLoyaltyPoints || this.isReturn,
     redeemLoyaltyPoints: () => !this.loyaltyProgram || this.isReturn,
+    coupons: () => !this.coupons?.length,
     priceList: () =>
       !this.fyo.singles.AccountingSettings?.enablePriceList ||
       (!this.canEdit && !this.priceList),
