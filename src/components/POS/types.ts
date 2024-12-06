@@ -8,15 +8,18 @@ export type ItemSerialNumbers = { [item: string]: string };
 
 export type DiscountType = 'percent' | 'amount';
 
-export type ModalName =
-  | 'Keyboard'
-  | 'Payment'
-  | 'ShiftClose'
-  | 'LoyaltyProgram'
-  | 'SavedInvoice'
-  | 'Alert'
-  | 'CouponCode'
-  | 'PriceList';
+export const modalNames = [
+  'Keyboard',
+  'Payment',
+  'ShiftClose',
+  'LoyaltyProgram',
+  'SavedInvoice',
+  'Alert',
+  'CouponCode',
+  'PriceList',
+] as const;
+
+export type ModalName = typeof modalNames[number];
 
 export type PosEmits =
   | 'addItem'

@@ -20,13 +20,15 @@
       <p>{{ loyaltyPoints }}</p>
     </div>
 
-    <Data
+    <Int
       v-if="sinvDoc.fieldMap"
       class="flex-shrink-0 px-10 pb-10"
       :show-label="true"
       :border="true"
+      :focus-input="true"
       :value="sinvDoc.loyaltyPoints"
       :df="sinvDoc.fieldMap.loyaltyPoints"
+      @keydown.enter="setLoyaltyPoints"
       @change="updateLoyaltyPoints"
     />
 
@@ -52,7 +54,7 @@
         <Button
           class="w-full bg-red-500 dark:bg-red-700"
           style="padding: 1.35rem"
-          @click="$emit('toggleModal', 'LoyaltyProgram')"
+          @click="cancelLoyaltyProgram"
         >
           <slot>
             <p class="uppercase text-lg text-white font-semibold">
@@ -67,20 +69,20 @@
 
 <script lang="ts">
 import Button from 'src/components/Button.vue';
-import Data from 'src/components/Controls/Data.vue';
 import Modal from 'src/components/Modal.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
 import { t } from 'fyo';
 import { showToast } from 'src/utils/interactive';
 import { ModelNameEnum } from 'models/types';
+import Int from 'src/components/Controls/Int.vue';
 
 export default defineComponent({
   name: 'LoyaltyProgramModal',
   components: {
     Modal,
     Button,
-    Data,
+    Int,
   },
   props: {
     loyaltyPoints: {
@@ -105,6 +107,14 @@ export default defineComponent({
     };
   },
   methods: {
+    async keydownEnter(value: number) {
+      await this.updateLoyaltyPoints(value);
+      this.setLoyaltyPoints();
+    },
+    cancelLoyaltyProgram() {
+      this.$emit('setLoyaltyPoints', 0);
+      this.$emit('toggleModal', 'LoyaltyProgram');
+    },
     async updateLoyaltyPoints(newValue: number) {
       try {
         const partyData = await this.fyo.db.get(
@@ -141,6 +151,12 @@ export default defineComponent({
           throw new Error(t`no need ${newValue} points to purchase this item`);
         }
 
+        if (newValue < 0) {
+          throw new Error(t`Points must be greater than 0`);
+        }
+
+        this.$emit('setLoyaltyPoints', this.sinvDoc.loyaltyPoints);
+
         this.validationError = false;
       } catch (error) {
         this.validationError = true;
@@ -154,23 +170,7 @@ export default defineComponent({
       }
     },
     setLoyaltyPoints() {
-      try {
-        if (!this.sinvDoc.loyaltyPoints || this.sinvDoc.loyaltyPoints < 0) {
-          throw new Error(t`Points must be greater than 0`);
-        }
-
-        this.$emit('setLoyaltyPoints', this.sinvDoc.loyaltyPoints);
-        this.$emit('toggleModal', 'LoyaltyProgram');
-
-        this.validationError = false;
-      } catch (error) {
-        this.validationError = true;
-
-        showToast({
-          type: 'error',
-          message: t`${error as string}`,
-        });
-      }
+      this.$emit('toggleModal', 'LoyaltyProgram');
     },
   },
 });
