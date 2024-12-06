@@ -14,178 +14,214 @@
       'window-drag': platform !== 'Windows',
     }"
   >
-    <div>
-      <!-- Company name -->
-      <div
-        class="px-4 flex flex-row items-center justify-between mb-4"
-        :class="
-          platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'
-        "
-      >
-        <h6
-          data-testid="company-name"
-          class="
-            font-semibold
-            dark:text-gray-200
-            whitespace-nowrap
-            overflow-auto
-            no-scrollbar
-            select-none
-          "
-        >
-          {{ companyName }}
-        </h6>
-      </div>
-
-      <!-- Sidebar Items -->
-      <div v-for="group in groups" :key="group.label">
+    <div
+      class="flex flex-col justify-between"
+      style="overflow-y: overlay; flex-grow: 1"
+    >
+      <div>
+        <!-- Company name -->
         <div
-          class="
-            px-4
-            flex
-            items-center
-            cursor-pointer
-            hover:bg-gray-100
-            dark:hover:bg-gray-875
-            h-10
-          "
+          class="px-4 flex flex-row items-center justify-between mb-4"
           :class="
-            isGroupActive(group) && !group.items
-              ? 'bg-gray-100 dark:bg-gray-875 border-s-4 border-gray-800 dark:border-gray-100'
-              : ''
+            platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'
           "
-          @click="routeToSidebarItem(group)"
         >
-          <Icon
-            class="flex-shrink-0"
-            :name="group.icon"
-            :size="group.iconSize || '18'"
-            :height="group.iconHeight ?? 0"
-            :active="!!isGroupActive(group)"
-            :darkMode="darkMode"
-            :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"
-          />
-          <div
-            class="ms-2 text-lg text-gray-700"
-            :class="
-              isGroupActive(group) && !group.items
-                ? 'text-gray-900 dark:text-gray-25'
-                : 'dark:text-gray-300'
+          <h6
+            data-testid="company-name"
+            class="
+              font-semibold
+              dark:text-gray-200
+              whitespace-nowrap
+              overflow-auto
+              no-scrollbar
+              select-none
             "
           >
-            {{ group.label }}
-          </div>
+            {{ companyName }}
+          </h6>
         </div>
 
-        <!-- Expanded Group -->
-        <div v-if="group.items && isGroupActive(group)">
+        <!-- Sidebar Items -->
+        <div v-for="group in groups" :key="group.label">
           <div
-            v-for="item in group.items"
-            :key="item.label"
             class="
-              text-base
-              h-10
-              ps-10
-              cursor-pointer
+              px-4
               flex
               items-center
+              cursor-pointer
               hover:bg-gray-100
               dark:hover:bg-gray-875
+              h-10
             "
             :class="
-              isItemActive(item)
-                ? 'bg-gray-100 dark:bg-gray-875 text-gray-900 dark:text-gray-100 border-s-4 border-gray-800 dark:border-gray-100'
-                : 'text-gray-700 dark:text-gray-400'
+              isGroupActive(group) && !group.items
+                ? 'bg-gray-100 dark:bg-gray-875 border-s-4 border-gray-800 dark:border-gray-100'
+                : ''
             "
-            @click="routeToSidebarItem(item)"
+            @click="routeToSidebarItem(group)"
           >
-            <p :style="isItemActive(item) ? 'margin-left: -4px' : ''">
-              {{ item.label }}
-            </p>
+            <Icon
+              class="flex-shrink-0"
+              :name="group.icon"
+              :size="group.iconSize || '18'"
+              :height="group.iconHeight ?? 0"
+              :active="!!isGroupActive(group)"
+              :darkMode="darkMode"
+              :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"
+            />
+            <div
+              class="ms-2 text-lg text-gray-700"
+              :class="
+                isGroupActive(group) && !group.items
+                  ? 'text-gray-900 dark:text-gray-25'
+                  : 'dark:text-gray-300'
+              "
+            >
+              {{ group.label }}
+            </div>
+          </div>
+
+          <!-- Expanded Group -->
+          <div v-if="group.items && isGroupActive(group)">
+            <div
+              v-for="item in group.items"
+              :key="item.label"
+              class="
+                text-base
+                h-10
+                ps-10
+                cursor-pointer
+                flex
+                items-center
+                hover:bg-gray-100
+                dark:hover:bg-gray-875
+              "
+              :class="
+                isItemActive(item)
+                  ? 'bg-gray-100 dark:bg-gray-875 text-gray-900 dark:text-gray-100 border-s-4 border-gray-800 dark:border-gray-100'
+                  : 'text-gray-700 dark:text-gray-400'
+              "
+              @click="routeToSidebarItem(item)"
+            >
+              <p :style="isItemActive(item) ? 'margin-left: -4px' : ''">
+                {{ item.label }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Report Issue and DB Switcher -->
-    <div class="window-no-drag flex flex-col gap-2 py-2 px-4">
-      <button
-        class="
-          flex
-          text-sm text-gray-600
-          dark:text-gray-500
-          hover:text-gray-800
-          dark:hover:text-gray-400
-          gap-1
-          items-center
-        "
-        @click="openDocumentation"
-      >
-        <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
-        <p>
-          {{ t`Help` }}
+      <!-- Report Issue and DB Switcher -->
+      <div class="window-no-drag flex flex-col gap-2 py-2 px-4">
+        <button
+          class="
+            flex
+            text-sm text-gray-600
+            dark:text-gray-500
+            hover:text-gray-800
+            dark:hover:text-gray-400
+            gap-1
+            items-center
+          "
+          @click="toggleProvisionalMode"
+          :title="
+            isProvisionalMode()
+              ? t`Provisional mode since` + ' ' + provisionalModeDate()
+              : ''
+          "
+        >
+          <feather-icon
+            :name="isProvisionalMode() ? 'pause-circle' : 'play-circle'"
+            class="h-4 w-4 flex-shrink-0"
+          />
+          <p>
+            {{ isProvisionalMode() ? t`Provisional mode` : t`Definitive mode` }}
+          </p>
+        </button>
+
+        <button
+          class="
+            flex
+            text-sm text-gray-600
+            dark:text-gray-500
+            hover:text-gray-800
+            dark:hover:text-gray-400
+            gap-1
+            items-center
+          "
+          @click="openDocumentation"
+        >
+          <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
+          <p>
+            {{ t`Help` }}
+          </p>
+        </button>
+
+        <button
+          class="
+            flex
+            text-sm text-gray-600
+            dark:text-gray-500
+            hover:text-gray-800
+            dark:hover:text-gray-400
+            gap-1
+            items-center
+          "
+          @click="viewShortcuts = true"
+        >
+          <feather-icon name="command" class="h-4 w-4 flex-shrink-0" />
+          <p>{{ t`Shortcuts` }}</p>
+        </button>
+
+        <button
+          data-testid="change-db"
+          class="
+            flex
+            text-sm text-gray-600
+            dark:text-gray-500
+            hover:text-gray-800
+            dark:hover:text-gray-400
+            gap-1
+            items-center
+          "
+          @click="$emit('change-db-file')"
+        >
+          <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
+          <p>{{ t`Change DB` }}</p>
+        </button>
+
+        <button
+          class="
+            flex
+            text-sm text-gray-600
+            dark:text-gray-500
+            hover:text-gray-800
+            dark:hover:text-gray-400
+            gap-1
+            items-center
+          "
+          @click="() => reportIssue()"
+        >
+          <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
+          <p>
+            {{ t`Report Issue` }}
+          </p>
+        </button>
+
+        <p
+          v-if="showDevMode"
+          class="text-xs text-gray-500 select-none cursor-pointer"
+          @click="showDevMode = false"
+          title="Open dev tools with Ctrl+Shift+I"
+        >
+          <feather-icon
+            name="hash"
+            class="h-4 w-4 flex-shrink-0"
+            style="display: inline"
+          />
+          hide dev mode
         </p>
-      </button>
-
-      <button
-        class="
-          flex
-          text-sm text-gray-600
-          dark:text-gray-500
-          hover:text-gray-800
-          dark:hover:text-gray-400
-          gap-1
-          items-center
-        "
-        @click="viewShortcuts = true"
-      >
-        <feather-icon name="command" class="h-4 w-4 flex-shrink-0" />
-        <p>{{ t`Shortcuts` }}</p>
-      </button>
-
-      <button
-        data-testid="change-db"
-        class="
-          flex
-          text-sm text-gray-600
-          dark:text-gray-500
-          hover:text-gray-800
-          dark:hover:text-gray-400
-          gap-1
-          items-center
-        "
-        @click="$emit('change-db-file')"
-      >
-        <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
-        <p>{{ t`Change DB` }}</p>
-      </button>
-
-      <button
-        class="
-          flex
-          text-sm text-gray-600
-          dark:text-gray-500
-          hover:text-gray-800
-          dark:hover:text-gray-400
-          gap-1
-          items-center
-        "
-        @click="() => reportIssue()"
-      >
-        <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
-        <p>
-          {{ t`Report Issue` }}
-        </p>
-      </button>
-
-      <p
-        v-if="showDevMode"
-        class="text-xs text-gray-500 select-none cursor-pointer"
-        @click="showDevMode = false"
-        title="Open dev tools with Ctrl+Shift+I"
-      >
-        dev mode
-      </p>
+      </div>
     </div>
 
     <!-- Hide Sidebar Button -->
@@ -214,6 +250,7 @@
   </div>
 </template>
 <script lang="ts">
+import { t } from 'fyo';
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
@@ -226,6 +263,7 @@ import router from '../router';
 import Icon from './Icon.vue';
 import Modal from './Modal.vue';
 import ShortcutsHelper from './ShortcutsHelper.vue';
+import { showDialog } from 'src/utils/interactive';
 
 const COMPONENT_NAME = 'Sidebar';
 
@@ -291,6 +329,64 @@ export default defineComponent({
     routeTo,
     reportIssue,
     toggleSidebar,
+    async toggleProvisionalMode() {
+      let title, detail, provisionalModeSince, showUnlimited;
+      if (fyo.singles.SystemSettings?.provisionalModeSince != null) {
+        title = t`Leave provisional mode?`;
+        detail = t`All submissions while provisional mode was effective will be definitive.`;
+        provisionalModeSince = null;
+      } else {
+        title = t`Enter provisional mode?`;
+        detail = t`Documents submission while in provisional mode can be undone.`;
+        provisionalModeSince = new Date();
+        showUnlimited = this.showDevMode;
+      }
+
+      let response = (await showDialog({
+        title,
+        detail,
+        type: 'warning',
+        buttons: [
+          {
+            label: t`Yes`,
+            action() {
+              return true;
+            },
+            isPrimary: true,
+          },
+          {
+            label: t`No`,
+            action() {
+              return false;
+            },
+            isEscape: true,
+          },
+          showUnlimited
+            ? {
+                label: t`Unlimited`,
+                action() {
+                  provisionalModeSince = new Date(0);
+                  return true;
+                },
+                isPrimary: false,
+              }
+            : null,
+        ].filter((x) => x),
+      })) as boolean;
+
+      if (response) {
+        await fyo.singles.SystemSettings?.setAndSync(
+          'provisionalModeSince',
+          provisionalModeSince
+        );
+      }
+    },
+    isProvisionalMode() {
+      return fyo.singles.SystemSettings?.provisionalModeSince != null;
+    },
+    provisionalModeDate() {
+      return fyo.singles.SystemSettings?.provisionalModeSince;
+    },
     openDocumentation() {
       ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
     },

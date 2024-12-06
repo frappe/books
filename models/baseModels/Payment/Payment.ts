@@ -442,6 +442,11 @@ export class Payment extends Transactional {
     }
   }
 
+  async afterSubmitUndo() {
+    await super.afterSubmitUndo();
+    await this.revertOutstandingAmount();
+  }
+
   async afterCancel() {
     await super.afterCancel();
     await this.revertOutstandingAmount();
