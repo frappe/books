@@ -2,8 +2,9 @@ import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { ModelNameEnum } from 'models/types';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
-import { getItem } from 'models/inventory/tests/helpers';
+import { getItem, getStockMovement } from 'models/inventory/tests/helpers';
 import { PricingRule } from '../PricingRule/PricingRule';
+import { MovementTypeEnum } from 'models/inventory/types';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -17,6 +18,11 @@ const itemMap = {
   Cap: {
     name: 'Cap',
     rate: 100,
+    unit: 'Unit',
+  },
+  Pen: {
+    name: 'Pen',
+    rate: 700,
     unit: 'Unit',
   },
 };
@@ -48,7 +54,7 @@ const pricingRuleMap = [
     title: 'CAP PDR Offer',
     appliedItems: [{ item: itemMap.Cap.name }],
     discountType: 'Product Discount',
-    freeItem: 'Cap',
+    freeItem: 'Pen',
     freeItemQuantity: 1,
     freeItemUnit: 'Unit',
     freeItemRate: 0,
@@ -62,7 +68,11 @@ const pricingRuleMap = [
   },
 ];
 
-test('Pricing Rule: create dummy item, party, pricing rules', async (t) => {
+const locationMap = {
+  LocationOne: 'LocationOne',
+};
+
+test('Pricing Rule: create dummy item, party, pricing rules, free items, locations', async (t) => {
   // Create Items
   for (const { name, rate } of Object.values(itemMap)) {
     const item = getItem(name, rate, false);
@@ -86,6 +96,38 @@ test('Pricing Rule: create dummy item, party, pricing rules', async (t) => {
       `Price List: ${pricingRule.name} exists`
     );
   }
+
+  // Create Locations
+  for (const name of Object.values(locationMap)) {
+    await fyo.doc.getNewDoc(ModelNameEnum.Location, { name }).sync();
+    t.ok(await fyo.db.exists(ModelNameEnum.Location, name), `${name} exists`);
+  }
+
+  // create MaterialReceipt
+  const stockMovement = await getStockMovement(
+    MovementTypeEnum.MaterialReceipt,
+    new Date('2022-11-03T09:57:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        to: locationMap.LocationOne,
+        quantity: 25,
+        rate: 500,
+      },
+    ],
+    fyo
+  );
+  await (await stockMovement.sync()).submit();
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      locationMap.LocationOne,
+      undefined,
+      undefined
+    ),
+    25,
+    'Pen has quantity twenty five'
+  );
 
   await fyo.singles.AccountingSettings?.set('enablePricingRule', true);
   t.ok(fyo.singles.AccountingSettings?.enablePricingRule);
@@ -487,7 +529,7 @@ test('create a product discount giving 1 free item', async (t) => {
   await sinv.runFormulas();
   await sinv.sync();
 
-  t.equal(!!sinv.items![1].isFreeItem, true);
+  t.equal(sinv.items![1].isFreeItem, true);
   t.equal(sinv.items![1].rate!.float, pricingRuleMap[1].freeItemRate);
   t.equal(sinv.items![1].quantity, pricingRuleMap[1].freeItemQuantity);
 });
@@ -516,7 +558,7 @@ test('create a product discount, recurse 2', async (t) => {
   await sinv.runFormulas();
   await sinv.sync();
 
-  t.equal(!!sinv.items![1].isFreeItem, true);
+  t.equal(sinv.items![1].isFreeItem, true);
   t.equal(sinv.items![1].rate!.float, pricingRuleMap[1].freeItemRate);
   t.equal(sinv.items![1].quantity, pricingRuleMap[1].freeItemQuantity);
 });

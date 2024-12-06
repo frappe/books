@@ -658,7 +658,7 @@ async function getItemRateFromPricingRule(
     (prDetail) => prDetail.referenceItem === doc.item
   );
 
-  if (!pricingRule) {
+  if (!pricingRule || !pricingRule.length) {
     return;
   }
 
