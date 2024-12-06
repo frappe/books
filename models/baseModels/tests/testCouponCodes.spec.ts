@@ -332,13 +332,8 @@ test('Coupon not applied: incorrect items added.', async (t) => {
   await sinv.append('coupons', { coupons: couponCodesMap[0].name });
 
   await sinv.runFormulas();
-  // await assertThrows(
-  // async () =>
-  await sinv.sync(),
-    //   'Minimum Amount should be less than the Maximum Amount'
-    // );
-
-    t.equal(sinv.coupons?.length, 0, 'coupon code is not applied');
+  await sinv.sync();
+  t.equal(sinv.coupons?.length, 0, 'coupon code is not applied');
 });
 
 closeTestFyo(fyo, __filename);
