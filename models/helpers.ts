@@ -39,6 +39,13 @@ import { safeParseFloat } from 'utils/index';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { ItemQtyMap } from 'src/components/POS/types';
+import { ValuationMethod } from './inventory/types';
+import {
+  getRawStockLedgerEntries,
+  getStockBalanceEntries,
+  getStockLedgerEntries,
+} from 'reports/inventory/helpers';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -61,6 +68,34 @@ export function getInvoiceActions(
     getLedgerLinkAction(fyo),
     getMakeReturnDocAction(fyo),
   ];
+}
+
+export async function getItemQtyMap(doc: SalesInvoice): Promise<ItemQtyMap> {
+  const itemQtyMap: ItemQtyMap = {};
+  const valuationMethod =
+    (doc.fyo.singles.InventorySettings?.valuationMethod as ValuationMethod) ??
+    ValuationMethod.FIFO;
+
+  const rawSLEs = await getRawStockLedgerEntries(doc.fyo);
+  const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
+  const posInventory = doc.fyo.singles.POSSettings?.inventory;
+
+  const stockBalance = getStockBalanceEntries(rawData, {
+    location: posInventory,
+  });
+
+  for (const row of stockBalance) {
+    if (!itemQtyMap[row.item]) {
+      itemQtyMap[row.item] = { availableQty: 0 };
+    }
+
+    if (row.batch) {
+      itemQtyMap[row.item][row.batch] = row.balanceQuantity;
+    }
+
+    itemQtyMap[row.item]!.availableQty += row.balanceQuantity;
+  }
+  return itemQtyMap;
 }
 
 export function getStockTransferActions(
@@ -914,9 +949,9 @@ export async function getPricingRule(
       continue;
     }
 
-    const filtered = filterPricingRules(
+    const filtered = await filterPricingRules(
+      doc as SalesInvoice,
       pricingRuleDocsForItem,
-      doc.date as Date,
       item.quantity as number,
       item.amount as Money
     );
@@ -977,16 +1012,31 @@ export async function getItemRateFromPriceList(
   return plItem?.rate;
 }
 
-export function filterPricingRules(
+export async function filterPricingRules(
+  doc: SalesInvoice,
   pricingRuleDocsForItem: PricingRule[],
-  sinvDate: Date,
   quantity: number,
   amount: Money
-): PricingRule[] | [] {
-  const filteredPricingRules: PricingRule[] | undefined = [];
+): Promise<PricingRule[] | []> {
+  const filteredPricingRules: PricingRule[] = [];
 
   for (const pricingRuleDoc of pricingRuleDocsForItem) {
-    if (canApplyPricingRule(pricingRuleDoc, sinvDate, quantity, amount)) {
+    let freeItemQty: number | undefined;
+
+    if (pricingRuleDoc?.freeItem) {
+      const itemQtyMap = await getItemQtyMap(doc);
+      freeItemQty = itemQtyMap[pricingRuleDoc.freeItem]?.availableQty;
+    }
+
+    if (
+      canApplyPricingRule(
+        pricingRuleDoc,
+        doc.date as Date,
+        quantity,
+        amount,
+        freeItemQty ?? 0
+      )
+    ) {
       filteredPricingRules.push(pricingRuleDoc);
     }
   }
@@ -997,9 +1047,22 @@ export function canApplyPricingRule(
   pricingRuleDoc: PricingRule,
   sinvDate: Date,
   quantity: number,
-  amount: Money
+  amount: Money,
+  freeItemQty: number
 ): boolean {
+  const freeItemQuantity = pricingRuleDoc.freeItemQuantity;
+
+  if (pricingRuleDoc.isRecursive) {
+    freeItemQty = quantity / (pricingRuleDoc.recurseEvery as number);
+  }
+
   // Filter by Quantity
+  if (pricingRuleDoc.freeItem && freeItemQuantity! >= freeItemQty) {
+    throw new ValidationError(
+      t`Free item '${pricingRuleDoc.freeItem}' does not have a specified quantity`
+    );
+  }
+
   if (
     (pricingRuleDoc.minQuantity as number) > 0 &&
     quantity < (pricingRuleDoc.minQuantity as number)

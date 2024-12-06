@@ -5,46 +5,12 @@ import { Item } from 'models/baseModels/Item/Item';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { POSShift } from 'models/inventory/Point of Sale/POSShift';
-import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import {
-  getRawStockLedgerEntries,
-  getStockBalanceEntries,
-  getStockLedgerEntries,
-} from 'reports/inventory/helpers';
 import { ItemQtyMap, ItemSerialNumbers } from 'src/components/POS/types';
 import { fyo } from 'src/initFyo';
 import { safeParseFloat } from 'utils/index';
 import { showToast } from './interactive';
-
-export async function getItemQtyMap(): Promise<ItemQtyMap> {
-  const itemQtyMap: ItemQtyMap = {};
-  const valuationMethod =
-    (fyo.singles.InventorySettings?.valuationMethod as ValuationMethod) ??
-    ValuationMethod.FIFO;
-
-  const rawSLEs = await getRawStockLedgerEntries(fyo);
-  const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
-  const posInventory = fyo.singles.POSSettings?.inventory;
-
-  const stockBalance = getStockBalanceEntries(rawData, {
-    location: posInventory,
-  });
-
-  for (const row of stockBalance) {
-    if (!itemQtyMap[row.item]) {
-      itemQtyMap[row.item] = { availableQty: 0 };
-    }
-
-    if (row.batch) {
-      itemQtyMap[row.item][row.batch] = row.balanceQuantity;
-    }
-
-    itemQtyMap[row.item].availableQty += row.balanceQuantity;
-  }
-  return itemQtyMap;
-}
 
 export function getTotalQuantity(items: SalesInvoiceItem[]): number {
   let totalQuantity = safeParseFloat(0);

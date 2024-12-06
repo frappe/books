@@ -24,6 +24,7 @@ import {
   getPricingRulesConflicts,
   removeLoyaltyPoint,
   roundFreeItemQty,
+  getItemQtyMap,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -1264,34 +1265,42 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
+      let freeItemQty: number | undefined;
+
+      if (pricingRuleDoc?.freeItem) {
+        const itemQtyMap = await getItemQtyMap(this as SalesInvoice);
+        freeItemQty = itemQtyMap[pricingRuleDoc.freeItem]?.availableQty;
+      }
+
       const canApplyPRLOnItem = canApplyPricingRule(
         pricingRuleDoc,
         this.date as Date,
         item.quantity as number,
-        item.amount as Money
+        item.amount as Money,
+        freeItemQty as number
       );
 
       if (!canApplyPRLOnItem) {
         continue;
       }
 
-      let freeItemQty = pricingRuleDoc.freeItemQuantity as number;
+      let roundFreeItemQuantity = pricingRuleDoc.freeItemQuantity as number;
 
       if (pricingRuleDoc.isRecursive) {
-        freeItemQty =
+        roundFreeItemQuantity =
           (item.quantity as number) / (pricingRuleDoc.recurseEvery as number);
       }
 
       if (pricingRuleDoc.roundFreeItemQty) {
         freeItemQty = roundFreeItemQty(
-          freeItemQty,
+          roundFreeItemQuantity,
           pricingRuleDoc.roundingMethod as 'round' | 'floor' | 'ceil'
         );
       }
 
       await this.append('items', {
         item: pricingRuleDoc.freeItem as string,
-        quantity: freeItemQty,
+        quantity: roundFreeItemQuantity,
         isFreeItem: true,
         pricingRule: pricingRuleDoc.title,
         rate: pricingRuleDoc.freeItemRate,
@@ -1437,14 +1446,14 @@ export abstract class Invoice extends Transactional {
         }
       }
 
-      const filtered = filterPricingRules(
+      const filtered = await filterPricingRules(
+        this as SalesInvoice,
         pricingRuleDocsForItem,
-        this.date as Date,
         item.quantity as number,
         item.amount as Money
       );
 
-      if (!filtered.length) {
+      if (!filtered || !filtered.length) {
         continue;
       }
 

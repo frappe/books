@@ -1,10 +1,11 @@
 import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { ModelNameEnum } from 'models/types';
-import { getItem } from 'models/inventory/tests/helpers';
+import { getItem, getStockMovement } from 'models/inventory/tests/helpers';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 import { PricingRule } from '../PricingRule/PricingRule';
 import { assertThrows } from 'backend/database/tests/helpers';
+import { MovementTypeEnum } from 'models/inventory/types';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -18,6 +19,11 @@ const itemMap = {
   Cap: {
     name: 'Cap',
     rate: 100,
+    unit: 'Unit',
+  },
+  Pen: {
+    name: 'Pen',
+    rate: 700,
     unit: 'Unit',
   },
 };
@@ -52,7 +58,7 @@ const pricingRuleMap = [
     title: 'CAP PDR Offer',
     appliedItems: [{ item: itemMap.Cap.name }],
     discountType: 'Product Discount',
-    freeItem: 'Cap',
+    freeItem: 'Pen',
     freeItemQuantity: 1,
     freeItemUnit: 'Unit',
     freeItemRate: 0,
@@ -91,6 +97,10 @@ const couponCodesMap = [
   },
 ];
 
+const locationMap = {
+  LocationOne: 'LocationOne',
+};
+
 test(' Coupon Codes: create dummy item, party, pricing rules, coupon codes', async (t) => {
   // Create Items
   for (const { name, rate } of Object.values(itemMap)) {
@@ -122,6 +132,38 @@ test(' Coupon Codes: create dummy item, party, pricing rules, coupon codes', asy
   await fyo.singles.AccountingSettings?.set('enablePricingRule', true);
 
   t.ok(fyo.singles.AccountingSettings?.enablePricingRule);
+
+  // Create Locations
+  for (const name of Object.values(locationMap)) {
+    await fyo.doc.getNewDoc(ModelNameEnum.Location, { name }).sync();
+    t.ok(await fyo.db.exists(ModelNameEnum.Location, name), `${name} exists`);
+  }
+
+  // create MaterialReceipt
+  const stockMovement = await getStockMovement(
+    MovementTypeEnum.MaterialReceipt,
+    new Date('2022-11-03T09:57:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        to: locationMap.LocationOne,
+        quantity: 25,
+        rate: 500,
+      },
+    ],
+    fyo
+  );
+  await (await stockMovement.sync()).submit();
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      locationMap.LocationOne,
+      undefined,
+      undefined
+    ),
+    25,
+    'Pen has quantity twenty five'
+  );
 
   // Create Coupon Codes
   for (const couponCodes of Object.values(couponCodesMap)) {
@@ -291,7 +333,6 @@ test('Coupon not applied: incorrect items added.', async (t) => {
 
   await sinv.runFormulas();
   await sinv.sync();
-
   t.equal(sinv.coupons?.length, 0, 'coupon code is not applied');
 });
 
