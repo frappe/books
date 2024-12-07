@@ -320,6 +320,8 @@ import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { ValidationError } from 'fyo/utils/errors';
 import { showToast } from 'src/utils/interactive';
+import { validateQty } from 'models/helpers';
+import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 
 export default defineComponent({
   name: 'KeyboardModal',
@@ -459,6 +461,19 @@ export default defineComponent({
           }
 
           if (this.selectedItemField === 'quantity') {
+            const existingItems =
+              this.sinvDoc.items?.filter(
+                (invoiceItem: InvoiceItem) =>
+                  invoiceItem.item === this.selectedItemRow?.item &&
+                  !invoiceItem.isFreeItem
+              ) ?? [];
+
+            await validateQty(
+              this.sinvDoc,
+              this.selectedItemRow,
+              existingItems
+            );
+
             this.$emit('applyPricingRule');
           }
         }

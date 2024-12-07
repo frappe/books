@@ -275,6 +275,10 @@ import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoic
 import { Money } from 'pesa';
 import { DiscountType } from '../types';
 import { validateSerialNumberCount } from 'src/utils/pos';
+import { validateQty } from 'models/helpers';
+import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { showToast } from 'src/utils/interactive';
 
 export default defineComponent({
   name: 'SelectedItemRow',
@@ -358,6 +362,28 @@ export default defineComponent({
     },
     async setQuantity(quantity: number) {
       this.row.set('quantity', quantity);
+
+      const existingItems =
+        (this.row.parentdoc as SalesInvoice).items?.filter(
+          (invoiceItem: InvoiceItem) =>
+            invoiceItem.item === this.row.item && !invoiceItem.isFreeItem
+        ) ?? [];
+
+      try {
+        await validateQty(
+          this.row.parentdoc as SalesInvoice,
+          this.row,
+          existingItems
+        );
+      } catch (error) {
+        this.row.set('quantity', existingItems[0].stockNotTransferred);
+
+        return showToast({
+          type: 'error',
+          message: this.t`${error as string}`,
+          duration: 'short',
+        });
+      }
 
       if (!this.row.isFreeItem) {
         this.$emit('applyPricingRule');
