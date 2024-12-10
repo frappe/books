@@ -33,7 +33,7 @@
       style="height: 65vh; width: 60vh"
     >
       <Row
-        v-for="row in savedInvoices as any"
+        v-for="row in savedInvoices as SalesInvoice[]"
         :key="row.name"
         :ratio="ratio"
         :border="true"

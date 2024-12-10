@@ -35,7 +35,7 @@
   >
     <Row
       v-if="items"
-      v-for="row in items as any"
+      v-for="row in items as POSItem[]"
       :ratio="ratio"
       :border="true"
       class="

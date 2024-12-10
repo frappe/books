@@ -112,6 +112,7 @@ import { Shipment } from 'models/inventory/Shipment';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
 import PageHeader from 'src/components/PageHeader.vue';
 import { Payment } from 'models/baseModels/Payment/Payment';
+import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
@@ -124,11 +125,12 @@ import {
   validateIsPosSettingsSet,
 } from 'src/utils/pos';
 import {
+  validateQty,
+  getItemQtyMap,
   getPricingRule,
   removeFreeItems,
   getAddedLPWithGrandTotal,
   getItemRateFromPriceList,
-  getItemQtyMap,
 } from 'models/helpers';
 import {
   POSItem,
@@ -398,68 +400,67 @@ export default defineComponent({
         return;
       }
 
-      if (
-        !this.itemQtyMap[item.name as string] ||
-        this.itemQtyMap[item.name as string].availableQty === 0
-      ) {
-        showToast({
-          type: 'error',
-          message: t`Item ${item.name as string} has Zero Quantity`,
-          duration: 'short',
-        });
-        return;
-      }
-
       const existingItems =
         this.sinvDoc.items?.filter(
           (invoiceItem) =>
             invoiceItem.item === item.name && !invoiceItem.isFreeItem
         ) ?? [];
 
-      if (item.hasBatch) {
-        for (const invItem of existingItems) {
-          const itemQty = invItem.quantity ?? 0;
-          const qtyInBatch =
-            this.itemQtyMap[invItem.item as string][invItem.batch as string] ??
-            0;
+      try {
+        if (item.hasBatch) {
+          for (const invItem of existingItems) {
+            const itemQty = invItem.quantity ?? 0;
+            const qtyInBatch =
+              this.itemQtyMap[invItem.item as string][
+                invItem.batch as string
+              ] ?? 0;
 
-          if (itemQty < qtyInBatch) {
-            invItem.quantity = (invItem.quantity as number) + 1;
-            invItem.rate = item.rate as Money;
+            if (itemQty < qtyInBatch) {
+              invItem.quantity = (invItem.quantity as number) + 1;
+              invItem.rate = item.rate as Money;
 
-            await this.applyPricingRule();
-            await this.sinvDoc.runFormulas();
+              await this.applyPricingRule();
+              await this.sinvDoc.runFormulas();
+              await validateQty(
+                this.sinvDoc as SalesInvoice,
+                item,
+                existingItems as InvoiceItem[]
+              );
 
-            return;
+              return;
+            }
           }
-        }
 
-        try {
           await this.sinvDoc.append('items', {
             rate: item.rate as Money,
             item: item.name,
           });
-        } catch (error) {
-          showToast({
-            type: 'error',
-            message: t`${error as string}`,
-          });
+
+          return;
         }
 
-        return;
-      }
+        if (existingItems.length) {
+          if (!this.sinvDoc.priceList) {
+            existingItems[0].rate = item.rate as Money;
+          }
 
-      if (existingItems.length) {
-        if (!this.sinvDoc.priceList) {
-          existingItems[0].rate = item.rate as Money;
+          existingItems[0].quantity = (existingItems[0].quantity as number) + 1;
+
+          await this.applyPricingRule();
+          await this.sinvDoc.runFormulas();
+          await validateQty(
+            this.sinvDoc as SalesInvoice,
+            item,
+            existingItems as InvoiceItem[]
+          );
+
+          return;
         }
-
-        existingItems[0].quantity = (existingItems[0].quantity as number) + 1;
-
-        await this.applyPricingRule();
-        await this.sinvDoc.runFormulas();
-
-        return;
+      } catch (error) {
+        return showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
       }
 
       await this.sinvDoc.append('items', {
