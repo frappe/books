@@ -28,6 +28,7 @@ import { Money } from 'pesa';
 import { Party } from './baseModels/Party/Party';
 import { PricingRule } from './baseModels/PricingRule/PricingRule';
 import { Router } from 'vue-router';
+import { Item } from 'models/baseModels/Item/Item';
 import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
 import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { StockMovement } from './inventory/StockMovement';
@@ -39,7 +40,7 @@ import { safeParseFloat } from 'utils/index';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
-import { ItemQtyMap } from 'src/components/POS/types';
+import { ItemQtyMap, POSItem } from 'src/components/POS/types';
 import { ValuationMethod } from './inventory/types';
 import {
   getRawStockLedgerEntries,
@@ -836,6 +837,40 @@ export async function removeLoyaltyPoint(doc: Doc) {
 
   await loyalityPointEntryDoc.delete();
   await party.updateLoyaltyPoints();
+}
+
+export async function validateQty(
+  sinvDoc: SalesInvoice,
+  item: POSItem | Item | undefined,
+  existingItems: InvoiceItem[]
+) {
+  if (!item) {
+    return;
+  }
+
+  let itemName = item.name as string;
+  const itemQtyMap = await getItemQtyMap(sinvDoc);
+
+  if (item instanceof SalesInvoiceItem) {
+    itemName = item.item as string;
+  }
+
+  if (!itemQtyMap[itemName] || itemQtyMap[itemName].availableQty === 0) {
+    throw new ValidationError(t`Item ${itemName} has Zero Quantity`);
+  }
+
+  if (
+    (existingItems && !itemQtyMap[itemName]) ||
+    itemQtyMap[itemName].availableQty < (existingItems[0]?.quantity as number)
+  ) {
+    existingItems[0].quantity = itemQtyMap[itemName].availableQty;
+
+    throw new ValidationError(
+      t`Item ${itemName} only has ${itemQtyMap[itemName].availableQty} Quantity`
+    );
+  }
+
+  return;
 }
 
 export async function getPricingRulesOfCoupons(
