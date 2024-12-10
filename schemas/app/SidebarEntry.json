@@ -1,0 +1,46 @@
+{
+  "name": "SidebarEntry",
+  "label": "Sidebar Entry",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "section": "Default",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true,
+      "placeholder": "Entry Name"
+    },
+    {
+      "fieldname": "section",
+      "section": "Default",
+      "label": "Section",
+      "fieldtype": "Data",
+      "required": false
+    },
+    {
+      "fieldname": "route",
+      "section": "Default",
+      "label": "Route",
+      "fieldtype": "Data",
+      "required": true,
+      "default": "/list"
+    },
+    {
+      "fieldname": "model",
+      "section": "Default",
+      "label": "Document Type",
+      "fieldtype": "Data",
+      "required": true,
+      "default": "JournalEntry"
+    },
+    {
+      "fieldname": "filters",
+      "section": "Default",
+      "label": "Filters",
+      "fieldtype": "Data",
+      "required": true,
+      "default": "{}"
+    }
+  ]
+}
