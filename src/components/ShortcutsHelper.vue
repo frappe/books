@@ -192,7 +192,7 @@ export default defineComponent({
         ],
       },
       {
-        label: t`POS`,
+        label: t`Point of Sale`,
         description: t`Applicable when POS is open`,
         collapsed: false,
         shortcuts: [
