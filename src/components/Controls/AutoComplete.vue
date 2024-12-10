@@ -107,6 +107,7 @@ export default {
     return {
       showQuickView: false,
       linkValue: '',
+      focInp: false,
       isLoading: false,
       suggestions: [],
       highlightedIndex: -1,
@@ -186,6 +187,15 @@ export default {
 
       const route = getFormRoute(this.linkSchemaName, name);
       await routeTo(route);
+    },
+    async focusInputTag() {
+      this.focInp = true;
+      if (this.linkValue) {
+        return;
+      }
+
+      await this.$nextTick();
+      this.$refs.input.focus();
     },
     setLinkValue(value) {
       this.linkValue = value;
@@ -279,6 +289,14 @@ export default {
     },
     onInput(e) {
       if (this.isReadOnly) {
+        return;
+      }
+
+      if (!e.target.value || this.focInp) {
+        e.target.value = null;
+        this.focInp = false;
+        this.toggleDropdown(false);
+
         return;
       }
 

@@ -191,6 +191,49 @@ export default defineComponent({
           },
         ],
       },
+      {
+        label: t`Point of Sale`,
+        description: t`Applicable when POS is open`,
+        collapsed: false,
+        shortcuts: [
+          {
+            shortcut: [ShortcutKey.shift, 'V'],
+            description: t`Toggle between Grid and List view`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'S'],
+            description: t`Open Sales Invoice List`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'L'],
+            description: t`Set Loyalty Program`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'C'],
+            description: t`Set Coupon Code`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'P'],
+            description: t`Set Price List`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'H'],
+            description: t`Open Saved or Submitted Invoice List.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'S'],
+            description: t`If any entry form is open, save the details. Otherwise, save the invoice.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'P'],
+            description: t`Create Payment.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, ShortcutKey.delete],
+            description: t`If any entry form is open, your entry will be canceled. Otherwise the selected items will be removed.`,
+          },
+        ],
+      },
     ];
   },
 });
