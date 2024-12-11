@@ -29,8 +29,8 @@ const partyData = {
 
 const loyaltyProgramData = {
   name: 'program',
-  fromDate: new Date(Date.now()),
-  toDate: new Date(Date.now()),
+  fromDate: new Date('12/10/2024'),
+  toDate: new Date('12/30/2024'),
   email: 'sample@gmail.com',
   mobile: '1234567890',
   expenseAccount: accountData.name,
@@ -122,6 +122,7 @@ async function createSalesInvoice() {
   const sinvDoc = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
     account: 'Debtors',
     party: partyData.name,
+    date: new Date('12/11/2024'),
     items: [
       {
         item: itemData.name,
