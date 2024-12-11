@@ -9,7 +9,7 @@ export class LoyaltyProgram extends Doc {
 
   static filters: FiltersMap = {
     expenseAccount: () => ({
-      rootType: AccountRootTypeEnum.Liability,
+      rootType: AccountRootTypeEnum.Expense,
       isGroup: false,
     }),
   };
