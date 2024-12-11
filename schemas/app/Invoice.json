@@ -35,7 +35,7 @@
     {
       "fieldname": "date",
       "label": "Date",
-      "fieldtype": "Date",
+      "fieldtype": "Datetime",
       "required": true,
       "section": "Default"
     },
