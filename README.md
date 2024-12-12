@@ -45,15 +45,14 @@ Frappe Books is an open-source accounting software aimed at simplifying financia
   - **Balance Sheet**: Displays a company’s assets, liabilities, and equity at a specific point in time.
   - **Trial Balance**: Verifies the accuracy of accounting records by ensuring that debits and credits are balanced.
 
+### Screenshots 
+
 <br/>
-
-
-<details>
-    <summary>Show more screenshots</summary>
-    <img width="1402" alt="Pos" src="https://github.com/user-attachments/assets/48bc35a8-681e-4fbc-8e58-82e534de9df7">
-    <img width="1402" alt="General Ledger" src="https://github.com/user-attachments/assets/dccd94fc-b2ff-4b58-89bb-c57744d3c738">
-    <img width="1402" alt="Profit and Loss" src="https://github.com/user-attachments/assets/6d9213d4-467b-4f19-b86c-2a0dcc29c84c">
-</details>
+    <img src="https://github.com/user-attachments/assets/be5d5be7-d9cd-4fee-a945-d90e70437302" alt="Pos" width="800" height="500" >
+    <br/><br/>
+    <img src="https://github.com/user-attachments/assets/bf4fd35b-6aa5-4df2-a716-9d0dcdfa46e0" alt="General Ledger" width="800" height="500">
+    <br/><br/>
+    <img src="https://github.com/user-attachments/assets/216461d9-db4d-4447-ba22-c03c7fb1a0eb" alt="Profit and Loss" width="800" height="500">
 
 ## Under the Hood
 
@@ -167,7 +166,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Portuguese         | [DeepL](https://www.deepl.com/), [Valdir Amaral](https://github.com/valdir-amaral)                                                                                                                        |
 | Arabic             | [taha2002](https://github.com/taha2002), [Faridget](https://github.com/faridget)                                                                                                                          |
 | Catalan            | Dídac E. Jiménez                                                                                                                                                                                          |
-| Dutch              | [RijckAlex](https://github.com/RijckAlex)                                                                                                                                                                 |
+| Dutch              | [RijckAlex](https://github.com/RijckAlex), [Stan M](https://github.com/stxm)                                                                                                                              |
 | Spanish            | [talmax1124](https://github.com/talmax1124), [delbertf](https://github.com/delbertf)                                                                                                                      |
 | Gujarati           | [dhruvilxcode](https://github.com/dhruvilxcode), [4silvertooth](https://github.com/4silvertooth)                                                                                                          |
 | Hindi              | [bnsinghgit](https://github.com/bnsinghgit)                                                                                                                                                               |
@@ -182,7 +181,3 @@ If you want to contribute code then you can fork this repo, make changes and rai
 - [Telegram Group](https://t.me/frappebooks): Used for discussions and decisions regarding everything Frappe Books.
 - [GitHub Discussions](https://github.com/frappe/books/discussions): Used for discussions around a specific topic.
 - [Documentation](https://docs.frappe.io/books): Offaicial documentation for more details.
-
-## License
-
-[GNU Affero General Public License v3.0](LICENSE)
