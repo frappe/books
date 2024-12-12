@@ -48,11 +48,14 @@ Frappe Books is an open-source accounting software aimed at simplifying financia
 ### Screenshots 
 
 <br/>
+
+<div align="center">
     <img src="https://github.com/user-attachments/assets/be5d5be7-d9cd-4fee-a945-d90e70437302" alt="Pos" width="800" height="500" >
     <br/><br/>
     <img src="https://github.com/user-attachments/assets/bf4fd35b-6aa5-4df2-a716-9d0dcdfa46e0" alt="General Ledger" width="800" height="500">
     <br/><br/>
     <img src="https://github.com/user-attachments/assets/216461d9-db4d-4447-ba22-c03c7fb1a0eb" alt="Profit and Loss" width="800" height="500">
+</div>
 
 ## Under the Hood
 
