@@ -33,6 +33,7 @@ export enum IPC_ACTIONS {
   GET_TEMPLATES = 'get-templates',
   DELETE_FILE = 'delete-file',
   GET_DB_DEFAULT_PATH = 'get-db-default-path',
+  SEND_API_REQUEST = 'send-api-request',
   // Database messages
   DB_CREATE = 'db-create',
   DB_CONNECT = 'db-connect',
