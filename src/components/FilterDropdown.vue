@@ -73,7 +73,8 @@
                     options: fieldOptions,
                   }"
                   :value="filter.fieldname"
-                  @change="(value) => (filter.fieldname = value)"
+                  :close-drop-down="false"
+                  @change="(value) => updateNewFilters(i, 'fieldname', value)"
                 />
                 <Select
                   :border="true"
@@ -87,7 +88,8 @@
                     options: conditions,
                   }"
                   :value="filter.condition"
-                  @change="(value) => (filter.condition = value)"
+                  :close-drop-down="false"
+                  @change="(value) => updateNewFilters(i, 'condition', value)"
                 />
                 <Data
                   :border="true"
@@ -100,7 +102,8 @@
                     fieldtype: 'Data',
                   }"
                   :value="String(filter.value)"
-                  @change="(value) => (filter.value = value)"
+                  :close-drop-down="false"
+                  @change="(value) => updateNewFilters(i, 'value', value)"
                 />
               </div>
             </div>
@@ -180,8 +183,9 @@ export default defineComponent({
   emits: ['change'],
   data() {
     return {
-      filters: [],
-    } as { filters: Filter[] };
+      filters: [] as Filter[],
+      newFilters: [] as Filter[],
+    };
   },
   computed: {
     fields(): Field[] {
@@ -250,12 +254,22 @@ export default defineComponent({
       implicit?: boolean
     ): void {
       this.filters.push({ fieldname, condition, value, implicit: !!implicit });
+      this.newFilters.push({
+        fieldname,
+        condition,
+        value,
+        implicit: !!implicit,
+      });
     },
     removeFilter(filter: Filter): void {
       this.filters = this.filters.filter((f) => f !== filter);
     },
+    updateNewFilters(index: number, key: keyof Filter, value: Filter['value']) {
+      this.newFilters![index][key] = value;
+    },
     setFilter(filters: QueryFilter, implicit?: boolean): void {
       this.filters = [];
+      this.newFilters = [];
 
       Object.keys(filters).map((fieldname) => {
         let parts = filters[fieldname];
@@ -277,7 +291,7 @@ export default defineComponent({
     },
     emitFilterChange(): void {
       const filters: Record<string, [Condition, Filter['value']]> = {};
-      for (const { condition, value, fieldname } of this.filters) {
+      for (const { condition, value, fieldname } of this.newFilters) {
         if (value === '' && condition) {
           continue;
         }
@@ -286,6 +300,22 @@ export default defineComponent({
       }
 
       this.$emit('change', filters);
+      if (this.newFilters.length) {
+        this.filters = this.filters.filter(
+          (filter) => filter.condition && filter.value && filter.fieldname
+        );
+
+        this.filters.push(this.newFilters[this.newFilters.length - 1]);
+      }
+
+      this.filters = Array.from(
+        new Map(
+          this.filters.map((filter) => [
+            `${filter.condition}-${filter.value}-${filter.fieldname}`,
+            filter,
+          ])
+        ).values()
+      );
     },
   },
 });
