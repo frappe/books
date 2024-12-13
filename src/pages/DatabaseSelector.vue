@@ -239,7 +239,7 @@
             rounded
             px-4
             py-1.5
-            w-28
+            w-auto
             h-8
             no-scrollbar
             overflow-x-auto
