@@ -60,7 +60,7 @@
             absolute
             z-10
             mt-4
-            w-full
+            w-60
             bg-white
             dark:bg-gray-850
             border border-gray-300
@@ -89,10 +89,10 @@
                 dark:hover:bg-gray-875
                 flex
               "
-              :class="value !== option.value ? 'pl-6' : 'pl-2'"
+              :class="selectValue !== option.label ? 'pl-6' : 'pl-2'"
             >
               <svg
-                v-if="value === option.value"
+                v-if="selectValue === option.label"
                 xmlns="http://www.w3.org/2000/svg"
                 x="0px"
                 y="0px"
@@ -127,8 +127,14 @@ export default defineComponent({
   data() {
     return {
       dropdownVisible: false,
-      selectValue: '',
+      selectValue: this.value,
     };
+  },
+  props: {
+    closeDropDown: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     options(): SelectOption[] {
@@ -141,15 +147,19 @@ export default defineComponent({
   },
   methods: {
     toggleDropdown() {
-      if (!this.isReadOnly) {
+      if (!this.closeDropDown) {
+        this.dropdownVisible = true;
+      } else if (!this.isReadOnly) {
         this.dropdownVisible = !this.dropdownVisible;
       }
     },
     selectOption(option: SelectOption) {
-      this.dropdownVisible = false;
       this.selectValue = option.label;
       this.triggerChange(option.value);
-      this.dropdownVisible = !this.dropdownVisible;
+
+      if (this.closeDropDown) {
+        this.dropdownVisible = !this.dropdownVisible;
+      }
     },
   },
 });
