@@ -21,7 +21,6 @@
         @blur="onBlur"
         @focus="(e) => !isReadOnly && $emit('focus', e)"
         @input="(e) => !isReadOnly && $emit('input', e)"
-        @keydown.enter="setLoyaltyPoints"
       />
     </div>
   </div>
@@ -50,7 +49,6 @@ export default defineComponent({
     border: { type: Boolean, default: false },
     size: { type: String, default: 'large' },
     placeholder: String,
-    focusInput: Boolean,
     showLabel: { type: Boolean, default: false },
     containerStyles: { type: Object, default: () => ({}) },
     textRight: {
@@ -65,15 +63,6 @@ export default defineComponent({
       type: [null, Boolean] as PropType<boolean | null>,
       default: null,
     },
-  },
-  async created() {
-    if (this.focusInput) {
-      await this.$nextTick();
-      (this.$refs.input as HTMLInputElement).focus();
-      if (this.value == 0) {
-        this.triggerChange('');
-      }
-    }
   },
   emits: ['focus', 'input', 'change'],
   computed: {
@@ -202,12 +191,6 @@ export default defineComponent({
     },
   },
   methods: {
-    setLoyaltyPoints() {
-      const inputElement = this.$refs.input as HTMLInputElement;
-      if (inputElement && inputElement?.value) {
-        this.$emit('change', inputElement.value);
-      }
-    },
     onBlur(e: FocusEvent) {
       const target = e.target;
       if (!(target instanceof HTMLInputElement)) {
@@ -244,7 +227,7 @@ export default defineComponent({
     triggerChange(value: unknown): void {
       value = this.parse(value);
 
-      if (value === '' || value == 0) {
+      if (value === '') {
         value = null;
       }
 
