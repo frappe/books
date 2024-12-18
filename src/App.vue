@@ -70,7 +70,11 @@ import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { useKeys } from './utils/vueUtils';
 import { setDarkMode } from 'src/utils/theme';
-import { initERPNSync, updateERPNSyncSettings } from './utils/erpnextSync';
+import {
+  initERPNSync,
+  registerInstanceToERPNext,
+  updateERPNSyncSettings,
+} from './utils/erpnextSync';
 
 enum Screen {
   Desk = 'Desk',
@@ -225,6 +229,7 @@ export default defineComponent({
 
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
+      await registerInstanceToERPNext(fyo);
       await updateERPNSyncSettings(fyo);
       initERPNSync(fyo);
       await this.setDesk(filePath);

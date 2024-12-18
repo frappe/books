@@ -2,6 +2,7 @@ import { Doc } from 'fyo/model/doc';
 import { HiddenMap } from 'fyo/model/types';
 
 export class ERPNextSyncSettings extends Doc {
+  deviceID?: string;
   endpoint?: string;
   authToken?: string;
   integrationAppVersion?: string;
