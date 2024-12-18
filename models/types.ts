@@ -10,7 +10,6 @@ export enum ModelNameEnum {
   GetStarted = 'GetStarted',
   Defaults = 'Defaults',
   Item = 'Item',
-  ItemPrice = 'ItemPrice',
   UOM = 'UOM',
   UOMConversionItem = 'UOMConversionItem',
   JournalEntry = 'JournalEntry',
@@ -28,6 +27,7 @@ export enum ModelNameEnum {
   Payment = 'Payment',
   PaymentFor = 'PaymentFor',
   PriceList = 'PriceList',
+  PriceListItem = 'PriceListItem',
   PricingRule = 'PricingRule',
   PricingRuleItem = 'PricingRuleItem',
   PricingRuleDetail = 'PricingRuleDetail',
@@ -59,7 +59,11 @@ export enum ModelNameEnum {
   CustomForm = 'CustomForm',
   CustomField = 'CustomField',
   POSSettings = 'POSSettings',
-  POSShift = 'POSShift'
+  POSShift = 'POSShift',
+
+  ERPNextSyncSettings= 'ERPNextSyncSettings',
+  ERPNextSyncQueue = 'ERPNextSyncQueue',
+  FetchFromERPNextQueue = 'FetchFromERPNextQueue',
 }
 
 export type ModelName = keyof typeof ModelNameEnum;
