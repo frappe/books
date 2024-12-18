@@ -21,6 +21,19 @@ export abstract class Transfer extends Transactional {
     await this._getStockManager().createTransfers(transferDetails);
   }
 
+  async beforeSubmitUndo(): Promise<void> {
+    await super.beforeSubmitUndo();
+    const transferDetails = this._getTransferDetails();
+    const stockManager = this._getStockManager();
+    stockManager.isCancelled = true;
+    await stockManager.validateCancel(transferDetails);
+  }
+
+  async afterSubmitUndo(): Promise<void> {
+    await super.afterSubmitUndo();
+    await this._getStockManager().undoTransfers();
+  }
+
   async beforeCancel(): Promise<void> {
     await super.beforeCancel();
     const transferDetails = this._getTransferDetails();
