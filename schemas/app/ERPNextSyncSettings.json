@@ -6,17 +6,22 @@
   "isSubmittable": false,
   "fields": [
     {
+      "label": "Device ID",
+      "fieldname": "deviceID",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
       "label": "API Endpoint",
       "fieldname": "endpoint",
       "fieldtype": "Data",
-      "required": true,
       "section": "Default"
     },
     {
       "label": "Auth Token",
       "fieldname": "authToken",
       "fieldtype": "Secret",
-      "required": true,
       "section": "Default"
     },
     {
