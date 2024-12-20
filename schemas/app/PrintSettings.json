@@ -120,6 +120,12 @@
       "label": "Display Amount In Words",
       "fieldtype": "Check",
       "section": "Customizations"
+    },
+    {
+      "fieldname": "displayTime",
+      "label": "Display Time In Invoice",
+      "fieldtype": "Check",
+      "section": "Customizations"
     }
   ]
 }

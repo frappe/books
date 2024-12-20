@@ -31,7 +31,11 @@
         </h3>
         <div class="w-2/3 text-gray-800">
           <p class="font-semibold">{{ doc.name }}</p>
-          <p>{{ doc.date }}</p>
+
+          <div class="flex gap-2">
+            <p>{{ doc.date }}</p>
+            <p>{{doc?.time }}</p>
+          </div>
         </div>
       </section>
 

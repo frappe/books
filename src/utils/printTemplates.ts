@@ -69,7 +69,28 @@ export async function getPrintTemplatePropValues(
     (doc.grandTotal as Money).float
   );
 
+  (values.doc as PrintTemplateData).date = getDate(doc.date as string);
+
+  if (printSettings.displayTime) {
+    (values.doc as PrintTemplateData).time = getTime(doc.date as string);
+  }
+
   return values;
+}
+
+function getDate(dateString: string): string {
+  const date = new Date(dateString);
+  date.setMonth(date.getMonth() - 1);
+
+  return `${date.toLocaleString('default', {
+    month: 'short',
+  })} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
+function getTime(dateString: string): string {
+  const date = new Date(dateString);
+
+  return date.toTimeString().split(' ')[0];
 }
 
 export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
