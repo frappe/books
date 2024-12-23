@@ -466,6 +466,10 @@ export default defineComponent({
 
       this.sinvDoc = salesInvoiceDoc;
       this.toggleModal('SavedInvoice', false);
+
+      if (doc.submitted) {
+        this.toggleModal('Payment');
+      }
     },
     setTransferAmount(amount: Money = fyo.pesa(0)) {
       this.transferAmount = amount;
@@ -571,13 +575,19 @@ export default defineComponent({
       await this.applyPricingRule();
       await this.sinvDoc.runFormulas();
     },
-
-    async createTransaction(shouldPrint = false) {
+    async createTransaction(shouldPrint = false, isPay = false) {
       try {
         await this.validate();
         await this.submitSinvDoc();
-        await this.makePayment(shouldPrint);
-        await this.makeStockTransfer();
+
+        if (this.sinvDoc.stockNotTransferred) {
+          await this.makeStockTransfer();
+        }
+
+        if (isPay) {
+          await this.makePayment(shouldPrint);
+        }
+
         await this.afterTransaction();
         await this.setItems();
       } catch (error) {
