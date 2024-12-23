@@ -144,7 +144,7 @@
             </slot>
           </Button>
         </div>
-        <div class="col-span-1" v-if="fyo.singles.POSSettings?.submitInvoice">
+        <div v-if="fyo.singles.POSSettings?.submitInvoice" class="col-span-1">
           <Button
             class="w-full bg-blue-500 dark:bg-blue-700"
             style="padding: 1.35rem"
@@ -162,7 +162,7 @@
           </Button>
         </div>
 
-        <div class="col-span-1" v-if="fyo.singles.POSSettings?.submitInvoice">
+        <div v-if="fyo.singles.POSSettings?.submitInvoice" class="col-span-1">
           <Button
             class="w-full bg-green-500 dark:bg-green-700"
             style="padding: 1.35rem"
