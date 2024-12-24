@@ -4,7 +4,7 @@ import { AccountTypeEnum } from 'models/baseModels/Account/types';
 import { Item } from 'models/baseModels/Item/Item';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
-import { POSShift } from 'models/inventory/Point of Sale/POSShift';
+import { POSOpeningShift } from 'models/inventory/Point of Sale/POSOpeningShift';
 import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -17,6 +17,26 @@ import { ItemQtyMap, ItemSerialNumbers } from 'src/components/POS/types';
 import { fyo } from 'src/initFyo';
 import { safeParseFloat } from 'utils/index';
 import { showToast } from './interactive';
+import { POSClosingShift } from 'models/inventory/Point of Sale/POSClosingShift';
+
+export async function getPOSOpeningShiftDoc(
+  fyo: Fyo
+): Promise<POSOpeningShift> {
+  const existingShiftDoc = await fyo.db.getAll(ModelNameEnum.POSOpeningShift, {
+    limit: 1,
+    orderBy: 'created',
+    fields: ['name'],
+  });
+
+  if (!fyo.singles.POSSettings?.isShiftOpen || !existingShiftDoc) {
+    return fyo.doc.getNewDoc(ModelNameEnum.POSOpeningShift) as POSOpeningShift;
+  }
+
+  return (await fyo.doc.getDoc(
+    ModelNameEnum.POSOpeningShift,
+    existingShiftDoc[0].name as string
+  )) as POSOpeningShift;
+}
 
 export async function getItemQtyMap(): Promise<ItemQtyMap> {
   const itemQtyMap: ItemQtyMap = {};
@@ -190,7 +210,7 @@ export function getTotalTaxedAmount(sinvDoc: SalesInvoice): Money {
   return totalTaxedAmount;
 }
 
-export function validateClosingAmounts(posShiftDoc: POSShift) {
+export function validateClosingAmounts(posShiftDoc: POSClosingShift) {
   try {
     if (!posShiftDoc) {
       throw new ValidationError(
@@ -210,7 +230,7 @@ export function validateClosingAmounts(posShiftDoc: POSShift) {
 
 export async function transferPOSCashAndWriteOff(
   fyo: Fyo,
-  posShiftDoc: POSShift
+  posShiftDoc: POSClosingShift
 ) {
   const expectedCashAmount = posShiftDoc.closingAmounts?.find(
     (row) => row.paymentMethod === 'Cash'

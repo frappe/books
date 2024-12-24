@@ -71,13 +71,14 @@ import Table from 'src/components/Controls/Table.vue';
 import { AccountTypeEnum } from 'models/baseModels/Account/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { POSShift } from 'models/inventory/Point of Sale/POSShift';
+import { POSOpeningShift } from 'models/inventory/Point of Sale/POSOpeningShift';
 import { computed } from 'vue';
 import { defineComponent } from 'vue';
 import { fyo } from 'src/initFyo';
 import { showToast } from 'src/utils/interactive';
 import { t } from 'fyo';
 import { ValidationError } from 'fyo/utils/errors';
+import { getPOSOpeningShiftDoc } from 'src/utils/pos';
 
 export default defineComponent({
   name: 'OpenPOSShift',
@@ -90,7 +91,7 @@ export default defineComponent({
   emits: ['toggleModal'],
   data() {
     return {
-      posShiftDoc: undefined as POSShift | undefined,
+      posShiftDoc: undefined as POSOpeningShift | undefined,
 
       isValuesSeeded: false,
     };
@@ -108,7 +109,7 @@ export default defineComponent({
   },
   async mounted() {
     this.isValuesSeeded = false;
-    this.posShiftDoc = fyo.singles[ModelNameEnum.POSShift];
+    this.posShiftDoc = await getPOSOpeningShiftDoc(fyo);
 
     await this.seedDefaults();
     this.isValuesSeeded = true;
@@ -120,8 +121,6 @@ export default defineComponent({
       }
 
       this.posShiftDoc.openingCash = [];
-      await this.posShiftDoc.sync();
-
       const denominations = this.getDefaultCashDenominations;
 
       if (!denominations) {
@@ -133,8 +132,6 @@ export default defineComponent({
           denomination: row.denomination,
           count: 0,
         });
-
-        await this.posShiftDoc.sync();
       }
     },
     async seedPaymentMethods() {
@@ -143,7 +140,6 @@ export default defineComponent({
       }
 
       this.posShiftDoc.openingAmounts = [];
-      await this.posShiftDoc.sync();
 
       await this.posShiftDoc.set('openingAmounts', [
         {
@@ -155,7 +151,6 @@ export default defineComponent({
           amount: fyo.pesa(0),
         },
       ]);
-      await this.posShiftDoc.sync();
     },
     async seedDefaults() {
       if (!!this.posShiftDoc?.isShiftOpen) {
@@ -166,7 +161,7 @@ export default defineComponent({
       await this.seedPaymentMethods();
     },
     getField(fieldname: string) {
-      return this.fyo.getField(ModelNameEnum.POSShift, fieldname);
+      return this.fyo.getField(ModelNameEnum.POSOpeningShift, fieldname);
     },
     setOpeningCashAmount() {
       if (!this.posShiftDoc?.openingAmounts) {
@@ -179,8 +174,7 @@ export default defineComponent({
         }
       });
     },
-    async handleChange() {
-      await this.posShiftDoc?.sync();
+    handleChange() {
       this.setOpeningCashAmount();
     },
     async handleSubmit() {
@@ -197,6 +191,7 @@ export default defineComponent({
         });
 
         await this.posShiftDoc?.sync();
+        await this.fyo.singles.POSSettings?.setAndSync('isShiftOpen', true);
 
         if (!this.posShiftDoc?.openingCashAmount.isZero()) {
           const jvDoc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {

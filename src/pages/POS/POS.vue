@@ -209,7 +209,7 @@ export default defineComponent({
     isDiscountingEnabled(): boolean {
       return !!fyo.singles.AccountingSettings?.enableDiscounting;
     },
-    isPosShiftOpen: () => !!fyo.singles.POSShift?.isShiftOpen,
+    isPosShiftOpen: () => !!fyo.singles.POSSettings?.isShiftOpen,
     disablePayButton(): boolean {
       if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
         return true;
