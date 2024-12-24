@@ -1,0 +1,24 @@
+{
+  "name": "POSClosingShift",
+  "label": "POS Closing Shift",
+  "naming": "random",
+  "fields": [
+    {
+      "fieldname": "closingDate",
+      "label": "Closing Date",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "closingCash",
+      "fieldtype": "Table",
+      "label": "Closing Cash",
+      "target": "ClosingCash"
+    },
+    {
+      "fieldname": "closingAmounts",
+      "fieldtype": "Table",
+      "label": "Closing Amounts",
+      "target": "ClosingAmounts"
+    }
+  ]
+}
