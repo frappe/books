@@ -135,9 +135,9 @@ export default defineComponent({
   },
   async mounted() {
     await this.setInitialScreen();
-    const { darkMode } = await fyo.doc.getDoc('SystemSettings');
-    setDarkMode(!!darkMode);
-    this.darkMode = !!darkMode;
+    const darkMode = !!fyo.singles.SystemSettings?.darkMode;
+    setDarkMode(darkMode);
+    this.darkMode = darkMode;
   },
   methods: {
     async setInitialScreen(): Promise<void> {
