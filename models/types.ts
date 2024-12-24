@@ -59,7 +59,12 @@ export enum ModelNameEnum {
   CustomForm = 'CustomForm',
   CustomField = 'CustomField',
   POSSettings = 'POSSettings',
-  POSShift = 'POSShift'
+  POSOpeningShift = 'POSOpeningShift',
+  POSClosingShift = 'POSClosingShift',
+
+  ERPNextSyncSettings= 'ERPNextSyncSettings',
+  ERPNextSyncQueue = 'ERPNextSyncQueue',
+  FetchFromERPNextQueue = 'FetchFromERPNextQueue',
 }
 
 export type ModelName = keyof typeof ModelNameEnum;
