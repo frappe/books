@@ -13,9 +13,8 @@
       :df="getField('closingCash')"
       :show-header="true"
       :border="true"
-      :value="posShiftDoc?.closingCash ?? []"
+      :value="posClosingShiftDoc?.closingCash ?? []"
       :read-only="false"
-      @row-change="handleChange"
     />
 
     <h2 class="mt-6 mb-2 text-lg dark:text-gray-100 font-medium">
@@ -27,9 +26,8 @@
       :df="getField('closingAmounts')"
       :show-header="true"
       :border="true"
-      :value="posShiftDoc?.closingAmounts"
+      :value="posClosingShiftDoc?.closingAmounts"
       :read-only="true"
-      @row-change="handleChange"
     />
 
     <div class="mt-4 grid grid-cols-2 gap-4 items-end">
@@ -65,7 +63,7 @@ import Table from 'src/components/Controls/Table.vue';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { OpeningAmounts } from 'models/inventory/Point of Sale/OpeningAmounts';
-import { POSShift } from 'models/inventory/Point of Sale/POSShift';
+import { POSOpeningShift } from 'models/inventory/Point of Sale/POSOpeningShift';
 import { computed } from 'vue';
 import { defineComponent } from 'vue';
 import { fyo } from 'src/initFyo';
@@ -74,14 +72,16 @@ import { t } from 'fyo';
 import {
   validateClosingAmounts,
   transferPOSCashAndWriteOff,
+  getPOSOpeningShiftDoc,
 } from 'src/utils/pos';
+import { POSClosingShift } from 'models/inventory/Point of Sale/POSClosingShift';
 
 export default defineComponent({
   name: 'ClosePOSShiftModal',
   components: { Button, Modal, Table },
   provide() {
     return {
-      doc: computed(() => this.posShiftDoc),
+      doc: computed(() => this.posClosingShiftDoc),
     };
   },
   props: {
@@ -95,7 +95,8 @@ export default defineComponent({
     return {
       isValuesSeeded: false,
 
-      posShiftDoc: undefined as POSShift | undefined,
+      posOpeningShiftDoc: undefined as POSOpeningShift | undefined,
+      posClosingShiftDoc: undefined as POSClosingShift | undefined,
       transactedAmount: {} as Record<string, Money> | undefined,
     };
   },
@@ -108,16 +109,22 @@ export default defineComponent({
     },
   },
   async activated() {
-    this.posShiftDoc = fyo.singles[ModelNameEnum.POSShift];
+    this.posClosingShiftDoc = fyo.doc.getNewDoc(
+      ModelNameEnum.POSClosingShift
+    ) as POSClosingShift;
     await this.seedValues();
     await this.setTransactedAmount();
+  },
+  async updated() {
+    this.posOpeningShiftDoc = await getPOSOpeningShiftDoc(fyo);
+    await this.seedValues();
   },
   methods: {
     async setTransactedAmount() {
       if (!fyo.singles.POSShift?.openingDate) {
         return;
       }
-      const fromDate = fyo.singles.POSShift?.openingDate;
+      const fromDate = this.posOpeningShiftDoc?.openingDate as Date;
       this.transactedAmount = await fyo.db.getPOSTransactedAmount(
         fromDate,
         new Date(),
@@ -125,29 +132,28 @@ export default defineComponent({
       );
     },
     seedClosingCash() {
-      if (!this.posShiftDoc) {
+      if (!this.posClosingShiftDoc) {
         return;
       }
 
-      this.posShiftDoc.closingCash = [];
+      this.posClosingShiftDoc.closingCash = [];
 
-      this.posShiftDoc?.openingCash?.map(async (row) => {
-        await this.posShiftDoc?.append('closingCash', {
+      this.posOpeningShiftDoc?.openingCash?.map(async (row) => {
+        await this.posClosingShiftDoc?.append('closingCash', {
           count: row.count,
           denomination: row.denomination as Money,
         });
       });
     },
     async seedClosingAmounts() {
-      if (!this.posShiftDoc) {
+      if (!this.posClosingShiftDoc || !this.posOpeningShiftDoc) {
         return;
       }
 
-      this.posShiftDoc.closingAmounts = [];
-      await this.posShiftDoc.sync();
+      this.posClosingShiftDoc.closingAmounts = [];
 
-      const openingAmounts = this.posShiftDoc
-        .openingAmounts as OpeningAmounts[];
+      const openingAmounts = this.posOpeningShiftDoc
+        ?.openingAmounts as OpeningAmounts[];
 
       for (const row of openingAmounts) {
         if (!row.paymentMethod) {
@@ -158,13 +164,13 @@ export default defineComponent({
 
         if (row.paymentMethod === 'Cash') {
           expectedAmount = expectedAmount.add(
-            this.posShiftDoc.openingCashAmount as Money
+            this.posOpeningShiftDoc?.openingCashAmount as Money
           );
         }
 
         if (row.paymentMethod === 'Transfer') {
           expectedAmount = expectedAmount.add(
-            this.posShiftDoc.openingTransferAmount as Money
+            this.posOpeningShiftDoc?.openingTransferAmount as Money
           );
         }
 
@@ -174,14 +180,13 @@ export default defineComponent({
           );
         }
 
-        await this.posShiftDoc.append('closingAmounts', {
+        await this.posClosingShiftDoc.append('closingAmounts', {
           paymentMethod: row.paymentMethod,
           openingAmount: row.amount,
           closingAmount: fyo.pesa(0),
           expectedAmount: expectedAmount,
           differenceAmount: fyo.pesa(0),
         });
-        await this.posShiftDoc.sync();
       }
     },
     async seedValues() {
@@ -191,19 +196,20 @@ export default defineComponent({
       this.isValuesSeeded = true;
     },
     getField(fieldname: string) {
-      return fyo.getField(ModelNameEnum.POSShift, fieldname);
-    },
-    async handleChange() {
-      await this.posShiftDoc?.sync();
+      return fyo.getField(ModelNameEnum.POSClosingShift, fieldname);
     },
     async handleSubmit() {
       try {
-        validateClosingAmounts(this.posShiftDoc as POSShift);
-        await this.posShiftDoc?.set('isShiftOpen', false);
-        await this.posShiftDoc?.set('closingDate', new Date());
-        await this.posShiftDoc?.sync();
-        await transferPOSCashAndWriteOff(fyo, this.posShiftDoc as POSShift);
+        validateClosingAmounts(this.posClosingShiftDoc as POSClosingShift);
+        await this.posClosingShiftDoc?.set('isShiftOpen', false);
+        await this.posClosingShiftDoc?.set('closingDate', new Date());
+        await this.posClosingShiftDoc?.sync();
+        await transferPOSCashAndWriteOff(
+          fyo,
+          this.posClosingShiftDoc as POSClosingShift
+        );
 
+        await this.fyo.singles.POSSettings?.setAndSync('isShiftOpen', false);
         this.$emit('toggleModal', 'ShiftClose');
       } catch (error) {
         return showToast({
