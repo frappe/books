@@ -53,8 +53,13 @@
             :template="doc.template!"
             :values="values!"
             :scale="scale"
-            :height="doc.height"
-            :width="doc.width"
+            :height="doc.name.startsWith('POS') ? 20 : doc.height"
+            :width="
+              doc.name.startsWith('POS') &&
+              fyo.singles.PrintSettings.posPrintWidth
+                ? fyo.singles.PrintSettings.posPrintWidth
+                : doc.width
+            "
           />
         </div>
 
@@ -91,7 +96,6 @@
             :container-styles="{ 'border-radius': '0px' }"
             @change="async (value) => await setType(value)"
           />
-
           <!-- Display Doc -->
           <Link
             v-if="doc.type"
