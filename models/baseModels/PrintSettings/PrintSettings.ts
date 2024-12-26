@@ -12,6 +12,7 @@ export class PrintSettings extends Doc {
   font?: string;
   displayLogo?: boolean;
   displayTime?: boolean;
+  posPrintWidth?: number;
   amountInWords?: boolean;
   override hidden: HiddenMap = {};
 }
