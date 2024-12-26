@@ -12,7 +12,7 @@
         dropdownVisible ? 'dark:hover:bg-gray-850' : '',
       ]"
     >
-      <div class="relative w-full" @click="toggleDropdown">
+      <div class="w-full" @click="toggleDropdown">
         <div
           class="
             flex
