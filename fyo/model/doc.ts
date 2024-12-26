@@ -261,6 +261,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
       return false;
     }
 
+    if (!!this.schema.isSubmittable && !this.isSubmitted) {
+      return false;
+    }
+
     return getShouldDocSyncToERPNext(
       this.fyo.singles.ERPNextSyncSettings,
       this

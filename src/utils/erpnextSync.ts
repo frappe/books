@@ -10,15 +10,20 @@ import { StockMovementItem } from 'models/inventory/StockMovementItem';
 import { getRandomString } from '../../utils';
 
 export async function registerInstanceToERPNext(fyo: Fyo) {
+  if (!navigator.onLine) {
+    return;
+  }
+
   const syncSettingsDoc = (await fyo.doc.getDoc(
     ModelNameEnum.ERPNextSyncSettings
   )) as ERPNextSyncSettings;
 
-  const endpoint = syncSettingsDoc.endpoint;
+  const baseURL = syncSettingsDoc.baseURL;
   const token = syncSettingsDoc.authToken;
   const deviceID = syncSettingsDoc.deviceID;
+  const instanceName = syncSettingsDoc.instanceName;
 
-  if (!endpoint || !token) {
+  if (!baseURL || !token) {
     return;
   }
 
@@ -28,14 +33,17 @@ export async function registerInstanceToERPNext(fyo: Fyo) {
 
   try {
     (await sendAPIRequest(
-      `${endpoint}/api/method/books_integration.api.register_instance`,
+      `${baseURL}/api/method/books_integration.api.register_instance`,
       {
         method: 'POST',
         headers: {
           Authorization: `token ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ instance: deviceID }),
+        body: JSON.stringify({
+          instance: deviceID,
+          instance_name: instanceName,
+        }),
       }
     )) as unknown as ERPNextSyncSettingsAPIResponse;
   } catch (error) {
@@ -44,19 +52,23 @@ export async function registerInstanceToERPNext(fyo: Fyo) {
 }
 
 export async function updateERPNSyncSettings(fyo: Fyo) {
+  if (!navigator.onLine) {
+    return;
+  }
+
   const syncSettingsDoc = (await fyo.doc.getDoc(
     ModelNameEnum.ERPNextSyncSettings
   )) as ERPNextSyncSettings;
 
-  const endpoint = syncSettingsDoc.endpoint;
+  const baseURL = syncSettingsDoc.baseURL;
   const authToken = syncSettingsDoc.authToken;
   const deviceID = syncSettingsDoc.deviceID;
 
-  if (!endpoint || !authToken || !deviceID) {
+  if (!baseURL || !authToken || !deviceID) {
     return;
   }
 
-  const res = await getERPNSyncSettings(endpoint, authToken);
+  const res = await getERPNSyncSettings(baseURL, authToken);
   if (!res || !res.message || !res.message.success) {
     return;
   }
@@ -66,12 +78,12 @@ export async function updateERPNSyncSettings(fyo: Fyo) {
 }
 
 async function getERPNSyncSettings(
-  endpoint: string,
+  baseURL: string,
   token: string
 ): Promise<ERPNextSyncSettingsAPIResponse | undefined> {
   try {
     return (await sendAPIRequest(
-      `${endpoint}/api/method/books_integration.api.sync_settings`,
+      `${baseURL}/api/method/books_integration.api.sync_settings`,
       {
         headers: {
           Authorization: `token ${token}`,
@@ -99,6 +111,10 @@ export function initERPNSync(fyo: Fyo) {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   setInterval(async () => {
+    if (!navigator.onLine) {
+      return;
+    }
+
     await syncFetchFromERPNextQueue(fyo);
     await syncDocumentsFromERPNext(fyo);
     await syncDocumentsToERPNext(fyo);
@@ -112,14 +128,14 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
   }
 
   const token = fyo.singles.ERPNextSyncSettings?.authToken as string;
-  const endpoint = fyo.singles.ERPNextSyncSettings?.endpoint as string;
+  const baseURL = fyo.singles.ERPNextSyncSettings?.baseURL as string;
   const deviceID = fyo.singles.ERPNextSyncSettings?.deviceID as string;
 
-  if (!token || !endpoint) {
+  if (!token || !baseURL) {
     return;
   }
 
-  const docsToSync = await getDocsFromERPNext(endpoint, token, deviceID);
+  const docsToSync = await getDocsFromERPNext(baseURL, token, deviceID);
 
   if (!docsToSync || !docsToSync.message.success || !docsToSync.message.data) {
     return;
@@ -160,7 +176,14 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
           continue;
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      return await fyo.doc
+        .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+          error: error as string,
+          data: JSON.stringify({ instance: deviceID, records: docsToSync }),
+        })
+        .sync();
+    }
 
     try {
       const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
@@ -179,7 +202,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
       }
 
       await afterDocSync(
-        endpoint,
+        baseURL,
         token,
         deviceID,
         doc,
@@ -346,10 +369,10 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
   }
 
   const token = fyo.singles.ERPNextSyncSettings?.authToken as string;
-  const endpoint = fyo.singles.ERPNextSyncSettings?.endpoint as string;
+  const baseURL = fyo.singles.ERPNextSyncSettings?.baseURL as string;
   const deviceID = fyo.singles.ERPNextSyncSettings?.deviceID as string;
 
-  if (!token || !endpoint) {
+  if (!token || !baseURL) {
     return;
   }
 
@@ -385,7 +408,7 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
 
   try {
     const res = (await sendAPIRequest(
-      `${endpoint}/api/method/books_integration.api.sync.sync_transactions`,
+      `${baseURL}/api/method/books_integration.api.sync.sync_transactions`,
       {
         method: 'POST',
         headers: {
@@ -396,18 +419,30 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
       }
     )) as unknown as InsertDocsAPIResponse;
 
-    if (res.message.success) {
-      for (const doc of syncQueueItems) {
-        const syncQueueDoc = await fyo.doc.getDoc(
-          ModelNameEnum.ERPNextSyncQueue,
-          doc.name
-        );
+    if (!res.message.success) {
+      return await fyo.doc
+        .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+          error: JSON.stringify(res),
+          data: JSON.stringify({ instance: deviceID, records: docsToSync }),
+        })
+        .sync();
+    }
 
-        await syncQueueDoc.delete();
-      }
+    for (const doc of syncQueueItems) {
+      const syncQueueDoc = await fyo.doc.getDoc(
+        ModelNameEnum.ERPNextSyncQueue,
+        doc.name
+      );
+
+      await syncQueueDoc.delete();
     }
   } catch (error) {
-    return error;
+    return await fyo.doc
+      .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+        error: error as string,
+        data: JSON.stringify({ instance: deviceID, records: docsToSync }),
+      })
+      .sync();
   }
 }
 
@@ -421,16 +456,16 @@ async function syncFetchFromERPNextQueue(fyo: Fyo) {
   }
 
   const token = fyo.singles.ERPNextSyncSettings?.authToken as string;
-  const endpoint = fyo.singles.ERPNextSyncSettings?.endpoint as string;
+  const baseURL = fyo.singles.ERPNextSyncSettings?.baseURL as string;
   const deviceID = fyo.singles.ERPNextSyncSettings?.deviceID as string;
 
-  if (!token || !endpoint || !deviceID) {
+  if (!token || !baseURL || !deviceID) {
     return;
   }
 
   try {
     const res = (await sendAPIRequest(
-      `${endpoint}/api/method/books_integration.api.initiate_master_sync`,
+      `${baseURL}/api/method/books_integration.api.initiate_master_sync`,
       {
         method: 'POST',
         headers: {
@@ -441,12 +476,13 @@ async function syncFetchFromERPNextQueue(fyo: Fyo) {
       }
     )) as unknown as ERPNSyncDocsResponse;
 
-    if (!res.message.success) {
-      return;
-    }
-
-    if (!res.message.success_log) {
-      return;
+    if (!res.message.success || !res.message.success_log) {
+      return await fyo.doc
+        .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+          error: JSON.stringify(res),
+          data: JSON.stringify({ instance: deviceID, data: res }),
+        })
+        .sync();
     }
 
     for (const row of res.message.success_log) {
@@ -471,18 +507,22 @@ async function syncFetchFromERPNextQueue(fyo: Fyo) {
       await existingDoc.delete();
     }
   } catch (error) {
-    return undefined;
+    return await fyo.doc
+      .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+        error: JSON.stringify(error),
+      })
+      .sync();
   }
 }
 
 async function getDocsFromERPNext(
-  endpoint: string,
+  baseURL: string,
   token: string,
   deviceID: string
 ): Promise<ERPNSyncDocsResponse | undefined> {
   try {
     return (await sendAPIRequest(
-      `${endpoint}/api/method/books_integration.api.get_pending_docs`,
+      `${baseURL}/api/method/books_integration.api.get_pending_docs`,
       {
         headers: {
           Authorization: `token ${token}`,
@@ -499,16 +539,15 @@ async function getDocsFromERPNext(
 }
 
 async function afterDocSync(
-  endpoint: string,
+  baseURL: string,
   token: string,
   deviceID: string,
   doc: Doc | DocValueMap,
   erpnDocName: string,
   fbooksDocName: string
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
   const res = await ipc.sendAPIRequest(
-    `${endpoint}/api/method/books_integration.api.update_status`,
+    `${baseURL}/api/method/books_integration.api.update_status`,
     {
       method: 'POST',
       headers: {
@@ -524,7 +563,6 @@ async function afterDocSync(
       }),
     }
   );
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return res;
 }
 
