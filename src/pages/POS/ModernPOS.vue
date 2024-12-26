@@ -255,11 +255,24 @@
             />
 
             <Barcode
-              v-if="fyo.singles.InventorySettings?.enableBarcodes"
+              v-if="
+                fyo.singles.InventorySettings?.enableBarcodes &&
+                !fyo.singles.POSSettings?.weightEnabledBarcode
+              "
               class="w-1/3"
               @item-selected="
                 async (name: string) => {
                   emitEvent('addItem', await getItem(name) as Item);
+                }
+              "
+            />
+
+            <WeightEnabledBarcode
+              v-if="fyo.singles.POSSettings?.weightEnabledBarcode"
+              class="w-1/3"
+              @item-selected="
+                async (name: string,qty:number) => {
+                  emitEvent('addItem', await getItem(name) as Item,qty as number);
                 }
               "
             />
@@ -321,6 +334,7 @@ import { POSItem, PosEmits, ItemQtyMap } from 'src/components/POS/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import ModernPOSItemsGrid from 'src/components/POS/Modern/ModernPOSItemsGrid.vue';
 import ModernPOSItemsTable from 'src/components/POS/Modern/ModernPOSItemsTable.vue';
+import WeightEnabledBarcode from 'src/components/Controls/weightEnabledBarcode.vue';
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
@@ -346,6 +360,7 @@ export default defineComponent({
     ClosePOSShiftModal,
     LoyaltyProgramModal,
     ModernPOSItemsTable,
+    WeightEnabledBarcode,
     FloatingLabelFloatInput,
     FloatingLabelCurrencyInput,
     ModernPOSSelectedItemTable,
@@ -430,7 +445,7 @@ export default defineComponent({
   methods: {
     emitEvent(
       eventName: PosEmits,
-      ...args: (string | boolean | Item | Money)[]
+      ...args: (string | boolean | Item | number | Money)[]
     ) {
       this.$emit(eventName, ...args);
     },
