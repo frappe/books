@@ -73,25 +73,20 @@ export default defineComponent({
 
       const isWeightEnabled =
         this.fyo.singles.POSSettings?.weightEnabledBarcode;
-      const randomNumberLength = this.fyo.singles.POSSettings
-        ?.randomNumberLength as number;
-      const ItemBarcodeLength = this.fyo.singles.POSSettings
-        ?.ItemBarcodeLength as number;
-      const quantityBarcodeLength = this.fyo.singles.POSSettings
-        ?.quantityBarcodeLength as number;
+      const checkDigit = this.fyo.singles.POSSettings?.checkDigit as number;
+      const itemCodeDigits = this.fyo.singles.POSSettings
+        ?.itemCodeDigits as number;
+      const itemWeight = this.fyo.singles.POSSettings?.itemWeight as number;
 
-      if (
-        code.length !==
-        randomNumberLength + ItemBarcodeLength + quantityBarcodeLength
-      ) {
+      if (code.length !== checkDigit + itemCodeDigits + itemWeight) {
         return this.error(this.t`Barcode ${barcode} has an invalid length.`);
       }
 
       const filters: Record<string, string> = isWeightEnabled
         ? {
             weightBarcode: barcode.slice(
-              randomNumberLength,
-              randomNumberLength + ItemBarcodeLength
+              checkDigit,
+              checkDigit + itemCodeDigits
             ),
           }
         : { barcode };
@@ -109,7 +104,7 @@ export default defineComponent({
         ? this.parseBarcode(
             barcode,
             unit as string,
-            randomNumberLength + ItemBarcodeLength
+            checkDigit + itemCodeDigits
           )
         : 1;
 
@@ -118,7 +113,7 @@ export default defineComponent({
     },
 
     parseBarcode(barcode: string, unitType: string, sliceDigit: number) {
-      const weightRaw = parseInt(barcode.slice(sliceDigit), sliceDigit);
+      const weightRaw = parseInt(barcode.slice(sliceDigit));
 
       let itemQuantity = 0;
 
