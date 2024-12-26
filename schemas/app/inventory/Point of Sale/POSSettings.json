@@ -65,22 +65,22 @@
       "section": "Barcode"
     },
     {
-      "fieldname": "randomNumberLength",
-      "label": "Random Number Length",
+      "fieldname": "checkDigit",
+      "label": "Check Digit",
       "fieldtype": "Int",
       "default": 0,
       "section": "Barcode"
     },
     {
-      "fieldname": "ItemBarcodeLength",
-      "label": "Item Barcode Length",
+      "fieldname": "itemCodeDigits",
+      "label": "Item Code Digits",
       "fieldtype": "Int",
       "default": 0,
       "section": "Barcode"
     },
     {
-      "fieldname": "quantityBarcodeLength",
-      "label": "Quantity Barcode Length",
+      "fieldname": "itemWeight",
+      "label": "item Weight",
       "fieldtype": "Int",
       "default": 0,
       "section": "Barcode"
