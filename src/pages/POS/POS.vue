@@ -138,6 +138,7 @@ import {
   ItemQtyMap,
   ItemSerialNumbers,
 } from 'src/components/POS/types';
+import { ValidationError } from 'fyo/utils/errors';
 
 const COMPONENT_NAME = 'POS';
 
@@ -482,19 +483,25 @@ export default defineComponent({
     },
 
     async addItem(item: POSItem | Item | undefined, quantity?: number) {
-      await this.sinvDoc.runFormulas();
-
-      if (!item) {
-        return;
-      }
-
-      const existingItems =
-        this.sinvDoc.items?.filter(
-          (invoiceItem) =>
-            invoiceItem.item === item.name && !invoiceItem.isFreeItem
-        ) ?? [];
-
       try {
+        if (this.sinvDoc.isSubmitted) {
+          throw new ValidationError(
+            t`Cannot add an item to a submitted invoice.`
+          );
+        }
+
+        await this.sinvDoc.runFormulas();
+
+        if (!item) {
+          return;
+        }
+
+        const existingItems =
+          this.sinvDoc.items?.filter(
+            (invoiceItem) =>
+              invoiceItem.item === item.name && !invoiceItem.isFreeItem
+          ) ?? [];
+
         if (item.hasBatch) {
           for (const invItem of existingItems) {
             const itemQty = invItem.quantity ?? 0;
