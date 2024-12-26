@@ -477,7 +477,7 @@ export default defineComponent({
       this.transferRefNo = ref;
     },
 
-    async addItem(item: POSItem | Item | undefined) {
+    async addItem(item: POSItem | Item | undefined, quantity?: number) {
       await this.sinvDoc.runFormulas();
 
       if (!item) {
@@ -500,7 +500,9 @@ export default defineComponent({
               ] ?? 0;
 
             if (itemQty < qtyInBatch) {
-              invItem.quantity = (invItem.quantity as number) + 1;
+              invItem.quantity = quantity
+                ? (invItem.quantity as number) + quantity
+                : (invItem.quantity as number) + 1;
               invItem.rate = item.rate as Money;
 
               await this.applyPricingRule();
@@ -528,7 +530,9 @@ export default defineComponent({
             existingItems[0].rate = item.rate as Money;
           }
 
-          existingItems[0].quantity = (existingItems[0].quantity as number) + 1;
+          existingItems[0].quantity = quantity
+            ? (existingItems[0].quantity as number) + quantity
+            : (existingItems[0].quantity as number) + 1;
 
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
@@ -550,6 +554,7 @@ export default defineComponent({
       await this.sinvDoc.append('items', {
         rate: item.rate as Money,
         item: item.name,
+        quantity: quantity ? quantity : 0,
       });
 
       if (this.sinvDoc.priceList) {
