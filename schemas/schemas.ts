@@ -22,6 +22,7 @@ import CollectionRulesItems from './app/CollectionRulesItems.json';
 import CouponCode from './app/CouponCode.json';
 import AppliedCouponCodes from './app/AppliedCouponCodes.json';
 import Payment from './app/Payment.json';
+import PaymentMethod from './app/PaymentMethod.json';
 import PaymentFor from './app/PaymentFor.json';
 import PriceList from './app/PriceList.json';
 import PriceListItem from './app/PriceListItem.json';
@@ -117,6 +118,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   CollectionRulesItems as Schema,
 
   Payment as Schema,
+  PaymentMethod as Schema,
   PaymentFor as Schema,
 
   JournalEntry as Schema,
