@@ -11,6 +11,9 @@ export class POSSettings extends Doc {
   cashAccount?: string;
   writeOffAccount?: string;
   weightEnabledBarcode?: boolean;
+  checkDigit?: number;
+  itemCodeDigits?: number;
+  itemWeight?: number;
 
   posUI?: 'Classic' | 'Modern';
 
@@ -25,5 +28,8 @@ export class POSSettings extends Doc {
   hidden: HiddenMap = {
     weightEnabledBarcode: () =>
       !this.fyo.singles.InventorySettings?.enableBarcodes,
+    checkDigit: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
+    itemCodeDigits: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
+    itemWeight: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
   };
 }
