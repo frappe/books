@@ -13,8 +13,8 @@
       "section": "Default"
     },
     {
-      "label": "API Endpoint",
-      "fieldname": "endpoint",
+      "label": "API Base URL",
+      "fieldname": "baseURL",
       "fieldtype": "Data",
       "section": "Default"
     },
