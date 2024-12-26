@@ -56,6 +56,34 @@
       "default": "Classic",
       "required": true,
       "section": "Default"
+    },
+    {
+      "fieldname": "weightEnabledBarcode",
+      "label": "Weigth Enabled Barcode",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "randomNumberLength",
+      "label": "Random Number Length",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "ItemBarcodeLength",
+      "label": "Item Barcode Length",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "quantityBarcodeLength",
+      "label": "Quantity Barcode Length",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Barcode"
     }
   ]
 }
