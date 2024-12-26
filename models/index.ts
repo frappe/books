@@ -16,6 +16,7 @@ import { Lead } from './baseModels/Lead/Lead';
 import { AppliedCouponCodes } from './baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import { CouponCode } from './baseModels/CouponCode/CouponCode';
 import { Payment } from './baseModels/Payment/Payment';
+import { PaymentMethod } from './baseModels/PaymentMethod/PaymentMethod';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { PriceListItem } from './baseModels/PriceList/PriceListItem';
@@ -69,6 +70,7 @@ export const models = {
   CollectionRulesItems,
   CouponCode,
   Payment,
+  PaymentMethod,
   PaymentFor,
   PrintSettings,
   PriceList,
