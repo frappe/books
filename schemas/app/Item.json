@@ -118,6 +118,13 @@
       "section": "Inventory"
     },
     {
+      "fieldname": "weightBarcode",
+      "label": "Weight Barcode",
+      "fieldtype": "Data",
+      "placeholder": "Weight Barcode",
+      "section": "Inventory"
+    },
+    {
       "fieldname": "barcode",
       "label": "Barcode",
       "fieldtype": "Data",
