@@ -27,8 +27,9 @@ import { AccountTypeEnum } from '../Account/types';
 import { Invoice } from '../Invoice/Invoice';
 import { Party } from '../Party/Party';
 import { PaymentFor } from '../PaymentFor/PaymentFor';
-import { PaymentMethod, PaymentType } from './types';
+import { PaymentType } from './types';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
+import { PaymentMethod } from '../PaymentMethod/PaymentMethod';
 
 type AccountTypeMap = Record<AccountTypeEnum, string[] | undefined>;
 
@@ -38,6 +39,7 @@ export class Payment extends Transactional {
   amount?: Money;
   writeoff?: Money;
   paymentType?: PaymentType;
+  paymentMethod?: string;
   referenceType?: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
   for?: PaymentFor[];
   _accountsMap?: AccountTypeMap;
@@ -582,6 +584,14 @@ export class Payment extends Transactional {
           );
         }
 
+        const paymentMethodDoc = (await this.loadAndGetLink(
+          'paymentMethod'
+        )) as PaymentMethod;
+
+        if (paymentMethodDoc.account) {
+          return paymentMethodDoc.get('account');
+        }
+
         if (this.paymentMethod === 'Cash') {
           return accountsMap[AccountTypeEnum.Cash]?.[0] ?? null;
         }
@@ -712,7 +722,7 @@ export class Payment extends Transactional {
         return { accountType: 'Receivable', isGroup: false };
       }
 
-      if (paymentMethod === 'Cash') {
+      if (paymentMethod.name === 'Cash') {
         return { accountType: 'Cash', isGroup: false };
       } else {
         return { accountType: ['in', ['Bank', 'Cash']], isGroup: false };
@@ -726,7 +736,7 @@ export class Payment extends Transactional {
         return { accountType: 'Payable', isGroup: false };
       }
 
-      if (paymentMethod === 'Cash') {
+      if (paymentMethod.name === 'Cash') {
         return { accountType: 'Cash', isGroup: false };
       } else {
         return { accountType: ['in', ['Bank', 'Cash']], isGroup: false };

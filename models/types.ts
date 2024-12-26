@@ -26,6 +26,7 @@ export enum ModelNameEnum {
 
   AppliedCouponCodes = 'AppliedCouponCodes',
   Payment = 'Payment',
+  PaymentMethod = 'PaymentMethod',
   PaymentFor = 'PaymentFor',
   PriceList = 'PriceList',
   PricingRule = 'PricingRule',
