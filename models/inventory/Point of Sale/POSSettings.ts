@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap } from 'fyo/model/types';
+import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import {
   AccountRootTypeEnum,
   AccountTypeEnum,
@@ -10,6 +10,8 @@ export class POSSettings extends Doc {
   inventory?: string;
   cashAccount?: string;
   writeOffAccount?: string;
+  weightEnabledBarcode?: boolean;
+
   posUI?: 'Classic' | 'Modern';
 
   static filters: FiltersMap = {
@@ -18,5 +20,10 @@ export class POSSettings extends Doc {
       accountType: AccountTypeEnum.Cash,
       isGroup: false,
     }),
+  };
+
+  hidden: HiddenMap = {
+    weightEnabledBarcode: () =>
+      !this.fyo.singles.InventorySettings?.enableBarcodes,
   };
 }
