@@ -30,5 +30,6 @@
       "fieldtype": "Link",
       "target": "Account"
     }
-  ]
+  ],
+  "quickEditFields": ["name", "type", "account"]
 }
