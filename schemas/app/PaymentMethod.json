@@ -9,6 +9,22 @@
       "fieldtype": "Data"
     },
     {
+      "fieldname": "type",
+      "label": "Type",
+      "fieldtype": "Select",
+      "required": true,
+      "options": [
+        {
+          "value": "Cash",
+          "label": "Cash"
+        },
+        {
+          "value": "Bank",
+          "label": "Bank"
+        }
+      ]
+    },
+    {
       "fieldname": "account",
       "label": "Account",
       "fieldtype": "Link",

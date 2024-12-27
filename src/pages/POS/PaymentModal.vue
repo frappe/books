@@ -1,43 +1,24 @@
 <template>
   <Modal class="w-2/6 ml-auto mr-3.5" :set-close-listener="false">
     <div v-if="sinvDoc.fieldMap" class="px-4 py-6 grid" style="height: 95vh">
+      <Currency
+        :df="fyo.fieldMap.PaymentFor.amount"
+        :read-only="!transferAmount.isZero()"
+        :border="true"
+        :text-right="true"
+        :value="paidAmount"
+        @change="(amount:Money)=> $emit('setPaidAmount', amount)"
+      />
       <div class="grid grid-cols-2 gap-6">
-        <Currency
-          :df="fyo.fieldMap.PaymentFor.amount"
-          :read-only="!transferAmount.isZero()"
-          :border="true"
-          :text-right="true"
-          :value="cashAmount"
-          @change="(amount:Money)=> $emit('setCashAmount', amount)"
-        />
-
         <Button
+          v-for="method in paymentMethods"
+          :key="method"
           class="w-full py-5 bg-teal-500"
-          @click="setCashOrTransferAmount"
+          @click="setPaymentMethodAndAmount(method, paidAmount)"
         >
           <slot>
             <p class="uppercase text-lg text-white font-semibold">
-              {{ t`Cash` }}
-            </p>
-          </slot>
-        </Button>
-
-        <Currency
-          :df="fyo.fieldMap.PaymentFor.amount"
-          :read-only="!cashAmount.isZero()"
-          :border="true"
-          :text-right="true"
-          :value="transferAmount"
-          @change="(value:Money)=> $emit('setTransferAmount', value)"
-        />
-
-        <Button
-          class="w-full py-5 bg-teal-500"
-          @click="setCashOrTransferAmount('Transfer')"
-        >
-          <slot>
-            <p class="uppercase text-lg text-white font-semibold">
-              {{ t`Transfer` }}
+              {{ t`${method}` }}
             </p>
           </slot>
         </Button>
@@ -45,7 +26,7 @@
 
       <div class="mt-8 grid grid-cols-2 gap-6">
         <Data
-          v-show="!transferAmount.isZero()"
+          v-show="!isPaymentMethodIsCash"
           :df="fyo.fieldMap.Payment.referenceId"
           :show-label="true"
           :border="true"
@@ -55,7 +36,7 @@
         />
 
         <Date
-          v-show="!transferAmount.isZero()"
+          v-show="!isPaymentMethodIsCash"
           :df="fyo.fieldMap.Payment.clearanceDate"
           :show-label="true"
           :border="true"
@@ -149,7 +130,7 @@
         />
       </div>
 
-      <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto">
+      <div class="grid grid-cols-2 gap-4 fixed bottom-8" style="width: 25rem">
         <div class="col-span-2">
           <Button
             class="w-full bg-red-500 dark:bg-red-700"
@@ -207,6 +188,8 @@ import { Money } from 'pesa';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
 import { fyo } from 'src/initFyo';
+import { isPesa } from 'fyo/utils';
+import { ModelNameEnum } from 'models/types';
 
 export default defineComponent({
   name: 'PaymentModal',
@@ -219,15 +202,16 @@ export default defineComponent({
   },
   emits: [
     'createTransaction',
-    'setCashAmount',
-    'setTransferAmount',
+    'setPaidAmount',
+    'setPaymentMethod',
     'setTransferClearanceDate',
     'setTransferRefNo',
     'toggleModal',
   ],
   setup() {
     return {
-      cashAmount: inject('cashAmount') as Money,
+      paidAmount: inject('paidAmount') as Money,
+      paymentMethod: inject('paymentMethod') as string,
       isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
       itemDiscounts: inject('itemDiscounts') as Money,
       transferAmount: inject('transferAmount') as Money,
@@ -237,34 +221,46 @@ export default defineComponent({
       totalTaxedAmount: inject('totalTaxedAmount') as Money,
     };
   },
+  data() {
+    return {
+      paymentMethods: [] as string[],
+    };
+  },
   computed: {
+    isPaymentMethodIsCash(): boolean {
+      return this.paymentMethod === 'Cash';
+    },
     balanceAmount(): Money {
       const grandTotal = this.sinvDoc?.grandTotal ?? fyo.pesa(0);
 
-      if (this.cashAmount.isZero()) {
+      if (isPesa(this.paidAmount) && this.paidAmount.isZero()) {
         return grandTotal.sub(this.transferAmount);
       }
 
-      return grandTotal.sub(this.cashAmount);
+      return grandTotal.sub(this.paidAmount);
     },
     paidChange(): Money {
       const grandTotal = this.sinvDoc?.grandTotal ?? fyo.pesa(0);
 
-      if (this.cashAmount.isZero()) {
+      if (this.fyo.pesa(this.paidAmount.float).isZero()) {
         return this.transferAmount.sub(grandTotal);
       }
 
-      return this.cashAmount.sub(grandTotal);
+      return this.fyo.pesa(this.paidAmount.float).sub(grandTotal);
     },
     showBalanceAmount(): boolean {
       if (
-        this.cashAmount.eq(fyo.pesa(0)) &&
+        this.fyo.pesa(this.paidAmount.float).eq(fyo.pesa(0)) &&
         this.transferAmount.eq(fyo.pesa(0))
       ) {
         return false;
       }
 
-      if (this.cashAmount.gte(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
+      if (
+        this.fyo
+          .pesa(this.paidAmount.float)
+          .gte(this.sinvDoc?.grandTotal ?? fyo.pesa(0))
+      ) {
         return false;
       }
 
@@ -276,13 +272,17 @@ export default defineComponent({
     },
     showPaidChange(): boolean {
       if (
-        this.cashAmount.eq(fyo.pesa(0)) &&
+        this.fyo.pesa(this.paidAmount.float).eq(fyo.pesa(0)) &&
         this.transferAmount.eq(fyo.pesa(0))
       ) {
         return false;
       }
 
-      if (this.cashAmount.gt(this.sinvDoc?.grandTotal ?? fyo.pesa(0))) {
+      if (
+        this.fyo
+          .pesa(this.paidAmount.float)
+          .gt(this.sinvDoc?.grandTotal ?? fyo.pesa(0))
+      ) {
         return true;
       }
 
@@ -294,15 +294,14 @@ export default defineComponent({
     },
     disableSubmitButton(): boolean {
       if (
-        !this.sinvDoc.grandTotal?.isZero() &&
-        this.transferAmount.isZero() &&
-        this.cashAmount.isZero()
+        (this.sinvDoc.grandTotal?.float as number) < 1 &&
+        this.fyo.pesa(this.paidAmount.float).isZero()
       ) {
         return true;
       }
 
       if (
-        this.cashAmount.isZero() &&
+        this.paymentMethod !== 'Cash' &&
         (!this.transferRefNo || !this.transferClearanceDate)
       ) {
         return true;
@@ -310,15 +309,25 @@ export default defineComponent({
       return false;
     },
   },
+  async activated() {
+    await this.setPaymentMethods();
+  },
   methods: {
-    setCashOrTransferAmount(paymentMethod = 'Cash') {
-      if (paymentMethod === 'Transfer') {
-        this.$emit('setCashAmount', fyo.pesa(0));
-        this.$emit('setTransferAmount', this.sinvDoc?.grandTotal);
-        return;
+    setPaymentMethodAndAmount(paymentMethod?: string, amount?: Money) {
+      if (paymentMethod) {
+        this.$emit('setPaymentMethod', paymentMethod);
       }
-      this.$emit('setTransferAmount', fyo.pesa(0));
-      this.$emit('setCashAmount', this.sinvDoc?.grandTotal);
+
+      if (amount) {
+        this.$emit('setPaidAmount', this.sinvDoc.grandTotal?.float);
+      }
+    },
+    async setPaymentMethods() {
+      this.paymentMethods = (
+        (await this.fyo.db.getAll(ModelNameEnum.PaymentMethod, {
+          fields: ['name'],
+        })) as { name: string }[]
+      ).map((d) => d.name);
     },
     submitTransaction() {
       this.$emit('createTransaction');
