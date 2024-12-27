@@ -85,6 +85,7 @@
       "target": "PaymentMethod",
       "default": "Cash",
       "required": true,
+      "create": true,
       "section": "Details"
     },
     {
