@@ -81,23 +81,11 @@
       "fieldname": "paymentMethod",
       "label": "Payment Method",
       "placeholder": "Payment Method",
-      "fieldtype": "Select",
-      "options": [
-        {
-          "value": "Cash",
-          "label": "Cash"
-        },
-        {
-          "value": "Cheque",
-          "label": "Cheque"
-        },
-        {
-          "value": "Transfer",
-          "label": "Transfer"
-        }
-      ],
+      "fieldtype": "Link",
+      "target": "PaymentMethod",
       "default": "Cash",
       "required": true,
+      "create": true,
       "section": "Details"
     },
     {

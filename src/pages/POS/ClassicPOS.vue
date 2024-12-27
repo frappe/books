@@ -43,9 +43,11 @@
     <PaymentModal
       :open-modal="openPaymentModal"
       @toggle-modal="emitEvent('toggleModal', 'Payment')"
-      @set-cash-amount="(amount) => emitEvent('setCashAmount', amount)"
+      @set-paid-amount="(amount: Money) => emitEvent('setPaidAmount', amount)"
+      @set-payment-method="
+        (paymentMethod) => emitEvent('setPaymentMethod', paymentMethod)
+      "
       @set-transfer-ref-no="(ref) => emitEvent('setTransferRefNo', ref)"
-      @set-transfer-amount="(amount) => emitEvent('setTransferAmount', amount)"
       @set-transfer-clearance-date="
         (date) => emitEvent('setTransferClearanceDate', date)
       "
@@ -338,7 +340,7 @@ export default defineComponent({
     FloatingLabelCurrencyInput,
   },
   props: {
-    cashAmount: Money,
+    paidAmount: Money,
     tableView: Boolean,
     itemDiscounts: Money,
     openAlertModal: Boolean,
@@ -390,9 +392,10 @@ export default defineComponent({
     'toggleModal',
     'setCustomer',
     'clearValues',
-    'setCashAmount',
+    'setPaidAmount',
     'setCouponsCount',
     'routeToSinvList',
+    'setPaymentMethod',
     'setTransferRefNo',
     'setLoyaltyPoints',
     'applyPricingRule',
@@ -409,7 +412,10 @@ export default defineComponent({
     };
   },
   methods: {
-    emitEvent(eventName: PosEmits, ...args: (string | boolean | Item)[]) {
+    emitEvent(
+      eventName: PosEmits,
+      ...args: (string | boolean | Item | Money)[]
+    ) {
       this.$emit(eventName, ...args);
     },
     getItem,
