@@ -121,14 +121,16 @@ export default defineComponent({
   },
   methods: {
     async setTransactedAmount() {
-      if (!fyo.singles.POSShift?.openingDate) {
+      this.posOpeningShiftDoc = await getPOSOpeningShiftDoc(fyo);
+
+      const fromDate = this.posOpeningShiftDoc?.openingDate as Date;
+      if (!fromDate) {
         return;
       }
-      const fromDate = this.posOpeningShiftDoc?.openingDate as Date;
+
       this.transactedAmount = await fyo.db.getPOSTransactedAmount(
         fromDate,
-        new Date(),
-        fyo.singles.POSShift.closingDate as Date
+        new Date()
       );
     },
     seedClosingCash() {
@@ -160,19 +162,7 @@ export default defineComponent({
           return;
         }
 
-        let expectedAmount = fyo.pesa(0);
-
-        if (row.paymentMethod === 'Cash') {
-          expectedAmount = expectedAmount.add(
-            this.posOpeningShiftDoc?.openingCashAmount as Money
-          );
-        }
-
-        if (row.paymentMethod === 'Transfer') {
-          expectedAmount = expectedAmount.add(
-            this.posOpeningShiftDoc?.openingTransferAmount as Money
-          );
-        }
+        let expectedAmount = row.amount ?? fyo.pesa(0);
 
         if (this.transactedAmount) {
           expectedAmount = expectedAmount.add(

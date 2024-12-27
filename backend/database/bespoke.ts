@@ -402,10 +402,7 @@ export class BespokeQueries {
     const sinvNamesQuery = db.knex!(ModelNameEnum.SalesInvoice)
       .select('name')
       .where('isPOS', true)
-      .andWhereBetween('date', [
-        DateTime.fromJSDate(fromDate).toSQLDate(),
-        DateTime.fromJSDate(toDate).toSQLDate(),
-      ]);
+      .andWhereBetween('date', [fromDate.toISOString(), toDate.toISOString()]);
 
     if (lastShiftClosingDate) {
       sinvNamesQuery.andWhere(

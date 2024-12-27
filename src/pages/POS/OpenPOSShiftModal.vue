@@ -141,16 +141,13 @@ export default defineComponent({
 
       this.posShiftDoc.openingAmounts = [];
 
-      await this.posShiftDoc.set('openingAmounts', [
-        {
-          paymentMethod: 'Cash',
-          amount: fyo.pesa(0),
-        },
-        {
-          paymentMethod: 'Transfer',
-          amount: fyo.pesa(0),
-        },
-      ]);
+      const paymentMethods = (
+        (await this.fyo.db.getAll(ModelNameEnum.PaymentMethod, {
+          fields: ['name'],
+        })) as { name: string }[]
+      ).map((doc) => ({ paymentMethod: doc.name, amount: fyo.pesa(0) }));
+
+      await this.posShiftDoc.set('openingAmounts', paymentMethods);
     },
     async seedDefaults() {
       if (!!this.posShiftDoc?.isShiftOpen) {
