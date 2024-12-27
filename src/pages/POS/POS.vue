@@ -20,7 +20,6 @@
       :default-customer="defaultCustomer"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
-      :cash-amount="(cashAmount as Money)"
       :sinv-doc="(sinvDoc as SalesInvoice)"
       :disable-pay-button="disablePayButton"
       :open-payment-modal="openPaymentModal"
@@ -39,7 +38,8 @@
       @clear-values="clearValues"
       @set-customer="setCustomer"
       @toggle-modal="toggleModal"
-      @set-cash-amount="setCashAmount"
+      @set-paid-amount="setPaidAmount"
+      @set-payment-method="setPaymentMethod"
       @set-coupons-count="setCouponsCount"
       @route-to-sinv-list="routeToSinvList"
       @set-loyalty-points="setLoyaltyPoints"
@@ -61,7 +61,6 @@
       :default-customer="defaultCustomer"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
-      :cash-amount="(cashAmount as Money)"
       :sinv-doc="(sinvDoc as SalesInvoice)"
       :disable-pay-button="disablePayButton"
       :open-payment-modal="openPaymentModal"
@@ -81,7 +80,8 @@
       @clear-values="clearValues"
       @set-customer="setCustomer"
       @toggle-modal="toggleModal"
-      @set-cash-amount="setCashAmount"
+      @set-paid-amount="setPaidAmount"
+      @set-payment-method="setPaymentMethod"
       @set-coupons-count="setCouponsCount"
       @route-to-sinv-list="routeToSinvList"
       @apply-pricing-rule="applyPricingRule"
@@ -155,7 +155,8 @@ export default defineComponent({
       sinvDoc: computed(() => this.sinvDoc),
       coupons: computed(() => this.coupons),
       itemQtyMap: computed(() => this.itemQtyMap),
-      cashAmount: computed(() => this.cashAmount),
+      paidAmount: computed(() => this.paidAmount),
+      paymentMethod: computed(() => this.paymentMethod),
       transferRefNo: computed(() => this.transferRefNo),
       itemDiscounts: computed(() => this.itemDiscounts),
       transferAmount: computed(() => this.transferAmount),
@@ -188,7 +189,7 @@ export default defineComponent({
       openAppliedCouponsModal: false,
 
       totalQuantity: 0,
-      cashAmount: fyo.pesa(0),
+      paidAmount: fyo.pesa(0),
       itemDiscounts: fyo.pesa(0),
       transferAmount: fyo.pesa(0),
       totalTaxedAmount: fyo.pesa(0),
@@ -202,6 +203,7 @@ export default defineComponent({
       appliedCoupons: [] as AppliedCouponCodes[],
 
       itemSearchTerm: '',
+      paymentMethod: undefined as string | undefined,
       transferRefNo: undefined as string | undefined,
       defaultCustomer: undefined as string | undefined,
       transferClearanceDate: undefined as Date | undefined,
@@ -396,8 +398,11 @@ export default defineComponent({
     toggleView() {
       this.tableView = !this.tableView;
     },
-    setCashAmount(amount: Money) {
-      this.cashAmount = amount;
+    setPaidAmount(amount: Money) {
+      this.paidAmount = amount;
+    },
+    setPaymentMethod(method: string) {
+      this.paymentMethod = method;
     },
     setDefaultCustomer() {
       this.defaultCustomer = this.fyo.singles.Defaults?.posCustomer ?? '';
@@ -579,22 +584,26 @@ export default defineComponent({
     },
     async makePayment() {
       this.paymentDoc = this.sinvDoc.getPayment() as Payment;
-      const paymentMethod = this.cashAmount.isZero() ? 'Transfer' : 'Cash';
+      const paymentMethod = this.paymentMethod;
 
       await this.paymentDoc.set('paymentMethod', paymentMethod);
 
-      if (paymentMethod === 'Transfer') {
+      const paymentMethodDoc = await this.paymentDoc.loadAndGetLink(
+        'paymentMethod'
+      );
+
+      if (paymentMethodDoc?.type !== 'Cash') {
         await this.paymentDoc.setMultiple({
-          amount: this.transferAmount as Money,
+          amount: this.paidAmount as Money,
           referenceId: this.transferRefNo,
           clearanceDate: this.transferClearanceDate,
         });
       }
 
-      if (paymentMethod === 'Cash') {
+      if (paymentMethodDoc?.type === 'Cash') {
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
-          amount: this.cashAmount as Money,
+          amount: this.paidAmount as Money,
         });
       }
 
@@ -688,7 +697,7 @@ export default defineComponent({
       this.setSinvDoc();
       this.itemSerialNumbers = {};
 
-      this.cashAmount = fyo.pesa(0);
+      this.paidAmount = fyo.pesa(0);
       this.transferAmount = fyo.pesa(0);
       await this.setItems();
 

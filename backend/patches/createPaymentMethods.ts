@@ -32,16 +32,19 @@ async function execute(dm: DatabaseManager) {
   const paymentMethods = [
     {
       name: 'Cash',
+      type: 'Cash',
       account: accountsMap[AccountTypeEnum.Cash]?.[0],
       ...defaults,
     },
     {
       name: 'Bank',
+      type: 'Bank',
       account: accountsMap[AccountTypeEnum.Bank]?.[0],
       ...defaults,
     },
     {
       name: 'Transfer',
+      type: 'Bank',
       account: accountsMap[AccountTypeEnum.Bank]?.[0],
       ...defaults,
     },

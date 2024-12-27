@@ -9,7 +9,6 @@ import {
   FormulaMap,
   HiddenMap,
   ListViewSettings,
-  RequiredMap,
   ValidationMap,
 } from 'fyo/model/types';
 import { NotFoundError, ValidationError } from 'fyo/utils/errors';
@@ -43,6 +42,10 @@ export class Payment extends Transactional {
   referenceType?: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
   for?: PaymentFor[];
   _accountsMap?: AccountTypeMap;
+
+  async paymentMethodDoc() {
+    return (await this.loadAndGetLink('paymentMethod')) as PaymentMethod;
+  }
 
   async change({ changed }: ChangeArg) {
     if (changed === 'for') {
@@ -112,6 +115,7 @@ export class Payment extends Transactional {
     this.validateAccounts();
     this.validateTotalReferenceAmount();
     await this.validateReferences();
+    await this.validateReferencesAreSet();
   }
 
   async validateFor() {
@@ -223,6 +227,22 @@ export class Payment extends Transactional {
           Please set Write Off Account in General Settings`,
       false
     );
+  }
+
+  async validateReferencesAreSet() {
+    const type = (await this.paymentMethodDoc()).type;
+
+    if (type !== 'Bank') {
+      return;
+    }
+
+    if (!this.clearanceDate) {
+      throw new ValidationError(t`Clearance Date not set.`);
+    }
+
+    if (!this.referenceId) {
+      throw new ValidationError(t`Reference Id not set.`);
+    }
   }
 
   async getTaxSummary() {
@@ -561,15 +581,13 @@ export class Payment extends Transactional {
           );
         }
 
-        if (this.paymentMethod === 'Cash') {
+        const paymentMethodDoc = await this.paymentMethodDoc();
+
+        if (paymentMethodDoc.type === 'Cash') {
           return accountsMap[AccountTypeEnum.Cash]?.[0] ?? null;
         }
 
-        if (this.paymentMethod !== 'Cash') {
-          return accountsMap[AccountTypeEnum.Bank]?.[0] ?? null;
-        }
-
-        return null;
+        return accountsMap[AccountTypeEnum.Bank]?.[0] ?? null;
       },
       dependsOn: ['paymentMethod', 'paymentType', 'party'],
     },
@@ -584,23 +602,17 @@ export class Payment extends Transactional {
           );
         }
 
-        const paymentMethodDoc = (await this.loadAndGetLink(
-          'paymentMethod'
-        )) as PaymentMethod;
+        const paymentMethodDoc = await this.paymentMethodDoc();
 
         if (paymentMethodDoc.account) {
           return paymentMethodDoc.get('account');
         }
 
-        if (this.paymentMethod === 'Cash') {
+        if (paymentMethodDoc.type === 'Cash') {
           return accountsMap[AccountTypeEnum.Cash]?.[0] ?? null;
         }
 
-        if (this.paymentMethod !== 'Cash') {
-          return accountsMap[AccountTypeEnum.Bank]?.[0] ?? null;
-        }
-
-        return null;
+        return accountsMap[AccountTypeEnum.Bank]?.[0] ?? null;
       },
       dependsOn: ['paymentMethod', 'paymentType', 'party'],
     },
@@ -683,14 +695,7 @@ export class Payment extends Transactional {
     },
   };
 
-  required: RequiredMap = {
-    referenceId: () => this.paymentMethod !== 'Cash',
-    clearanceDate: () => this.paymentMethod !== 'Cash',
-  };
-
   hidden: HiddenMap = {
-    referenceId: () => this.paymentMethod === 'Cash',
-    clearanceDate: () => this.paymentMethod === 'Cash',
     amountPaid: () => this.writeoff?.isZero() ?? true,
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
