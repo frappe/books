@@ -55,8 +55,8 @@
             :scale="scale"
             :height="doc.name.startsWith('POS') ? 20 : doc.height"
             :width="
-              doc.name.startsWith('POS') &&
-              fyo.singles.PrintSettings.posPrintWidth
+              doc.name?.startsWith('POS') &&
+              fyo.singles.PrintSettings?.posPrintWidth
                 ? fyo.singles.PrintSettings.posPrintWidth
                 : doc.width
             "

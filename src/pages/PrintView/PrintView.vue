@@ -39,8 +39,12 @@
         :template="printProps.template"
         :values="printProps.values"
         :scale="scale"
-        :width="templateDoc?.width"
-        :height="templateDoc?.height"
+        :width="
+          templateName?.startsWith('POS')
+            ? fyo.singles.PrintSettings?.posPrintWidth
+            : templateDoc?.width
+        "
+        :height="templateName.startsWith('POS') ? 22 : templateDoc?.height"
       />
     </div>
   </div>

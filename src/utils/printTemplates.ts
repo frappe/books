@@ -13,6 +13,7 @@ import {
   showExportInFolder,
 } from './ui';
 import { Money } from 'pesa';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 
 export type PrintTemplateHint = {
   [key: string]: string | PrintTemplateHint | PrintTemplateHint[];
@@ -39,6 +40,18 @@ export async function getPrintTemplatePropValues(
   const fyo = doc.fyo;
   const values: PrintValues = { doc: {}, print: {} };
   values.doc = await getPrintTemplateDocValues(doc);
+
+  const totalTax = await (doc as Invoice)?.getTotalTax();
+  const paymentId = await (doc as SalesInvoice).getPaymentIds();
+
+  const paymentDoc = await fyo.doc.getDoc(ModelNameEnum.Payment, paymentId[0]);
+
+  (values.doc as PrintTemplateData).paymentMethod = paymentDoc.paymentMethod;
+
+  (values.doc as PrintTemplateData).subTotal = doc.fyo.format(
+    (doc.grandTotal as Money).sub(totalTax),
+    ModelNameEnum.Currency
+  );
 
   const printSettings = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
   const printValues = await getPrintTemplateDocValues(
