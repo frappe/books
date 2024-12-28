@@ -395,6 +395,13 @@ export abstract class Invoice extends Transactional {
     return taxArr;
   }
 
+  async getTotalTax() {
+    const taxArr = await this.getTaxSummary();
+    return taxArr
+      .map(({ amount }) => amount)
+      .reduce((a, b) => a.add(b), this.fyo.pesa(0));
+  }
+
   async getTax(tax: string) {
     if (!this._taxes[tax]) {
       this._taxes[tax] = await this.fyo.doc.getDoc('Tax', tax);
