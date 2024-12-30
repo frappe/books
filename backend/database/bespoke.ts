@@ -8,7 +8,6 @@ import {
 import { ModelNameEnum } from '../../models/types';
 import DatabaseCore from './core';
 import { BespokeFunction } from './types';
-import { DateTime } from 'luxon';
 import { DocItem, ReturnDocItem } from 'models/inventory/types';
 import { safeParseFloat } from 'utils/index';
 import { Money } from 'pesa';
@@ -408,7 +407,7 @@ export class BespokeQueries {
       sinvNamesQuery.andWhere(
         'created',
         '>',
-        DateTime.fromJSDate(lastShiftClosingDate).toUTC().toString()
+        lastShiftClosingDate.toISOString()
       );
     }
 

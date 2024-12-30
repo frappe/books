@@ -7,6 +7,7 @@ export class POSClosingShift extends Doc {
   closingAmounts?: ClosingAmounts[];
   closingCash?: ClosingCash[];
   closingDate?: Date;
+  openingShift?: string;
 
   get closingCashAmount() {
     if (!this.closingCash) {
