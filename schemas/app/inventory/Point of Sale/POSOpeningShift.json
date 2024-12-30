@@ -19,6 +19,12 @@
       "fieldtype": "Table",
       "label": "Opening Amounts",
       "target": "OpeningAmounts"
+    },
+    {
+      "fieldname": "closingShift",
+      "fieldtype": "Link",
+      "label": "Closing Shift",
+      "target": "POSClosingShift"
     }
   ]
 }
