@@ -8,7 +8,10 @@
       border
       rounded
       bg-gray-50
-      dark:border-gray-800 dark:bg-gray-890 dark:focus-within:bg-gray-900
+      dark:text-gray-200
+      dark:border-gray-800
+      dark:bg-gray-890
+      dark:focus-within:bg-gray-900
       focus-within:bg-gray-100
     "
   >
@@ -84,6 +87,8 @@ export default defineComponent({
       })) as { name: string }[];
 
       const name = items?.[0]?.name;
+      console.log(name, 'name');
+
       if (!name) {
         return this.error(this.t`Item with barcode ${barcode} not found.`);
       }
