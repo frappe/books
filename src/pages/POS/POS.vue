@@ -554,7 +554,7 @@ export default defineComponent({
       await this.sinvDoc.append('items', {
         rate: item.rate as Money,
         item: item.name,
-        quantity: quantity ? quantity : 0,
+        quantity: quantity ? quantity : 1,
       });
 
       if (this.sinvDoc.priceList) {

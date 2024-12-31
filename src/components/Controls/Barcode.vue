@@ -87,7 +87,6 @@ export default defineComponent({
       })) as { name: string }[];
 
       const name = items?.[0]?.name;
-      console.log(name, 'name');
 
       if (!name) {
         return this.error(this.t`Item with barcode ${barcode} not found.`);
