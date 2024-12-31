@@ -8,7 +8,10 @@
       border
       rounded
       bg-gray-50
-      dark:border-gray-800 dark:bg-gray-890 dark:focus-within:bg-gray-900
+      dark:text-gray-200
+      dark:border-gray-800
+      dark:bg-gray-890
+      dark:focus-within:bg-gray-900
       focus-within:bg-gray-100
     "
   >
@@ -84,10 +87,7 @@ export default defineComponent({
 
       const filters: Record<string, string> = isWeightEnabled
         ? {
-            weightBarcode: barcode.slice(
-              checkDigit,
-              checkDigit + itemCodeDigits
-            ),
+            barcode: barcode.slice(checkDigit, checkDigit + itemCodeDigits),
           }
         : { barcode };
       const fields = isWeightEnabled ? ['name', 'unit'] : ['name'];
