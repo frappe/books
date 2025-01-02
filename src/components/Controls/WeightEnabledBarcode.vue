@@ -34,6 +34,7 @@
 import { showToast } from 'src/utils/interactive';
 import { defineComponent } from 'vue';
 export default defineComponent({
+  name: 'WeightEnabledBarcode',
   emits: ['item-selected'],
   data() {
     return {
