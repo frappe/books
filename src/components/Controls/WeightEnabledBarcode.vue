@@ -92,11 +92,19 @@ export default defineComponent({
             barcode: barcode.slice(checkDigits, checkDigits + itemCodeDigits),
           }
         : { barcode };
-      const fields = isWeightEnabled ? ['name', 'unit'] : ['name'];
+      const fields = isWeightEnabled
+        ? ['name', 'unit', 'trackItem']
+        : ['name', 'trackItem'];
 
       const items =
         (await this.fyo.db.getAll('Item', { filters, fields })) || [];
-      const { name, unit } = items[0] || {};
+      const { name, unit, trackItem } = items[0] || {};
+
+      if (!trackItem) {
+        return this.error(
+          this.t`Item ${name as string} is not an Inventory Item.`
+        );
+      }
 
       if (!name) {
         return this.error(this.t`Item with barcode ${barcode} not found.`);
