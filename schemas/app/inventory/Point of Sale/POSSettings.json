@@ -56,6 +56,34 @@
       "default": "Classic",
       "required": true,
       "section": "Default"
+    },
+    {
+      "fieldname": "weightEnabledBarcode",
+      "label": "Weigth Enabled Barcode",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "checkDigits",
+      "label": "Check Digits",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "itemCodeDigits",
+      "label": "Item Code Digits",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "itemWeightDigits",
+      "label": "item Weight Digits",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Barcode"
     }
   ]
 }

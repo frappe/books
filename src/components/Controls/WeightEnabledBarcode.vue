@@ -19,7 +19,7 @@
       ref="scanner"
       type="text"
       class="text-base placeholder-gray-600 w-full bg-transparent outline-none"
-      :placeholder="t`Enter barcode`"
+      :placeholder="t`Enter weight barcode`"
       @change="handleChange"
     />
     <feather-icon
@@ -34,6 +34,7 @@
 import { showToast } from 'src/utils/interactive';
 import { defineComponent } from 'vue';
 export default defineComponent({
+  name: 'WeightEnabledBarcode',
   emits: ['item-selected'],
   data() {
     return {
@@ -64,36 +65,86 @@ export default defineComponent({
       this.selectItem(elem.value);
       elem.value = '';
     },
+
     async selectItem(code: string) {
       const barcode = code.trim();
-      if (!/\d{12,}/.test(barcode)) {
-        return this.error(this.t`Invalid barcode value ${barcode}.`);
-      }
-
-      /**
-       * Between two entries of the same item, this adds
-       * a cooldown period of 100ms. This is to prevent
-       * double entry.
-       */
       if (this.cooldown === barcode) {
         return;
       }
+
       this.cooldown = barcode;
       setTimeout(() => (this.cooldown = ''), 100);
 
-      const items = (await this.fyo.db.getAll('Item', {
-        filters: { barcode },
-        fields: ['name'],
-      })) as { name: string }[];
+      const isWeightEnabled =
+        this.fyo.singles.POSSettings?.weightEnabledBarcode;
+      const checkDigits = this.fyo.singles.POSSettings?.checkDigits as number;
+      const itemCodeDigits = this.fyo.singles.POSSettings
+        ?.itemCodeDigits as number;
+      const itemWeightDigits = this.fyo.singles.POSSettings
+        ?.itemWeightDigits as number;
 
-      const name = items?.[0]?.name;
+      if (code.length !== checkDigits + itemCodeDigits + itemWeightDigits) {
+        return this.error(this.t`Barcode ${barcode} has an invalid length.`);
+      }
+
+      const filters: Record<string, string> = isWeightEnabled
+        ? {
+            barcode: barcode.slice(checkDigits, checkDigits + itemCodeDigits),
+          }
+        : { barcode };
+      const fields = isWeightEnabled
+        ? ['name', 'unit', 'trackItem']
+        : ['name', 'trackItem'];
+
+      const items =
+        (await this.fyo.db.getAll('Item', { filters, fields })) || [];
+      const { name, unit, trackItem } = items[0] || {};
+
+      if (!trackItem) {
+        return this.error(
+          this.t`Item ${name as string} is not an Inventory Item.`
+        );
+      }
 
       if (!name) {
         return this.error(this.t`Item with barcode ${barcode} not found.`);
       }
 
-      this.success(this.t`${name} quantity 1 added.`);
-      this.$emit('item-selected', name);
+      const quantity = isWeightEnabled
+        ? this.parseBarcode(
+            barcode,
+            unit as string,
+            checkDigits + itemCodeDigits
+          )
+        : 1;
+
+      this.success(this.t`${name as string} quantity ${quantity} added.`);
+      this.$emit('item-selected', name, quantity);
+    },
+
+    parseBarcode(barcode: string, unitType: string, sliceDigit: number) {
+      const weightRaw = parseInt(barcode.slice(sliceDigit));
+
+      let itemQuantity = 0;
+
+      switch (unitType) {
+        case 'Kg':
+          itemQuantity = Math.floor(weightRaw / 1000);
+          break;
+        case 'Gram':
+          itemQuantity = weightRaw;
+          break;
+        case 'Unit':
+        case 'Meter':
+        case 'Hour':
+        case 'Day':
+          itemQuantity = weightRaw;
+          break;
+        default:
+          throw new Error('Unknown unit type!');
+      }
+
+      return itemQuantity;
     },
     async scanListener({ key, code }: KeyboardEvent) {
       /**
