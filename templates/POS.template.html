@@ -43,29 +43,29 @@
     <!-- Heading Row -->
     <section class="font-bold w-auto flex border-b border-t border-black">
       <div class="py-1 w-4">{{ t`SI` }}</div>
-      <div class="py-1 w-1/4">{{ t`Item` }}</div>
+      <div class="py-1 w-2/5">{{ t`Item` }}</div>
       <div class="py-1 text-right w-2/12" v-if="doc.showHSN">
         {{ t`HSN/SAC` }}
       </div>
-      <div class="py-1 text-right w-1/12">{{ t`Qty` }}</div>
+      <div class="py-1 w-1/12">{{ t`Qty` }}</div>
       <div class="py-1 text-right w-3/12">{{ t`Price` }}</div>
-      <div class="py-1 text-right w-4/12">{{ t`Amount` }}</div>
+      <div class="py-1 text-right w-3/12">{{ t`Amount` }}</div>
     </section>
 
     <!-- Body Rows -->
     <section
-      class="flex py-1 px-1 text-gray-900 w-auto"
+      class="flex py-1 text-gray-900 w-auto"
       v-for="(row,index) in doc.items"
       :key="row.name"
     >
-      <div class="w-3 py-1">{{ index + 1 }}</div>
-      <div class="w-1/4 py-1">{{ row.item }}</div>
+      <div class="w-4 py-1">{{ index + 1 }}</div>
+      <div class="w-2/5 py-1">{{ row.item }}</div>
       <div class="w-2/12 text-right py-1" v-if="doc.showHSN">
         {{ row.hsnCode }}
       </div>
-      <div class="w-1/12 py-1">{{ row.quantity }}</div>
-      <div class="w-4/12 text-right py-1">{{ row.rate }}</div>
-      <div class="w-4/12 text-right py-1">{{ row.amount }}</div>
+      <div class="w-1/12 py-1 text-left">{{ row.quantity }}</div>
+      <div class="w-3/12 text-right py-1">{{ row.rate }}</div>
+      <div class="w-3/12 text-right py-1">{{ row.amount }}</div>
     </section>
 
     <!-- Totaled Amounts -->
@@ -125,7 +125,7 @@
         {{ doc.totalDiscount ? doc.totalDiscount : '00.00'}}
       </div>
       <div class="row-start-2">{{ doc.paymentMethod }}</div>
-      <div class="row-start-2 font-medium text-right">{{ doc.grandTotal }}</div>
+      <div class="row-start-2 font-medium text-right">{{ doc.paidAmount }}</div>
       <div class="row-start-2 font-medium text-right">{{ doc.grandTotal }}</div>
       <div class="row-start-2 font-medium text-right">
         {{ doc.outstandingAmount }}
@@ -133,7 +133,7 @@
     </div>
   </section>
 
-  <div class="w-full mt-3 flex flex-col justify-center items-center">
+  <div class="w-full mt-3 flex pb-5 flex-col justify-center items-center">
     <p class="w-11/12 text-sm text-center">
       No Cash Refund Exchange Only..Keep bill for Exchange
     </p>
