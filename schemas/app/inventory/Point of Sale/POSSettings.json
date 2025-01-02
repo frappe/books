@@ -65,8 +65,8 @@
       "section": "Barcode"
     },
     {
-      "fieldname": "checkDigit",
-      "label": "Check Digit",
+      "fieldname": "checkDigits",
+      "label": "Check Digits",
       "fieldtype": "Int",
       "default": 0,
       "section": "Barcode"
@@ -79,8 +79,8 @@
       "section": "Barcode"
     },
     {
-      "fieldname": "itemWeight",
-      "label": "item Weight",
+      "fieldname": "itemWeightDigits",
+      "label": "item Weight Digits",
       "fieldtype": "Int",
       "default": 0,
       "section": "Barcode"
