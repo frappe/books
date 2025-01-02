@@ -98,11 +98,24 @@
             />
 
             <Barcode
-              v-if="fyo.singles.InventorySettings?.enableBarcodes"
+              v-if="
+                fyo.singles.InventorySettings?.enableBarcodes &&
+                !fyo.singles.POSSettings?.weightEnabledBarcode
+              "
               class="w-1/3"
               @item-selected="
                 async (name: string) => {
                   emitEvent('addItem', await getItem(name) as Item);
+                }
+              "
+            />
+
+            <WeightEnabledBarcode
+              v-if="fyo.singles.POSSettings?.weightEnabledBarcode"
+              class="w-1/3"
+              @item-selected="
+                async (name: string,qty:number) => {
+                  emitEvent('addItem', await getItem(name) as Item,qty as number);
                 }
               "
             />
@@ -313,6 +326,7 @@ import ItemsTable from 'src/components/POS/Classic/ItemsTable.vue';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import SelectedItemTable from 'src/components/POS/Classic/SelectedItemTable.vue';
+import WeightEnabledBarcode from 'src/components/Controls/WeightEnabledBarcode.vue';
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
@@ -336,6 +350,7 @@ export default defineComponent({
     SavedInvoiceModal,
     ClosePOSShiftModal,
     LoyaltyProgramModal,
+    WeightEnabledBarcode,
     FloatingLabelFloatInput,
     FloatingLabelCurrencyInput,
   },
@@ -414,7 +429,7 @@ export default defineComponent({
   methods: {
     emitEvent(
       eventName: PosEmits,
-      ...args: (string | boolean | Item | Money)[]
+      ...args: (string | boolean | Item | number | Money)[]
     ) {
       this.$emit(eventName, ...args);
     },
