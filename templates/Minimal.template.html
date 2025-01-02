@@ -13,7 +13,11 @@
         <p class="font-semibold text-xl" :style="{ color: print.color }">
           {{ print.companyName }}
         </p>
-        <p>{{ doc.date }}</p>
+
+        <div class="flex gap-2">
+          <p>{{ doc.date }}</p>
+          <p>{{ doc?.time }}</p>
+        </div>
       </div>
     </section>
 
