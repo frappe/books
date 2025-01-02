@@ -76,18 +76,19 @@ export default defineComponent({
 
       const isWeightEnabled =
         this.fyo.singles.POSSettings?.weightEnabledBarcode;
-      const checkDigit = this.fyo.singles.POSSettings?.checkDigit as number;
+      const checkDigits = this.fyo.singles.POSSettings?.checkDigits as number;
       const itemCodeDigits = this.fyo.singles.POSSettings
         ?.itemCodeDigits as number;
-      const itemWeight = this.fyo.singles.POSSettings?.itemWeight as number;
+      const itemWeightDigits = this.fyo.singles.POSSettings
+        ?.itemWeightDigits as number;
 
-      if (code.length !== checkDigit + itemCodeDigits + itemWeight) {
+      if (code.length !== checkDigits + itemCodeDigits + itemWeightDigits) {
         return this.error(this.t`Barcode ${barcode} has an invalid length.`);
       }
 
       const filters: Record<string, string> = isWeightEnabled
         ? {
-            barcode: barcode.slice(checkDigit, checkDigit + itemCodeDigits),
+            barcode: barcode.slice(checkDigits, checkDigits + itemCodeDigits),
           }
         : { barcode };
       const fields = isWeightEnabled ? ['name', 'unit'] : ['name'];
@@ -104,7 +105,7 @@ export default defineComponent({
         ? this.parseBarcode(
             barcode,
             unit as string,
-            checkDigit + itemCodeDigits
+            checkDigits + itemCodeDigits
           )
         : 1;
 
