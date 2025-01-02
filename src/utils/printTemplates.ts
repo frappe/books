@@ -53,6 +53,11 @@ export async function getPrintTemplatePropValues(
     ModelNameEnum.Currency
   );
 
+  (values.doc as PrintTemplateData).paidAmount = doc.fyo.format(
+    paymentDoc.amount as Money,
+    ModelNameEnum.Currency
+  );
+
   const printSettings = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
   const printValues = await getPrintTemplateDocValues(
     printSettings,
