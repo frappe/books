@@ -53,13 +53,8 @@
             :template="doc.template!"
             :values="values!"
             :scale="scale"
-            :height="doc.name.startsWith('POS') ? 20 : doc.height"
-            :width="
-              doc.name?.startsWith('POS') &&
-              fyo.singles.PrintSettings?.posPrintWidth
-                ? fyo.singles.PrintSettings.posPrintWidth
-                : doc.width
-            "
+            :height="doc.height"
+            :width="doc.width"
           />
         </div>
 
