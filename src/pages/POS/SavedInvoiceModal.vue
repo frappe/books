@@ -1,16 +1,33 @@
 <template>
-  <Modal class="h-auto w-auto p-6" :set-close-listener="false">
-    <p class="text-center font-semibold">{{ t`Saved Invoices` }}</p>
+  <Modal class="h-auto w-auto p-5" :set-close-listener="false">
+    <p class="text-center font-semibold">{{ t`Invoices` }}</p>
 
     <hr class="mt-2 dark:border-gray-800" />
 
+    <div class="flex justify-around items-center">
+      <Button
+        :background="false"
+        class="w-full h-full p-2 mt-2"
+        :class="{ 'dark:bg-gray-890 underline': savedInvoiceList }"
+        @click="savedInvoiceList = true"
+        >Saved</Button
+      >
+
+      <Button
+        :background="false"
+        class="w-full h-full p-2 mt-2"
+        :class="{ 'dark:bg-gray-890 underline': !savedInvoiceList }"
+        @click="savedInvoiceList = false"
+        >Submitted</Button
+      >
+    </div>
     <Row
       :ratio="ratio"
       class="
         border
         flex
         items-center
-        mt-4
+        mt-2
         px-2
         w-full
         rounded-t-md
@@ -28,12 +45,12 @@
     </Row>
 
     <div
-      v-if="savedInvoices.length"
+      v-if="savedInvoiceList ? savedInvoices.length : submittedInvoices.length"
       class="overflow-y-auto custom-scroll custom-scroll-thumb2"
       style="height: 65vh; width: 60vh"
     >
       <Row
-        v-for="row in savedInvoices as SalesInvoice[]"
+        v-for="row in savedInvoiceList ? savedInvoices : submittedInvoices"
         :key="row.name"
         :ratio="ratio"
         :border="true"
@@ -88,6 +105,7 @@ import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
+import { Money } from 'pesa';
 
 export default defineComponent({
   name: 'SavedInvoiceModal',
@@ -108,7 +126,9 @@ export default defineComponent({
   },
   data() {
     return {
+      savedInvoiceList: true,
       savedInvoices: [] as SalesInvoice[],
+      submittedInvoices: [] as SalesInvoice[],
       isModalVisible: false,
     };
   },
@@ -152,14 +172,17 @@ export default defineComponent({
     async modalStatus(newVal) {
       if (newVal) {
         await this.setSavedInvoices();
+        await this.setSubmittedInvoices();
       }
     },
   },
   async mounted() {
     await this.setSavedInvoices();
+    await this.setSubmittedInvoices();
   },
   async activated() {
     await this.setSavedInvoices();
+    await this.setSubmittedInvoices();
   },
 
   methods: {
@@ -171,6 +194,16 @@ export default defineComponent({
           filters: { isPOS: true, submitted: false },
         }
       )) as SalesInvoice[];
+    },
+    async setSubmittedInvoices() {
+      const invoices = (await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {
+        fields: [],
+        filters: { isPOS: true, submitted: true, returnAgainst: null },
+      })) as SalesInvoice[];
+
+      this.submittedInvoices = invoices.filter(
+        (invoice) => !(invoice.outstandingAmount as Money).isZero()
+      );
     },
     async selectedInvoice(row: SalesInvoice) {
       let selectedInvoiceDoc = (await this.fyo.doc.getDoc(

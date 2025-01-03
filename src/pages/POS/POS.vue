@@ -138,6 +138,7 @@ import {
   ItemQtyMap,
   ItemSerialNumbers,
 } from 'src/components/POS/types';
+import { ValidationError } from 'fyo/utils/errors';
 
 const COMPONENT_NAME = 'POS';
 
@@ -466,6 +467,10 @@ export default defineComponent({
 
       this.sinvDoc = salesInvoiceDoc;
       this.toggleModal('SavedInvoice', false);
+
+      if (doc.submitted) {
+        this.toggleModal('Payment');
+      }
     },
     setTransferAmount(amount: Money = fyo.pesa(0)) {
       this.transferAmount = amount;
@@ -478,19 +483,25 @@ export default defineComponent({
     },
 
     async addItem(item: POSItem | Item | undefined, quantity?: number) {
-      await this.sinvDoc.runFormulas();
-
-      if (!item) {
-        return;
-      }
-
-      const existingItems =
-        this.sinvDoc.items?.filter(
-          (invoiceItem) =>
-            invoiceItem.item === item.name && !invoiceItem.isFreeItem
-        ) ?? [];
-
       try {
+        await this.sinvDoc.runFormulas();
+
+        if (this.sinvDoc.isSubmitted) {
+          throw new ValidationError(
+            t`Cannot add an item to a submitted invoice.`
+          );
+        }
+
+        if (!item) {
+          return;
+        }
+
+        const existingItems =
+          this.sinvDoc.items?.filter(
+            (invoiceItem) =>
+              invoiceItem.item === item.name && !invoiceItem.isFreeItem
+          ) ?? [];
+
         if (item.hasBatch) {
           for (const invItem of existingItems) {
             const itemQty = invItem.quantity ?? 0;
@@ -571,13 +582,26 @@ export default defineComponent({
       await this.applyPricingRule();
       await this.sinvDoc.runFormulas();
     },
-
-    async createTransaction(shouldPrint = false) {
+    async createTransaction(shouldPrint = false, isPay = false) {
       try {
         await this.validate();
         await this.submitSinvDoc();
-        await this.makePayment(shouldPrint);
-        await this.makeStockTransfer();
+
+        if (this.sinvDoc.stockNotTransferred) {
+          await this.makeStockTransfer();
+        }
+
+        if (isPay) {
+          await this.makePayment(shouldPrint);
+        }
+
+        if (shouldPrint) {
+          await routeTo(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
+          );
+        }
+
         await this.afterTransaction();
         await this.setItems();
       } catch (error) {
