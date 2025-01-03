@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fyo } from 'src/initFyo';
 import { TemplateFile } from 'utils/types';
 
 export async function getTemplates() {
@@ -13,7 +14,10 @@ export async function getTemplates() {
     const filePath = path.join(paths.root, file);
     const template = await fs.readFile(filePath, 'utf-8');
     const { mtime } = await fs.stat(filePath);
-    const width = file?.split('-')[1]?.split('.')[0] === 'POS' ? 8 : 0;
+    const width =
+      file?.split('-')[1]?.split('.')[0] === 'POS'
+        ? (fyo.singles.PrintSettings?.posPrintWidth as number)
+        : 0;
     const height = file?.split('-')[1]?.split('.')[0] === 'POS' ? 22 : 0;
 
     templates.push({
