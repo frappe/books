@@ -91,7 +91,6 @@
             :container-styles="{ 'border-radius': '0px' }"
             @change="async (value) => await setType(value)"
           />
-
           <!-- Display Doc -->
           <Link
             v-if="doc.type"
