@@ -207,7 +207,7 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(
     IPC_ACTIONS.GET_TEMPLATES,
-    async (_, posPrintWidth: number) => {
+    async (_, posPrintWidth?: number) => {
       return getTemplates(posPrintWidth);
     }
   );
