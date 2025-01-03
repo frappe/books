@@ -15,7 +15,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '20.18.1'
 
@@ -23,7 +23,7 @@ jobs:
         run: yarn set version 1.22.18
 
       - name: Checkout Books
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Dependencies
         run: yarn
