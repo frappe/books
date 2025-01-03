@@ -575,8 +575,8 @@ export default defineComponent({
     async createTransaction(shouldPrint = false) {
       try {
         await this.validate();
-        await this.submitSinvDoc(shouldPrint);
-        await this.makePayment();
+        await this.submitSinvDoc();
+        await this.makePayment(shouldPrint);
         await this.makeStockTransfer();
         await this.afterTransaction();
         await this.setItems();
@@ -587,7 +587,7 @@ export default defineComponent({
         });
       }
     },
-    async makePayment() {
+    async makePayment(shouldPrint: boolean) {
       this.paymentDoc = this.sinvDoc.getPayment() as Payment;
       const paymentMethod = this.paymentMethod;
 
@@ -623,6 +623,13 @@ export default defineComponent({
       try {
         await this.paymentDoc?.sync();
         await this.paymentDoc?.submit();
+
+        if (shouldPrint) {
+          await routeTo(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
+          );
+        }
       } catch (error) {
         return showToast({
           type: 'error',
@@ -660,20 +667,13 @@ export default defineComponent({
         });
       }
     },
-    async submitSinvDoc(shouldPrint: boolean) {
-      this.sinvDoc.once('afterSubmit', async () => {
+    async submitSinvDoc() {
+      this.sinvDoc.once('afterSubmit', () => {
         showToast({
           type: 'success',
           message: t`Sales Invoice ${this.sinvDoc.name as string} is Submitted`,
           duration: 'short',
         });
-
-        if (shouldPrint) {
-          await routeTo(
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
-          );
-        }
       });
 
       try {
