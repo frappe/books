@@ -130,23 +130,10 @@
         />
       </div>
 
-      <div class="grid grid-cols-2 gap-4 fixed bottom-8" style="width: 25rem">
-        <div class="col-span-2">
-          <Button
-            class="w-full bg-red-500 dark:bg-red-700"
-            style="padding: 1.35rem"
-            @click="cancelTransaction()"
-          >
-            <slot>
-              <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Cancel` }}
-              </p>
-            </slot>
-          </Button>
-        </div>
+      <div class="grid grid-cols-2 gap-4 bottom-8">
         <div v-if="fyo.singles.POSSettings?.submitInvoice" class="col-span-1">
           <Button
-            class="w-full bg-blue-500 dark:bg-blue-700"
+            class="w-full bg-violet-500 dark:bg-violet-700"
             style="padding: 1.35rem"
             :disabled="disableSubmitButton"
             @click="submitTransaction()"
@@ -162,19 +149,21 @@
           </Button>
         </div>
 
-        <div v-if="fyo.singles.POSSettings?.submitInvoice" class="col-span-1">
+        <div
+          :class="
+            !fyo.singles.POSSettings?.submitInvoice
+              ? 'col-span-2'
+              : 'col-span-1'
+          "
+        >
           <Button
-            class="w-full bg-green-500 dark:bg-green-700"
+            class="w-full bg-red-500 dark:bg-red-700"
             style="padding: 1.35rem"
-            :disabled="disableSubmitButton"
-            @click="$emit('createTransaction', true)"
+            @click="cancelTransaction()"
           >
             <slot>
-              <p
-                class="uppercase text-lg text-white font-semibold"
-                :disabled="sinvDoc.submitted"
-              >
-                {{ t`Submit & Print` }}
+              <p class="uppercase text-lg text-white font-semibold">
+                {{ t`Cancel` }}
               </p>
             </slot>
           </Button>
@@ -334,15 +323,14 @@ export default defineComponent({
       }
 
       if (
-        !this.sinvDoc.grandTotal?.isZero() &&
-        this.transferAmount.isZero() &&
-        this.cashAmount.isZero()
+        (this.sinvDoc.grandTotal?.float as number) < 1 &&
+        this.fyo.pesa(this.paidAmount.float).isZero()
       ) {
         return true;
       }
 
       if (
-        this.cashAmount.isZero() &&
+        this.paymentMethod !== 'Cash' &&
         (!this.transferRefNo || !this.transferClearanceDate)
       ) {
         return true;
