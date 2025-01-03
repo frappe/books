@@ -205,9 +205,12 @@ export default function registerIpcMainActionListeners(main: Main) {
     };
   });
 
-  ipcMain.handle(IPC_ACTIONS.GET_TEMPLATES, async () => {
-    return getTemplates();
-  });
+  ipcMain.handle(
+    IPC_ACTIONS.GET_TEMPLATES,
+    async (_, posPrintWidth: number) => {
+      return getTemplates(posPrintWidth);
+    }
+  );
 
   /**
    * Database Related Actions
