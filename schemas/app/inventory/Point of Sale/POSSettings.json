@@ -58,14 +58,6 @@
       "section": "Default"
     },
     {
-      "fieldname": "submitInvoice",
-      "label": "Post Payment",
-      "fieldtype": "Check",
-      "default": false,
-      "description": "create invoice and shipment with payment option later.",
-      "section": "Default"
-    },
-    {
       "fieldname": "weightEnabledBarcode",
       "label": "Weigth Enabled Barcode",
       "fieldtype": "Check",

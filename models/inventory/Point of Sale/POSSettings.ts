@@ -14,9 +14,7 @@ export class POSSettings extends Doc {
   checkDigits?: number;
   itemCodeDigits?: number;
   itemWeightDigits?: number;
-
   posUI?: 'Classic' | 'Modern';
-  submitInvoice?: string;
 
   static filters: FiltersMap = {
     cashAccount: () => ({

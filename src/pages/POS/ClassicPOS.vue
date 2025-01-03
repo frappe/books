@@ -287,7 +287,7 @@
                   >
                     <slot>
                       <p class="uppercase text-lg text-white font-semibold">
-                        {{ t`Submit` }}
+                        {{ t`Buy` }}
                       </p>
                     </slot>
                   </Button>
