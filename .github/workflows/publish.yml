@@ -9,7 +9,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: '18.19.0'
+          node-version: '20.18.1'
 
       - name: Checkout Books
         uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: '18.19.0'
+          node-version: '20.18.1'
 
       - name: Checkout Books
         uses: actions/checkout@v4
@@ -109,7 +109,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: '18.19.0'
+          node-version: '20.18.1'
 
       - name: Checkout Books
         uses: actions/checkout@v4
@@ -157,7 +157,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: '18.19.0'
+          node-version: '20.18.1'
 
       - name: Checkout Books
         uses: actions/checkout@v4
