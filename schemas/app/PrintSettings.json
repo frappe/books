@@ -126,7 +126,8 @@
       "label": "Display Time In Invoice",
       "fieldtype": "Check",
       "section": "Customizations"
-    },{
+    },
+    {
       "fieldname": "posPrintWidth",
       "label": "Pos Print Width",
       "fieldtype": "Float",
