@@ -133,20 +133,6 @@
       <div class="grid grid-cols-2 gap-4 bottom-8">
         <div v-if="fyo.singles.POSSettings?.submitInvoice" class="col-span-1">
           <Button
-            class="w-full bg-red-500 dark:bg-red-700"
-            style="padding: 1.35rem"
-            @click="cancelTransaction()"
-          >
-            <slot>
-              <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Cancel` }}
-              </p>
-            </slot>
-          </Button>
-        </div>
-
-        <div class="col-span-1" v-if="fyo.singles.POSSettings?.submitInvoice">
-          <Button
             class="w-full bg-violet-500 dark:bg-violet-700"
             style="padding: 1.35rem"
             :disabled="disableSubmitButton"
