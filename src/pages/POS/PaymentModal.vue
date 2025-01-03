@@ -375,6 +375,7 @@ export default defineComponent({
       this.$emit('createTransaction', false, true);
     },
     cancelTransaction() {
+      this.$emit('setPaidAmount', fyo.pesa(0))
       this.$emit('toggleModal', 'Payment');
     },
   },
