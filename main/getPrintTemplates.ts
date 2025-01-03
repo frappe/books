@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { TemplateFile } from 'utils/types';
 
-export async function getTemplates(posTemplateWidth: number) {
+export async function getTemplates(posTemplateWidth?: number) {
   const paths = await getPrintTemplatePaths();
   if (!paths) {
     return [];
@@ -14,7 +14,7 @@ export async function getTemplates(posTemplateWidth: number) {
     const template = await fs.readFile(filePath, 'utf-8');
     const { mtime } = await fs.stat(filePath);
     const width =
-      file?.split('-')[1]?.split('.')[0] === 'POS' ? posTemplateWidth : 0;
+      file?.split('-')[1]?.split('.')[0] === 'POS' ? posTemplateWidth ?? 0 : 0;
     const height = file?.split('-')[1]?.split('.')[0] === 'POS' ? 22 : 0;
 
     templates.push({

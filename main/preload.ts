@@ -75,7 +75,7 @@ const ipc = {
     };
   },
 
-  async getTemplates(posTemplateWidth: number): Promise<TemplateFile[]> {
+  async getTemplates(posTemplateWidth?: number): Promise<TemplateFile[]> {
     return (await ipcRenderer.invoke(
       IPC_ACTIONS.GET_TEMPLATES,
       posTemplateWidth
