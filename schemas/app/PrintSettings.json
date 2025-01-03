@@ -131,7 +131,7 @@
       "fieldname": "posPrintWidth",
       "label": "Pos Print Width",
       "fieldtype": "Float",
-      "default": 10,
+      "default": 8,
       "section": "Customizations"
     }
   ]
