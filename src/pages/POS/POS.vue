@@ -484,13 +484,13 @@ export default defineComponent({
 
     async addItem(item: POSItem | Item | undefined, quantity?: number) {
       try {
+        await this.sinvDoc.runFormulas();
+
         if (this.sinvDoc.isSubmitted) {
           throw new ValidationError(
             t`Cannot add an item to a submitted invoice.`
           );
         }
-
-        await this.sinvDoc.runFormulas();
 
         if (!item) {
           return;
@@ -593,6 +593,13 @@ export default defineComponent({
 
         if (isPay) {
           await this.makePayment(shouldPrint);
+        }
+
+        if (shouldPrint) {
+          await routeTo(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
+          );
         }
 
         await this.afterTransaction();
