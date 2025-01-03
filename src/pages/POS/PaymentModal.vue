@@ -130,12 +130,30 @@
         />
       </div>
 
-      <div class="grid grid-cols-2 gap-4 fixed bottom-8" style="width: 25rem">
-        <div class="col-span-2">
+      <div class="grid grid-cols-2 gap-4 bottom-8">
+        <div class="col-span-1">
+          <Button
+            class="w-full bg-violet-500 dark:bg-violet-700"
+            style="padding: 1.35rem"
+            :disabled="disableSubmitButton"
+            @click="submitTransaction()"
+          >
+            <slot>
+              <p
+                class="uppercase text-lg text-white font-semibold"
+                :disabled="sinvDoc.submitted"
+              >
+                {{ t`Submit` }}
+              </p>
+            </slot>
+          </Button>
+        </div>
+
+        <div class="col-span-1">
           <Button
             class="w-full bg-red-500 dark:bg-red-700"
             style="padding: 1.35rem"
-            @click="$emit('toggleModal', 'Payment')"
+            @click="cancelTransaction()"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
@@ -149,26 +167,27 @@
           <Button
             class="w-full bg-blue-500 dark:bg-blue-700"
             style="padding: 1.35rem"
-            :disabled="disableSubmitButton"
-            @click="submitTransaction()"
+            :disabled="disablePayButton"
+            @click="payTransaction()"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Submit` }}
+                {{ t`Pay` }}
               </p>
             </slot>
           </Button>
         </div>
+
         <div class="col-span-1">
           <Button
             class="w-full bg-green-500 dark:bg-green-700"
             style="padding: 1.35rem"
-            :disabled="disableSubmitButton"
-            @click="$emit('createTransaction', true)"
+            :disabled="disablePayButton"
+            @click="$emit('createTransaction', true, true)"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Submit & Print` }}
+                {{ t`Pay & Print` }}
               </p>
             </slot>
           </Button>
@@ -293,6 +312,26 @@ export default defineComponent({
       return false;
     },
     disableSubmitButton(): boolean {
+      if (this.sinvDoc.submitted) {
+        return true;
+      }
+
+      if (
+        (this.sinvDoc.grandTotal?.float as number) < 1 &&
+        this.fyo.pesa(this.paidAmount.float).isZero()
+      ) {
+        return true;
+      }
+
+      if (
+        this.paymentMethod !== 'Cash' &&
+        (!this.transferRefNo || !this.transferClearanceDate)
+      ) {
+        return true;
+      }
+      return false;
+    },
+    disablePayButton(): boolean {
       if (
         (this.sinvDoc.grandTotal?.float as number) < 1 &&
         this.fyo.pesa(this.paidAmount.float).isZero()
@@ -331,6 +370,13 @@ export default defineComponent({
     },
     submitTransaction() {
       this.$emit('createTransaction');
+    },
+    payTransaction() {
+      this.$emit('createTransaction', false, true);
+    },
+    cancelTransaction() {
+      this.$emit('setPaidAmount', fyo.pesa(0));
+      this.$emit('toggleModal', 'Payment');
     },
   },
 });

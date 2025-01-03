@@ -14,7 +14,6 @@ export class POSSettings extends Doc {
   checkDigits?: number;
   itemCodeDigits?: number;
   itemWeightDigits?: number;
-
   posUI?: 'Classic' | 'Modern';
 
   static filters: FiltersMap = {

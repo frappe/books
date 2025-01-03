@@ -52,7 +52,7 @@
         (date) => emitEvent('setTransferClearanceDate', date)
       "
       @create-transaction="
-        (createTransaction) => emitEvent('createTransaction', createTransaction)
+        (print, status) => emitEvent('createTransaction', print, status)
       "
     />
 
@@ -210,7 +210,7 @@
                 >
                   <slot>
                     <p class="uppercase text-lg text-white font-semibold">
-                      {{ t`Pay` }}
+                      {{ t`Buy` }}
                     </p>
                   </slot>
                 </Button>
