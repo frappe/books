@@ -19,7 +19,13 @@ export type PrintTemplateHint = {
   [key: string]: string | PrintTemplateHint | PrintTemplateHint[];
 };
 type PrintTemplateData = Record<string, unknown>;
-type TemplateUpdateItem = { name: string; template: string; type: string };
+type TemplateUpdateItem = {
+  name: string;
+  template: string;
+  type: string;
+  width: number;
+  height: number;
+};
 
 const printSettingsFields = [
   'logo',
@@ -44,17 +50,22 @@ export async function getPrintTemplatePropValues(
   const totalTax = await (doc as Invoice)?.getTotalTax();
   const paymentId = await (doc as SalesInvoice).getPaymentIds();
 
-  const paymentDoc = await fyo.doc.getDoc(ModelNameEnum.Payment, paymentId[0]);
+  if (paymentId.length) {
+    const paymentDoc = await fyo.doc.getDoc(
+      ModelNameEnum.Payment,
+      paymentId[0]
+    );
 
-  (values.doc as PrintTemplateData).paymentMethod = paymentDoc.paymentMethod;
+    (values.doc as PrintTemplateData).paymentMethod = paymentDoc.paymentMethod;
+
+    (values.doc as PrintTemplateData).paidAmount = doc.fyo.format(
+      paymentDoc.amount as Money,
+      ModelNameEnum.Currency
+    );
+  }
 
   (values.doc as PrintTemplateData).subTotal = doc.fyo.format(
     (doc.grandTotal as Money).sub(totalTax),
-    ModelNameEnum.Currency
-  );
-
-  (values.doc as PrintTemplateData).paidAmount = doc.fyo.format(
-    paymentDoc.amount as Money,
     ModelNameEnum.Currency
   );
 
@@ -456,20 +467,29 @@ export async function updatePrintTemplates(fyo: Fyo) {
 
   const isLogging = fyo.store.skipTelemetryLogging;
   fyo.store.skipTelemetryLogging = true;
-  for (const { name, type, template } of updateList) {
+  for (const { name, type, template, width, height } of updateList) {
     const doc = await getDocFromNameIfExistsElseNew(
       ModelNameEnum.PrintTemplate,
       name
     );
 
-    await doc.set({ name, type, template, isCustom: false });
+    const updateData = {
+      name,
+      type,
+      template,
+      isCustom: false,
+      ...(width ? { width } : {}),
+      ...(height ? { height } : {}),
+    };
+
+    await doc.set(updateData);
     await doc.sync();
   }
   fyo.store.skipTelemetryLogging = isLogging;
 }
 
 function getPrintTemplateUpdateList(
-  { file, template, modified: modifiedString }: TemplateFile,
+  { file, template, modified: modifiedString, width, height }: TemplateFile,
   nameModifiedMap: Record<string, Date>,
   fyo: Fyo
 ): TemplateUpdateItem[] {
@@ -483,6 +503,8 @@ function getPrintTemplateUpdateList(
     }
 
     templateList.push({
+      height,
+      width,
       name,
       type,
       template,

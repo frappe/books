@@ -56,7 +56,13 @@ export type PropertyEnum<T extends Record<string, any>> = {
   [key in keyof Required<T>]: key;
 };
 
-export type TemplateFile = { file: string; template: string; modified: string };
+export type TemplateFile = {
+  file: string;
+  template: string;
+  modified: string;
+  width: number;
+  height: number;
+};
 
 export interface Keys extends ModMap {
   pressed: Set<string>;

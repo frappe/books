@@ -827,6 +827,7 @@ export const printSizes = [
   'B7',
   'B8',
   'B9',
+  'POS',
   'Letter',
   'Legal',
   'Executive',
@@ -922,6 +923,10 @@ export const paperSizeMap: Record<
   B9: {
     width: 4.4,
     height: 6.2,
+  },
+  POS: {
+    width: 8,
+    height: 22,
   },
   Letter: {
     width: 21.59,
