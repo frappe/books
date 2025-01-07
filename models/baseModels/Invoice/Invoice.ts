@@ -49,6 +49,7 @@ import { AppliedCouponCodes } from '../AppliedCouponCodes/AppliedCouponCodes';
 import { CouponCode } from '../CouponCode/CouponCode';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
+import { getLinkedEntries } from 'src/utils/doc';
 import { PricingRuleItem } from '../PricingRuleItem/PricingRuleItem';
 
 export type TaxDetail = {
@@ -979,6 +980,17 @@ export abstract class Invoice extends Transactional {
       return null;
     }
 
+    let linkedEntries;
+
+    if (this.returnAgainst) {
+      const someDOC = (await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        this.returnAgainst
+      )) as SalesInvoice;
+
+      linkedEntries = await getLinkedEntries(someDOC);
+    }
+
     const schemaName = this.stockTransferSchemaName;
 
     const defaults = (this.fyo.singles.Defaults as Defaults) ?? {};
@@ -998,6 +1010,7 @@ export abstract class Invoice extends Transactional {
       terms,
       numberSeries,
       backReference: this.name,
+      returnAgainst: linkedEntries ? linkedEntries.Shipment![0] : '',
     };
 
     let location = this.autoStockTransferLocation;
