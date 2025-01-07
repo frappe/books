@@ -339,6 +339,7 @@ import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
 import { POSItem, ItemQtyMap } from 'src/components/POS/types';
 import ItemsGrid from 'src/components/POS/Classic/ItemsGrid.vue';
 import ItemsTable from 'src/components/POS/Classic/ItemsTable.vue';
+import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import SelectedItemTable from 'src/components/POS/Classic/SelectedItemTable.vue';
@@ -346,7 +347,6 @@ import WeightEnabledBarcode from 'src/components/Controls/WeightEnabledBarcode.v
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
-import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
 
 export default defineComponent({
   name: 'ClassicPOS',
@@ -451,6 +451,9 @@ export default defineComponent({
       eventName: PosEmits,
       ...args: (string | boolean | Item | number | Money)[]
     ) {
+      console.log(eventName, 'eventName');
+      console.log(...args, '...args');
+
       this.$emit(eventName, ...args);
     },
     getItem,

@@ -50,6 +50,7 @@
       @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
+      @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
     <ModernPOS
@@ -92,6 +93,7 @@
       @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
+      @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
   </div>
@@ -397,6 +399,20 @@ export default defineComponent({
           hasSerialNumber: !!item.hasSerialNumber,
         });
       }
+    },
+    async selectedReturnInvoice(invoiceName: string) {
+      const salesInvoiceDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        invoiceName
+      )) as SalesInvoice;
+
+      let returnDoc = (await salesInvoiceDoc.getReturnDoc()) as SalesInvoice;
+
+      if (!returnDoc || !returnDoc.name) {
+        return;
+      }
+
+      this.sinvDoc = returnDoc;
     },
     toggleView() {
       this.tableView = !this.tableView;

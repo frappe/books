@@ -20,13 +20,14 @@
       <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto mb-2">
         <div class="col-span-2">
           <Button
-            class="w-full bg-green-500"
+            class="w-full bg-green-500 dark:bg-green-700"
             style="padding: 1.35rem"
-            @click="$emit('selectedReturnInvoice', salesInvoiceName)"
+            :disabled="!salesInvoiceName"
+            @click="selectReturnInvoice"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Save` }}
+                {{ t`Saved` }}
               </p>
             </slot>
           </Button>
@@ -36,7 +37,7 @@
       <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto">
         <div class="col-span-2">
           <Button
-            class="w-full bg-red-500"
+            class="w-full bg-red-500 dark:bg-red-700"
             style="padding: 1.35rem"
             @click="$emit('toggleModal', 'ReturnSalesInvoice')"
           >
@@ -57,16 +58,13 @@ import Button from 'src/components/Button.vue';
 import Modal from 'src/components/Modal.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
-import { t } from 'fyo';
 import Link from 'src/components/Controls/Link.vue';
-import FormControl from 'src/components/Controls/FormControl.vue';
 export default defineComponent({
   name: 'ReturnSalesInvoice',
   components: {
     Modal,
     Button,
     Link,
-    FormControl,
   },
   emits: ['toggleModal', 'selectedReturnInvoice'],
   setup() {
@@ -82,7 +80,14 @@ export default defineComponent({
   methods: {
     updateCouponCode(invoiceName: string) {
       this.salesInvoiceName = invoiceName;
-      console.log(this.salesInvoiceName, 'this.salesInvoiceName');
+    },
+    selectReturnInvoice() {
+      console.log('selectReturnInvoiceselectReturnInvo');
+
+      this.$emit('selectedReturnInvoice', this.salesInvoiceName);
+      this.$emit('toggleModal', 'ReturnSalesInvoice');
+
+      this.salesInvoiceName = '';
     },
   },
 });
