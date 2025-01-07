@@ -56,6 +56,12 @@
       "
     />
 
+    <ReturnSalesInvoiceModal
+      :open-modal="openReturnSalesInvoiceModal"
+      @selected-return-invoice="(value:any) => emitEvent('selectedReturnInvoice', value)"
+      @toggle-modal="emitEvent('toggleModal', 'ReturnSalesInvoice')"
+    />
+
     <AlertModal
       :open-modal="openAlertModal"
       @toggle-modal="emitEvent('toggleModal', 'Alert')"
@@ -180,7 +186,7 @@
 
           <div
             class="
-              p-4
+              p-3
               bg-white
               border
               rounded-md
@@ -188,7 +194,7 @@
             "
           >
             <div class="w-full grid grid-cols-2 gap-y-2 gap-x-3">
-              <div class="">
+              <div class="flex flex-col justify-end">
                 <div class="grid grid-cols-2 gap-2">
                   <FloatingLabelFloatInput
                     :df="{
@@ -242,10 +248,10 @@
                   />
                 </div>
               </div>
-              <div class="flex w-full gap-2">
-                <div class="w-full">
+              <div class="w-full">
+                <div class="w-full flex gap-2">
                   <Button
-                    class="w-full bg-violet-500 dark:bg-violet-700 py-6"
+                    class="w-full bg-violet-500 dark:bg-violet-700 py-5"
                     :disabled="!sinvDoc?.party || !sinvDoc?.items?.length"
                     @click="$emit('saveInvoiceAction')"
                   >
@@ -255,22 +261,8 @@
                       </p>
                     </slot>
                   </Button>
-
                   <Button
-                    class="w-full mt-4 bg-blue-500 dark:bg-blue-700 py-6"
-                    @click="emitEvent('toggleModal', 'SavedInvoice', true)"
-                  >
-                    <slot>
-                      <p class="uppercase text-lg text-white font-semibold">
-                        {{ t`held` }}
-                      </p>
-                    </slot>
-                  </Button>
-                </div>
-                <div class="w-full">
-                  <Button
-                    class="w-full bg-red-500 dark:bg-red-700 py-6"
-                    :disabled="!sinvDoc?.items?.length"
+                    class="w-full bg-red-500 dark:bg-red-700 py-5"
                     @click="() => $emit('clearValues')"
                   >
                     <slot>
@@ -279,19 +271,43 @@
                       </p>
                     </slot>
                   </Button>
-
+                </div>
+                <div class="w-full flex mt-2 gap-2">
                   <Button
-                    class="mt-4 w-full bg-green-500 dark:bg-green-700 py-6"
-                    :disabled="disablePayButton"
-                    @click="emitEvent('toggleModal', 'Payment', true)"
+                    class="w-full bg-blue-500 dark:bg-blue-700 py-5"
+                    @click="emitEvent('toggleModal', 'SavedInvoice', true)"
                   >
                     <slot>
                       <p class="uppercase text-lg text-white font-semibold">
-                        {{ t`Buy` }}
+                        {{ t`held` }}
+                      </p>
+                    </slot>
+                  </Button>
+
+                  <Button
+                    class="w-full bg-orange-500 dark:bg-orange-700 py-5"
+                    @click="
+                      emitEvent('toggleModal', 'ReturnSalesInvoice', true)
+                    "
+                  >
+                    <slot>
+                      <p class="uppercase text-lg text-white font-semibold">
+                        {{ t`Return` }}
                       </p>
                     </slot>
                   </Button>
                 </div>
+                <Button
+                  class="w-full bg-green-500 mt-2 dark:bg-green-700 py-5"
+                  :disabled="disablePayButton"
+                  @click="emitEvent('toggleModal', 'Payment', true)"
+                >
+                  <slot>
+                    <p class="uppercase text-lg text-white font-semibold">
+                      {{ t`Pay` }}
+                    </p>
+                  </slot>
+                </Button>
               </div>
             </div>
           </div>
@@ -330,6 +346,7 @@ import WeightEnabledBarcode from 'src/components/Controls/WeightEnabledBarcode.v
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
+import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
 
 export default defineComponent({
   name: 'ClassicPOS',
@@ -352,6 +369,7 @@ export default defineComponent({
     LoyaltyProgramModal,
     WeightEnabledBarcode,
     FloatingLabelFloatInput,
+    ReturnSalesInvoiceModal,
     FloatingLabelCurrencyInput,
   },
   props: {
@@ -368,6 +386,7 @@ export default defineComponent({
     openSavedInvoiceModal: Boolean,
     openLoyaltyProgramModal: Boolean,
     openAppliedCouponsModal: Boolean,
+    openReturnSalesInvoiceModal: Boolean,
     totalQuantity: {
       type: Number,
       default: 0,
@@ -418,6 +437,7 @@ export default defineComponent({
     'createTransaction',
     'setTransferAmount',
     'selectedInvoiceName',
+    'selectedReturnInvoice',
     'setTransferClearanceDate',
   ],
   data() {
