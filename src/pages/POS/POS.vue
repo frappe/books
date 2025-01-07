@@ -32,6 +32,7 @@
       :open-saved-invoice-modal="openSavedInvoiceModal"
       :open-loyalty-program-modal="openLoyaltyProgramModal"
       :open-applied-coupons-modal="openAppliedCouponsModal"
+      :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -188,6 +189,7 @@ export default defineComponent({
       openSavedInvoiceModal: false,
       openLoyaltyProgramModal: false,
       openAppliedCouponsModal: false,
+      openReturnSalesInvoiceModal: false,
 
       totalQuantity: 0,
       paidAmount: fyo.pesa(0),

@@ -17,6 +17,7 @@ export const modalNames = [
   'Alert',
   'CouponCode',
   'PriceList',
+  'ReturnSalesInvoice',
 ] as const;
 
 export type ModalName = typeof modalNames[number];
@@ -35,6 +36,7 @@ export type PosEmits =
   | 'setTransferAmount'
   | 'createTransaction'
   | 'selectedInvoiceName'
+  | 'selectedReturnInvoice'
   | 'setTransferClearanceDate';
 
 export interface POSItem {
