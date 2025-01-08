@@ -81,15 +81,20 @@ export function validateSinv(sinvDoc: SalesInvoice, itemQtyMap: ItemQtyMap) {
     return;
   }
 
-  validateSinvItems(sinvDoc.items as SalesInvoiceItem[], itemQtyMap);
+  validateSinvItems(
+    sinvDoc.items as SalesInvoiceItem[],
+    itemQtyMap,
+    sinvDoc.returnAgainst as string
+  );
 }
 
 function validateSinvItems(
   sinvItems: SalesInvoiceItem[],
-  itemQtyMap: ItemQtyMap
+  itemQtyMap: ItemQtyMap,
+  isReturn?: string
 ) {
   for (const item of sinvItems) {
-    if (!item.quantity || item.quantity < 1) {
+    if (!item.quantity || (item.quantity < 1 && !isReturn)) {
       throw new ValidationError(
         t`Invalid Quantity for Item ${item.item as string}`
       );
