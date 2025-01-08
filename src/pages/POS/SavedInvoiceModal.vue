@@ -129,7 +129,6 @@ export default defineComponent({
       savedInvoiceList: true,
       savedInvoices: [] as SalesInvoice[],
       submittedInvoices: [] as SalesInvoice[],
-      isModalVisible: false,
     };
   },
   computed: {

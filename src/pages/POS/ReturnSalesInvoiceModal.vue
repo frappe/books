@@ -1,53 +1,78 @@
 <template>
-  <Modal class="h-96 w-96" :set-close-listener="false">
-    <p class="text-center py-4 font-semibold">{{ t`Return Sales Invoice` }}</p>
-    <hr class="dark:border-gray-800 mx-10" />
-    <div class="p-10">
-      <div v-if="sinvDoc.fieldMap" class="flex justify-cente pb-14">
-        <div class="w-80">
-          <Link
-            v-if="sinvDoc.fieldMap"
-            class="flex-shrink-0"
-            :show-label="true"
-            :border="true"
-            :value="salesInvoiceName"
-            :df="sinvDoc.fieldMap.returnAgainst"
-            @change="updateCouponCode"
-          />
-        </div>
-      </div>
+  <Modal class="h-auto w-auto p-5" :set-close-listener="false">
+    <p class="text-center font-semibold">{{ t`Invoices` }}</p>
 
-      <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto mb-2">
-        <div class="col-span-2">
-          <Button
-            class="w-full bg-green-500 dark:bg-green-700"
-            style="padding: 1.35rem"
-            :disabled="!salesInvoiceName"
-            @click="selectReturnInvoice"
-          >
-            <slot>
-              <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Saved` }}
-              </p>
-            </slot>
-          </Button>
-        </div>
-      </div>
+    <hr class="mt-2 dark:border-gray-800" />
 
-      <div class="row-start-6 grid grid-cols-2 gap-4 mt-auto">
-        <div class="col-span-2">
-          <Button
-            class="w-full bg-red-500 dark:bg-red-700"
-            style="padding: 1.35rem"
-            @click="$emit('toggleModal', 'ReturnSalesInvoice')"
-          >
-            <slot>
-              <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Cancel` }}
-              </p>
-            </slot>
-          </Button>
-        </div>
+    <Row
+      :ratio="ratio"
+      class="
+        border
+        flex
+        items-center
+        mt-2
+        px-2
+        w-full
+        rounded-t-md
+        text-gray-600
+        dark:border-gray-800 dark:text-gray-400
+      "
+    >
+      <div
+        v-for="df in tableFields"
+        :key="df.fieldname"
+        class="flex items-center px-2 py-2 text-lg"
+      >
+        {{ df.label }}
+      </div>
+    </Row>
+
+    <div
+      class="overflow-y-auto custom-scroll custom-scroll-thumb2"
+      style="height: 65vh; width: 60vh"
+    >
+      <Row
+        v-for="row in returnedInvoices"
+        :key="row.name"
+        :ratio="ratio"
+        :border="true"
+        class="
+          border-b border-l border-r
+          dark:border-gray-800 dark:bg-gray-890
+          flex
+          group
+          h-row-mid
+          hover:bg-gray-25
+          items-center
+          justify-center
+          px-2
+          w-full
+        "
+        @click="returnInvoice(row as SalesInvoice)"
+      >
+        <FormControl
+          v-for="df in tableFields"
+          :key="df.fieldname"
+          size="large"
+          :df="df"
+          :value="row[df.fieldname]"
+          :read-only="true"
+        />
+      </Row>
+    </div>
+
+    <div class="row-start-6 grid grid-cols-2 gap-4 mt-4">
+      <div class="col-span-2">
+        <Button
+          class="w-full p-5 bg-red-500 dark:bg-red-700"
+          @click="$emit('toggleModal', 'SavedInvoice')"
+        >
+          <slot>
+            <p class="uppercase text-lg text-white font-semibold">
+              {{ t`Cancel` }}
+            </p>
+          </slot>
+        </Button>
       </div>
     </div>
   </Modal>
@@ -56,15 +81,23 @@
 <script lang="ts">
 import Button from 'src/components/Button.vue';
 import Modal from 'src/components/Modal.vue';
+import Row from 'src/components/Row.vue';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
-import Link from 'src/components/Controls/Link.vue';
+import { ModelNameEnum } from 'models/types';
+import { Field } from 'schemas/types';
+
 export default defineComponent({
   name: 'ReturnSalesInvoice',
   components: {
     Modal,
     Button,
-    Link,
+    FormControl,
+    Row,
+  },
+  props: {
+    modalStatus: Boolean,
   },
   emits: ['toggleModal', 'selectedReturnInvoice'],
   setup() {
@@ -74,20 +107,72 @@ export default defineComponent({
   },
   data() {
     return {
-      salesInvoiceName: '',
+      returnedInvoices: [] as SalesInvoice[],
     };
   },
-  methods: {
-    updateCouponCode(invoiceName: string) {
-      this.salesInvoiceName = invoiceName;
+  computed: {
+    ratio() {
+      return [1, 1, 1, 0.8];
     },
-    selectReturnInvoice() {
-      console.log('selectReturnInvoiceselectReturnInvo');
+    tableFields() {
+      return [
+        {
+          fieldname: 'name',
+          label: 'Name',
+          fieldtype: 'Link',
+          target: 'SalesInvoice',
+          readOnly: true,
+        },
+        {
+          fieldname: 'party',
+          fieldtype: 'Link',
+          label: 'Customer',
+          target: 'Party',
+          placeholder: 'Customer',
+          readOnly: true,
+        },
+        {
+          fieldname: 'date',
+          label: 'Date',
+          fieldtype: 'Date',
+          readOnly: true,
+        },
+        {
+          fieldname: 'grandTotal',
+          label: 'Grand Total',
+          fieldtype: 'Currency',
+          readOnly: true,
+        },
+      ] as Field[];
+    },
+  },
+  watch: {
+    async modalStatus(newVal) {
+      if (newVal) {
+        await this.setReturnedInvoices();
+      }
+    },
+  },
+  async mounted() {
+    await this.setReturnedInvoices();
+  },
+  async activated() {
+    await this.setReturnedInvoices();
+  },
 
-      this.$emit('selectedReturnInvoice', this.salesInvoiceName);
+  methods: {
+    returnInvoice(row: SalesInvoice) {
+      this.$emit('selectedReturnInvoice', row.name);
       this.$emit('toggleModal', 'ReturnSalesInvoice');
-
-      this.salesInvoiceName = '';
+    },
+    async setReturnedInvoices() {
+      this.returnedInvoices = (await this.fyo.db.getAll(
+        ModelNameEnum.SalesInvoice,
+        {
+          fields: [],
+          filters: { isPOS: true, submitted: true, returnAgainst: null },
+        }
+      )) as SalesInvoice[];
     },
   },
 });
