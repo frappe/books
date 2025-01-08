@@ -58,6 +58,7 @@
 
     <ReturnSalesInvoiceModal
       :open-modal="openReturnSalesInvoiceModal"
+      :modal-status="openReturnSalesInvoiceModal"
       @selected-return-invoice="(value:any) => emitEvent('selectedReturnInvoice', value)"
       @toggle-modal="emitEvent('toggleModal', 'ReturnSalesInvoice')"
     />
@@ -451,9 +452,6 @@ export default defineComponent({
       eventName: PosEmits,
       ...args: (string | boolean | Item | number | Money)[]
     ) {
-      console.log(eventName, 'eventName');
-      console.log(...args, '...args');
-
       this.$emit(eventName, ...args);
     },
     getItem,
