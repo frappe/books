@@ -499,16 +499,23 @@ export default defineComponent({
     setTransferRefNo(ref: string) {
       this.transferRefNo = ref;
     },
+    validateInvoice() {
+      if (this.sinvDoc.isSubmitted) {
+        throw new ValidationError(
+          t`Cannot add an item to a submitted invoice.`
+        );
+      }
 
+      if (this.sinvDoc.returnAgainst) {
+        throw new ValidationError(
+          t`Unable to add an item to the return invoice.`
+        );
+      }
+    },
     async addItem(item: POSItem | Item | undefined, quantity?: number) {
       try {
         await this.sinvDoc.runFormulas();
-
-        if (this.sinvDoc.isSubmitted) {
-          throw new ValidationError(
-            t`Cannot add an item to a submitted invoice.`
-          );
-        }
+        this.validateInvoice();
 
         if (!item) {
           return;
@@ -644,7 +651,7 @@ export default defineComponent({
 
       if (paymentMethodDoc?.type !== 'Cash') {
         await this.paymentDoc.setMultiple({
-          amount: this.paidAmount as Money,
+          amount: this.fyo.pesa(this.paidAmount as unknown as number).abs(),
           referenceId: this.transferRefNo,
           clearanceDate: this.transferClearanceDate,
         });
@@ -653,7 +660,7 @@ export default defineComponent({
       if (paymentMethodDoc?.type === 'Cash') {
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
-          amount: this.paidAmount as Money,
+          amount: this.fyo.pesa(this.paidAmount as unknown as number).abs(),
         });
       }
 
