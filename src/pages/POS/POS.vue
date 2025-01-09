@@ -76,6 +76,7 @@
       :open-saved-invoice-modal="openSavedInvoiceModal"
       :open-loyalty-program-modal="openLoyaltyProgramModal"
       :open-applied-coupons-modal="openAppliedCouponsModal"
+      :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
