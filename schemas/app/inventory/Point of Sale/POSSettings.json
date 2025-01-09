@@ -55,7 +55,13 @@
       "label": "Is POS Shift Open",
       "fieldtype": "Check",
       "default": false,
-      "hidden": true,
+      "hidden": true
+    },
+    {
+      "fieldname": "returnInvoice",
+      "label": "Return Invoice",
+      "fieldtype": "Check",
+      "default": true,
       "section": "Default"
     },
     {
