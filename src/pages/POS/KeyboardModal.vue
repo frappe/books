@@ -433,9 +433,10 @@ export default defineComponent({
               );
             }
 
-            this.selectedItemRow.setItemDiscountAmount = true;
-            this.selectedItemRow.itemDiscountAmount = this.fyo.pesa(
-              Number(this.selectedValue)
+            this.selectedItemRow.set('setItemDiscountAmount', true);
+            this.selectedItemRow.set(
+              'itemDiscountAmount',
+              this.fyo.pesa(Number(this.selectedValue))
             );
           }
         } else {
