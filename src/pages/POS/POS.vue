@@ -541,9 +541,10 @@ export default defineComponent({
             existingItems[0].rate = item.rate as Money;
           }
 
-          existingItems[0].quantity = quantity
+          const newQynatity = quantity
             ? (existingItems[0].quantity as number) + quantity
             : (existingItems[0].quantity as number) + 1;
+          await existingItems[0].set('quantity', newQynatity);
 
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();

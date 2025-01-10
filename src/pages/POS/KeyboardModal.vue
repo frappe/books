@@ -433,8 +433,8 @@ export default defineComponent({
               );
             }
 
-            this.selectedItemRow.set('setItemDiscountAmount', true);
-            this.selectedItemRow.set(
+            await this.selectedItemRow.set('setItemDiscountAmount', true);
+            await this.selectedItemRow.set(
               'itemDiscountAmount',
               this.fyo.pesa(Number(this.selectedValue))
             );
