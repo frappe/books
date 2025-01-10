@@ -109,7 +109,7 @@ export async function getPrintTemplatePropValues(
 
 function getDate(dateString: string): string {
   const date = new Date(dateString);
-  date.setMonth(date.getMonth() - 1);
+  date.setMonth(date.getMonth());
 
   return `${date.toLocaleString('default', {
     month: 'short',
