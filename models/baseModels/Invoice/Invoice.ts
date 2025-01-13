@@ -983,12 +983,12 @@ export abstract class Invoice extends Transactional {
     let linkedEntries;
 
     if (this.returnAgainst) {
-      const someDOC = (await this.fyo.doc.getDoc(
+      const sinvDoc = (await this.fyo.doc.getDoc(
         ModelNameEnum.SalesInvoice,
         this.returnAgainst
       )) as SalesInvoice;
 
-      linkedEntries = await getLinkedEntries(someDOC);
+      linkedEntries = await getLinkedEntries(sinvDoc);
     }
 
     const schemaName = this.stockTransferSchemaName;
