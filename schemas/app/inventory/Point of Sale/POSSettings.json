@@ -5,13 +5,6 @@
   "isChild": false,
   "fields": [
     {
-      "fieldname": "isShiftOpen",
-      "label": "Is POS Shift Open",
-      "fieldtype": "Check",
-      "default": false,
-      "hidden": false
-    },
-    {
       "fieldname": "inventory",
       "label": "Inventory",
       "fieldtype": "Link",
@@ -55,6 +48,14 @@
       ],
       "default": "Classic",
       "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "isShiftOpen",
+      "label": "Is POS Shift Open",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true,
       "section": "Default"
     },
     {
