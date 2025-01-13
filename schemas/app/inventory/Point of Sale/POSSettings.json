@@ -55,7 +55,7 @@
       "label": "Is POS Shift Open",
       "fieldtype": "Check",
       "default": false,
-      "hidden": false,
+      "hidden": true,
       "section": "Default"
     },
     {
