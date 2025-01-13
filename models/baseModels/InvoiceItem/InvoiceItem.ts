@@ -173,6 +173,7 @@ export abstract class InvoiceItem extends Doc {
         'party',
         'exchangeRate',
         'item',
+        'quantity',
         'itemTaxedTotal',
         'itemDiscountedTotal',
         'setItemDiscountAmount',
