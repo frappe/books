@@ -16,8 +16,11 @@
         @change="onTemplateNameChange"
       />
       <DropdownWithActions :actions="actions" :title="t`More`" />
-      <Button class="text-xs" type="primary" @click="savePDF">
+      <Button class="text-xs" type="primary" @click="savePDF()">
         {{ t`Save as PDF` }}
+      </Button>
+      <Button class="text-xs" type="primary" @click="savePDF('print')">
+        {{ t`Print` }}
       </Button>
     </PageHeader>
 
@@ -246,16 +249,16 @@ export default defineComponent({
 
       this.templateList = list.map(({ name }) => name);
     },
-    async savePDF() {
+    async savePDF(action?: 'print') {
       const printContainer = this.$refs.printContainer as {
-        savePDF: (name?: string) => Promise<void>;
+        savePDF: (name?: string, action?: string) => Promise<void>;
       };
 
       if (!printContainer?.savePDF) {
         return;
       }
 
-      await printContainer.savePDF(this.doc?.name);
+      await printContainer.savePDF(this.doc?.name, action);
     },
     async setTemplateFromDefault() {
       const defaultName =
