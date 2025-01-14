@@ -210,7 +210,7 @@
                   </slot>
                 </Button>
                 <Button
-                  v-if="fyo.doc.singles.POSSettings.returnInvoice"
+                  v-if="isEnableInvoiceReturn"
                   class="mt-2 w-full bg-orange-500 dark:bg-orange-700 py-5"
                   @click="emitEvent('toggleModal', 'ReturnSalesInvoice', true)"
                 >
@@ -235,7 +235,7 @@
               </div>
             </div>
             <Button
-              v-if="fyo.doc.singles.POSSettings.returnInvoice"
+              v-if="isEnableInvoiceReturn"
               class="mt-2 w-full bg-green-500 dark:bg-green-700 py-5"
               :disabled="disablePayButton"
               @click="emitEvent('toggleModal', 'Payment', true)"
@@ -475,6 +475,10 @@ export default defineComponent({
 
       itemSearchTerm: '',
     };
+  },
+  computed: {
+    isEnableInvoiceReturn: () =>
+      fyo.singles.AccountingSettings?.enableInvoiceReturns ?? undefined,
   },
   methods: {
     emitEvent(
