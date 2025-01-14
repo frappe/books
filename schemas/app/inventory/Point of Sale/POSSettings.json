@@ -58,13 +58,6 @@
       "hidden": true
     },
     {
-      "fieldname": "returnInvoice",
-      "label": "Return Invoice",
-      "fieldtype": "Check",
-      "default": true,
-      "section": "Default"
-    },
-    {
       "fieldname": "weightEnabledBarcode",
       "label": "Weigth Enabled Barcode",
       "fieldtype": "Check",
