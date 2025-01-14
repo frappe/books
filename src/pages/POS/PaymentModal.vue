@@ -318,7 +318,8 @@ export default defineComponent({
 
       if (
         (this.sinvDoc.grandTotal?.float as number) < 1 &&
-        this.fyo.pesa(this.paidAmount.float).isZero()
+        this.fyo.pesa(this.paidAmount.float).isZero() &&
+        !this.sinvDoc.returnAgainst
       ) {
         return true;
       }
@@ -334,7 +335,8 @@ export default defineComponent({
     disablePayButton(): boolean {
       if (
         (this.sinvDoc.grandTotal?.float as number) < 1 &&
-        this.fyo.pesa(this.paidAmount.float).isZero()
+        this.fyo.pesa(this.paidAmount.float).isZero() &&
+        !this.sinvDoc.returnAgainst
       ) {
         return true;
       }
@@ -345,6 +347,7 @@ export default defineComponent({
       ) {
         return true;
       }
+
       return false;
     },
   },

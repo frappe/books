@@ -50,6 +50,7 @@ import { CouponCode } from '../CouponCode/CouponCode';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 import { PricingRuleItem } from '../PricingRuleItem/PricingRuleItem';
+import { getLinkedEntries } from 'src/utils/doc';
 
 export type TaxDetail = {
   account: string;
@@ -982,6 +983,17 @@ export abstract class Invoice extends Transactional {
       return null;
     }
 
+    let linkedEntries;
+
+    if (this.returnAgainst) {
+      const sinvDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        this.returnAgainst
+      )) as SalesInvoice;
+
+      linkedEntries = await getLinkedEntries(sinvDoc);
+    }
+
     if (!this.stockNotTransferred) {
       return null;
     }
@@ -1005,6 +1017,7 @@ export abstract class Invoice extends Transactional {
       terms,
       numberSeries,
       backReference: this.name,
+      returnAgainst: linkedEntries ? linkedEntries.Shipment![0] : '',
     };
 
     let location = this.autoStockTransferLocation;

@@ -56,6 +56,13 @@
       "
     />
 
+    <ReturnSalesInvoiceModal
+      :open-modal="openReturnSalesInvoiceModal"
+      :modal-status="openReturnSalesInvoiceModal"
+      @selected-return-invoice="(value:any) => emitEvent('selectedReturnInvoice', value)"
+      @toggle-modal="emitEvent('toggleModal', 'ReturnSalesInvoice')"
+    />
+
     <AlertModal
       :open-modal="openAlertModal"
       @toggle-modal="emitEvent('toggleModal', 'Alert')"
@@ -185,7 +192,7 @@
                 >
                   <slot>
                     <p class="uppercase text-lg text-white font-semibold">
-                      {{ t`held` }}
+                      {{ t`Held` }}
                     </p>
                   </slot>
                 </Button>
@@ -202,8 +209,19 @@
                     </p>
                   </slot>
                 </Button>
-
                 <Button
+                  v-if="isReturnInvoiceEnabledReturn"
+                  class="mt-2 w-full bg-orange-500 dark:bg-orange-700 py-5"
+                  @click="emitEvent('toggleModal', 'ReturnSalesInvoice', true)"
+                >
+                  <slot>
+                    <p class="uppercase text-lg text-white font-semibold">
+                      {{ t`Return` }}
+                    </p>
+                  </slot>
+                </Button>
+                <Button
+                  v-else
                   class="mt-2 w-full bg-green-500 dark:bg-green-700 py-5"
                   :disabled="disablePayButton"
                   @click="emitEvent('toggleModal', 'Payment', true)"
@@ -216,6 +234,18 @@
                 </Button>
               </div>
             </div>
+            <Button
+              v-if="isReturnInvoiceEnabledReturn"
+              class="mt-2 w-full bg-green-500 dark:bg-green-700 py-5"
+              :disabled="disablePayButton"
+              @click="emitEvent('toggleModal', 'Payment', true)"
+            >
+              <slot>
+                <p class="uppercase text-lg text-white font-semibold">
+                  {{ t`Buy` }}
+                </p>
+              </slot>
+            </Button>
           </div>
         </div>
       </div>
@@ -329,6 +359,7 @@ import SavedInvoiceModal from './SavedInvoiceModal.vue';
 import Barcode from 'src/components/Controls/Barcode.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
 import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
+import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 import { POSItem, PosEmits, ItemQtyMap } from 'src/components/POS/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
@@ -362,6 +393,7 @@ export default defineComponent({
     ModernPOSItemsTable,
     WeightEnabledBarcode,
     FloatingLabelFloatInput,
+    ReturnSalesInvoiceModal,
     FloatingLabelCurrencyInput,
     ModernPOSSelectedItemTable,
   },
@@ -380,6 +412,7 @@ export default defineComponent({
     openSavedInvoiceModal: Boolean,
     openLoyaltyProgramModal: Boolean,
     openAppliedCouponsModal: Boolean,
+    openReturnSalesInvoiceModal: Boolean,
     totalQuantity: {
       type: Number,
       default: 0,
@@ -430,6 +463,7 @@ export default defineComponent({
     'createTransaction',
     'setTransferAmount',
     'selectedInvoiceName',
+    'selectedReturnInvoice',
     'setTransferClearanceDate',
   ],
   data() {
@@ -441,6 +475,10 @@ export default defineComponent({
 
       itemSearchTerm: '',
     };
+  },
+  computed: {
+    isReturnInvoiceEnabledReturn: () =>
+      fyo.singles.AccountingSettings?.enableInvoiceReturns ?? undefined,
   },
   methods: {
     emitEvent(

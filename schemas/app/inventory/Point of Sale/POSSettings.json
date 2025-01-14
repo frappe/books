@@ -55,8 +55,7 @@
       "label": "Is POS Shift Open",
       "fieldtype": "Check",
       "default": false,
-      "hidden": true,
-      "section": "Default"
+      "hidden": true
     },
     {
       "fieldname": "weightEnabledBarcode",

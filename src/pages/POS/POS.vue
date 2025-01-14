@@ -32,6 +32,7 @@
       :open-saved-invoice-modal="openSavedInvoiceModal"
       :open-loyalty-program-modal="openLoyaltyProgramModal"
       :open-applied-coupons-modal="openAppliedCouponsModal"
+      :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -49,6 +50,7 @@
       @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
+      @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
     <ModernPOS
@@ -74,6 +76,7 @@
       :open-saved-invoice-modal="openSavedInvoiceModal"
       :open-loyalty-program-modal="openLoyaltyProgramModal"
       :open-applied-coupons-modal="openAppliedCouponsModal"
+      :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -91,6 +94,7 @@
       @save-invoice-action="saveInvoiceAction"
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
+      @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
   </div>
@@ -188,6 +192,7 @@ export default defineComponent({
       openSavedInvoiceModal: false,
       openLoyaltyProgramModal: false,
       openAppliedCouponsModal: false,
+      openReturnSalesInvoiceModal: false,
 
       totalQuantity: 0,
       paidAmount: fyo.pesa(0),
@@ -396,6 +401,20 @@ export default defineComponent({
         });
       }
     },
+    async selectedReturnInvoice(invoiceName: string) {
+      const salesInvoiceDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        invoiceName
+      )) as SalesInvoice;
+
+      let returnDoc = (await salesInvoiceDoc.getReturnDoc()) as SalesInvoice;
+
+      if (!returnDoc || !returnDoc.name) {
+        return;
+      }
+
+      this.sinvDoc = returnDoc;
+    },
     toggleView() {
       this.tableView = !this.tableView;
     },
@@ -481,16 +500,23 @@ export default defineComponent({
     setTransferRefNo(ref: string) {
       this.transferRefNo = ref;
     },
+    validateInvoice() {
+      if (this.sinvDoc.isSubmitted) {
+        throw new ValidationError(
+          t`Cannot add an item to a submitted invoice.`
+        );
+      }
 
+      if (this.sinvDoc.returnAgainst) {
+        throw new ValidationError(
+          t`Unable to add an item to the return invoice.`
+        );
+      }
+    },
     async addItem(item: POSItem | Item | undefined, quantity?: number) {
       try {
         await this.sinvDoc.runFormulas();
-
-        if (this.sinvDoc.isSubmitted) {
-          throw new ValidationError(
-            t`Cannot add an item to a submitted invoice.`
-          );
-        }
+        this.validateInvoice();
 
         if (!item) {
           return;
@@ -626,7 +652,7 @@ export default defineComponent({
 
       if (paymentMethodDoc?.type !== 'Cash') {
         await this.paymentDoc.setMultiple({
-          amount: this.paidAmount as Money,
+          amount: this.fyo.pesa(this.paidAmount as unknown as number).abs(),
           referenceId: this.transferRefNo,
           clearanceDate: this.transferClearanceDate,
         });
@@ -635,7 +661,7 @@ export default defineComponent({
       if (paymentMethodDoc?.type === 'Cash') {
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
-          amount: this.paidAmount as Money,
+          amount: this.fyo.pesa(this.paidAmount as unknown as number).abs(),
         });
       }
 
