@@ -19,6 +19,7 @@ import { IPC_ACTIONS } from '../utils/messages';
 import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
 import { getTemplates } from './getPrintTemplates';
+import { printHtmlDocument } from './printHtmlDocument';
 import {
   getConfigFilesWithModified,
   getErrorHandledReponse,
@@ -102,6 +103,13 @@ export default function registerIpcMainActionListeners(main: Main) {
       height: number
     ) => {
       return await saveHtmlAsPdf(html, savePath, app, width, height);
+    }
+  );
+
+  ipcMain.handle(
+    IPC_ACTIONS.PRINT_HTML_DOCUMENT,
+    async (_, html: string, width: number, height: number) => {
+      return await printHtmlDocument(html, app, width, height);
     }
   );
 

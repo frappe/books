@@ -641,14 +641,14 @@ export default defineComponent({
     },
     savePDF(action?: 'print') {
       const printContainer = this.$refs.printContainer as {
-        savePDF: (name?: string, action?:string) => void;
+        savePDF: (name?: string, action?: string) => void;
       };
 
       if (!printContainer?.savePDF) {
         return;
       }
 
-       printContainer.savePDF(this.doc?.name, action);
+      printContainer.savePDF(this.doc?.name, action);
     },
     async setDisplayInitialDoc() {
       const schemaName = this.doc?.type;

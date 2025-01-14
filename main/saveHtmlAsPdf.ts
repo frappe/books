@@ -35,7 +35,7 @@ export async function saveHtmlAsPdf(
   return true;
 }
 
-async function getInitializedPrintWindow(
+export async function getInitializedPrintWindow(
   printFilePath: string,
   width: number,
   height: number
