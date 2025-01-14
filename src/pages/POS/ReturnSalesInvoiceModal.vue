@@ -4,23 +4,6 @@
 
     <hr class="mt-2 dark:border-gray-800" />
 
-    <div class="flex justify-around items-center">
-      <Button
-        :background="false"
-        class="w-full h-full p-2 mt-2"
-        :class="{ 'dark:bg-gray-890 underline': savedInvoiceList }"
-        @click="savedInvoiceList = true"
-        >Saved</Button
-      >
-
-      <Button
-        :background="false"
-        class="w-full h-full p-2 mt-2"
-        :class="{ 'dark:bg-gray-890 underline': !savedInvoiceList }"
-        @click="savedInvoiceList = false"
-        >Submitted</Button
-      >
-    </div>
     <Row
       :ratio="ratio"
       class="
@@ -45,12 +28,11 @@
     </Row>
 
     <div
-      v-if="savedInvoiceList ? savedInvoices.length : submittedInvoices.length"
       class="overflow-y-auto custom-scroll custom-scroll-thumb2"
       style="height: 65vh; width: 60vh"
     >
       <Row
-        v-for="row in savedInvoiceList ? savedInvoices : submittedInvoices"
+        v-for="row in returnedInvoices"
         :key="row.name"
         :ratio="ratio"
         :border="true"
@@ -66,7 +48,7 @@
           px-2
           w-full
         "
-        @click="$emit('selectedInvoiceName', row)"
+        @click="returnInvoice(row as SalesInvoice)"
       >
         <FormControl
           v-for="df in tableFields"
@@ -105,10 +87,9 @@ import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
-import { Money } from 'pesa';
 
 export default defineComponent({
-  name: 'SavedInvoiceModal',
+  name: 'ReturnSalesInvoice',
   components: {
     Modal,
     Button,
@@ -118,7 +99,7 @@ export default defineComponent({
   props: {
     modalStatus: Boolean,
   },
-  emits: ['toggleModal', 'selectedInvoiceName'],
+  emits: ['toggleModal', 'selectedReturnInvoice'],
   setup() {
     return {
       sinvDoc: inject('sinvDoc') as SalesInvoice,
@@ -126,9 +107,7 @@ export default defineComponent({
   },
   data() {
     return {
-      savedInvoiceList: true,
-      savedInvoices: [] as SalesInvoice[],
-      submittedInvoices: [] as SalesInvoice[],
+      returnedInvoices: [] as SalesInvoice[],
     };
   },
   computed: {
@@ -170,48 +149,30 @@ export default defineComponent({
   watch: {
     async modalStatus(newVal) {
       if (newVal) {
-        await this.setSavedInvoices();
-        await this.setSubmittedInvoices();
+        await this.setReturnedInvoices();
       }
     },
   },
   async mounted() {
-    await this.setSavedInvoices();
-    await this.setSubmittedInvoices();
+    await this.setReturnedInvoices();
   },
   async activated() {
-    await this.setSavedInvoices();
-    await this.setSubmittedInvoices();
+    await this.setReturnedInvoices();
   },
 
   methods: {
-    async setSavedInvoices() {
-      this.savedInvoices = (await this.fyo.db.getAll(
+    returnInvoice(row: SalesInvoice) {
+      this.$emit('selectedReturnInvoice', row.name);
+      this.$emit('toggleModal', 'ReturnSalesInvoice');
+    },
+    async setReturnedInvoices() {
+      this.returnedInvoices = (await this.fyo.db.getAll(
         ModelNameEnum.SalesInvoice,
         {
           fields: [],
-          filters: { isPOS: true, submitted: false },
+          filters: { isPOS: true, submitted: true, returnAgainst: null },
         }
       )) as SalesInvoice[];
-    },
-    async setSubmittedInvoices() {
-      const invoices = (await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {
-        fields: [],
-        filters: { isPOS: true, submitted: true, returnAgainst: null },
-      })) as SalesInvoice[];
-
-      this.submittedInvoices = invoices.filter(
-        (invoice) => !(invoice.outstandingAmount as Money).isZero()
-      );
-    },
-    async selectedInvoice(row: SalesInvoice) {
-      let selectedInvoiceDoc = (await this.fyo.doc.getDoc(
-        ModelNameEnum.SalesInvoice,
-        row.name
-      )) as SalesInvoice;
-
-      this.sinvDoc = selectedInvoiceDoc;
-      this.$emit('toggleModal', 'SavedInvoice');
     },
   },
 });
