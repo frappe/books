@@ -514,7 +514,7 @@ export abstract class Invoice extends Transactional {
       }
 
       const isItemExist = !!returnDocItems.filter(
-        (balanceItem) => balanceItem.item === item.item
+        (balanceItem) => !item.batch && balanceItem.item === item.item
       ).length;
 
       if (isItemExist) {

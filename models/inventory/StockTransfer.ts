@@ -477,7 +477,7 @@ export abstract class StockTransfer extends Transfer {
       }
 
       const isItemExist = !!returnDocItems.filter(
-        (balanceItem) => balanceItem.item === item.item
+        (balanceItem) => !item.batch && balanceItem.item === item.item
       ).length;
 
       if (isItemExist) {
