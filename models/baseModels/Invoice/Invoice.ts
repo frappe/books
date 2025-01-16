@@ -49,7 +49,6 @@ import { AppliedCouponCodes } from '../AppliedCouponCodes/AppliedCouponCodes';
 import { CouponCode } from '../CouponCode/CouponCode';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
-import { getLinkedEntries } from 'src/utils/doc';
 import { PricingRuleItem } from '../PricingRuleItem/PricingRuleItem';
 import { getLinkedEntries } from 'src/utils/doc';
 
@@ -997,17 +996,6 @@ export abstract class Invoice extends Transactional {
 
     if (!this.stockNotTransferred) {
       return null;
-    }
-
-    let linkedEntries;
-
-    if (this.returnAgainst) {
-      const sinvDoc = (await this.fyo.doc.getDoc(
-        ModelNameEnum.SalesInvoice,
-        this.returnAgainst
-      )) as SalesInvoice;
-
-      linkedEntries = await getLinkedEntries(sinvDoc);
     }
 
     const schemaName = this.stockTransferSchemaName;
