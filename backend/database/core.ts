@@ -97,6 +97,14 @@ export default class DatabaseCore extends DatabaseBase {
     await this.knex.raw('PRAGMA foreign_keys=ON');
   }
 
+  async connectToRemoteDatabase(connectionString: string) {
+    this.knex = knex({
+      client: 'pg',
+      connection: connectionString,
+    });
+    await this.knex.raw('SELECT 1');
+  }
+
   async close() {
     await this.knex!.destroy();
   }
