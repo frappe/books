@@ -29,35 +29,40 @@
 
 Frappe Books is an open-source accounting software aimed at simplifying financial management for businesses. With its clean and user-friendly interface, it streamlines accounting tasks for small and medium-sized enterprises, offering a seamless solution for modern businesses to manage their finances with ease.
 
-## Key Features
+<details>
+<summary>Screenshots</summary>
+<br/>
+<img  alt="Pos" src="https://github.com/user-attachments/assets/f75116b4-cf5f-45ee-9927-ba380fa56a46" />
+    <br/><br/>
+    <img  alt="General Ledger" src="https://github.com/user-attachments/assets/58d8bcdf-1576-4008-b010-7054fb64a12d" />
+    <br/><br/>
+    <img  alt="Profit and Loss" src="https://github.com/user-attachments/assets/11bd67d1-d808-496b-ac4d-ef68c18b9419" />
 
-- **Double-entry accounting**: Ensures accurate financial tracking by recording each transaction in two accounts.
-- **Point of Sale**: Simplifies retail transactions with an integrated POS system for easy sales processing.
-- **Invoicing**: Allows businesses to create and manage professional invoices effortlessly.
-- **Billing**: Billing processes by generating bills and tracking payments.
-- **Payments**: Records and tracks payments received and made.
-- **Journal Entries**: Records financial transactions in the general ledger with detailed notes and adjustments.
+</details>
+
+### Motivation
+
+Frappe Books addresses a market gap where small businesses face expensive, complex accounting tools. It offers an intuitive, open-source solution that combines simplicity with essential features, empowering businesses to manage finances effectively—even offline.
+
+### Key Features
+
 - **Dashboard**: Provides an overview of key financial data and performance metrics.
+- **Point of Sale**: Simplifies retail transactions with an integrated POS system for easy sales processing.
 - **Works Offline**: Enables users to continue working without an internet connection and sync later.
+- **Double-entry accounting**: Ensures accurate financial tracking by recording each transaction in two accounts.
+- **Entries**
+  - **Invoicing**: Allows businesses to create and manage professional invoices effortlessly.
+  - **Billing**: Billing processes by generating bills and tracking payments.
+  - **Payments**: Records and tracks payments received and made.
+  - **Journal Entries**: Records financial transactions in the general ledger with detailed notes and adjustments.
 - **Financial Reports**
   - **General Ledger**: Centralized record of all financial transactions, providing a comprehensive view of accounts.
   - **Profit and Loss Statement**: Summarizes revenues, costs, and expenses to show business profitability.
   - **Balance Sheet**: Displays a company’s assets, liabilities, and equity at a specific point in time.
   - **Trial Balance**: Verifies the accuracy of accounting records by ensuring that debits and credits are balanced.
+    <br/>
 
-### Screenshots 
-
-<br/>
-
-<div align="center">
-    <img src="https://github.com/user-attachments/assets/be5d5be7-d9cd-4fee-a945-d90e70437302" alt="Pos" width="800" height="500" >
-    <br/><br/>
-    <img src="https://github.com/user-attachments/assets/bf4fd35b-6aa5-4df2-a716-9d0dcdfa46e0" alt="General Ledger" width="800" height="500">
-    <br/><br/>
-    <img src="https://github.com/user-attachments/assets/216461d9-db4d-4447-ba22-c03c7fb1a0eb" alt="Profit and Loss" width="800" height="500">
-</div>
-
-## Under the Hood
+### Under the Hood
 
 - **Vue.js**: In Frappe Books, Vue.js powers the front-end, enabling a reactive and component-based UI. It ensures seamless interactions and dynamic updates, giving users a modern, responsive experience.
 
@@ -67,11 +72,10 @@ Frappe Books is an open-source accounting software aimed at simplifying financia
 
 ## Production Setup
 
-### Via Flatpak
+### Manual
 
-<a href='https://flathub.org/apps/io.frappe.books'>
-    <img width='120' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
-</a>
+Download and install the latest release for your platform from the [releases
+page](https://github.com/frappe/books/releases) .
 
 ### Using Homebrew (for MacOS and Linux)
 
@@ -79,10 +83,11 @@ Frappe Books is an open-source accounting software aimed at simplifying financia
 brew install --cask frappe-books
 ```
 
-### Manual
+### Via Flatpak (Linux)
 
-Download and install the latest release for your platform from the [releases
-page](https://github.com/frappe/books/releases) .
+<a href='https://flathub.org/apps/io.frappe.books'>
+    <img width='120' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+</a>
 
 ## Development Setup
 
