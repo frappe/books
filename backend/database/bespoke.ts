@@ -261,18 +261,18 @@ export class BespokeQueries {
         if (item.batch) {
           let serialNumbers: string[] | undefined;
 
-          if (item.serialNumber) {
-            serialNumbers = item.serialNumber.split('\n');
+          if (!docItemsMap[item.item].batches![item.batch]) {
             docItemsMap[item.item].batches![item.batch] = {
               quantity: item.quantity,
               serialNumbers,
             };
+          } else {
+            docItemsMap[item.item].batches![item.batch] = {
+              quantity: (docItemsMap[item.item].batches![item.batch].quantity +=
+                item.quantity),
+              serialNumbers,
+            };
           }
-
-          docItemsMap[item.item].batches![item.batch] = {
-            quantity: item.quantity,
-            serialNumbers,
-          };
         } else {
           docItemsMap[item.item].quantity += item.quantity;
         }
@@ -329,40 +329,69 @@ export class BespokeQueries {
         >
       | undefined = {};
 
-    for (const row in returnedItemsMap) {
+    for (const row in docItemsMap) {
       const balanceSerialNumbersMap: string[] | undefined = [];
+      let balanceQty = safeParseFloat(-docItemsMap[row].quantity);
+      const docItem = docItemsMap[row];
+      const returnedDocItem = returnedItemsMap[row];
+      const docItemHasBatch = !!Object.keys(docItem.batches ?? {}).length;
 
-      if (!docItemsMap[row]) {
-        continue;
+      if (returnedItemsMap) {
+        for (const item in returnedItemsMap) {
+          if (docItemHasBatch && item !== row) {
+            continue;
+          }
+
+          balanceQty = -(
+            Math.abs(balanceQty) + returnedItemsMap[item].quantity
+          );
+
+          const returnedItem = returnedItemsMap[item];
+
+          if (docItem.serialNumbers && returnedItem.serialNumbers) {
+            for (const serialNumber of docItem.serialNumbers) {
+              if (!returnedItem.serialNumbers.includes(serialNumber)) {
+                balanceSerialNumbersMap.push(serialNumber);
+              }
+            }
+          }
+        }
       }
 
-      const returnedItem = returnedItemsMap[row];
-      const docItem = docItemsMap[row];
-      let balanceQty = 0;
-
-      const docItemHasBatch = !!Object.keys(docItem.batches ?? {}).length;
-      const returnedItemHasBatch = !!Object.keys(returnedItem.batches ?? {})
-        .length;
-
-      if (docItemHasBatch && returnedItemHasBatch && docItem.batches) {
-        for (const batch in returnedItem.batches) {
-          const returnedItemQty = Math.abs(
-            returnedItem.batches[batch].quantity
-          );
-          const docBatchItemQty = docItem.batches[batch].quantity;
-          const balanceQty = returnedItemQty - docBatchItemQty;
+      if (docItemHasBatch && docItem.batches) {
+        for (const batch in docItem.batches) {
           const docItemSerialNumbers = docItem.batches[batch].serialNumbers;
-          const returnItemSerialNumbers =
-            returnedItem.batches[batch].serialNumbers;
-
+          const itemSerialNumbers = docItem.batches[batch].serialNumbers;
           let balanceSerialNumbers: string[] | undefined;
 
-          if (docItemSerialNumbers && returnItemSerialNumbers) {
+          if (docItemSerialNumbers && itemSerialNumbers) {
             balanceSerialNumbers = docItemSerialNumbers.filter(
               (serialNumber: string) =>
-                returnItemSerialNumbers.indexOf(serialNumber) == -1
+                itemSerialNumbers.indexOf(serialNumber) == -1
             );
           }
+
+          const ItemQty = Math.abs(docItem.batches[batch].quantity);
+          let balanceQty = safeParseFloat(-ItemQty);
+
+          if (!returnedDocItem || !returnedDocItem?.batches) {
+            continue;
+          }
+
+          const returnedItem = returnedDocItem?.batches[batch];
+
+          if (!returnedItem) {
+            balanceBatchQtyMap[batch] = {
+              quantity: balanceQty,
+              serialNumbers: balanceSerialNumbers,
+            };
+            continue;
+          }
+
+          balanceQty = -(
+            Math.abs(safeParseFloat(-ItemQty)) -
+            Math.abs(returnedDocItem.batches[batch].quantity)
+          );
 
           balanceBatchQtyMap[batch] = {
             quantity: balanceQty,
@@ -371,24 +400,13 @@ export class BespokeQueries {
         }
       }
 
-      if (docItem.serialNumbers && returnedItem.serialNumbers) {
-        for (const serialNumber of docItem.serialNumbers) {
-          if (!returnedItem.serialNumbers.includes(serialNumber)) {
-            balanceSerialNumbersMap.push(serialNumber);
-          }
-        }
-      }
-
-      balanceQty = safeParseFloat(
-        Math.abs(returnedItem.quantity) - docItemsMap[row].quantity
-      );
-
       returnBalanceItems[row] = {
         quantity: balanceQty,
         batches: balanceBatchQtyMap,
         serialNumbers: balanceSerialNumbersMap,
       };
     }
+
     return returnBalanceItems;
   }
 
