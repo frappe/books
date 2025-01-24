@@ -261,14 +261,6 @@ export class BespokeQueries {
         if (item.batch) {
           let serialNumbers: string[] | undefined;
 
-          if (item.serialNumber) {
-            serialNumbers = item.serialNumber.split('\n');
-            docItemsMap[item.item].batches![item.batch] = {
-              quantity: item.quantity,
-              serialNumbers,
-            };
-          }
-
           if (!docItemsMap[item.item].batches![item.batch]) {
             docItemsMap[item.item].batches![item.batch] = {
               quantity: item.quantity,
