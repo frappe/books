@@ -368,17 +368,14 @@ export class Doc extends Observable<DocValue | Doc[]> {
     value?: DocValue | Doc[] | DocValueMap[]
   ): boolean {
     if (fieldname === 'numberSeries' && !this.notInserted) {
-      // console.log("cannot set %s, numberSeries inserted", fieldname)
       return false;
     }
 
     if (value === undefined) {
-      // console.log("cannot set %s, undefined value", fieldname)
       return false;
     }
 
     if (this.fieldMap[fieldname] === undefined) {
-      // console.log("cannot set %s, no fieldMap", fieldname, this.fieldMap)
       return false;
     }
 
