@@ -66,7 +66,7 @@ export default defineComponent({
     },
     async selectItem(code: string) {
       const barcode = code.trim();
-      if (!/\d{12,}/.test(barcode)) {
+      if (!/^[A-Za-z0-9]{12,}$/.test(barcode)) {
         return this.error(this.t`Invalid barcode value ${barcode}.`);
       }
 
