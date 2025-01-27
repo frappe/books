@@ -1,7 +1,7 @@
 <template>
   <Modal class="h-auto" :set-close-listener="false">
     <div class="px-5" style="width: 30vw">
-      <p class="text-center font-semibold py-3">Keyboard</p>
+      <p class="text-center dark:text-gray-400 font-semibold py-3">Keyboard</p>
       <hr class="dark:border-gray-800" />
       <div class="mx-6 my-3">
         <component
@@ -22,7 +22,15 @@
 
         <div
           id="keypad"
-          class="text-4xl grid grid-cols-4 gap-3 rounded font-bold py-4"
+          class="
+            text-4xl
+            grid grid-cols-4
+            gap-3
+            rounded
+            font-bold
+            py-4
+            dark:text-gray-400
+          "
         >
           <button
             class="
