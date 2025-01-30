@@ -113,7 +113,8 @@
 
           <div
             class="
-              p-4
+              h-full
+              p-2
               bg-white
               border
               rounded-md

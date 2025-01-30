@@ -2,7 +2,7 @@
   <div>
     <feather-icon
       :name="isExapanded ? 'chevron-up' : 'chevron-down'"
-      class="w-4 h-4 inline-flex"
+      class="w-4 h-4 inline-flex dark:text-white"
       @click="isExapanded = !isExapanded"
     />
   </div>
