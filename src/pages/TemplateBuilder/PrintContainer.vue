@@ -176,7 +176,7 @@ export default defineComponent({
     getCodeFrame(loc: SourceLocation) {
       return generateCodeFrame(this.template, loc.start.offset, loc.end.offset);
     },
-    async savePDF(name?: string, action?: 'print' | 'save') {
+    async savePDF(name?: string, shouldPrint?: boolean) {
       /* eslint-disable */
 
       /**
@@ -194,7 +194,7 @@ export default defineComponent({
         innerHTML,
         this.width,
         this.height,
-        action ?? 'save'
+        shouldPrint
       );
 
       this.fyo.telemetry.log(Verb.Printed, this.printSchemaName);
