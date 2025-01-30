@@ -17,7 +17,7 @@
       <Button v-if="displayDoc && doc?.template" @click="savePDF()">
         {{ t`Save as PDF` }}
       </Button>
-      <Button v-if="displayDoc && doc?.template" @click="savePDF('print')">
+      <Button v-if="displayDoc && doc?.template" @click="savePDF(true)">
         {{ t`Print` }}
       </Button>
       <Button
@@ -639,16 +639,16 @@ export default defineComponent({
 
       return Number(targetScale.toFixed(2));
     },
-    savePDF(action?: 'print') {
+    savePDF(shouldPrint?: boolean) {
       const printContainer = this.$refs.printContainer as {
-        savePDF: (name?: string, action?: string) => void;
+        savePDF: (name?: string, shouldPrint?: boolean) => void;
       };
 
       if (!printContainer?.savePDF) {
         return;
       }
 
-      printContainer.savePDF(this.doc?.name, action);
+      printContainer.savePDF(this.doc?.name, shouldPrint);
     },
     async setDisplayInitialDoc() {
       const schemaName = this.doc?.type;
