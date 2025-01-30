@@ -14,8 +14,11 @@
           @change="async (value) => await doc?.set('name', value)"
         />
       </template>
-      <Button v-if="displayDoc && doc?.template" @click="savePDF">
+      <Button v-if="displayDoc && doc?.template" @click="savePDF()">
         {{ t`Save as PDF` }}
+      </Button>
+      <Button v-if="displayDoc && doc?.template" @click="savePDF(true)">
+        {{ t`Print` }}
       </Button>
       <Button
         v-if="doc && doc.isCustom && displayDoc"
@@ -636,16 +639,16 @@ export default defineComponent({
 
       return Number(targetScale.toFixed(2));
     },
-    savePDF() {
+    savePDF(shouldPrint?: boolean) {
       const printContainer = this.$refs.printContainer as {
-        savePDF: (name?: string) => void;
+        savePDF: (name?: string, shouldPrint?: boolean) => void;
       };
 
       if (!printContainer?.savePDF) {
         return;
       }
 
-      printContainer.savePDF(this.displayDoc?.name);
+      printContainer.savePDF(this.doc?.name, shouldPrint);
     },
     async setDisplayInitialDoc() {
       const schemaName = this.doc?.type;

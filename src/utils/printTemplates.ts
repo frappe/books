@@ -391,19 +391,30 @@ export async function getPathAndMakePDF(
   name: string,
   innerHTML: string,
   width: number,
-  height: number
+  height: number,
+  shouldPrint?: boolean
 ) {
-  const { filePath: savePath } = await getSavePath(name, 'pdf');
-  if (!savePath) {
-    return;
-  }
+  if (!shouldPrint) {
+    const { filePath: savePath } = await getSavePath(name, 'pdf');
+    if (!savePath) {
+      return;
+    }
 
-  const html = constructPrintDocument(innerHTML);
-  const success = await ipc.makePDF(html, savePath, width, height);
-  if (success) {
-    showExportInFolder(t`Save as PDF Successful`, savePath);
+    const html = constructPrintDocument(innerHTML);
+    const success = await ipc.makePDF(html, savePath, width, height);
+    if (success) {
+      showExportInFolder(t`Save as PDF Successful`, savePath);
+    } else {
+      showToast({ message: t`Export Failed`, type: 'error' });
+    }
   } else {
-    showToast({ message: t`Export Failed`, type: 'error' });
+    const html = constructPrintDocument(innerHTML);
+    const success = await ipc.printDocument(html, width, height);
+    if (success) {
+      showToast({ message: t`Print Successful`, type: 'success' });
+    } else {
+      showToast({ message: t`Print Failed`, type: 'error' });
+    }
   }
 }
 
