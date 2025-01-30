@@ -21,6 +21,7 @@ export enum IPC_ACTIONS {
   GET_DIALOG_RESPONSE = 'show-message-box',
   GET_ENV = 'get-env',
   SAVE_HTML_AS_PDF = 'save-html-as-pdf',
+  PRINT_HTML_DOCUMENT = 'print-html-document',
   SAVE_DATA = 'save-data',
   SHOW_ERROR = 'show-error',
   SEND_ERROR = 'send-error',

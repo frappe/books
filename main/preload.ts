@@ -148,6 +148,19 @@ const ipc = {
     )) as boolean;
   },
 
+  async printDocument(
+    html: string,
+    width: number,
+    height: number
+  ): Promise<boolean> {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.PRINT_HTML_DOCUMENT,
+      html,
+      width,
+      height
+    )) as boolean;
+  },
+
   async getDbList() {
     return (await ipcRenderer.invoke(
       IPC_ACTIONS.GET_DB_LIST
