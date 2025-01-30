@@ -19,7 +19,7 @@
       <Button class="text-xs" type="primary" @click="savePDF()">
         {{ t`Save as PDF` }}
       </Button>
-      <Button class="text-xs" type="primary" @click="savePDF('print')">
+      <Button class="text-xs" type="primary" @click="savePDF(true)">
         {{ t`Print` }}
       </Button>
     </PageHeader>
@@ -249,16 +249,16 @@ export default defineComponent({
 
       this.templateList = list.map(({ name }) => name);
     },
-    async savePDF(action?: 'print') {
+    async savePDF(shouldPrint?: boolean) {
       const printContainer = this.$refs.printContainer as {
-        savePDF: (name?: string, action?: string) => Promise<void>;
+        savePDF: (name?: string, shouldPrint?: boolean) => Promise<void>;
       };
 
       if (!printContainer?.savePDF) {
         return;
       }
 
-      await printContainer.savePDF(this.doc?.name, action);
+      await printContainer.savePDF(this.doc?.name, shouldPrint);
     },
     async setTemplateFromDefault() {
       const defaultName =

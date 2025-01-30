@@ -4,7 +4,7 @@
       <Button class="text-xs" type="primary" @click="savePDF()">
         {{ t`Save as PDF` }}
       </Button>
-      <Button class="text-xs" type="primary" @click="savePDF('print')">
+      <Button class="text-xs" type="primary" @click="savePDF(true)">
         {{ t`Print` }}
       </Button>
     </PageHeader>
@@ -281,7 +281,7 @@ export default defineComponent({
 
       this.scale = Math.min(containerWidth / width, 1);
     },
-    async savePDF(action: 'print'): Promise<void> {
+    async savePDF(shouldPrint?: boolean): Promise<void> {
       // @ts-ignore
       const innerHTML = this.$refs.scaledContainer.$el.children[0].innerHTML;
       if (typeof innerHTML !== 'string') {
@@ -294,7 +294,7 @@ export default defineComponent({
         innerHTML,
         this.size.width,
         this.size.height,
-        action ?? 'save'
+        shouldPrint
       );
 
       this.fyo.telemetry.log(Verb.Printed, this.report!.reportName);
