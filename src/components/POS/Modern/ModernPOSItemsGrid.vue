@@ -29,7 +29,7 @@
     >
       <div
         class="
-          p-1
+          pb-3
           border border-gray-300
           dark:border-gray-800
           flex flex-col
@@ -39,8 +39,8 @@
         v-for="item in items as POSItem[]"
         :key="item.name"
       >
-        <div class="self-center w-32 h-32 p-1 rounded-lg">
-          <div class="relative w-full h-full p-2">
+        <div class="self-center w-full h-32 lg:h-28 p-1 rounded-lg">
+          <div class="relative w-auto h-full">
             <img
               v-if="item.image"
               :src="item.image"

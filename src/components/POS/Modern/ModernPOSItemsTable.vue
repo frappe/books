@@ -38,7 +38,7 @@
         class="
           px-2
           w-full
-          border-b border-x
+          border
           flex
           items-center
           justify-center
@@ -97,7 +97,7 @@
         class="
           px-2
           w-full
-          border-b border-x
+          border
           flex
           items-center
           justify-center

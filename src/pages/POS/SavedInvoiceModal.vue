@@ -1,6 +1,8 @@
 <template>
   <Modal class="h-auto w-auto p-5" :set-close-listener="false">
-    <p class="text-center font-semibold">{{ t`Invoices` }}</p>
+    <p class="text-center font-semibold dark:text-gray-400">
+      {{ t`Invoices` }}
+    </p>
 
     <hr class="mt-2 dark:border-gray-800" />
 
