@@ -528,6 +528,12 @@ export default defineComponent({
               invoiceItem.item === item.name && !invoiceItem.isFreeItem
           ) ?? [];
 
+        const itemsHsncode = (await this.fyo.getValue(
+          'Item',
+          item?.name as string,
+          'hsnCode'
+        )) as number;
+
         if (item.hasBatch) {
           for (const invItem of existingItems) {
             const itemQty = invItem.quantity ?? 0;
@@ -557,6 +563,7 @@ export default defineComponent({
           await this.sinvDoc.append('items', {
             rate: item.rate as Money,
             item: item.name,
+            hsnCode: itemsHsncode,
           });
 
           return;
@@ -584,32 +591,32 @@ export default defineComponent({
 
           return;
         }
+        await this.sinvDoc.append('items', {
+          rate: item.rate as Money,
+          item: item.name,
+          quantity: quantity ? quantity : 1,
+          hsnCode: itemsHsncode,
+        });
+
+        if (this.sinvDoc.priceList) {
+          let itemData = this.sinvDoc.items?.filter(
+            (val) => val.item == item.name
+          ) as SalesInvoiceItem[];
+
+          itemData[0].rate = await getItemRateFromPriceList(
+            itemData[0],
+            this.sinvDoc.priceList
+          );
+        }
+
+        await this.applyPricingRule();
+        await this.sinvDoc.runFormulas();
       } catch (error) {
         return showToast({
           type: 'error',
           message: t`${error as string}`,
         });
       }
-
-      await this.sinvDoc.append('items', {
-        rate: item.rate as Money,
-        item: item.name,
-        quantity: quantity ? quantity : 1,
-      });
-
-      if (this.sinvDoc.priceList) {
-        let itemData = this.sinvDoc.items?.filter(
-          (val) => val.item == item.name
-        ) as SalesInvoiceItem[];
-
-        itemData[0].rate = await getItemRateFromPriceList(
-          itemData[0],
-          this.sinvDoc.priceList
-        );
-      }
-
-      await this.applyPricingRule();
-      await this.sinvDoc.runFormulas();
     },
     async createTransaction(shouldPrint = false, isPay = false) {
       try {
