@@ -36,7 +36,7 @@
     {
       "fieldname": "date",
       "label": "Posting Date",
-      "fieldtype": "DateTime",
+      "fieldtype": "Date",
       "required": true,
       "section": "Default"
     },
