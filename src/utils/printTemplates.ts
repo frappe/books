@@ -14,6 +14,7 @@ import {
 } from './ui';
 import { Money } from 'pesa';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { Payment } from 'models/baseModels/Payment/Payment';
 
 export type PrintTemplateHint = {
   [key: string]: string | PrintTemplateHint | PrintTemplateHint[];
@@ -44,28 +45,54 @@ export async function getPrintTemplatePropValues(
   doc: Doc
 ): Promise<PrintValues> {
   const fyo = doc.fyo;
+  let paymentId;
+  let sinvDoc;
+
   const values: PrintValues = { doc: {}, print: {} };
   values.doc = await getPrintTemplateDocValues(doc);
 
-  const totalTax = await (doc as Invoice)?.getTotalTax();
-  const paymentId = await (doc as SalesInvoice).getPaymentIds();
+  if (values.doc.entryType !== ModelNameEnum.Payment) {
+    paymentId = await (doc as SalesInvoice).getPaymentIds();
 
-  if (paymentId.length) {
-    const paymentDoc = await fyo.doc.getDoc(
-      ModelNameEnum.Payment,
-      paymentId[0]
+    if (paymentId && paymentId.length) {
+      const paymentDoc = await fyo.doc.getDoc(
+        ModelNameEnum.Payment,
+        paymentId[0]
+      );
+
+      (values.doc as PrintTemplateData).paymentMethod =
+        paymentDoc.paymentMethod;
+
+      (values.doc as PrintTemplateData).paidAmount = doc.fyo.format(
+        paymentDoc.amount as Money,
+        ModelNameEnum.Currency
+      );
+    }
+  }
+
+  if (doc.referenceType == ModelNameEnum.SalesInvoice) {
+    sinvDoc = await fyo.doc.getDoc(
+      ModelNameEnum.SalesInvoice,
+      (doc as Payment)?.for![0].referenceName
     );
 
-    (values.doc as PrintTemplateData).paymentMethod = paymentDoc.paymentMethod;
+    if (sinvDoc.taxes) {
+      (values.doc as PrintTemplateData).taxes = sinvDoc.taxes;
+    }
+  }
 
-    (values.doc as PrintTemplateData).paidAmount = doc.fyo.format(
-      paymentDoc.amount as Money,
-      ModelNameEnum.Currency
+  const totalTax = await (
+    (sinvDoc as Invoice) ?? (doc as Payment)
+  )?.getTotalTax();
+
+  if (doc.schema.name == ModelNameEnum.Payment) {
+    (values.doc as PrintTemplateData).amountPaidInWords = getGrandTotalInWords(
+      (doc.amountPaid as Money)?.float
     );
   }
 
   (values.doc as PrintTemplateData).subTotal = doc.fyo.format(
-    (doc.grandTotal as Money).sub(totalTax),
+    ((doc.grandTotal as Money) ?? (doc.amount as Money)).sub(totalTax),
     ModelNameEnum.Currency
   );
 
@@ -95,7 +122,7 @@ export async function getPrintTemplatePropValues(
   }
 
   (values.doc as PrintTemplateData).grandTotalInWords = getGrandTotalInWords(
-    (doc.grandTotal as Money).float
+    ((doc.grandTotal as Money) ?? (doc.amount as Money)).float
   );
 
   (values.doc as PrintTemplateData).date = getDate(doc.date as string);

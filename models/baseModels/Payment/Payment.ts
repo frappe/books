@@ -502,6 +502,14 @@ export class Payment extends Transactional {
     date: () => new Date(),
   };
 
+  async getTotalTax() {
+    const taxArr = await this.getTaxSummary();
+
+    return taxArr
+      .map(({ amount }) => amount)
+      .reduce((a, b) => a.add(b), this.fyo.pesa(0));
+  }
+
   async _getAccountsMap(): Promise<AccountTypeMap> {
     if (this._accountsMap) {
       return this._accountsMap;
