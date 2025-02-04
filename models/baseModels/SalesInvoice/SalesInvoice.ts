@@ -81,7 +81,7 @@ export class SalesInvoice extends Invoice {
 
   validations: ValidationMap = {
     loyaltyPoints: async (value: DocValue) => {
-      if (!this.redeemLoyaltyPoints) {
+      if (!this.redeemLoyaltyPoints || this.isSubmitted) {
         return;
       }
 
