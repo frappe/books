@@ -43,6 +43,7 @@
         :row="(row as SalesInvoiceItem)"
         @selected-row="selectedItemRow"
         @run-sinv-formulas="runSinvFormulas"
+        @apply-pricing-rule="$emit('applyPricingRule')"
         @toggle-modal="$emit('toggleModal')"
       />
     </Row>
@@ -140,9 +141,6 @@ export default defineComponent({
     },
     selectedItemRow(row: SalesInvoiceItem, field: string) {
       this.$emit('selectedRow', row, field);
-    },
-    emitApplyPricingRule() {
-      this.$emit('applyPricingRule');
     },
     isNumeric,
   },
