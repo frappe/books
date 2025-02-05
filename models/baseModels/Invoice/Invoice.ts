@@ -24,7 +24,6 @@ import {
   getPricingRulesConflicts,
   removeLoyaltyPoint,
   roundFreeItemQty,
-  getItemQtyMap,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -1286,19 +1285,11 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
-      let freeItemQty: number | undefined;
-
-      if (pricingRuleDoc?.freeItem) {
-        const itemQtyMap = await getItemQtyMap(this as SalesInvoice);
-        freeItemQty = itemQtyMap[pricingRuleDoc.freeItem]?.availableQty;
-      }
-
       const canApplyPRLOnItem = canApplyPricingRule(
         pricingRuleDoc,
         this.date as Date,
         item.quantity as number,
-        item.amount as Money,
-        freeItemQty as number
+        item.amount as Money
       );
 
       if (!canApplyPRLOnItem) {
@@ -1313,7 +1304,7 @@ export abstract class Invoice extends Transactional {
       }
 
       if (pricingRuleDoc.roundFreeItemQty) {
-        freeItemQty = roundFreeItemQty(
+        roundFreeItemQty(
           roundFreeItemQuantity,
           pricingRuleDoc.roundingMethod as 'round' | 'floor' | 'ceil'
         );
@@ -1467,7 +1458,7 @@ export abstract class Invoice extends Transactional {
         }
       }
 
-      const filtered = await filterPricingRules(
+      const filtered = filterPricingRules(
         this as SalesInvoice,
         pricingRuleDocsForItem,
         item.quantity as number,

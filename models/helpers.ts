@@ -983,7 +983,7 @@ export async function getPricingRule(
       continue;
     }
 
-    const filtered = await filterPricingRules(
+    const filtered = filterPricingRules(
       doc as SalesInvoice,
       pricingRuleDocsForItem,
       item.quantity as number,
@@ -1046,30 +1046,17 @@ export async function getItemRateFromPriceList(
   return plItem?.rate;
 }
 
-export async function filterPricingRules(
+export function filterPricingRules(
   doc: SalesInvoice,
   pricingRuleDocsForItem: PricingRule[],
   quantity: number,
   amount: Money
-): Promise<PricingRule[] | []> {
+): PricingRule[] | [] {
   const filteredPricingRules: PricingRule[] = [];
 
   for (const pricingRuleDoc of pricingRuleDocsForItem) {
-    let freeItemQty: number | undefined;
-
-    if (pricingRuleDoc?.freeItem) {
-      const itemQtyMap = await getItemQtyMap(doc);
-      freeItemQty = itemQtyMap[pricingRuleDoc.freeItem]?.availableQty;
-    }
-
     if (
-      canApplyPricingRule(
-        pricingRuleDoc,
-        doc.date as Date,
-        quantity,
-        amount,
-        freeItemQty ?? 0
-      )
+      canApplyPricingRule(pricingRuleDoc, doc.date as Date, quantity, amount)
     ) {
       filteredPricingRules.push(pricingRuleDoc);
     }
@@ -1081,22 +1068,8 @@ export function canApplyPricingRule(
   pricingRuleDoc: PricingRule,
   sinvDate: Date,
   quantity: number,
-  amount: Money,
-  freeItemQty: number
+  amount: Money
 ): boolean {
-  const freeItemQuantity = pricingRuleDoc.freeItemQuantity;
-
-  if (pricingRuleDoc.isRecursive) {
-    freeItemQty = quantity / (pricingRuleDoc.recurseEvery as number);
-  }
-
-  // Filter by Quantity
-  if (pricingRuleDoc.freeItem && freeItemQuantity! >= freeItemQty) {
-    throw new ValidationError(
-      t`Free item '${pricingRuleDoc.freeItem}' does not have a specified quantity`
-    );
-  }
-
   if (
     (pricingRuleDoc.minQuantity as number) > 0 &&
     quantity < (pricingRuleDoc.minQuantity as number)
