@@ -803,6 +803,27 @@ export default defineComponent({
 
       await this.sinvDoc.appendPricingRuleDetail(hasPricingRules);
       await this.sinvDoc.applyProductDiscount();
+
+      const outOfStockFreeItems: string[] = [];
+      const itemQtyMap = await getItemQtyMap(this.sinvDoc as SalesInvoice);
+
+      hasPricingRules.map((pRule) => {
+        const freeItemQty =
+          itemQtyMap[pRule.pricingRule.freeItem as string]?.availableQty;
+
+        if (freeItemQty <= 0) {
+          this.sinvDoc.items = this.sinvDoc.items?.filter(
+            (val) => !(val.isFreeItem && val.item == pRule.pricingRule.freeItem)
+          );
+
+          outOfStockFreeItems.push(pRule.pricingRule.freeItem as string);
+        }
+      });
+
+      showToast({
+        type: 'error',
+        message: t`Free items out of stock: ${outOfStockFreeItems.join(', ')}`,
+      });
     },
     async routeToSinvList() {
       if (!this.sinvDoc.items?.length) {
