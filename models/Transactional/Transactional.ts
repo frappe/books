@@ -56,6 +56,15 @@ export abstract class Transactional extends Doc {
     await posting.post();
   }
 
+  async afterSubmitUndo(): Promise<void> {
+    await super.afterSubmitUndo();
+    if (!this.isTransactional) {
+      return;
+    }
+
+    await this._deletePostings();
+  }
+
   async afterCancel(): Promise<void> {
     await super.afterCancel();
     if (!this.isTransactional) {
@@ -76,6 +85,10 @@ export abstract class Transactional extends Doc {
       return;
     }
 
+    await this._deletePostings();
+  }
+
+  async _deletePostings(): Promise<void> {
     const ledgerEntryIds = (await this.fyo.db.getAll(
       ModelNameEnum.AccountingLedgerEntry,
       {
