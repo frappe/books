@@ -252,7 +252,10 @@
               <div class="w-full">
                 <div class="w-full flex gap-2">
                   <Button
-                    class="w-full bg-violet-500 dark:bg-violet-700"
+                    class="w-full"
+                    :style="{
+                      backgroundColor: fyo.singles.Defaults?.saveButton,
+                    }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="!sinvDoc?.party || !sinvDoc?.items?.length"
                     @click="$emit('saveInvoiceAction')"
@@ -264,7 +267,10 @@
                     </slot>
                   </Button>
                   <Button
-                    class="w-full bg-red-500 dark:bg-red-700"
+                    class="w-full"
+                    :style="{
+                      backgroundColor: fyo.singles.Defaults?.cancelButton,
+                    }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="!sinvDoc?.items?.length"
                     @click="() => $emit('clearValues')"
@@ -281,7 +287,10 @@
                   :class="`${isReturnInvoiceEnabledReturn ? 'mt-2' : 'mt-4'}`"
                 >
                   <Button
-                    class="w-full bg-blue-500 dark:bg-blue-700"
+                    class="w-full"
+                    :style="{
+                      backgroundColor: fyo.singles.Defaults?.heldButton,
+                    }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     @click="emitEvent('toggleModal', 'SavedInvoice', true)"
                   >
@@ -294,7 +303,10 @@
 
                   <Button
                     v-if="isReturnInvoiceEnabledReturn"
-                    class="w-full bg-orange-500 dark:bg-orange-700 py-5"
+                    class="w-full py-5"
+                    :style="{
+                      backgroundColor: fyo.singles.Defaults?.returnButton,
+                    }"
                     @click="
                       emitEvent('toggleModal', 'ReturnSalesInvoice', true)
                     "
@@ -307,7 +319,10 @@
                   </Button>
                   <Button
                     v-else
-                    class="w-full bg-green-500 dark:bg-green-700"
+                    class="w-full"
+                    :style="{
+                      backgroundColor: fyo.singles.Defaults?.payButton,
+                    }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="disablePayButton"
                     @click="emitEvent('toggleModal', 'Payment', true)"
@@ -321,7 +336,8 @@
                 </div>
                 <Button
                   v-if="isReturnInvoiceEnabledReturn"
-                  class="w-full bg-green-500 mt-2 dark:bg-green-700 py-5"
+                  class="w-full mt-2 py-5"
+                  :style="{ backgroundColor: fyo.singles.Defaults?.payButton }"
                   :disabled="disablePayButton"
                   @click="emitEvent('toggleModal', 'Payment', true)"
                 >
