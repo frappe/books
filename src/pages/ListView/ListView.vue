@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col">
     <PageHeader :title="title">
+      <Button ref="saveViewButton" :icon="false" @click="saveView">
+        {{ t`Save view` }}
+      </Button>
       <Button ref="exportButton" :icon="false" @click="openExportModal = true">
         {{ t`Export` }}
       </Button>
@@ -44,6 +47,8 @@
 </template>
 <script lang="ts">
 import { Field } from 'schemas/types';
+import { ModelNameEnum } from 'models/types';
+import { SidebarEntry } from 'models/baseModels/SidebarEntry/SidebarEntry';
 import Button from 'src/components/Button.vue';
 import ExportWizard from 'src/components/ExportWizard.vue';
 import FilterDropdown from 'src/components/FilterDropdown.vue';
@@ -166,6 +171,23 @@ export default defineComponent({
     },
     applyFilter(filters: QueryFilter) {
       this.list?.updateData(filters);
+    },
+    async saveView() {
+      const data = {
+        route: '/list',
+        model: this.schemaName,
+        filters: JSON.stringify(this.listFilters),
+      };
+      let entry = fyo.doc.getNewDoc(
+        ModelNameEnum.SidebarEntry,
+        data
+      ) as SidebarEntry;
+
+      const { openQuickEdit } = await import('src/utils/ui');
+      await openQuickEdit({
+        doc: entry,
+        showFields: ['section'],
+      });
     },
   },
 });
