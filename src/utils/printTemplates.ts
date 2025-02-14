@@ -55,18 +55,8 @@ export async function getPrintTemplatePropValues(
     paymentId = await (doc as SalesInvoice).getPaymentIds();
 
     if (paymentId && paymentId.length) {
-      const paymentDoc = await fyo.doc.getDoc(
-        ModelNameEnum.Payment,
-        paymentId[0]
-      );
-
-      (values.doc as PrintTemplateData).paymentMethod =
-        paymentDoc.paymentMethod;
-
-      (values.doc as PrintTemplateData).paidAmount = doc.fyo.format(
-        paymentDoc.amount as Money,
-        ModelNameEnum.Currency
-      );
+      const paymentDetails = await getPaymentDetails(doc, paymentId);
+      (values.doc as PrintTemplateData).paymentDetails = paymentDetails;
     }
   }
 
@@ -132,6 +122,28 @@ export async function getPrintTemplatePropValues(
   }
 
   return values;
+}
+async function getPaymentDetails(doc: Doc, paymentId: string[]) {
+  const paymentIds = paymentId.sort();
+  const paymentDetails = [];
+  let outstandingAmount = doc.grandTotal as Money;
+
+  for (const payment of paymentIds) {
+    const paymentDoc = await doc.fyo.doc.getDoc(ModelNameEnum.Payment, payment);
+    outstandingAmount = outstandingAmount.sub(paymentDoc.amount as Money);
+
+    paymentDetails.push({
+      amount: doc.fyo.format(paymentDoc.amount, ModelNameEnum.Currency),
+      amountPaid: doc.fyo.format(paymentDoc.amountPaid, ModelNameEnum.Currency),
+      paymentMethod: paymentDoc.paymentMethod as string,
+      outstandingAmount: doc.fyo.format(
+        outstandingAmount,
+        ModelNameEnum.Currency
+      ),
+    });
+  }
+
+  return paymentDetails;
 }
 
 function getDate(dateString: string): string {
