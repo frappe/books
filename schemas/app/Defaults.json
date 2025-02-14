@@ -194,6 +194,406 @@
       "fieldtype": "Table",
       "target": "DefaultCashDenominations",
       "section": "Point of Sale"
+    },
+    {
+      "fieldname": "saveButton",
+      "label": "Save Button",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#6846e3",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#b52a2a"
+        },
+        {
+          "label": "Orange",
+          "value": "#e9612b"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#58ba8a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#0070cb"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#6846e3"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "cancelButton",
+      "label": "Cancel Button",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#b52a2a",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#b52a2a"
+        },
+        {
+          "label": "Orange",
+          "value": "#e9612b"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#58ba8a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#0070cb"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#6846e3"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "submitButton",
+      "label": "Submit Button",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#f56565",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#b52a2a"
+        },
+        {
+          "label": "Orange",
+          "value": "#e9612b"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#58ba8a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#0070cb"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#6846e3"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "heldButton",
+      "label": "Held Button",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#0070cb",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#b52a2a"
+        },
+        {
+          "label": "Orange",
+          "value": "#e9612b"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#58ba8a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#0070cb"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#6846e3"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "returnButton",
+      "label": "Return Button",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#bd3e0b",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#b52a2a"
+        },
+        {
+          "label": "Orange",
+          "value": "#e9612b"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#58ba8a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#0070cb"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#6846e3"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "buyButton",
+      "label": "Buy Button",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#58ba8a",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#b52a2a"
+        },
+        {
+          "label": "Orange",
+          "value": "#e9612b"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#58ba8a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#0070cb"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#6846e3"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "payButton",
+      "label": "Pay Button",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#0070cb",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#b52a2a"
+        },
+        {
+          "label": "Orange",
+          "value": "#e9612b"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#58ba8a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#0070cb"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#6846e3"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "payAndPrintButton",
+      "label": "Pay And Print Button",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#58ba8a",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#b52a2a"
+        },
+        {
+          "label": "Orange",
+          "value": "#e9612b"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#58ba8a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#0070cb"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#6846e3"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Point of Sale"
     }
   ]
 }
