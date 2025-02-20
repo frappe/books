@@ -848,17 +848,19 @@ export async function validateQty(
   }
 
   let itemName = item.name as string;
-  const itemDoc = (await sinvDoc.fyo.doc.getDoc(
+  const itemhasBatch = await sinvDoc.fyo.getValue(
     ModelNameEnum.Item,
-    item.item as string
-  )) as Item;
+    item.item as string,
+    'hasBatch'
+  );
+
   const itemQtyMap: ItemQtyMap = await getItemQtyMap(sinvDoc);
 
   if (item instanceof SalesInvoiceItem) {
     itemName = item.item as string;
   }
 
-  if (itemDoc.hasBatch) {
+  if (itemhasBatch) {
     if (!item.batch) {
       throw new ValidationError(t`Please select a batch first`);
     }
