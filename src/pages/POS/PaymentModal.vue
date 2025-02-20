@@ -134,7 +134,9 @@
         <div class="col-span-1">
           <Button
             class="w-full"
-            :style="{ backgroundColor: fyo.singles.Defaults?.submitButton }"
+            :style="{
+              backgroundColor: fyo.singles.Defaults?.submitButtonColour,
+            }"
             style="padding: 1.35rem"
             :disabled="disableSubmitButton"
             @click="submitTransaction()"
@@ -153,7 +155,9 @@
         <div class="col-span-1">
           <Button
             class="w-full"
-            :style="{ backgroundColor: fyo.singles.Defaults?.cancelButton }"
+            :style="{
+              backgroundColor: fyo.singles.Defaults?.cancelButtonColour,
+            }"
             style="padding: 1.35rem"
             @click="cancelTransaction()"
           >
@@ -168,7 +172,7 @@
         <div class="col-span-1">
           <Button
             class="w-full"
-            :style="{ backgroundColor: fyo.singles.Defaults?.payButton }"
+            :style="{ backgroundColor: fyo.singles.Defaults?.payButtonColour }"
             style="padding: 1.35rem"
             :disabled="disablePayButton"
             @click="payTransaction()"
@@ -185,7 +189,7 @@
           <Button
             class="w-full"
             :style="{
-              backgroundColor: fyo.singles.Defaults?.payAndPrintButton,
+              backgroundColor: fyo.singles.Defaults?.payAndPrintButtonColour,
             }"
             style="padding: 1.35rem"
             :disabled="disablePayButton"

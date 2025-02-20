@@ -44,14 +44,14 @@ export class Defaults extends Doc {
   posCustomer?: string;
 
   //Buttons
-  saveButton?: string;
-  submitButton?: string;
-  cancelButton?: string;
-  heldButton?: string;
-  returnButton?: string;
-  buyButton?: string;
-  payButton?: string;
-  payAndPrintButton?: string;
+  saveButtonColour?: string;
+  submitButtonColour?: string;
+  cancelButtonColour?: string;
+  heldButtonColour?: string;
+  returnButtonColour?: string;
+  buyButtonColour?: string;
+  payButtonColour?: string;
+  payAndPrintButtonColour?: string;
 
   static commonFilters = {
     // Auto Payments
@@ -120,14 +120,14 @@ export class Defaults extends Doc {
     stockMovementPrintTemplate: this.getInventoryHidden(),
     posCashDenominations: this.getPointOfSaleHidden(),
     posCustomer: this.getPointOfSaleHidden(),
-    saveButton: this.getPointOfSaleHidden(),
-    cancelButton: this.getPointOfSaleHidden(),
-    submitButton: this.getPointOfSaleHidden(),
-    heldButton: this.getPointOfSaleHidden(),
-    returnButton: this.getPointOfSaleHidden(),
-    buyButton: this.getPointOfSaleHidden(),
-    payButton: this.getPointOfSaleHidden(),
-    payAndPrintButton: this.getPointOfSaleHidden(),
+    saveButtonColour: this.getPointOfSaleHidden(),
+    cancelButtonColour: this.getPointOfSaleHidden(),
+    submitButtonColour: this.getPointOfSaleHidden(),
+    heldButtonColour: this.getPointOfSaleHidden(),
+    returnButtonColour: this.getPointOfSaleHidden(),
+    buyButtonColour: this.getPointOfSaleHidden(),
+    payButtonColour: this.getPointOfSaleHidden(),
+    payAndPrintButtonColour: this.getPointOfSaleHidden(),
   };
 }
 
