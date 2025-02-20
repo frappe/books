@@ -196,9 +196,9 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "saveButton",
-      "label": "Save Button",
-      "placeholder": "Select Color",
+      "fieldname": "saveButtonColour",
+      "label": "Save Button Colour",
+      "placeholder": "Select Colour",
       "fieldtype": "Color",
       "default": "#6846e3",
       "options": [
@@ -246,9 +246,9 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "cancelButton",
-      "label": "Cancel Button",
-      "placeholder": "Select Color",
+      "fieldname": "cancelButtonColour",
+      "label": "Cancel Button Colour",
+      "placeholder": "Select Colour",
       "fieldtype": "Color",
       "default": "#b52a2a",
       "options": [
@@ -296,9 +296,9 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "submitButton",
-      "label": "Submit Button",
-      "placeholder": "Select Color",
+      "fieldname": "submitButtonColour",
+      "label": "Submit Button Colour",
+      "placeholder": "Select Colour",
       "fieldtype": "Color",
       "default": "#f56565",
       "options": [
@@ -346,9 +346,9 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "heldButton",
-      "label": "Held Button",
-      "placeholder": "Select Color",
+      "fieldname": "heldButtonColour",
+      "label": "Held Button Colour",
+      "placeholder": "Select Colour",
       "fieldtype": "Color",
       "default": "#0070cb",
       "options": [
@@ -396,9 +396,9 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "returnButton",
-      "label": "Return Button",
-      "placeholder": "Select Color",
+      "fieldname": "returnButtonColour",
+      "label": "Return Button Colour",
+      "placeholder": "Select Colour",
       "fieldtype": "Color",
       "default": "#bd3e0b",
       "options": [
@@ -446,9 +446,9 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "buyButton",
-      "label": "Buy Button",
-      "placeholder": "Select Color",
+      "fieldname": "buyButtonColour",
+      "label": "Buy Button Colour",
+      "placeholder": "Select Colour",
       "fieldtype": "Color",
       "default": "#58ba8a",
       "options": [
@@ -496,9 +496,9 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "payButton",
-      "label": "Pay Button",
-      "placeholder": "Select Color",
+      "fieldname": "payButtonColour",
+      "label": "Pay Button Colour",
+      "placeholder": "Select Colour",
       "fieldtype": "Color",
       "default": "#0070cb",
       "options": [
@@ -546,9 +546,9 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "payAndPrintButton",
-      "label": "Pay And Print Button",
-      "placeholder": "Select Color",
+      "fieldname": "payAndPrintButtonColour",
+      "label": "Pay And Print Button Colour",
+      "placeholder": "Select Colour",
       "fieldtype": "Color",
       "default": "#58ba8a",
       "options": [
