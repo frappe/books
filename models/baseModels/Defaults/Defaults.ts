@@ -43,6 +43,16 @@ export class Defaults extends Doc {
   posCashDenominations?: DefaultCashDenominations[];
   posCustomer?: string;
 
+  //Buttons
+  saveButtonColour?: string;
+  submitButtonColour?: string;
+  cancelButtonColour?: string;
+  heldButtonColour?: string;
+  returnButtonColour?: string;
+  buyButtonColour?: string;
+  payButtonColour?: string;
+  payAndPrintButtonColour?: string;
+
   static commonFilters = {
     // Auto Payments
     salesPaymentAccount: () => ({ isGroup: false, accountType: 'Cash' }),
@@ -110,6 +120,14 @@ export class Defaults extends Doc {
     stockMovementPrintTemplate: this.getInventoryHidden(),
     posCashDenominations: this.getPointOfSaleHidden(),
     posCustomer: this.getPointOfSaleHidden(),
+    saveButtonColour: this.getPointOfSaleHidden(),
+    cancelButtonColour: this.getPointOfSaleHidden(),
+    submitButtonColour: this.getPointOfSaleHidden(),
+    heldButtonColour: this.getPointOfSaleHidden(),
+    returnButtonColour: this.getPointOfSaleHidden(),
+    buyButtonColour: this.getPointOfSaleHidden(),
+    payButtonColour: this.getPointOfSaleHidden(),
+    payAndPrintButtonColour: this.getPointOfSaleHidden(),
   };
 }
 
