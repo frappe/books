@@ -820,6 +820,10 @@ export default defineComponent({
         }
       });
 
+      if (!outOfStockFreeItems.length) {
+        return;
+      }
+
       showToast({
         type: 'error',
         message: t`Free items out of stock: ${outOfStockFreeItems.join(', ')}`,
