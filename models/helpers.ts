@@ -40,7 +40,7 @@ import { safeParseFloat } from 'utils/index';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
-import { ItemQtyMap, POSItem } from 'src/components/POS/types';
+import { ItemQtyMap } from 'src/components/POS/types';
 import { ValuationMethod } from './inventory/types';
 import {
   getRawStockLedgerEntries,
@@ -840,7 +840,7 @@ export async function removeLoyaltyPoint(doc: Doc) {
 
 export async function validateQty(
   sinvDoc: SalesInvoice,
-  item: POSItem | Item | undefined,
+  item: Item | undefined,
   existingItems: InvoiceItem[]
 ) {
   if (!item) {
@@ -848,25 +848,47 @@ export async function validateQty(
   }
 
   let itemName = item.name as string;
-  const itemQtyMap = await getItemQtyMap(sinvDoc);
+  const itemDoc = (await sinvDoc.fyo.doc.getDoc(
+    ModelNameEnum.Item,
+    item.item as string
+  )) as Item;
+  const itemQtyMap: ItemQtyMap = await getItemQtyMap(sinvDoc);
 
   if (item instanceof SalesInvoiceItem) {
     itemName = item.item as string;
+  }
+
+  if (itemDoc.hasBatch) {
+    if (!item.batch) {
+      throw new ValidationError(t`Please select a batch first`);
+    }
   }
 
   if (!itemQtyMap[itemName] || itemQtyMap[itemName].availableQty === 0) {
     throw new ValidationError(t`Item ${itemName} has Zero Quantity`);
   }
 
-  if (
-    (existingItems && !itemQtyMap[itemName]) ||
-    itemQtyMap[itemName].availableQty < (existingItems[0]?.quantity as number)
-  ) {
-    existingItems[0].quantity = itemQtyMap[itemName].availableQty;
-
-    throw new ValidationError(
-      t`Item ${itemName} only has ${itemQtyMap[itemName].availableQty} Quantity`
-    );
+  if (item.batch) {
+    if (
+      (existingItems && !itemQtyMap[itemName]) ||
+      itemQtyMap[itemName][item.batch as string] <
+        (existingItems[0]?.quantity as number)
+    ) {
+      throw new ValidationError(
+        t`Item ${itemName} only has ${
+          itemQtyMap[itemName][item.batch as string]
+        } Quantity in batch ${item.batch as string}`
+      );
+    }
+  } else {
+    if (
+      (existingItems && !itemQtyMap[itemName]) ||
+      itemQtyMap[itemName].availableQty < (existingItems[0]?.quantity as number)
+    ) {
+      throw new ValidationError(
+        t`Item ${itemName} only has ${itemQtyMap[itemName].availableQty} Quantity`
+      );
+    }
   }
 
   return;
