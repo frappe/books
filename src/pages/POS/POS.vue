@@ -552,7 +552,7 @@ export default defineComponent({
               await this.sinvDoc.runFormulas();
               await validateQty(
                 this.sinvDoc as SalesInvoice,
-                item,
+                item as Item,
                 existingItems as InvoiceItem[]
               );
 
@@ -585,7 +585,7 @@ export default defineComponent({
           await this.sinvDoc.runFormulas();
           await validateQty(
             this.sinvDoc as SalesInvoice,
-            item,
+            item as Item,
             existingItems as InvoiceItem[]
           );
 
