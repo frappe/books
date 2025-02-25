@@ -209,10 +209,6 @@ export default defineComponent({
           this.posOpeningShiftDoc?.name
         );
         await this.posClosingShiftDoc?.sync();
-        await this.posOpeningShiftDoc?.setAndSync(
-          'closingShift',
-          this.posClosingShiftDoc?.name
-        );
         await transferPOSCashAndWriteOff(
           fyo,
           this.posClosingShiftDoc as POSClosingShift
