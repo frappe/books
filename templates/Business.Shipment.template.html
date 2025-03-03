@@ -1,0 +1,111 @@
+<main class="bg-white h-full" :style="{ 'font-family': print.font }">
+  <!-- Invoice Header -->
+  <header class="bg-gray-100 px-12 py-10">
+    <!-- Company Details -->
+    <section class="flex items-center">
+      <img
+        v-if="print.displayLogo"
+        class="h-12 max-w-32 object-contain mr-4"
+        :src="print.logo"
+      />
+
+      <div>
+        <p class="font-semibold text-xl" :style="{ color: print.color }">
+          {{ print.companyName }}
+        </p>
+
+        <p class="text-sm text-gray-800" v-if="print.address">
+          {{ print.links.address.addressDisplay }}
+        </p>
+
+        <p class="text-sm text-gray-800" v-if="print.gstin">
+          GSTIN: {{ print.gstin }}
+        </p>
+      </div>
+    </section>
+
+    <!-- Sub Heading Section -->
+    <div class="mt-8 text-lg">
+      <!-- Doc Details -->
+      <section class="flex">
+        <h3 class="w-1/3 font-semibold">{{t`Bill`}}</h3>
+        <div class="w-2/3 text-gray-800">
+          <p class="font-semibold">{{ doc.name }}</p>
+
+          <div class="flex gap-2">
+            <p>{{ doc.date }}</p>
+            <p>{{doc?.time }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Party Details -->
+      <section class="mt-4 flex">
+        <h3 class="w-1/3 font-semibold">{{t`party`}}</h3>
+
+        <div class="w-2/3 text-gray-800" v-if="doc.party">
+          <p class="font-semibold">{{ doc.party }}</p>
+
+          <p v-if="doc.links.party.address">
+            {{ doc.links.party.links.address.addressDisplay }}
+          </p>
+
+          <p v-if="doc.links.party.gstin">GSTIN: {{ doc.links.party.gstin }}</p>
+        </div>
+      </section>
+    </div>
+  </header>
+
+  <!-- Items Table -->
+  <section class="mt-5 mx-16">
+    <!-- Heading Row -->
+    <section class="w-full font-semibold flex border-b">
+      <div class="py-1 w-1/2">{{ t`Item` }}</div>
+      <div class="py-1 text-right w-3/12" v-if="doc.showHSN">
+        {{ t`HSN/SAC` }}
+      </div>
+      <div class="py-1 text-right w-1/4">{{ t`From` }}</div>
+      <div class="py-1 text-right w-1/4">{{ t`Quantity` }}</div>
+      <div class="py-1 text-right w-3/12">{{ t`Rate` }}</div>
+      <div class="py-1 text-right w-3/12">{{ t`Amount` }}</div>
+    </section>
+
+    <!-- Body Rows -->
+    <section
+      class="flex py-1 text-gray-900 w-full border-b"
+      v-for="row in doc.items"
+      :key="row.name"
+    >
+      <div class="w-1/2 py-1">{{ row.item }}</div>
+      <div class="w-3/12 text-right py-1" v-if="doc.showHSN">
+        {{ row.hsnCode }}
+      </div>
+      <div class="w-1/4 text-right py-1">{{ row.location }}</div>
+      <div class="w-1/4 text-right py-1">{{ row.quantity }}</div>
+      <div class="w-3/12 text-right py-1">{{ row.rate }}</div>
+      <div class="w-3/12 text-right py-1">{{ row.amount }}</div>
+    </section>
+  </section>
+  <footer class="px-12 pt-10 text-lg">
+    <!-- Totaled Amounts -->
+    <section class="flex -mx-3 justify-end flex-1 bg-gray-100 gap-8">
+      <div class="flex items-center">{{doc.grandTotalInWords}}</div>
+
+      <!-- Grand Total -->
+      <div
+        class="py-3 px-4 text-right text-white"
+        :style="{ backgroundColor: print.color }"
+      >
+        <h3>{{ t`Grand Total` }}</h3>
+        <p class="text-2xl mt-2 font-semibold">{{ doc.grandTotal }}</p>
+      </div>
+    </section>
+
+    <!-- Invoice Terms -->
+    <section class="mt-12" v-if="doc.terms">
+      <h3 class="text-lg font-semibold">Notes</h3>
+
+      <p class="mt-4 text-lg whitespace-pre-line">{{ doc.terms }}</p>
+    </section>
+  </footer>
+</main>
