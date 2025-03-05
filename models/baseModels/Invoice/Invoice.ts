@@ -838,7 +838,6 @@ export abstract class Invoice extends Transactional {
     taxes: () => !this.taxes?.length,
     baseGrandTotal: () =>
       this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
-    grandTotal: () => !this.taxes?.length,
     stockNotTransferred: () => !this.stockNotTransferred,
     outstandingAmount: () =>
       !!this.outstandingAmount?.isZero() || !this.isSubmitted,
