@@ -46,10 +46,8 @@ export class PrintTemplate extends Doc {
 
   static lists: ListsMap = {
     type(doc?: Doc) {
-      let enableInventory = false;
       let schemaMap: SchemaMap = {};
       if (doc) {
-        enableInventory = !!doc.fyo.singles.AccountingSettings?.enableInventory;
         schemaMap = doc.fyo.schemaMap;
       }
 
@@ -59,15 +57,10 @@ export class PrintTemplate extends Doc {
         ModelNameEnum.PurchaseInvoice,
         ModelNameEnum.JournalEntry,
         ModelNameEnum.Payment,
+        ModelNameEnum.Shipment,
+        ModelNameEnum.PurchaseReceipt,
+        ModelNameEnum.StockMovement,
       ];
-
-      if (enableInventory) {
-        models.push(
-          ModelNameEnum.Shipment,
-          ModelNameEnum.PurchaseReceipt,
-          ModelNameEnum.StockMovement
-        );
-      }
 
       return models.map((value) => ({
         value,
