@@ -79,6 +79,18 @@
       "readOnly": true
     },
     {
+      "fieldname": "itemDiscountAmount",
+      "label": "Discount Amount",
+      "fieldtype": "Currency",
+      "readOnly": false
+    },
+    {
+      "fieldname": "itemDiscountPercent",
+      "label": "Discount Percent",
+      "fieldtype": "Float",
+      "readOnly": false
+    },
+    {
       "fieldname": "description",
       "label": "Description",
       "placeholder": "Item Description",
@@ -107,6 +119,8 @@
     "hsnCode",
     "location",
     "rate",
-    "amount"
+    "amount",
+    "itemDiscountAmount",
+    "itemDiscountPercent"
   ]
 }
