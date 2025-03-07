@@ -12,6 +12,7 @@ import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
 import { StockTransfer } from './StockTransfer';
 import { TransferItem } from './TransferItem';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 
 export class StockTransferItem extends TransferItem {
   item?: string;
@@ -40,6 +41,32 @@ export class StockTransferItem extends TransferItem {
 
   get isReturn(): boolean {
     return !!this.parentdoc?.isReturn;
+  }
+
+  async getItemDiscountAmount(): Promise<Money | undefined> {
+    const sinvDoc = (await this.fyo.doc.getDoc(
+      ModelNameEnum.SalesInvoice,
+      this.parentdoc?.backReference
+    )) as SalesInvoice;
+
+    const discountAmount = sinvDoc?.items?.find(
+      (val) => val.item === this.item
+    )?.itemDiscountAmount;
+
+    return discountAmount;
+  }
+
+  async getItemDiscountPercent() {
+    const sinvDoc = (await this.fyo.doc.getDoc(
+      ModelNameEnum.SalesInvoice,
+      this.parentdoc?.backReference
+    )) as SalesInvoice;
+
+    const discountPercent = sinvDoc?.items?.find(
+      (val) => val.item === this.item
+    )?.itemDiscountPercent;
+
+    return discountPercent;
   }
 
   formulas: FormulaMap = {
@@ -157,6 +184,16 @@ export class StockTransferItem extends TransferItem {
         return this.rate?.mul(this.quantity ?? 0) ?? this.fyo.pesa(0);
       },
       dependsOn: ['rate', 'quantity'],
+    },
+    itemDiscountAmount: {
+      formula: async () => {
+        return await this.getItemDiscountAmount();
+      },
+      dependsOn: ['items'],
+    },
+    itemDiscountPercent: {
+      formula: () => this.getItemDiscountPercent(),
+      dependsOn: ['items'],
     },
     rate: {
       formula: async () => {

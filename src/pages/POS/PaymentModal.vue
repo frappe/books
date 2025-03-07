@@ -371,7 +371,7 @@ export default defineComponent({
       }
 
       if (amount) {
-        this.$emit('setPaidAmount', this.sinvDoc.outstandingAmount?.float);
+        this.$emit('setPaidAmount', this.sinvDoc.grandTotal?.float);
       }
     },
     async setPaymentMethods() {
