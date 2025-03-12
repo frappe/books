@@ -668,7 +668,7 @@ export default defineComponent({
       if (paymentMethodDoc?.type === 'Cash') {
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
-          amount: this.paidAmount as Money,
+          amount: this.fyo.pesa(this.paidAmount as unknown as number).abs(),
         });
       }
 
