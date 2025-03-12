@@ -371,6 +371,15 @@ export default defineComponent({
       }
 
       if (amount) {
+        if (this.sinvDoc.isReturn) {
+          this.$emit(
+            'setPaidAmount',
+            -Math.abs(this.sinvDoc.outstandingAmount?.float)
+          );
+
+          return;
+        }
+
         this.$emit('setPaidAmount', this.sinvDoc.outstandingAmount?.float);
       }
     },
