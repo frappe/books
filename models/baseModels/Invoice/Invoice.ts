@@ -422,9 +422,20 @@ export abstract class Invoice extends Transactional {
 
   getGrandTotal() {
     const totalDiscount = this.getTotalDiscount();
+
+    if (!this.taxes!.length) {
+      return this.netTotal as Money;
+    }
+
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
-      .reduce((a, b) => a.add(b), this.netTotal!)
+      .reduce((a, b) => {
+        if (this.isReturn) {
+          return a.add(b.abs()).neg();
+        }
+
+        return a.add(b.abs());
+      }, (this.netTotal as Money).abs())
       .sub(totalDiscount);
   }
 
@@ -465,21 +476,88 @@ export abstract class Invoice extends Transactional {
           item.itemDiscountAmount ?? this.fyo.pesa(0)
         );
       } else if (!this.discountAfterTax) {
-        discountAmount = discountAmount.add(
-          (item.amount ?? this.fyo.pesa(0)).mul(
-            (item.itemDiscountPercent ?? 0) / 100
-          )
-        );
+        if (this.isReturn) {
+          discountAmount = discountAmount.add(
+            (item.amount ?? this.fyo.pesa(0)).mul(
+              -Math.abs(item.itemDiscountPercent as number) / 100
+            )
+          );
+        } else {
+          discountAmount = discountAmount.add(
+            (item.amount ?? this.fyo.pesa(0)).mul(
+              (item.itemDiscountPercent ?? 0) / 100
+            )
+          );
+        }
       } else if (this.discountAfterTax) {
-        discountAmount = discountAmount.add(
-          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
-            (item.itemDiscountPercent ?? 0) / 100
-          )
-        );
+        if (this.isReturn) {
+          discountAmount = discountAmount.add(
+            (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+              -Math.abs(item.itemDiscountPercent as number) / 100
+            )
+          );
+        } else {
+          discountAmount = discountAmount.add(
+            (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+              (item.itemDiscountPercent ?? 0) / 100
+            )
+          );
+        }
       }
     }
 
+    if (this.isReturn) {
+      return discountAmount.neg();
+    }
+
     return discountAmount;
+  }
+  async getTotalTaxRate(row: InvoiceItem): Promise<number> {
+    if (!this.taxes!.length) {
+      return 0;
+    }
+
+    const details =
+      ((await this.fyo.getValue(
+        'Tax',
+        row.tax as string,
+        'details'
+      )) as Doc[]) ?? [];
+    return details.reduce((acc, doc) => {
+      return (doc.rate as number) + acc;
+    }, 0);
+  }
+
+  async getItemsDiscountedTotal(row: InvoiceItem) {
+    const totalTaxRate = await this.getTotalTaxRate(row);
+    const rate = row.rate ?? this.fyo.pesa(0);
+    const quantity = row.quantity ?? 1;
+    const itemDiscountAmount = row.itemDiscountAmount ?? this.fyo.pesa(0);
+    const itemDiscountPercent = row.itemDiscountPercent ?? 0;
+
+    if (row.setItemDiscountAmount && row.itemDiscountAmount?.isZero()) {
+      return rate.mul(quantity);
+    }
+
+    if (!row.setItemDiscountAmount && row.itemDiscountPercent === 0) {
+      return rate.mul(quantity);
+    }
+
+    if (!this.discountAfterTax) {
+      const amount = rate.mul(quantity);
+      if (row.setItemDiscountAmount) {
+        return amount.sub(itemDiscountAmount);
+      }
+
+      return amount.mul(1 - itemDiscountPercent / 100);
+    }
+
+    const taxedTotal = rate.mul(quantity).mul(1 + totalTaxRate / 100);
+    if (row.setItemDiscountAmount) {
+      return taxedTotal.sub(itemDiscountAmount);
+    }
+
+    return taxedTotal.mul(1 - itemDiscountPercent / 100);
   }
 
   async getReturnDoc(): Promise<Invoice | undefined> {
@@ -504,11 +582,13 @@ export abstract class Invoice extends Transactional {
     for (const item of docItems) {
       if (!returnBalanceItemsQty) {
         returnDocItems = docItems;
-        returnDocItems.map((row) => {
+        for (const row of returnDocItems) {
           row.name = undefined;
+          row.itemDiscountedTotal = await this.getItemsDiscountedTotal(
+            row as InvoiceItem
+          );
           (row.quantity as number) *= -1;
-          return row;
-        });
+        }
         break;
       }
 
@@ -738,6 +818,7 @@ export abstract class Invoice extends Transactional {
 
         return this.baseGrandTotal;
       },
+      dependsOn: ['discountAmount', 'discountPercent'],
     },
     stockNotTransferred: {
       formula: () => {
@@ -838,7 +919,7 @@ export abstract class Invoice extends Transactional {
     taxes: () => !this.taxes?.length,
     baseGrandTotal: () =>
       this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
-    grandTotal: () => !this.taxes?.length,
+    // grandTotal: () => !this.taxes?.length,
     stockNotTransferred: () => !this.stockNotTransferred,
     outstandingAmount: () =>
       !!this.outstandingAmount?.isZero() || !this.isSubmitted,
