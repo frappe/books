@@ -28,6 +28,7 @@ import {
 } from './helpers';
 import { ReturnDocItem } from './types';
 import { getShipmentCOGSAmountFromSLEs } from 'reports/inventory/helpers';
+import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 
 export abstract class StockTransfer extends Transfer {
   name?: string;
@@ -49,6 +50,10 @@ export abstract class StockTransfer extends Transfer {
     return !!this.returnAgainst;
   }
 
+  get enableDiscounting() {
+    return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
+  }
+
   get invoiceSchemaName() {
     if (this.isSales) {
       return ModelNameEnum.SalesInvoice;
@@ -56,9 +61,99 @@ export abstract class StockTransfer extends Transfer {
     return ModelNameEnum.PurchaseInvoice;
   }
 
+  getTotalDiscount(doc: Doc) {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
+    const itemDiscountAmount = this.getItemDiscountAmount(doc);
+    const invoiceDiscountAmount = this.getInvoiceDiscountAmount(doc);
+
+    return itemDiscountAmount.add(invoiceDiscountAmount as Money);
+  }
+
+  getNetTotal() {
+    return this.getSum('items', 'amount', false);
+  }
+
+  async getGrandTotal() {
+    if (!this.backReference) {
+      return this.getSum('items', 'amount', false);
+    }
+
+    const docData = await this.fyo.doc.getDoc(
+      this.invoiceSchemaName,
+      this.backReference
+    );
+
+    const totalDiscount = this.getTotalDiscount(docData);
+
+    const x = ((docData.taxes ?? []) as Doc[])
+      .map((doc) => doc.amount as Money)
+      .reduce((a, b) => a.add(b), this.getNetTotal() as Money)
+      .sub(totalDiscount);
+
+    return x;
+  }
+
+  getInvoiceDiscountAmount(doc: Doc) {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
+    if (this.setDiscountAmount) {
+      return this.discountAmount ?? this.fyo.pesa(0);
+    }
+
+    let totalItemAmounts = this.fyo.pesa(0);
+
+    for (const item of (doc.items as InvoiceItem[]) ?? []) {
+      if (this.discountAfterTax) {
+        totalItemAmounts = totalItemAmounts.add(item.itemTaxedTotal!);
+      } else {
+        totalItemAmounts = totalItemAmounts.add(item.itemDiscountedTotal!);
+      }
+    }
+
+    return totalItemAmounts.percent((doc.discountPercent as number) ?? 0) ?? 0;
+  }
+
+  getItemDiscountAmount(doc: Doc) {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
+    if (!this?.items?.length) {
+      return this.fyo.pesa(0);
+    }
+
+    let discountAmount = this.fyo.pesa(0);
+    for (const item of this.items ?? []) {
+      if (!(item.itemDiscountAmount as Money).isZero()) {
+        discountAmount = discountAmount.add(
+          (item.itemDiscountAmount as Money) ?? this.fyo.pesa(0)
+        );
+      } else if (!doc.discountAfterTax) {
+        const amt = (item.amount ?? this.fyo.pesa(0)).mul(
+          ((item.itemDiscountPercent as number) ?? 0) / 100
+        );
+
+        discountAmount = discountAmount.add(amt);
+      } else if (doc.discountAfterTax) {
+        discountAmount = discountAmount.add(
+          ((item.itemTaxedTotal as Money) ?? this.fyo.pesa(0)).mul(
+            ((item.itemDiscountPercent as number) ?? 0) / 100
+          )
+        );
+      }
+    }
+
+    return discountAmount;
+  }
+
   formulas: FormulaMap = {
     grandTotal: {
-      formula: () => this.getSum('items', 'amount', false),
+      formula: async () => await this.getGrandTotal(),
       dependsOn: ['items'],
     },
   };
