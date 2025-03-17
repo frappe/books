@@ -13,6 +13,7 @@ import { safeParseFloat } from 'utils/index';
 import { StockTransfer } from './StockTransfer';
 import { TransferItem } from './TransferItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
 
 export class StockTransferItem extends TransferItem {
   item?: string;
@@ -23,6 +24,9 @@ export class StockTransferItem extends TransferItem {
   quantity?: number;
   transferQuantity?: number;
   unitConversionFactor?: number;
+
+  itemDiscountAmount?: Money;
+  itemDiscountPercent?: number;
 
   rate?: Money;
   amount?: Money;
@@ -44,12 +48,14 @@ export class StockTransferItem extends TransferItem {
   }
 
   async getItemDiscountAmount(): Promise<Money | undefined> {
-    const sinvDoc = (await this.fyo.doc.getDoc(
-      ModelNameEnum.SalesInvoice,
+    const docData = (await this.fyo.doc.getDoc(
+      this.parentSchemaName == ModelNameEnum.Shipment
+        ? ModelNameEnum.SalesInvoice
+        : ModelNameEnum.PurchaseInvoice,
       this.parentdoc?.backReference
-    )) as SalesInvoice;
+    )) as SalesInvoice | PurchaseInvoice;
 
-    const discountAmount = sinvDoc?.items?.find(
+    const discountAmount = docData?.items?.find(
       (val) => val.item === this.item
     )?.itemDiscountAmount;
 
@@ -57,12 +63,14 @@ export class StockTransferItem extends TransferItem {
   }
 
   async getItemDiscountPercent() {
-    const sinvDoc = (await this.fyo.doc.getDoc(
-      ModelNameEnum.SalesInvoice,
+    const docData = (await this.fyo.doc.getDoc(
+      this.parentSchemaName == ModelNameEnum.Shipment
+        ? ModelNameEnum.SalesInvoice
+        : ModelNameEnum.PurchaseInvoice,
       this.parentdoc?.backReference
-    )) as SalesInvoice;
+    )) as SalesInvoice | PurchaseInvoice;
 
-    const discountPercent = sinvDoc?.items?.find(
+    const discountPercent = docData?.items?.find(
       (val) => val.item === this.item
     )?.itemDiscountPercent;
 
@@ -269,6 +277,14 @@ export class StockTransferItem extends TransferItem {
   };
 
   override hidden: HiddenMap = {
+    itemDiscountAmount: () => {
+      if (this.itemDiscountAmount && !this.itemDiscountAmount?.isZero()) {
+        return false;
+      }
+
+      return true;
+    },
+    itemDiscountPercent: () => !this.itemDiscountPercent,
     batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
     serialNumber: () => !this.fyo.singles.InventorySettings?.enableSerialNumber,
     transferUnit: () =>
