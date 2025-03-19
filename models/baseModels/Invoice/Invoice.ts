@@ -424,7 +424,7 @@ export abstract class Invoice extends Transactional {
     const totalDiscount = this.getTotalDiscount();
 
     if (!this.taxes!.length) {
-      return this.netTotal as Money;
+      return (this.netTotal as Money).sub(totalDiscount);
     }
 
     return ((this.taxes ?? []) as Doc[])
