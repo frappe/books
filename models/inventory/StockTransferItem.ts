@@ -12,6 +12,8 @@ import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
 import { StockTransfer } from './StockTransfer';
 import { TransferItem } from './TransferItem';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
 
 export class StockTransferItem extends TransferItem {
   item?: string;
@@ -22,6 +24,9 @@ export class StockTransferItem extends TransferItem {
   quantity?: number;
   transferQuantity?: number;
   unitConversionFactor?: number;
+
+  itemDiscountAmount?: Money;
+  itemDiscountPercent?: number;
 
   rate?: Money;
   amount?: Money;
@@ -40,6 +45,36 @@ export class StockTransferItem extends TransferItem {
 
   get isReturn(): boolean {
     return !!this.parentdoc?.isReturn;
+  }
+
+  async getItemDiscountAmount(): Promise<Money | undefined> {
+    const docData = (await this.fyo.doc.getDoc(
+      this.parentSchemaName == ModelNameEnum.Shipment
+        ? ModelNameEnum.SalesInvoice
+        : ModelNameEnum.PurchaseInvoice,
+      this.parentdoc?.backReference
+    )) as SalesInvoice | PurchaseInvoice;
+
+    const discountAmount = docData?.items?.find(
+      (val) => val.item === this.item
+    )?.itemDiscountAmount;
+
+    return discountAmount;
+  }
+
+  async getItemDiscountPercent() {
+    const docData = (await this.fyo.doc.getDoc(
+      this.parentSchemaName == ModelNameEnum.Shipment
+        ? ModelNameEnum.SalesInvoice
+        : ModelNameEnum.PurchaseInvoice,
+      this.parentdoc?.backReference
+    )) as SalesInvoice | PurchaseInvoice;
+
+    const discountPercent = docData?.items?.find(
+      (val) => val.item === this.item
+    )?.itemDiscountPercent;
+
+    return discountPercent;
   }
 
   formulas: FormulaMap = {
@@ -158,6 +193,16 @@ export class StockTransferItem extends TransferItem {
       },
       dependsOn: ['rate', 'quantity'],
     },
+    itemDiscountAmount: {
+      formula: async () => {
+        return await this.getItemDiscountAmount();
+      },
+      dependsOn: ['items'],
+    },
+    itemDiscountPercent: {
+      formula: () => this.getItemDiscountPercent(),
+      dependsOn: ['items'],
+    },
     rate: {
       formula: async () => {
         const rate = (await this.fyo.getValue(
@@ -232,6 +277,14 @@ export class StockTransferItem extends TransferItem {
   };
 
   override hidden: HiddenMap = {
+    itemDiscountAmount: () => {
+      if (this.itemDiscountAmount && !this.itemDiscountAmount?.isZero()) {
+        return false;
+      }
+
+      return true;
+    },
+    itemDiscountPercent: () => !this.itemDiscountPercent,
     batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
     serialNumber: () => !this.fyo.singles.InventorySettings?.enableSerialNumber,
     transferUnit: () =>
