@@ -659,7 +659,7 @@ export default defineComponent({
 
       if (paymentMethodDoc?.type !== 'Cash') {
         await this.paymentDoc.setMultiple({
-          amount: this.fyo.pesa(this.paidAmount as unknown as number).abs(),
+          amount: this.paidAmount.float,
           referenceId: this.transferRefNo,
           clearanceDate: this.transferClearanceDate,
         });
@@ -668,7 +668,7 @@ export default defineComponent({
       if (paymentMethodDoc?.type === 'Cash') {
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
-          amount: this.fyo.pesa(this.paidAmount as unknown as number).abs(),
+          amount: this.paidAmount.float,
         });
       }
 
