@@ -97,10 +97,6 @@ export abstract class StockTransfer extends Transfer {
   }
 
   getInvoiceDiscountAmount(doc: Doc) {
-    if (!this.enableDiscounting) {
-      return this.fyo.pesa(0);
-    }
-
     if (this.setDiscountAmount) {
       return this.discountAmount ?? this.fyo.pesa(0);
     }
@@ -119,10 +115,6 @@ export abstract class StockTransfer extends Transfer {
   }
 
   getItemDiscountAmount(doc: Doc) {
-    if (!this.enableDiscounting) {
-      return this.fyo.pesa(0);
-    }
-
     if (!this?.items?.length) {
       return this.fyo.pesa(0);
     }
