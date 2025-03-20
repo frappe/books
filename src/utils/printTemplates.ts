@@ -113,8 +113,8 @@ export async function getPrintTemplatePropValues(
   if (discountSchema.some((value) => doc.schemaName?.endsWith(value))) {
     (values.doc as PrintTemplateData).totalDiscount =
       formattedTotalDiscount(doc);
-    (values.doc as PrintTemplateData).showHSN = showHSN(doc);
   }
+  (values.doc as PrintTemplateData).showHSN = showHSN(doc);
 
   (values.doc as PrintTemplateData).grandTotalInWords = getGrandTotalInWords(
     ((doc.grandTotal as Money) ?? (doc.amount as Money)).float
