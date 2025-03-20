@@ -51,7 +51,10 @@ export async function getPrintTemplatePropValues(
   const values: PrintValues = { doc: {}, print: {} };
   values.doc = await getPrintTemplateDocValues(doc);
 
-  if (values.doc.entryType !== ModelNameEnum.Payment) {
+  if (
+    values.doc.entryType === ModelNameEnum.SalesInvoice ||
+    values.doc.entryType === ModelNameEnum.PurchaseInvoice
+  ) {
     paymentId = await (doc as SalesInvoice).getPaymentIds();
 
     if (paymentId && paymentId.length) {
@@ -71,9 +74,11 @@ export async function getPrintTemplatePropValues(
     }
   }
 
-  const totalTax = await (
-    (sinvDoc as Invoice) ?? (doc as Payment)
-  )?.getTotalTax();
+  let totalTax;
+
+  if (values.doc.entryType !== ModelNameEnum.Shipment) {
+    totalTax = await ((sinvDoc as Invoice) ?? (doc as Payment))?.getTotalTax();
+  }
 
   if (doc.schema.name == ModelNameEnum.Payment) {
     (values.doc as PrintTemplateData).amountPaidInWords = getGrandTotalInWords(
@@ -82,7 +87,7 @@ export async function getPrintTemplatePropValues(
   }
 
   (values.doc as PrintTemplateData).subTotal = doc.fyo.format(
-    ((doc.grandTotal as Money) ?? (doc.amount as Money)).sub(totalTax),
+    ((doc.grandTotal as Money) ?? (doc.amount as Money)).sub(totalTax || 0),
     ModelNameEnum.Currency
   );
 
@@ -108,8 +113,8 @@ export async function getPrintTemplatePropValues(
   if (discountSchema.some((value) => doc.schemaName?.endsWith(value))) {
     (values.doc as PrintTemplateData).totalDiscount =
       formattedTotalDiscount(doc);
-    (values.doc as PrintTemplateData).showHSN = showHSN(doc);
   }
+  (values.doc as PrintTemplateData).showHSN = showHSN(doc);
 
   (values.doc as PrintTemplateData).grandTotalInWords = getGrandTotalInWords(
     ((doc.grandTotal as Money) ?? (doc.amount as Money)).float
