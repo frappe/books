@@ -335,7 +335,7 @@ export default defineComponent({
       }
 
       if (
-        this.paymentMethod !== 'Cash' &&
+        !this.paymentMethod &&
         (!this.transferRefNo || !this.transferClearanceDate)
       ) {
         return true;
@@ -352,7 +352,7 @@ export default defineComponent({
       }
 
       if (
-        this.paymentMethod !== 'Cash' &&
+        !this.paymentMethod &&
         (!this.transferRefNo || !this.transferClearanceDate)
       ) {
         return true;
@@ -380,7 +380,7 @@ export default defineComponent({
           return;
         }
 
-        this.$emit('setPaidAmount', this.sinvDoc.outstandingAmount?.float);
+        this.$emit('setPaidAmount', this.sinvDoc.grandTotal?.float);
       }
     },
     async setPaymentMethods() {
