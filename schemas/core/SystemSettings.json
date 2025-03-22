@@ -133,6 +133,13 @@
       "default": false,
       "description": "Sets the theme of the app.",
       "section": "Theme"
+    },
+    {
+      "fieldname": "provisionalModeSince",
+      "label": "Provisional Mode Since",
+      "fieldtype": "Datetime",
+      "description": "Date since the provisional mode is set, or NULL for definitive mode",
+      "hidden": true
     }
   ],
   "quickEditFields": [
