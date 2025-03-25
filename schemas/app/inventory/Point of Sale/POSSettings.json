@@ -58,6 +58,15 @@
       "hidden": true
     },
     {
+      "fieldname": "defaultAccount",
+      "label": "default Account",
+      "fieldtype": "Link",
+      "create": true,
+      "required": true,
+      "target": "Account",
+      "section": "Default"
+    },
+    {
       "fieldname": "weightEnabledBarcode",
       "label": "Weigth Enabled Barcode",
       "fieldtype": "Check",
