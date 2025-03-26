@@ -25,7 +25,7 @@ export class POSSettings extends Doc {
     }),
     defaultAccount: () => ({
       isGroup: false,
-      accountType: 'Receivable',
+      accountType: AccountTypeEnum.Receivable,
     }),
   };
 
