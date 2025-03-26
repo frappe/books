@@ -82,9 +82,15 @@ export async function getShipmentCOGSAmountFromSLEs(
     const i = item.item ?? '-';
     const l = item.location ?? '-';
     const b = item.batch ?? '-';
+    const stAmount = item.amount ?? 0;
+
+    if (Object.keys(q).length === 0) {
+      total = total.add(stAmount);
+      continue;
+    }
 
     const sq = q[i][l][b];
-    const stAmount = item.amount ?? 0;
+
     if (!sq) {
       total = total.add(stAmount);
     }

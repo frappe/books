@@ -88,12 +88,10 @@ export abstract class StockTransfer extends Transfer {
 
     const totalDiscount = this.getTotalDiscount(docData);
 
-    const x = ((docData.taxes ?? []) as Doc[])
+    return ((docData.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => a.add(b), this.getNetTotal() as Money)
       .sub(totalDiscount);
-
-    return x;
   }
 
   getInvoiceDiscountAmount(doc: Doc) {
