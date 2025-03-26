@@ -14,6 +14,7 @@ export class POSSettings extends Doc {
   checkDigits?: number;
   itemCodeDigits?: number;
   itemWeightDigits?: number;
+  defaultAccount?: string;
   posUI?: 'Classic' | 'Modern';
 
   static filters: FiltersMap = {
@@ -21,6 +22,10 @@ export class POSSettings extends Doc {
       rootType: AccountRootTypeEnum.Asset,
       accountType: AccountTypeEnum.Cash,
       isGroup: false,
+    }),
+    defaultAccount: () => ({
+      isGroup: false,
+      accountType: AccountTypeEnum.Receivable,
     }),
   };
 
