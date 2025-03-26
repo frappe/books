@@ -374,7 +374,7 @@ export default defineComponent({
         if (this.sinvDoc.isReturn) {
           this.$emit(
             'setPaidAmount',
-            (this.sinvDoc.outstandingAmount as Money).neg().float
+            (this.sinvDoc.grandTotal as Money).neg().float
           );
 
           return;
