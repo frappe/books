@@ -649,6 +649,10 @@ export default defineComponent({
     },
     async makePayment(shouldPrint: boolean) {
       this.paymentDoc = this.sinvDoc.getPayment() as Payment;
+      if (!this.paymentDoc) {
+        return null;
+      }
+
       const paymentMethod = this.paymentMethod;
 
       await this.paymentDoc.set('paymentMethod', paymentMethod);
