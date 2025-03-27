@@ -302,6 +302,13 @@ export abstract class StockTransfer extends Transfer {
     await this._updateItemsReturned();
   }
 
+  async afterSubmitUndo() {
+    await super.afterSubmitUndo();
+    await updateSerialNumbers(this, false, this.isReturn);
+    await this._updateBackReference();
+    await this._updateItemsReturned();
+  }
+
   async afterCancel(): Promise<void> {
     await super.afterCancel();
     await updateSerialNumbers(this, true, this.isReturn);
