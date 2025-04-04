@@ -1757,7 +1757,7 @@
     "currency_fraction": "Halala",
     "currency_fraction_units": 100,
     "currency_name": "Saudi Riyal",
-    "currency_symbol": "ر.س",
+    "currency_symbol": "﷼",
     "timezones": ["Asia/Riyadh"],
     "locale": "ar-SA"
   },
