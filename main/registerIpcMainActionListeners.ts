@@ -57,7 +57,32 @@ export default function registerIpcMainActionListeners(main: Main) {
       const backupPath = path.join(dbsPath, 'backups');
       await fs.ensureDir(backupPath);
 
-      return path.join(dbsPath, `${companyName}.books.db`);
+      let dbFilePath = path.join(dbsPath, `${companyName}.books.db`);
+
+      if (await fs.pathExists(dbFilePath)) {
+        const option = await dialog.showMessageBox({
+          type: 'question',
+          title: 'File Exists',
+          message: `Filename already exists. Do you want to overwrite the existing file or create a new one?`,
+          buttons: ['Overwrite', 'New'],
+        });
+
+        if (option.response === 1) {
+          const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, '');
+
+          dbFilePath = path.join(
+            dbsPath,
+            `${companyName}_${timestamp}.books.db`
+          );
+
+          await dialog.showMessageBox({
+            type: 'info',
+            message: `New file: ${path.basename(dbFilePath)}`,
+          });
+        }
+      }
+
+      return dbFilePath;
     }
   );
 
