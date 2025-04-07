@@ -6,6 +6,8 @@ import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/baseModels/Party/Party';
+import { SalesQuote } from 'models/baseModels/SalesQuote/SalesQuote';
+import { ModelNameEnum } from 'models/types';
 import { getBgTextColorClass } from 'src/utils/colors';
 import { defineComponent } from 'vue';
 
@@ -16,6 +18,9 @@ export default defineComponent({
   props: { doc: { type: Doc, required: true } },
   computed: {
     styleClass(): string {
+      if(this.doc.schemaName === ModelNameEnum.SalesQuote && this.doc.isSubmitted){
+        return ''
+      }
       return getBgTextColorClass(this.color);
     },
     status(): Status {
@@ -33,6 +38,10 @@ export default defineComponent({
         return this.t`Pending Qty. ${amt}`;
       }
 
+      if(this.doc instanceof SalesQuote && this.doc.isSubmitted ){
+        return ''
+      }
+
       return {
         Draft: this.t`Draft`,
         Cancelled: this.t`Cancelled`,
@@ -45,6 +54,7 @@ export default defineComponent({
         Submitted: this.t`Submitted`,
         Return: this.t`Return`,
         ReturnIssued: this.t`Return Issued`,
+        '':''
       }[this.status];
     },
     color(): UIColors {
@@ -65,10 +75,11 @@ const statusColorMap: Record<Status, UIColors> = {
   Submitted: 'blue',
   Return: 'green',
   ReturnIssued: 'green',
+  '': 'gray'
 };
 
 function getStatus(doc: Doc) {
-  if (doc.notInserted) {
+  if (doc.schemaName !== ModelNameEnum.SalesQuote && doc.notInserted) {
     return 'Draft';
   }
 
@@ -88,9 +99,15 @@ function getStatus(doc: Doc) {
 }
 
 function getSubmittableStatus(doc: Doc) {
+
   if (doc.isCancelled) {
     return 'Cancelled';
   }
+
+  if (doc.schemaName === ModelNameEnum.SalesQuote) {
+    return doc.isSubmitted ? '' : 'NotSubmitted';
+  }
+ 
 
   if (doc.returnAgainst && doc.isSubmitted) {
     return 'Return';
