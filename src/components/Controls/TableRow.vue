@@ -115,8 +115,15 @@ export default {
       if (!this.row) {
         return;
       }
-
       this.$parent.$emit('editrow', this.row);
+    },
+    focusFirstInput() {
+      const firstControl = this.$el.querySelector(
+        '.form-control, input, textarea, select'
+      );
+      if (firstControl) {
+        firstControl.focus();
+      }
     },
   },
 };
