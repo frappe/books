@@ -18,12 +18,14 @@ export class StockManager {
 
   isCancelled: boolean;
   fyo: Fyo;
+  
 
   constructor(details: SMDetails, isCancelled: boolean, fyo: Fyo) {
     this.items = [];
     this.details = details;
     this.isCancelled = isCancelled;
     this.fyo = fyo;
+   
   }
 
   async validateTransfers(transferDetails: SMTransferDetails[]) {
@@ -38,11 +40,11 @@ export class StockManager {
     for (const details of detailsList) {
       await this.#validate(details);
     }
-
+    
     for (const details of detailsList) {
       this.#createTransfer(details);
     }
-
+    
     await this.#sync();
   }
 
@@ -59,12 +61,14 @@ export class StockManager {
       ({ item, rate, quantity, fromLocation, toLocation, isReturn }) => ({
         item,
         rate,
-        quantity,
+        quantity:-quantity, 
         fromLocation: toLocation,
         toLocation: fromLocation,
-        isReturn,
+        isReturn:true,
       })
     );
+    console.log('Reverse transfer details for cancel:', reverseTransferDetails);
+
     await this.validateTransfers(reverseTransferDetails);
   }
 
@@ -81,17 +85,29 @@ export class StockManager {
   }
 
   #getSMIDetails(transferDetails: SMTransferDetails): SMIDetails {
-    return Object.assign({}, this.details, transferDetails);
+    const combined = {
+      ...this.details,
+      ...transferDetails,
+      isReturn: Boolean(transferDetails.isReturn), 
+    };
+    return combined;
   }
-
+  
   async #validate(details: SMIDetails) {
     this.#validateRate(details);
     this.#validateQuantity(details);
     this.#validateLocation(details);
-    await this.#validateStockAvailability(details);
+    if(!details.isReturn){
+      await this.#validateStockAvailability(details);
+    }
+    
   }
 
   #validateQuantity(details: SMIDetails) {
+    console.log('Validating quantity:', {
+      quantity: details.quantity,
+      isReturn: details.isReturn
+    });
     if (!details.quantity) {
       throw new ValidationError(t`Quantity needs to be set`);
     }
@@ -147,7 +163,7 @@ export class StockManager {
       )) ?? 0;
 
     if (this.isCancelled) {
-      quantityBefore += details.quantity;
+      quantityBefore -= details.quantity;
     }
 
     const batchMessage = !!batch ? t` in Batch ${batch}` : '';
@@ -175,7 +191,6 @@ export class StockManager {
     );
 
     if (quantityAfter === null) {
-      // No future transactions
       return;
     }
 
@@ -283,7 +298,8 @@ class StockManagerItem {
 
     if (isOutward) {
       quantity = -quantity;
-    }
+      isOutward = !isOutward;
+    } 
 
     const stockLedgerEntry = this.#getStockLedgerEntry(location, quantity);
     this.stockLedgerEntries?.push(stockLedgerEntry);
@@ -297,8 +313,8 @@ class StockManagerItem {
     let quantity = 1;
     if (isOutward) {
       quantity = -1;
-    }
-
+    }    
+    
     return serialNumbers.map((sn) =>
       this.#getStockLedgerEntry(location, quantity, sn)
     );
@@ -315,7 +331,7 @@ class StockManagerItem {
       rate: this.rate,
       batch: this.batch || null,
       serialNumber: serialNumber || null,
-      quantity,
+      quantity ,
       location,
       referenceName: this.referenceName,
       referenceType: this.referenceType,

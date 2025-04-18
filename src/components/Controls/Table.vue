@@ -168,7 +168,6 @@ export default {
       window.tab = this;
     }
   },
-
   methods: {
     focus() {},
     async addRow() {
@@ -186,10 +185,8 @@ export default {
         }
       });
     },
-
     focusLastRow() {
       if (this.value.length === 0) return;
-
       this.$nextTick(() => {
         const rows = this.$refs['table-row'];
         if (rows && rows.length > 0) {
@@ -200,7 +197,6 @@ export default {
         }
       });
     },
-
     removeRow(row) {
       this.doc.remove(this.df.fieldname, row.idx).then((s) => {
         if (!s) {
@@ -209,12 +205,10 @@ export default {
         this.triggerChange(this.value);
       });
     },
-
     scrollToRow(index) {
       const row = this.$refs['table-row'][index];
       row && row.$el.scrollIntoView({ block: 'nearest' });
     },
-
     setMaxHeight() {
       if (this.maxRowsBeforeOverflow === 0) {
         return (this.maxHeight = '');
