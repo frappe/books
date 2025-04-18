@@ -1065,12 +1065,15 @@ export abstract class Invoice extends Transactional {
     let linkedEntries;
 
     if (this.returnAgainst) {
-      const sinvDoc = (await this.fyo.doc.getDoc(
-        ModelNameEnum.SalesInvoice,
-        this.returnAgainst
-      )) as SalesInvoice;
-
-      linkedEntries = await getLinkedEntries(sinvDoc);
+      const exists = await this.fyo.db.exists(ModelNameEnum.SalesInvoice, this.returnAgainst);
+      if (exists) {
+        const sinvDoc = (await this.fyo.doc.getDoc(
+          ModelNameEnum.SalesInvoice,
+          this.returnAgainst
+        )) as SalesInvoice;
+        
+        linkedEntries = await getLinkedEntries(sinvDoc);
+      }
     }
 
     if (!this.stockNotTransferred) {
