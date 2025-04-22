@@ -5,28 +5,77 @@
     :class="readOnly ? '' : 'hover:bg-gray-25 dark:hover:bg-gray-900'"
   >
     <!-- Index or Remove button -->
-    <div class="flex items-center ps-2 text-gray-600 dark:text-gray-400">
-      <span class="hidden" :class="{ 'group-hover:inline-block': !readOnly }">
+    <div
+      class="flex items-center ps-2 text-gray-600 dark:text-gray-400"
+      @mouseenter="isRowIndexVisible = false"
+      @mouseleave="isRowIndexVisible = true"
+    >
+      <span class="relative w-4 h-4 flex items-center justify-center">
         <feather-icon
+          v-if="!readOnly && !isRowIndexVisible"
           name="x"
-          class="w-4 h-4 -ms-1 cursor-pointer"
+          class="
+            w-4
+            h-4
+            -ms-1
+            cursor-pointer
+            rounded
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50
+            dark:focus:bg-gray-800
+            transition
+          "
           :button="true"
+          tabindex="0"
+          role="button"
+          aria-label="Delete row"
           @click="$emit('remove')"
+          @keydown.enter="$emit('remove')"
+          @keydown.space.prevent="$emit('remove')"
+          @keydown.shift.tab.prevent="focusPreviousElement"
+          @focus="isDeleteFocused = true"
+          @blur="isDeleteFocused = false"
         />
+        <span
+          v-if="!readOnly && !isDeleteFocused && isRowIndexVisible"
+          class="
+            absolute
+            left-0
+            top-0
+            w-full
+            h-full
+            flex
+            items-center
+            justify-center
+            focus:outline-none
+            focus-visible:ring-2 focus-visible:ring-blue-500
+            rounded
+          "
+          tabindex="0"
+          role="button"
+          aria-label="Delete row"
+          @focus="handleShiftTabFocus"
+          @keydown.shift.tab.prevent="focusPreviousElement"
+          @keydown.enter="$emit('remove')"
+          @keydown.space.prevent="$emit('remove')"
+        >
+          {{ row.idx + 1 }}
+        </span>
       </span>
-      <span :class="{ 'group-hover:hidden': !readOnly }">
+      <span v-if="readOnly">
         {{ row.idx + 1 }}
       </span>
     </div>
 
     <!-- Data Input Form Control -->
     <FormControl
-      v-for="df in tableFields"
+      v-for="(df, i) in tableFields"
       :key="df.fieldname"
       :size="size"
       :df="df"
       :value="row[df.fieldname]"
       @change="(value) => onChange(df, value)"
+      @focus="onFieldFocus(i)"
+      @blur="onFieldBlur(i)"
     />
     <Button
       v-if="canEditRow"
@@ -84,7 +133,11 @@ export default {
     },
   },
   emits: ['remove', 'change'],
-  data: () => ({ hovering: false, errors: {} }),
+  data: () => ({
+    isDeleteFocused: false,
+    isRowIndexVisible: false,
+    errors: {},
+  }),
   computed: {
     hasErrors() {
       return Object.values(this.errors).filter(Boolean).length;
@@ -112,17 +165,54 @@ export default {
       return Object.values(this.errors).filter(Boolean).join(' ');
     },
     openRowQuickEdit() {
-      if (!this.row) {
-        return;
-      }
+      if (!this.row) return;
       this.$parent.$emit('editrow', this.row);
     },
+    onFieldFocus(index) {
+      if (index === 0) {
+        this.isRowIndexVisible = true;
+      }
+    },
+    onFieldBlur(index) {
+      if (index === 0) {
+        this.isRowIndexVisible = false;
+      }
+    },
     focusFirstInput() {
+      const deleteButton = this.$el.querySelector(
+        '[tabindex="0"][role="button"]'
+      );
+      if (deleteButton) {
+        deleteButton.focus();
+        return;
+      }
       const firstControl = this.$el.querySelector(
         '.form-control, input, textarea, select'
       );
       if (firstControl) {
         firstControl.focus();
+      }
+    },
+    handleShiftTabFocus() {
+      setTimeout(() => {
+        this.isRowIndexVisible = false;
+        this.$nextTick(() => {
+          const deleteIcon = this.$el.querySelector('[name="x"]');
+          if (deleteIcon) {
+            deleteIcon.focus();
+          }
+        });
+      }, 50);
+    },
+    focusPreviousElement() {
+      const focusableElements = Array.from(
+        document.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.disabled && el.offsetParent !== null);
+      const currentIndex = focusableElements.indexOf(document.activeElement);
+      if (currentIndex > 0) {
+        focusableElements[currentIndex - 1].focus();
       }
     },
   },
