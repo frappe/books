@@ -88,8 +88,7 @@
   "prettier": {
     "semi": true,
     "singleQuote": true,
-    "trailingComma": "es5",
-    "endOfLine": "auto"
+    "trailingComma": "es5"
   },
   "homepage": "https://frappe.io/books",
   "repository": {

@@ -151,7 +151,6 @@ export default {
       const fieldname = df.fieldname;
       this.errors[fieldname] = null;
       const oldValue = this.row[fieldname];
-
       try {
         await this.row.set(fieldname, value);
         this.$emit('change', df, value);
