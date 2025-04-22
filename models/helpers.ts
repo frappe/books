@@ -1078,15 +1078,9 @@ export function filterPricingRules(
 ): PricingRule[] | [] {
   const filteredPricingRules: PricingRule[] = [];
 
-  if (!doc.date) {
-    return filteredPricingRules;
-  }
-
-  const invoiceDateTime = doc.date;
-
   for (const pricingRuleDoc of pricingRuleDocsForItem) {
     if (
-      canApplyPricingRule(pricingRuleDoc, invoiceDateTime, quantity, amount)
+      canApplyPricingRule(pricingRuleDoc, doc.date as Date, quantity, amount)
     ) {
       filteredPricingRules.push(pricingRuleDoc);
     }
@@ -1096,7 +1090,7 @@ export function filterPricingRules(
 
 export function canApplyPricingRule(
   pricingRuleDoc: PricingRule,
-  invoiceDateTime: Date,
+  sinvDate: Date,
   quantity: number,
   amount: Money
 ): boolean {
@@ -1130,19 +1124,19 @@ export function canApplyPricingRule(
   }
 
   // Filter by Validity
-  if (invoiceDateTime) {
-    if (pricingRuleDoc.validFrom) {
-      const validFrom = new Date(pricingRuleDoc.validFrom);
-      if (invoiceDateTime < validFrom) {
-        return false;
-      }
+  if (sinvDate) {
+    if (
+      pricingRuleDoc.validFrom &&
+      new Date(sinvDate).toISOString() < pricingRuleDoc.validFrom.toISOString()
+    ) {
+      return false;
     }
 
-    if (pricingRuleDoc.validTo) {
-      const validTo = new Date(pricingRuleDoc.validTo);
-      if (invoiceDateTime > validTo) {
-        return false;
-      }
+    if (
+      pricingRuleDoc.validTo &&
+      new Date(sinvDate).toISOString() > pricingRuleDoc.validTo.toISOString()
+    ) {
+      return false;
     }
   }
 
@@ -1170,20 +1164,19 @@ export function canApplyCouponCode(
   }
 
   // Filter by Validity
-  if (couponCodeData.validFrom) {
-    const validFrom = new Date(couponCodeData.validFrom);
-    if (sinvDate < validFrom) {
-      return false;
-    }
+  if (
+    couponCodeData.validFrom &&
+    new Date(sinvDate).toISOString() < couponCodeData.validFrom.toISOString()
+  ) {
+    return false;
   }
 
-  if (couponCodeData.validTo) {
-    const validTo = new Date(couponCodeData.validTo);
-    if (sinvDate > validTo) {
-      return false;
-    }
+  if (
+    couponCodeData.validTo &&
+    new Date(sinvDate).toISOString() > couponCodeData.validTo.toISOString()
+  ) {
+    return false;
   }
-
   return true;
 }
 export async function removeUnusedCoupons(sinvDoc: SalesInvoice) {
