@@ -5,8 +5,8 @@
     placement="bottom-end"
     @close="emitFilterChange"
     :close-on-click-outside="true"
+    :close-on-click-content="false"
   >
-    :close-on-click-content="false" >
     <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
@@ -75,7 +75,6 @@
                   options: fieldOptions,
                 }"
                 :value="filter.fieldname"
-                :close-drop-down="false"
                 @mousedown.stop
                 @click.stop
                 @change="(value) => updateNewFilters(i, 'fieldname', value)"
@@ -191,7 +190,6 @@
   </Popover>
 </template>
 <script lang="ts">
-import { t } from 'fyo';
 import { Field, FieldTypeEnum } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
@@ -247,6 +245,9 @@ export default defineComponent({
       newFilters: [] as Filter[],
     };
   },
+  created() {
+    this.addNewFilter();
+  },
   computed: {
     fields(): Field[] {
       const excludedFieldsTypes: string[] = [
@@ -254,8 +255,13 @@ export default defineComponent({
         FieldTypeEnum.Attachment,
         FieldTypeEnum.AttachImage,
       ];
+
+      const listViewSettings =
+        fyo.models[this.schemaName]?.getListViewSettings?.(fyo);
+      const statusField = listViewSettings?.columns?.[1] as any;
+
       const fields = fyo.schemaMap[this.schemaName]?.fields ?? [];
-      return fields.filter((f) => {
+      const filteredFields = fields.filter((f) => {
         if (f.filter) {
           return true;
         }
@@ -270,6 +276,25 @@ export default defineComponent({
 
         return true;
       });
+
+      if (statusField && statusField.fieldname) {
+        const statusFieldExists = filteredFields.some(
+          (field) => field.fieldname === statusField.fieldname
+        );
+
+        if (!statusFieldExists) {
+          const originalStatusField = fields.find(
+            (field) => field.fieldname === statusField.fieldname
+          );
+          if (originalStatusField) {
+            filteredFields.unshift(originalStatusField);
+          } else {
+            filteredFields.unshift(statusField);
+          }
+        }
+      }
+
+      return filteredFields;
     },
     fieldOptions(): { label: string; value: string }[] {
       return this.fields.map((df) => ({
@@ -294,9 +319,7 @@ export default defineComponent({
       return this.t`${this.activeFilterCount} filters applied`;
     },
   },
-  created() {
-    this.addNewFilter();
-  },
+
   methods: {
     getRandomString,
     addNewFilter(): void {
@@ -373,8 +396,11 @@ export default defineComponent({
     emitFilterChange(): void {
       const filters: Record<string, [Condition, Filter['value']]> = {};
 
-      // Build filters from newFilters (source of truth)
       for (const { condition, value, fieldname } of this.newFilters) {
+        console.log('condition is:', condition);
+        console.log('value is:', value);
+        console.log('fieldname is:', fieldname);
+
         if (value === '' && condition) {
           continue;
         }
@@ -396,7 +422,6 @@ export default defineComponent({
         this.filters.push(this.newFilters[this.newFilters.length - 1]);
       }
 
-      // Deduplicate filters
       this.filters = Array.from(
         new Map(
           this.filters.map((filter) => [
