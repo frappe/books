@@ -72,9 +72,6 @@
         tabindex="0"
         @click="addRow"
         @keydown.enter="addRow"
-        @keydown.space.prevent="addRow"
-        @keydown.up.prevent="focusLastRow"
-        ref="addRowButton"
       >
         <div class="flex items-center ps-1">
           <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
@@ -186,21 +183,6 @@ export default {
         }
       });
     },
-
-    focusLastRow() {
-      if (this.value.length === 0) return;
-
-      this.$nextTick(() => {
-        const rows = this.$refs['table-row'];
-        if (rows && rows.length > 0) {
-          const lastRow = rows[rows.length - 1];
-          if (lastRow.focusFirstInput) {
-            lastRow.focusFirstInput();
-          }
-        }
-      });
-    },
-
     removeRow(row) {
       this.doc.remove(this.df.fieldname, row.idx).then((s) => {
         if (!s) {
