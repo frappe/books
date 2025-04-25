@@ -6,6 +6,17 @@
 
     <hr class="mt-2 dark:border-gray-800" />
 
+    <div class="mt-4">
+      <input
+        v-model="invoiceSearchTerm"
+        type="text"
+        placeholder="Search by Invoice Name"
+        class="w-full p-2 border rounded-md dark:bg-gray-800 dark:text-white"
+      />
+    </div>
+
+    <hr class="mt-2 dark:border-gray-800" />
+
     <Row
       :ratio="ratio"
       class="
@@ -34,7 +45,7 @@
       style="height: 65vh; width: 60vh"
     >
       <Row
-        v-for="row in returnedInvoices"
+        v-for="row in filteredInvoices"
         :key="row.name"
         :ratio="ratio"
         :border="true"
@@ -110,6 +121,7 @@ export default defineComponent({
   data() {
     return {
       returnedInvoices: [] as SalesInvoice[],
+      invoiceSearchTerm: '',
     };
   },
   computed: {
@@ -146,6 +158,13 @@ export default defineComponent({
           readOnly: true,
         },
       ] as Field[];
+    },
+    filteredInvoices() {
+      return this.returnedInvoices.filter((invoice) =>
+        invoice.name
+          .toLowerCase()
+          .includes(this.invoiceSearchTerm.toLowerCase())
+      );
     },
   },
   watch: {
