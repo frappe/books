@@ -30,13 +30,9 @@
           aria-label="Delete row"
           @click="$emit('remove')"
           @keydown.enter="$emit('remove')"
-          @keydown.space.prevent="$emit('remove')"
-          @keydown.shift.tab.prevent="focusPreviousElement"
-          @focus="isDeleteFocused = true"
-          @blur="isDeleteFocused = false"
         />
         <span
-          v-if="!readOnly && !isDeleteFocused && isRowIndexVisible"
+          v-if="!readOnly && isRowIndexVisible"
           class="
             absolute
             left-0
@@ -53,10 +49,8 @@
           tabindex="0"
           role="button"
           aria-label="Delete row"
-          @focus="handleShiftTabFocus"
-          @keydown.shift.tab.prevent="focusPreviousElement"
+          @focus="isRowIndexVisible = false"
           @keydown.enter="$emit('remove')"
-          @keydown.space.prevent="$emit('remove')"
         >
           {{ row.idx + 1 }}
         </span>
@@ -134,7 +128,6 @@ export default {
   },
   emits: ['remove', 'change'],
   data: () => ({
-    isDeleteFocused: false,
     isRowIndexVisible: false,
     errors: {},
   }),
@@ -178,40 +171,11 @@ export default {
       }
     },
     focusFirstInput() {
-      const deleteButton = this.$el.querySelector(
-        '[tabindex="0"][role="button"]'
-      );
-      if (deleteButton) {
-        deleteButton.focus();
-        return;
-      }
       const firstControl = this.$el.querySelector(
         '.form-control, input, textarea, select'
       );
       if (firstControl) {
         firstControl.focus();
-      }
-    },
-    handleShiftTabFocus() {
-      setTimeout(() => {
-        this.isRowIndexVisible = false;
-        this.$nextTick(() => {
-          const deleteIcon = this.$el.querySelector('[name="x"]');
-          if (deleteIcon) {
-            deleteIcon.focus();
-          }
-        });
-      }, 50);
-    },
-    focusPreviousElement() {
-      const focusableElements = Array.from(
-        document.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )
-      ).filter((el) => !el.disabled && el.offsetParent !== null);
-      const currentIndex = focusableElements.indexOf(document.activeElement);
-      if (currentIndex > 0) {
-        focusableElements[currentIndex - 1].focus();
       }
     },
   },
