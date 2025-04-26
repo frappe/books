@@ -83,7 +83,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     this._setDefaults();
     this._setValuesWithoutChecks(data, convertToDocValue);
-    return reactive(this) as Doc;
+    return reactive(this) as unknown as Doc;
   }
 
   get schemaName(): string {

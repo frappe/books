@@ -59,7 +59,7 @@
     },
     {
       "fieldname": "weightEnabledBarcode",
-      "label": "Weigth Enabled Barcode",
+      "label": "weight Enabled Barcode",
       "fieldtype": "Check",
       "default": false,
       "section": "Barcode"

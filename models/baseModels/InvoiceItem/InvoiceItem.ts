@@ -48,6 +48,7 @@ export abstract class InvoiceItem extends Doc {
   itemTaxedTotal?: Money;
 
   isFreeItem?: boolean;
+  originalRate?: Money;
 
   get isSales() {
     return (
@@ -127,13 +128,38 @@ export abstract class InvoiceItem extends Doc {
         )) as string,
       dependsOn: ['item'],
     },
+
     rate: {
       formula: async (fieldname) => {
+        if (!this.originalRate) {
+          this.originalRate = await getItemRate(this);
+        }
+        const orgRate = this.originalRate;
+
         const rate = await getItemRate(this);
+
+        const parent = this.parentdoc;
+        const quantity = this.quantity ?? 0;
+        const totalAmount = this.amount ?? 0;
+
+        const isQuantityInRange =
+          parent?.minQuantityItem !== undefined &&
+          parent?.maxQuantityItem !== undefined &&
+          quantity >= parent.minQuantityItem &&
+          quantity <= parent?.maxQuantityItem;
+
+        const isAmountInRange =
+          parent?.minAmount !== undefined &&
+          parent?.maxAmount !== undefined &&
+          totalAmount >= parent.minAmount &&
+          totalAmount <= parent?.maxAmount;
+
+        if (!isQuantityInRange && !isAmountInRange) {
+          return orgRate;
+        }
         if (!rate?.float && this.rate?.float) {
           return this.rate;
         }
-
         if (
           fieldname !== 'itemTaxedTotal' &&
           fieldname !== 'itemDiscountedTotal'
@@ -141,7 +167,6 @@ export abstract class InvoiceItem extends Doc {
           return rate?.div(this.exchangeRate) ?? this.fyo.pesa(0);
         }
 
-        const quantity = this.quantity ?? 0;
         const itemDiscountPercent = this.itemDiscountPercent ?? 0;
         const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
         const totalTaxRate = await this.getTotalTaxRate();
@@ -166,6 +191,7 @@ export abstract class InvoiceItem extends Doc {
 
         return rateFromTotals ?? rate ?? this.fyo.pesa(0);
       },
+
       dependsOn: [
         'date',
         'priceList',
@@ -180,6 +206,7 @@ export abstract class InvoiceItem extends Doc {
         'pricingRuleDetail',
       ],
     },
+
     unit: {
       formula: async () =>
         (await this.fyo.getValue(
@@ -440,9 +467,7 @@ export abstract class InvoiceItem extends Doc {
         }
 
         if (pricingRuleDoc.priceDiscountType === 'amount') {
-          const discountAmount = pricingRuleDoc.discountAmount?.mul(
-            this.quantity as number
-          );
+          const discountAmount = pricingRuleDoc.discountAmount;
           await this.set('itemDiscountAmount', discountAmount);
           return true;
         }

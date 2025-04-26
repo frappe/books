@@ -83,6 +83,7 @@ export abstract class Invoice extends Transactional {
   discountAmount?: Money;
   discountPercent?: number;
   loyaltyPoints?: number;
+  originalGrandTotal?: Money;
   discountAfterTax?: boolean;
   stockNotTransferred?: number;
   loyaltyProgram?: string;
@@ -95,7 +96,11 @@ export abstract class Invoice extends Transactional {
 
   isReturned?: boolean;
   returnAgainst?: string;
-
+  maxQuantityItem?: number;
+  minQuantityItem?: number;
+  maxAmount?: Money | 0;
+  minAmount?: Money | 0;
+  discountApplied?: boolean;
   pricingRuleDetail?: PricingRuleDetail[];
 
   get isSales() {
@@ -255,6 +260,15 @@ export abstract class Invoice extends Transactional {
     this.reduceUsedCountOfCoupons();
   }
 
+  async grandTotalLpa() {
+    if (!this.originalGrandTotal) {
+      this.originalGrandTotal = this.grandTotal;
+    }
+
+    const amountAfterPoints = await this.getLPAddedBaseGrandTotal();
+    this.grandTotal = amountAfterPoints;
+  }
+
   async _removeLoyaltyPointEntry() {
     await removeLoyaltyPoint(this);
   }
@@ -410,22 +424,28 @@ export abstract class Invoice extends Transactional {
     return this._taxes[tax];
   }
 
-  getTotalDiscount() {
+  async getTotalDiscount() {
     if (!this.enableDiscounting) {
       return this.fyo.pesa(0);
     }
 
-    const itemDiscountAmount = this.getItemDiscountAmount();
+    const itemDiscountAmount = await this.getItemDiscountAmount();
     const invoiceDiscountAmount = this.getInvoiceDiscountAmount();
     return itemDiscountAmount.add(invoiceDiscountAmount);
   }
 
-  getGrandTotal() {
-    const totalDiscount = this.getTotalDiscount();
-    return ((this.taxes ?? []) as Doc[])
+  async getGrandTotal() {
+    const totalDiscount = await this.getTotalDiscount();
+    let grandTotal = ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => a.add(b), this.netTotal!)
       .sub(totalDiscount);
+
+    if (this.originalGrandTotal && !this.redeemLoyaltyPoints) {
+      grandTotal = this.originalGrandTotal;
+    }
+
+    return grandTotal;
   }
 
   getInvoiceDiscountAmount() {
@@ -449,37 +469,58 @@ export abstract class Invoice extends Transactional {
     return totalItemAmounts.percent(this.discountPercent ?? 0);
   }
 
-  getItemDiscountAmount() {
-    if (!this.enableDiscounting) {
-      return this.fyo.pesa(0);
+  async getItemDiscountAmount() {
+    if (!this.enableDiscounting) return this.fyo.pesa(0);
+    if (!this.items?.length) return this.fyo.pesa(0);
+
+    if (!this.maxQuantityItem || !this.minQuantityItem) {
+      const pricingRule = await this.getPricingRule();
+      this.maxQuantityItem = pricingRule?.[0]?.pricingRule.maxQuantity ?? 0;
+      this.minQuantityItem = pricingRule?.[0]?.pricingRule.minQuantity ?? 0;
     }
 
-    if (!this?.items?.length) {
-      return this.fyo.pesa(0);
+    if (!this.maxAmount || !this.minAmount) {
+      const pricingRule = await this.getPricingRule();
+      this.maxAmount = pricingRule?.[0]?.pricingRule.maxAmount ?? 0;
+      this.minAmount = pricingRule?.[0]?.pricingRule.minAmount ?? 0;
     }
 
     let discountAmount = this.fyo.pesa(0);
+
     for (const item of this.items) {
-      if (item.setItemDiscountAmount) {
-        discountAmount = discountAmount.add(
-          item.itemDiscountAmount ?? this.fyo.pesa(0)
-        );
-      } else if (!this.discountAfterTax) {
-        discountAmount = discountAmount.add(
-          (item.amount ?? this.fyo.pesa(0)).mul(
-            (item.itemDiscountPercent ?? 0) / 100
-          )
-        );
-      } else if (this.discountAfterTax) {
-        discountAmount = discountAmount.add(
-          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
-            (item.itemDiscountPercent ?? 0) / 100
-          )
-        );
+      const quantity = item.quantity ?? 0;
+      const totalAmount = this.grandTotal ?? 0;
+
+      const isQuantityInRange =
+        quantity > this.minQuantityItem && quantity < this.maxQuantityItem;
+
+      const isAmountInRange =
+        totalAmount > this.minAmount && totalAmount < this.maxAmount;
+
+      const isEligible = isQuantityInRange || isAmountInRange;
+
+      if (isEligible) {
+        let itemDiscount = this.fyo.pesa(0);
+
+        if (item.setItemDiscountAmount) {
+          if (item.itemDiscountAmount) {
+            itemDiscount = item.itemDiscountAmount;
+          }
+        } else if (!this.discountAfterTax) {
+          discountAmount = discountAmount.add(
+            (item.amount ?? this.fyo.pesa(0)).mul(
+              (item.itemDiscountPercent ?? 0) / 100
+            )
+          );
+        }
+
+        discountAmount = discountAmount.add(itemDiscount);
+        this.discountApplied = true;
       }
     }
 
-    return discountAmount;
+    this.discountAmount = discountAmount;
+    return this.discountAmount;
   }
 
   async getReturnDoc(): Promise<Invoice | undefined> {
@@ -658,13 +699,13 @@ export abstract class Invoice extends Transactional {
   }
 
   async getLPAddedBaseGrandTotal() {
-    const totalLotaltyAmount = await getAddedLPWithGrandTotal(
+    const totalLoyaltyAmount = await getAddedLPWithGrandTotal(
       this.fyo,
       this.loyaltyProgram as string,
       this.loyaltyPoints as number
     );
 
-    return totalLotaltyAmount.sub(this.baseGrandTotal as Money).abs();
+    return this.originalGrandTotal?.sub(totalLoyaltyAmount);
   }
 
   formulas: FormulaMap = {
@@ -722,7 +763,11 @@ export abstract class Invoice extends Transactional {
     },
     netTotal: { formula: () => this.getSum('items', 'amount', false) },
     taxes: { formula: async () => await this.getTaxSummary() },
-    grandTotal: { formula: () => this.getGrandTotal() },
+    grandTotal: {
+      formula: () => {
+        return this.getGrandTotal();
+      },
+    },
     baseGrandTotal: {
       formula: () => (this.grandTotal as Money).mul(this.exchangeRate! ?? 1),
       dependsOn: ['grandTotal', 'exchangeRate'],
@@ -775,6 +820,15 @@ export abstract class Invoice extends Transactional {
         return !!pricingRule;
       },
       dependsOn: ['items', 'coupons'],
+    },
+
+    loyaltyPoints: {
+      formula: async () => {
+        if (this.redeemLoyaltyPoints) {
+          await this.grandTotalLpa();
+          return this.loyaltyPoints;
+        }
+      },
     },
   };
 

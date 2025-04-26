@@ -64,7 +64,7 @@ export class SalesInvoice extends Invoice {
       }
     }
 
-    const discountAmount = this.getTotalDiscount();
+    const discountAmount = await this.getTotalDiscount();
     const discountAccount = this.fyo.singles.AccountingSettings
       ?.discountAccount as string | undefined;
     if (discountAccount && discountAmount.isPositive()) {

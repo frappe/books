@@ -5,6 +5,7 @@ import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 import { getItem, getStockMovement } from 'models/inventory/tests/helpers';
 import { PricingRule } from '../PricingRule/PricingRule';
 import { MovementTypeEnum } from 'models/inventory/types';
+import { Money } from 'pesa';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
@@ -159,6 +160,9 @@ test('pricing rule is applied when filtered by min and max qty', async (t) => {
     party: partyMap.partyOne.name,
   }) as SalesInvoice;
 
+  sinv.minQuantityItem = pricingRuleMap[0].minQuantity;
+  sinv.maxQuantityItem = pricingRuleMap[0].maxQuantity;
+
   await sinv.append('items', {
     item: itemMap.Jacket.name,
     quantity: 5,
@@ -204,10 +208,21 @@ test('pricing rule is not applied when item qty is > max  qty', async (t) => {
 });
 
 test('pricing rule is applied when filtered by min and max amount', async (t) => {
+  const pruleDoc = (await fyo.doc.getDoc(
+    ModelNameEnum.PricingRule,
+    pricingRuleMap[0].name
+  )) as PricingRule;
+
+  await pruleDoc.set('isEnabled', true);
+  await pruleDoc.sync();
+
   const sinv = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
     date: new Date(),
     party: partyMap.partyOne.name,
   }) as SalesInvoice;
+
+  sinv.minAmount = pricingRuleMap[0].minAmount as 0 | Money;
+  sinv.maxAmount = pricingRuleMap[0].maxAmount as 0 | Money;
 
   await sinv.append('items', {
     item: itemMap.Jacket.name,
@@ -440,6 +455,11 @@ test('create a price discount of type rate, discounted rate should apply', async
     party: partyMap.partyOne.name,
   }) as SalesInvoice;
 
+  sinv.minAmount = pricingRuleMap[0].minAmount as 0 | Money;
+  sinv.maxAmount = pricingRuleMap[0].maxAmount as 0 | Money;
+  sinv.minQuantityItem = pricingRuleMap[0].minQuantity;
+  sinv.maxQuantityItem = pricingRuleMap[0].maxQuantity;
+
   await sinv.append('items', {
     item: itemMap.Jacket.name,
     quantity: 5,
@@ -503,7 +523,12 @@ test('create a price discount of type amount, discount amount should apply', asy
   });
   await sinv.runFormulas();
 
-  t.equal(sinv.items![0].itemDiscountAmount!.float, 2500);
+  console.log(
+    'amount after discountis',
+    sinv.items![0].itemDiscountAmount!.float
+  );
+
+  t.equal(sinv.items![0].itemDiscountAmount!.float, 500);
 });
 
 test('create a product discount giving 1 free item', async (t) => {

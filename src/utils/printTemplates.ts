@@ -310,12 +310,12 @@ function showHSN(doc: Doc): boolean {
   return items.map((i: Doc) => i.hsnCode).every(Boolean);
 }
 
-function formattedTotalDiscount(doc: Doc): string {
+async function formattedTotalDiscount(doc: Doc): Promise<string> {
   if (!(doc instanceof Invoice)) {
     return '';
   }
 
-  const totalDiscount = doc.getTotalDiscount();
+  const totalDiscount = await doc.getTotalDiscount();
   if (!totalDiscount?.float) {
     return '';
   }

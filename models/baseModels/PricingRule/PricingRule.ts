@@ -141,6 +141,8 @@ export class PricingRule extends Doc {
 
   hidden: HiddenMap = {
     location: () => !this.fyo.singles.AccountingSettings?.enableInventory,
+    isCouponCodeBased: () =>
+      !this.fyo.singles.AccountingSettings?.enableCouponCode,
 
     priceDiscountType: () => !this.isDiscountTypeIsPriceDiscount,
     discountRate: () =>
