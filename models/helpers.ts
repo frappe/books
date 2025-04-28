@@ -1124,21 +1124,22 @@ export function canApplyPricingRule(
   }
 
   // Filter by Validity
-  if (
-    pricingRuleDoc.validFrom &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
-      pricingRuleDoc.validFrom.toISOString()
-  ) {
-    return false;
+  if (sinvDate) {
+    if (
+      pricingRuleDoc.validFrom &&
+      new Date(sinvDate).toISOString() < pricingRuleDoc.validFrom.toISOString()
+    ) {
+      return false;
+    }
+
+    if (
+      pricingRuleDoc.validTo &&
+      new Date(sinvDate).toISOString() > pricingRuleDoc.validTo.toISOString()
+    ) {
+      return false;
+    }
   }
 
-  if (
-    pricingRuleDoc.validTo &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
-      pricingRuleDoc.validTo.toISOString()
-  ) {
-    return false;
-  }
   return true;
 }
 
@@ -1165,23 +1166,19 @@ export function canApplyCouponCode(
   // Filter by Validity
   if (
     couponCodeData.validFrom &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
-      couponCodeData.validFrom.toISOString()
+    new Date(sinvDate).toISOString() < couponCodeData.validFrom.toISOString()
   ) {
     return false;
   }
 
   if (
     couponCodeData.validTo &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
-      couponCodeData.validTo.toISOString()
+    new Date(sinvDate).toISOString() > couponCodeData.validTo.toISOString()
   ) {
     return false;
   }
-
   return true;
 }
-
 export async function removeUnusedCoupons(sinvDoc: SalesInvoice) {
   if (!sinvDoc.coupons?.length) {
     return;
