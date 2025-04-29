@@ -5,7 +5,7 @@
     </div>
     <div
       v-on-outside-click="() => (dropdownVisible = false)"
-      class="flex items-center justify-between"
+      class="relative flex items-center justify-between"
       :class="[
         inputClasses,
         containerClasses,
