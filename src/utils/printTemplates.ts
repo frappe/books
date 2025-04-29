@@ -64,16 +64,15 @@ export async function getPrintTemplatePropValues(
   }
 
   if (doc.referenceType == ModelNameEnum.SalesInvoice) {
-   
     const referenceName = (doc as Payment)?.for![0]?.referenceName;
 
     if (referenceName) {
       sinvDoc = await fyo.doc.getDoc(ModelNameEnum.SalesInvoice, referenceName);
-  
+
       if (sinvDoc.taxes) {
         (values.doc as PrintTemplateData).taxes = sinvDoc.taxes;
       }
-    } 
+    }
   }
 
   let totalTax;
