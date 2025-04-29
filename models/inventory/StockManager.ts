@@ -92,6 +92,11 @@ export class StockManager {
   }
 
   #validateQuantity(details: SMIDetails) {
+    const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+    if (itemVisibility !== 'Inventory Items') {
+      return;
+    }
+
     if (!details.quantity) {
       throw new ValidationError(t`Quantity needs to be set`);
     }
@@ -127,7 +132,13 @@ export class StockManager {
   }
 
   async #validateStockAvailability(details: SMIDetails) {
-    if (!details.fromLocation) {
+    const trackItem = await this.fyo.getValue(
+      ModelNameEnum.Item,
+      details.item,
+      'trackItem'
+    );
+
+    if (!details.fromLocation || !trackItem) {
       return;
     }
 

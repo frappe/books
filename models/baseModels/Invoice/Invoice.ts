@@ -1073,7 +1073,9 @@ export abstract class Invoice extends Transactional {
       linkedEntries = await getLinkedEntries(sinvDoc);
     }
 
-    if (!this.stockNotTransferred) {
+    const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+
+    if (!this.stockNotTransferred && itemVisibility === 'Inventory Items') {
       return null;
     }
 
@@ -1119,9 +1121,13 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
+      let quantity;
+      if (itemDoc.trackItem) {
+        quantity = row.stockNotTransferred;
+      } else {
+        quantity = row.quantity;
+      }
       const item = row.item;
-      const quantity = row.stockNotTransferred;
-      const trackItem = itemDoc.trackItem;
       const batch = row.batch || null;
       const description = row.description;
       const hsnCode = row.hsnCode;
@@ -1131,7 +1137,7 @@ export abstract class Invoice extends Transactional {
         rate = rate.mul(this.exchangeRate);
       }
 
-      if (!quantity || !trackItem) {
+      if (!quantity && itemVisibility === 'Inventory Items') {
         continue;
       }
 
@@ -1144,7 +1150,7 @@ export abstract class Invoice extends Transactional {
             data.date
           )) ?? 0;
 
-        if (stock < quantity) {
+        if (stock < (quantity as number)) {
           continue;
         }
       }
