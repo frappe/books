@@ -32,6 +32,7 @@ export class Defaults extends Doc {
   // Print Templates
   salesQuotePrintTemplate?: string;
   salesInvoicePrintTemplate?: string;
+  posPrintTemplate?: string;
   purchaseInvoicePrintTemplate?: string;
   journalEntryPrintTemplate?: string;
   paymentPrintTemplate?: string;
@@ -85,6 +86,7 @@ export class Defaults extends Doc {
     // Print Templates
     salesQuotePrintTemplate: () => ({ type: ModelNameEnum.SalesQuote }),
     salesInvoicePrintTemplate: () => ({ type: ModelNameEnum.SalesInvoice }),
+    posPrintTemplate: () => ({ type: ModelNameEnum.SalesInvoice }),
     purchaseInvoicePrintTemplate: () => ({
       type: ModelNameEnum.PurchaseInvoice,
     }),
