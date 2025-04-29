@@ -187,13 +187,23 @@ export default defineComponent({
       this.$emit('toggleModal', 'ReturnSalesInvoice');
     },
     async setReturnedInvoices() {
-      this.returnedInvoices = (await this.fyo.db.getAll(
-        ModelNameEnum.SalesInvoice,
-        {
-          fields: [],
-          filters: { isPOS: true, submitted: true, returnAgainst: null },
-        }
-      )) as SalesInvoice[];
+      const allInvoices = await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {
+        fields: [],
+        filters: {
+          isPOS: true,
+          submitted: true,
+          cancelled: false,
+        },
+      });
+
+      const returnedInvoiceNames = allInvoices
+        .filter((inv) => inv.returnAgainst)
+        .map((inv) => inv.returnAgainst);
+
+      const filteredInvoices = allInvoices.filter(
+        (inv) => !inv.returnAgainst && !returnedInvoiceNames.includes(inv.name)
+      );
+      this.returnedInvoices = filteredInvoices as SalesInvoice[];
     },
   },
 });
