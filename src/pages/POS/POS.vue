@@ -537,6 +537,12 @@ export default defineComponent({
               invoiceItem.item === item.name && !invoiceItem.isFreeItem
           ) ?? [];
 
+        await validateQty(
+          this.sinvDoc as SalesInvoice,
+          item as Item,
+          existingItems as InvoiceItem[]
+        );
+
         const itemsHsncode = (await this.fyo.getValue(
           'Item',
           item?.name as string,
@@ -559,12 +565,6 @@ export default defineComponent({
 
               await this.applyPricingRule();
               await this.sinvDoc.runFormulas();
-              await validateQty(
-                this.sinvDoc as SalesInvoice,
-                item as Item,
-                existingItems as InvoiceItem[]
-              );
-
               return;
             }
           }
@@ -574,7 +574,6 @@ export default defineComponent({
             item: item.name,
             hsnCode: itemsHsncode,
           });
-
           return;
         }
 
@@ -583,23 +582,23 @@ export default defineComponent({
             existingItems[0].rate = item.rate as Money;
           }
 
-          await existingItems[0].set(
-            'quantity',
-            quantity
-              ? (existingItems[0].quantity as number) + quantity
-              : (existingItems[0].quantity as number) + 1
-          );
+          const currentQty = existingItems[0].quantity ?? 0;
+          const addQty = quantity ?? 1;
+          const availableQty = this.itemQtyMap[item.name]?.availableQty ?? 0;
+
+          if (currentQty + addQty > availableQty) {
+            throw new ValidationError(
+              'Cannot add more than the available quantity'
+            );
+          }
+
+          await existingItems[0].set('quantity', currentQty + addQty);
 
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
-          await validateQty(
-            this.sinvDoc as SalesInvoice,
-            item as Item,
-            existingItems as InvoiceItem[]
-          );
-
           return;
         }
+
         await this.sinvDoc.append('items', {
           rate: item.rate as Money,
           item: item.name,

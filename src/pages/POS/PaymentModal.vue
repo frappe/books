@@ -368,12 +368,11 @@ export default defineComponent({
     setPaymentMethodAndAmount(paymentMethod?: string, amount?: Money) {
       if (paymentMethod) {
         this.$emit('setPaymentMethod', paymentMethod);
-      
 
-      if (this.sinvDoc.grandTotal) {
-        this.$emit('setPaidAmount', this.sinvDoc.grandTotal.float);
-        return;
-      }
+        if (this.sinvDoc.grandTotal) {
+          this.$emit('setPaidAmount', this.sinvDoc.grandTotal.float);
+          return;
+        }
       }
 
       if (amount) {
