@@ -373,9 +373,18 @@ export default defineComponent({
       await this.afterSync();
     },
     async setItems() {
+      const filters: Record<string, boolean> = {};
+      const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+
+      if (itemVisibility === 'Inventory Items') {
+        filters.trackItem = true;
+      } else {
+        filters.trackItem = false;
+      }
+
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
         fields: [],
-        filters: { trackItem: true },
+        filters,
       })) as Item[];
 
       this.items = [] as POSItem[];
@@ -623,7 +632,12 @@ export default defineComponent({
         await this.validate();
         await this.submitSinvDoc();
 
-        if (this.sinvDoc.stockNotTransferred) {
+        const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+
+        if (
+          this.sinvDoc.stockNotTransferred ||
+          itemVisibility !== 'Inventory Items'
+        ) {
           await this.makeStockTransfer();
         }
 
@@ -708,6 +722,16 @@ export default defineComponent({
       }
 
       for (const item of shipmentDoc.items) {
+        const trackItem = await fyo.getValue(
+          ModelNameEnum.Item,
+          item.item as string,
+          'trackItem'
+        );
+
+        if (!trackItem) {
+          continue;
+        }
+
         item.location = fyo.singles.POSSettings?.inventory;
         item.serialNumber =
           this.itemSerialNumbers[item.item as string] ?? undefined;
@@ -787,7 +811,7 @@ export default defineComponent({
       this.setTotalTaxedAmount();
     },
     async validate() {
-      validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
+      await validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
       await validateShipment(this.itemSerialNumbers);
     },
     async applyPricingRule() {

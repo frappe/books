@@ -866,6 +866,16 @@ export async function validateQty(
     }
   }
 
+  const trackItem = await sinvDoc.fyo.getValue(
+    ModelNameEnum.Item,
+    item.item as string,
+    'trackItem'
+  );
+
+  if (!trackItem) {
+    return;
+  }
+
   if (!itemQtyMap[itemName] || itemQtyMap[itemName].availableQty === 0) {
     throw new ValidationError(t`Item ${itemName} has Zero Quantity`);
   }
