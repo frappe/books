@@ -367,24 +367,6 @@ export default defineComponent({
       this.$emit('runSinvFormulas');
     },
     async setQuantity(quantity: number) {
-      if (quantity <= 0) {
-        showToast({
-          type: 'error',
-          message: 'Quantity must be greater than zero.',
-          duration: 'short',
-        });
-
-        quantity = this.lastValidQuantity ?? this.initialQuantity;
-      }
-      if (this.initialQuantity === undefined) {
-        this.initialQuantity = this.row.quantity;
-      }
-
-      if (quantity <= 0) {
-        quantity = this.lastValidQuantity ?? this.initialQuantity;
-      } else {
-        this.lastValidQuantity = quantity;
-      }
 
       this.row.set('quantity', quantity);
 
