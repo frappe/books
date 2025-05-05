@@ -98,7 +98,7 @@
         :border="true"
         :show-label="true"
         :value="row.quantity"
-        @change="(value:number) => setQuantity((row.quantity = value))"
+        @change="(value:number) => setQuantity(value)"
         :read-only="isReadOnly"
       />
     </div>
@@ -361,6 +361,15 @@ export default defineComponent({
       this.$emit('runSinvFormulas');
     },
     async setQuantity(quantity: number) {
+      if (quantity <= 0) {
+        showToast({
+          type: 'error',
+          message: 'Quantity must be greater than zero.',
+          duration: 'short',
+        });
+
+        quantity = this.row.quantity ?? 1;
+      }
 
       this.row.set('quantity', quantity);
 
@@ -370,6 +379,8 @@ export default defineComponent({
             invoiceItem.item === this.row.item && !invoiceItem.isFreeItem
         ) ?? [];
 
+      quantity = this.row.quantity ?? 1;
+
       try {
         await validateQty(
           this.row.parentdoc as SalesInvoice,
@@ -377,7 +388,7 @@ export default defineComponent({
           existingItems
         );
       } catch (error) {
-        this.row.set('quantity', existingItems[0].stockNotTransferred);
+        this.row.set('quantity', quantity);
 
         return showToast({
           type: 'error',

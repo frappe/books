@@ -565,6 +565,11 @@ export default defineComponent({
 
               await this.applyPricingRule();
               await this.sinvDoc.runFormulas();
+              await validateQty(
+                this.sinvDoc as SalesInvoice,
+                item as Item,
+                existingItems as InvoiceItem[]
+              );
               return;
             }
           }
@@ -596,6 +601,11 @@ export default defineComponent({
 
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
+          await validateQty(
+            this.sinvDoc as SalesInvoice,
+            item as Item,
+            existingItems as InvoiceItem[]
+          );
           return;
         }
 
