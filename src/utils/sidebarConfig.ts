@@ -1,10 +1,12 @@
 import { t } from 'fyo';
 import { routeFilters } from 'src/utils/filters';
 import { fyo } from '../initFyo';
+import { SidebarEntry } from 'models/baseModels/SidebarEntry/SidebarEntry';
 import { SidebarConfig, SidebarItem, SidebarRoot } from './types';
 
-export function getSidebarConfig(): SidebarConfig {
-  const sideBar = getCompleteSidebar();
+export async function getSidebarConfig(): SidebarConfig {
+  let sideBar: SidebarConfig = getCompleteSidebar();
+  sideBar = (await addCustomSidebarEntries(sideBar)) as SidebarConfig;
   return getFilteredSidebar(sideBar);
 }
 
@@ -338,6 +340,11 @@ function getCompleteSidebar(): SidebarConfig {
             !fyo.singles.AccountingSettings?.enableFormCustomization,
         },
         {
+          label: t`Extra Sidebar Entries`,
+          name: 'sidebar-entries',
+          route: `/list/SidebarEntry`,
+        },
+        {
           label: t`Settings`,
           name: 'settings',
           route: '/settings',
@@ -345,4 +352,75 @@ function getCompleteSidebar(): SidebarConfig {
       ] as SidebarItem[],
     },
   ].flat();
+}
+
+async function addCustomSidebarEntries(
+  sidebar: SidebarConfig
+): Future<SidebarConfig> {
+  const entries = await fyo.db.getAll('SidebarEntry', {
+    fields: ['name', 'section', 'route'],
+  });
+
+  for (const [i, _ent] of Object.entries(entries)) {
+    if (_ent.section) continue;
+
+    const ent: SidebarEntry = (await fyo.doc.getDoc(
+      'SidebarEntry',
+      _ent.name
+    )) as SidebarEntry;
+
+    sidebar = [
+      {
+        label: ent.name!,
+        route: ent.fullRoute()! || `/list/JournalEntry/${ent.name!}`,
+        name: `section-${i}`,
+        icon: 'common-entries',
+        filters: ent.parsedFilters(),
+        items: [],
+      } as SidebarItem,
+      ...sidebar,
+    ];
+  }
+
+  for (const [i, _ent] of Object.entries(entries)) {
+    if (!_ent.section) continue;
+
+    const ent = (await fyo.doc.getDoc(
+      'SidebarEntry',
+      _ent.name
+    )) as SidebarEntry;
+
+    const item: SidebarItem = {
+      label: ent.name,
+      route: ent.fullRoute() || `/list/JournalEntry/${ent.name!}`,
+      filters: ent.parsedFilters(),
+    } as SidebarItem;
+
+    let inserted = false;
+    for (const section of sidebar) {
+      if (section.label == ent.section || section.name == ent.section) {
+        inserted = true;
+        item.name = `${section.name}-entry-${i}`;
+        section.items = [...section.items, item];
+        continue;
+      }
+    }
+
+    if (!inserted) {
+      item.name = `section-${i}-entry-${i}`;
+      sidebar = [
+        {
+          label: ent.section,
+          name: `section-${i}`,
+          icon: 'common-entries',
+          route: item.route,
+          filters: item.filters,
+          items: [item],
+        } as SidebarItem,
+        ...sidebar,
+      ];
+    }
+  }
+
+  return sidebar;
 }

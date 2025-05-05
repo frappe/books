@@ -119,6 +119,32 @@
           gap-1
           items-center
         "
+        @click="toggleProvisionalMode"
+        :title="
+          isProvisionalMode()
+            ? t`Provisional mode since` + ' ' + provisionalModeDate()
+            : ''
+        "
+      >
+        <feather-icon
+          :name="isProvisionalMode() ? 'pause-circle' : 'play-circle'"
+          class="h-4 w-4 flex-shrink-0"
+        />
+        <p>
+          {{ isProvisionalMode() ? t`Provisional mode` : t`Definitive mode` }}
+        </p>
+      </button>
+
+      <button
+        class="
+          flex
+          text-sm text-gray-600
+          dark:text-gray-500
+          hover:text-gray-800
+          dark:hover:text-gray-400
+          gap-1
+          items-center
+        "
         @click="openDocumentation"
       >
         <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
@@ -184,7 +210,12 @@
         @click="showDevMode = false"
         title="Open dev tools with Ctrl+Shift+I"
       >
-        dev mode
+        <feather-icon
+          name="hash"
+          class="h-4 w-4 flex-shrink-0"
+          style="display: inline"
+        />
+        hide dev mode
       </p>
     </div>
 
@@ -214,6 +245,7 @@
   </div>
 </template>
 <script lang="ts">
+import { t } from 'fyo';
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
@@ -226,6 +258,7 @@ import router from '../router';
 import Icon from './Icon.vue';
 import Modal from './Modal.vue';
 import ShortcutsHelper from './ShortcutsHelper.vue';
+import { showDialog } from 'src/utils/interactive';
 
 const COMPONENT_NAME = 'Sidebar';
 
@@ -282,6 +315,15 @@ export default defineComponent({
     });
     this.shortcuts?.set(COMPONENT_NAME, ['F1'], () => this.openDocumentation());
 
+    fyo.doc.observer.on(
+      'sync:SidebarEntry',
+      async () => await this.refreshSidebar()
+    );
+    fyo.doc.observer.on(
+      'delete:SidebarEntry',
+      async () => await this.refreshSidebar()
+    );
+
     this.showDevMode = this.fyo.store.isDevelopment;
   },
   unmounted() {
@@ -291,6 +333,67 @@ export default defineComponent({
     routeTo,
     reportIssue,
     toggleSidebar,
+    async refreshSidebar() {
+      this.groups = await getSidebarConfig();
+    },
+    async toggleProvisionalMode() {
+      let title, detail, provisionalModeSince, showUnlimited;
+      if (fyo.singles.SystemSettings?.provisionalModeSince != null) {
+        title = t`Leave provisional mode?`;
+        detail = t`All submissions while provisional mode was effective will be definitive.`;
+        provisionalModeSince = null;
+      } else {
+        title = t`Enter provisional mode?`;
+        detail = t`Documents submission while in provisional mode can be undone.`;
+        provisionalModeSince = new Date();
+        showUnlimited = this.showDevMode;
+      }
+
+      let response = (await showDialog({
+        title,
+        detail,
+        type: 'warning',
+        buttons: [
+          {
+            label: t`Yes`,
+            action() {
+              return true;
+            },
+            isPrimary: true,
+          },
+          {
+            label: t`No`,
+            action() {
+              return false;
+            },
+            isEscape: true,
+          },
+          showUnlimited
+            ? {
+                label: t`Unlimited`,
+                action() {
+                  provisionalModeSince = new Date(0);
+                  return true;
+                },
+                isPrimary: false,
+              }
+            : null,
+        ].filter((x) => x),
+      })) as boolean;
+
+      if (response) {
+        await fyo.singles.SystemSettings?.setAndSync(
+          'provisionalModeSince',
+          provisionalModeSince
+        );
+      }
+    },
+    isProvisionalMode() {
+      return fyo.singles.SystemSettings?.provisionalModeSince != null;
+    },
+    provisionalModeDate() {
+      return fyo.singles.SystemSettings?.provisionalModeSince;
+    },
     openDocumentation() {
       ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
     },

@@ -49,6 +49,7 @@ import PurchaseReceiptItem from './app/inventory/PurchaseReceiptItem.json';
 import SerialNumber from './app/inventory/SerialNumber.json';
 import Shipment from './app/inventory/Shipment.json';
 import ShipmentItem from './app/inventory/ShipmentItem.json';
+import SidebarEntry from './app/SidebarEntry.json';
 import StockLedgerEntry from './app/inventory/StockLedgerEntry.json';
 import StockMovement from './app/inventory/StockMovement.json';
 import StockMovementItem from './app/inventory/StockMovementItem.json';
@@ -94,6 +95,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   SetupWizard as Schema,
   GetStarted as Schema,
   PrintTemplate as Schema,
+  SidebarEntry as Schema,
 
   Color as Schema,
   Currency as Schema,
