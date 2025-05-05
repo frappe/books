@@ -93,6 +93,24 @@
       "fieldtype": "Int",
       "default": 0,
       "section": "Barcode"
+    },
+    {
+      "fieldname": "itemVisibility",
+      "label": "Item Visibility",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Inventory Items",
+          "label": "Inventory Items"
+        },
+        {
+          "value": "Non-Inventory Items",
+          "label": "Non-Inventory Items"
+        }
+      ],
+      "default": "Inventory Items",
+      "required": true,
+      "section": "Default"
     }
   ]
 }
