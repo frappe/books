@@ -181,6 +181,13 @@
       "section": "Print Templates"
     },
     {
+      "fieldname": "posPrintTemplate",
+      "label": "Pos Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
       "fieldname": "posCustomer",
       "label": "POS Customer",
       "fieldtype": "Link",
