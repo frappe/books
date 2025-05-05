@@ -200,10 +200,9 @@ export default defineComponent({
         .filter((inv) => inv.returnAgainst)
         .map((inv) => inv.returnAgainst);
 
-      const filteredInvoices = allInvoices.filter(
+      this.returnedInvoices = allInvoices.filter(
         (inv) => !inv.returnAgainst && !returnedInvoiceNames.includes(inv.name)
-      );
-      this.returnedInvoices = filteredInvoices as SalesInvoice[];
+      ) as SalesInvoice[];
     },
   },
 });
