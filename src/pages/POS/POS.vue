@@ -636,7 +636,7 @@ export default defineComponent({
 
         if (
           this.sinvDoc.stockNotTransferred ||
-          itemVisibility !== 'Inventory Items'
+          itemVisibility === 'Inventory Items'
         ) {
           await this.makeStockTransfer();
         }
