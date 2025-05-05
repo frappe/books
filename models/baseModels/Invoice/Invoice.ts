@@ -246,9 +246,29 @@ export abstract class Invoice extends Transactional {
     }
   }
 
+  async afterSubmitUndo() {
+    await super.afterSubmitUndo();
+    await this._cancelPayments({ undo: true });
+    await this._updatePartyOutStanding();
+    await this._updateIsItemsReturned();
+    await this._removeLoyaltyPointEntry();
+    this.reduceUsedCountOfCoupons();
+  }
+
+  async _undoPayments() {
+    const paymentIds = await this.getPaymentIds();
+    for (const paymentId of paymentIds) {
+      const paymentDoc = (await this.fyo.doc.getDoc(
+        'Payment',
+        paymentId
+      )) as Payment;
+      await paymentDoc.cancel();
+    }
+  }
+
   async afterCancel() {
     await super.afterCancel();
-    await this._cancelPayments();
+    await this._cancelPayments({ undo: false });
     await this._updatePartyOutStanding();
     await this._updateIsItemsReturned();
     await this._removeLoyaltyPointEntry();
@@ -259,14 +279,18 @@ export abstract class Invoice extends Transactional {
     await removeLoyaltyPoint(this);
   }
 
-  async _cancelPayments() {
+  async _cancelPayments({ undo }: { undo: boolean }) {
     const paymentIds = await this.getPaymentIds();
     for (const paymentId of paymentIds) {
       const paymentDoc = (await this.fyo.doc.getDoc(
         'Payment',
         paymentId
       )) as Payment;
-      await paymentDoc.cancel();
+      if (undo) {
+        await paymentDoc.submitUndo();
+      } else {
+        await paymentDoc.cancel();
+      }
     }
   }
 
