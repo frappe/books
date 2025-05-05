@@ -46,6 +46,10 @@ export class StockManager {
     await this.#sync();
   }
 
+  async undoTransfers() {
+    await this.cancelTransfers();
+  }
+
   async cancelTransfers() {
     const { referenceName, referenceType } = this.details;
     await this.fyo.db.deleteAll(ModelNameEnum.StockLedgerEntry, {
