@@ -260,15 +260,22 @@ export abstract class InvoiceItem extends Doc {
           return 1;
         }
 
-        const conversionFactor = await this.fyo.db.getAll(
+        const conversionItems = await this.fyo.db.getAll(
           ModelNameEnum.UOMConversionItem,
           {
-            fields: ['conversionFactor'],
+            fields: ['conversionFactor', 'uom'],
             filters: { parent: this.item! },
           }
         );
 
-        return safeParseFloat(conversionFactor[0]?.conversionFactor ?? 1);
+        const matchingItem = conversionItems.find(
+          (item) => item.uom === this.transferUnit
+        );
+
+        this.quantity =
+          (matchingItem?.conversionFactor as number) * this.transferQuantity!;
+
+        return safeParseFloat(matchingItem?.conversionFactor ?? 0);
       },
       dependsOn: ['transferUnit'],
     },
