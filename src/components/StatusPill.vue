@@ -18,8 +18,11 @@ export default defineComponent({
   props: { doc: { type: Doc, required: true } },
   computed: {
     styleClass(): string {
-      if(this.doc.schemaName === ModelNameEnum.SalesQuote && this.doc.isSubmitted){
-        return ''
+      if (
+        this.doc.schemaName === ModelNameEnum.SalesQuote &&
+        this.doc.isSubmitted
+      ) {
+        return '';
       }
       return getBgTextColorClass(this.color);
     },
@@ -38,8 +41,8 @@ export default defineComponent({
         return this.t`Pending Qty. ${amt}`;
       }
 
-      if(this.doc instanceof SalesQuote && this.doc.isSubmitted ){
-        return ''
+      if (this.doc instanceof SalesQuote && this.doc.isSubmitted) {
+        return '';
       }
 
       return {
@@ -54,7 +57,7 @@ export default defineComponent({
         Submitted: this.t`Submitted`,
         Return: this.t`Return`,
         ReturnIssued: this.t`Return Issued`,
-        '':''
+        '': '',
       }[this.status];
     },
     color(): UIColors {
@@ -75,7 +78,7 @@ const statusColorMap: Record<Status, UIColors> = {
   Submitted: 'blue',
   Return: 'green',
   ReturnIssued: 'green',
-  '': 'gray'
+  '': 'gray',
 };
 
 function getStatus(doc: Doc) {
@@ -99,7 +102,6 @@ function getStatus(doc: Doc) {
 }
 
 function getSubmittableStatus(doc: Doc) {
-
   if (doc.isCancelled) {
     return 'Cancelled';
   }
@@ -107,7 +109,6 @@ function getSubmittableStatus(doc: Doc) {
   if (doc.schemaName === ModelNameEnum.SalesQuote) {
     return doc.isSubmitted ? '' : 'NotSubmitted';
   }
- 
 
   if (doc.returnAgainst && doc.isSubmitted) {
     return 'Return';
