@@ -1036,7 +1036,7 @@ export abstract class Invoice extends Transactional {
 
     const data = {
       party: this.party,
-      date: new Date().toISOString().slice(0, 10),
+      date: new Date().toISOString(),
       paymentType,
       amount: this.outstandingAmount?.abs(),
       [accountField]: this.account,
