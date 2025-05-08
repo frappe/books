@@ -629,6 +629,7 @@ export default defineComponent({
     },
     async createTransaction(shouldPrint = false, isPay = false) {
       try {
+        this.sinvDoc.date = new Date();
         await this.validate();
         await this.submitSinvDoc();
 
