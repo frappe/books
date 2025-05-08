@@ -812,6 +812,18 @@ export abstract class Invoice extends Transactional {
         if (this.submitted) {
           return;
         }
+        if (this.isReturn) {
+          const originalInvoice = await this.fyo.doc.getDoc(
+            this.schemaName, 
+            this.returnAgainst!
+          ) as Invoice;
+          if (originalInvoice.outstandingAmount?.isZero()) {
+            return this.grandTotal;
+          } else {
+            return this.fyo.pesa(0);
+          }
+        }
+
         if (this.redeemLoyaltyPoints) {
           return await this.getLPAddedBaseGrandTotal();
         }
