@@ -264,18 +264,15 @@ export abstract class InvoiceItem extends Doc {
           ModelNameEnum.UOMConversionItem,
           {
             fields: ['conversionFactor', 'uom'],
-            filters: { parent: this.item! },
+            filters: { parent: this.item!, uom: this.transferUnit as string },
           }
         );
 
-        const matchingItem = conversionItems.find(
-          (item) => item.uom === this.transferUnit
-        );
-
         this.quantity =
-          (matchingItem?.conversionFactor as number) * this.transferQuantity!;
+          (conversionItems[0]?.conversionFactor as number) *
+          this.transferQuantity!;
 
-        return safeParseFloat(matchingItem?.conversionFactor ?? 0);
+        return safeParseFloat(conversionItems[0]?.conversionFactor ?? 0);
       },
       dependsOn: ['transferUnit'],
     },
