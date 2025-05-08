@@ -17,6 +17,10 @@
         {
           "value": "Transfer",
           "label": "Transfer"
+        },
+        {
+          "value": "Bank",
+          "label": "Bank"
         }
       ],
       "required": true
