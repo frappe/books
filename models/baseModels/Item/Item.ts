@@ -65,19 +65,16 @@ export class Item extends Doc {
   };
 
   async beforeSync(): Promise<void> {
+    await super.beforeSync();
     const latestByUom = new Map<string, UOMConversionItem>();
 
     this.uomConversions.forEach((item) => {
-      if (
-        typeof item.conversionFactor === 'number' &&
-        item.conversionFactor > 0
-      ) {
+      if (item.conversionFactor > 0) {
         latestByUom.set(item.uom, item);
       }
     });
 
     this.uomConversions = Array.from(latestByUom.values());
-    await Promise.resolve();
   }
 
   static filters: FiltersMap = {
