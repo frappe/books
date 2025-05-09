@@ -307,7 +307,7 @@
       "label": "Submit Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#9575cd",
+      "default": "#00bcd4",
       "options": [
         {
           "label": "Red",
@@ -357,7 +357,7 @@
       "label": "Held Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#00bcd4",
+      "default": "#ff9800",
       "options": [
         {
           "label": "Red",
@@ -507,7 +507,7 @@
       "label": "Pay Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#00bcd4",
+      "default": "#66bb6a",
       "options": [
         {
           "label": "Red",
@@ -557,7 +557,7 @@
       "label": "Pay And Print Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#66bb6a",
+      "default": "#ff9800",
       "options": [
         {
           "label": "Red",
