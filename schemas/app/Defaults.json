@@ -207,15 +207,15 @@
       "label": "Save Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#6846e3",
+      "default": "#9575cd",
       "options": [
         {
           "label": "Red",
-          "value": "#b52a2a"
+          "value": "#e86674"
         },
         {
           "label": "Orange",
-          "value": "#e9612b"
+          "value": "#ff9800"
         },
         {
           "label": "Yellow",
@@ -223,7 +223,7 @@
         },
         {
           "label": "Green",
-          "value": "#58ba8a"
+          "value": "#66bb6a"
         },
         {
           "label": "Teal",
@@ -231,7 +231,7 @@
         },
         {
           "label": "Blue",
-          "value": "#0070cb"
+          "value": "#00bcd4"
         },
         {
           "label": "Indigo",
@@ -239,7 +239,7 @@
         },
         {
           "label": "Purple",
-          "value": "#6846e3"
+          "value": "#9575cd"
         },
         {
           "label": "Pink",
@@ -257,15 +257,15 @@
       "label": "Cancel Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#b52a2a",
+      "default": "#e86674",
       "options": [
         {
           "label": "Red",
-          "value": "#b52a2a"
+          "value": "#e86674"
         },
         {
           "label": "Orange",
-          "value": "#e9612b"
+          "value": "#ff9800"
         },
         {
           "label": "Yellow",
@@ -273,7 +273,7 @@
         },
         {
           "label": "Green",
-          "value": "#58ba8a"
+          "value": "#66bb6a"
         },
         {
           "label": "Teal",
@@ -281,7 +281,7 @@
         },
         {
           "label": "Blue",
-          "value": "#0070cb"
+          "value": "#00bcd4"
         },
         {
           "label": "Indigo",
@@ -289,7 +289,7 @@
         },
         {
           "label": "Purple",
-          "value": "#6846e3"
+          "value": "#9575cd"
         },
         {
           "label": "Pink",
@@ -307,15 +307,15 @@
       "label": "Submit Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#f56565",
+      "default": "#9575cd",
       "options": [
         {
           "label": "Red",
-          "value": "#b52a2a"
+          "value": "#e86674"
         },
         {
           "label": "Orange",
-          "value": "#e9612b"
+          "value": "#ff9800"
         },
         {
           "label": "Yellow",
@@ -323,7 +323,7 @@
         },
         {
           "label": "Green",
-          "value": "#58ba8a"
+          "value": "#66bb6a"
         },
         {
           "label": "Teal",
@@ -331,7 +331,7 @@
         },
         {
           "label": "Blue",
-          "value": "#0070cb"
+          "value": "#00bcd4"
         },
         {
           "label": "Indigo",
@@ -339,7 +339,7 @@
         },
         {
           "label": "Purple",
-          "value": "#6846e3"
+          "value": "#9575cd"
         },
         {
           "label": "Pink",
@@ -357,15 +357,15 @@
       "label": "Held Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#0070cb",
+      "default": "#00bcd4",
       "options": [
         {
           "label": "Red",
-          "value": "#b52a2a"
+          "value": "#e86674"
         },
         {
           "label": "Orange",
-          "value": "#e9612b"
+          "value": "#ff9800"
         },
         {
           "label": "Yellow",
@@ -373,7 +373,7 @@
         },
         {
           "label": "Green",
-          "value": "#58ba8a"
+          "value": "#66bb6a"
         },
         {
           "label": "Teal",
@@ -381,7 +381,7 @@
         },
         {
           "label": "Blue",
-          "value": "#0070cb"
+          "value": "#00bcd4"
         },
         {
           "label": "Indigo",
@@ -389,7 +389,7 @@
         },
         {
           "label": "Purple",
-          "value": "#6846e3"
+          "value": "#9575cd"
         },
         {
           "label": "Pink",
@@ -407,15 +407,15 @@
       "label": "Return Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#bd3e0b",
+      "default": "#00bcd4",
       "options": [
         {
           "label": "Red",
-          "value": "#b52a2a"
+          "value": "#e86674"
         },
         {
           "label": "Orange",
-          "value": "#e9612b"
+          "value": "#ff9800"
         },
         {
           "label": "Yellow",
@@ -423,7 +423,7 @@
         },
         {
           "label": "Green",
-          "value": "#58ba8a"
+          "value": "#66bb6a"
         },
         {
           "label": "Teal",
@@ -431,7 +431,7 @@
         },
         {
           "label": "Blue",
-          "value": "#0070cb"
+          "value": "#00bcd4"
         },
         {
           "label": "Indigo",
@@ -439,7 +439,7 @@
         },
         {
           "label": "Purple",
-          "value": "#6846e3"
+          "value": "#9575cd"
         },
         {
           "label": "Pink",
@@ -457,15 +457,15 @@
       "label": "Buy Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#58ba8a",
+      "default": "#66bb6a",
       "options": [
         {
           "label": "Red",
-          "value": "#b52a2a"
+          "value": "#e86674"
         },
         {
           "label": "Orange",
-          "value": "#e9612b"
+          "value": "#ff9800"
         },
         {
           "label": "Yellow",
@@ -473,7 +473,7 @@
         },
         {
           "label": "Green",
-          "value": "#58ba8a"
+          "value": "#66bb6a"
         },
         {
           "label": "Teal",
@@ -481,7 +481,7 @@
         },
         {
           "label": "Blue",
-          "value": "#0070cb"
+          "value": "#00bcd4"
         },
         {
           "label": "Indigo",
@@ -489,7 +489,7 @@
         },
         {
           "label": "Purple",
-          "value": "#6846e3"
+          "value": "#9575cd"
         },
         {
           "label": "Pink",
@@ -507,15 +507,15 @@
       "label": "Pay Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#0070cb",
+      "default": "#00bcd4",
       "options": [
         {
           "label": "Red",
-          "value": "#b52a2a"
+          "value": "#e86674"
         },
         {
           "label": "Orange",
-          "value": "#e9612b"
+          "value": "#ff9800"
         },
         {
           "label": "Yellow",
@@ -523,7 +523,7 @@
         },
         {
           "label": "Green",
-          "value": "#58ba8a"
+          "value": "#66bb6a"
         },
         {
           "label": "Teal",
@@ -531,7 +531,7 @@
         },
         {
           "label": "Blue",
-          "value": "#0070cb"
+          "value": "#00bcd4"
         },
         {
           "label": "Indigo",
@@ -539,7 +539,7 @@
         },
         {
           "label": "Purple",
-          "value": "#6846e3"
+          "value": "#9575cd"
         },
         {
           "label": "Pink",
@@ -557,15 +557,15 @@
       "label": "Pay And Print Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#58ba8a",
+      "default": "#66bb6a",
       "options": [
         {
           "label": "Red",
-          "value": "#b52a2a"
+          "value": "#e86674"
         },
         {
           "label": "Orange",
-          "value": "#e9612b"
+          "value": "#ff9800"
         },
         {
           "label": "Yellow",
@@ -573,7 +573,7 @@
         },
         {
           "label": "Green",
-          "value": "#58ba8a"
+          "value": "#66bb6a"
         },
         {
           "label": "Teal",
@@ -581,7 +581,7 @@
         },
         {
           "label": "Blue",
-          "value": "#0070cb"
+          "value": "#00bcd4"
         },
         {
           "label": "Indigo",
@@ -589,7 +589,7 @@
         },
         {
           "label": "Purple",
-          "value": "#6846e3"
+          "value": "#9575cd"
         },
         {
           "label": "Pink",
