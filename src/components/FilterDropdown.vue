@@ -27,146 +27,105 @@
       </Button>
     </template>
     <template #content>
-      <div class="p-2">
-        <template v-if="explicitFilters.length">
-          <div class="flex flex-col gap-2">
-            <div
-              v-for="(filter, i) in explicitFilters"
-              :key="filter.fieldname + getRandomString()"
-              class="flex items-center justify-between text-base gap-2"
-            >
+      <div>
+        <div class="p-2">
+          <template v-if="explicitFilters.length">
+            <div class="flex flex-col gap-2">
               <div
-                class="
-                  cursor-pointer
-                  w-4
-                  h-4
-                  flex
-                  items-center
-                  justify-center
-                  text-gray-600
-                  dark:text-gray-400
-                  hover:text-gray-800
-                  dark:hover:text-gray-300
-                  rounded-md
-                  group
-                "
+                v-for="(filter, i) in explicitFilters"
+                :key="filter.fieldname + getRandomString()"
+                class="flex items-center justify-between text-base gap-2"
               >
-                <span class="hidden group-hover:inline-block">
-                  <feather-icon
-                    name="x"
-                    class="w-4 h-4 cursor-pointer"
-                    :button="true"
-                    @click="removeFilter(i)"
-                  />
-                </span>
-                <span class="group-hover:hidden">
-                  {{ i + 1 }}
-                </span>
+                <div
+                  class="
+                    cursor-pointer
+                    w-4
+                    h-4
+                    flex
+                    items-center
+                    justify-center
+                    text-gray-600
+                    dark:text-gray-400
+                    hover:text-gray-800
+                    dark:hover:text-gray-300
+                    rounded-md
+                    group
+                  "
+                >
+                  <span class="hidden group-hover:inline-block">
+                    <feather-icon
+                      name="x"
+                      class="w-4 h-4 cursor-pointer"
+                      :button="true"
+                      @click="removeFilter(i)"
+                    />
+                  </span>
+                  <span class="group-hover:hidden">
+                    {{ i + 1 }}
+                  </span>
+                </div>
+                <Select
+                  :border="true"
+                  size="small"
+                  class="w-24"
+                  :df="{
+                    label: t`Field`,
+                    placeholder: t`field`,
+                    fieldname: 'fieldname',
+                    fieldtype: 'Select',
+                    options: fieldOptions,
+                  }"
+                  :value="filter.fieldname"
+                  @mousedown.stop
+                  @click.stop
+                  @change="(value) => updateNewFilters(i, 'fieldname', value)"
+                />
+
+                <Select
+                  :border="true"
+                  size="small"
+                  class="w-24"
+                  :df="{
+                    label: t`Condition`,
+                    placeholder: t`Condition`,
+                    fieldname: 'condition',
+                    fieldtype: 'Select',
+                    options: conditions,
+                  }"
+                  :value="filter.condition"
+                  :close-drop-down="false"
+                  @mousedown.stop
+                  @click.stop
+                  @change="(value) => updateNewFilters(i, 'condition', value)"
+                />
+
+                <Data
+                  :border="true"
+                  size="small"
+                  class="w-24"
+                  :df="{
+                    label: t`Value`,
+                    placeholder: t`Value`,
+                    fieldname: 'value',
+                    fieldtype: 'Data',
+                  }"
+                  :value="String(filter.value)"
+                  :close-drop-down="false"
+                  @mousedown.stop
+                  @click.stop
+                  @change="(value) => updateNewFilters(i, 'value', value)"
+                />
               </div>
-              <Select
-                :border="true"
-                size="small"
-                class="w-24"
-                :df="{
-                  label: t`Field`,
-                  placeholder: t`field`,
-                  fieldname: 'fieldname',
-                  fieldtype: 'Select',
-                  options: fieldOptions,
-                }"
-                :value="filter.fieldname"
-                @mousedown.stop
-                @click.stop
-                @change="(value) => updateNewFilters(i, 'fieldname', value)"
-              />
-
-              <Select
-                :border="true"
-                size="small"
-                class="w-24"
-                :df="{
-                  label: t`Condition`,
-                  placeholder: t`Condition`,
-                  fieldname: 'condition',
-                  fieldtype: 'Select',
-                  options: conditions,
-                }"
-                :value="filter.condition"
-                :close-drop-down="false"
-                @mousedown.stop
-                @click.stop
-                @change="(value) => updateNewFilters(i, 'condition', value)"
-              />
-
-              <Data
-                :border="true"
-                size="small"
-                class="w-24"
-                :df="{
-                  label: t`Value`,
-                  placeholder: t`Value`,
-                  fieldname: 'value',
-                  fieldtype: 'Data',
-                }"
-                :value="String(filter.value)"
-                :close-drop-down="false"
-                @mousedown.stop
-                @click.stop
-                @change="(value) => updateNewFilters(i, 'value', value)"
-              />
             </div>
-          </div>
-        </template>
-        <template v-else>
-          <span class="text-base text-gray-600 dark:text-gray-500">{{
-            t`No filters selected`
-          }}</span>
-        </template>
-      </div>
-      <div class="flex justify-between border-t dark:border-gray-800">
-        <div
-          class="
-            text-base
-            border-t
-            dark:border-gray-800
-            p-2
-            flex
-            items-center
-            text-gray-600
-            dark:text-gray-500
-            cursor-pointer
-            hover:bg-gray-100
-            dark:hover:bg-gray-875
-          "
-          @click.stop="addNewFilter"
-        >
-          <feather-icon name="plus" class="w-4 h-4" />
-          <span class="ms-2">{{ t`Add a filter` }}</span>
+          </template>
+          <template v-else>
+            <span class="text-base text-gray-600 dark:text-gray-500">{{
+              t`No filters selected`
+            }}</span>
+          </template>
         </div>
-
-        <div class="flex">
+        <div class="flex justify-between border-t dark:border-gray-800">
           <div
-            v-if="filters.length"
-            class="
-              text-base
-              p-2
-              flex
-              items-center
-              text-gray-600
-              dark:text-gray-500
-              cursor-pointer
-              hover:bg-gray-100
-              dark:hover:bg-gray-875
-            "
-            @click="clearAllFilters"
-          >
-            <feather-icon name="trash-2" class="w-4 h-4" />
-            <span class="ms-2">{{ t`Clear` }}</span>
-          </div>
-
-          <div
-            v-if="filters.length"
-            @click="applyFilters"
             class="
               text-base
               border-t
@@ -180,9 +139,52 @@
               hover:bg-gray-100
               dark:hover:bg-gray-875
             "
+            @click.stop="addNewFilter"
           >
-            <feather-icon name="search" class="w-4 h-4" />
-            <span class="ml-2 text-sm">{{ t`Apply` }}</span>
+            <feather-icon name="plus" class="w-4 h-4" />
+            <span class="ms-2">{{ t`Add a filter` }}</span>
+          </div>
+
+          <div class="flex">
+            <div
+              v-if="filters.length"
+              class="
+                text-base
+                p-2
+                flex
+                items-center
+                text-gray-600
+                dark:text-gray-500
+                cursor-pointer
+                hover:bg-gray-100
+                dark:hover:bg-gray-875
+              "
+              @click="clearAllFilters"
+            >
+              <feather-icon name="trash-2" class="w-4 h-4" />
+              <span class="ms-2">{{ t`Clear` }}</span>
+            </div>
+
+            <div
+              v-if="filters.length"
+              @click="applyFilters"
+              class="
+                text-base
+                border-t
+                dark:border-gray-800
+                p-2
+                flex
+                items-center
+                text-gray-600
+                dark:text-gray-500
+                cursor-pointer
+                hover:bg-gray-100
+                dark:hover:bg-gray-875
+              "
+            >
+              <feather-icon name="search" class="w-4 h-4" />
+              <span class="ml-2 text-sm">{{ t`Apply` }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -200,16 +202,17 @@ import Select from './Controls/Select.vue';
 import Icon from './Icon.vue';
 import Popover from './Popover.vue';
 import { QueryFilter } from 'utils/db/types';
+import { t } from 'fyo';
 
 const conditions = [
-  { label: '=', value: '=' },
-  { label: '!=', value: '!=' },
-  { label: 'like', value: 'like' },
-  { label: 'not like', value: 'not like' },
-  { label: '>', value: '>' },
-  { label: '<', value: '<' },
-  { label: 'is null', value: 'is null' },
-  { label: 'is not null', value: 'is not null' },
+  { label: t`Is`, value: '=' },
+  { label: t`Is Not`, value: '!=' },
+  { label: t`Contains`, value: 'like' },
+  { label: t`Does Not Contain`, value: 'not like' },
+  { label: t`Greater Than`, value: '>' },
+  { label: t`Less Than`, value: '<' },
+  { label: t`Is Empty`, value: 'is null' },
+  { label: t`Is Not Empty`, value: 'is not null' },
 ] as const;
 
 type Condition = typeof conditions[number]['value'];
@@ -397,10 +400,6 @@ export default defineComponent({
       const filters: Record<string, [Condition, Filter['value']]> = {};
 
       for (const { condition, value, fieldname } of this.newFilters) {
-        console.log('condition is:', condition);
-        console.log('value is:', value);
-        console.log('fieldname is:', fieldname);
-
         if (value === '' && condition) {
           continue;
         }
