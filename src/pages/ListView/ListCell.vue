@@ -27,6 +27,7 @@ export default defineComponent({
     row: { type: Object as PropType<RenderData>, required: true },
     column: { type: Object as PropType<Column>, required: true },
   },
+  emits: ['status-found'],
   computed: {
     columnValue(): string {
       const column = this.column;
@@ -50,6 +51,24 @@ export default defineComponent({
     cellClass() {
       return isNumeric(this.column.fieldtype) ? 'justify-end' : '';
     },
+  },
+  mounted() {
+    const { render } = this.column as ColumnConfig;
+    if (render) {
+      const result = render(this.row) as {
+        template: string;
+        metadata?: { status: string; color: string; label: string };
+      };
+
+      if (result?.metadata) {
+        this.$emit('status-found', {
+          rowId: this.row.name || this.row.id,
+          fieldname: this.column.fieldname,
+          status: result.metadata.status,
+          label: result.metadata.label,
+        });
+      }
+    }
   },
 });
 </script>

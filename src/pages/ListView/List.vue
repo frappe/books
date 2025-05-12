@@ -71,6 +71,7 @@
               }"
               :row="(row as RenderData)"
               :column="column"
+              @status-found="handleStatusFound"
             />
           </Row>
         </div>
@@ -144,6 +145,7 @@ export default defineComponent({
       data: [] as RenderData[],
       pageStart: 0,
       pageEnd: 0,
+      statusMap: {} as Record<string, string>,
     };
   },
   computed: {
@@ -186,6 +188,9 @@ export default defineComponent({
     this.setUpdateListeners();
   },
   methods: {
+    handleStatusFound({ rowId, status }: { rowId: string; status: string }) {
+      this.statusMap[rowId] = status;
+    },
     isNumeric,
     setPageIndices({ start, end }: { start: number; end: number }) {
       this.pageStart = start;
@@ -213,9 +218,23 @@ export default defineComponent({
       if (!filters) {
         filters = { ...this.filters };
       }
-
-      // Unproxy the filters
       filters = cloneDeep(filters);
+
+      let statusFilter: [string, string] | undefined;
+
+      if ('status' in filters) {
+        statusFilter = filters['status'] as [string, string];
+      }
+
+      if ('referenceType' in filters) {
+        statusFilter = filters['referenceType'] as [string, string];
+      }
+
+      const isStatusFilter =
+        Array.isArray(statusFilter) && statusFilter[0] === 'like';
+      if (isStatusFilter) {
+        delete filters['status']; // remove status from query filters
+      }
 
       const orderBy = ['created'];
       if (fyo.db.fieldMap[this.schemaName]['date']) {
@@ -228,7 +247,21 @@ export default defineComponent({
         orderBy,
       });
 
-      this.data = tableData.map((d) => ({
+      let filteredData = tableData;
+
+      if (isStatusFilter && statusFilter?.[1]) {
+        const lowercaseStatus = String(statusFilter[1]).toLowerCase();
+
+        const matchedNames = Object.entries(this.statusMap)
+          .filter((entry) => entry[1].toLowerCase() === lowercaseStatus)
+          .map((entry) => entry[0]);
+
+        filteredData = tableData.filter((row) =>
+          matchedNames.includes(String(row.name))
+        );
+      }
+
+      this.data = filteredData.map((d) => ({
         ...d,
         schema: fyo.schemaMap[this.schemaName],
       })) as RenderData[];
