@@ -52,6 +52,7 @@
       @selected-invoice-name="selectedInvoiceName"
       @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
+      @save-and-continue="handleSaveAndContinue"
     />
     <ModernPOS
       v-else
@@ -95,6 +96,7 @@
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
       @selected-return-invoice="selectedReturnInvoice"
+      @save-and-continue="handleSaveAndContinue"
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
   </div>
@@ -906,6 +908,25 @@ export default defineComponent({
       }
 
       this.openAlertModal = true;
+    },
+    async handleSaveAndContinue() {
+      try {
+        if (!this.sinvDoc.party || !this.sinvDoc.items?.length) {
+          showToast({
+            type: 'error',
+            message: t`Please add a customer and at least one item before saving`,
+          });
+          return;
+        }
+        await this.saveInvoiceAction();
+        this.toggleModal('Alert', false);
+        await this.routeTo('/list/SalesInvoice');
+      } catch (error) {
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
     },
     async saveInvoiceAction() {
       if (!this.sinvDoc.party && !this.sinvDoc.items?.length) {

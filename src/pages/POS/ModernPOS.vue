@@ -66,6 +66,7 @@
     <AlertModal
       :open-modal="openAlertModal"
       @toggle-modal="emitEvent('toggleModal', 'Alert')"
+      @save-and-continue="(value:any)=>emitEvent('saveAndContinue',value)"
     />
 
     <KeyboardModal
@@ -484,6 +485,7 @@ export default defineComponent({
     'selectedInvoiceName',
     'selectedReturnInvoice',
     'setTransferClearanceDate',
+    'saveAndContinue',
   ],
   data() {
     return {
