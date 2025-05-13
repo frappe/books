@@ -823,10 +823,10 @@ export abstract class Invoice extends Transactional {
           return;
         }
         if (this.isReturn) {
-          const originalInvoice = await this.fyo.doc.getDoc(
-            this.schemaName, 
-            this.returnAgainst!
-          ) as Invoice;
+          const originalInvoice = (await this.fyo.doc.getDoc(
+            this.schemaName,
+            this.returnAgainst
+          )) as Invoice;
           if (originalInvoice.outstandingAmount?.isZero()) {
             return this.grandTotal;
           } else {
