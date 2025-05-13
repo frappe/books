@@ -11,7 +11,14 @@
         v-model="invoiceSearchTerm"
         type="text"
         placeholder="Search by Invoice Name"
-        class="w-full p-2 border rounded-md dark:bg-gray-800 dark:text-white"
+        class="
+          w-full
+          p-2
+          border
+          rounded-md
+          dark:bg-gray-800 dark:text-white
+          focus:outline-none focus:ring-0
+        "
       />
     </div>
 
