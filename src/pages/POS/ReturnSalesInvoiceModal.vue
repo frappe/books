@@ -6,6 +6,24 @@
 
     <hr class="mt-2 dark:border-gray-800" />
 
+    <div class="mt-4">
+      <input
+        v-model="invoiceSearchTerm"
+        type="text"
+        placeholder="Search by Invoice Name"
+        class="
+          w-full
+          p-2
+          border
+          rounded-md
+          dark:bg-gray-800 dark:text-white
+          focus:outline-none focus:ring-0
+        "
+      />
+    </div>
+
+    <hr class="mt-2 dark:border-gray-800" />
+
     <Row
       :ratio="ratio"
       class="
@@ -34,7 +52,7 @@
       style="height: 65vh; width: 60vh"
     >
       <Row
-        v-for="row in returnedInvoices"
+        v-for="row in filteredInvoices"
         :key="row.name"
         :ratio="ratio"
         :border="true"
@@ -110,6 +128,7 @@ export default defineComponent({
   data() {
     return {
       returnedInvoices: [] as SalesInvoice[],
+      invoiceSearchTerm: '',
     };
   },
   computed: {
@@ -147,6 +166,13 @@ export default defineComponent({
         },
       ] as Field[];
     },
+    filteredInvoices() {
+      return this.returnedInvoices.filter((invoice) =>
+        invoice.name
+          .toLowerCase()
+          .includes(this.invoiceSearchTerm.toLowerCase())
+      );
+    },
   },
   watch: {
     async modalStatus(newVal) {
@@ -168,13 +194,22 @@ export default defineComponent({
       this.$emit('toggleModal', 'ReturnSalesInvoice');
     },
     async setReturnedInvoices() {
-      this.returnedInvoices = (await this.fyo.db.getAll(
-        ModelNameEnum.SalesInvoice,
-        {
-          fields: [],
-          filters: { isPOS: true, submitted: true, returnAgainst: null },
-        }
-      )) as SalesInvoice[];
+      const allInvoices = await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {
+        fields: [],
+        filters: {
+          isPOS: true,
+          submitted: true,
+          cancelled: false,
+        },
+      });
+
+      const returnedInvoiceNames = allInvoices
+        .filter((inv) => inv.returnAgainst)
+        .map((inv) => inv.returnAgainst);
+
+      this.returnedInvoices = allInvoices.filter(
+        (inv) => !inv.returnAgainst && !returnedInvoiceNames.includes(inv.name)
+      ) as SalesInvoice[];
     },
   },
 });
