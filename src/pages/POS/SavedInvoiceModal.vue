@@ -6,6 +6,22 @@
 
     <hr class="mt-2 dark:border-gray-800" />
 
+    <div class="mt-4">
+      <input
+        v-model="invoiceSearchTerm"
+        type="text"
+        placeholder="Search by Invoice Name"
+        class="
+          w-full
+          p-2
+          border
+          rounded-md
+          dark:bg-gray-800 dark:text-white
+          focus:outline-none focus:ring-0
+        "
+      />
+    </div>
+
     <div class="flex justify-around items-center">
       <Button
         :background="false"
@@ -23,6 +39,7 @@
         >Submitted</Button
       >
     </div>
+
     <Row
       :ratio="ratio"
       class="
@@ -47,12 +64,12 @@
     </Row>
 
     <div
-      v-if="savedInvoiceList ? savedInvoices.length : submittedInvoices.length"
+      v-if="filteredInvoices.length"
       class="overflow-y-auto custom-scroll custom-scroll-thumb2"
       style="height: 65vh; width: 60vh"
     >
       <Row
-        v-for="row in savedInvoiceList ? savedInvoices : submittedInvoices"
+        v-for="row in filteredInvoices"
         :key="row.name"
         :ratio="ratio"
         :border="true"
@@ -131,6 +148,7 @@ export default defineComponent({
       savedInvoiceList: true,
       savedInvoices: [] as SalesInvoice[],
       submittedInvoices: [] as SalesInvoice[],
+      invoiceSearchTerm: '',
     };
   },
   computed: {
@@ -167,6 +185,16 @@ export default defineComponent({
           readOnly: true,
         },
       ] as Field[];
+    },
+    filteredInvoices() {
+      const invoices = this.savedInvoiceList
+        ? this.savedInvoices
+        : this.submittedInvoices;
+      return invoices.filter((invoice) =>
+        invoice.name
+          .toLowerCase()
+          .includes(this.invoiceSearchTerm.toLowerCase())
+      );
     },
   },
   watch: {
