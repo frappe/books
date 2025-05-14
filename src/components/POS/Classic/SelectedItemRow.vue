@@ -159,13 +159,14 @@
         :show-label="true"
         :border="true"
         :value="row.rate"
-        :read-only="isReadOnly"
+        :read-only="isReadOnly || !posSettings?.canChangeRate"
         @change="(value:Money) => setRate((row.rate = value))"
       />
       <feather-icon
         name="refresh-ccw"
         class="w-3.5 ml-2 mt-5 text-blue-500 flex-none"
         @click="row.rate= (defaultRate as Money)"
+        :disabled="isReadOnly || !posSettings?.canChangeRate"
       />
     </div>
     <div class="px-6 pt-6 col-span-2">
@@ -181,7 +182,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountAmount"
-        :read-only="row.itemDiscountPercent as number > 0 || isReadOnly"
+        :read-only="row.itemDiscountPercent as number > 0 || isReadOnly || !posSettings?.canEditDiscount"
         @change="(value:number) => setItemDiscount('amount', value)"
       />
     </div>
@@ -198,7 +199,11 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountPercent"
-        :read-only="!row.itemDiscountAmount?.isZero() || isReadOnly"
+        :read-only="
+          !row.itemDiscountAmount?.isZero() ||
+          isReadOnly ||
+          !posSettings?.canEditDiscount
+        "
         @change="(value:number) => setItemDiscount('percent', value)"
       />
     </div>
@@ -276,6 +281,7 @@ import { validateQty } from 'models/helpers';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { showToast } from 'src/utils/interactive';
+import { POSSettings } from 'models/inventory/Point of Sale/POSSettings';
 
 export default defineComponent({
   name: 'SelectedItemRow',
@@ -290,6 +296,7 @@ export default defineComponent({
       itemSerialNumbers: inject('itemSerialNumbers') as {
         [item: string]: string;
       },
+      posSettings: inject('posSettings') as any,
     };
   },
   data() {
