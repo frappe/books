@@ -19,6 +19,7 @@ export class POSSettings extends Doc {
   posUI?: 'Classic' | 'Modern';
   canChangeRate?: boolean;
   canEditDiscount?: boolean;
+  ignorePricingRule?: boolean;
 
   static filters: FiltersMap = {
     cashAccount: () => ({

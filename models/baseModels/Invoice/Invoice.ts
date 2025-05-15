@@ -112,6 +112,13 @@ export abstract class Invoice extends Transactional {
     return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
   }
 
+  get ignorePricingRules(): boolean {
+    if (this.schemaName !== ModelNameEnum.SalesInvoice) {
+      return false;
+    }
+    return !!this.fyo.singles.POSSettings?.ignorePricingRule;
+  }
+
   get isMultiCurrency() {
     if (!this.currency) {
       return false;
@@ -195,17 +202,16 @@ export abstract class Invoice extends Transactional {
     await super.afterSubmit();
 
     if (this.isReturn) {
-    
-      await this.fyo.db.update(this.schemaName,{
-        name:this.name as string,
-        outstandingAmount:0
-      })
-    
+      await this.fyo.db.update(this.schemaName, {
+        name: this.name as string,
+        outstandingAmount: 0,
+      });
+
       const party = (await this.fyo.doc.getDoc(
         ModelNameEnum.Party,
         this.party
       )) as Party;
-  
+
       await party.updateOutstandingAmount();
       await this._removeLoyaltyPointEntry();
       this.reduceUsedCountOfCoupons();
@@ -854,6 +860,9 @@ export abstract class Invoice extends Transactional {
     },
     isPricingRuleApplied: {
       formula: async () => {
+        if (this.ignorePricingRules) {
+          return false;
+        }
         if (!this.fyo.singles.AccountingSettings?.enablePricingRule) {
           return false;
         }
@@ -932,8 +941,7 @@ export abstract class Invoice extends Transactional {
     baseGrandTotal: () =>
       this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
     stockNotTransferred: () => !this.stockNotTransferred,
-    outstandingAmount: () =>
-      !this.isSubmitted,
+    outstandingAmount: () => !this.isSubmitted,
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
@@ -1188,6 +1196,12 @@ export abstract class Invoice extends Transactional {
   async beforeSync(): Promise<void> {
     await super.beforeSync();
 
+    if (this.ignorePricingRules) {
+      this.clearFreeItems();
+      await this.set('pricingRuleDetail', null);
+      return;
+    }
+
     if (this.pricingRuleDetail?.length) {
       await this.applyProductDiscount();
     } else {
@@ -1435,6 +1449,9 @@ export abstract class Invoice extends Transactional {
   }
 
   async getPricingRule(): Promise<ApplicablePricingRules[] | undefined> {
+    if (this.ignorePricingRules) {
+      return undefined;
+    }
     if (!this.isSales || !this.items) {
       return;
     }

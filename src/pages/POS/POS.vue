@@ -471,6 +471,9 @@ export default defineComponent({
         this.sinvDoc.items as SalesInvoiceItem[]
       );
     },
+    ignorePricingRules(): boolean {
+      return !!fyo.singles.POSSettings?.ignorePricingRule;
+    },
     setTotalTaxedAmount() {
       this.totalTaxedAmount = getTotalTaxedAmount(this.sinvDoc as SalesInvoice);
     },
@@ -562,7 +565,9 @@ export default defineComponent({
                 : (invItem.quantity as number) + 1;
               invItem.rate = item.rate as Money;
 
-              await this.applyPricingRule();
+              if (!this.ignorePricingRules) {
+                await this.applyPricingRule();
+              }
               await this.sinvDoc.runFormulas();
               await validateQty(
                 this.sinvDoc as SalesInvoice,
@@ -595,7 +600,9 @@ export default defineComponent({
               : (existingItems[0].quantity as number) + 1
           );
 
-          await this.applyPricingRule();
+          if (!this.ignorePricingRules) {
+            await this.applyPricingRule();
+          }
           await this.sinvDoc.runFormulas();
           await validateQty(
             this.sinvDoc as SalesInvoice,
@@ -623,7 +630,9 @@ export default defineComponent({
           );
         }
 
-        await this.applyPricingRule();
+        if (!this.ignorePricingRules) {
+          await this.applyPricingRule();
+        }
 
         await this.sinvDoc.runFormulas();
       } catch (error) {
@@ -822,6 +831,13 @@ export default defineComponent({
       await validateShipment(this.itemSerialNumbers);
     },
     async applyPricingRule() {
+      if (this.ignorePricingRules()) {
+        this.sinvDoc.pricingRuleDetail = undefined;
+        this.sinvDoc.isPricingRuleApplied = false;
+        removeFreeItems(this.sinvDoc as SalesInvoice);
+        await this.sinvDoc.applyProductDiscount();
+        return;
+      }
       const hasPricingRules = await getPricingRule(
         this.sinvDoc as SalesInvoice
       );
