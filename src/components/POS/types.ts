@@ -37,6 +37,7 @@ export type PosEmits =
   | 'createTransaction'
   | 'selectedInvoiceName'
   | 'selectedReturnInvoice'
+  | 'saveAndContinue'
   | 'setTransferClearanceDate';
 
 export interface POSItem {

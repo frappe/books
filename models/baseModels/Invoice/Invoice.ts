@@ -195,6 +195,16 @@ export abstract class Invoice extends Transactional {
     await super.afterSubmit();
 
     if (this.isReturn) {
+      await this.fyo.db.update(this.schemaName, {
+        name: this.name as string,
+        outstandingAmount: 0,
+      });
+      const party = (await this.fyo.doc.getDoc(
+        ModelNameEnum.Party,
+        this.party
+      )) as Party;
+
+      await party.updateOutstandingAmount();
       await this._removeLoyaltyPointEntry();
       this.reduceUsedCountOfCoupons();
 
@@ -812,6 +822,18 @@ export abstract class Invoice extends Transactional {
         if (this.submitted) {
           return;
         }
+        if (this.isReturn) {
+          const originalInvoice = (await this.fyo.doc.getDoc(
+            this.schemaName,
+            this.returnAgainst
+          )) as Invoice;
+          if (originalInvoice.outstandingAmount?.isZero()) {
+            return this.grandTotal;
+          } else {
+            return this.fyo.pesa(0);
+          }
+        }
+
         if (this.redeemLoyaltyPoints) {
           return await this.getLPAddedBaseGrandTotal();
         }
@@ -920,8 +942,7 @@ export abstract class Invoice extends Transactional {
     baseGrandTotal: () =>
       this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
     stockNotTransferred: () => !this.stockNotTransferred,
-    outstandingAmount: () =>
-      !!this.outstandingAmount?.isZero() || !this.isSubmitted,
+    outstandingAmount: () => !this.isSubmitted,
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),

@@ -33,6 +33,18 @@
           </slot>
         </Button>
       </div>
+      <div class="col-span-2 flex justify-center mt-3">
+        <Button
+          class="w-full py-5 bg-blue-500 dark:bg-blue-700"
+          @click="$emit('saveAndContinue')"
+        >
+          <slot>
+            <p class="uppercase text-lg text-white font-semibold">
+              {{ t`Save and Continue` }}
+            </p>
+          </slot>
+        </Button>
+      </div>
     </div>
   </Modal>
 </template>
@@ -49,7 +61,7 @@ export default defineComponent({
     Modal,
     Button,
   },
-  emits: ['toggleModal'],
+  emits: ['toggleModal', 'saveAndContinue'],
   methods: {
     routeTo,
   },
