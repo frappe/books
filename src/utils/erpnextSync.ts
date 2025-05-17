@@ -8,6 +8,7 @@ import { ERPNextSyncQueue } from 'models/baseModels/ERPNextSyncQueue/ERPNextSync
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { StockMovementItem } from 'models/inventory/StockMovementItem';
 import { getRandomString } from '../../utils';
+import { ErrorLogEnum } from 'fyo/telemetry/types';
 
 export async function registerInstanceToERPNext(fyo: Fyo) {
   if (!navigator.onLine) {
@@ -178,7 +179,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
       }
     } catch (error) {
       return await fyo.doc
-        .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+        .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
           error: error as string,
           data: JSON.stringify({ instance: deviceID, records: docsToSync }),
         })
@@ -421,7 +422,7 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
 
     if (!res.message.success) {
       return await fyo.doc
-        .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+        .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
           error: JSON.stringify(res),
           data: JSON.stringify({ instance: deviceID, records: docsToSync }),
         })
@@ -478,7 +479,7 @@ async function syncFetchFromERPNextQueue(fyo: Fyo) {
 
     if (!res.message.success || !res.message.success_log) {
       return await fyo.doc
-        .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+        .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
           error: JSON.stringify(res),
           data: JSON.stringify({ instance: deviceID, data: res }),
         })
