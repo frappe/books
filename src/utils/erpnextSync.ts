@@ -9,6 +9,7 @@ import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { StockMovementItem } from 'models/inventory/StockMovementItem';
 import { getRandomString } from '../../utils';
 import { ErrorLogEnum } from 'fyo/telemetry/types';
+import { ValidationError } from 'fyo/utils/errors';
 
 export async function registerInstanceToERPNext(fyo: Fyo) {
   if (!navigator.onLine) {
@@ -36,23 +37,23 @@ export async function registerInstanceToERPNext(fyo: Fyo) {
   const registerInstance = fyo.singles.ERPNextSyncSettings
     ?.registerInstance as string;
 
-  try {
-    (await sendAPIRequest(
-      `${baseURL}/api/method/books_integration.api.${registerInstance}`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `token ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          instance: deviceID,
-          instance_name: instanceName,
-        }),
-      }
-    )) as unknown as ERPNextSyncSettingsAPIResponse;
-  } catch (error) {
-    return;
+  const response = (await sendAPIRequest(
+    `${baseURL}/api/method/books_integration.api.${registerInstance}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        instance: deviceID,
+        instance_name: instanceName,
+      }),
+    }
+  )) as unknown as ERPNextSyncSettingsAPIResponse;
+
+  if (!response.message.success) {
+    throw new ValidationError(response.message.message);
   }
 }
 
@@ -87,22 +88,17 @@ async function getERPNSyncSettings(
   baseURL: string,
   token: string
 ): Promise<ERPNextSyncSettingsAPIResponse | undefined> {
-  try {
-    const syncSettings = fyo.singles.ERPNextSyncSettings
-      ?.syncSettings as string;
+  const syncSettings = fyo.singles.ERPNextSyncSettings?.syncSettings as string;
 
-    return (await sendAPIRequest(
-      `${baseURL}/api/method/books_integration.api.${syncSettings}`,
-      {
-        headers: {
-          Authorization: `token ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )) as unknown as ERPNextSyncSettingsAPIResponse;
-  } catch (error) {
-    return;
-  }
+  return (await sendAPIRequest(
+    `${baseURL}/api/method/books_integration.api.${syncSettings}`,
+    {
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  )) as unknown as ERPNextSyncSettingsAPIResponse;
 }
 
 export async function initERPNSync(fyo: Fyo) {
@@ -129,13 +125,16 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
     return;
   }
 
-  const docsToSync = await getDocsFromERPNext(baseURL, token, deviceID);
+  const docsToSync = await getDocsFromERPNext(fyo, baseURL, token, deviceID);
 
   if (!docsToSync || !docsToSync.message.success || !docsToSync.message.data) {
     return;
   }
 
   for (const doc of docsToSync.message.data) {
+    if (!isValidSyncableDocName(doc.doctype as string)) {
+      continue;
+    }
     if (!(getDocTypeName(doc) in ModelNameEnum)) {
       continue;
     }
@@ -525,26 +524,25 @@ async function syncFetchFromERPNextQueue(fyo: Fyo) {
 }
 
 async function getDocsFromERPNext(
+  fyo: Fyo,
   baseURL: string,
   token: string,
   deviceID: string
 ): Promise<ERPNSyncDocsResponse | undefined> {
-  try {
-    return (await sendAPIRequest(
-      `${baseURL}/api/method/books_integration.api.get_pending_docs`,
-      {
-        headers: {
-          Authorization: `token ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          instance: deviceID,
-        }),
-      }
-    )) as unknown as ERPNSyncDocsResponse;
-  } catch (error) {
-    return undefined;
-  }
+  const fetchFromERPNextQueue =
+    fyo.singles.ERPNextSyncSettings?.fetchFromERPNextQueue;
+
+  return (await sendAPIRequest(
+    `${baseURL}/api/method/books_integration.api.${
+      fetchFromERPNextQueue as string
+    }?instance=${deviceID}`,
+    {
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  )) as unknown as ERPNSyncDocsResponse;
 }
 
 async function afterDocSync(
@@ -582,50 +580,30 @@ async function afterDocSync(
   );
 }
 
-export function getShouldDocSyncToERPNext(
-  syncSettings: ERPNextSyncSettings,
-  doc: Doc
-): boolean {
-  switch (doc.schemaName) {
-    case ModelNameEnum.Payment:
-      const isSalesPayment = doc.referenceType === ModelNameEnum.SalesInvoice;
-      return (
-        isSalesPayment && syncSettings.sinvPaymentType !== 'ERPNext to FBooks'
-      );
+export function getShouldDocSyncToERPNext(doc: Doc): boolean {
+  const syncableModels = [
+    ModelNameEnum.SalesInvoice,
+    ModelNameEnum.Payment,
+    ModelNameEnum.Shipment,
+    ModelNameEnum.POSOpeningShift,
+    ModelNameEnum.POSClosingShift,
+  ] as string[];
 
-    case ModelNameEnum.Party:
-      const isCustomer = doc.role !== 'Supplier';
-
-      if (isCustomer) {
-        return (
-          !!syncSettings.syncCustomer &&
-          syncSettings.customerSyncType !== 'ERPNext to FBooks'
-        );
-      }
-
-      return (
-        !!syncSettings.syncSupplier &&
-        syncSettings.supplierSyncType !== 'ERPNext to FBooks'
-      );
-
-    case 'PriceListItem':
-      const isPriceListSyncEnabled = !!syncSettings.syncPriceList;
-
-      return (
-        isPriceListSyncEnabled &&
-        syncSettings.supplierSyncType !== 'ERPNext to FBooks'
-      );
-
-    default:
-      const schemaName =
-        doc.schemaName[0].toLowerCase() + doc.schemaName.substring(1);
-
-      if (!syncSettings[`${schemaName}SyncType`]) {
-        return false;
-      }
-
-      return syncSettings[`${schemaName}SyncType`] !== 'ERPNext to FBooks';
+  if (syncableModels.includes(doc.schemaName)) {
+    return true;
   }
+
+  return false;
+}
+
+function isValidSyncableDocName(doctype: string): boolean {
+  const syncableDocNames = [ModelNameEnum.Item] as string[];
+
+  if (syncableDocNames.includes(doctype)) {
+    return true;
+  }
+
+  return false;
 }
 
 function getDocTypeName(doc: DocValueMap | Doc): string {
@@ -655,6 +633,7 @@ export interface InsertDocsAPIResponse {
 
 export interface ERPNSyncDocsResponse {
   message: {
+    status: string;
     success: boolean;
     data: DocValueMap[];
     success_log?: DocValueMap[];
@@ -682,7 +661,7 @@ export interface ERPNextSyncSettingsAPIResponse {
       idx: string;
       enable_sync: boolean;
       sync_dependant_masters: boolean;
-      sync_interval: number;
+      sync_interval: string;
       sync_item: boolean;
       item_sync_type: string;
       sync_customer: boolean;
