@@ -935,23 +935,31 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this.fyo.doc.observer.trigger(`sync:${this.schemaName}`, this.name);
 
     if (this._addDocToSyncQueue && !!this.shouldDocSyncToERPNext) {
-      const isDocExistsInQueue = await this.fyo.db.getAll(
-        ModelNameEnum.ERPNextSyncQueue,
-        {
-          filters: {
-            referenceType: this.schemaName,
-            documentName: this.name as string,
-          },
-        }
-      );
+      const isSalesInvoice = this.schemaName === ModelNameEnum.SalesInvoice;
 
-      if (!isDocExistsInQueue.length) {
-        this.fyo.doc
-          .getNewDoc(ModelNameEnum.ERPNextSyncQueue, {
-            referenceType: this.schemaName,
-            documentName: this.name,
-          })
-          .sync();
+      if (!(isSalesInvoice && this.isSyncedWithErp)) {
+        if (isSalesInvoice) {
+          await this.setAndSync('isSyncedWithErp', true);
+        }
+
+        const isDocExistsInQueue = await this.fyo.db.getAll(
+          ModelNameEnum.ERPNextSyncQueue,
+          {
+            filters: {
+              referenceType: this.schemaName,
+              documentName: this.name as string,
+            },
+          }
+        );
+
+        if (!isDocExistsInQueue.length) {
+          await this.fyo.doc
+            .getNewDoc(ModelNameEnum.ERPNextSyncQueue, {
+              referenceType: this.schemaName,
+              documentName: this.name,
+            })
+            .sync();
+        }
       }
     }
 
