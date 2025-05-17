@@ -54,6 +54,7 @@ import { POSClosingShift } from './inventory/Point of Sale/POSClosingShift';
 import { ERPNextSyncSettings } from './baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
 import { ERPNextSyncQueue } from './baseModels/ERPNextSyncQueue/ERPNextSyncQueue';
 import { FetchFromERPNextQueue } from './baseModels/FetchFromERPNextQueue/FetchFromERPNextQueue';
+import { IntegrationErrorLog } from './baseModels/IntegrationErrorLog/IntegrationErrorLog';
 
 export const models = {
   Account,
@@ -114,6 +115,8 @@ export const models = {
   ERPNextSyncSettings,
   ERPNextSyncQueue,
   FetchFromERPNextQueue,
+  // Error Log
+  IntegrationErrorLog,
 } as ModelMap;
 
 export async function getRegionalModels(
