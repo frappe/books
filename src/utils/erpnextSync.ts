@@ -131,7 +131,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
     return;
   }
 
-  for (const doc of docsToSync.message.data) {
+  for (let doc of docsToSync.message.data) {
     if (!isValidSyncableDocName(doc.doctype as string)) {
       continue;
     }
@@ -151,6 +151,8 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
             getDocTypeName(doc),
             (doc.fbooksDocName as string) || (doc.name as string)
           );
+
+          doc = checkDocDataTypes(fyo, doc) as DocValueMap;
 
           await existingDoc.setMultiple(doc);
           await performPreSync(fyo, doc);
@@ -594,6 +596,48 @@ export function getShouldDocSyncToERPNext(doc: Doc): boolean {
   }
 
   return false;
+}
+
+function changeDocDataType(
+  fyo: Fyo,
+  doc: DocValueMap | Doc,
+  fields: string[],
+  type: string
+): DocValueMap | Doc {
+  const updatedDoc = { ...doc };
+
+  for (const field of fields) {
+    if (field in updatedDoc) {
+      switch (type) {
+        case ModelNameEnum.Currency:
+          updatedDoc[field] = fyo.pesa(updatedDoc[field] as number);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return updatedDoc as DocValueMap;
+}
+
+function checkDocDataTypes(
+  fyo: Fyo,
+  doc: DocValueMap | Doc
+): DocValueMap | Doc {
+  switch (doc.doctype) {
+    case ModelNameEnum.Item:
+      const fields = ['rate'];
+      const updatedDoc = changeDocDataType(
+        fyo,
+        doc,
+        fields,
+        ModelNameEnum.Currency
+      );
+      return updatedDoc;
+    default:
+      return doc;
+  }
 }
 
 function isValidSyncableDocName(doctype: string): boolean {
