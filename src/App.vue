@@ -71,7 +71,6 @@ import { routeTo } from './utils/ui';
 import { useKeys } from './utils/vueUtils';
 import { setDarkMode } from 'src/utils/theme';
 import {
-  initERPNSync,
   registerInstanceToERPNext,
   updateERPNSyncSettings,
 } from './utils/erpnextSync';
@@ -231,7 +230,9 @@ export default defineComponent({
       await updatePrintTemplates(fyo);
       await registerInstanceToERPNext(fyo);
       await updateERPNSyncSettings(fyo);
-      initERPNSync(fyo);
+      await ipc.initScheduler(
+        `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
+      );
       await this.setDesk(filePath);
     },
     async handleConnectionFailed(error: Error, actionSymbol: symbol) {

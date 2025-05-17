@@ -82,6 +82,10 @@ const ipc = {
     )) as TemplateFile[];
   },
 
+  async initScheduler(time: string) {
+    await ipcRenderer.invoke(IPC_ACTIONS.INIT_SHEDULER, time);
+  },
+
   async selectFile(options: SelectFileOptions): Promise<SelectFileReturn> {
     return (await ipcRenderer.invoke(
       IPC_ACTIONS.SELECT_FILE,
@@ -208,6 +212,10 @@ const ipc = {
 
   registerMainProcessErrorListener(listener: IPCRendererListener) {
     ipcRenderer.on(IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR, listener);
+  },
+
+  registerTriggerFrontendActionListener(listener: IPCRendererListener) {
+    ipcRenderer.on(IPC_CHANNELS.TRIGGER_FRONTEND_ACTION, listener);
   },
 
   registerConsoleLogListener(listener: IPCRendererListener) {
