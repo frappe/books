@@ -8,7 +8,15 @@ export class ERPNextSyncSettings extends Doc {
   authToken?: string;
   integrationAppVersion?: string;
   isEnabled?: boolean;
+
   dataSyncInterval?: string;
+  syncDataFromServer?: boolean;
+
+  registerInstance?: string;
+  syncSettings?: string;
+  syncDataToERPNext?: string;
+  fetchFromERPNextQueue?: string;
+  clearSyncedDocsFromErpNextSyncQueue?: string;
 
   hidden: HiddenMap = {
     syncPriceList: () => {

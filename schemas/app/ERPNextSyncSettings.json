@@ -46,144 +46,45 @@
       "section": "Default"
     },
     {
-      "label": "Sync Item",
-      "fieldname": "syncItem",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Item"
+      "label": "Sync Data From Server",
+      "fieldname": "syncDataFromServer",
+      "fieldtype": "Button",
+      "section": "Default"
     },
     {
-      "label": "Item Sync Type",
-      "fieldname": "itemSyncType",
+      "label": "Register Instance",
+      "fieldname": "registerInstance",
       "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Item"
+      "default": "register_instance",
+      "section": "Endpoints"
     },
     {
-      "label": "Sync Customer",
-      "fieldname": "syncCustomer",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Customer"
-    },
-    {
-      "label": "Customer Sync Type",
-      "fieldname": "customerSyncType",
+      "label": "Sync Settings",
+      "fieldname": "syncSettings",
       "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Customer"
+      "default": "sync_settings",
+      "section": "Endpoints"
     },
     {
-      "label": "Sync Supplier",
-      "fieldname": "syncSupplier",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Supplier"
-    },
-    {
-      "label": "Supplier Sync Type",
-      "fieldname": "supplierSyncType",
+      "label": "Sync Data To ERPNext",
+      "fieldname": "syncDataToERPNext",
       "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Supplier"
+      "default": "sync.sync_transactions",
+      "section": "Endpoints"
     },
     {
-      "label": "Sync Sales Invoice",
-      "fieldname": "syncSalesInvoice",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Sales Invoice"
-    },
-    {
-      "label": "Sales Invoice Sync Type",
-      "fieldname": "salesInvoiceSyncType",
+      "label": "Fetch Data From ERPNext",
+      "fieldname": "fetchFromERPNextQueue",
       "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Sales Invoice"
+      "default": "sync.get_pending_docs",
+      "section": "Endpoints"
     },
     {
-      "label": "Sync SINV Payment",
-      "fieldname": "syncSalesInvoicePayment",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Sales Payment"
-    },
-    {
-      "label": "SINV Payment Sync Type",
-      "fieldname": "sinvPaymentSyncType",
+      "label": "Clear Synced Data From ERPNext SyncQueue",
+      "fieldname": "clearSyncedDocsFromErpNextSyncQueue",
       "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Sales Payment"
-    },
-    {
-      "label": "Sync Stock Movement",
-      "fieldname": "syncStockMovement",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Stock Movement"
-    },
-    {
-      "label": "Stock Entry Sync Type",
-      "fieldname": "stockMovementSyncType",
-      "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Stock Movement"
-    },
-    {
-      "label": "Sync Price List",
-      "fieldname": "syncPriceList",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Price List"
-    },
-    {
-      "label": "Price List Sync Type",
-      "fieldname": "priceListSyncType",
-      "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Price List"
-    },
-    {
-      "label": "Sync Serial Number",
-      "fieldname": "syncSerialNumber",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Serial Number"
-    },
-    {
-      "label": "Serial Number Sync Type",
-      "fieldname": "serialNumberSyncType",
-      "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Serial Number"
-    },
-    {
-      "label": "Sync Batch",
-      "fieldname": "syncBatch",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Batch"
-    },
-    {
-      "label": "Batch Sync Type",
-      "fieldname": "batchSyncType",
-      "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Batch"
-    },
-    {
-      "label": "Sync Delivery Note",
-      "fieldname": "syncShipment",
-      "fieldtype": "Check",
-      "readOnly": true,
-      "section": "Shipment"
-    },
-    {
-      "label": "Sync Type",
-      "fieldname": "shipmentSyncType",
-      "fieldtype": "Data",
-      "readOnly": true,
-      "section": "Shipment"
+      "default": "sync.update_status",
+      "section": "Endpoints"
     }
   ]
 }
