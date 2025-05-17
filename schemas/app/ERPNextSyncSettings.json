@@ -39,10 +39,10 @@
       "section": "Default"
     },
     {
-      "label": "Data Sync Interval",
+      "label": "Data Sync Interval (In Minutes)",
       "fieldname": "dataSyncInterval",
-      "fieldtype": "Int",
-      "readOnly": true,
+      "fieldtype": "Data",
+      "default": "60",
       "section": "Default"
     },
     {
