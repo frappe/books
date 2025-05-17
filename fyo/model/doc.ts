@@ -265,10 +265,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       return false;
     }
 
-    return getShouldDocSyncToERPNext(
-      this.fyo.singles.ERPNextSyncSettings,
-      this
-    );
+    return getShouldDocSyncToERPNext(this);
   }
 
   _setValuesWithoutChecks(data: DocValueMap, convertToDocValue: boolean) {

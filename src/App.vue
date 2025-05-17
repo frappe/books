@@ -61,7 +61,7 @@ import './styles/index.css';
 import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
 import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
-import { showDialog } from './utils/interactive';
+import { showDialog, showToast } from './utils/interactive';
 import { setLanguageMap } from './utils/language';
 import { updateConfigFiles } from './utils/misc';
 import { updatePrintTemplates } from './utils/printTemplates';
@@ -228,11 +228,17 @@ export default defineComponent({
 
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
-      await registerInstanceToERPNext(fyo);
-      await updateERPNSyncSettings(fyo);
-      await ipc.initScheduler(
-        `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
-      );
+
+      try {
+        await registerInstanceToERPNext(fyo);
+        await updateERPNSyncSettings(fyo);
+        await ipc.initScheduler(
+          `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
+        );
+      } catch (error) {
+        showToast({ message: error as string, type: 'error' });
+      }
+
       await this.setDesk(filePath);
     },
     async handleConnectionFailed(error: Error, actionSymbol: symbol) {
