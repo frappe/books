@@ -77,6 +77,7 @@ import POSShiftAmounts from './app/inventory/Point of Sale/POSShiftAmounts.json'
 import ERPNextSyncSettings from './app/ERPNextSyncSettings.json';
 import ERPNextSyncQueue from './app/ERPNextSyncQueue.json';
 import FetchFromERPNextQueue from './app/FetchFromERPNextQueue.json';
+import IntegrationErrorLog from './app/IntegrationErrorLog.json';
 import { Schema, SchemaStub } from './types';
 
 export const coreSchemas: Schema[] = [
@@ -183,4 +184,6 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   ERPNextSyncSettings as Schema,
   ERPNextSyncQueue as Schema,
   FetchFromERPNextQueue as Schema,
+
+  IntegrationErrorLog as Schema,
 ];
