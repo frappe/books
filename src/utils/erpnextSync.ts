@@ -21,7 +21,7 @@ export async function registerInstanceToERPNext(fyo: Fyo) {
 
   const baseURL = syncSettingsDoc.baseURL;
   const token = syncSettingsDoc.authToken;
-  const deviceID = syncSettingsDoc.deviceID;
+  let deviceID = syncSettingsDoc.deviceID;
   const instanceName = syncSettingsDoc.instanceName;
 
   if (!baseURL || !token) {
@@ -32,9 +32,13 @@ export async function registerInstanceToERPNext(fyo: Fyo) {
     await syncSettingsDoc.setAndSync('deviceID', getRandomString());
   }
 
+  deviceID = syncSettingsDoc.deviceID;
+  const registerInstance = fyo.singles.ERPNextSyncSettings
+    ?.registerInstance as string;
+
   try {
     (await sendAPIRequest(
-      `${baseURL}/api/method/books_integration.api.register_instance`,
+      `${baseURL}/api/method/books_integration.api.${registerInstance}`,
       {
         method: 'POST',
         headers: {
@@ -69,7 +73,7 @@ export async function updateERPNSyncSettings(fyo: Fyo) {
     return;
   }
 
-  const res = await getERPNSyncSettings(baseURL, authToken);
+  const res = await getERPNSyncSettings(fyo, baseURL, authToken);
   if (!res || !res.message || !res.message.success) {
     return;
   }
@@ -79,12 +83,16 @@ export async function updateERPNSyncSettings(fyo: Fyo) {
 }
 
 async function getERPNSyncSettings(
+  fyo: Fyo,
   baseURL: string,
   token: string
 ): Promise<ERPNextSyncSettingsAPIResponse | undefined> {
   try {
+    const syncSettings = fyo.singles.ERPNextSyncSettings
+      ?.syncSettings as string;
+
     return (await sendAPIRequest(
-      `${baseURL}/api/method/books_integration.api.sync_settings`,
+      `${baseURL}/api/method/books_integration.api.${syncSettings}`,
       {
         headers: {
           Authorization: `token ${token}`,
@@ -97,29 +105,14 @@ async function getERPNSyncSettings(
   }
 }
 
-export function initERPNSync(fyo: Fyo) {
+export async function initERPNSync(fyo: Fyo) {
   const isSyncEnabled = fyo.singles.ERPNextSyncSettings?.isEnabled;
   if (!isSyncEnabled) {
     return;
   }
 
-  const syncInterval = fyo.singles.ERPNextSyncSettings
-    ?.dataSyncInterval as number;
-
-  if (!syncInterval) {
-    return;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  setInterval(async () => {
-    if (!navigator.onLine) {
-      return;
-    }
-
-    await syncFetchFromERPNextQueue(fyo);
-    await syncDocumentsFromERPNext(fyo);
-    await syncDocumentsToERPNext(fyo);
-  }, syncInterval);
+  await syncFetchFromERPNextQueue(fyo);
+  await syncDocumentsFromERPNext(fyo);
 }
 
 export async function syncDocumentsFromERPNext(fyo: Fyo) {
@@ -174,6 +167,15 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
             await existingDoc.cancel();
           }
 
+          await afterDocSync(
+            fyo,
+            baseURL,
+            token,
+            deviceID,
+            doc,
+            doc.name as string,
+            doc.name as string
+          );
           continue;
         }
       }
@@ -203,6 +205,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
       }
 
       await afterDocSync(
+        fyo,
         baseURL,
         token,
         deviceID,
@@ -408,8 +411,13 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
   }
 
   try {
+    const syncDataToERPNext =
+      fyo.singles.ERPNextSyncSettings?.syncDataToERPNext;
+
     const res = (await sendAPIRequest(
-      `${baseURL}/api/method/books_integration.api.sync.sync_transactions`,
+      `${baseURL}/api/method/books_integration.api.${
+        syncDataToERPNext as string
+      }`,
       {
         method: 'POST',
         headers: {
@@ -439,7 +447,7 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
     }
   } catch (error) {
     return await fyo.doc
-      .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+      .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
         error: error as string,
         data: JSON.stringify({ instance: deviceID, records: docsToSync }),
       })
@@ -466,7 +474,7 @@ async function syncFetchFromERPNextQueue(fyo: Fyo) {
 
   try {
     const res = (await sendAPIRequest(
-      `${baseURL}/api/method/books_integration.api.initiate_master_sync`,
+      `${baseURL}/api/method/books_integration.api.sync.initiate_master_sync`,
       {
         method: 'POST',
         headers: {
@@ -509,7 +517,7 @@ async function syncFetchFromERPNextQueue(fyo: Fyo) {
     }
   } catch (error) {
     return await fyo.doc
-      .getNewDoc(ModelNameEnum.IntegrationErrorLog, {
+      .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
         error: JSON.stringify(error),
       })
       .sync();
@@ -540,6 +548,7 @@ async function getDocsFromERPNext(
 }
 
 async function afterDocSync(
+  fyo: Fyo,
   baseURL: string,
   token: string,
   deviceID: string,
@@ -547,8 +556,18 @@ async function afterDocSync(
   erpnDocName: string,
   fbooksDocName: string
 ) {
-  const res = await ipc.sendAPIRequest(
-    `${baseURL}/api/method/books_integration.api.update_status`,
+  const data = {
+    doctype: getDocTypeName(doc),
+    nameInERPNext: erpnDocName,
+    nameInFBooks: fbooksDocName,
+    doc,
+  };
+
+  const clearSyncedDocsFromErpNextSyncQueue = fyo.singles.ERPNextSyncSettings
+    ?.clearSyncedDocsFromErpNextSyncQueue as string;
+
+  return await ipc.sendAPIRequest(
+    `${baseURL}/api/method/books_integration.api.${clearSyncedDocsFromErpNextSyncQueue}`,
     {
       method: 'POST',
       headers: {
@@ -556,15 +575,11 @@ async function afterDocSync(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        doctype: getDocTypeName(doc),
-        nameInERPNext: erpnDocName,
-        nameInFBooks: fbooksDocName,
         instance: deviceID,
-        doc,
+        data,
       }),
     }
   );
-  return res;
 }
 
 export function getShouldDocSyncToERPNext(
@@ -657,6 +672,7 @@ export interface ERPNextSyncSettingsAPIResponse {
   message: {
     success: boolean;
     app_version: string;
+    message: string;
     data: {
       name: string;
       owner: string;
@@ -698,36 +714,5 @@ function parseSyncSettingsData(
   return {
     integrationAppVersion: res.message.app_version,
     isEnabled: !!res.message.data.enable_sync,
-    dataSyncInterval: res.message.data.sync_interval,
-
-    syncItem: res.message.data.sync_item,
-    itemSyncType: res.message.data.item_sync_type,
-
-    syncCustomer: res.message.data.sync_customer,
-    customerSyncType: res.message.data.customer_sync_type,
-
-    syncSupplier: res.message.data.sync_supplier,
-    supplierSyncType: res.message.data.supplier_sync_type,
-
-    syncSalesInvoice: res.message.data.sync_sales_invoice,
-    salesInvoiceSyncType: res.message.data.sales_invoice_sync_type,
-
-    syncSalesInvoicePayment: res.message.data.sync_sales_payment,
-    sinvPaymentSyncType: res.message.data.sales_payment_sync_type,
-
-    syncStockMovement: res.message.data.sync_stock,
-    stockMovementSyncType: res.message.data.stock_sync_type,
-
-    syncPriceList: res.message.data.sync_price_list,
-    priceListSyncType: res.message.data.price_list_sync_type,
-
-    syncSerialNumber: res.message.data.sync_serial_number,
-    serialNumberSyncType: res.message.data.serial_number_sync_type,
-
-    syncBatch: res.message.data.sync_batches,
-    batchSyncType: res.message.data.batch_sync_type,
-
-    syncShipment: res.message.data.sync_delivery_note,
-    shipmentSyncType: res.message.data.delivery_note_sync_type,
   };
 }
