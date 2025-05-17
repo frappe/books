@@ -28,6 +28,7 @@ import {
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 import { sendAPIRequest } from './api';
+import { initScheduler } from './initSheduler';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -245,6 +246,10 @@ export default function registerIpcMainActionListeners(main: Main) {
       return getTemplates(posPrintWidth);
     }
   );
+
+  ipcMain.handle(IPC_ACTIONS.INIT_SHEDULER, async (_, interval: string) => {
+    return initScheduler(interval);
+  });
 
   ipcMain.handle(
     IPC_ACTIONS.SEND_API_REQUEST,

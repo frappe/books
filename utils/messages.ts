@@ -32,6 +32,7 @@ export enum IPC_ACTIONS {
   GET_CREDS = 'get-creds',
   GET_DB_LIST = 'get-db-list',
   GET_TEMPLATES = 'get-templates',
+  INIT_SHEDULER = 'init-scheduler',
   DELETE_FILE = 'delete-file',
   GET_DB_DEFAULT_PATH = 'get-db-default-path',
   SEND_API_REQUEST = 'send-api-request',
@@ -47,6 +48,7 @@ export enum IPC_ACTIONS {
 export enum IPC_CHANNELS {
   LOG_MAIN_PROCESS_ERROR = 'main-process-error',
   CONSOLE_LOG = 'console-log',
+  TRIGGER_FRONTEND_ACTION = 'trigger-frontend-action',
 }
 
 export enum DB_CONN_FAILURE {
