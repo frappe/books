@@ -8,37 +8,7 @@ export class ERPNextSyncSettings extends Doc {
   authToken?: string;
   integrationAppVersion?: string;
   isEnabled?: boolean;
-  dataSyncInterval?: number;
-
-  syncItem?: boolean;
-  itemSyncType?: string;
-
-  syncCustomer?: boolean;
-  customerSyncType?: string;
-
-  syncSupplier?: boolean;
-  supplierSyncType?: string;
-
-  syncSalesInvoice?: boolean;
-  salesInvoiceSyncType?: string;
-
-  syncSalesInvoicePayment?: boolean;
-  sinvPaymentType?: string;
-
-  syncStockMovement?: boolean;
-  stockMovementSyncType?: string;
-
-  syncPriceList?: boolean;
-  priceListSyncType?: string;
-
-  syncSerialNumber?: boolean;
-  serialNumberSyncType?: string;
-
-  syncBatch?: boolean;
-  batchSyncType?: string;
-
-  syncShipment?: boolean;
-  shipmentSyncType?: string;
+  dataSyncInterval?: string;
 
   hidden: HiddenMap = {
     syncPriceList: () => {
