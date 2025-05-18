@@ -1,7 +1,7 @@
 ${0},,
 "${0} ${1} already exists.","${0} ${1} existiert bereits",
 "${0} ${1} does not exist","${0} existiert nicht",
-"${0} ${1} has been modified after loading please reload entry.","${0} ${1} wurde nach dem Laden verändert, bitte den neu laden",
+"${0} ${1} has been modified after loading please reload entry.","${0} ${1} wurde nach dem Laden verändert, bitte Eintrag neu laden",
 "${0} ${1} is linked with existing records.","${0} ${1} ist mit bestehenden Datensätzen verknüpft",
 "${0} account not set in Inventory Settings.","${0} Konto in den Inventareinstellungen nicht festgelegt",
 "${0} already saved","${0} bereits gespeichert",
