@@ -31,7 +31,7 @@ export async function initScheduler(interval: string) {
   });
 
   bree.on('worker created', () => {
-    main.mainWindow?.webContents.send('trigger-frontend-action');
+    main.mainWindow?.webContents.send('trigger-erpnext-sync');
   });
 
   await bree.start();
