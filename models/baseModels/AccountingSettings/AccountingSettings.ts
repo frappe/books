@@ -58,6 +58,9 @@ export class AccountingSettings extends Doc {
     enableLead: () => {
       return !!this.enableLead;
     },
+    enableERPNextSync: () => {
+      return !!this.enableERPNextSync;
+    },
     enableInvoiceReturns: () => {
       return !!this.enableInvoiceReturns;
     },

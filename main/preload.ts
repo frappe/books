@@ -215,7 +215,7 @@ const ipc = {
   },
 
   registerTriggerFrontendActionListener(listener: IPCRendererListener) {
-    ipcRenderer.on(IPC_CHANNELS.TRIGGER_FRONTEND_ACTION, listener);
+    ipcRenderer.on(IPC_CHANNELS.TRIGGER_ERPNEXT_SYNC, listener);
   },
 
   registerConsoleLogListener(listener: IPCRendererListener) {
