@@ -1,5 +1,6 @@
 import { Doc } from 'fyo/model/doc';
-import { HiddenMap } from 'fyo/model/types';
+import { ChangeArg, HiddenMap } from 'fyo/model/types';
+import { initERPNSync } from 'src/utils/erpnextSync';
 
 export class ERPNextSyncSettings extends Doc {
   deviceID?: string;
@@ -38,4 +39,11 @@ export class ERPNextSyncSettings extends Doc {
       return !this.fyo.singles.InventorySettings?.enableBatches;
     },
   };
+
+  async change(ch: ChangeArg) {
+    if (ch.changed === 'syncDataFromServer') {
+      await initERPNSync(this.fyo);
+      ipc.reloadWindow();
+    }
+  }
 }
