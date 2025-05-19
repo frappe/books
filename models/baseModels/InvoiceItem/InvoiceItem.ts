@@ -257,6 +257,7 @@ export abstract class InvoiceItem extends Doc {
     unitConversionFactor: {
       formula: async () => {
         if (this.unit === this.transferUnit) {
+          this.quantity = this.transferQuantity!;
           return 1;
         }
 
@@ -537,10 +538,15 @@ export abstract class InvoiceItem extends Doc {
         return;
       }
 
+      if (value === this.unit) {
+        return;
+      }
+
       const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionItem, {
         fields: ['parent'],
         filters: { uom: value as string, parent: this.item },
       });
+
 
       if (item.length < 1)
         throw new ValidationError(
