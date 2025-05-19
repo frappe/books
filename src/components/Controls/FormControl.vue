@@ -4,6 +4,7 @@ import AttachImage from './AttachImage.vue';
 import Attachment from './Attachment.vue';
 import AutoComplete from './AutoComplete.vue';
 import Check from './Check.vue';
+import Button from './Button.vue';
 import Color from './Color.vue';
 import Currency from './Currency.vue';
 import Data from './Data.vue';
@@ -20,6 +21,7 @@ const components = {
   AttachImage,
   Data,
   Check,
+  Button,
   Color,
   Select,
   Link,
