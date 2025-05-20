@@ -128,8 +128,7 @@ export class Item extends Doc {
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    hasBatch: () =>
-      !(this.fyo.singles.InventorySettings?.enableBatches && this.trackItem),
+    hasBatch: () => !this.fyo.singles.InventorySettings?.enableBatches,
     hasSerialNumber: () =>
       !(
         this.fyo.singles.InventorySettings?.enableSerialNumber && this.trackItem

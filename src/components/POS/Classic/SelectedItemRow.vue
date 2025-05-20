@@ -224,10 +224,7 @@
       />
     </div>
 
-    <div
-      v-if="row.links?.item && row.links?.item.hasBatch"
-      class="px-2 pt-6 col-span-2"
-    >
+    <div v-if="showAvlQuantityInBatch()" class="px-2 pt-6 col-span-2">
       <Float
         :df="{
           fieldname: 'availableQtyInBatch',
@@ -329,6 +326,15 @@ export default defineComponent({
           undefined,
           this.row.batch
         )) ?? 0
+      );
+    },
+    showAvlQuantityInBatch() {
+      const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+
+      return (
+        this.row.links?.item &&
+        this.row.links?.item.hasBatch &&
+        itemVisibility === 'Inventory Items'
       );
     },
     async setBatch(batch: string) {
