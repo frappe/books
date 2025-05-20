@@ -111,6 +111,34 @@
       "default": "Inventory Items",
       "required": true,
       "section": "Default"
+    },
+    {
+      "fieldname": "canChangeRate",
+      "label": "Can Change Rate",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "hideUnavailableItems",
+      "label": "Hide Unavailable Items",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "canEditDiscount",
+      "label": "Can Edit Discount",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "ignorePricingRule",
+      "label": "Ignore Pricing Rule",
+      "fieldtype": "Check",
+      "section": "Default",
+      "default": false
     }
   ]
 }

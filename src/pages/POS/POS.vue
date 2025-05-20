@@ -170,6 +170,7 @@ export default defineComponent({
       itemSerialNumbers: computed(() => this.itemSerialNumbers),
       isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
       transferClearanceDate: computed(() => this.transferClearanceDate),
+      posSettings: computed(() => fyo.singles.POSSettings),
     };
   },
   setup() {
@@ -375,6 +376,8 @@ export default defineComponent({
     async setItems() {
       const filters: Record<string, boolean> = {};
       const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+      const hideUnavailable =
+        this.fyo.singles.POSSettings?.hideUnavailableItems;
 
       if (itemVisibility === 'Inventory Items') {
         filters.trackItem = true;
@@ -397,6 +400,9 @@ export default defineComponent({
 
         if (!item.name) {
           return;
+        }
+        if (hideUnavailable && filters.trackItem && availableQty <= 0) {
+          continue;
         }
 
         this.items.push({
@@ -465,6 +471,9 @@ export default defineComponent({
         this.sinvDoc.items as SalesInvoiceItem[]
       );
     },
+    ignorePricingRules(): boolean {
+      return !!fyo.singles.POSSettings?.ignorePricingRule;
+    },
     setTotalTaxedAmount() {
       this.totalTaxedAmount = getTotalTaxedAmount(this.sinvDoc as SalesInvoice);
     },
@@ -530,7 +539,6 @@ export default defineComponent({
         if (!item) {
           return;
         }
-
         const existingItems =
           this.sinvDoc.items?.filter(
             (invoiceItem) =>
@@ -557,7 +565,9 @@ export default defineComponent({
                 : (invItem.quantity as number) + 1;
               invItem.rate = item.rate as Money;
 
-              await this.applyPricingRule();
+              if (!this.ignorePricingRules) {
+                await this.applyPricingRule();
+              }
               await this.sinvDoc.runFormulas();
               await validateQty(
                 this.sinvDoc as SalesInvoice,
@@ -590,7 +600,9 @@ export default defineComponent({
               : (existingItems[0].quantity as number) + 1
           );
 
-          await this.applyPricingRule();
+          if (!this.ignorePricingRules) {
+            await this.applyPricingRule();
+          }
           await this.sinvDoc.runFormulas();
           await validateQty(
             this.sinvDoc as SalesInvoice,
@@ -618,7 +630,10 @@ export default defineComponent({
           );
         }
 
-        await this.applyPricingRule();
+        if (!this.ignorePricingRules) {
+          await this.applyPricingRule();
+        }
+
         await this.sinvDoc.runFormulas();
       } catch (error) {
         return showToast({
@@ -816,6 +831,13 @@ export default defineComponent({
       await validateShipment(this.itemSerialNumbers);
     },
     async applyPricingRule() {
+      if (this.ignorePricingRules()) {
+        this.sinvDoc.pricingRuleDetail = undefined;
+        this.sinvDoc.isPricingRuleApplied = false;
+        removeFreeItems(this.sinvDoc as SalesInvoice);
+        await this.sinvDoc.applyProductDiscount();
+        return;
+      }
       const hasPricingRules = await getPricingRule(
         this.sinvDoc as SalesInvoice
       );
