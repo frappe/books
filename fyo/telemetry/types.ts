@@ -8,6 +8,7 @@ export enum Verb {
   Created = 'created',
   Deleted = 'deleted',
   Submitted = 'submitted',
+  SubmitUndone = 'submitUndone',
   Cancelled = 'cancelled',
   Imported = 'imported',
   Exported = 'exported',
