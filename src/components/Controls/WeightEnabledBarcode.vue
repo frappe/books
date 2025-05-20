@@ -75,36 +75,53 @@ export default defineComponent({
       this.cooldown = barcode;
       setTimeout(() => (this.cooldown = ''), 100);
 
+      const matchedItems = (await this.fyo.db.getAll('Item', {
+        filters: { barcode },
+        fields: ['name'],
+      })) as { name: string }[];
+
+      const itemName = matchedItems?.[0]?.name;
+
+      if (itemName) {
+        this.success(this.t`${itemName} quantity 1 added.`);
+        this.$emit('item-selected', itemName);
+
+        return;
+      }
+
       const isWeightEnabled =
         this.fyo.singles.POSSettings?.weightEnabledBarcode;
       const checkDigits = this.fyo.singles.POSSettings?.checkDigits as number;
+      const checkDigitsStr = checkDigits.toString();
+
       const itemCodeDigits = this.fyo.singles.POSSettings
         ?.itemCodeDigits as number;
       const itemWeightDigits = this.fyo.singles.POSSettings
         ?.itemWeightDigits as number;
 
-      if (code.length !== checkDigits + itemCodeDigits + itemWeightDigits) {
+      if (
+        code.length !==
+        checkDigitsStr.length + itemCodeDigits + itemWeightDigits
+      ) {
         return this.error(this.t`Barcode ${barcode} has an invalid length.`);
       }
 
-      const filters: Record<string, string> = isWeightEnabled
-        ? {
-            barcode: barcode.slice(checkDigits, checkDigits + itemCodeDigits),
-          }
-        : { barcode };
-      const fields = isWeightEnabled
-        ? ['name', 'unit', 'trackItem']
-        : ['name', 'trackItem'];
+      if (!barcode.startsWith(checkDigitsStr)) {
+        return this.error(this.t`Item with barcode ${barcode} not found.`);
+      }
+
+      const filters: Record<string, string> = {
+        itemCode: barcode.slice(
+          checkDigitsStr.length,
+          checkDigitsStr.length + itemCodeDigits
+        ),
+      };
+
+      const fields = ['name', 'unit'];
 
       const items =
         (await this.fyo.db.getAll('Item', { filters, fields })) || [];
-      const { name, unit, trackItem } = items[0] || {};
-
-      if (!trackItem) {
-        return this.error(
-          this.t`Item ${name as string} is not an Inventory Item.`
-        );
-      }
+      const { name, unit } = items[0] || {};
 
       if (!name) {
         return this.error(this.t`Item with barcode ${barcode} not found.`);
@@ -114,7 +131,7 @@ export default defineComponent({
         ? this.parseBarcode(
             barcode,
             unit as string,
-            checkDigits + itemCodeDigits
+            checkDigitsStr.length + itemCodeDigits
           )
         : 1;
 
