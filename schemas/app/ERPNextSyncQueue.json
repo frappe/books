@@ -21,6 +21,14 @@
           "label": "Sales Invoice"
         },
         {
+          "value": "POSClosingShift",
+          "label": "POS Closing Shift"
+        },
+        {
+          "value": "POSOpeningShift",
+          "label": "POS Opening Shift"
+        },
+        {
           "value": "Payment",
           "label": "Sales Payment"
         },
