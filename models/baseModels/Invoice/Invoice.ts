@@ -192,7 +192,6 @@ export abstract class Invoice extends Transactional {
   }
 
   async afterSubmit() {
-
     if (this.isReturn) {
       await this._removeLoyaltyPointEntry();
       this.reduceUsedCountOfCoupons();
@@ -837,17 +836,17 @@ export abstract class Invoice extends Transactional {
           return;
         }
         if (this.isReturn) {
-        const originalInvoice = (await this.fyo.doc.getDoc(
-          this.schemaName,
-          this.returnAgainst
-        )) as Invoice;
-        
-        if (originalInvoice.stockNotTransferred === 0) {
-          return this.getStockNotTransferred();
-        } else {
-          return 0;
+          const originalInvoice = (await this.fyo.doc.getDoc(
+            this.schemaName,
+            this.returnAgainst
+          )) as Invoice;
+
+          if (originalInvoice.stockNotTransferred === 0) {
+            return this.getStockNotTransferred();
+          } else {
+            return 0;
+          }
         }
-      }
 
         return this.getStockNotTransferred();
       },
