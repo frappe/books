@@ -544,34 +544,45 @@ export default defineComponent({
         )) as number;
 
         if (item.hasBatch) {
+          const isTrackItem =
+            this.fyo.singles.POSSettings?.itemVisibility == 'Inventory Items';
+
           for (const invItem of existingItems) {
             const itemQty = invItem.quantity ?? 0;
-            const qtyInBatch =
-              this.itemQtyMap[invItem.item as string][
-                invItem.batch as string
-              ] ?? 0;
 
-            if (itemQty < qtyInBatch) {
+            if (!isTrackItem) {
               invItem.quantity = quantity
                 ? (invItem.quantity as number) + quantity
                 : (invItem.quantity as number) + 1;
-              invItem.rate = item.rate as Money;
+            } else {
+              const qtyInBatch =
+                this.itemQtyMap[invItem.item as string][
+                  invItem.batch as string
+                ] ?? 0;
 
-              await this.applyPricingRule();
-              await this.sinvDoc.runFormulas();
-              await validateQty(
-                this.sinvDoc as SalesInvoice,
-                item as Item,
-                existingItems as InvoiceItem[]
-              );
-
-              return;
+              if (itemQty < qtyInBatch) {
+                invItem.quantity = quantity
+                  ? (invItem.quantity as number) + quantity
+                  : (invItem.quantity as number) + 1;
+                invItem.rate = item.rate as Money;
+              }
             }
+
+            await this.applyPricingRule();
+            await this.sinvDoc.runFormulas();
+            await validateQty(
+              this.sinvDoc as SalesInvoice,
+              item as Item,
+              existingItems as InvoiceItem[]
+            );
+
+            return;
           }
 
           await this.sinvDoc.append('items', {
             rate: item.rate as Money,
             item: item.name,
+            quantity: quantity ? quantity : 1,
             hsnCode: itemsHsncode,
           });
 
