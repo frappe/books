@@ -937,8 +937,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (this._addDocToSyncQueue && !!this.shouldDocSyncToERPNext) {
       const isSalesInvoice = this.schemaName === ModelNameEnum.SalesInvoice;
 
-      if (!(isSalesInvoice && this.isSyncedWithErp)) {
-        if (isSalesInvoice) {
+      if (
+        !(isSalesInvoice && this.isSyncedWithErp) ||
+        (isSalesInvoice && !!this.isReturn)
+      ) {
+        if (isSalesInvoice && !this.isReturn) {
           await this.setAndSync('isSyncedWithErp', true);
         }
 

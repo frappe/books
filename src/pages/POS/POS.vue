@@ -138,7 +138,6 @@ import {
   removeFreeItems,
   getAddedLPWithGrandTotal,
   getItemRateFromPriceList,
-  getItemQtyMap,
 } from 'models/helpers';
 import {
   POSItem,
@@ -749,6 +748,7 @@ export default defineComponent({
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
           amount: this.paidAmount.float,
+          clearanceDate: this.transferClearanceDate,
         });
       }
 
