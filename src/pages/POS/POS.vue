@@ -531,6 +531,22 @@ export default defineComponent({
           return;
         }
 
+        const isInventoryItem = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          item.name as string,
+          'trackItem'
+        );
+
+        if (isInventoryItem) {
+          const availableQty =
+            this.itemQtyMap[item.name as string]?.availableQty ?? 0;
+          if (availableQty <= 0) {
+            throw new ValidationError(
+              t`Item  is out of stock (quantity is zero)`
+            );
+          }
+        }
+
         const existingItems =
           this.sinvDoc.items?.filter(
             (invoiceItem) =>
@@ -610,23 +626,26 @@ export default defineComponent({
 
           const currentQty = existingItems[0].quantity ?? 0;
           const addQty = quantity ?? 1;
-          const availableQty = this.itemQtyMap[item.name]?.availableQty ?? 0;
-
-          if (currentQty + addQty > availableQty) {
-            throw new ValidationError(
-              'Cannot add more than the available quantity'
-            );
+          if (isInventoryItem) {
+            const availableQty = this.itemQtyMap[item.name]?.availableQty ?? 0;
+            if (currentQty + addQty > availableQty) {
+              throw new ValidationError(
+                'Cannot add more than the available quantity'
+              );
+            }
           }
 
           await existingItems[0].set('quantity', currentQty + addQty);
 
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
-          await validateQty(
-            this.sinvDoc as SalesInvoice,
-            item as Item,
-            existingItems as InvoiceItem[]
-          );
+          if (isInventoryItem) {
+            await validateQty(
+              this.sinvDoc as SalesInvoice,
+              item as Item,
+              existingItems as InvoiceItem[]
+            );
+          }
           return;
         }
 
