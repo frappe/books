@@ -21,6 +21,7 @@ export class AccountingSettings extends Doc {
   enableInvoiceReturns?: boolean;
   enableLoyaltyProgram?: boolean;
   enablePricingRule?: boolean;
+  enablePointOfSale?: boolean;
 
   static filters: FiltersMap = {
     writeOffAccount: () => ({
@@ -60,6 +61,9 @@ export class AccountingSettings extends Doc {
     },
     enableLoyaltyProgram: () => {
       return !!this.enableLoyaltyProgram;
+    },
+    enablePointOfSale: () => {
+      return !!this.enablePointOfSale;
     },
   };
 

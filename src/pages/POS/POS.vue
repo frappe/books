@@ -783,8 +783,10 @@ export default defineComponent({
     },
     async afterTransaction() {
       await this.setItemQtyMap();
-      await this.clearValues();
-      this.setSinvDoc();
+      if (this.sinvDoc.isSubmitted) {
+        await this.clearValues();
+        this.setSinvDoc();
+      }
       this.toggleModal('Payment', false);
     },
     async clearValues() {
