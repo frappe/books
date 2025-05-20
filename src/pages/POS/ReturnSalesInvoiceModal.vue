@@ -19,6 +19,7 @@
           dark:bg-gray-800 dark:text-white
           focus:outline-none focus:ring-0
         "
+        @keydown.enter="handleSearchEnter"
       />
     </div>
 
@@ -192,6 +193,11 @@ export default defineComponent({
     returnInvoice(row: SalesInvoice) {
       this.$emit('selectedReturnInvoice', row.name);
       this.$emit('toggleModal', 'ReturnSalesInvoice');
+    },
+    handleSearchEnter() {
+      if (this.filteredInvoices.length === 1) {
+        this.returnInvoice(this.filteredInvoices[0]);
+      }
     },
     async setReturnedInvoices() {
       const allInvoices = await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {

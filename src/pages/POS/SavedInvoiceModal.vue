@@ -19,6 +19,7 @@
           dark:bg-gray-800 dark:text-white
           focus:outline-none focus:ring-0
         "
+        @keyup.enter="handleEnterKey"
       />
     </div>
 
@@ -242,6 +243,11 @@ export default defineComponent({
 
       this.sinvDoc = selectedInvoiceDoc;
       this.$emit('toggleModal', 'SavedInvoice');
+    },
+    handleEnterKey() {
+      if (this.filteredInvoices.length === 1) {
+        this.$emit('selectedInvoiceName', this.filteredInvoices[0]);
+      }
     },
   },
 });
