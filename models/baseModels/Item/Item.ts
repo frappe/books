@@ -14,12 +14,19 @@ import { ValidationError } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
+interface UOMConversionItem {
+  name: string;
+  uom: string;
+  conversionFactor: number;
+}
+
 export class Item extends Doc {
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatch?: boolean;
   hasSerialNumber?: boolean;
+  uomConversions: UOMConversionItem[] = [];
 
   formulas: FormulaMap = {
     incomeAccount: {
@@ -56,6 +63,19 @@ export class Item extends Doc {
       dependsOn: ['itemType', 'trackItem'],
     },
   };
+
+  async beforeSync(): Promise<void> {
+    await super.beforeSync();
+    const latestByUom = new Map<string, UOMConversionItem>();
+
+    this.uomConversions.forEach((item) => {
+      if (item.conversionFactor > 0) {
+        latestByUom.set(item.uom, item);
+      }
+    });
+
+    this.uomConversions = Array.from(latestByUom.values());
+  }
 
   static filters: FiltersMap = {
     incomeAccount: () => ({
