@@ -578,10 +578,11 @@ export default defineComponent({
 
         if (item.hasBatch) {
           const isTrackItem =
-            this.fyo.singles.POSSettings?.itemVisibility == 'Inventory Items';
+            this.fyo.singles.POSSettings?.itemVisibility === 'Inventory Items';
 
           for (const invItem of existingItems) {
             const itemQty = invItem.quantity ?? 0;
+            const batch = invItem.batch;
 
             if (!isTrackItem) {
               invItem.quantity = quantity
@@ -599,6 +600,8 @@ export default defineComponent({
                   : (invItem.quantity as number) + 1;
                 invItem.rate = item.rate as Money;
               }
+            }
+
               await this.applyPricingRule();
               await this.sinvDoc.runFormulas();
               await validateQty(
@@ -606,7 +609,6 @@ export default defineComponent({
                 item as Item,
                 existingItems as InvoiceItem[]
               );
-
               return;
             }
 
@@ -617,14 +619,12 @@ export default defineComponent({
               item as Item,
               existingItems as InvoiceItem[]
             );
-
-            return;
           }
 
           await this.sinvDoc.append('items', {
             rate: item.rate as Money,
             item: item.name,
-            quantity: quantity ? quantity : 1,
+            quantity: quantity ?? 1,
             hsnCode: itemsHsncode,
           });
           return;
