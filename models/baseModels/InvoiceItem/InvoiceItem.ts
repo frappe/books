@@ -547,7 +547,6 @@ export abstract class InvoiceItem extends Doc {
         filters: { uom: value as string, parent: this.item },
       });
 
-
       if (item.length < 1)
         throw new ValidationError(
           t`Transfer Unit ${value as string} is not applicable for Item ${
