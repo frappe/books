@@ -131,7 +131,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
     return;
   }
 
-  for (let doc of docsToSync.message.data) {
+  for (let doc of docsToSync.message.data.reverse()) {
     if (!isValidSyncableDocName(doc.doctype as string)) {
       continue;
     }
@@ -251,11 +251,13 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
             row.uom as string
           );
 
-          if (!isUnitExists && !isUnitExistsInQueue) {
-            await addToFetchFromERPNextQueue(fyo, {
-              referenceType: ModelNameEnum.UOM,
-              documentName: row.uom,
-            });
+          if (!isUnitExists) {
+            const data = {
+              name: row.uom,
+              isWhole: true,
+            };
+
+            await fyo.doc.getNewDoc(ModelNameEnum.UOM, data).sync();
           }
         }
       }
@@ -641,7 +643,10 @@ function checkDocDataTypes(
 }
 
 function isValidSyncableDocName(doctype: string): boolean {
-  const syncableDocNames = [ModelNameEnum.Item] as string[];
+  const syncableDocNames = [
+    ModelNameEnum.Item,
+    ModelNameEnum.Batch,
+  ] as string[];
 
   if (syncableDocNames.includes(doctype)) {
     return true;
