@@ -10,6 +10,13 @@
       "required": true
     },
     {
+      "fieldname": "item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "create": true,
+      "label": "Item"
+    },
+    {
       "fieldname": "expiryDate",
       "fieldtype": "Date",
       "label": "Expiry Date",

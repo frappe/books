@@ -19,6 +19,13 @@
       "required": true
     },
     {
+      "fieldname": "itemCode",
+      "label": "Item Code",
+      "fieldtype": "Data",
+      "placeholder": "Item Code",
+      "section": "Default"
+    },
+    {
       "fieldname": "for",
       "label": "Purpose",
       "fieldtype": "Select",
