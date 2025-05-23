@@ -54,14 +54,16 @@ export function getItemDiscounts(items: SalesInvoiceItem[]): Money {
   }
 
   for (const item of items) {
-    if (!item.itemDiscountAmount?.isZero()) {
-      itemDiscounts = itemDiscounts.add(item.itemDiscountAmount as Money);
-    }
-
-    if (item.amount && (item.itemDiscountPercent as number) > 1) {
-      itemDiscounts = itemDiscounts.add(
-        item.amount.percent(item.itemDiscountPercent as number)
-      );
+    if (item.setItemDiscountAmount) {
+      if (!item.itemDiscountAmount?.isZero()) {
+        itemDiscounts = itemDiscounts.add(item.itemDiscountAmount as Money);
+      }
+    } else {
+      if (item.amount && (item.itemDiscountPercent as number) > 1) {
+        itemDiscounts = itemDiscounts.add(
+          item.amount.percent(item.itemDiscountPercent as number)
+        );
+      }
     }
   }
   return itemDiscounts;

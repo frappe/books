@@ -419,20 +419,20 @@ export abstract class InvoiceItem extends Doc {
           !this.fyo.singles.AccountingSettings?.enablePricingRule ||
           !this.parentdoc?.pricingRuleDetail
         ) {
-          return this.setItemDiscountAmount;
+          return (this.setItemDiscountAmount = false);
         }
 
         const pricingRule = this.parentdoc?.pricingRuleDetail?.filter(
           (prDetail) => prDetail.referenceItem === this.item
         );
 
-        if (!pricingRule) {
-          return this.setItemDiscountAmount;
+        if (pricingRule && !pricingRule.length) {
+          return (this.setItemDiscountAmount = false);
         }
 
         const pricingRuleDoc = (await this.fyo.doc.getDoc(
           ModelNameEnum.PricingRule,
-          pricingRule[0].referenceName
+          pricingRule[0]?.referenceName
         )) as PricingRule;
 
         if (pricingRuleDoc.discountType === 'Product Discount') {
@@ -440,10 +440,7 @@ export abstract class InvoiceItem extends Doc {
         }
 
         if (pricingRuleDoc.priceDiscountType === 'amount') {
-          const discountAmount = pricingRuleDoc.discountAmount?.mul(
-            this.quantity as number
-          );
-          await this.set('itemDiscountAmount', discountAmount);
+          await this.set('itemDiscountAmount', pricingRuleDoc.discountAmount);
           return true;
         }
 
@@ -457,15 +454,15 @@ export abstract class InvoiceItem extends Doc {
           !this.fyo.singles.AccountingSettings?.enablePricingRule ||
           !this.parentdoc?.pricingRuleDetail
         ) {
-          return this.itemDiscountPercent;
+          return (this.itemDiscountPercent = 0);
         }
 
         const pricingRule = this.parentdoc?.pricingRuleDetail?.filter(
           (prDetail) => prDetail.referenceItem === this.item
         );
 
-        if (!pricingRule) {
-          return this.itemDiscountPercent;
+        if (pricingRule && !pricingRule.length) {
+          return (this.itemDiscountPercent = 0);
         }
 
         const pricingRuleDoc = (await this.fyo.doc.getDoc(

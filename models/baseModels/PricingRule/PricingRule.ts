@@ -82,7 +82,7 @@ export class PricingRule extends Doc {
         return;
       }
 
-      if ((value as Money).isZero() && this.maxAmount.isZero()) {
+      if ((value as Money).isZero() || this.maxAmount.isZero()) {
         return;
       }
 
@@ -97,7 +97,7 @@ export class PricingRule extends Doc {
         return;
       }
 
-      if (this.minAmount.isZero() && (value as Money).isZero()) {
+      if (this.minAmount.isZero() || (value as Money).isZero()) {
         return;
       }
 
