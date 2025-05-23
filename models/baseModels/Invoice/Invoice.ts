@@ -192,8 +192,6 @@ export abstract class Invoice extends Transactional {
   }
 
   async afterSubmit() {
-    await super.afterSubmit();
-
     if (this.isReturn) {
       await this._removeLoyaltyPointEntry();
       this.reduceUsedCountOfCoupons();
@@ -812,6 +810,18 @@ export abstract class Invoice extends Transactional {
         if (this.submitted) {
           return;
         }
+        if (this.isReturn) {
+          const originalInvoice = (await this.fyo.doc.getDoc(
+            this.schemaName,
+            this.returnAgainst
+          )) as Invoice;
+          if (originalInvoice.outstandingAmount?.isZero()) {
+            return this.grandTotal;
+          } else {
+            return this.fyo.pesa(0);
+          }
+        }
+
         if (this.redeemLoyaltyPoints) {
           return await this.getLPAddedBaseGrandTotal();
         }
@@ -821,9 +831,21 @@ export abstract class Invoice extends Transactional {
       dependsOn: ['discountAmount', 'discountPercent'],
     },
     stockNotTransferred: {
-      formula: () => {
+      formula: async () => {
         if (this.submitted) {
           return;
+        }
+        if (this.isReturn) {
+          const originalInvoice = (await this.fyo.doc.getDoc(
+            this.schemaName,
+            this.returnAgainst
+          )) as Invoice;
+
+          if (originalInvoice.stockNotTransferred === 0) {
+            return this.getStockNotTransferred();
+          } else {
+            return 0;
+          }
         }
 
         return this.getStockNotTransferred();
@@ -919,9 +941,6 @@ export abstract class Invoice extends Transactional {
     taxes: () => !this.taxes?.length,
     baseGrandTotal: () =>
       this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
-    stockNotTransferred: () => !this.stockNotTransferred,
-    outstandingAmount: () =>
-      !!this.outstandingAmount?.isZero() || !this.isSubmitted,
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
