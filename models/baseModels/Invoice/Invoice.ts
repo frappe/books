@@ -87,7 +87,7 @@ export abstract class Invoice extends Transactional {
   stockNotTransferred?: number;
   loyaltyProgram?: string;
   backReference?: string;
-
+  originalGrandTotal?: Money;
   submitted?: boolean;
   cancelled?: boolean;
   makeAutoPayment?: boolean;
@@ -253,6 +253,15 @@ export abstract class Invoice extends Transactional {
     await this._updateIsItemsReturned();
     await this._removeLoyaltyPointEntry();
     this.reduceUsedCountOfCoupons();
+  }
+
+  async grandTotalLpa() {
+    if (!this.originalGrandTotal) {
+      this.originalGrandTotal = this.grandTotal;
+    }
+
+    const amountAfterPoints = await this.getLPAddedBaseGrandTotal();
+    this.grandTotal = amountAfterPoints;
   }
 
   async _removeLoyaltyPointEntry() {
@@ -427,7 +436,7 @@ export abstract class Invoice extends Transactional {
       return (this.netTotal as Money).sub(totalDiscount);
     }
 
-    return ((this.taxes ?? []) as Doc[])
+    let grandTotal = ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => {
         if (this.isReturn) {
@@ -437,6 +446,12 @@ export abstract class Invoice extends Transactional {
         return a.add(b.abs());
       }, (this.netTotal as Money).abs())
       .sub(totalDiscount);
+
+    if (this.originalGrandTotal && !this.redeemLoyaltyPoints) {
+      grandTotal = this.originalGrandTotal;
+    }
+
+    return grandTotal;
   }
 
   getInvoiceDiscountAmount() {
@@ -459,7 +474,6 @@ export abstract class Invoice extends Transactional {
 
     return totalItemAmounts.percent(this.discountPercent ?? 0);
   }
-
   getItemDiscountAmount() {
     if (!this.enableDiscounting) {
       return this.fyo.pesa(0);
@@ -744,7 +758,7 @@ export abstract class Invoice extends Transactional {
       this.loyaltyPoints as number
     );
 
-    return totalLotaltyAmount.sub(this.baseGrandTotal as Money).abs();
+    return this.originalGrandTotal?.sub(totalLotaltyAmount);
   }
 
   formulas: FormulaMap = {
@@ -848,12 +862,13 @@ export abstract class Invoice extends Transactional {
 
         const pricingRule = await this.getPricingRule();
 
-        if (!pricingRule || !pricingRule.length) {
+        if (pricingRule) {
+          await this.appendPricingRuleDetail(pricingRule);
+          return !!pricingRule;
+        } else {
+          this.pricingRuleDetail = [];
           return false;
         }
-
-        await this.appendPricingRuleDetail(pricingRule);
-        return !!pricingRule;
       },
       dependsOn: ['items', 'coupons'],
     },
