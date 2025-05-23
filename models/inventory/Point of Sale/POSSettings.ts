@@ -33,8 +33,14 @@ export class POSSettings extends Doc {
   hidden: HiddenMap = {
     weightEnabledBarcode: () =>
       !this.fyo.singles.InventorySettings?.enableBarcodes,
-    checkDigits: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    itemCodeDigits: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    itemWeightDigits: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
+    checkDigits: () =>
+      !this.fyo.singles.InventorySettings?.enableBarcodes ||
+      !this.weightEnabledBarcode,
+    itemCodeDigits: () =>
+      !this.fyo.singles.InventorySettings?.enableBarcodes ||
+      !this.weightEnabledBarcode,
+    itemWeightDigits: () =>
+      !this.fyo.singles.InventorySettings?.enableBarcodes ||
+      !this.weightEnabledBarcode,
   };
 }

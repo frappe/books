@@ -108,7 +108,7 @@ export class Defaults extends Doc {
   }
 
   getPointOfSaleHidden() {
-    return () => !this.fyo.singles.InventorySettings?.enablePointOfSale;
+    return () => !this.fyo.singles.AccountingSettings?.enablePointOfSale;
   }
 
   hidden: HiddenMap = {
