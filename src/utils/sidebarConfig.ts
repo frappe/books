@@ -107,7 +107,7 @@ function getPOSSidebar() {
     name: 'pos',
     route: '/pos',
     icon: 'pos',
-    hidden: () => !fyo.singles.AccountingSettings?.enablePointOfSale,
+    hidden: () => !fyo.singles.InventorySettings?.enablePointOfSale,
   };
 }
 
