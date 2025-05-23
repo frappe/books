@@ -51,9 +51,9 @@ const frappeBooksConfig = {
     target: ['nsis', 'portable'],
   },
   nsis: {
-    oneClick: false,
+    oneClick: true,
     perMachine: false,
-    allowToChangeInstallationDirectory: true,
+    allowToChangeInstallationDirectory: false,
     installerIcon: 'build/installericon.ico',
     uninstallerIcon: 'build/uninstallericon.ico',
     publish: ['github'],
