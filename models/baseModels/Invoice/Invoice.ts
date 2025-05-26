@@ -195,17 +195,6 @@ export abstract class Invoice extends Transactional {
     await super.afterSubmit();
 
     if (this.isReturn) {
-      await this.fyo.db.update(this.schemaName, {
-        name: this.name as string,
-        outstandingAmount: 0,
-      });
-
-      const party = (await this.fyo.doc.getDoc(
-        ModelNameEnum.Party,
-        this.party
-      )) as Party;
-
-      await party.updateOutstandingAmount();
       await this._removeLoyaltyPointEntry();
       this.reduceUsedCountOfCoupons();
 
