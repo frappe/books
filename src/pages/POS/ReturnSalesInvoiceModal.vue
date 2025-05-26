@@ -196,7 +196,7 @@ export default defineComponent({
     },
     handleSearchEnter() {
       if (this.filteredInvoices.length === 1) {
-        this.returnInvoice(this.filteredInvoices[0]);
+        this.returnInvoice(this.filteredInvoices[0] as SalesInvoice);
       }
     },
     async setReturnedInvoices() {
