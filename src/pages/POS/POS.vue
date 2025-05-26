@@ -588,15 +588,6 @@ export default defineComponent({
                   : (invItem.quantity as number) + 1;
                 invItem.rate = item.rate as Money;
               }
-
-              await this.applyPricingRule();
-              await this.sinvDoc.runFormulas();
-              await validateQty(
-                this.sinvDoc as SalesInvoice,
-                item as Item,
-                existingItems as InvoiceItem[]
-              );
-              return;
             }
 
             await this.applyPricingRule();

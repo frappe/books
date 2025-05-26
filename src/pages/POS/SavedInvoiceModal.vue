@@ -192,7 +192,7 @@ export default defineComponent({
         ? this.savedInvoices
         : this.submittedInvoices;
       return invoices.filter((invoice) =>
-        invoice.name
+        (invoice.name as string)
           .toLowerCase()
           .includes(this.invoiceSearchTerm.toLowerCase())
       );
