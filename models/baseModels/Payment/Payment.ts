@@ -630,6 +630,14 @@ export class Payment extends Transactional {
           return;
         }
 
+        const reference = this?.for?.[0];
+        if (!reference) {
+          return null;
+        }
+        const refDoc = (await reference.loadAndGetLink(
+          'referenceName'
+        )) as Invoice | null;
+
         const partyDoc = (await this.loadAndGetLink('party')) as Party;
         const outstanding = partyDoc.outstandingAmount as Money;
 
@@ -641,9 +649,17 @@ export class Payment extends Transactional {
         }
 
         if (partyDoc.role === 'Supplier') {
-          return 'Pay';
+          if (refDoc?.isReturn) {
+            return 'Receive';
+          } else {
+            return 'Pay';
+          }
         } else if (partyDoc.role === 'Customer') {
-          return 'Receive';
+          if (refDoc?.isSales && refDoc.isReturn) {
+            return 'Pay';
+          } else {
+            return 'Receive';
+          }
         }
 
         if (outstanding?.isZero() ?? true) {
