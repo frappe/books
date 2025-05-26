@@ -191,15 +191,32 @@ export abstract class InvoiceItem extends Doc {
     },
     transferUnit: {
       formula: async (fieldname) => {
+        if (!this.item) return '';
         if (fieldname === 'quantity' || fieldname === 'unit') {
           return this.unit;
         }
 
-        return (await this.fyo.getValue(
-          'Item',
-          this.item as string,
-          'unit'
-        )) as string;
+        const conversionItems = await this.fyo.db.getAll(
+          ModelNameEnum.UOMConversionItem,
+          {
+            fields: ['uom'],
+            filters: { parent: this.item },
+          }
+        );
+
+        if (conversionItems.length === 0) {
+          return this.unit;
+        }
+
+        const validUnits = conversionItems.map((i) => i.uom as string);
+        if (
+          this.transferUnit &&
+          validUnits.includes(this.transferUnit as string)
+        ) {
+          return this.transferUnit;
+        }
+
+        return this.unit;
       },
       dependsOn: ['item', 'unit'],
     },
@@ -528,9 +545,8 @@ export abstract class InvoiceItem extends Doc {
       }
 
       throw new ValidationError(
-        this.fyo.t`Discount Percent (${
-          value as number
-        }) cannot be greater than 100.`
+        this.fyo.t`Discount Percent (${value as number
+          }) cannot be greater than 100.`
       );
     },
     transferUnit: async (value: DocValue) => {
@@ -549,9 +565,8 @@ export abstract class InvoiceItem extends Doc {
 
       if (item.length < 1)
         throw new ValidationError(
-          t`Transfer Unit ${value as string} is not applicable for Item ${
-            this.item
-          }`
+          t`Transfer Unit ${value as string} is not applicable for Item ${this.item
+            }`
         );
     },
   };
@@ -594,6 +609,21 @@ export abstract class InvoiceItem extends Doc {
       }
 
       return { for: ['not in', [itemNotFor]] };
+    },
+    transferUnit: async (doc: Doc) => {
+      if (!doc.item) return {};
+
+      const conversionItems = await doc.fyo.db.getAll(
+        ModelNameEnum.UOMConversionItem,
+        {
+          fields: ['uom'],
+          filters: { parent: doc.item },
+        }
+      );
+
+      return {
+        name: ['in', conversionItems.map((i) => i.uom as string)],
+      };
     },
   };
 
@@ -696,11 +726,11 @@ function getDiscountedTotalBeforeTaxation(
   setDiscountAmount: boolean
 ) {
   /**
-   * If Discount is applied before taxation
-   * Use different formulas depending on how discount is set
-   * - if amount : Quantity * Rate - DiscountAmount
-   * - if percent: Quantity * Rate (1 - DiscountPercent / 100)
-   */
+  * If Discount is applied before taxation
+  * Use different formulas depending on how discount is set
+  * - if amount : Quantity * Rate - DiscountAmount
+  * - if percent: Quantity * Rate (1 - DiscountPercent / 100)
+  */
 
   const amount = rate.mul(quantity);
   if (setDiscountAmount) {
@@ -719,9 +749,9 @@ function getTaxedTotalAfterDiscounting(
   setItemDiscountAmount: boolean
 ) {
   /**
-   * If Discount is applied before taxation
-   * Formula: Discounted Total * (1 + TotalTaxRate / 100)
-   */
+  * If Discount is applied before taxation
+  * Formula: Discounted Total * (1 + TotalTaxRate / 100)
+  */
 
   const discountedTotal = getDiscountedTotalBeforeTaxation(
     rate,
@@ -743,11 +773,11 @@ function getDiscountedTotalAfterTaxation(
   setItemDiscountAmount: boolean
 ) {
   /**
-   * If Discount is applied after taxation
-   * Use different formulas depending on how discount is set
-   * - if amount : Taxed Total - Discount Amount
-   * - if percent: Taxed Total * (1 - Discount Percent / 100)
-   */
+  * If Discount is applied after taxation
+  * Use different formulas depending on how discount is set
+  * - if amount : Taxed Total - Discount Amount
+  * - if percent: Taxed Total * (1 - Discount Percent / 100)
+  */
   const taxedTotal = getTaxedTotalBeforeDiscounting(
     totalTaxRate,
     rate,
@@ -767,9 +797,9 @@ function getTaxedTotalBeforeDiscounting(
   quantity: number
 ) {
   /**
-   * If Discount is applied after taxation
-   * Formula: Rate * Quantity * (1 + Total Tax Rate / 100)
-   */
+  * If Discount is applied after taxation
+  * Formula: Rate * Quantity * (1 + Total Tax Rate / 100)
+  */
 
   return rate.mul(quantity).mul(1 + totalTaxRate / 100);
 }
@@ -789,8 +819,8 @@ function getRate(
   const discountBeforeTax = !discountAfterTax;
 
   /**
-   * Rate calculated from  itemDiscountedTotal
-   */
+  * Rate calculated from itemDiscountedTotal
+  */
   if (isItemDiscountedTotal && discountBeforeTax && setItemDiscountAmount) {
     return itemDiscountedTotal.add(itemDiscountAmount).div(quantity);
   }
@@ -812,8 +842,8 @@ function getRate(
   }
 
   /**
-   * Rate calculated from  itemTaxedTotal
-   */
+  * Rate calculated from itemTaxedTotal
+  */
   if (isItemTaxedTotal && discountAfterTax) {
     return itemTaxedTotal.div(quantity * (1 + totalTaxRate / 100));
   }
@@ -833,3 +863,4 @@ function getRate(
 
   return null;
 }
+
