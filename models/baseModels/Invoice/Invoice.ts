@@ -192,6 +192,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async afterSubmit() {
+     await super.afterSubmit();
     if (this.isReturn) {
       await this._removeLoyaltyPointEntry();
       this.reduceUsedCountOfCoupons();
