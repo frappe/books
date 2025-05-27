@@ -920,8 +920,7 @@ export abstract class Invoice extends Transactional {
     baseGrandTotal: () =>
       this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
     stockNotTransferred: () => !this.stockNotTransferred,
-    outstandingAmount: () =>
-      !!this.outstandingAmount?.isZero() || !this.isSubmitted,
+    outstandingAmount: () => !this.isSubmitted,
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
