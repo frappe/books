@@ -849,9 +849,6 @@ export abstract class Invoice extends Transactional {
     },
     isPricingRuleApplied: {
       formula: async () => {
-        if (this.ignorePricingRules) {
-          return false;
-        }
         if (!this.fyo.singles.AccountingSettings?.enablePricingRule) {
           return false;
         }
@@ -1185,12 +1182,6 @@ export abstract class Invoice extends Transactional {
   async beforeSync(): Promise<void> {
     await super.beforeSync();
 
-    if (this.ignorePricingRules) {
-      this.clearFreeItems();
-      await this.set('pricingRuleDetail', null);
-      return;
-    }
-
     if (this.pricingRuleDetail?.length) {
       await this.applyProductDiscount();
     } else {
@@ -1357,7 +1348,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async applyProductDiscount() {
-    if (!this.items) {
+    if (!this.items || this.ignorePricingRules) {
       return;
     }
 
@@ -1439,7 +1430,7 @@ export abstract class Invoice extends Transactional {
 
   async getPricingRule(): Promise<ApplicablePricingRules[] | undefined> {
     if (this.ignorePricingRules) {
-      return undefined;
+      return;
     }
     if (!this.isSales || !this.items) {
       return;
