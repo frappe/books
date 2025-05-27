@@ -329,6 +329,7 @@ export default defineComponent({
         )) ?? 0
       );
     },
+
     showAvlQuantityInBatch() {
       const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
 
