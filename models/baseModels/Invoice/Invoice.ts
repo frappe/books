@@ -347,14 +347,7 @@ export abstract class Invoice extends Transactional {
 
       const tax = await this.getTax(item.tax);
       for (const details of (tax.details ?? []) as TaxDetail[]) {
-        let amount = item.amount!;
-        if (
-          this.enableDiscounting &&
-          !this.discountAfterTax &&
-          !item.itemDiscountedTotal?.isZero()
-        ) {
-          amount = item.itemDiscountedTotal!;
-        }
+        const amount = item.amount!;
 
         const taxItem: InvoiceTaxItem = {
           details,
