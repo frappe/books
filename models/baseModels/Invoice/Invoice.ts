@@ -812,11 +812,11 @@ export abstract class Invoice extends Transactional {
           return;
         }
         if (this.isReturn) {
-          const originalInvoice = (await this.fyo.doc.getDoc(
+          const sinvreturnedDoc = (await this.fyo.doc.getDoc(
             this.schemaName,
             this.returnAgainst
           )) as Invoice;
-          if (originalInvoice.outstandingAmount?.isZero()) {
+          if (sinvreturnedDoc.outstandingAmount?.isZero()) {
             return this.grandTotal;
           } else {
             return this.fyo.pesa(0);
@@ -837,12 +837,12 @@ export abstract class Invoice extends Transactional {
           return;
         }
         if (this.isReturn) {
-          const originalInvoice = (await this.fyo.doc.getDoc(
+          const sinvreturnedDoc = (await this.fyo.doc.getDoc(
             this.schemaName,
             this.returnAgainst
           )) as Invoice;
 
-          if (originalInvoice.stockNotTransferred === 0) {
+          if (sinvreturnedDoc.stockNotTransferred === 0) {
             return this.getStockNotTransferred();
           } else {
             return 0;
