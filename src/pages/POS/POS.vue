@@ -597,9 +597,7 @@ export default defineComponent({
                   : (invItem.quantity as number) + 1;
                 invItem.rate = item.rate as Money;
               }
-              if (!this.ignorePricingRules) {
-                await this.applyPricingRule();
-              }
+              await this.applyPricingRule();
               await this.sinvDoc.runFormulas();
               await validateQty(
                 this.sinvDoc as SalesInvoice,
@@ -648,10 +646,6 @@ export default defineComponent({
           }
 
           await existingItems[0].set('quantity', currentQty + addQty);
-
-          if (!this.ignorePricingRules) {
-            await this.applyPricingRule();
-          }
           await this.sinvDoc.runFormulas();
           if (isInventoryItem) {
             await validateQty(
@@ -681,9 +675,7 @@ export default defineComponent({
           );
         }
 
-        if (!this.ignorePricingRules) {
-          await this.applyPricingRule();
-        }
+        await this.applyPricingRule();
 
         await this.sinvDoc.runFormulas();
       } catch (error) {
@@ -885,10 +877,6 @@ export default defineComponent({
     },
     async applyPricingRule() {
       if (this.ignorePricingRules()) {
-        this.sinvDoc.pricingRuleDetail = undefined;
-        this.sinvDoc.isPricingRuleApplied = false;
-        removeFreeItems(this.sinvDoc as SalesInvoice);
-        await this.sinvDoc.applyProductDiscount();
         return;
       }
       const hasPricingRules = await getPricingRule(

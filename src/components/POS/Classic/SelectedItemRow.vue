@@ -182,7 +182,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountAmount"
-        :read-only="row.itemDiscountPercent as number > 0 && isRateReadOnly()"
+        :read-only="isDiscountsReadOnly(row.itemDiscountPercent as number < 0)"
         @change="(value:number) => setItemDiscount('amount', value)"
       />
     </div>
