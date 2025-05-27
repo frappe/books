@@ -545,8 +545,9 @@ export abstract class InvoiceItem extends Doc {
       }
 
       throw new ValidationError(
-        this.fyo.t`Discount Percent (${value as number
-          }) cannot be greater than 100.`
+        this.fyo.t`Discount Percent (${
+          value as number
+        }) cannot be greater than 100.`
       );
     },
     transferUnit: async (value: DocValue) => {
@@ -565,8 +566,9 @@ export abstract class InvoiceItem extends Doc {
 
       if (item.length < 1)
         throw new ValidationError(
-          t`Transfer Unit ${value as string} is not applicable for Item ${this.item
-            }`
+          t`Transfer Unit ${value as string} is not applicable for Item ${
+            this.item
+          }`
         );
     },
   };
@@ -726,11 +728,11 @@ function getDiscountedTotalBeforeTaxation(
   setDiscountAmount: boolean
 ) {
   /**
-  * If Discount is applied before taxation
-  * Use different formulas depending on how discount is set
-  * - if amount : Quantity * Rate - DiscountAmount
-  * - if percent: Quantity * Rate (1 - DiscountPercent / 100)
-  */
+   * If Discount is applied before taxation
+   * Use different formulas depending on how discount is set
+   * - if amount : Quantity * Rate - DiscountAmount
+   * - if percent: Quantity * Rate (1 - DiscountPercent / 100)
+   */
 
   const amount = rate.mul(quantity);
   if (setDiscountAmount) {
@@ -749,9 +751,9 @@ function getTaxedTotalAfterDiscounting(
   setItemDiscountAmount: boolean
 ) {
   /**
-  * If Discount is applied before taxation
-  * Formula: Discounted Total * (1 + TotalTaxRate / 100)
-  */
+   * If Discount is applied before taxation
+   * Formula: Discounted Total * (1 + TotalTaxRate / 100)
+   */
 
   const discountedTotal = getDiscountedTotalBeforeTaxation(
     rate,
@@ -773,11 +775,11 @@ function getDiscountedTotalAfterTaxation(
   setItemDiscountAmount: boolean
 ) {
   /**
-  * If Discount is applied after taxation
-  * Use different formulas depending on how discount is set
-  * - if amount : Taxed Total - Discount Amount
-  * - if percent: Taxed Total * (1 - Discount Percent / 100)
-  */
+   * If Discount is applied after taxation
+   * Use different formulas depending on how discount is set
+   * - if amount : Taxed Total - Discount Amount
+   * - if percent: Taxed Total * (1 - Discount Percent / 100)
+   */
   const taxedTotal = getTaxedTotalBeforeDiscounting(
     totalTaxRate,
     rate,
@@ -797,9 +799,9 @@ function getTaxedTotalBeforeDiscounting(
   quantity: number
 ) {
   /**
-  * If Discount is applied after taxation
-  * Formula: Rate * Quantity * (1 + Total Tax Rate / 100)
-  */
+   * If Discount is applied after taxation
+   * Formula: Rate * Quantity * (1 + Total Tax Rate / 100)
+   */
 
   return rate.mul(quantity).mul(1 + totalTaxRate / 100);
 }
@@ -819,8 +821,8 @@ function getRate(
   const discountBeforeTax = !discountAfterTax;
 
   /**
-  * Rate calculated from itemDiscountedTotal
-  */
+   * Rate calculated from itemDiscountedTotal
+   */
   if (isItemDiscountedTotal && discountBeforeTax && setItemDiscountAmount) {
     return itemDiscountedTotal.add(itemDiscountAmount).div(quantity);
   }
@@ -842,8 +844,8 @@ function getRate(
   }
 
   /**
-  * Rate calculated from itemTaxedTotal
-  */
+   * Rate calculated from itemTaxedTotal
+   */
   if (isItemTaxedTotal && discountAfterTax) {
     return itemTaxedTotal.div(quantity * (1 + totalTaxRate / 100));
   }
@@ -863,4 +865,3 @@ function getRate(
 
   return null;
 }
-
