@@ -170,6 +170,7 @@ export default defineComponent({
       itemSerialNumbers: computed(() => this.itemSerialNumbers),
       isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
       transferClearanceDate: computed(() => this.transferClearanceDate),
+      posSettings: computed(() => fyo.singles.POSSettings),
     };
   },
   setup() {
@@ -375,6 +376,8 @@ export default defineComponent({
     async setItems() {
       const filters: Record<string, boolean> = {};
       const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+      const hideUnavailable =
+        this.fyo.singles.POSSettings?.hideUnavailableItems;
 
       if (itemVisibility === 'Inventory Items') {
         filters.trackItem = true;
@@ -397,6 +400,9 @@ export default defineComponent({
 
         if (!item.name) {
           return;
+        }
+        if (hideUnavailable && filters.trackItem && availableQty <= 0) {
+          continue;
         }
 
         this.items.push({
@@ -464,6 +470,9 @@ export default defineComponent({
       this.totalQuantity = getTotalQuantity(
         this.sinvDoc.items as SalesInvoiceItem[]
       );
+    },
+    ignorePricingRules(): boolean {
+      return !!fyo.singles.POSSettings?.ignorePricingRule;
     },
     setTotalTaxedAmount() {
       this.totalTaxedAmount = getTotalTaxedAmount(this.sinvDoc as SalesInvoice);
@@ -588,6 +597,15 @@ export default defineComponent({
                   : (invItem.quantity as number) + 1;
                 invItem.rate = item.rate as Money;
               }
+              await this.applyPricingRule();
+              await this.sinvDoc.runFormulas();
+              await validateQty(
+                this.sinvDoc as SalesInvoice,
+                item as Item,
+                existingItems as InvoiceItem[]
+              );
+
+              return;
             }
 
             await this.applyPricingRule();
@@ -618,7 +636,8 @@ export default defineComponent({
           const currentQty = existingItems[0].quantity ?? 0;
           const addQty = quantity ?? 1;
           if (isInventoryItem) {
-            const availableQty = this.itemQtyMap[item.name]?.availableQty ?? 0;
+            const availableQty =
+              this.itemQtyMap[item.name as string]?.availableQty ?? 0;
             if (currentQty + addQty > availableQty) {
               throw new ValidationError(
                 'Cannot add more than the available quantity'
@@ -627,8 +646,6 @@ export default defineComponent({
           }
 
           await existingItems[0].set('quantity', currentQty + addQty);
-
-          await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
           if (isInventoryItem) {
             await validateQty(
@@ -659,6 +676,7 @@ export default defineComponent({
         }
 
         await this.applyPricingRule();
+
         await this.sinvDoc.runFormulas();
       } catch (error) {
         return showToast({
@@ -858,6 +876,9 @@ export default defineComponent({
       await validateShipment(this.itemSerialNumbers);
     },
     async applyPricingRule() {
+      if (this.ignorePricingRules()) {
+        return;
+      }
       const hasPricingRules = await getPricingRule(
         this.sinvDoc as SalesInvoice
       );

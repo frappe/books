@@ -159,13 +159,14 @@
         :show-label="true"
         :border="true"
         :value="row.rate"
-        :read-only="isReadOnly"
+        :read-only="isRateReadOnly()"
         @change="(value:Money) => setRate((row.rate = value))"
       />
       <feather-icon
         name="refresh-ccw"
         class="w-3.5 ml-2 mt-5 text-blue-500 flex-none"
         @click="row.rate= (defaultRate as Money)"
+        :disabled="isRateReadOnly()"
       />
     </div>
     <div class="px-6 pt-6 col-span-2">
@@ -181,7 +182,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountAmount"
-        :read-only="row.itemDiscountPercent as number > 0 || isReadOnly"
+        :read-only="isDiscountsReadOnly(row.itemDiscountPercent as number < 0)"
         @change="(value:number) => setItemDiscount('amount', value)"
       />
     </div>
@@ -198,7 +199,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountPercent"
-        :read-only="!row.itemDiscountAmount?.isZero() || isReadOnly"
+        :read-only="isDiscountsReadOnly(!row.itemDiscountAmount?.isZero())"
         @change="(value:number) => setItemDiscount('percent', value)"
       />
     </div>
@@ -328,6 +329,7 @@ export default defineComponent({
         )) ?? 0
       );
     },
+
     showAvlQuantityInBatch() {
       const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
 
@@ -335,6 +337,14 @@ export default defineComponent({
         this.row.links?.item &&
         this.row.links?.item.hasBatch &&
         itemVisibility === 'Inventory Items'
+      );
+    },
+
+    isDiscountsReadOnly(isValidDiscount: boolean) {
+      return (
+        this.row.isFreeItem ||
+        !this.fyo.singles.POSSettings?.canEditDiscount ||
+        isValidDiscount
       );
     },
     async setBatch(batch: string) {
@@ -351,6 +361,11 @@ export default defineComponent({
         serialNumber,
         this.row.quantity ?? 0,
         this.row.item!
+      );
+    },
+    isRateReadOnly() {
+      return (
+        this.row.isFreeItem || !this.fyo.singles.POSSettings?.canChangeRate
       );
     },
     setItemDiscount(type: DiscountType, value: Money | number) {
