@@ -911,12 +911,11 @@ export default defineComponent({
     },
     async handleSaveAndContinue() {
       try {
-        if (!this.sinvDoc.party || !this.sinvDoc.items?.length) {
-          showToast({
+        if (!this.sinvDoc.party) {
+          return showToast({
             type: 'error',
-            message: t`Please add a customer and at least one item before saving`,
+            message: t`Please add a customer before saving`,
           });
-          return;
         }
         await this.saveInvoiceAction();
         this.toggleModal('Alert', false);
