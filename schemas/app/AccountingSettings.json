@@ -129,8 +129,8 @@
       "section": "Features"
     },
     {
-      "fieldname": "enablePointOfSale",
-      "label": "Enable Point of Sale",
+      "fieldname": "enablePointOfSaleWithOutInventory",
+      "label": "Enable POS Without Inventory",
       "fieldtype": "Check",
       "default": false,
       "section": "Features"
