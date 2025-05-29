@@ -1500,7 +1500,10 @@ export abstract class Invoice extends Transactional {
         }
       )) as PricingRule[];
 
-      if (pricingRuleDocsForItem[0].isCouponCodeBased) {
+      if (
+        pricingRuleDocsForItem.length &&
+        pricingRuleDocsForItem[0].isCouponCodeBased
+      ) {
         if (!this.coupons?.length) {
           continue;
         }
