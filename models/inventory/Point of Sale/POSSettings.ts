@@ -45,5 +45,7 @@ export class POSSettings extends Doc {
     itemWeightDigits: () =>
       !this.fyo.singles.InventorySettings?.enableBarcodes ||
       !this.weightEnabledBarcode,
+    itemVisibility: () =>
+      !this.fyo.singles.AccountingSettings?.enablePointOfSaleWithOutInventory,
   };
 }

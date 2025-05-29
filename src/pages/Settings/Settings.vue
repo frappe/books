@@ -155,8 +155,7 @@ export default defineComponent({
       const enableInventory =
         !!this.fyo.singles.AccountingSettings?.enableInventory;
 
-      const enablePOS =
-        !!this.fyo.singles.AccountingSettings?.enablePointOfSale;
+      const enablePOS = !!this.fyo.singles.InventorySettings?.enablePointOfSale;
 
       return [
         ModelNameEnum.AccountingSettings,
