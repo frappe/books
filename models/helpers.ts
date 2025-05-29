@@ -289,7 +289,8 @@ export function getMakeReturnDocAction(fyo: Fyo): Action {
       !doc.isReturn &&
       (!!fyo.singles.AccountingSettings?.enableInvoiceReturns ||
         !!fyo.singles.InventorySettings?.enableStockReturns) &&
-      doc.isSubmitted,
+      doc.isSubmitted &&
+      !doc.isReturn,
     action: async (doc: Doc) => {
       let returnDoc: Invoice | StockTransfer | undefined;
 
