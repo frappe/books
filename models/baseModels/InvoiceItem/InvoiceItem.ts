@@ -209,10 +209,7 @@ export abstract class InvoiceItem extends Doc {
         }
 
         const validUnits = conversionItems.map((i) => i.uom as string);
-        if (
-          this.transferUnit &&
-          validUnits.includes(this.transferUnit as string)
-        ) {
+        if (this.transferUnit && validUnits.includes(this.transferUnit)) {
           return this.transferUnit;
         }
 
@@ -612,19 +609,31 @@ export abstract class InvoiceItem extends Doc {
 
       return { for: ['not in', [itemNotFor]] };
     },
-    transferUnit: async (doc: Doc) => {
-      if (!doc.item) return {};
+    batch: async (doc: Doc) => {
+      const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
+        fields: ['name'],
+        filters: { item: doc.item as string },
+      });
 
+      return {
+        name: ['in', batches.map((b) => b.name as string)],
+      };
+    },
+    transferUnit: async (doc: Doc) => {
       const conversionItems = await doc.fyo.db.getAll(
         ModelNameEnum.UOMConversionItem,
         {
           fields: ['uom'],
-          filters: { parent: doc.item },
+          filters: { parent: doc.item as string },
         }
       );
+      const allUoms = [
+        doc.unit,
+        ...conversionItems.map((i) => i.uom as string),
+      ];
 
       return {
-        name: ['in', conversionItems.map((i) => i.uom as string)],
+        name: ['in', allUoms] as [string, string[]],
       };
     },
   };
