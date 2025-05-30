@@ -107,7 +107,6 @@ export async function initERPNSync(fyo: Fyo) {
     return;
   }
 
-  await syncFetchFromERPNextQueue(fyo);
   await syncDocumentsFromERPNext(fyo);
 }
 
@@ -126,7 +125,9 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
   }
 
   const docsToSync = await getDocsFromERPNext(fyo, baseURL, token, deviceID);
-
+  if (!docsToSync?.message.success) {
+    throw new ValidationError(docsToSync?.message.message as string);
+  }
   if (!docsToSync || !docsToSync.message.success || !docsToSync.message.data) {
     return;
   }
@@ -193,6 +194,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
       const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
 
       await performPreSync(fyo, doc);
+      await appendDocValues(newDoc as DocValueMap, doc);
       newDoc._addDocToSyncQueue = false;
 
       await newDoc.sync();
@@ -217,6 +219,18 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
     } catch (error) {
       return error;
     }
+  }
+}
+
+async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
+  switch (doc.doctype) {
+    case ModelNameEnum.Item:
+      for (const uomDoc of doc.uomConversions as DocValueMap[]) {
+        await (newDoc as Doc).append('uomConversions', {
+          uom: uomDoc.uom,
+          conversionFactor: uomDoc.conversionFactor,
+        });
+      }
   }
 }
 
@@ -254,7 +268,7 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
           if (!isUnitExists) {
             const data = {
               name: row.uom,
-              isWhole: true,
+              isWhole: row.isWhole,
             };
 
             await fyo.doc.getNewDoc(ModelNameEnum.UOM, data).sync();
@@ -458,75 +472,6 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
   }
 }
 
-async function syncFetchFromERPNextQueue(fyo: Fyo) {
-  const docsInQueue = await fyo.db.getAll(ModelNameEnum.FetchFromERPNextQueue, {
-    fields: ['referenceType', 'documentName'],
-  });
-
-  if (!docsInQueue.length) {
-    return;
-  }
-
-  const token = fyo.singles.ERPNextSyncSettings?.authToken as string;
-  const baseURL = fyo.singles.ERPNextSyncSettings?.baseURL as string;
-  const deviceID = fyo.singles.ERPNextSyncSettings?.deviceID as string;
-
-  if (!token || !baseURL || !deviceID) {
-    return;
-  }
-
-  try {
-    const res = (await sendAPIRequest(
-      `${baseURL}/api/method/books_integration.api.sync.initiate_master_sync`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `token ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ records: docsInQueue, instance: deviceID }),
-      }
-    )) as unknown as ERPNSyncDocsResponse;
-
-    if (!res.message.success || !res.message.success_log) {
-      return await fyo.doc
-        .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
-          error: JSON.stringify(res),
-          data: JSON.stringify({ instance: deviceID, data: res }),
-        })
-        .sync();
-    }
-
-    for (const row of res.message.success_log) {
-      const isDocExisitsInQueue = await fyo.db.getAll(
-        ModelNameEnum.FetchFromERPNextQueue,
-        {
-          filters: {
-            referenceType: row.doctype_name as string,
-            documentName: row.document_name as string,
-          },
-        }
-      );
-
-      if (!isDocExisitsInQueue.length) {
-        continue;
-      }
-
-      const existingDoc = await fyo.doc.getDoc(
-        ModelNameEnum.FetchFromERPNextQueue,
-        isDocExisitsInQueue[0].name as string
-      );
-      await existingDoc.delete();
-    }
-  } catch (error) {
-    return await fyo.doc
-      .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
-        error: JSON.stringify(error),
-      })
-      .sync();
-  }
-}
-
 async function getDocsFromERPNext(
   fyo: Fyo,
   baseURL: string,
@@ -684,6 +629,7 @@ export interface ERPNSyncDocsResponse {
   message: {
     status: string;
     success: boolean;
+    message: string;
     data: DocValueMap[];
     success_log?: DocValueMap[];
     failed_log?: DocValueMap[];
