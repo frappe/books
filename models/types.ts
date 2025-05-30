@@ -1,16 +1,23 @@
-export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid' | 'Return' | 'ReturnIssued';
+export type InvoiceStatus =
+  | 'Draft'
+  | 'Saved'
+  | 'Unpaid'
+  | 'Cancelled'
+  | 'Paid'
+  | 'Return'
+  | 'ReturnIssued';
+
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',
   AccountingSettings = 'AccountingSettings',
   Address = 'Address',
-  Batch= 'Batch',
+  Batch = 'Batch',
   Color = 'Color',
   Currency = 'Currency',
   GetStarted = 'GetStarted',
   Defaults = 'Defaults',
   Item = 'Item',
-  ItemPrice = 'ItemPrice',
   UOM = 'UOM',
   UOMConversionItem = 'UOMConversionItem',
   JournalEntry = 'JournalEntry',
@@ -23,12 +30,13 @@ export enum ModelNameEnum {
   LoyaltyPointEntry = 'LoyaltyPointEntry',
   CollectionRulesItems = 'CollectionRulesItems',
   CouponCode = 'CouponCode',
-
+  IntegrationErrorLog = 'IntegrationErrorLog',
   AppliedCouponCodes = 'AppliedCouponCodes',
   Payment = 'Payment',
   PaymentMethod = 'PaymentMethod',
   PaymentFor = 'PaymentFor',
   PriceList = 'PriceList',
+  PriceListItem = 'PriceListItem',
   PricingRule = 'PricingRule',
   PricingRuleItem = 'PricingRuleItem',
   PricingRuleDetail = 'PricingRuleDetail',
@@ -63,11 +71,11 @@ export enum ModelNameEnum {
   POSOpeningShift = 'POSOpeningShift',
   POSClosingShift = 'POSClosingShift',
 
-  ERPNextSyncSettings= 'ERPNextSyncSettings',
+  ERPNextSyncSettings = 'ERPNextSyncSettings',
   ERPNextSyncQueue = 'ERPNextSyncQueue',
   FetchFromERPNextQueue = 'FetchFromERPNextQueue',
 }
 
 export type ModelName = keyof typeof ModelNameEnum;
 
-export type PaymentMethodType= 'Cash' | 'Bank'
+export type PaymentMethodType = 'Cash' | 'Bank';

@@ -127,6 +127,15 @@ export abstract class InvoiceItem extends Doc {
         )) as string,
       dependsOn: ['item'],
     },
+    itemCode: {
+      formula: async () =>
+        (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'itemCode'
+        )) as string,
+      dependsOn: ['item'],
+    },
     rate: {
       formula: async (fieldname) => {
         const rate = await getItemRate(this);
