@@ -21,6 +21,7 @@ interface UOMConversionItem {
 }
 
 export class Item extends Doc {
+  itemCode?: string;
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
