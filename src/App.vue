@@ -74,6 +74,7 @@ import {
   registerInstanceToERPNext,
   updateERPNSyncSettings,
 } from './utils/erpnextSync';
+import { ERPNextSyncSettings } from 'models/baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
 
 enum Screen {
   Desk = 'Desk',
@@ -229,14 +230,25 @@ export default defineComponent({
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
 
-      try {
-        await registerInstanceToERPNext(fyo);
-        await updateERPNSyncSettings(fyo);
-        await ipc.initScheduler(
-          `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
-        );
-      } catch (error) {
-        showToast({ message: error as string, type: 'error' });
+      const syncSettingsDoc = (await fyo.doc.getDoc(
+        ModelNameEnum.ERPNextSyncSettings
+      )) as ERPNextSyncSettings;
+
+      const baseURL = syncSettingsDoc.baseURL;
+      const token = syncSettingsDoc.authToken;
+      const enableERPNextSync =
+        fyo.singles.AccountingSettings?.enableERPNextSync;
+
+      if (enableERPNextSync && baseURL && token) {
+        try {
+          await registerInstanceToERPNext(fyo);
+          await updateERPNSyncSettings(fyo);
+          await ipc.initScheduler(
+            `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
+          );
+        } catch (error) {
+          showToast({ message: error as string, type: 'error' });
+        }
       }
 
       await this.setDesk(filePath);

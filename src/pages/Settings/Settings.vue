@@ -156,8 +156,7 @@ export default defineComponent({
     schemas(): Schema[] {
       const enableInventory =
         !!this.fyo.singles.AccountingSettings?.enableInventory;
-      const enablePOS =
-        !!this.fyo.singles.AccountingSettings?.enablePointOfSale;
+      const enablePOS = !!this.fyo.singles.InventorySettings?.enablePointOfSale;
       const enableERPNextSync =
         !!this.fyo.singles.AccountingSettings?.enableERPNextSync;
 
