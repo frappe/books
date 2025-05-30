@@ -188,6 +188,12 @@
       "default": false
     },
     {
+      "fieldname": "isSyncedWithErp",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
       "abstract": true,
       "fieldname": "backReference",
       "section": "References"

@@ -129,6 +129,7 @@ export default defineComponent({
         ModelNameEnum.InventorySettings,
         ModelNameEnum.Defaults,
         ModelNameEnum.POSSettings,
+        ModelNameEnum.ERPNextSyncSettings,
         ModelNameEnum.PrintSettings,
         ModelNameEnum.SystemSettings,
       ].some((s) => this.fyo.singles[s]?.canSave);
@@ -148,20 +149,23 @@ export default defineComponent({
         [ModelNameEnum.InventorySettings]: this.t`Inventory`,
         [ModelNameEnum.Defaults]: this.t`Defaults`,
         [ModelNameEnum.POSSettings]: this.t`POS Settings`,
+        [ModelNameEnum.ERPNextSyncSettings]: this.t`ERPNext Sync`,
         [ModelNameEnum.SystemSettings]: this.t`System`,
       };
     },
     schemas(): Schema[] {
       const enableInventory =
         !!this.fyo.singles.AccountingSettings?.enableInventory;
-
       const enablePOS = !!this.fyo.singles.InventorySettings?.enablePointOfSale;
+      const enableERPNextSync =
+        !!this.fyo.singles.AccountingSettings?.enableERPNextSync;
 
       return [
         ModelNameEnum.AccountingSettings,
         ModelNameEnum.InventorySettings,
         ModelNameEnum.Defaults,
         ModelNameEnum.POSSettings,
+        ModelNameEnum.ERPNextSyncSettings,
         ModelNameEnum.PrintSettings,
         ModelNameEnum.SystemSettings,
       ]
@@ -173,6 +177,11 @@ export default defineComponent({
           if (s === ModelNameEnum.POSSettings && !enablePOS) {
             return false;
           }
+
+          if (s === ModelNameEnum.ERPNextSyncSettings && !enableERPNextSync) {
+            return false;
+          }
+
           return true;
         })
         .map((s) => this.fyo.schemaMap[s]!);

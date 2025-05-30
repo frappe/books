@@ -82,6 +82,10 @@ const ipc = {
     )) as TemplateFile[];
   },
 
+  async initScheduler(time: string) {
+    await ipcRenderer.invoke(IPC_ACTIONS.INIT_SHEDULER, time);
+  },
+
   async selectFile(options: SelectFileOptions): Promise<SelectFileReturn> {
     return (await ipcRenderer.invoke(
       IPC_ACTIONS.SELECT_FILE,
@@ -194,8 +198,24 @@ const ipc = {
     await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, body);
   },
 
+  async sendAPIRequest(endpoint: string, options: RequestInit | undefined) {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.SEND_API_REQUEST,
+      endpoint,
+      options
+    )) as Promise<
+      {
+        [key: string]: string | number | boolean | Date | object | object[];
+      }[]
+    >;
+  },
+
   registerMainProcessErrorListener(listener: IPCRendererListener) {
     ipcRenderer.on(IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR, listener);
+  },
+
+  registerTriggerFrontendActionListener(listener: IPCRendererListener) {
+    ipcRenderer.on(IPC_CHANNELS.TRIGGER_ERPNEXT_SYNC, listener);
   },
 
   registerConsoleLogListener(listener: IPCRendererListener) {

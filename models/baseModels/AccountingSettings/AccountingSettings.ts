@@ -23,6 +23,7 @@ export class AccountingSettings extends Doc {
   enableInvoiceReturns?: boolean;
   enableLoyaltyProgram?: boolean;
   enablePricingRule?: boolean;
+  enableERPNextSync?: boolean;
   enablePointOfSaleWithOutInventory?: boolean;
 
   static filters: FiltersMap = {
@@ -57,6 +58,9 @@ export class AccountingSettings extends Doc {
     },
     enableLead: () => {
       return !!this.enableLead;
+    },
+    enableERPNextSync: () => {
+      return !!this.enableERPNextSync;
     },
     enableInvoiceReturns: () => {
       return !!this.enableInvoiceReturns;

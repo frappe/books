@@ -32,8 +32,10 @@ export enum IPC_ACTIONS {
   GET_CREDS = 'get-creds',
   GET_DB_LIST = 'get-db-list',
   GET_TEMPLATES = 'get-templates',
+  INIT_SHEDULER = 'init-scheduler',
   DELETE_FILE = 'delete-file',
   GET_DB_DEFAULT_PATH = 'get-db-default-path',
+  SEND_API_REQUEST = 'send-api-request',
   // Database messages
   DB_CREATE = 'db-create',
   DB_CONNECT = 'db-connect',
@@ -44,6 +46,7 @@ export enum IPC_ACTIONS {
 
 // ipcMain.send(...)
 export enum IPC_CHANNELS {
+  TRIGGER_ERPNEXT_SYNC = 'trigger-erpnext-sync',
   LOG_MAIN_PROCESS_ERROR = 'main-process-error',
   CONSOLE_LOG = 'console-log',
 }

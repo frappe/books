@@ -16,6 +16,7 @@ export type FieldType =
   | 'Currency'
   | 'Text'
   | 'Color'
+  | 'Button'
   | 'Attachment';
 
 export const FieldTypeEnum: PropertyEnum<Record<FieldType, FieldType>> = {
@@ -34,6 +35,7 @@ export const FieldTypeEnum: PropertyEnum<Record<FieldType, FieldType>> = {
   Currency: 'Currency',
   Text: 'Text',
   Color: 'Color',
+  Button: 'Button',
   Attachment: 'Attachment',
 };
 

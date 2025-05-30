@@ -1,0 +1,78 @@
+{
+  "name": "ERPNextSyncQueue",
+  "label": "ERPNext Sync Queue",
+  "naming": "random",
+  "fields": [
+    {
+      "fieldname": "referenceType",
+      "label": "Ref. Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Item",
+          "label": "Item"
+        },
+        {
+          "value": "Party",
+          "label": "Party"
+        },
+        {
+          "value": "SalesInvoice",
+          "label": "Sales Invoice"
+        },
+        {
+          "value": "POSClosingShift",
+          "label": "POS Closing Shift"
+        },
+        {
+          "value": "POSOpeningShift",
+          "label": "POS Opening Shift"
+        },
+        {
+          "value": "Payment",
+          "label": "Sales Payment"
+        },
+        {
+          "value": "StockMovement",
+          "label": "Stock"
+        },
+        {
+          "value": "PriceList",
+          "label": "Price List"
+        },
+        {
+          "value": "PriceListItem",
+          "label": "Price List Item"
+        },
+        {
+          "value": "SerialNumber",
+          "label": "Serial Number"
+        },
+        {
+          "value": "Batch",
+          "label": "Batch"
+        },
+        {
+          "value": "UOM",
+          "label": "UOM"
+        },
+        {
+          "value": "Shipment",
+          "label": "Shipment"
+        },
+        {
+          "value": "Address",
+          "label": "Address"
+        }
+      ],
+      "required": true
+    },
+    {
+      "fieldname": "documentName",
+      "label": "Document Name",
+      "fieldtype": "DynamicLink",
+      "references": "referenceType",
+      "required": true
+    }
+  ]
+}
