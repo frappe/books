@@ -227,6 +227,30 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return true;
   }
 
+  get canUndoSubmit() {
+    if (!this.canCancel) {
+      return false;
+    }
+
+    if (this.fyo.singles.SystemSettings?.provisionalModeSince == null) {
+      return false;
+    }
+
+    const submittedAt: Date = (this.submittedAt || this.created) as Date;
+    if (!submittedAt) {
+      return false;
+    }
+
+    if (
+      submittedAt <
+      (this.fyo.singles.SystemSettings.provisionalModeSince as Date)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
   get canCancel() {
     if (!this.schema.isSubmittable) {
       return false;
@@ -994,10 +1018,25 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     await this.trigger('beforeSubmit');
     await this.setAndSync('submitted', true);
+    await this.setAndSync('submittedAt', new Date());
     await this.trigger('afterSubmit');
 
     this.fyo.telemetry.log(Verb.Submitted, this.schemaName);
     this.fyo.doc.observer.trigger(`submit:${this.schemaName}`, this.name);
+  }
+
+  async submitUndo() {
+    if (!this.schema.isSubmittable || !this.submitted || this.cancelled) {
+      return;
+    }
+
+    await this.trigger('beforeSubmitUndo');
+    await this.setAndSync('submitted', false);
+    await this.setAndSync('submittedAt', null);
+    await this.trigger('afterSubmitUndo');
+
+    this.fyo.telemetry.log(Verb.SubmitUndone, this.schemaName);
+    this.fyo.doc.observer.trigger(`submitUndo:${this.schemaName}`, this.name);
   }
 
   async cancel() {
@@ -1112,6 +1151,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async afterSync() {}
   async beforeSubmit() {}
   async afterSubmit() {}
+  async beforeSubmitUndo() {}
+  async afterSubmitUndo() {}
   async beforeRename() {}
   async afterRename() {}
   async beforeCancel() {}
