@@ -47,6 +47,8 @@ export abstract class AccountReport extends LedgerReport {
 
   accountMap?: Record<string, Account>;
 
+  abstract get rootTypes(): AccountRootType[];
+
   async setDefaultFilters(): Promise<void> {
     if (this.basedOn === 'Until Date' && !this.toDate) {
       this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
@@ -156,33 +158,45 @@ export abstract class AccountReport extends LedgerReport {
       await this._setAndReturnAccountMap();
     }
 
-    for (const account of map.keys()) {
-      const valueMap: ValueMap = new Map();
+    const sortedDateRanges = [...(this._dateRanges || [])].sort((a, b) => a.toDate.toMillis() - b.toDate.toMillis());
 
-      /**
-       * Set Balance for every DateRange key
-       */
-      for (const entry of map.get(account)!) {
-        const key = this._getRangeMapKey(entry);
-        if (key === null) {
-          continue;
+    for (const accountName of map.keys()) {
+        const valueMap: ValueMap = new Map();
+        const rootType = this.accountMap![accountName]?.rootType;
+
+        let runningBalance = 0;
+
+        const entriesForAccount = [...(map.get(accountName) || [])].sort((a, b) => {
+            return a.date!.getTime() - b.date!.getTime();
+        });
+
+        for (const currentRange of sortedDateRanges) {
+            let currentPeriodActivity = 0;
+
+            for (const entry of entriesForAccount) {
+                const entryDateMillis = DateTime.fromISO(
+                    entry.date!.toISOString().split('T')[0]
+                ).toMillis();
+
+                if (entryDateMillis >= currentRange.fromDate.toMillis() && entryDateMillis < currentRange.toDate.toMillis()) {
+                    const balanceEffect = (entry.debit ?? 0) - (entry.credit ?? 0);
+
+                    if (isCredit(rootType)) {
+                        currentPeriodActivity -= balanceEffect;
+                    } else {
+                        currentPeriodActivity += balanceEffect;
+                    }
+                }
+            }
+
+            if (this.rootTypes.includes(rootType)) { 
+                runningBalance += currentPeriodActivity;
+                valueMap.set(currentRange, { balance: runningBalance });
+            } else {
+                valueMap.set(currentRange, { balance: currentPeriodActivity });
+            }
         }
-
-        if (!this.accountMap?.[entry.account]) {
-          await this._setAndReturnAccountMap(true);
-        }
-
-        const totalBalance = valueMap.get(key)?.balance ?? 0;
-        const balance = (entry.debit ?? 0) - (entry.credit ?? 0);
-        const rootType = this.accountMap![entry.account]?.rootType;
-
-        if (isCredit(rootType)) {
-          valueMap.set(key, { balance: totalBalance - balance });
-        } else {
-          valueMap.set(key, { balance: totalBalance + balance });
-        }
-      }
-      accountValueMap.set(account, valueMap);
+        accountValueMap.set(accountName, valueMap);
     }
 
     return accountValueMap;
