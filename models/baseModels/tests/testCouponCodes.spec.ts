@@ -199,8 +199,6 @@ test('disabled coupon codes is not applied', async (t) => {
 
   await sinv.runFormulas();
 
-  console.log(sinv.pricingRuleDetail?.length);
-
   t.equal(sinv.pricingRuleDetail?.length, undefined);
 });
 

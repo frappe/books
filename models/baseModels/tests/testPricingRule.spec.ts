@@ -187,7 +187,6 @@ test('pricing rule is not applied when item qty is < min  qty', async (t) => {
 
   await sinv.append('items', { item: itemMap.Jacket.name, quantity: 3 });
   await sinv.runFormulas();
-  console.log(sinv.pricingRuleDetail?.length, 'sinv.pricingRuleDetail?.');
 
   t.equal(sinv.pricingRuleDetail?.length, undefined);
 });
@@ -378,7 +377,7 @@ test('Pricing Rule is not applied when amount condition is false, rest is true',
 
   await sinv.append('items', {
     item: itemMap.Cap.name,
-    quantity: 5,
+    quantity: 11,
     rate: fyo.pesa(250),
   });
   await sinv.runFormulas();
