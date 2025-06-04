@@ -1586,11 +1586,15 @@ export abstract class Invoice extends Transactional {
         }
       }
 
+      const docItem = await this.fyo.doc.getDoc(ModelNameEnum.Item, item.item);
+
+      const totalAmount = (docItem.rate as Money).mul(item.quantity as number);
+
       const filtered = filterPricingRules(
         this as SalesInvoice,
         pricingRuleDocsForItem,
         item.quantity as number,
-        item.amount as Money
+        totalAmount
       );
 
       if (!filtered || !filtered.length) {
