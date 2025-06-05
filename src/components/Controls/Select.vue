@@ -28,9 +28,11 @@
             'text-gray-500': !value,
           }"
         >
-          <span v-if="value" class="cursor-text w-full">{{
-            selectValue ? selectValue : value
-          }}</span>
+          <span
+            v-if="selectValue || value"
+            class="cursor-text text-black dark:text-white w-full"
+            >{{ selectValue ? selectValue : value }}</span
+          >
           <span v-else>{{ inputPlaceholder }}</span>
           <svg
             v-if="!isReadOnly"
