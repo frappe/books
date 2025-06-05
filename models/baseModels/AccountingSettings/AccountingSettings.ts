@@ -25,6 +25,7 @@ export class AccountingSettings extends Doc {
   enablePricingRule?: boolean;
   enableERPNextSync?: boolean;
   enablePointOfSaleWithOutInventory?: boolean;
+  enablePartialPayment?: boolean;
 
   static filters: FiltersMap = {
     writeOffAccount: () => ({

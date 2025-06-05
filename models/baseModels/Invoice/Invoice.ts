@@ -434,16 +434,17 @@ export abstract class Invoice extends Transactional {
       return (this.netTotal as Money).sub(totalDiscount);
     }
 
-    return ((this.taxes ?? []) as Doc[])
+    const totalTaxes = ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => {
-        if (this.isReturn) {
-          return a.add(b.abs()).neg();
-        }
-
         return a.add(b.abs());
       }, (this.netTotal as Money).abs())
       .sub(totalDiscount);
+
+    if (this.isReturn) {
+      return totalTaxes.neg();
+    }
+    return totalTaxes;
   }
 
   getInvoiceDiscountAmount() {
@@ -827,7 +828,9 @@ export abstract class Invoice extends Transactional {
           if (sinvreturnedDoc.outstandingAmount?.isZero()) {
             return this.grandTotal;
           } else {
-            return this.fyo.pesa(0);
+            return this.grandTotal
+              ?.abs()
+              .sub(sinvreturnedDoc.outstandingAmount as Money);
           }
         }
 

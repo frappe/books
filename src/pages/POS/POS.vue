@@ -436,7 +436,7 @@ export default defineComponent({
       this.tableView = !this.tableView;
     },
     setPaidAmount(amount: Money) {
-      this.paidAmount = amount;
+      this.paidAmount = this.fyo.pesa(amount.toString());
     },
     setPaymentMethod(method: string) {
       this.paymentMethod = method;
@@ -731,6 +731,7 @@ export default defineComponent({
       const paymentMethod = this.paymentMethod;
 
       await this.paymentDoc.set('paymentMethod', paymentMethod);
+      await this.paymentDoc.set('amount', this.fyo.pesa(this.paidAmount.float));
 
       const paymentMethodDoc = await this.paymentDoc.loadAndGetLink(
         'paymentMethod'
@@ -738,7 +739,6 @@ export default defineComponent({
 
       if (paymentMethodDoc?.type !== 'Cash') {
         await this.paymentDoc.setMultiple({
-          amount: this.paidAmount.float,
           referenceId: this.transferRefNo,
           clearanceDate: this.transferClearanceDate,
         });
@@ -747,7 +747,6 @@ export default defineComponent({
       if (paymentMethodDoc?.type === 'Cash') {
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
-          amount: this.paidAmount.float,
         });
       }
 
