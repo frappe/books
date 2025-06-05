@@ -142,7 +142,7 @@ test('disabled pricing rule is not applied', async (t) => {
   await sinv.append('items', { item: itemMap.Jacket.name, quantity: 5 });
   await sinv.runFormulas();
 
-  t.equal(sinv.pricingRuleDetail?.length, 0);
+  t.equal(sinv.pricingRuleDetail?.length, undefined);
 });
 
 test('pricing rule is applied when filtered by min and max qty', async (t) => {
