@@ -113,7 +113,6 @@ export class Payment extends Transactional {
     }
 
     await this.validateFor();
-    this.validatePartialAmount();
     this.validateAccounts();
     this.validateTotalReferenceAmount();
     await this.validateReferences();
@@ -447,24 +446,6 @@ export class Payment extends Transactional {
     throw new ValidationError(message);
   }
 
-  validatePartialAmount() {
-    if (!this.fyo.singles.AccountingSettings?.enablePartialPayment) {
-      const amount =
-        (this.amountPaid as Money)?.isZero?.() === false
-          ? (this.amountPaid as Money)
-          : (this.amount as Money);
-      const initialAmount = this.initialAmount as Money;
-      if (amount.lt(initialAmount) && !amount.eq(initialAmount)) {
-        if (this.writeoff?.isZero()) {
-          this.amount = this.initialAmount;
-          throw new ValidationError(
-            this.fyo.t`Enable Partial payment to pay partial amount`
-          );
-        }
-      }
-    }
-  }
-
   async afterSubmit() {
     await super.afterSubmit();
     await this.updateReferenceDocOutstanding();
@@ -477,6 +458,22 @@ export class Payment extends Transactional {
         row.referenceType!,
         row.referenceName
       );
+
+      if (!this.fyo.singles.AccountingSettings?.enablePartialPayment) {
+        const amount = !(this.amountPaid as Money).isZero()
+          ? (this.amountPaid as Money)
+          : (this.amount as Money);
+        const initialAmount = this.initialAmount as Money;
+        if (amount.lt(initialAmount) && !amount.eq(initialAmount)) {
+          if (this.writeoff?.isZero()) {
+            row.amount = this.initialAmount;
+            row.amountPaid = this.fyo.pesa(0);
+            throw new ValidationError(
+              this.fyo.t`Enable Partial payment to pay partial amount`
+            );
+          }
+        }
+      }
 
       const previousOutstandingAmount = referenceDoc.outstandingAmount as Money;
       const outstandingAmount = previousOutstandingAmount.sub(row.amount!);
@@ -726,18 +723,17 @@ export class Payment extends Transactional {
       if (!this.initialAmount) {
         this.initialAmount = this.amount as Money;
       }
-      const moneyValue = value as Money;
-      if (moneyValue.gt(this.initialAmount)) {
+      if ((value as Money).gt(this.initialAmount)) {
         throw new ValidationError(
           this.fyo.t`Payment amount cannot exceed ${this.fyo.format(
             this.initialAmount,
             'Currency'
           )}.`
         );
-      } else if (moneyValue.isZero()) {
+      } else if ((value as Money).isZero()) {
         throw new ValidationError(
           this.fyo.t`Payment amount cannot be ${this.fyo.format(
-            moneyValue,
+            value as Money,
             'Currency'
           )}.`
         );
