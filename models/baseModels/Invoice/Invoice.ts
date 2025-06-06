@@ -426,7 +426,7 @@ export abstract class Invoice extends Transactional {
       return (this.netTotal as Money).sub(totalDiscount);
     }
 
-    let grandTotal = ((this.taxes ?? []) as Doc[])
+    const grandTotal = ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => {
         if (this.isReturn) {
