@@ -5,7 +5,9 @@ export type InvoiceStatus =
   | 'Cancelled'
   | 'Paid'
   | 'Return'
-  | 'ReturnIssued';
+  | 'ReturnIssued'
+  | 'Unpaid'
+  | 'PartlyPaid';
 
 export enum ModelNameEnum {
   Account = 'Account',
