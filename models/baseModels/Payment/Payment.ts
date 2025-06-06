@@ -42,7 +42,6 @@ export class Payment extends Transactional {
   referenceType?: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
   for?: PaymentFor[];
   _accountsMap?: AccountTypeMap;
-  initialAmount?: Money;
 
   async paymentMethodDoc() {
     return (await this.loadAndGetLink('paymentMethod')) as PaymentMethod;
@@ -704,25 +703,17 @@ export class Payment extends Transactional {
         return;
       }
 
-      if (!this.initialAmount) {
-        this.initialAmount = this.amount as Money;
-      }
+      const amount = (this.getSum('for', 'amount', false) as Money).abs();
 
-      const moneyValue = value as Money;
-
-      if (moneyValue.gt(this.initialAmount)) {
+      if ((value as Money).gt(amount)) {
         throw new ValidationError(
-          this.fyo.t`Payment amount cannot exceed ${this.fyo.format(
-            this.initialAmount,
-            'Currency'
-          )}.`
+          this.fyo.t`Payment amount cannot 
+              exceed ${this.fyo.format(amount, 'Currency')}.`
         );
-      } else if (moneyValue.isZero()) {
+      } else if ((value as Money).isZero()) {
         throw new ValidationError(
-          this.fyo.t`Payment amount cannot be ${this.fyo.format(
-            moneyValue,
-            'Currency'
-          )}.`
+          this.fyo.t`Payment amount cannot
+              be ${this.fyo.format(value, 'Currency')}.`
         );
       }
     },
