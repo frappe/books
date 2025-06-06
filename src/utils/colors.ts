@@ -31,7 +31,7 @@ const getValidColor = (color: string) => {
 
 export function getBgColorClass(color: string) {
   const vcolor = getValidColor(color);
-  return `bg-${vcolor}-200 dark:bg-${vcolor}-700`;
+  return `bg-${vcolor}-200 dark:bg-${vcolor}-800`;
 }
 
 export function getColorClass(
