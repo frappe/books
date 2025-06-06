@@ -87,7 +87,6 @@ export abstract class Invoice extends Transactional {
   stockNotTransferred?: number;
   loyaltyProgram?: string;
   backReference?: string;
-  originalGrandTotal?: Money;
   submitted?: boolean;
   cancelled?: boolean;
   makeAutoPayment?: boolean;
@@ -260,15 +259,6 @@ export abstract class Invoice extends Transactional {
     await this._updateIsItemsReturned();
     await this._removeLoyaltyPointEntry();
     this.reduceUsedCountOfCoupons();
-  }
-
-  async grandTotalLpa() {
-    if (!this.originalGrandTotal) {
-      this.originalGrandTotal = this.grandTotal;
-    }
-
-    const amountAfterPoints = await this.getLPAddedBaseGrandTotal();
-    this.grandTotal = amountAfterPoints;
   }
 
   async _removeLoyaltyPointEntry() {
@@ -446,10 +436,6 @@ export abstract class Invoice extends Transactional {
         return a.add(b.abs());
       }, (this.netTotal as Money).abs())
       .sub(totalDiscount);
-
-    if (this.originalGrandTotal && !this.redeemLoyaltyPoints) {
-      grandTotal = this.originalGrandTotal;
-    }
 
     return grandTotal;
   }
@@ -758,7 +744,7 @@ export abstract class Invoice extends Transactional {
       this.loyaltyPoints as number
     );
 
-    return this.originalGrandTotal?.sub(totalLotaltyAmount);
+    return this.grandTotal?.sub(totalLotaltyAmount);
   }
 
   formulas: FormulaMap = {
