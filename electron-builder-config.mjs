@@ -62,7 +62,20 @@ const frappeBooksConfig = {
     icon: 'build/icons',
     category: 'Finance',
     publish: ['github'],
-    target: ['deb', 'AppImage', 'rpm'],
+    target: [
+      {
+        target: 'deb',
+        arch: ['x64', 'arm64'],
+      },
+      {
+        target: 'AppImage',
+        arch: ['x64'],
+      },
+      {
+        target: 'rpm',
+        arch: ['x64', 'arm64'],
+      },
+    ],
   },
 };
 
