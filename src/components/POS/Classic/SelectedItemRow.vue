@@ -421,6 +421,9 @@ export default defineComponent({
       if (!this.row.isFreeItem) {
         this.$emit('applyPricingRule');
         this.$emit('runSinvFormulas');
+        this.row.set('setItemDiscountAmount', false);
+        this.row.set('itemDiscountPercent', 0);
+        this.row.set('rate', this.fyo.pesa(0));
       }
     },
     async removeAddedItem(row: SalesInvoiceItem) {

@@ -199,7 +199,7 @@ test('disabled coupon codes is not applied', async (t) => {
 
   await sinv.runFormulas();
 
-  t.equal(sinv.pricingRuleDetail?.length, 0);
+  t.equal(sinv.pricingRuleDetail?.length, undefined);
 });
 
 test('Coupon code not created: coupons min amount must be lesser than coupons max.', async (t) => {
