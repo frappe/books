@@ -43,6 +43,13 @@
       "section": "Default"
     },
     {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add quote terms",
+      "fieldtype": "Text",
+      "section": "References"
+    },
+    {
       "fieldname": "items",
       "label": "Items",
       "fieldtype": "Table",
