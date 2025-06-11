@@ -340,23 +340,27 @@ export abstract class Invoice extends Transactional {
         let amount = item.amount!;
 
         if (!this.discountAfterTax) {
-          const itemDiscountAmount = this.getItemDiscountAmount();
+          let itemDiscountAmount = this.getDiscountAmount(item);
+
+          if (this.isReturn && itemDiscountAmount.isNegative()) {
+            itemDiscountAmount = itemDiscountAmount.abs();
+          }
 
           if (this.isReturn) {
             amount = amount.add(itemDiscountAmount);
           } else {
             amount = amount.sub(itemDiscountAmount);
           }
+
+          const taxItem: InvoiceTaxItem = {
+            details,
+            exchangeRate: this.exchangeRate ?? 1,
+            fullAmount: amount,
+            taxAmount: amount.mul(details.rate / 100),
+          };
+
+          taxItems.push(taxItem);
         }
-
-        const taxItem: InvoiceTaxItem = {
-          details,
-          exchangeRate: this.exchangeRate ?? 1,
-          fullAmount: amount,
-          taxAmount: amount.mul(details.rate / 100),
-        };
-
-        taxItems.push(taxItem);
       }
     }
 
@@ -427,7 +431,10 @@ export abstract class Invoice extends Transactional {
     const itemDiscountAmount = this.getItemDiscountAmount();
     const invoiceDiscountAmount = this.getInvoiceDiscountAmount();
 
-    if (this.isReturn) {
+    if (
+      this.isReturn &&
+      itemDiscountAmount.add(invoiceDiscountAmount).isPositive()
+    ) {
       return itemDiscountAmount.add(invoiceDiscountAmount).neg();
     }
 
@@ -475,6 +482,58 @@ export abstract class Invoice extends Transactional {
 
     return totalItemAmounts.percent(this.discountPercent ?? 0);
   }
+  getDiscountAmount(item: InvoiceItem) {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
+    if (!this?.items?.length) {
+      return this.fyo.pesa(0);
+    }
+
+    let discountAmount = this.fyo.pesa(0);
+    if (item.setItemDiscountAmount) {
+      discountAmount = discountAmount.add(
+        (item.itemDiscountAmount ?? this.fyo.pesa(0)).mul(
+          item.quantity as number
+        )
+      );
+    } else if (!this.discountAfterTax) {
+      if (this.isReturn) {
+        discountAmount = discountAmount.add(
+          (item.amount ?? this.fyo.pesa(0)).mul(
+            -Math.abs(item.itemDiscountPercent as number) / 100
+          )
+        );
+      } else {
+        discountAmount = discountAmount.add(
+          (item.amount ?? this.fyo.pesa(0)).mul(
+            (item.itemDiscountPercent ?? 0) / 100
+          )
+        );
+      }
+    } else if (this.discountAfterTax) {
+      if (this.isReturn) {
+        discountAmount = discountAmount.add(
+          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+            -Math.abs(item.itemDiscountPercent as number) / 100
+          )
+        );
+      } else {
+        discountAmount = discountAmount.add(
+          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+            (item.itemDiscountPercent ?? 0) / 100
+          )
+        );
+      }
+    }
+
+    if (this.isReturn) {
+      return discountAmount.neg();
+    }
+
+    return discountAmount;
+  }
   getItemDiscountAmount() {
     if (!this.enableDiscounting) {
       return this.fyo.pesa(0);
@@ -496,7 +555,7 @@ export abstract class Invoice extends Transactional {
         if (this.isReturn) {
           discountAmount = discountAmount.add(
             (item.amount ?? this.fyo.pesa(0)).mul(
-              -Math.abs(item.itemDiscountPercent as number) / 100
+              Math.abs(item.itemDiscountPercent as number) / 100
             )
           );
         } else {
