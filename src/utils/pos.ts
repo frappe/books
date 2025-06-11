@@ -56,7 +56,9 @@ export function getItemDiscounts(items: SalesInvoiceItem[]): Money {
   for (const item of items) {
     if (item.setItemDiscountAmount) {
       if (!item.itemDiscountAmount?.isZero()) {
-        itemDiscounts = itemDiscounts.add(item.itemDiscountAmount as Money);
+        itemDiscounts = itemDiscounts.add(
+          (item.itemDiscountAmount as Money).mul(item.quantity as number)
+        );
       }
     } else {
       if (item.amount && (item.itemDiscountPercent as number) > 1) {

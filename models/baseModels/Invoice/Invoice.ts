@@ -337,7 +337,17 @@ export abstract class Invoice extends Transactional {
 
       const tax = await this.getTax(item.tax);
       for (const details of (tax.details ?? []) as TaxDetail[]) {
-        const amount = item.amount!;
+        let amount = item.amount!;
+
+        if (!this.discountAfterTax) {
+          const itemDiscountAmount = this.getItemDiscountAmount();
+
+          if (this.isReturn) {
+            amount = amount.add(itemDiscountAmount);
+          } else {
+            amount = amount.sub(itemDiscountAmount);
+          }
+        }
 
         const taxItem: InvoiceTaxItem = {
           details,
@@ -416,6 +426,11 @@ export abstract class Invoice extends Transactional {
 
     const itemDiscountAmount = this.getItemDiscountAmount();
     const invoiceDiscountAmount = this.getInvoiceDiscountAmount();
+
+    if (this.isReturn) {
+      return itemDiscountAmount.add(invoiceDiscountAmount).neg();
+    }
+
     return itemDiscountAmount.add(invoiceDiscountAmount);
   }
 
@@ -430,7 +445,7 @@ export abstract class Invoice extends Transactional {
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => {
         if (this.isReturn) {
-          return a.add(b.abs()).neg();
+          return a.abs().add(b.abs()).neg();
         }
 
         return a.add(b.abs());
@@ -473,7 +488,9 @@ export abstract class Invoice extends Transactional {
     for (const item of this.items) {
       if (item.setItemDiscountAmount) {
         discountAmount = discountAmount.add(
-          item.itemDiscountAmount ?? this.fyo.pesa(0)
+          (item.itemDiscountAmount ?? this.fyo.pesa(0)).mul(
+            item.quantity as number
+          )
         );
       } else if (!this.discountAfterTax) {
         if (this.isReturn) {
@@ -566,6 +583,7 @@ export abstract class Invoice extends Transactional {
     }
 
     const docData = this.getValidDict(true, true);
+    docData.pricingRuleDetail = [];
     const docItems = docData.items as DocValueMap[];
 
     if (!docItems) {

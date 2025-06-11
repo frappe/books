@@ -10,6 +10,8 @@ import { StockMovementItem } from 'models/inventory/StockMovementItem';
 import { getRandomString } from '../../utils';
 import { ErrorLogEnum } from 'fyo/telemetry/types';
 import { ValidationError } from 'fyo/utils/errors';
+import { PricingRule } from 'models/baseModels/PricingRule/PricingRule';
+import { PricingRuleItem } from 'models/baseModels/PricingRuleItem/PricingRuleItem';
 
 export async function registerInstanceToERPNext(fyo: Fyo) {
   if (!navigator.onLine) {
@@ -153,10 +155,12 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
             (doc.fbooksDocName as string) || (doc.name as string)
           );
 
+          doc.name = doc.fbooksDocName ?? doc.name;
           doc = checkDocDataTypes(fyo, doc) as DocValueMap;
 
           await existingDoc.setMultiple(doc);
           await performPreSync(fyo, doc);
+          await appendDocValues(existingDoc as DocValueMap, doc);
           existingDoc._addDocToSyncQueue = false;
 
           await existingDoc.sync();
@@ -175,7 +179,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
             token,
             deviceID,
             doc,
-            doc.name as string,
+            (doc.erpnextDocName as string) || (doc.name as string),
             doc.name as string
           );
           continue;
@@ -213,7 +217,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
         token,
         deviceID,
         doc,
-        doc.name as string,
+        (doc.erpnextDocName as string) || (doc.name as string),
         newDoc.name as string
       );
     } catch (error) {
@@ -231,6 +235,36 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
           conversionFactor: uomDoc.conversionFactor,
         });
       }
+
+    case ModelNameEnum.PricingRule:
+      const itemSet = new Set<string>();
+
+      (newDoc as Doc).appliedItems = (
+        newDoc as PricingRule
+      ).appliedItems?.filter((row: PricingRuleItem) => {
+        const key = `${row.item as string}::${row.unit as string}`;
+
+        if (itemSet.has(key)) {
+          return false;
+        }
+
+        itemSet.add(key);
+        return true;
+      });
+
+      const docItemSet = new Set<string>(
+        (doc as PricingRule).appliedItems?.map(
+          (row: PricingRuleItem) =>
+            `${row.item as string}::${row.unit as string}`
+        ) || []
+      );
+
+      (newDoc as PricingRule).appliedItems = (
+        newDoc as PricingRule
+      ).appliedItems?.filter((row: PricingRuleItem) =>
+        docItemSet.has(`${row.item as string}::${row.unit as string}`)
+      );
+      break;
   }
 }
 
@@ -573,8 +607,28 @@ function checkDocDataTypes(
   doc: DocValueMap | Doc
 ): DocValueMap | Doc {
   switch (doc.doctype) {
-    case ModelNameEnum.Item:
+    case ModelNameEnum.Item: {
       const fields = ['rate'];
+
+      const updatedDoc = changeDocDataType(
+        fyo,
+        doc,
+        fields,
+        ModelNameEnum.Currency
+      );
+
+      return updatedDoc;
+    }
+
+    case ModelNameEnum.PricingRule: {
+      const fields = [
+        'minAmount',
+        'maxAmount',
+        'discountAmount',
+        'discountRate',
+        'freeItemRate',
+      ];
+
       const updatedDoc = changeDocDataType(
         fyo,
         doc,
@@ -582,6 +636,8 @@ function checkDocDataTypes(
         ModelNameEnum.Currency
       );
       return updatedDoc;
+    }
+
     default:
       return doc;
   }
@@ -591,6 +647,7 @@ function isValidSyncableDocName(doctype: string): boolean {
   const syncableDocNames = [
     ModelNameEnum.Item,
     ModelNameEnum.Batch,
+    ModelNameEnum.PricingRule,
   ] as string[];
 
   if (syncableDocNames.includes(doctype)) {
