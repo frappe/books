@@ -71,6 +71,9 @@ export class AccountingSettings extends Doc {
     enablePointOfSaleWithOutInventory: () => {
       return !!this.enablePointOfSaleWithOutInventory;
     },
+    enableitemGroup: () => {
+      return !!this.enableitemGroup;
+    },
   };
 
   override hidden: HiddenMap = {
