@@ -136,6 +136,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableitemGroup",
+      "label": "Enable Item Group",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "enablePointOfSaleWithOutInventory",
       "label": "Enable POS Without Inventory",
       "fieldtype": "Check",
