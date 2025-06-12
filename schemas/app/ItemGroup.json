@@ -1,0 +1,31 @@
+{
+  "name": "ItemGroup",
+  "label": "item Group",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "placeholder": "Name",
+      "section": "Default",
+      "required": true
+    },
+    {
+      "fieldname": "tax",
+      "label": "Tax",
+      "fieldtype": "Link",
+      "target": "Tax",
+      "create": true,
+      "placeholder": "Tax"
+    },
+    {
+      "fieldname": "hsnCode",
+      "label": "HSN/SAC",
+      "fieldtype": "Data",
+      "placeholder": "HSN/SAC Code"
+    }
+  ],
+  "quickEditFields": ["tax", "hsnCode"],
+  "keywordFields": ["name"]
+}
