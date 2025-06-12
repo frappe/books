@@ -26,6 +26,7 @@ export class Item extends Doc {
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatch?: boolean;
+  itemGroup?: string;
   hasSerialNumber?: boolean;
   uomConversions: UOMConversionItem[] = [];
 
@@ -62,6 +63,20 @@ export class Item extends Doc {
         }
       },
       dependsOn: ['itemType', 'trackItem'],
+    },
+    hsnCode: {
+      formula: async () => {
+        if (!this.itemGroup) {
+          return '';
+        }
+
+        const itemGroupDoc = await this.fyo.doc.getDoc(
+          'ItemGroup',
+          this.itemGroup
+        );
+        return itemGroupDoc?.hsnCode as string;
+      },
+      dependsOn: ['itemGroup'],
     },
   };
 
@@ -156,6 +171,7 @@ export class Item extends Doc {
       ),
     uomConversions: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
+    itemGroup: () => !this.fyo.singles.AccountingSettings?.enableitemGroup,
   };
 
   readOnly: ReadOnlyMap = {

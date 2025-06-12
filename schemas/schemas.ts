@@ -78,6 +78,7 @@ import ERPNextSyncSettings from './app/ERPNextSyncSettings.json';
 import ERPNextSyncQueue from './app/ERPNextSyncQueue.json';
 import FetchFromERPNextQueue from './app/FetchFromERPNextQueue.json';
 import IntegrationErrorLog from './app/IntegrationErrorLog.json';
+import ItemGroup from './app/ItemGroup.json';
 import { Schema, SchemaStub } from './types';
 
 export const coreSchemas: Schema[] = [
@@ -113,6 +114,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Party as Schema,
   Lead as Schema,
   Address as Schema,
+  ItemGroup as Schema,
   Item as Schema,
   UOM as Schema,
   UOMConversionItem as Schema,
