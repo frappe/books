@@ -18,6 +18,7 @@ export enum ModelNameEnum {
   GetStarted = 'GetStarted',
   Defaults = 'Defaults',
   Item = 'Item',
+  ItemGroup = 'ItemGroup',
   UOM = 'UOM',
   UOMConversionItem = 'UOMConversionItem',
   JournalEntry = 'JournalEntry',
