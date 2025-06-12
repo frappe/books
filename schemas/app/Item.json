@@ -26,6 +26,14 @@
       "section": "Default"
     },
     {
+      "fieldname": "itemGroup",
+      "label": "Item Group",
+      "fieldtype": "Link",
+      "target": "ItemGroup",
+      "create": true,
+      "placeholder": "Item Group"
+    },
+    {
       "fieldname": "for",
       "label": "Purpose",
       "fieldtype": "Select",

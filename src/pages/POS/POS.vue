@@ -19,6 +19,7 @@
       :open-alert-modal="openAlertModal"
       :default-customer="defaultCustomer"
       :item-search-term="itemSearchTerm"
+      :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
       :sinv-doc="(sinvDoc as SalesInvoice)"
@@ -40,6 +41,7 @@
       @clear-values="clearValues"
       @set-customer="setCustomer"
       @toggle-modal="toggleModal"
+      @set-item-group="setItemGroup"
       @handle-item-search="handleItemSearch"
       @set-paid-amount="setPaidAmount"
       @set-payment-method="setPaymentMethod"
@@ -214,6 +216,7 @@ export default defineComponent({
       appliedCoupons: [] as AppliedCouponCodes[],
 
       itemSearchTerm: '',
+      selectedItemGroup: '',
       paymentMethod: undefined as string | undefined,
       transferRefNo: undefined as string | undefined,
       defaultCustomer: undefined as string | undefined,
@@ -458,6 +461,10 @@ export default defineComponent({
 
       await this.afterSync();
     },
+    async setItemGroup(itemGroupName: string) {
+      this.selectedItemGroup = itemGroupName;
+      await this.setItems();
+    },
     async setItems() {
       const filters: Record<string, boolean> = {};
       const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
@@ -470,9 +477,13 @@ export default defineComponent({
         filters.trackItem = false;
       }
 
+      const itemGroupfilter = this.selectedItemGroup
+        ? { itemGroup: this.selectedItemGroup }
+        : undefined;
+
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
         fields: [],
-        filters,
+        filters: itemGroupfilter,
       })) as Item[];
 
       this.items = [] as POSItem[];
