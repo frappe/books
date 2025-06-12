@@ -85,47 +85,23 @@
         <div class="rounded-md p-4 col-span-5">
           <div class="flex gap-x-2">
             <!-- Item Search -->
-            <Link
-              :class="
-                fyo.singles.InventorySettings?.enableBarcodes
-                  ? 'flex-shrink-0 w-2/3'
-                  : 'w-full'
-              "
+            <MultiLabelLink
+              class="w-full"
+              secondary-link="barcode"
+              third-link="itemCode"
               :df="{
-                label: t`Search an Item`,
+                label: t`Search Item (Name or
+            Barcode)`,
                 fieldtype: 'Link',
                 fieldname: 'item',
                 target: 'Item',
               }"
               :border="true"
               :value="itemSearchTerm"
-              @keyup.enter="
-                async () => emitEvent('addItem', await getItem(itemSearchTerm) as Item)
+              @keyup.enter="(item) =>
+                  emitEvent('handleItemSearch', item.target.value as string, true)
               "
-              @change="(item: string) =>itemSearchTerm= item"
-            />
-
-            <Barcode
-              v-if="
-                fyo.singles.InventorySettings?.enableBarcodes &&
-                !fyo.singles.POSSettings?.weightEnabledBarcode
-              "
-              class="w-1/3"
-              @item-selected="
-                async (name: string) => {
-                  emitEvent('addItem', await getItem(name) as Item);
-                }
-              "
-            />
-
-            <WeightEnabledBarcode
-              v-if="fyo.singles.POSSettings?.weightEnabledBarcode"
-              class="w-1/3"
-              @item-selected="
-                async (name: string,qty:number) => {
-                  emitEvent('addItem', await getItem(name) as Item,qty as number);
-                }
-              "
+              @change="(item: string) => emitEvent('handleItemSearch', item)"
             />
           </div>
 
@@ -369,14 +345,12 @@ import Button from 'src/components/Button.vue';
 import { defineComponent, PropType } from 'vue';
 import PriceListModal from './PriceListModal.vue';
 import { Item } from 'models/baseModels/Item/Item';
-import Link from 'src/components/Controls/Link.vue';
 import CouponCodeModal from './CouponCodeModal.vue';
 import POSQuickActions from './POSQuickActions.vue';
 import { PosEmits } from 'src/components/POS/types';
 import SavedInvoiceModal from './SavedInvoiceModal.vue';
 import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
-import Barcode from 'src/components/Controls/Barcode.vue';
 import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
 import { POSItem, ItemQtyMap } from 'src/components/POS/types';
 import ItemsGrid from 'src/components/POS/Classic/ItemsGrid.vue';
@@ -385,7 +359,6 @@ import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import SelectedItemTable from 'src/components/POS/Classic/SelectedItemTable.vue';
-import WeightEnabledBarcode from 'src/components/Controls/WeightEnabledBarcode.vue';
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
@@ -393,9 +366,7 @@ import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/Applied
 export default defineComponent({
   name: 'ClassicPOS',
   components: {
-    Link,
     Button,
-    Barcode,
     ItemsGrid,
     AlertModal,
     ItemsTable,
@@ -409,7 +380,6 @@ export default defineComponent({
     SavedInvoiceModal,
     ClosePOSShiftModal,
     LoyaltyProgramModal,
-    WeightEnabledBarcode,
     FloatingLabelFloatInput,
     ReturnSalesInvoiceModal,
     FloatingLabelCurrencyInput,
@@ -436,6 +406,10 @@ export default defineComponent({
     loyaltyPoints: {
       type: Number,
       default: 0,
+    },
+    itemSearchTerm: {
+      type: String,
+      default: '',
     },
     loyaltyProgram: {
       type: String,
@@ -471,6 +445,7 @@ export default defineComponent({
     'setPaidAmount',
     'setCouponsCount',
     'routeToSinvList',
+    'handleItemSearch',
     'setPaymentMethod',
     'setTransferRefNo',
     'setLoyaltyPoints',
@@ -486,7 +461,6 @@ export default defineComponent({
   data() {
     return {
       additionalDiscounts: fyo.pesa(0),
-      itemSearchTerm: '',
     };
   },
   computed: {

@@ -337,7 +337,6 @@ export default defineComponent({
       paymentDoc: {} as Payment,
       itemSerialNumbers: {} as ItemSerialNumbers,
 
-      itemSearchTerm: '',
       transferRefNo: undefined as string | undefined,
       transferClearanceDate: undefined as Date | undefined,
     };
