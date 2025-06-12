@@ -19,7 +19,8 @@ import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { isPesa } from 'fyo/utils';
 import { PricingRule } from '../PricingRule/PricingRule';
-import { getItemRateFromPriceList } from 'models/helpers';
+import { getItemRateFromPriceList, getPricingRule } from 'models/helpers';
+import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -430,31 +431,39 @@ export abstract class InvoiceItem extends Doc {
     setItemDiscountAmount: {
       formula: async () => {
         if (
-          !this.fyo.singles.AccountingSettings?.enablePricingRule ||
+          !this.fyo.singles.AccountingSettings?.enablePricingRule &&
           !this.parentdoc?.pricingRuleDetail
         ) {
           return (this.setItemDiscountAmount = false);
         }
 
-        const pricingRule = this.parentdoc?.pricingRuleDetail?.filter(
-          (prDetail) => prDetail.referenceItem === this.item
+        const applicablePricingRules = await getPricingRule(
+          this.parentdoc as SalesInvoice
         );
 
-        if (pricingRule && !pricingRule.length) {
-          return (this.setItemDiscountAmount = false);
-        }
+        let pricingRuleDoc;
 
-        const pricingRuleDoc = (await this.fyo.doc.getDoc(
-          ModelNameEnum.PricingRule,
-          pricingRule[0]?.referenceName
-        )) as PricingRule;
+        applicablePricingRules?.map((val) => {
+          if (val.applyOnItem == this.item) {
+            pricingRuleDoc = val.pricingRule;
+          }
+        });
 
-        if (pricingRuleDoc.discountType === 'Product Discount') {
+        if (!pricingRuleDoc) {
           return this.setItemDiscountAmount;
         }
 
-        if (pricingRuleDoc.priceDiscountType === 'amount') {
-          await this.set('itemDiscountAmount', pricingRuleDoc.discountAmount);
+        if (
+          (pricingRuleDoc as PricingRule).discountType === 'Product Discount'
+        ) {
+          return this.setItemDiscountAmount;
+        }
+
+        if ((pricingRuleDoc as PricingRule).priceDiscountType === 'amount') {
+          await this.set(
+            'itemDiscountAmount',
+            (pricingRuleDoc as PricingRule).discountAmount
+          );
           return true;
         }
 
