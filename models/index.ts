@@ -31,6 +31,7 @@ import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem
 import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { SalesQuoteItem } from './baseModels/SalesQuoteItem/SalesQuoteItem';
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
+import { ItemGroup } from './baseModels/ItemGroup/ItemGroup';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
 import { Batch } from './inventory/Batch';
@@ -64,6 +65,7 @@ export const models = {
   Batch,
   Defaults,
   Item,
+  ItemGroup,
   JournalEntry,
   JournalEntryAccount,
   Misc,

@@ -299,11 +299,29 @@ export abstract class InvoiceItem extends Doc {
     },
     tax: {
       formula: async () => {
-        return (await this.fyo.getValue(
+        const itemTax = (await this.fyo.getValue(
           'Item',
           this.item as string,
           'tax'
         )) as string;
+
+        if (itemTax) {
+          return itemTax;
+        }
+
+        const itemGroup = (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'itemGroup'
+        )) as string;
+
+        if (!itemGroup) {
+          return '';
+        }
+
+        const itemGroupDoc = await this.fyo.doc.getDoc('ItemGroup', itemGroup);
+
+        return itemGroupDoc?.tax as string;
       },
       dependsOn: ['item'],
     },
