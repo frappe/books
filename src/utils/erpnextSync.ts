@@ -646,6 +646,7 @@ function checkDocDataTypes(
 function isValidSyncableDocName(doctype: string): boolean {
   const syncableDocNames = [
     ModelNameEnum.Item,
+    ModelNameEnum.ItemGroup,
     ModelNameEnum.Batch,
     ModelNameEnum.PricingRule,
   ] as string[];
