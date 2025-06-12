@@ -103,6 +103,18 @@
               "
               @change="(item: string) => emitEvent('handleItemSearch', item)"
             />
+
+            <Link
+              :df="{
+                label: t`Filter by Group`,
+                fieldtype: 'Link',
+                fieldname: 'itemGroup',
+                target: 'ItemGroup',
+              }"
+              :border="true"
+              :value="selectedItemGroup"
+              @change="(group: string) => emitEvent('setItemGroup',group)"
+            />
           </div>
 
           <ItemsTable
@@ -348,6 +360,7 @@ import { Item } from 'models/baseModels/Item/Item';
 import CouponCodeModal from './CouponCodeModal.vue';
 import POSQuickActions from './POSQuickActions.vue';
 import { PosEmits } from 'src/components/POS/types';
+import Link from 'src/components/Controls/Link.vue';
 import SavedInvoiceModal from './SavedInvoiceModal.vue';
 import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
@@ -366,6 +379,7 @@ import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/Applied
 export default defineComponent({
   name: 'ClassicPOS',
   components: {
+    Link,
     Button,
     ItemsGrid,
     AlertModal,
@@ -411,6 +425,10 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    selectedItemGroup: {
+      type: String,
+      default: '',
+    },
     loyaltyProgram: {
       type: String,
       default: '',
@@ -442,6 +460,7 @@ export default defineComponent({
     'toggleModal',
     'setCustomer',
     'clearValues',
+    'setItemGroup',
     'setPaidAmount',
     'setCouponsCount',
     'routeToSinvList',
@@ -460,6 +479,7 @@ export default defineComponent({
   ],
   data() {
     return {
+      itemGroupFilter: '',
       additionalDiscounts: fyo.pesa(0),
     };
   },
