@@ -842,7 +842,7 @@ export async function removeLoyaltyPoint(doc: Doc) {
 
 export async function validateQty(
   sinvDoc: SalesInvoice,
-  item: Item | undefined,
+  item: Item | SalesInvoiceItem | undefined,
   existingItems: InvoiceItem[]
 ) {
   if (!item) {

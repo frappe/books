@@ -201,15 +201,29 @@ export abstract class InvoiceItem extends Doc {
     },
     transferUnit: {
       formula: async (fieldname) => {
+        if (!this.item) return '';
         if (fieldname === 'quantity' || fieldname === 'unit') {
           return this.unit;
         }
 
-        return (await this.fyo.getValue(
-          'Item',
-          this.item as string,
-          'unit'
-        )) as string;
+        const conversionItems = await this.fyo.db.getAll(
+          ModelNameEnum.UOMConversionItem,
+          {
+            fields: ['uom'],
+            filters: { parent: this.item },
+          }
+        );
+
+        if (conversionItems.length === 0) {
+          return this.unit;
+        }
+
+        const validUnits = conversionItems.map((i) => i.uom as string);
+        if (this.transferUnit && validUnits.includes(this.transferUnit)) {
+          return this.transferUnit;
+        }
+
+        return this.unit;
       },
       dependsOn: ['item', 'unit'],
     },
@@ -628,6 +642,33 @@ export abstract class InvoiceItem extends Doc {
 
       return { for: ['not in', [itemNotFor]] };
     },
+    batch: async (doc: Doc) => {
+      const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
+        fields: ['name'],
+        filters: { item: doc.item as string },
+      });
+
+      return {
+        name: ['in', batches.map((b) => b.name as string)],
+      };
+    },
+    transferUnit: async (doc: Doc) => {
+      const conversionItems = await doc.fyo.db.getAll(
+        ModelNameEnum.UOMConversionItem,
+        {
+          fields: ['uom'],
+          filters: { parent: doc.item as string },
+        }
+      );
+      const allUoms = [
+        doc.unit,
+        ...conversionItems.map((i) => i.uom as string),
+      ];
+
+      return {
+        name: ['in', allUoms] as [string, string[]],
+      };
+    },
   };
 
   static createFilters: FiltersMap = {
@@ -822,7 +863,7 @@ function getRate(
   const discountBeforeTax = !discountAfterTax;
 
   /**
-   * Rate calculated from  itemDiscountedTotal
+   * Rate calculated from itemDiscountedTotal
    */
   if (isItemDiscountedTotal && discountBeforeTax && setItemDiscountAmount) {
     return itemDiscountedTotal.add(itemDiscountAmount).div(quantity);
@@ -845,7 +886,7 @@ function getRate(
   }
 
   /**
-   * Rate calculated from  itemTaxedTotal
+   * Rate calculated from itemTaxedTotal
    */
   if (isItemTaxedTotal && discountAfterTax) {
     return itemTaxedTotal.div(quantity * (1 + totalTaxRate / 100));
