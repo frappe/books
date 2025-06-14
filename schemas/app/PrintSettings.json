@@ -128,6 +128,12 @@
       "section": "Customizations"
     },
     {
+      "fieldname": "displayDescription",
+      "label": "Display Description In Invoice",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
       "fieldname": "posPrintWidth",
       "label": "Pos Print Width",
       "fieldtype": "Float",

@@ -127,6 +127,10 @@ export async function getPrintTemplatePropValues(
     (values.doc as PrintTemplateData).time = getTime(doc.date as string);
   }
 
+  if (printSettings.displayDescription) {
+    (values.doc as PrintTemplateData).description = showDescription(doc);
+  }
+
   return values;
 }
 async function getPaymentDetails(doc: Doc, paymentId: string[]) {
@@ -309,6 +313,13 @@ function showHSN(doc: Doc): boolean {
   }
 
   return items.map((i: Doc) => i.hsnCode).every(Boolean);
+}
+
+function showDescription(doc: Doc): boolean {
+  const description = Array.isArray(doc.items)
+    ? doc.items.map((item: Doc) => item.description).filter(Boolean)
+    : [];
+  return description.length > 0;
 }
 
 function formattedTotalDiscount(doc: Doc): string {
