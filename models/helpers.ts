@@ -286,9 +286,11 @@ export function getMakeReturnDocAction(fyo: Fyo): Action {
     label: fyo.t`Return`,
     group: fyo.t`Create`,
     condition: (doc: Doc) =>
+      !doc.isReturn &&
       (!!fyo.singles.AccountingSettings?.enableInvoiceReturns ||
         !!fyo.singles.InventorySettings?.enableStockReturns) &&
-      doc.isSubmitted,
+      doc.isSubmitted &&
+      !doc.isReturn,
     action: async (doc: Doc) => {
       let returnDoc: Invoice | StockTransfer | undefined;
 
@@ -866,6 +868,16 @@ export async function validateQty(
     }
   }
 
+  const trackItem = await sinvDoc.fyo.getValue(
+    ModelNameEnum.Item,
+    item.item as string,
+    'trackItem'
+  );
+
+  if (!trackItem) {
+    return;
+  }
+
   if (!itemQtyMap[itemName] || itemQtyMap[itemName].availableQty === 0) {
     throw new ValidationError(t`Item ${itemName} has Zero Quantity`);
   }
@@ -1124,21 +1136,22 @@ export function canApplyPricingRule(
   }
 
   // Filter by Validity
-  if (
-    pricingRuleDoc.validFrom &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
-      pricingRuleDoc.validFrom.toISOString()
-  ) {
-    return false;
+  if (sinvDate) {
+    if (
+      pricingRuleDoc.validFrom &&
+      new Date(sinvDate).toISOString() < pricingRuleDoc.validFrom.toISOString()
+    ) {
+      return false;
+    }
+
+    if (
+      pricingRuleDoc.validTo &&
+      new Date(sinvDate).toISOString() > pricingRuleDoc.validTo.toISOString()
+    ) {
+      return false;
+    }
   }
 
-  if (
-    pricingRuleDoc.validTo &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
-      pricingRuleDoc.validTo.toISOString()
-  ) {
-    return false;
-  }
   return true;
 }
 
@@ -1165,23 +1178,19 @@ export function canApplyCouponCode(
   // Filter by Validity
   if (
     couponCodeData.validFrom &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
-      couponCodeData.validFrom.toISOString()
+    new Date(sinvDate).toISOString() < couponCodeData.validFrom.toISOString()
   ) {
     return false;
   }
 
   if (
     couponCodeData.validTo &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
-      couponCodeData.validTo.toISOString()
+    new Date(sinvDate).toISOString() > couponCodeData.validTo.toISOString()
   ) {
     return false;
   }
-
   return true;
 }
-
 export async function removeUnusedCoupons(sinvDoc: SalesInvoice) {
   if (!sinvDoc.coupons?.length) {
     return;
@@ -1349,6 +1358,30 @@ export function removeFreeItems(sinvDoc: SalesInvoice) {
       );
     }
   }
+}
+
+export async function updatePricingRule(sinvDoc: SalesInvoice) {
+  const applicablePricingRuleNames = await getPricingRule(sinvDoc);
+
+  if (!applicablePricingRuleNames || !applicablePricingRuleNames.length) {
+    sinvDoc.pricingRuleDetail = undefined;
+    sinvDoc.isPricingRuleApplied = false;
+    removeFreeItems(sinvDoc);
+    return;
+  }
+
+  const appliedPricingRuleCount = sinvDoc?.items?.filter(
+    (val) => val.isFreeItem
+  ).length;
+
+  setTimeout(() => {
+    void (async () => {
+      if (appliedPricingRuleCount !== applicablePricingRuleNames?.length) {
+        await sinvDoc.appendPricingRuleDetail(applicablePricingRuleNames);
+        await sinvDoc.applyProductDiscount();
+      }
+    })();
+  }, 1);
 }
 
 export function getPricingRulesConflicts(

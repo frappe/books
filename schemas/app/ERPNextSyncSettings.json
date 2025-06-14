@@ -1,0 +1,90 @@
+{
+  "name": "ERPNextSyncSettings",
+  "label": "ERPNext Sync Settings",
+  "isSingle": true,
+  "isChild": false,
+  "isSubmittable": false,
+  "fields": [
+    {
+      "label": "Device ID",
+      "fieldname": "deviceID",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "label": "API Base URL",
+      "fieldname": "baseURL",
+      "fieldtype": "Data",
+      "section": "Default"
+    },
+    {
+      "label": "Auth Token",
+      "fieldname": "authToken",
+      "fieldtype": "Secret",
+      "section": "Default"
+    },
+    {
+      "label": "FBooks Integration Version",
+      "fieldname": "integrationAppVersion",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "label": "Is Sync Enabled",
+      "fieldname": "isEnabled",
+      "fieldtype": "Check",
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "label": "Data Sync Interval (In Minutes)",
+      "fieldname": "dataSyncInterval",
+      "fieldtype": "Data",
+      "default": "60",
+      "section": "Default"
+    },
+    {
+      "label": "Sync Data From Server",
+      "fieldname": "syncDataFromServer",
+      "fieldtype": "Button",
+      "section": "Default"
+    },
+    {
+      "label": "Register Instance",
+      "fieldname": "registerInstance",
+      "fieldtype": "Data",
+      "default": "register_instance",
+      "section": "Endpoints"
+    },
+    {
+      "label": "Sync Settings",
+      "fieldname": "syncSettings",
+      "fieldtype": "Data",
+      "default": "sync_settings",
+      "section": "Endpoints"
+    },
+    {
+      "label": "Sync Data To ERPNext",
+      "fieldname": "syncDataToERPNext",
+      "fieldtype": "Data",
+      "default": "sync.sync_transactions",
+      "section": "Endpoints"
+    },
+    {
+      "label": "Fetch Data From ERPNext",
+      "fieldname": "fetchFromERPNextQueue",
+      "fieldtype": "Data",
+      "default": "sync.get_pending_docs",
+      "section": "Endpoints"
+    },
+    {
+      "label": "Clear Synced Data From ERPNext SyncQueue",
+      "fieldname": "clearSyncedDocsFromErpNextSyncQueue",
+      "fieldtype": "Data",
+      "default": "sync.update_status",
+      "section": "Endpoints"
+    }
+  ]
+}

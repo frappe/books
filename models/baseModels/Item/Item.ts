@@ -14,12 +14,21 @@ import { ValidationError } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
+interface UOMConversionItem {
+  name: string;
+  uom: string;
+  conversionFactor: number;
+}
+
 export class Item extends Doc {
+  itemCode?: string;
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatch?: boolean;
+  itemGroup?: string;
   hasSerialNumber?: boolean;
+  uomConversions: UOMConversionItem[] = [];
 
   formulas: FormulaMap = {
     incomeAccount: {
@@ -55,7 +64,34 @@ export class Item extends Doc {
       },
       dependsOn: ['itemType', 'trackItem'],
     },
+    hsnCode: {
+      formula: async () => {
+        if (!this.itemGroup) {
+          return '';
+        }
+
+        const itemGroupDoc = await this.fyo.doc.getDoc(
+          'ItemGroup',
+          this.itemGroup
+        );
+        return itemGroupDoc?.hsnCode as string;
+      },
+      dependsOn: ['itemGroup'],
+    },
   };
+
+  async beforeSync(): Promise<void> {
+    await super.beforeSync();
+    const latestByUom = new Map<string, UOMConversionItem>();
+
+    this.uomConversions.forEach((item) => {
+      if (item.conversionFactor > 0) {
+        latestByUom.set(item.uom, item);
+      }
+    });
+
+    this.uomConversions = Array.from(latestByUom.values());
+  }
 
   static filters: FiltersMap = {
     incomeAccount: () => ({
@@ -128,14 +164,14 @@ export class Item extends Doc {
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    hasBatch: () =>
-      !(this.fyo.singles.InventorySettings?.enableBatches && this.trackItem),
+    hasBatch: () => !this.fyo.singles.InventorySettings?.enableBatches,
     hasSerialNumber: () =>
       !(
         this.fyo.singles.InventorySettings?.enableSerialNumber && this.trackItem
       ),
     uomConversions: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
+    itemGroup: () => !this.fyo.singles.AccountingSettings?.enableitemGroup,
   };
 
   readOnly: ReadOnlyMap = {

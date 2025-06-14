@@ -82,7 +82,7 @@ export class PricingRule extends Doc {
         return;
       }
 
-      if ((value as Money).isZero() && this.maxAmount.isZero()) {
+      if ((value as Money).isZero() || this.maxAmount.isZero()) {
         return;
       }
 
@@ -97,7 +97,7 @@ export class PricingRule extends Doc {
         return;
       }
 
-      if (this.minAmount.isZero() && (value as Money).isZero()) {
+      if (this.minAmount.isZero() || (value as Money).isZero()) {
         return;
       }
 
@@ -141,7 +141,8 @@ export class PricingRule extends Doc {
 
   hidden: HiddenMap = {
     location: () => !this.fyo.singles.AccountingSettings?.enableInventory,
-
+    isCouponCodeBased: () =>
+      !this.fyo.singles.AccountingSettings?.enableCouponCode,
     priceDiscountType: () => !this.isDiscountTypeIsPriceDiscount,
     discountRate: () =>
       !this.isDiscountTypeIsPriceDiscount || this.priceDiscountType !== 'rate',

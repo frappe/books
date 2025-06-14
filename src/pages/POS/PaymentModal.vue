@@ -14,7 +14,7 @@
           v-for="method in paymentMethods"
           :key="method"
           class="w-full py-5 bg-teal-500"
-          @click="setPaymentMethodAndAmount(method, paidAmount)"
+          @click="setPaymentMethodAndAmount(method)"
         >
           <slot>
             <p class="uppercase text-lg text-white font-semibold">
@@ -335,7 +335,7 @@ export default defineComponent({
       }
 
       if (
-        this.paymentMethod !== 'Cash' &&
+        !this.paymentMethod &&
         (!this.transferRefNo || !this.transferClearanceDate)
       ) {
         return true;
@@ -352,7 +352,7 @@ export default defineComponent({
       }
 
       if (
-        this.paymentMethod !== 'Cash' &&
+        !this.paymentMethod &&
         (!this.transferRefNo || !this.transferClearanceDate)
       ) {
         return true;
@@ -365,22 +365,10 @@ export default defineComponent({
     await this.setPaymentMethods();
   },
   methods: {
-    setPaymentMethodAndAmount(paymentMethod?: string, amount?: Money) {
+    setPaymentMethodAndAmount(paymentMethod?: string) {
       if (paymentMethod) {
         this.$emit('setPaymentMethod', paymentMethod);
-      }
-
-      if (amount) {
-        if (this.sinvDoc.isReturn) {
-          this.$emit(
-            'setPaidAmount',
-            (this.sinvDoc.outstandingAmount as Money).neg().float
-          );
-
-          return;
-        }
-
-        this.$emit('setPaidAmount', this.sinvDoc.outstandingAmount?.float);
+        this.$emit('setPaidAmount', (this.sinvDoc.grandTotal as Money).float);
       }
     },
     async setPaymentMethods() {

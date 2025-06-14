@@ -6,6 +6,8 @@ export type ItemQtyMap = {
 
 export type ItemSerialNumbers = { [item: string]: string };
 
+export type ItemGroupMap = Record<string, string>;
+
 export type DiscountType = 'percent' | 'amount';
 
 export const modalNames = [
@@ -26,10 +28,12 @@ export type PosEmits =
   | 'addItem'
   | 'toggleView'
   | 'toggleModal'
+  | 'setItemGroup'
   | 'setPaidAmount'
   | 'setPaymentMethod'
   | 'setCouponsCount'
   | 'routeToSinvList'
+  | 'handleItemSearch'
   | 'applyPricingRule'
   | 'setTransferRefNo'
   | 'setLoyaltyPoints'
@@ -37,6 +41,7 @@ export type PosEmits =
   | 'createTransaction'
   | 'selectedInvoiceName'
   | 'selectedReturnInvoice'
+  | 'saveAndContinue'
   | 'setTransferClearanceDate';
 
 export interface POSItem {
@@ -48,4 +53,5 @@ export interface POSItem {
   unit: string;
   hasBatch: boolean;
   hasSerialNumber: boolean;
+  itemGroup?: string;
 }

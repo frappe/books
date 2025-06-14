@@ -31,6 +31,7 @@ import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem
 import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { SalesQuoteItem } from './baseModels/SalesQuoteItem/SalesQuoteItem';
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
+import { ItemGroup } from './baseModels/ItemGroup/ItemGroup';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
 import { Batch } from './inventory/Batch';
@@ -51,6 +52,10 @@ import { OpeningCash } from './inventory/Point of Sale/OpeningCash';
 import { POSSettings } from './inventory/Point of Sale/POSSettings';
 import { POSOpeningShift } from './inventory/Point of Sale/POSOpeningShift';
 import { POSClosingShift } from './inventory/Point of Sale/POSClosingShift';
+import { ERPNextSyncSettings } from './baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
+import { ERPNextSyncQueue } from './baseModels/ERPNextSyncQueue/ERPNextSyncQueue';
+import { FetchFromERPNextQueue } from './baseModels/FetchFromERPNextQueue/FetchFromERPNextQueue';
+import { IntegrationErrorLog } from './baseModels/IntegrationErrorLog/IntegrationErrorLog';
 
 export const models = {
   Account,
@@ -60,6 +65,7 @@ export const models = {
   Batch,
   Defaults,
   Item,
+  ItemGroup,
   JournalEntry,
   JournalEntryAccount,
   Misc,
@@ -107,6 +113,12 @@ export const models = {
   POSSettings,
   POSOpeningShift,
   POSClosingShift,
+  // ERPNext Sync
+  ERPNextSyncSettings,
+  ERPNextSyncQueue,
+  FetchFromERPNextQueue,
+  // Error Log
+  IntegrationErrorLog,
 } as ModelMap;
 
 export async function getRegionalModels(

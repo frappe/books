@@ -8,6 +8,8 @@ import {
   ValidationMap,
 } from 'fyo/model/types';
 import { validateEmail } from 'fyo/model/validationFunction';
+import { InventorySettings } from 'models/inventory/InventorySettings';
+import { ModelNameEnum } from 'models/types';
 import { createDiscountAccount } from 'src/setup/setupInstance';
 import { getCountryInfo } from 'utils/misc';
 
@@ -21,6 +23,8 @@ export class AccountingSettings extends Doc {
   enableInvoiceReturns?: boolean;
   enableLoyaltyProgram?: boolean;
   enablePricingRule?: boolean;
+  enableERPNextSync?: boolean;
+  enablePointOfSaleWithOutInventory?: boolean;
 
   static filters: FiltersMap = {
     writeOffAccount: () => ({
@@ -55,11 +59,20 @@ export class AccountingSettings extends Doc {
     enableLead: () => {
       return !!this.enableLead;
     },
+    enableERPNextSync: () => {
+      return !!this.enableERPNextSync;
+    },
     enableInvoiceReturns: () => {
       return !!this.enableInvoiceReturns;
     },
     enableLoyaltyProgram: () => {
       return !!this.enableLoyaltyProgram;
+    },
+    enablePointOfSaleWithOutInventory: () => {
+      return !!this.enablePointOfSaleWithOutInventory;
+    },
+    enableitemGroup: () => {
+      return !!this.enableitemGroup;
     },
   };
 
@@ -79,6 +92,23 @@ export class AccountingSettings extends Doc {
 
     if (discountingEnabled && discountAccountNotSet) {
       await createDiscountAccount(this.fyo);
+    }
+
+    if (
+      ch.changed == 'enablePointOfSaleWithOutInventory' &&
+      this.enablePointOfSaleWithOutInventory
+    ) {
+      const inventorySettings = (await this.fyo.doc.getDoc(
+        ModelNameEnum.InventorySettings
+      )) as InventorySettings;
+
+      await inventorySettings.set('enableBatches', true);
+      await inventorySettings.set('enableUomConversions', true);
+      await inventorySettings.set('enableSerialNumber', true);
+      await inventorySettings.set('enableBarcodes', true);
+      await inventorySettings.set('enablePointOfSale', true);
+
+      await inventorySettings.sync();
     }
   }
 }

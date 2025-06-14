@@ -22,6 +22,11 @@ export default {
     },
   },
   props: {
+    thirdLink: String,
+    showSecondaryLink: {
+      type: Boolean,
+      default: false,
+    },
     secondaryLink: String,
   },
   mounted() {
@@ -80,9 +85,10 @@ export default {
       return (this.results = results
         .map((r) => {
           const option = {
-            label: r[this.secondaryLink]
-              ? `${r[schema.titleField]}  ` + `  ${r[this.secondaryLink]}`
-              : r[schema.titleField],
+            label:
+              r[this.secondaryLink] && this.showSecondaryLink
+                ? `${r[schema.titleField]}  ` + `  ${r[this.secondaryLink]}`
+                : r[schema.titleField],
             value: r.name,
             value2: r[this.secondaryLink],
           };

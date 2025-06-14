@@ -98,7 +98,7 @@
         :border="true"
         :show-label="true"
         :value="row.quantity"
-        @change="(value:number) => setQuantity((row.quantity = value))"
+        @change="(value:number) => setQuantity(value)"
         :read-only="isReadOnly"
       />
     </div>
@@ -159,13 +159,14 @@
         :show-label="true"
         :border="true"
         :value="row.rate"
-        :read-only="isReadOnly"
+        :read-only="isRateReadOnly()"
         @change="(value:Money) => setRate((row.rate = value))"
       />
       <feather-icon
         name="refresh-ccw"
         class="w-3.5 ml-2 mt-5 text-blue-500 flex-none"
         @click="row.rate= (defaultRate as Money)"
+        :disabled="isRateReadOnly()"
       />
     </div>
     <div class="px-6 pt-6 col-span-2">
@@ -181,7 +182,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountAmount"
-        :read-only="row.itemDiscountPercent as number > 0 || isReadOnly"
+        :read-only="isDiscountsReadOnly(row.itemDiscountPercent as number < 0)"
         @change="(value:number) => setItemDiscount('amount', value)"
       />
     </div>
@@ -198,7 +199,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountPercent"
-        :read-only="!row.itemDiscountAmount?.isZero() || isReadOnly"
+        :read-only="isDiscountsReadOnly(!row.itemDiscountAmount?.isZero())"
         @change="(value:number) => setItemDiscount('percent', value)"
       />
     </div>
@@ -224,10 +225,7 @@
       />
     </div>
 
-    <div
-      v-if="row.links?.item && row.links?.item.hasBatch"
-      class="px-2 pt-6 col-span-2"
-    >
+    <div v-if="showAvlQuantityInBatch()" class="px-2 pt-6 col-span-2">
       <Float
         :df="{
           fieldname: 'availableQtyInBatch',
@@ -331,6 +329,24 @@ export default defineComponent({
         )) ?? 0
       );
     },
+
+    showAvlQuantityInBatch() {
+      const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+
+      return (
+        this.row.links?.item &&
+        this.row.links?.item.hasBatch &&
+        itemVisibility === 'Inventory Items'
+      );
+    },
+
+    isDiscountsReadOnly(isValidDiscount: boolean) {
+      return (
+        this.row.isFreeItem ||
+        !this.fyo.singles.POSSettings?.canEditDiscount ||
+        isValidDiscount
+      );
+    },
     async setBatch(batch: string) {
       this.row.set('batch', batch);
       this.availableQtyInBatch = await this.getAvailableQtyInBatch();
@@ -347,6 +363,11 @@ export default defineComponent({
         this.row.item!
       );
     },
+    isRateReadOnly() {
+      return (
+        this.row.isFreeItem || !this.fyo.singles.POSSettings?.canChangeRate
+      );
+    },
     setItemDiscount(type: DiscountType, value: Money | number) {
       if (type === 'percent') {
         this.row.set('setItemDiscountAmount', false);
@@ -361,6 +382,16 @@ export default defineComponent({
       this.$emit('runSinvFormulas');
     },
     async setQuantity(quantity: number) {
+      if (quantity <= 0) {
+        showToast({
+          type: 'error',
+          message: 'Quantity must be greater than zero.',
+          duration: 'short',
+        });
+
+        quantity = this.row.quantity ?? 1;
+      }
+
       this.row.set('quantity', quantity);
 
       const existingItems =
@@ -369,6 +400,8 @@ export default defineComponent({
             invoiceItem.item === this.row.item && !invoiceItem.isFreeItem
         ) ?? [];
 
+      quantity = this.row.quantity ?? 1;
+
       try {
         await validateQty(
           this.row.parentdoc as SalesInvoice,
@@ -376,7 +409,7 @@ export default defineComponent({
           existingItems
         );
       } catch (error) {
-        this.row.set('quantity', existingItems[0].stockNotTransferred);
+        this.row.set('quantity', quantity);
 
         return showToast({
           type: 'error',
@@ -388,6 +421,9 @@ export default defineComponent({
       if (!this.row.isFreeItem) {
         this.$emit('applyPricingRule');
         this.$emit('runSinvFormulas');
+        this.row.set('setItemDiscountAmount', false);
+        this.row.set('itemDiscountPercent', 0);
+        this.row.set('rate', this.fyo.pesa(0));
       }
     },
     async removeAddedItem(row: SalesInvoiceItem) {

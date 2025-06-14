@@ -5,7 +5,7 @@
     </div>
     <div
       v-on-outside-click="() => (dropdownVisible = false)"
-      class="flex items-center justify-between"
+      class="relative flex items-center justify-between"
       :class="[
         inputClasses,
         containerClasses,
@@ -28,6 +28,7 @@
             'text-gray-500': !value,
           }"
         >
+        fix-select-field
           <input
             v-model="selectValue"
             :placeholder="inputPlaceholder"
@@ -36,6 +37,12 @@
             @focus="$emit('focus')"
             @input="onInput"
           />
+          <span
+            v-if="selectValue || value"
+            class="cursor-text text-black dark:text-white w-full"
+            >{{ selectValue ? selectValue : value }}</span
+          >
+          <span v-else>{{ inputPlaceholder }}</span>
           <svg
             v-if="!isReadOnly"
             class="w-3 h-3"

@@ -300,6 +300,7 @@ export default {
         return;
       }
 
+      this.triggerChange(e.target.value);
       this.toggleDropdown(true);
       this.updateSuggestions(e.target.value);
     },
