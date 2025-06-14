@@ -192,8 +192,34 @@ export function getErrorHandledSync<T extends (...args: any[]) => any>(
   };
 }
 
+function featureData(settings: {
+  schema: {
+    fields: { section?: string; fieldname?: string }[];
+  };
+  [key: string]: unknown;
+}): Record<string, unknown> {
+  const featureFields = settings.schema.fields.filter(
+    (field): field is { section: string; fieldname: string } =>
+      field.section === 'Features' && typeof field.fieldname === 'string'
+  );
+
+  return featureFields.reduce<Record<string, unknown>>((acc, feat) => {
+    acc[feat.fieldname] = settings[feat.fieldname] ?? null;
+    return acc;
+  }, {});
+}
+
 function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   const baseUrl = 'https://github.com/frappe/books/issues/new?labels=bug';
+
+  const features = {
+    ...featureData(
+      fyo.singles.AccountingSettings ?? { schema: { fields: [] } }
+    ),
+    ...featureData(fyo.singles.InventorySettings ?? { schema: { fields: [] } }),
+  };
+
+  const featreBlock = '```json\n' + JSON.stringify(features, null, 2) + '\n```';
 
   const body = [
     '<h2>Description</h2>',
@@ -202,6 +228,13 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
     '<h2>Steps to Reproduce</h2>',
     'Add steps to reproduce the error...',
     '',
+    '<h2>Feature Data in Error Report</h2>',
+    '<details><summary>[show/hide]</summary>',
+    '',
+    featreBlock,
+    '</details>',
+    '',
+
     '<h2>Info</h2>',
     '',
   ];
@@ -226,6 +259,7 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   const url = [baseUrl, `body=${body.join('\n')}`].join('&');
   return encodeURI(url);
 }
+
 
 export function reportIssue(errorLogObj?: ErrorLog) {
   const urlQuery = getIssueUrlQuery(errorLogObj);
