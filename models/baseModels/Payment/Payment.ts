@@ -42,6 +42,7 @@ export class Payment extends Transactional {
   referenceType?: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
   for?: PaymentFor[];
   _accountsMap?: AccountTypeMap;
+  initialAmount?: Money;
 
   async paymentMethodDoc() {
     return (await this.loadAndGetLink('paymentMethod')) as PaymentMethod;
@@ -458,6 +459,22 @@ export class Payment extends Transactional {
         row.referenceName
       );
 
+      if (!this.fyo.singles.AccountingSettings?.enablePartialPayment) {
+        const amount = !(this.amountPaid as Money).isZero()
+          ? (this.amountPaid as Money)
+          : (this.amount as Money);
+        const initialAmount = this.initialAmount as Money;
+        if (amount.lt(initialAmount) && !amount.eq(initialAmount)) {
+          if (this.writeoff?.isZero()) {
+            row.amount = this.initialAmount;
+            row.amountPaid = this.fyo.pesa(0);
+            throw new ValidationError(
+              this.fyo.t`Enable Partial payment to pay partial amount`
+            );
+          }
+        }
+      }
+
       const previousOutstandingAmount = referenceDoc.outstandingAmount as Money;
       const outstandingAmount = previousOutstandingAmount.sub(row.amount!);
       await referenceDoc.setAndSync({ outstandingAmount });
@@ -703,17 +720,22 @@ export class Payment extends Transactional {
         return;
       }
 
-      const amount = (this.getSum('for', 'amount', false) as Money).abs();
-
-      if ((value as Money).gt(amount)) {
+      if (!this.initialAmount) {
+        this.initialAmount = this.amount as Money;
+      }
+      if ((value as Money).gt(this.initialAmount)) {
         throw new ValidationError(
-          this.fyo.t`Payment amount cannot 
-              exceed ${this.fyo.format(amount, 'Currency')}.`
+          this.fyo.t`Payment amount cannot exceed ${this.fyo.format(
+            this.initialAmount,
+            'Currency'
+          )}.`
         );
       } else if ((value as Money).isZero()) {
         throw new ValidationError(
-          this.fyo.t`Payment amount cannot
-              be ${this.fyo.format(value, 'Currency')}.`
+          this.fyo.t`Payment amount cannot be ${this.fyo.format(
+            value as Money,
+            'Currency'
+          )}.`
         );
       }
     },

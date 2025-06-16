@@ -897,7 +897,9 @@ export abstract class Invoice extends Transactional {
           if (sinvreturnedDoc.outstandingAmount?.isZero()) {
             return this.grandTotal;
           } else {
-            return this.fyo.pesa(0);
+            return this.grandTotal
+              ?.abs()
+              .sub(sinvreturnedDoc.outstandingAmount as Money);
           }
         }
 

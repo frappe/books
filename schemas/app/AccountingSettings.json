@@ -150,6 +150,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enablePartialPayment",
+      "label": "Enable Partial Payment",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",
