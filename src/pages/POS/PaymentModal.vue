@@ -7,7 +7,7 @@
         :border="true"
         :text-right="true"
         :value="paidAmount"
-        @change="(amount:Money)=> $emit('setPaidAmount', amount)"
+        @change="(amount:Money)=>  $emit('setPaidAmount', (amount as Money).float)"
       />
       <div class="grid grid-cols-2 gap-6">
         <Button
@@ -127,6 +127,15 @@
           :border="true"
           :text-right="true"
           :value="sinvDoc?.grandTotal"
+        />
+
+        <Currency
+          :df="sinvDoc.fieldMap.outstandingAmount"
+          :read-only="true"
+          :show-label="true"
+          :border="true"
+          :text-right="true"
+          :value="sinvDoc?.outstandingAmount"
         />
       </div>
 
@@ -278,10 +287,7 @@ export default defineComponent({
       return this.fyo.pesa(this.paidAmount.float).sub(grandTotal);
     },
     showBalanceAmount(): boolean {
-      if (
-        this.fyo.pesa(this.paidAmount.float).eq(fyo.pesa(0)) &&
-        this.transferAmount.eq(fyo.pesa(0))
-      ) {
+      if (this.paidAmount.float === 0) {
         return false;
       }
 
@@ -368,7 +374,10 @@ export default defineComponent({
     setPaymentMethodAndAmount(paymentMethod?: string) {
       if (paymentMethod) {
         this.$emit('setPaymentMethod', paymentMethod);
-        this.$emit('setPaidAmount', (this.sinvDoc.grandTotal as Money).float);
+        this.$emit(
+          'setPaidAmount',
+          (this.sinvDoc.outstandingAmount as Money).float
+        );
       }
     },
     async setPaymentMethods() {
