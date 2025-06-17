@@ -108,6 +108,7 @@ import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
+import { Money } from 'pesa';
 
 export default defineComponent({
   name: 'ReturnSalesInvoice',
@@ -169,7 +170,7 @@ export default defineComponent({
     },
     filteredInvoices() {
       return this.returnedInvoices.filter((invoice) =>
-        invoice.name
+        (invoice.name as string)
           .toLowerCase()
           .includes(this.invoiceSearchTerm.toLowerCase())
       );
@@ -210,11 +211,28 @@ export default defineComponent({
       });
 
       const returnedInvoiceNames = allInvoices
-        .filter((inv) => inv.returnAgainst)
-        .map((inv) => inv.returnAgainst);
+        .filter((inv) => {
+          if (inv.isReturned) {
+            return false;
+          }
 
-      this.returnedInvoices = allInvoices.filter(
-        (inv) => !inv.returnAgainst && !returnedInvoiceNames.includes(inv.name)
+          if (inv.isReturned && !(inv.outstandingAmount as Money).isZero()) {
+            return true;
+          }
+
+          if (!inv.isReturned && !inv.returnAgainst) {
+            return true;
+          }
+
+          if (!inv.isReturned && !(inv.outstandingAmount as Money).isZero()) {
+            return true;
+          }
+
+          return false;
+        })
+        .map((inv) => inv.name);
+      this.returnedInvoices = allInvoices.filter((inv) =>
+        returnedInvoiceNames.includes(inv.name)
       ) as SalesInvoice[];
     },
   },
