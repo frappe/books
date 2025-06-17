@@ -180,7 +180,7 @@ test('create SINV return for balance qty', async (t) => {
 
   t.equals(
     returnDoc.outstandingAmount?.float,
-    -itemData.rate,
+    itemData.rate,
     'return doc outstanding amount matches'
   );
 });

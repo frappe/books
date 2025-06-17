@@ -339,6 +339,10 @@ export abstract class Invoice extends Transactional {
       for (const details of (tax.details ?? []) as TaxDetail[]) {
         let amount = item.amount!;
 
+        if (this.isReturn && amount.isPositive()) {
+          amount = amount.neg();
+        }
+
         if (!this.discountAfterTax) {
           let itemDiscountAmount = this.getDiscountAmount(item);
 
@@ -895,11 +899,21 @@ export abstract class Invoice extends Transactional {
             this.returnAgainst
           )) as Invoice;
           if (sinvreturnedDoc.outstandingAmount?.isZero()) {
-            return this.grandTotal;
+            return this.grandTotal?.abs();
           } else {
-            return this.grandTotal
+            const totalPaid = this.grandTotal
               ?.abs()
               .sub(sinvreturnedDoc.outstandingAmount as Money);
+
+            if (!sinvreturnedDoc.isReturn) {
+              return totalPaid?.abs();
+            }
+
+            if (!this.grandTotal?.isNegative()) {
+              this.grandTotal = this.grandTotal?.neg();
+            }
+
+            return this.grandTotal?.add(totalPaid as Money).abs();
           }
         }
 

@@ -459,6 +459,16 @@ export class Payment extends Transactional {
         row.referenceName
       );
 
+      const previousOutstandingAmount = referenceDoc.outstandingAmount as Money;
+      const outstandingAmount = previousOutstandingAmount.sub(row.amount!);
+      await referenceDoc.setAndSync({ outstandingAmount });
+    }
+  }
+
+  async beforeSync(): Promise<void> {
+    await super.beforeSync();
+
+    for (const row of this.for ?? []) {
       if (!this.fyo.singles.AccountingSettings?.enablePartialPayment) {
         const amount = !(this.amountPaid as Money).isZero()
           ? (this.amountPaid as Money)
@@ -466,7 +476,7 @@ export class Payment extends Transactional {
         const initialAmount = this.initialAmount as Money;
         if (amount.lt(initialAmount) && !amount.eq(initialAmount)) {
           if (this.writeoff?.isZero()) {
-            row.amount = this.initialAmount;
+            this.amount = this.initialAmount;
             row.amountPaid = this.fyo.pesa(0);
             throw new ValidationError(
               this.fyo.t`Enable Partial payment to pay partial amount`
@@ -474,10 +484,6 @@ export class Payment extends Transactional {
           }
         }
       }
-
-      const previousOutstandingAmount = referenceDoc.outstandingAmount as Money;
-      const outstandingAmount = previousOutstandingAmount.sub(row.amount!);
-      await referenceDoc.setAndSync({ outstandingAmount });
     }
   }
 
@@ -648,22 +654,12 @@ export class Payment extends Transactional {
         }
 
         const reference = this?.for?.[0];
-        if (!reference) {
-          return null;
-        }
-        const refDoc = (await reference.loadAndGetLink(
+        const refDoc = (await reference?.loadAndGetLink(
           'referenceName'
         )) as Invoice | null;
 
         const partyDoc = (await this.loadAndGetLink('party')) as Party;
         const outstanding = partyDoc.outstandingAmount as Money;
-
-        if (outstanding.isNegative()) {
-          if (this.referenceType === ModelNameEnum.PurchaseInvoice) {
-            return 'Pay';
-          }
-          return 'Receive';
-        }
 
         if (partyDoc.role === 'Supplier') {
           if (refDoc?.isReturn) {

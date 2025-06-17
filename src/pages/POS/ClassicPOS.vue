@@ -105,6 +105,7 @@
             />
 
             <Link
+              v-if="fyo.singles.AccountingSettings?.enableitemGroup"
               :df="{
                 label: t`Filter by Group`,
                 fieldtype: 'Link',
