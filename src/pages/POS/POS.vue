@@ -466,7 +466,7 @@ export default defineComponent({
       await this.setItems();
     },
     async setItems() {
-      const filters: Record<string, boolean> = {};
+      const filters: Record<string, boolean | string> = {};
       const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
       const hideUnavailable =
         this.fyo.singles.POSSettings?.hideUnavailableItems;
@@ -477,13 +477,13 @@ export default defineComponent({
         filters.trackItem = false;
       }
 
-      const itemGroupfilter = this.selectedItemGroup
-        ? { itemGroup: this.selectedItemGroup }
-        : undefined;
+      if (this.selectedItemGroup) {
+        filters.itemGroup = this.selectedItemGroup;
+      }
 
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
         fields: [],
-        filters: itemGroupfilter,
+        filters: filters,
       })) as Item[];
 
       this.items = [] as POSItem[];
