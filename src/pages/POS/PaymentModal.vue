@@ -31,6 +31,7 @@
           :show-label="true"
           :border="true"
           :required="!transferAmount.isZero()"
+          :read-only="false"
           :value="transferRefNo"
           @change="(value:string) => $emit('setTransferRefNo', value)"
         />
@@ -41,6 +42,7 @@
           :show-label="true"
           :border="true"
           :required="!transferAmount.isZero()"
+          :read-only="false"
           :value="transferClearanceDate"
           @change="(value:Date) => $emit('setTransferClearanceDate', value)"
         />
@@ -306,6 +308,10 @@ export default defineComponent({
       return true;
     },
     showPaidChange(): boolean {
+      if (this.sinvDoc.isReturn) {
+        return false;
+      }
+
       if (
         this.fyo.pesa(this.paidAmount.float).eq(fyo.pesa(0)) &&
         this.transferAmount.eq(fyo.pesa(0))

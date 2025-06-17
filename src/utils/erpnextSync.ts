@@ -186,7 +186,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
         }
       }
     } catch (error) {
-      return await fyo.doc
+      await fyo.doc
         .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
           error: error as string,
           data: JSON.stringify({ instance: deviceID, records: docsToSync }),
@@ -220,9 +220,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
         (doc.erpnextDocName as string) || (doc.name as string),
         newDoc.name as string
       );
-    } catch (error) {
-      return error;
-    }
+    } catch (error) {}
   }
 }
 
