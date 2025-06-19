@@ -448,62 +448,59 @@ export abstract class InvoiceItem extends Doc {
     },
     setItemDiscountAmount: {
       formula: async () => {
-        if (
-          !this.fyo.singles.AccountingSettings?.enablePricingRule &&
-          !this.parentdoc?.pricingRuleDetail
-        ) {
-          return (this.setItemDiscountAmount = false);
+        if (!this.fyo.singles.AccountingSettings?.enablePricingRule) {
+          return this.setItemDiscountAmount;
+        }
+
+        const hasPricingRule = this.parentdoc?.pricingRuleDetail?.some(
+          (rule) => rule.referenceItem === this.item
+        );
+
+        if (!hasPricingRule) {
+          return this.setItemDiscountAmount;
         }
 
         const applicablePricingRules = await getPricingRule(
           this.parentdoc as SalesInvoice
         );
 
-        let pricingRuleDoc;
+        const itemRule = applicablePricingRules?.find(
+          (rule) => rule.applyOnItem === this.item
+        );
 
-        applicablePricingRules?.map((val) => {
-          if (val.applyOnItem == this.item) {
-            pricingRuleDoc = val.pricingRule;
-          }
-        });
-
-        if (!pricingRuleDoc) {
-          return this.setItemDiscountAmount;
+        if (!itemRule) {
+          await this.set('itemDiscountAmount', this.fyo.pesa(0));
+          return false;
         }
 
-        if (
-          (pricingRuleDoc as PricingRule).discountType === 'Product Discount'
-        ) {
-          return this.setItemDiscountAmount;
-        }
+        const pricingRuleDoc = itemRule.pricingRule;
 
-        if ((pricingRuleDoc as PricingRule).priceDiscountType === 'amount') {
-          await this.set(
-            'itemDiscountAmount',
-            (pricingRuleDoc as PricingRule).discountAmount
-          );
+        if (pricingRuleDoc.priceDiscountType === 'amount') {
+          const discountAmount =
+            pricingRuleDoc.discountAmount ?? this.fyo.pesa(0);
+          await this.set('itemDiscountAmount', discountAmount);
           return true;
         }
 
-        return this.setItemDiscountAmount;
+        return false;
       },
-      dependsOn: ['pricingRuleDetail'],
+      dependsOn: ['pricingRuleDetail', 'quantity', 'item'],
     },
     itemDiscountPercent: {
       formula: async () => {
         if (
           !this.fyo.singles.AccountingSettings?.enablePricingRule ||
-          !this.parentdoc?.pricingRuleDetail
+          !this.parentdoc?.pricingRuleDetail?.length
         ) {
-          return (this.itemDiscountPercent = 0);
+          return this.itemDiscountPercent ?? 0;
         }
 
         const pricingRule = this.parentdoc?.pricingRuleDetail?.filter(
           (prDetail) => prDetail.referenceItem === this.item
         );
 
-        if (pricingRule && !pricingRule.length) {
-          return (this.itemDiscountPercent = 0);
+        if (!pricingRule || !pricingRule.length) {
+          return this.itemDiscountPercent ?? 0;
         }
 
         const pricingRuleDoc = (await this.fyo.doc.getDoc(
@@ -512,18 +509,17 @@ export abstract class InvoiceItem extends Doc {
         )) as PricingRule;
 
         if (pricingRuleDoc.discountType === 'Product Discount') {
-          return this.itemDiscountPercent;
+          return this.itemDiscountPercent ?? 0;
         }
 
         if (pricingRuleDoc.priceDiscountType === 'percentage') {
           await this.set('setItemDiscountAmount', false);
-
-          return pricingRuleDoc.discountPercentage;
+          return pricingRuleDoc.discountPercentage ?? 0;
         }
 
-        return this.itemDiscountPercent;
+        return this.itemDiscountPercent ?? 0;
       },
-      dependsOn: ['pricingRuleDetail'],
+      dependsOn: ['pricingRuleDetail', 'item'],
     },
   };
 
