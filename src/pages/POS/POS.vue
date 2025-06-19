@@ -578,7 +578,7 @@ export default defineComponent({
     },
     async setLoyaltyPoints(value: number) {
       this.appliedLoyaltyPoints = value;
-      this.sinvDoc.redeemLoyaltyPoints = true;
+      await this.sinvDoc.set('redeemLoyaltyPoints', true);
 
       const totalLotaltyAmount = await getAddedLPWithGrandTotal(
         this.fyo,
