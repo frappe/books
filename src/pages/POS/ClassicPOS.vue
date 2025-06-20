@@ -244,7 +244,9 @@
                   <Button
                     class="w-full"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.saveButtonColour,
+                      backgroundColor:
+                        profile?.saveButtonColour ||
+                        fyo.singles.Defaults?.saveButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="!sinvDoc?.party || !sinvDoc?.items?.length"
@@ -259,7 +261,9 @@
                   <Button
                     class="w-full"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.cancelButtonColour,
+                      backgroundColor:
+                        profile?.cancelButtonColour ||
+                        fyo.singles.Defaults?.cancelButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="!sinvDoc?.items?.length"
@@ -279,7 +283,9 @@
                   <Button
                     class="w-full"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.heldButtonColour,
+                      backgroundColor:
+                        profile?.heldButtonColour ||
+                        fyo.singles.Defaults?.heldButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     @click="emitEvent('toggleModal', 'SavedInvoice', true)"
@@ -295,7 +301,9 @@
                     v-if="isReturnInvoiceEnabledReturn"
                     class="w-full py-5"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.returnButtonColour,
+                      backgroundColor:
+                        profile?.returnButtonColour ||
+                        fyo.singles.Defaults?.returnButtonColour,
                     }"
                     @click="
                       emitEvent('toggleModal', 'ReturnSalesInvoice', true)
@@ -311,7 +319,9 @@
                     v-else
                     class="w-full"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.payButtonColour,
+                      backgroundColor:
+                        profile?.payButton ||
+                        fyo.singles.Defaults?.payButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="disablePayButton"
@@ -328,7 +338,9 @@
                   v-if="isReturnInvoiceEnabledReturn"
                   class="w-full mt-2 py-5"
                   :style="{
-                    backgroundColor: fyo.singles.Defaults?.payButtonColour,
+                    backgroundColor:
+                      profile?.payButtonColour ||
+                      fyo.singles.Defaults?.payButtonColour,
                   }"
                   :disabled="disablePayButton"
                   @click="emitEvent('toggleModal', 'Payment', true)"
@@ -370,6 +382,7 @@ import { POSItem, ItemQtyMap } from 'src/components/POS/types';
 import ItemsGrid from 'src/components/POS/Classic/ItemsGrid.vue';
 import ItemsTable from 'src/components/POS/Classic/ItemsTable.vue';
 import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
+import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import SelectedItemTable from 'src/components/POS/Classic/SelectedItemTable.vue';
@@ -453,6 +466,11 @@ export default defineComponent({
     items: {
       type: Array as PropType<POSItem[] | undefined>,
       default: () => [],
+    },
+    profile: {
+      type: Object as PropType<POSProfile>,
+      required: false,
+      default: null,
     },
   },
   emits: [

@@ -11,8 +11,12 @@
       </slot>
     </PageHeader>
     <ClassicPOS
-      v-if="fyo.singles.POSSettings?.posUI == 'Classic'"
+      v-if="
+        posProfile?.posUI === 'Classic' ||
+        (!posProfile?.posUI && fyo.singles.POSSettings?.posUI === 'Classic')
+      "
       :table-view="tableView"
+      :profile="(posProfile as POSProfile)"
       :total-quantity="totalQuantity"
       :item-quantity-qap="itemQtyMap"
       :loyalty-points="loyaltyPoints"
@@ -61,6 +65,7 @@
     <ModernPOS
       v-else
       :table-view="tableView"
+      :profile="(posProfile as POSProfile)"
       :total-quantity="totalQuantity"
       :item-quantity-qap="itemQtyMap"
       :loyalty-points="loyaltyPoints"
@@ -123,6 +128,7 @@ import PageHeader from 'src/components/PageHeader.vue';
 import { computed, defineComponent, inject } from 'vue';
 import { Payment } from 'models/baseModels/Payment/Payment';
 import { ModalName, modalNames } from 'src/components/POS/types';
+import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
@@ -224,6 +230,7 @@ export default defineComponent({
 
       paymentDoc: {} as Payment,
       sinvDoc: {} as SalesInvoice,
+      posProfile: {} as POSProfile,
       itemQtyMap: {} as ItemQtyMap,
       coupons: {} as AppliedCouponCodes,
       itemSerialNumbers: {} as ItemSerialNumbers,
@@ -259,6 +266,7 @@ export default defineComponent({
 
   async mounted() {
     await this.setItems();
+    await this.loadPOSProfile();
   },
   async activated() {
     toggleSidebar(false);
@@ -291,6 +299,19 @@ export default defineComponent({
 
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
       this.loyaltyPoints = party[0]?.loyaltyPoints as number;
+    },
+
+    async loadPOSProfile() {
+      const posProfileName = fyo.singles.POSSettings?.posProfile;
+
+      if (!posProfileName) {
+        return;
+      }
+
+      this.posProfile = (await fyo.doc.getDoc(
+        ModelNameEnum.POSProfile,
+        posProfileName as string
+      )) as POSProfile;
     },
 
     async handleItemSearch(searchTerm: string, addItem?: boolean) {
@@ -467,8 +488,12 @@ export default defineComponent({
     },
     async setItems() {
       const filters: Record<string, boolean | string> = {};
-      const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+      const itemVisibility =
+        this.posProfile?.itemVisibility ??
+        this.fyo.singles.POSSettings?.itemVisibility;
+
       const hideUnavailable =
+        this.posProfile?.hideUnavailableItems ??
         this.fyo.singles.POSSettings?.hideUnavailableItems;
 
       if (itemVisibility === 'Inventory Items') {
@@ -536,7 +561,10 @@ export default defineComponent({
       this.paymentMethod = method;
     },
     setDefaultCustomer() {
-      this.defaultCustomer = this.fyo.singles.Defaults?.posCustomer ?? '';
+      this.defaultCustomer =
+        this.posProfile?.posCustomer ??
+        this.fyo.singles.Defaults?.posCustomer ??
+        '';
       this.sinvDoc.party = this.defaultCustomer;
     },
     setItemDiscounts() {
@@ -568,7 +596,11 @@ export default defineComponent({
       );
     },
     ignorePricingRules(): boolean {
-      return !!fyo.singles.POSSettings?.ignorePricingRule;
+      if (this.posProfile) {
+        return this.posProfile.ignorePricingRule as boolean;
+      }
+
+      return !!this.fyo.singles.POSSettings?.ignorePricingRule;
     },
     setTotalTaxedAmount() {
       this.totalTaxedAmount = getTotalTaxedAmount(this.sinvDoc as SalesInvoice);
@@ -886,7 +918,12 @@ export default defineComponent({
           continue;
         }
 
-        item.location = fyo.singles.POSSettings?.inventory;
+        if (this.posProfile) {
+          item.location = this.posProfile.inventory;
+        } else {
+          item.location = fyo.singles.POSSettings?.inventory;
+        }
+
         item.serialNumber =
           this.itemSerialNumbers[item.item as string] ?? undefined;
       }
