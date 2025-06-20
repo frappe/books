@@ -277,6 +277,7 @@ import { validateQty } from 'models/helpers';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { showToast } from 'src/utils/interactive';
+import { ModelNameEnum } from 'models/types';
 
 export default defineComponent({
   name: 'SelectedItemRow',
@@ -300,6 +301,8 @@ export default defineComponent({
       availableQtyInBatch: 0,
 
       defaultRate: this.row.rate as Money,
+      profileDiscountSetting: null as boolean | null,
+      profileRateSetting: null as boolean | null,
     };
   },
   computed: {
@@ -313,6 +316,31 @@ export default defineComponent({
       return this.row.isFreeItem;
     },
   },
+
+  async mounted() {
+    const posProfileName = this.fyo.singles.POSSettings?.posProfile;
+
+    if (posProfileName) {
+      const profile = await this.fyo.doc.getDoc(
+        ModelNameEnum.POSProfile,
+        posProfileName as string
+      );
+
+      this.profileDiscountSetting =
+        !!profile?.canEditDiscount ||
+        !!this.fyo.singles.POSSettings?.canEditDiscount;
+
+      this.profileRateSetting =
+        !!profile?.canChangeRate ||
+        !!this.fyo.singles.POSSettings?.canChangeRate;
+    } else {
+      this.profileDiscountSetting =
+        !!this.fyo.singles.POSSettings?.canEditDiscount;
+
+      this.profileRateSetting = !!this.fyo.singles.POSSettings?.canChangeRate;
+    }
+  },
+
   methods: {
     async getAvailableQtyInBatch(): Promise<number> {
       if (!this.row.batch) {
@@ -341,11 +369,9 @@ export default defineComponent({
     },
 
     isDiscountsReadOnly(isValidDiscount: boolean) {
-      return (
-        this.row.isFreeItem ||
-        !this.fyo.singles.POSSettings?.canEditDiscount ||
-        isValidDiscount
-      );
+      const canEditDiscount = this.profileDiscountSetting;
+
+      return this.row.isFreeItem || !canEditDiscount || isValidDiscount;
     },
     async setBatch(batch: string) {
       this.row.set('batch', batch);
@@ -364,9 +390,8 @@ export default defineComponent({
       );
     },
     isRateReadOnly() {
-      return (
-        this.row.isFreeItem || !this.fyo.singles.POSSettings?.canChangeRate
-      );
+      const canChangeRate = this.profileRateSetting;
+      return this.row.isFreeItem || !canChangeRate;
     },
     setItemDiscount(type: DiscountType, value: Money | number) {
       if (type === 'percent') {

@@ -71,6 +71,7 @@ import DefaultCashDenominations from './app/inventory/Point of Sale/DefaultCashD
 import OpeningAmounts from './app/inventory/Point of Sale/OpeningAmounts.json';
 import OpeningCash from './app/inventory/Point of Sale/OpeningCash.json';
 import POSSettings from './app/inventory/Point of Sale/POSSettings.json';
+import POSProfile from './app/POSProfile.json';
 import POSOpeningShift from './app/inventory/Point of Sale/POSOpeningShift.json';
 import POSClosingShift from './app/inventory/Point of Sale/POSClosingShift.json';
 import POSShiftAmounts from './app/inventory/Point of Sale/POSShiftAmounts.json';
@@ -179,6 +180,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   OpeningAmounts as Schema,
   OpeningCash as Schema,
   POSSettings as Schema,
+  POSProfile as Schema,
   POSOpeningShift as Schema,
   POSClosingShift as Schema,
   POSShiftAmounts as Schema,

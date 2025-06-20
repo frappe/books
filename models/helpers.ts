@@ -79,10 +79,23 @@ export async function getItemQtyMap(doc: SalesInvoice): Promise<ItemQtyMap> {
 
   const rawSLEs = await getRawStockLedgerEntries(doc.fyo);
   const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
-  const posInventory = doc.fyo.singles.POSSettings?.inventory;
+
+  const posProfileName = doc.fyo.singles.POSSettings?.posProfile;
+  let inventoryLocation: string | undefined;
+
+  if (posProfileName) {
+    const posProfile = await doc.fyo.doc.getDoc(
+      ModelNameEnum.POSProfile,
+      posProfileName as string
+    );
+
+    inventoryLocation = posProfile?.inventory as string | undefined;
+  } else {
+    inventoryLocation = doc.fyo.singles.POSSettings?.inventory;
+  }
 
   const stockBalance = getStockBalanceEntries(rawData, {
-    location: posInventory,
+    location: inventoryLocation,
   });
 
   for (const row of stockBalance) {
@@ -842,7 +855,7 @@ export async function removeLoyaltyPoint(doc: Doc) {
 
 export async function validateQty(
   sinvDoc: SalesInvoice,
-  item: Item | undefined,
+  item: Item | SalesInvoiceItem | undefined,
   existingItems: InvoiceItem[]
 ) {
   if (!item) {

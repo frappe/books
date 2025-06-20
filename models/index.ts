@@ -50,6 +50,7 @@ import { ClosingCash } from './inventory/Point of Sale/ClosingCash';
 import { OpeningAmounts } from './inventory/Point of Sale/OpeningAmounts';
 import { OpeningCash } from './inventory/Point of Sale/OpeningCash';
 import { POSSettings } from './inventory/Point of Sale/POSSettings';
+import { POSProfile } from './baseModels/POSProfile/PosProfile';
 import { POSOpeningShift } from './inventory/Point of Sale/POSOpeningShift';
 import { POSClosingShift } from './inventory/Point of Sale/POSClosingShift';
 import { ERPNextSyncSettings } from './baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
@@ -111,6 +112,7 @@ export const models = {
   OpeningAmounts,
   OpeningCash,
   POSSettings,
+  POSProfile,
   POSOpeningShift,
   POSClosingShift,
   // ERPNext Sync
