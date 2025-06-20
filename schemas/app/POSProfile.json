@@ -1,0 +1,519 @@
+{
+  "name": "POSProfile",
+  "label": "POS Profile",
+  "extends": "POSSettings",
+  "naming": "manual",
+  "showTitle": true,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Profile",
+      "fieldtype": "Data",
+      "create": true,
+      "unique": true
+    },
+    {
+      "fieldname": "posCustomer",
+      "label": "POS Customer",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true
+    },
+    {
+      "fieldname": "inventory",
+      "label": "Inventory",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "posPrintTemplate",
+      "label": "Pos Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate"
+    },
+    {
+      "fieldname": "posUI",
+      "label": "Pos Ui",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Classic",
+          "label": "Classic"
+        },
+        {
+          "value": "Modern",
+          "label": "Modern"
+        }
+      ],
+      "default": "Classic",
+      "required": true
+    },
+    {
+      "fieldname": "isShiftOpen",
+      "label": "Is POS Shift Open",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "itemVisibility",
+      "label": "Item Visibility",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Inventory Items",
+          "label": "Inventory Items"
+        },
+        {
+          "value": "Non-Inventory Items",
+          "label": "Non-Inventory Items"
+        }
+      ],
+      "default": "Inventory Items",
+      "required": true
+    },
+    {
+      "fieldname": "canChangeRate",
+      "label": "Can Change Rate",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "hideUnavailableItems",
+      "label": "Hide Unavailable Items",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "canEditDiscount",
+      "label": "Can Change Discount",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "ignorePricingRule",
+      "label": "Ignore Pricing Rule",
+      "fieldtype": "Check",
+      "section": "Default",
+      "default": false
+    },
+    {
+      "fieldname": "saveButtonColour",
+      "label": "Save Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#9575cd",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#e86674"
+        },
+        {
+          "label": "Orange",
+          "value": "#ff9800"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#66bb6a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#00bcd4"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9575cd"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Colour"
+    },
+    {
+      "fieldname": "cancelButtonColour",
+      "label": "Cancel Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#e86674",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#e86674"
+        },
+        {
+          "label": "Orange",
+          "value": "#ff9800"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#66bb6a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#00bcd4"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9575cd"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Colour"
+    },
+    {
+      "fieldname": "submitButtonColour",
+      "label": "Submit Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#00bcd4",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#e86674"
+        },
+        {
+          "label": "Orange",
+          "value": "#ff9800"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#66bb6a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#00bcd4"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9575cd"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Colour"
+    },
+    {
+      "fieldname": "heldButtonColour",
+      "label": "Held Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#ff9800",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#e86674"
+        },
+        {
+          "label": "Orange",
+          "value": "#ff9800"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#66bb6a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#00bcd4"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9575cd"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Colour"
+    },
+    {
+      "fieldname": "returnButtonColour",
+      "label": "Return Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#00bcd4",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#e86674"
+        },
+        {
+          "label": "Orange",
+          "value": "#ff9800"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#66bb6a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#00bcd4"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9575cd"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Colour"
+    },
+    {
+      "fieldname": "buyButtonColour",
+      "label": "Buy Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#66bb6a",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#e86674"
+        },
+        {
+          "label": "Orange",
+          "value": "#ff9800"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#66bb6a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#00bcd4"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9575cd"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Colour"
+    },
+    {
+      "fieldname": "payButtonColour",
+      "label": "Pay Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#66bb6a",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#e86674"
+        },
+        {
+          "label": "Orange",
+          "value": "#ff9800"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#66bb6a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#00bcd4"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9575cd"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Colour"
+    },
+    {
+      "fieldname": "payAndPrintButtonColour",
+      "label": "Pay And Print Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#ff9800",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#e86674"
+        },
+        {
+          "label": "Orange",
+          "value": "#ff9800"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#66bb6a"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#00bcd4"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9575cd"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Colour"
+    }
+  ],
+  "quickEditFields": [
+    "name",
+    "posCustomer",
+    "inventory",
+    "posPrintTemplate",
+    "posUI",
+    "isShiftOpen",
+    "itemVisibility",
+    "canChangeRate",
+    "hideUnavailableItems",
+    "canEditDiscount",
+    "ignorePricingRule"
+  ]
+}
