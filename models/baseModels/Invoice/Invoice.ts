@@ -205,7 +205,8 @@ export abstract class Invoice extends Transactional {
       await this._removeLoyaltyPointEntry();
       await this._updateIsItemsReturned();
       this.reduceUsedCountOfCoupons();
-      await this.updateIsItemsFullyReturned();
+      if (this.schemaName === ModelNameEnum.SalesInvoice)
+        [await this.updateIsItemsFullyReturned(this)];
       return;
     }
 
@@ -784,11 +785,23 @@ export abstract class Invoice extends Transactional {
     });
   }
 
-  async updateIsItemsFullyReturned() {
-    if (!this.returnAgainst) {
-      return;
+  async updateIsItemsFullyReturned(doc?: Invoice) {
+    let mainDoc;
+    if (doc?.returnAgainst) {
+      mainDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        doc.returnAgainst
+      );
     }
-    const sumOfReturnDocs = await getReturnQtyTotal(this);
+
+    let invoiceDocs: Invoice;
+    if (doc) {
+      invoiceDocs = mainDoc as Invoice;
+    } else {
+      invoiceDocs = this as Invoice;
+    }
+
+    const sumOfReturnDocs = await getReturnQtyTotal(invoiceDocs);
     const isFullyReturned = Object.values(sumOfReturnDocs).every(
       (quantity) => quantity === 0
     );
