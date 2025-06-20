@@ -180,7 +180,9 @@
                 <Button
                   class="mt-2 w-full py-5"
                   :style="{
-                    backgroundColor: fyo.singles.Defaults?.saveButtonColour,
+                    backgroundColor:
+                      profile?.saveButtonColour ||
+                      fyo.singles.Defaults?.saveButtonColour,
                   }"
                   :disabled="!sinvDoc?.party || !sinvDoc?.items?.length"
                   @click="$emit('saveInvoiceAction')"
@@ -194,7 +196,9 @@
                 <Button
                   class="w-full mt-2 py-5"
                   :style="{
-                    backgroundColor: fyo.singles.Defaults?.heldButtonColour,
+                    backgroundColor:
+                      profile?.heldButtonColour ||
+                      fyo.singles.Defaults?.heldButtonColour,
                   }"
                   @click="emitEvent('toggleModal', 'SavedInvoice', true)"
                 >
@@ -209,7 +213,9 @@
                 <Button
                   class="mt-2 w-full py-5"
                   :style="{
-                    backgroundColor: fyo.singles.Defaults?.cancelButtonColour,
+                    backgroundColor:
+                      profile?.cancelButtonColour ||
+                      fyo.singles.Defaults?.cancelButtonColour,
                   }"
                   :disabled="!sinvDoc?.items?.length"
                   @click="() => $emit('clearValues')"
@@ -224,7 +230,9 @@
                   v-if="isReturnInvoiceEnabledReturn"
                   class="mt-2 w-full py-5"
                   :style="{
-                    backgroundColor: fyo.singles.Defaults?.returnButtonColour,
+                    backgroundColor:
+                      profile?.returnButtonColour ||
+                      fyo.singles.Defaults?.returnButtonColour,
                   }"
                   @click="emitEvent('toggleModal', 'ReturnSalesInvoice', true)"
                 >
@@ -238,7 +246,9 @@
                   v-else
                   class="mt-2 w-full py-5"
                   :style="{
-                    backgroundColor: fyo.singles.Defaults?.buyButtonColour,
+                    backgroundColor:
+                      profile?.buyButtonColour ||
+                      fyo.singles.Defaults?.buyButtonColour,
                   }"
                   :disabled="disablePayButton"
                   @click="emitEvent('toggleModal', 'Payment', true)"
@@ -255,7 +265,9 @@
               v-if="isReturnInvoiceEnabledReturn"
               class="mt-2 w-full py-5"
               :style="{
-                backgroundColor: fyo.singles.Defaults?.buyButtonColour,
+                backgroundColor:
+                  profile?.buyButtonColour ||
+                  fyo.singles.Defaults?.buyButtonColour,
               }"
               :disabled="disablePayButton"
               @click="emitEvent('toggleModal', 'Payment', true)"
@@ -380,6 +392,7 @@ import Barcode from 'src/components/Controls/Barcode.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
 import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
 import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
+import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 import { POSItem, PosEmits, ItemQtyMap } from 'src/components/POS/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
@@ -464,6 +477,11 @@ export default defineComponent({
     items: {
       type: Array as PropType<POSItem[] | undefined>,
       default: () => [],
+    },
+    profile: {
+      type: Object as PropType<POSProfile>,
+      required: false,
+      default: null,
     },
   },
   emits: [

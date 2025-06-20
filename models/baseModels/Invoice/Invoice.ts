@@ -111,13 +111,6 @@ export abstract class Invoice extends Transactional {
     return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
   }
 
-  get ignorePricingRules(): boolean {
-    if (this.schemaName !== ModelNameEnum.SalesInvoice) {
-      return false;
-    }
-    return !!this.fyo.singles.POSSettings?.ignorePricingRule;
-  }
-
   get isMultiCurrency() {
     if (!this.currency) {
       return false;
@@ -1457,7 +1450,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async applyProductDiscount() {
-    if (!this.items || this.ignorePricingRules) {
+    if (!this.items || (await this.ignorePricingRules())) {
       return;
     }
 
@@ -1522,6 +1515,23 @@ export abstract class Invoice extends Transactional {
     }
   }
 
+  async ignorePricingRules(): Promise<boolean> {
+    const posProfileName = this.fyo.singles.POSSettings?.posProfile as string;
+
+    if (posProfileName) {
+      const posProfile = await this.fyo.doc.getDoc(
+        ModelNameEnum.POSProfile,
+        posProfileName
+      );
+
+      if (posProfile) {
+        return posProfile.ignorePricingRule as boolean;
+      }
+    }
+
+    return !!this.fyo.singles.POSSettings?.ignorePricingRule;
+  }
+
   async getPricingRuleDocNames(
     item: SalesInvoiceItem,
     sinvDoc: SalesInvoice
@@ -1538,7 +1548,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async getPricingRule(): Promise<ApplicablePricingRules[] | undefined> {
-    if (this.ignorePricingRules) {
+    if (await this.ignorePricingRules()) {
       return;
     }
     if (!this.isSales || !this.items) {

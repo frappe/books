@@ -273,6 +273,20 @@ export default defineComponent({
         (this.doc as Doc).isPOS
       ) {
         templateName = this.fyo.singles.Defaults?.posPrintTemplate;
+
+        const posProfileName = this.fyo.singles.POSSettings
+          ?.posProfile as string;
+
+        if (posProfileName) {
+          const posProfile = await this.fyo.doc.getDoc(
+            ModelNameEnum.POSProfile,
+            posProfileName
+          );
+
+          if (posProfile.posPrintTemplate) {
+            templateName = posProfile.posPrintTemplate;
+          }
+        }
       } else {
         templateName = this.fyo.singles.Defaults?.get(defaultName);
       }
