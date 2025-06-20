@@ -367,16 +367,17 @@ export const statusColor: Record<
   Opportunity: 'yellow',
   Unpaid: 'orange',
   Paid: 'green',
+  PartlyPaid: 'yellow',
   Interested: 'yellow',
   Converted: 'green',
   Quotation: 'green',
-  Saved: 'gray',
+  Saved: 'blue',
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
   DonotContact: 'red',
-  Return: 'green',
-  ReturnIssued: 'green',
+  Return: 'lime',
+  ReturnIssued: 'lime',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -395,6 +396,8 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Paid`;
     case 'Unpaid':
       return t`Unpaid`;
+    case 'PartlyPaid':
+      return t`Partly Paid`;
     case 'Return':
       return t`Return`;
     case 'ReturnIssued':
@@ -511,13 +514,22 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   if (
     doc.submitted &&
     !doc.cancelled &&
-    (doc.outstandingAmount as Money).isPositive()
+    (doc.outstandingAmount as Money).eq(doc.grandTotal as Money)
   ) {
     return 'Unpaid';
   }
 
   if (doc.cancelled) {
     return 'Cancelled';
+  }
+
+  if (
+    doc.submitted &&
+    !doc.isCancelled &&
+    (doc.outstandingAmount as Money).isPositive() &&
+    (doc.outstandingAmount as Money).neq(doc.grandTotal as Money)
+  ) {
+    return 'PartlyPaid';
   }
 
   return 'Saved';
