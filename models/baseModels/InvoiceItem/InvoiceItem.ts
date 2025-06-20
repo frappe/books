@@ -401,16 +401,7 @@ export abstract class InvoiceItem extends Doc {
 
         return getTaxedTotalBeforeDiscounting(totalTaxRate, rate, quantity);
       },
-      dependsOn: [
-        'itemDiscountAmount',
-        'itemDiscountPercent',
-        'itemDiscountedTotal',
-        'setItemDiscountAmount',
-        'tax',
-        'rate',
-        'quantity',
-        'item',
-      ],
+      dependsOn: ['rate', 'quantity', 'item'],
     },
     stockNotTransferred: {
       formula: async () => {
@@ -735,12 +726,12 @@ function getDiscountedTotalBeforeTaxation(
    * - if percent: Quantity * Rate (1 - DiscountPercent / 100)
    */
 
-  const amount = rate.mul(quantity);
   if (setDiscountAmount) {
-    return amount.sub(itemDiscountAmount);
+    return rate.sub(itemDiscountAmount).mul(quantity);
+  } else if (itemDiscountPercent > 0) {
+    return rate.mul(quantity).percent(itemDiscountPercent);
   }
-
-  return amount.mul(1 - itemDiscountPercent / 100);
+  return rate.mul(quantity);
 }
 
 function getTaxedTotalAfterDiscounting(

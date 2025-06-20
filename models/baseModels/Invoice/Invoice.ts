@@ -24,6 +24,7 @@ import {
   getPricingRulesConflicts,
   removeLoyaltyPoint,
   roundFreeItemQty,
+  getReturnQtyTotal,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -94,6 +95,7 @@ export abstract class Invoice extends Transactional {
 
   isReturned?: boolean;
   returnAgainst?: string;
+  isFullyReturned?: boolean;
 
   pricingRuleDetail?: PricingRuleDetail[];
 
@@ -196,7 +198,8 @@ export abstract class Invoice extends Transactional {
       await this._removeLoyaltyPointEntry();
       await this._updateIsItemsReturned();
       this.reduceUsedCountOfCoupons();
-
+      if (this.schemaName === ModelNameEnum.SalesInvoice)
+        [await this.updateIsItemsFullyReturned(this)];
       return;
     }
 
@@ -456,6 +459,9 @@ export abstract class Invoice extends Transactional {
       }, (this.netTotal as Money).abs())
       .sub(totalDiscount);
 
+    if (this.redeemLoyaltyPoints) {
+      return this.getLPAddedBaseGrandTotal();
+    }
     return grandTotal;
   }
 
@@ -648,6 +654,8 @@ export abstract class Invoice extends Transactional {
 
     let returnDocItems: DocValueMap[] = [];
 
+    const sumOfReturnDocs = await getReturnQtyTotal(this);
+
     const returnBalanceItemsQty = await this.fyo.db.getReturnBalanceItemsQty(
       this.schemaName,
       this.name
@@ -655,13 +663,16 @@ export abstract class Invoice extends Transactional {
 
     for (const item of docItems) {
       if (!returnBalanceItemsQty) {
-        returnDocItems = docItems;
+        returnDocItems = docItems.map((docItem) => ({
+          ...docItem,
+          name: undefined,
+          quantity: -(sumOfReturnDocs[docItem.item as string] || 0),
+        }));
+
         for (const row of returnDocItems) {
-          row.name = undefined;
           row.itemDiscountedTotal = await this.getItemsDiscountedTotal(
             row as InvoiceItem
           );
-          (row.quantity as number) *= -1;
         }
         break;
       }
@@ -676,6 +687,10 @@ export abstract class Invoice extends Transactional {
 
       const returnedItem: ReturnDocItem | undefined =
         returnBalanceItemsQty[item.item as string];
+
+      if (!returnedItem) {
+        continue;
+      }
 
       let quantity = returnedItem.quantity;
       let serialNumber: string | undefined =
@@ -703,6 +718,24 @@ export abstract class Invoice extends Transactional {
         quantity: quantity,
       });
     }
+
+    returnDocItems.forEach((docItems) => {
+      const itemName = docItems.item;
+      if (typeof itemName === 'string' || typeof itemName === 'number') {
+        if (itemName in sumOfReturnDocs) {
+          docItems.quantity = sumOfReturnDocs[itemName];
+        }
+      }
+    });
+
+    returnDocItems = returnDocItems.filter(
+      (docItems) => (docItems.quantity as number) > 0
+    );
+
+    returnDocItems.forEach((docItems) => {
+      docItems.quantity = -(docItems.quantity as number);
+    });
+
     const returnDocData = {
       ...docData,
       name: undefined,
@@ -743,6 +776,37 @@ export abstract class Invoice extends Transactional {
 
       await couponDoc.setAndSync({ used: (couponDoc.used as number) - 1 });
     });
+  }
+
+  async updateIsItemsFullyReturned(doc?: Invoice) {
+    let mainDoc;
+    if (doc?.returnAgainst) {
+      mainDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        doc.returnAgainst
+      );
+    }
+
+    let invoiceDocs: Invoice;
+    if (doc) {
+      invoiceDocs = mainDoc as Invoice;
+    } else {
+      invoiceDocs = this as Invoice;
+    }
+
+    const sumOfReturnDocs = await getReturnQtyTotal(invoiceDocs);
+    const isFullyReturned = Object.values(sumOfReturnDocs).every(
+      (quantity) => quantity === 0
+    );
+    if (!isFullyReturned) {
+      return;
+    }
+    const invoiceDoc = await this.fyo.doc.getDoc(
+      this.schemaName,
+      this.returnAgainst
+    );
+    await invoiceDoc.setAndSync({ isFullyReturned });
+    await invoiceDoc.submit();
   }
 
   async _updateIsItemsReturned() {
@@ -908,10 +972,6 @@ export abstract class Invoice extends Transactional {
 
             return this.grandTotal?.add(totalPaid as Money).abs();
           }
-        }
-
-        if (this.redeemLoyaltyPoints) {
-          return await this.getLPAddedBaseGrandTotal();
         }
 
         return this.baseGrandTotal;
