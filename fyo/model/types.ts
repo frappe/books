@@ -14,6 +14,7 @@ import type { POSSettings } from 'models/inventory/Point of Sale/POSSettings';
 import type { POSOpeningShift } from 'models/inventory/Point of Sale/POSOpeningShift';
 import type { POSClosingShift } from 'models/inventory/Point of Sale/POSClosingShift';
 import { ERPNextSyncSettings } from 'models/baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
+import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 
 /**
  * The functions below are used for dynamic evaluation
@@ -28,7 +29,9 @@ import { ERPNextSyncSettings } from 'models/baseModels/ERPNextSyncSettings/ERPNe
  * - `Required`: Regular function used to decide if a value is mandatory (there are !notnul in the db).
  */
 export type FormulaReturn = DocValue | DocValueMap[] | undefined | Doc[];
-export type Formula = (fieldname?: string) => Promise<FormulaReturn> | FormulaReturn;
+export type Formula = (
+  fieldname?: string
+) => Promise<FormulaReturn> | FormulaReturn;
 export type FormulaConfig = { dependsOn?: string[]; formula: Formula };
 export type Default = (doc: Doc) => DocValue;
 export type Validation = (value: DocValue) => Promise<void> | void;
@@ -59,6 +62,7 @@ export interface SinglesMap {
   AccountingSettings?: AccountingSettings;
   InventorySettings?: InventorySettings;
   POSSettings?: POSSettings;
+  POSProfile?: POSProfile;
   POSOpeningShift?: POSOpeningShift;
   ERPNextSyncSettings?: ERPNextSyncSettings;
   POSClosingShift?: POSClosingShift;
@@ -91,8 +95,8 @@ export interface Action {
 }
 
 export interface RenderData {
-  schema: Schema,
-  [key: string]: DocValue | Schema
+  schema: Schema;
+  [key: string]: DocValue | Schema;
 }
 
 export type ColumnConfig = {
@@ -101,7 +105,7 @@ export type ColumnConfig = {
   fieldname: string;
   render?: (doc: RenderData) => { template: string };
   display?: (value: unknown, fyo: Fyo) => string;
-}
+};
 
 export type ListViewColumn = string | ColumnConfig;
 export interface ListViewSettings {
@@ -122,7 +126,7 @@ export type DocStatus =
   | 'Submitted'
   | 'Cancelled';
 
-  export type LeadStatus =
+export type LeadStatus =
   | ''
   | 'Open'
   | 'Replied'
@@ -130,4 +134,4 @@ export type DocStatus =
   | 'Opportunity'
   | 'Converted'
   | 'Quotation'
-  | 'DonotContact'
+  | 'DonotContact';

@@ -69,6 +69,7 @@ export enum ModelNameEnum {
   CustomForm = 'CustomForm',
   CustomField = 'CustomField',
   POSSettings = 'POSSettings',
+  POSProfile = 'POSProfile',
   POSOpeningShift = 'POSOpeningShift',
   POSClosingShift = 'POSClosingShift',
 
