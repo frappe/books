@@ -456,8 +456,8 @@ export abstract class InvoiceItem extends Doc {
           (rule) => rule.referenceItem === this.item
         );
 
-        if (!hasPricingRule) {
-          return this.setItemDiscountAmount;
+        if (!hasPricingRule && (this.itemDiscountAmount as Money).isZero()) {
+          return false;
         }
 
         const applicablePricingRules = await getPricingRule(
@@ -469,9 +469,15 @@ export abstract class InvoiceItem extends Doc {
         );
 
         if (!itemRule) {
-          await this.set('itemDiscountAmount', this.fyo.pesa(0));
+          if (!this.prule) {
+            await this.set('itemDiscountAmount', this.itemDiscountAmount);
+            return true;
+          } else {
+            await this.set('itemDiscountAmount', this.fyo.pesa(0));
+          }
           return false;
         }
+        this.prule = itemRule;
 
         const pricingRuleDoc = itemRule.pricingRule;
 
@@ -488,10 +494,7 @@ export abstract class InvoiceItem extends Doc {
     },
     itemDiscountPercent: {
       formula: async () => {
-        if (
-          !this.fyo.singles.AccountingSettings?.enablePricingRule ||
-          !this.parentdoc?.pricingRuleDetail?.length
-        ) {
+        if (!this.fyo.singles.AccountingSettings?.enablePricingRule) {
           return this.itemDiscountPercent ?? 0;
         }
 
@@ -500,7 +503,11 @@ export abstract class InvoiceItem extends Doc {
         );
 
         if (!pricingRule || !pricingRule.length) {
-          return this.itemDiscountPercent ?? 0;
+          if (!this.prule) {
+            return this.itemDiscountPercent;
+          } else {
+            return this.fyo.pesa(0);
+          }
         }
 
         const pricingRuleDoc = (await this.fyo.doc.getDoc(
