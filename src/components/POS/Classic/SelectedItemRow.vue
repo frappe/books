@@ -388,15 +388,13 @@ export default defineComponent({
       const manualDiscountAmount = this.row.itemDiscountAmount;
       const manualDiscountPercent = this.row.itemDiscountPercent;
       if (!this.row.isReturn && quantity <= 0) {
-        if (quantity <= 0) {
-          showToast({
-            type: 'error',
-            message: 'Quantity must be greater than zero.',
-            duration: 'short',
-          });
+        showToast({
+          type: 'error',
+          message: 'Quantity must be greater than zero.',
+          duration: 'short',
+        });
 
-          quantity = this.row.quantity ?? 1;
-        }
+        quantity = this.row.quantity ?? 1;
       }
 
       this.row.set('quantity', quantity);
