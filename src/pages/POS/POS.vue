@@ -790,7 +790,7 @@ export default defineComponent({
         const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
 
         if (
-          this.sinvDoc.stockNotTransferred ||
+          this.sinvDoc.stockNotTransferred &&
           itemVisibility === 'Inventory Items'
         ) {
           await this.makeStockTransfer();
