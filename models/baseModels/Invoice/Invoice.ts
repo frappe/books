@@ -661,7 +661,7 @@ export abstract class Invoice extends Transactional {
 
     let returnDocItems: DocValueMap[] = [];
 
-    const sumOfReturnDocs = await getReturnQtyTotal(this);
+    const totalQtyOfReturnedItems = await getReturnQtyTotal(this);
 
     const returnBalanceItemsQty = await this.fyo.db.getReturnBalanceItemsQty(
       this.schemaName,
@@ -673,7 +673,7 @@ export abstract class Invoice extends Transactional {
         returnDocItems = docItems.map((docItem) => ({
           ...docItem,
           name: undefined,
-          quantity: -(sumOfReturnDocs[docItem.item as string] || 0),
+          quantity: -(totalQtyOfReturnedItems[docItem.item as string] || 0),
         }));
 
         for (const row of returnDocItems) {
@@ -727,11 +727,9 @@ export abstract class Invoice extends Transactional {
     }
 
     returnDocItems.forEach((docItems) => {
-      const itemName = docItems.item;
-      if (typeof itemName === 'string' || typeof itemName === 'number') {
-        if (itemName in sumOfReturnDocs) {
-          docItems.quantity = sumOfReturnDocs[itemName];
-        }
+      const itemName = docItems.item as string;
+      if (itemName in totalQtyOfReturnedItems) {
+        docItems.quantity = totalQtyOfReturnedItems[itemName];
       }
     });
 
@@ -786,23 +784,18 @@ export abstract class Invoice extends Transactional {
   }
 
   async updateIsItemsFullyReturned(doc?: Invoice) {
-    let mainDoc;
+    let sinvDoc;
     if (doc?.returnAgainst) {
-      mainDoc = await this.fyo.doc.getDoc(
+      sinvDoc = await this.fyo.doc.getDoc(
         ModelNameEnum.SalesInvoice,
         doc.returnAgainst
       );
     }
 
-    let invoiceDocs: Invoice;
-    if (doc) {
-      invoiceDocs = mainDoc as Invoice;
-    } else {
-      invoiceDocs = this as Invoice;
-    }
-
-    const sumOfReturnDocs = await getReturnQtyTotal(invoiceDocs);
-    const isFullyReturned = Object.values(sumOfReturnDocs).every(
+    const totalQtyOfReturnedItems = await getReturnQtyTotal(
+      (sinvDoc as Invoice) ?? this
+    );
+    const isFullyReturned = Object.values(totalQtyOfReturnedItems).every(
       (quantity) => quantity === 0
     );
     if (!isFullyReturned) {
@@ -888,6 +881,10 @@ export abstract class Invoice extends Transactional {
       this.loyaltyProgram as string,
       this.loyaltyPoints as number
     );
+
+    if (this.redeemLoyaltyPoints && (this.loyaltyPoints as number) > 0) {
+      this.grandTotal?.add(totalLotaltyAmount);
+    }
 
     return this.grandTotal?.sub(totalLotaltyAmount);
   }

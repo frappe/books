@@ -721,7 +721,7 @@ export async function getReturnQtyTotal(
     },
   });
 
-  const returnDocNames = await Promise.all(
+  const returnedDocs = await Promise.all(
     returnDocs.map((docss) =>
       doc.fyo.doc.getDoc(doc.schemaName, docss.name as string)
     )
@@ -738,9 +738,12 @@ export async function getReturnQtyTotal(
     });
   }
 
-  returnDocNames.forEach((documents) => {
-    if ('items' in documents && Array.isArray(documents.items)) {
-      documents.items.forEach((item: InvoiceItem) => {
+  if (!returnedDocs) {
+    return quantitySum;
+  }
+  returnedDocs.forEach((returnedDoc) => {
+    if (returnedDoc && returnedDoc.items) {
+      (returnedDoc.items as InvoiceItem[]).forEach((item) => {
         const itemName = item.item;
         if (itemName && quantitySum.hasOwnProperty(itemName)) {
           quantitySum[itemName] =
