@@ -299,7 +299,6 @@ export function getMakeReturnDocAction(fyo: Fyo): Action {
     label: fyo.t`Return`,
     group: fyo.t`Create`,
     condition: (doc: Doc) =>
-      !doc.isReturn &&
       (!!fyo.singles.AccountingSettings?.enableInvoiceReturns ||
         !!fyo.singles.InventorySettings?.enableStockReturns) &&
       doc.isSubmitted &&
@@ -735,6 +734,50 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   }
 
   await item.set('item', name);
+}
+
+export async function getReturnQtyTotal(
+  doc: Invoice
+): Promise<Record<string, number>> {
+  const returnDocs = await doc.fyo.db.getAll(doc.schemaName, {
+    fields: ['*'],
+    filters: {
+      returnAgainst: doc.name as string,
+    },
+  });
+
+  const returnedDocs = await Promise.all(
+    returnDocs.map((docss) =>
+      doc.fyo.doc.getDoc(doc.schemaName, docss.name as string)
+    )
+  );
+
+  const quantitySum: { [key: string]: number } = {};
+
+  if ('items' in doc && Array.isArray(doc.items)) {
+    doc.items.forEach((docItem) => {
+      const itemName = docItem.item as string;
+      if (itemName) {
+        quantitySum[itemName] = (docItem.quantity as number) || 0;
+      }
+    });
+  }
+
+  if (!returnedDocs) {
+    return quantitySum;
+  }
+  returnedDocs.forEach((returnedDoc) => {
+    if (returnedDoc && returnedDoc.items) {
+      (returnedDoc.items as InvoiceItem[]).forEach((item) => {
+        const itemName = item.item;
+        if (itemName && quantitySum.hasOwnProperty(itemName)) {
+          quantitySum[itemName] =
+            quantitySum[itemName] - Math.abs(item.quantity as number);
+        }
+      });
+    }
+  });
+  return quantitySum;
 }
 
 export async function createLoyaltyPointEntry(doc: Invoice) {

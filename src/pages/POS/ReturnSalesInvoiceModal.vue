@@ -212,11 +212,11 @@ export default defineComponent({
 
       const returnedInvoiceNames = allInvoices
         .filter((inv) => {
-          if (inv.isReturned) {
+          if (inv.isFullyReturned || inv.returnAgainst) {
             return false;
           }
 
-          if (inv.isReturned && !(inv.outstandingAmount as Money).isZero()) {
+          if (inv.isReturned && !inv.isFullyReturned) {
             return true;
           }
 

@@ -188,6 +188,12 @@
       "default": false
     },
     {
+      "fieldname": "isFullyReturned",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
       "fieldname": "isSyncedWithErp",
       "fieldtype": "Check",
       "hidden": true,

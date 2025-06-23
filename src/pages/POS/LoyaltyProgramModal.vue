@@ -1,6 +1,6 @@
 <template>
   <Modal class="h-96 w-96" :set-close-listener="false">
-    <p class="text-center py-4">Redeem Loyalty Points</p>
+    <p class="text-center py-4 dark:text-gray-100">Redeem Loyalty Points</p>
 
     <hr class="dark:border-gray-800" />
 
@@ -17,7 +17,7 @@
         />
       </svg>
 
-      <p>{{ loyaltyPoints }}</p>
+      <p class="dark:text-gray-100">{{ loyaltyPoints }}</p>
     </div>
 
     <Int
