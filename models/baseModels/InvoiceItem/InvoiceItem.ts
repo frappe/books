@@ -191,7 +191,7 @@ export abstract class InvoiceItem extends Doc {
     },
     transferUnit: {
       formula: async (fieldname) => {
-        if (!this.item) return '';
+        if (!this.item) return;
         if (fieldname === 'quantity' || fieldname === 'unit') {
           return this.unit;
         }
@@ -204,11 +204,11 @@ export abstract class InvoiceItem extends Doc {
           }
         );
 
-        if (conversionItems.length === 0) {
+        if (conversionItems.length) {
           return this.unit;
         }
 
-        const validUnits = conversionItems.map((i) => i.uom as string);
+        const validUnits = conversionItems.map((i) => i.uom);
         if (this.transferUnit && validUnits.includes(this.transferUnit)) {
           return this.transferUnit;
         }
@@ -614,9 +614,10 @@ export abstract class InvoiceItem extends Doc {
         fields: ['name'],
         filters: { item: doc.item as string },
       });
+      const batchName = batches.map((b) => b.name) as string[];
 
       return {
-        name: ['in', batches.map((b) => b.name as string)],
+        name: ['in', batchName],
       };
     },
     transferUnit: async (doc: Doc) => {
@@ -627,13 +628,10 @@ export abstract class InvoiceItem extends Doc {
           filters: { parent: doc.item as string },
         }
       );
-      const allUoms = [
-        doc.unit,
-        ...conversionItems.map((i) => i.uom as string),
-      ];
+      const conversionUoms = conversionItems.map((i) => i.uom) as string[];
 
       return {
-        name: ['in', allUoms] as [string, string[]],
+        name: ['in', conversionUoms],
       };
     },
   };
