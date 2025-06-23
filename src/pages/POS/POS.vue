@@ -610,7 +610,7 @@ export default defineComponent({
     },
     async setLoyaltyPoints(value: number) {
       this.appliedLoyaltyPoints = value;
-      this.sinvDoc.redeemLoyaltyPoints = true;
+      await this.sinvDoc.set('redeemLoyaltyPoints', true);
 
       const totalLotaltyAmount = await getAddedLPWithGrandTotal(
         this.fyo,
@@ -623,6 +623,7 @@ export default defineComponent({
         .abs();
 
       this.sinvDoc.grandTotal = total;
+      this.sinvDoc.outstandingAmount = total;
     },
     async selectedInvoiceName(doc: SalesInvoice) {
       const salesInvoiceDoc = (await this.fyo.doc.getDoc(

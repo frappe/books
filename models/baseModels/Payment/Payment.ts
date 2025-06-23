@@ -470,11 +470,9 @@ export class Payment extends Transactional {
 
     for (const row of this.for ?? []) {
       if (!this.fyo.singles.AccountingSettings?.enablePartialPayment) {
-        const amount = !(this.amountPaid as Money).isZero()
-          ? (this.amountPaid as Money)
-          : (this.amount as Money);
-        const initialAmount = this.initialAmount as Money;
-        if (amount.lt(initialAmount) && !amount.eq(initialAmount)) {
+        const amount = this.amount as Money;
+        const totalAmount = this.totalAmount as Money;
+        if (amount.lt(totalAmount)) {
           if (this.writeoff?.isZero()) {
             this.amount = this.initialAmount;
             row.amountPaid = this.fyo.pesa(0);
@@ -705,7 +703,7 @@ export class Payment extends Transactional {
   };
 
   validations: ValidationMap = {
-    amount: (value: DocValue) => {
+    amount: async (value: DocValue) => {
       if ((value as Money).isNegative()) {
         throw new ValidationError(
           this.fyo.t`Payment amount cannot be less than zero.`
@@ -716,13 +714,22 @@ export class Payment extends Transactional {
         return;
       }
 
-      if (!this.initialAmount) {
-        this.initialAmount = this.amount as Money;
+      if (!this.totalAmount) {
+        for (const row of this.for ?? []) {
+          const referenceDoc = (await this.fyo.doc.getDoc(
+            row.referenceType as string,
+            row.referenceName as string
+          )) as Invoice;
+
+          this.totalAmount = referenceDoc.outstandingAmount?.abs();
+        }
       }
-      if ((value as Money).gt(this.initialAmount)) {
+
+      if ((value as Money).gt(this.totalAmount as Money)) {
+        this.amount = this.initialAmount;
         throw new ValidationError(
           this.fyo.t`Payment amount cannot exceed ${this.fyo.format(
-            this.initialAmount,
+            this.totalAmount,
             'Currency'
           )}.`
         );
