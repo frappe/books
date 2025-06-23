@@ -591,6 +591,7 @@ export default defineComponent({
         .abs();
 
       this.sinvDoc.grandTotal = total;
+      this.sinvDoc.outstandingAmount = total;
     },
     async selectedInvoiceName(doc: SalesInvoice) {
       const salesInvoiceDoc = (await this.fyo.doc.getDoc(
