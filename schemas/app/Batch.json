@@ -29,6 +29,6 @@
       "required": false
     }
   ],
-  "quickEditFields": ["expiryDate", "manufactureDate"],
+  "quickEditFields": ["item", "expiryDate", "manufactureDate"],
   "keywordFields": ["name"]
 }

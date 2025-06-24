@@ -56,6 +56,28 @@ export class StockMovementItem extends TransferItem {
     item: () => ({ trackItem: true }),
   };
 
+  async validate() {
+    await super.validate();
+    await this.validateBatchAndItemConsistency();
+  }
+
+  async validateBatchAndItemConsistency() {
+    if (!this.batch || !this.item) {
+      return;
+    }
+
+    const batchDoc = await this.fyo.doc.getDoc(ModelNameEnum.Batch, this.batch);
+    if (!batchDoc) {
+      return;
+    }
+
+    if (batchDoc.item !== this.item) {
+      throw new ValidationError(
+        t`Batch ${this.batch} does not belong to Item ${this.item}`
+      );
+    }
+  }
+
   formulas: FormulaMap = {
     rate: {
       formula: async () => {
@@ -206,6 +228,13 @@ export class StockMovementItem extends TransferItem {
       if (value && this.fromLocation) {
         throw new ValidationError(
           this.fyo.t`Only From or To can be set for Manufacture`
+        );
+      }
+    },
+    batch: () => {
+      if (this.fyo.singles.InventorySettings?.enableBatches && !this.batch) {
+        throw new ValidationError(
+          t`Batch is required for Item ${this.item as string}`
         );
       }
     },
