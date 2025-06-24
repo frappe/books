@@ -8,11 +8,7 @@ import {
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
-import {
-  addItem,
-  getDocStatusListColumn,
-  getLedgerLinkAction,
-} from 'models/helpers';
+import { getDocStatusListColumn, getLedgerLinkAction } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { SerialNumber } from './SerialNumber';
@@ -141,7 +137,29 @@ export class StockMovement extends Transfer {
   }
 
   async addItem(name: string) {
-    return await addItem(name, this);
+    const itemDoc = await this.fyo.doc.getDoc(ModelNameEnum.Item, name);
+    if (!itemDoc) {
+      throw new ValidationError(t`Item ${name} not found`);
+    }
+
+    const item = {
+      name: itemDoc.name,
+      batch: itemDoc.defaultBatch ?? null,
+    };
+
+    if (item.batch) {
+      const batchDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.Batch,
+        item.batch as string
+      );
+      if (batchDoc && batchDoc.item !== name) {
+        throw new ValidationError(
+          t`Batch ${item.batch as string} does not belong to Item ${name}`
+        );
+      }
+    }
+
+    return item;
   }
 }
 
