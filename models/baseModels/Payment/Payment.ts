@@ -470,11 +470,14 @@ export class Payment extends Transactional {
 
     for (const row of this.for ?? []) {
       if (!this.fyo.singles.AccountingSettings?.enablePartialPayment) {
-        const amount = this.amount as Money;
+        const amount = (this.writeoff as Money).isZero()
+          ? (this.amount as Money)
+          : (this.amountPaid as Money);
+
         const totalAmount = this.totalAmount as Money;
         if (amount.lt(totalAmount)) {
           if (this.writeoff?.isZero()) {
-            this.amount = this.initialAmount;
+            this.amount = totalAmount;
             row.amountPaid = this.fyo.pesa(0);
             throw new ValidationError(
               this.fyo.t`Enable Partial payment to pay partial amount`

@@ -104,7 +104,7 @@ export default defineComponent({
         },
         {
           fieldname: 'availableQty',
-          label: 'Available Qty',
+          label: 'Qty',
           placeholder: 'Available Qty',
           fieldtype: 'Float',
           readOnly: true,
