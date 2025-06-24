@@ -469,11 +469,35 @@ function constructPrintDocument(innerHTML: string) {
   const body = document.createElement('body');
   const style = getAllCSSAsStyleElem();
 
+  const printCSS = document.createElement('style');
+  printCSS.innerHTML = `
+    @media print {
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 80mm;
+        background: white;
+      }
+
+      @page {
+        size: 80mm auto;
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  `;
+
   head.innerHTML = [
     '<meta charset="UTF-8">',
     '<title>Print Window</title>',
   ].join('\n');
-  head.append(style);
+
+  head.append(style, printCSS);
 
   body.innerHTML = innerHTML;
   html.append(head, body);
