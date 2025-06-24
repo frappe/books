@@ -191,7 +191,9 @@ export abstract class InvoiceItem extends Doc {
     },
     transferUnit: {
       formula: async (fieldname) => {
-        if (!this.item) return;
+        if (!this.item) {
+          return;
+        }
         if (fieldname === 'quantity' || fieldname === 'unit') {
           return this.unit;
         }
@@ -827,9 +829,6 @@ function getRate(
   const isItemDiscountedTotal = !isItemTaxedTotal;
   const discountBeforeTax = !discountAfterTax;
 
-  /**
-   * Rate calculated from itemDiscountedTotal
-   */
   if (isItemDiscountedTotal && discountBeforeTax && setItemDiscountAmount) {
     return itemDiscountedTotal.add(itemDiscountAmount).div(quantity);
   }
@@ -850,9 +849,6 @@ function getRate(
     );
   }
 
-  /**
-   * Rate calculated from itemTaxedTotal
-   */
   if (isItemTaxedTotal && discountAfterTax) {
     return itemTaxedTotal.div(quantity * (1 + totalTaxRate / 100));
   }
