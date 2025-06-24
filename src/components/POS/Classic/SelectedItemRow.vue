@@ -87,48 +87,6 @@
 
   <template v-if="isExapanded">
     <div class="px-4 pt-6 col-span-1">
-      <Float
-        :df="{
-          fieldname: 'quantity',
-          fieldtype: 'Float',
-          label: 'Quantity',
-        }"
-        size="medium"
-        :min="0"
-        :border="true"
-        :show-label="true"
-        :value="row.quantity"
-        @change="(value:number) => setQuantity(value)"
-        :read-only="isReadOnly"
-      />
-    </div>
-
-    <div class="px-4 pt-6 col-span-2 flex">
-      <Link
-        v-if="isUOMConversionEnabled"
-        :df="{
-          fieldname: 'transferUnit',
-          fieldtype: 'Link',
-          target: 'UOM',
-          label: t`Transfer Unit`,
-        }"
-        class="flex-1"
-        :show-label="true"
-        :border="true"
-        :value="row.transferUnit"
-        @change="(value:string) => row.set('transferUnit', value)"
-        :read-only="isReadOnly"
-      />
-      <feather-icon
-        v-if="isUOMConversionEnabled"
-        name="refresh-ccw"
-        class="w-3.5 ml-2 mt-4 text-blue-500"
-        @click="row.transferUnit = row.unit"
-        :read-only="isReadOnly"
-      />
-    </div>
-
-    <div class="px-4 pt-6 col-span-2">
       <Int
         v-if="isUOMConversionEnabled"
         :df="{
@@ -145,10 +103,45 @@
       />
     </div>
 
+    <div class="px-4 pt-6 col-span-2">
+      <Link
+        v-if="isUOMConversionEnabled"
+        :df="{
+          fieldname: 'transferUnit',
+          fieldtype: 'Link',
+          target: 'UOM',
+          label: t`Transfer Unit`,
+        }"
+        class="flex-1"
+        :show-label="true"
+        :border="true"
+        :value="row.transferUnit"
+        @change="(value:string) => row.set('transferUnit', value)"
+        :read-only="isReadOnly"
+      />
+    </div>
+
+    <div class="px-4 pt-6 col-span-2">
+      <Float
+        :df="{
+          fieldname: 'quantity',
+          fieldtype: 'Float',
+          label: 'Quantity',
+        }"
+        size="medium"
+        :min="0"
+        :border="true"
+        :show-label="true"
+        :value="row.quantity"
+        @change="(value:number) => setQuantity(value)"
+        :read-only="isUOMConversionEnabled"
+      />
+    </div>
+
     <div></div>
     <div></div>
 
-    <div class="px-4 pt-6 flex">
+    <div class="px-4 pt-6">
       <Currency
         :df="{
           fieldtype: 'Currency',
@@ -161,12 +154,6 @@
         :value="row.rate"
         :read-only="isRateReadOnly()"
         @change="(value:Money) => setRate((row.rate = value))"
-      />
-      <feather-icon
-        name="refresh-ccw"
-        class="w-3.5 ml-2 mt-5 text-blue-500 flex-none"
-        @click="row.rate= (defaultRate as Money)"
-        :disabled="isRateReadOnly()"
       />
     </div>
     <div class="px-6 pt-6 col-span-2">

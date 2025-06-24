@@ -513,7 +513,7 @@ export abstract class InvoiceItem extends Doc {
           if (!this.prule) {
             return this.itemDiscountPercent;
           } else {
-            return this.fyo.pesa(0);
+            return 0;
           }
         }
 

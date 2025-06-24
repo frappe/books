@@ -79,6 +79,7 @@ export abstract class Invoice extends Transactional {
   grandTotal?: Money;
   baseGrandTotal?: Money;
   outstandingAmount?: Money;
+  initialGrandTotal?: Money;
   exchangeRate?: number;
   setDiscountAmount?: boolean;
   discountAmount?: Money;
@@ -869,19 +870,18 @@ export abstract class Invoice extends Transactional {
   }
 
   async getLPAddedBaseGrandTotal() {
+    if (!this.initialGrandTotal) {
+      this.initialGrandTotal = this.grandTotal;
+    }
+
     const totalLotaltyAmount = await getAddedLPWithGrandTotal(
       this.fyo,
       this.loyaltyProgram as string,
       this.loyaltyPoints as number
     );
 
-    if (this.redeemLoyaltyPoints && (this.loyaltyPoints as number) > 0) {
-      this.grandTotal?.add(totalLotaltyAmount);
-    }
-
-    return this.grandTotal?.sub(totalLotaltyAmount);
+    return this.initialGrandTotal?.sub(totalLotaltyAmount);
   }
-
   formulas: FormulaMap = {
     account: {
       formula: async () => {
