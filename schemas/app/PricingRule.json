@@ -61,12 +61,6 @@
       "default": false
     },
     {
-      "fieldname": "isMultiple",
-      "label": "Is Multiple",
-      "fieldtype": "Check",
-      "default": false
-    },
-    {
       "fieldname": "priority",
       "label": "Priority",
       "fieldtype": "Select",
