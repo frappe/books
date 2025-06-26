@@ -107,6 +107,13 @@ export class Item extends Doc {
   };
 
   validations: ValidationMap = {
+    barcode: (value: DocValue) => {
+      if (value && !(value as string).match(/^\d{12}$/)) {
+        throw new ValidationError(
+          this.fyo.t`Barcode must be exactly 12 digits.`
+        );
+      }
+    },
     rate: (value: DocValue) => {
       if ((value as Money).isNegative()) {
         throw new ValidationError(this.fyo.t`Rate can't be negative.`);
