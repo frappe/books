@@ -231,10 +231,18 @@ export class StockMovementItem extends TransferItem {
         );
       }
     },
-    batch: () => {
-      if (this.fyo.singles.InventorySettings?.enableBatches && !this.batch) {
+    batch: async () => {
+      if (!this.item || !this.batch) return;
+
+      const batchDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.Batch,
+        this.batch
+      );
+      if (!batchDoc) return;
+
+      if (batchDoc.item !== this.item) {
         throw new ValidationError(
-          t`Batch is required for Item ${this.item as string}`
+          t`Batch ${this.batch} does not belong to Item ${this.item}`
         );
       }
     },
