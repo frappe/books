@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
@@ -191,6 +191,21 @@ export abstract class Invoice extends Transactional {
     }
     await validateBatch(this);
     await this._validatePricingRule();
+  }
+
+  async beforeSubmit() {
+    const partyDoc = (await this.fyo.doc.getDoc(
+      ModelNameEnum.Party,
+      this.party
+    )) as Party;
+
+    if ((this.loyaltyPoints as number) > (partyDoc?.loyaltyPoints || 0)) {
+      throw new ValidationError(
+        t`${this.party as string} only has ${
+          partyDoc.loyaltyPoints as number
+        } points`
+      );
+    }
   }
 
   async afterSubmit() {
@@ -446,6 +461,9 @@ export abstract class Invoice extends Transactional {
     const totalDiscount = this.getTotalDiscount();
 
     if (!this.taxes!.length) {
+      if (this.redeemLoyaltyPoints) {
+        return this.getLPAddedBaseGrandTotal();
+      }
       return (this.netTotal as Money).sub(totalDiscount);
     }
 
@@ -880,6 +898,10 @@ export abstract class Invoice extends Transactional {
       this.loyaltyPoints as number
     );
 
+    if (this.isReturn) {
+      return this.grandTotal;
+    }
+
     return this.initialGrandTotal?.sub(totalLotaltyAmount);
   }
   formulas: FormulaMap = {
@@ -937,7 +959,10 @@ export abstract class Invoice extends Transactional {
     },
     netTotal: { formula: () => this.getSum('items', 'amount', false) },
     taxes: { formula: async () => await this.getTaxSummary() },
-    grandTotal: { formula: () => this.getGrandTotal() },
+    grandTotal: {
+      formula: async () => await this.getGrandTotal(),
+      dependsOn: ['loyaltyPoints'],
+    },
     baseGrandTotal: {
       formula: () => (this.grandTotal as Money).mul(this.exchangeRate! ?? 1),
       dependsOn: ['grandTotal', 'exchangeRate'],
@@ -955,7 +980,7 @@ export abstract class Invoice extends Transactional {
           if (sinvreturnedDoc.outstandingAmount?.isZero()) {
             return this.grandTotal?.abs();
           } else {
-            const totalPaid = this.grandTotal
+            const totalPaid = sinvreturnedDoc.grandTotal
               ?.abs()
               .sub(sinvreturnedDoc.outstandingAmount as Money);
 

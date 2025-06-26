@@ -13,6 +13,8 @@ import { LoyaltyProgram } from '../LoyaltyProgram/LoyaltyProgram';
 import { DocValue } from 'fyo/core/types';
 import { Party } from '../Party/Party';
 import { ValidationError } from 'fyo/utils/errors';
+import { Money } from 'pesa';
+import { Doc } from 'fyo/model/doc';
 
 export class SalesInvoice extends Invoice {
   items?: SalesInvoiceItem[];
@@ -81,7 +83,7 @@ export class SalesInvoice extends Invoice {
 
   validations: ValidationMap = {
     loyaltyPoints: async (value: DocValue) => {
-      if (!this.redeemLoyaltyPoints || this.isSubmitted) {
+      if (!this.redeemLoyaltyPoints || this.isSubmitted || this.isReturn) {
         return;
       }
 
@@ -116,7 +118,24 @@ export class SalesInvoice extends Invoice {
         ((loyaltyProgramDoc?.conversionFactor as number) || 0);
 
       if (!this.isReturn) {
-        if (this.grandTotal?.lt(loyaltyPoint)) {
+        const totalDiscount = this.getTotalDiscount();
+        let baseGrandTotal;
+
+        if (!this.taxes!.length) {
+          baseGrandTotal = (this.netTotal as Money).sub(totalDiscount);
+        } else {
+          baseGrandTotal = ((this.taxes ?? []) as Doc[])
+            .map((doc) => doc.amount as Money)
+            .reduce((a, b) => {
+              if (this.isReturn) {
+                return a.abs().add(b.abs()).neg();
+              }
+              return a.add(b.abs());
+            }, (this.netTotal as Money).abs())
+            .sub(totalDiscount);
+        }
+
+        if (baseGrandTotal?.lt(loyaltyPoint)) {
           throw new ValidationError(
             t`no need ${value as number} points to purchase this item`
           );
