@@ -305,6 +305,9 @@ export default defineComponent({
   },
 
   async mounted() {
+    this.$watch('row.quantity', (newVal: number) => {
+      this.setQuantity(newVal);
+    });
     const posProfileName = this.fyo.singles.POSSettings?.posProfile;
 
     if (posProfileName) {
