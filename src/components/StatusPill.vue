@@ -40,6 +40,14 @@ export default defineComponent({
         return this.t`Partly Paid ${outstandingPayment}`;
       }
 
+      if (this.status === 'Outstanding') {
+        const outstandingPayment = this.fyo.format(
+          this.doc.outstandingAmount as Money,
+          'Currency'
+        );
+        return this.t`Unpaid ${outstandingPayment}`;
+      }
+
       return {
         Draft: this.t`Draft`,
         Cancelled: this.t`Cancelled`,
