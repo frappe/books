@@ -116,7 +116,7 @@ import Row from 'src/components/Row.vue';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
 import { QueryFilter } from 'utils/db/types';
-import { PropType, defineComponent } from 'vue';
+import { PropType, defineComponent, toRaw } from 'vue';
 import ListCell from './ListCell.vue';
 
 export default defineComponent({
@@ -215,10 +215,8 @@ export default defineComponent({
       fyo.doc.observer.on(`rename:${this.schemaName}`, listener);
     },
     async updateData(filters?: Record<string, unknown>) {
-      if (!filters) {
-        filters = { ...this.filters };
-      }
-      filters = cloneDeep(filters);
+      const baseFilters = cloneDeep(toRaw(this.filters));
+      filters = cloneDeep({ ...baseFilters, ...filters });
 
       let statusFilter: [string, string] | undefined;
 
@@ -226,14 +224,10 @@ export default defineComponent({
         statusFilter = filters['status'] as [string, string];
       }
 
-      if ('referenceType' in filters) {
-        statusFilter = filters['referenceType'] as [string, string];
-      }
-
       const isStatusFilter =
         Array.isArray(statusFilter) && statusFilter[0] === 'like';
       if (isStatusFilter) {
-        delete filters['status']; // remove status from query filters
+        delete filters['status'];
       }
 
       const orderBy = ['created'];
