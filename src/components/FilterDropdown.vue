@@ -90,7 +90,7 @@
                     placeholder: t`Condition`,
                     fieldname: 'condition',
                     fieldtype: 'Select',
-                    options: conditions,
+                    options: conditionsForDropdown,
                   }"
                   :value="filter.condition"
                   :close-drop-down="false"
@@ -215,20 +215,13 @@ const conditions = [
   { label: t`Is Not Empty`, value: 'is not null' },
 ] as const;
 
-type Condition = typeof conditions[number]['value'];
+type Condition = typeof conditions[number]['label'];
 
 type Filter = {
   fieldname: string;
   condition: Condition;
   value: QueryFilter[string];
   implicit: boolean;
-};
-
-type PopoverRef = {
-  close?: () => void;
-  hide?: () => void;
-  togglePopover?: (state: boolean) => void;
-  $el?: HTMLElement;
 };
 
 export default defineComponent({
@@ -247,9 +240,6 @@ export default defineComponent({
       filters: [] as Filter[],
       newFilters: [] as Filter[],
     };
-  },
-  created() {
-    this.addNewFilter();
   },
   computed: {
     fields(): Field[] {
@@ -308,6 +298,12 @@ export default defineComponent({
     conditions(): { label: string; value: string }[] {
       return [...conditions];
     },
+    conditionsForDropdown(): { label: string; value: string }[] {
+      return conditions.map((c) => ({
+        label: c.label,
+        value: c.label,
+      }));
+    },
     explicitFilters(): Filter[] {
       return this.filters.filter((f) => !f.implicit);
     },
@@ -325,6 +321,16 @@ export default defineComponent({
 
   methods: {
     getRandomString,
+    getConditionLabel(value: string): string {
+      const condition = conditions.find((c) => c.value === value);
+      return condition ? condition.label : value;
+    },
+
+    getConditionValue(label: string): string {
+      const condition = conditions.find((c) => c.label === label);
+      return condition ? condition.value : label;
+    },
+
     addNewFilter(): void {
       const df = this.fields[0];
       if (!df) {
@@ -335,22 +341,23 @@ export default defineComponent({
     },
     addFilter(
       fieldname: string,
-      condition: Condition,
+      condition: string,
       value: Filter['value'],
       implicit?: boolean
     ): void {
-      const newFilter = { fieldname, condition, value, implicit: !!implicit };
+      const displayCondition = this.getConditionLabel(condition);
+      const newFilter = {
+        fieldname,
+        condition: displayCondition,
+        value,
+        implicit: !!implicit,
+      };
       this.filters.push(newFilter);
       this.newFilters.push(newFilter);
     },
 
     applyFilters() {
       this.emitFilterChange();
-      const popover = this.$refs.filterPopover as PopoverRef;
-      if (popover?.close) popover.close();
-      else if (popover?.hide) popover.hide();
-      else if (popover?.togglePopover) popover.togglePopover(false);
-      else if (popover?.$el) popover.$el.click();
     },
 
     removeFilter(index: number): void {
@@ -370,7 +377,14 @@ export default defineComponent({
       key: K,
       value: Filter[K]
     ) {
-      this.newFilters![index][key] = value;
+      if (key === 'condition') {
+        const displayCondition = this.getConditionLabel(value as string);
+        this.newFilters![index][key] = displayCondition as Filter[K];
+        this.filters[index][key] = displayCondition as Filter[K];
+      } else {
+        this.newFilters![index][key] = value;
+        this.filters[index][key] = value;
+      }
     },
 
     setFilter(filters: QueryFilter, implicit?: boolean): void {
@@ -400,14 +414,16 @@ export default defineComponent({
       const filters: Record<string, [Condition, Filter['value']]> = {};
 
       for (const { condition, value, fieldname } of this.newFilters) {
-        if (value === '' && condition) {
+        if (value === '' || value === null || value === undefined) {
           continue;
         }
 
+        const sqlCondition = this.getConditionValue(condition);
+
         if (fieldname === 'numberSeries') {
-          filters['name'] = [condition, value];
+          filters['name'] = [sqlCondition, value];
         } else {
-          filters[fieldname] = [condition, value];
+          filters[fieldname] = [sqlCondition, value];
         }
       }
 
