@@ -115,10 +115,6 @@ export default defineComponent({
     },
   },
   activated() {
-    if (typeof this.filters === 'object') {
-      this.filterDropdown?.setFilter(this.filters, true);
-    }
-
     this.listConfig = getListConfig(this.schemaName);
     docsPathRef.value =
       docsPathMap[this.schemaName] ?? docsPathMap.Entries ?? '';

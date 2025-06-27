@@ -696,11 +696,9 @@ export class Payment extends Transactional {
     },
     referenceType: {
       formula: () => {
-        if (this.referenceType) {
-          return;
-        }
-        return this.for![0].referenceType;
+        return this.referenceType || undefined;
       },
+      dependsOn: ['for'],
     },
     taxes: { formula: async () => await this.getTaxSummary() },
   };
