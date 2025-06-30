@@ -1087,10 +1087,22 @@ export async function getPricingRule(
       continue;
     }
 
+    const itemQuantity: Record<string, number> = {};
+
+    for (const item of doc.items) {
+      if (!item?.item) continue;
+
+      if (!itemQuantity[item.item]) {
+        itemQuantity[item.item] = item.quantity ?? 0;
+      } else {
+        itemQuantity[item.item] += item.quantity ?? 0;
+      }
+    }
+
     const filtered = filterPricingRules(
       doc as SalesInvoice,
       pricingRuleDocsForItem,
-      item.quantity as number,
+      itemQuantity[item.item as string],
       item.amount as Money
     );
 
