@@ -53,7 +53,7 @@
       style="height: 65vh; width: 60vh"
     >
       <Row
-        v-for="row in filteredInvoices"
+        v-for="row in paginatedInvoices"
         :key="row.name"
         :ratio="ratio"
         :border="true"
@@ -80,6 +80,14 @@
           :read-only="true"
         />
       </Row>
+    </div>
+
+    <div class="mt-4">
+      <Paginator
+        :item-count="filteredInvoices.length"
+        :allowed-counts="[20, 40, -1]"
+        @index-change="setPageIndices"
+      />
     </div>
 
     <div class="row-start-6 grid grid-cols-2 gap-4 mt-4">
@@ -109,6 +117,7 @@ import { defineComponent, inject } from 'vue';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
 import { Money } from 'pesa';
+import Paginator from 'src/components/Paginator.vue';
 
 export default defineComponent({
   name: 'ReturnSalesInvoice',
@@ -117,6 +126,7 @@ export default defineComponent({
     Button,
     FormControl,
     Row,
+    Paginator,
   },
   props: {
     modalStatus: Boolean,
@@ -131,6 +141,8 @@ export default defineComponent({
     return {
       returnedInvoices: [] as SalesInvoice[],
       invoiceSearchTerm: '',
+      pageStart: 0,
+      pageEnd: 20,
     };
   },
   computed: {
@@ -175,12 +187,19 @@ export default defineComponent({
           .includes(this.invoiceSearchTerm.toLowerCase())
       );
     },
+    paginatedInvoices() {
+      return this.filteredInvoices.slice(this.pageStart, this.pageEnd);
+    },
   },
   watch: {
     async modalStatus(newVal) {
       if (newVal) {
         await this.setReturnedInvoices();
       }
+    },
+    invoiceSearchTerm() {
+      this.pageStart = 0;
+      this.pageEnd = this.pageEnd - this.pageStart || 20;
     },
   },
   async mounted() {
@@ -199,6 +218,10 @@ export default defineComponent({
       if (this.filteredInvoices.length === 1) {
         this.returnInvoice(this.filteredInvoices[0] as SalesInvoice);
       }
+    },
+    setPageIndices({ start, end }: { start: number; end: number }) {
+      this.pageStart = start;
+      this.pageEnd = end;
     },
     async setReturnedInvoices() {
       const allInvoices = await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {
