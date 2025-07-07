@@ -459,7 +459,7 @@ export default defineComponent({
     },
     async removeAddedItem(row: SalesInvoiceItem) {
       this.row.parentdoc?.remove('items', row?.idx as number);
-
+      this.row.runFormulas();
       if (!row.isFreeItem) {
         this.$emit('applyPricingRule');
       }
