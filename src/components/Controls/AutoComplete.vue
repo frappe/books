@@ -57,29 +57,46 @@
           />
         </svg>
 
-        <button
-          v-if="canLink"
-          class="p-0.5 rounded -me1 bg-transparent"
-          @mouseenter="showQuickView = true"
-          @mouseleave="showQuickView = false"
-          @click="routeToLinkedDoc"
-        >
-          <Popover
-            :show-popup="showQuickView"
-            :entry-delay="300"
-            placement="bottom"
+        <div v-if="canLink" class="flex items-center gap-1">
+          <button
+            v-if="value && showClearButton"
+            class="
+              p-0.5
+              rounded
+              bg-transparent
+              text-gray-600
+              hover:text-gray-800
+              dark:text-gray-300 dark:hover:text-gray-100
+              transition-colors
+            "
+            @click.stop.prevent="clearValue"
+            @mousedown.prevent
           >
-            <template #target>
-              <feather-icon
-                name="chevron-right"
-                class="w-4 h-4 text-gray-600 dark:text-gray-400"
-              />
-            </template>
-            <template #content>
-              <QuickView :schema-name="linkSchemaName" :name="value" />
-            </template>
-          </Popover>
-        </button>
+            <feather-icon name="x" class="w-3.5 h-3.5" />
+          </button>
+          <button
+            class="p-0.5 rounded -me1 bg-transparent"
+            @mouseenter="showQuickView = true"
+            @mouseleave="showQuickView = false"
+            @click="routeToLinkedDoc"
+          >
+            <Popover
+              :show-popup="showQuickView"
+              :entry-delay="300"
+              placement="bottom"
+            >
+              <template #target>
+                <feather-icon
+                  name="chevron-right"
+                  class="w-4 h-4 text-gray-600 dark:text-gray-400"
+                />
+              </template>
+              <template #content>
+                <QuickView :schema-name="linkSchemaName" :name="value" />
+              </template>
+            </Popover>
+          </button>
+        </div>
       </div>
     </template>
   </Dropdown>
@@ -179,6 +196,15 @@ export default {
     this.showQuickView = false;
   },
   methods: {
+    clearValue(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      this.triggerChange('');
+      this.setLinkValue('');
+    },
     async routeToLinkedDoc() {
       const name = this.value;
       if (!this.linkSchemaName || !name) {
@@ -269,6 +295,9 @@ export default {
       this.$emit('focus', e);
     },
     async onBlur(label) {
+      if (!label && !this.value) {
+        return;
+      }
       if (!label) {
         this.triggerChange('');
         return;
