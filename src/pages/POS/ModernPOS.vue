@@ -293,50 +293,39 @@
         "
         style="height: calc(100vh - 6rem)"
       >
-        <div class="rounded-md p-4 col-span-5 h-full">
+        <div class="rounded-md p-4 col-span-5">
           <div class="flex gap-x-2">
             <!-- Item Search -->
-            <Link
-              :class="
-                fyo.singles.InventorySettings?.enableBarcodes
-                  ? 'flex-shrink-0 w-2/3'
-                  : 'w-full'
-              "
+            <MultiLabelLink
+              class="w-full"
+              secondary-link="barcode"
+              third-link="itemCode"
               :df="{
-                label: t`Search an Item`,
+                label: t`Search Item (Name or
+            Barcode)`,
                 fieldtype: 'Link',
                 fieldname: 'item',
                 target: 'Item',
               }"
               :border="true"
               :value="itemSearchTerm"
-              @keyup.enter="
-                async () => emitEvent('addItem', await getItem(itemSearchTerm) as Item)
+              @keyup.enter="(item) =>
+                  emitEvent('handleItemSearch', item.target.value as string, true)
               "
-              @change="(item: string) =>itemSearchTerm= item"
+              @change="(item: string) => emitEvent('handleItemSearch', item)"
             />
 
-            <Barcode
-              v-if="
-                fyo.singles.InventorySettings?.enableBarcodes &&
-                !fyo.singles.POSSettings?.weightEnabledBarcode
-              "
-              class="w-1/3"
-              @item-selected="
-                async (name: string) => {
-                  emitEvent('addItem', await getItem(name) as Item);
-                }
-              "
-            />
-
-            <WeightEnabledBarcode
-              v-if="fyo.singles.POSSettings?.weightEnabledBarcode"
-              class="w-1/3"
-              @item-selected="
-                async (name: string,qty:number) => {
-                  emitEvent('addItem', await getItem(name) as Item,qty as number);
-                }
-              "
+            <Link
+              v-if="fyo.singles.AccountingSettings?.enableitemGroup"
+              :df="{
+                label: t`Filter by Group`,
+                fieldtype: 'Link',
+                fieldname: 'itemGroup',
+                target: 'ItemGroup',
+              }"
+              :border="true"
+              :value="selectedItemGroup"
+              @change="(group: string) => emitEvent('setItemGroup',group)"
             />
           </div>
 
@@ -344,27 +333,27 @@
             v-if="tableView"
             :items="items"
             :item-qty-map="itemQuantityMap as ItemQtyMap"
-            @add-item="(item) => emitEvent('addItem', item)"
+            @add-item="(item:string) => emitEvent('addItem', item)"
           />
 
           <ModernPOSItemsGrid
             v-else
             :items="items"
             :item-qty-map="itemQuantityMap as ItemQtyMap"
-            @add-item="(item) => emitEvent('addItem', item)"
+            @add-item="(item:string) => emitEvent('addItem', item)"
           />
-        </div>
 
-        <div class="flex fixed bottom-0 p-1 ml-3 mb-7 gap-x-3">
-          <POSQuickActions
-            :sinv-doc="sinvDoc"
-            :loyalty-points="loyaltyPoints"
-            :loyalty-program="loyaltyProgram"
-            :applied-coupons-count="appliedCouponsCount"
-            @toggle-view="emitEvent('toggleView')"
-            @emit-route-to-sinv-list="emitEvent('routeToSinvList')"
-            @toggle-modal="(modalName) => emitEvent('toggleModal', modalName)"
-          />
+          <div class="flex fixed bottom-0 p-1 ml-3 mb-7 gap-x-3">
+            <POSQuickActions
+              :sinv-doc="sinvDoc"
+              :loyalty-points="loyaltyPoints"
+              :loyalty-program="loyaltyProgram"
+              :applied-coupons-count="appliedCouponsCount"
+              @toggle-view="emitEvent('toggleView')"
+              @emit-route-to-sinv-list="emitEvent('routeToSinvList')"
+              @toggle-modal="(modalName) => emitEvent('toggleModal', modalName)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -388,7 +377,6 @@ import CouponCodeModal from './CouponCodeModal.vue';
 import POSQuickActions from './POSQuickActions.vue';
 import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import SavedInvoiceModal from './SavedInvoiceModal.vue';
-import Barcode from 'src/components/Controls/Barcode.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
 import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
 import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
@@ -398,7 +386,6 @@ import { POSItem, PosEmits, ItemQtyMap } from 'src/components/POS/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import ModernPOSItemsGrid from 'src/components/POS/Modern/ModernPOSItemsGrid.vue';
 import ModernPOSItemsTable from 'src/components/POS/Modern/ModernPOSItemsTable.vue';
-import WeightEnabledBarcode from 'src/components/Controls/WeightEnabledBarcode.vue';
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
@@ -410,7 +397,6 @@ export default defineComponent({
   components: {
     Link,
     Button,
-    Barcode,
     AlertModal,
     PaymentModal,
     KeyboardModal,
@@ -424,7 +410,6 @@ export default defineComponent({
     ClosePOSShiftModal,
     LoyaltyProgramModal,
     ModernPOSItemsTable,
-    WeightEnabledBarcode,
     FloatingLabelFloatInput,
     ReturnSalesInvoiceModal,
     FloatingLabelCurrencyInput,
@@ -453,6 +438,14 @@ export default defineComponent({
     loyaltyPoints: {
       type: Number,
       default: 0,
+    },
+    itemSearchTerm: {
+      type: String,
+      default: '',
+    },
+    selectedItemGroup: {
+      type: String,
+      default: '',
     },
     loyaltyProgram: {
       type: String,
@@ -490,9 +483,11 @@ export default defineComponent({
     'toggleModal',
     'setCustomer',
     'clearValues',
+    'setItemGroup',
     'setPaidAmount',
     'setCouponsCount',
     'routeToSinvList',
+    'handleItemSearch',
     'setLoyaltyPoints',
     'setPaymentMethod',
     'setTransferRefNo',
@@ -512,7 +507,7 @@ export default defineComponent({
       selectedItemField: '',
       selectedItemRow: {} as SalesInvoiceItem,
 
-      itemSearchTerm: '',
+      itemGroupFilter: '',
     };
   },
   computed: {
