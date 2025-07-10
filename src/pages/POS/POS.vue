@@ -690,12 +690,39 @@ export default defineComponent({
         )) as number;
 
         if (item.hasBatch) {
+          const addQty = quantity ?? 1;
+
+          if (existingItems.length > 0) {
+            for (let item of existingItems) {
+              const availableQty = await fyo.db.getStockQuantity(
+                item.item as string,
+                undefined,
+                undefined,
+                undefined,
+                item.batch
+              );
+              if (
+                item.batch != null &&
+                availableQty != null &&
+                availableQty > (item.quantity as number)
+              ) {
+                const currentQty = item.quantity ?? 0;
+                await item.set('quantity', currentQty + addQty);
+                await this.applyPricingRule();
+                await this.sinvDoc.runFormulas();
+                return;
+              }
+            }
+          }
+
           await this.sinvDoc.append('items', {
             rate: item.rate as Money,
             item: item.name,
-            quantity: quantity ? quantity : 1,
+            quantity: addQty,
             hsnCode: itemsHsncode,
           });
+          await this.applyPricingRule();
+          await this.sinvDoc.runFormulas();
           return;
         }
 
