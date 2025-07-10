@@ -4,7 +4,7 @@
       flex
       items-center
       bg-gray-50
-      dark:bg-gray-890
+      dark:bg-gray-890 dark:border-gray-800
       rounded-md
       text-sm
       p-1
@@ -12,21 +12,7 @@
     "
   >
     <div
-      class="rate-container"
-      :class="
-        disabled
-          ? 'bg-gray-100 dark:bg-gray-850'
-          : 'bg-gray-25 dark:bg-gray-890'
-      "
-    >
-      <input v-model="fromValue" type="number" :disabled="disabled" min="0" />
-      <p>{{ left }}</p>
-    </div>
-
-    <p class="mx-1 text-gray-600 dark:text-gray-400">=</p>
-
-    <div
-      class="rate-container"
+      class="rate-container gap-2"
       :class="
         disabled
           ? 'bg-gray-100 dark:bg-gray-850'
@@ -34,13 +20,53 @@
       "
     >
       <input
+        class="
+          text-right
+          dark:text-gray-400
+          border-transparent
+          focus:border-gray-500 focus:outline-none
+          dark:focus:ring-1
+          focus:ring-gray-600
+          bg-gray-50
+          border
+        "
+        v-model="fromValue"
+        type="number"
+        :disabled="disabled"
+        min="0"
+      />
+
+      <span class="dark:text-gray-400">{{ left }}</span>
+    </div>
+
+    <p class="mx-1 text-gray-600 dark:text-gray-400">=</p>
+
+    <div
+      class="rate-container gap-2"
+      :class="
+        disabled
+          ? 'bg-gray-100 dark:bg-gray-850'
+          : 'bg-gray-25 dark:bg-gray-890'
+      "
+    >
+      <input
+        class="
+          text-right
+          dark:text-gray-400
+          border-transparent
+          focus:border-gray-500 focus:outline-none
+          dark:focus:ring-1
+          focus:ring-gray-600
+          bg-gray-50
+          border
+        "
         type="number"
         :value="isSwapped ? fromValue / exchangeRate : exchangeRate * fromValue"
         :disabled="disabled"
         min="0"
         @change="rightChange"
       />
-      <p>{{ right }}</p>
+      <span class="dark:text-gray-400">{{ right }}</span>
     </div>
 
     <button
