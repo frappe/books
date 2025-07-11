@@ -333,6 +333,11 @@ export function getTransactionStatusColumn(): ColumnConfig {
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
       };
     },
   };
@@ -707,6 +712,11 @@ export function getDocStatusListColumn(): ColumnConfig {
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
       };
     },
   };
