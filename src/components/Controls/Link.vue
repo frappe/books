@@ -28,6 +28,7 @@ export default {
   },
   props: {
     focusInput: Boolean,
+    showClearButton: Boolean,
   },
   async created() {
     if (this.focusInput) {

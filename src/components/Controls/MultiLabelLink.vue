@@ -28,6 +28,10 @@ export default {
       default: false,
     },
     secondaryLink: String,
+    showClearButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   mounted() {
     if (this.value) {

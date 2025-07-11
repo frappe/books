@@ -98,6 +98,7 @@
               }"
               :border="true"
               :value="itemSearchTerm"
+              :show-clear-button="true"
               @keyup.enter="(item) =>
                   emitEvent('handleItemSearch', item.target.value as string, true)
               "
@@ -113,6 +114,7 @@
                 target: 'ItemGroup',
               }"
               :border="true"
+              :show-clear-button="true"
               :value="selectedItemGroup"
               @change="(group: string) => emitEvent('setItemGroup',group)"
             />
@@ -167,6 +169,7 @@
               :border="true"
               :value="sinvDoc?.party"
               :df="sinvDoc?.fieldMap.party"
+              :show-clear-button="true"
               @change="(value:string) => $emit('setCustomer',value)"
             />
 
