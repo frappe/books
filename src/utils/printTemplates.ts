@@ -486,12 +486,10 @@ function constructPrintDocument(innerHTML: string) {
       html, body {
         margin: 0 !important;
         padding: 0 !important;
-        width: 80mm;
         background: white;
       }
 
       @page {
-        size: 80mm auto;
         margin: 0;
       }
 
