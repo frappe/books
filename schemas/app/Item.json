@@ -19,6 +19,21 @@
       "required": true
     },
     {
+      "fieldname": "itemCode",
+      "label": "Item Code",
+      "fieldtype": "Data",
+      "placeholder": "Item Code",
+      "section": "Default"
+    },
+    {
+      "fieldname": "itemGroup",
+      "label": "Item Group",
+      "fieldtype": "Link",
+      "target": "ItemGroup",
+      "create": true,
+      "placeholder": "Item Group"
+    },
+    {
       "fieldname": "for",
       "label": "Purpose",
       "fieldtype": "Select",

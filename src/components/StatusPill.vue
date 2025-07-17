@@ -8,11 +8,12 @@ import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/baseModels/Party/Party';
 import { SalesQuote } from 'models/baseModels/SalesQuote/SalesQuote';
 import { ModelNameEnum } from 'models/types';
+import { Money } from 'pesa';
 import { getBgTextColorClass } from 'src/utils/colors';
 import { defineComponent } from 'vue';
 
 type Status = ReturnType<typeof getStatus>;
-type UIColors = 'gray' | 'orange' | 'red' | 'green' | 'blue';
+type UIColors = 'gray' | 'orange' | 'red' | 'green' | 'blue' | 'yellow';
 
 export default defineComponent({
   props: { doc: { type: Doc, required: true } },
@@ -31,14 +32,28 @@ export default defineComponent({
     },
     text() {
       const hasOutstanding = isPesa(this.doc.outstandingAmount);
-      if (hasOutstanding && this.status === 'Outstanding') {
+
+      if (hasOutstanding && this.status === 'Unpaid') {
         const amt = this.fyo.format(this.doc.outstandingAmount, 'Currency');
         return this.t`Unpaid ${amt}`;
       }
 
-      if (this.doc instanceof Invoice && this.status === 'NotTransferred') {
-        const amt = this.fyo.format(this.doc.stockNotTransferred, 'Float');
-        return this.t`Pending Qty. ${amt}`;
+      if (hasOutstanding && this.status === 'PartlyPaid') {
+        const outstandingPayment = this.fyo.format(
+          (this.doc.grandTotal as Money).sub(
+            this.doc.outstandingAmount as Money
+          ),
+          'Currency'
+        );
+        return this.t`Partly Paid ${outstandingPayment}`;
+      }
+
+      if (this.status === 'Outstanding') {
+        const outstandingPayment = this.fyo.format(
+          this.doc.outstandingAmount as Money,
+          'Currency'
+        );
+        return this.t`Unpaid ${outstandingPayment}`;
       }
 
       if (this.doc instanceof SalesQuote && this.doc.isSubmitted) {
@@ -58,6 +73,8 @@ export default defineComponent({
         Return: this.t`Return`,
         ReturnIssued: this.t`Return Issued`,
         '': '',
+        Unpaid: this.t`Unpaid`,
+        PartlyPaid: this.t`Partly Paid`,
       }[this.status];
     },
     color(): UIColors {
@@ -79,6 +96,10 @@ const statusColorMap: Record<Status, UIColors> = {
   Return: 'green',
   ReturnIssued: 'green',
   '': 'gray',
+  Return: 'gray',
+  ReturnIssued: 'gray',
+  Unpaid: 'red',
+  PartlyPaid: 'yellow',
 };
 
 function getStatus(doc: Doc) {
@@ -119,13 +140,6 @@ function getSubmittableStatus(doc: Doc) {
   }
 
   const isInvoice = doc instanceof Invoice;
-  if (
-    doc.isSubmitted &&
-    isInvoice &&
-    doc.outstandingAmount?.isZero() !== true
-  ) {
-    return 'Outstanding';
-  }
 
   if (doc.isSubmitted && isInvoice && (doc.stockNotTransferred ?? 0) > 0) {
     return 'NotTransferred';
@@ -137,6 +151,33 @@ function getSubmittableStatus(doc: Doc) {
     doc.outstandingAmount?.isZero() === true
   ) {
     return 'Paid';
+  }
+
+  if (
+    doc.isSubmitted &&
+    isInvoice &&
+    !doc.isCancelled &&
+    (doc.outstandingAmount as Money)?.isPositive() &&
+    (doc.outstandingAmount as Money)?.neq(doc.grandTotal as Money)
+  ) {
+    return 'PartlyPaid';
+  }
+
+  if (
+    doc.isSubmitted &&
+    isInvoice &&
+    !doc.isCancelled &&
+    (doc.outstandingAmount as Money)?.eq(doc.grandTotal as Money)
+  ) {
+    return 'Unpaid';
+  }
+
+  if (
+    doc.isSubmitted &&
+    isInvoice &&
+    doc.outstandingAmount?.isZero() !== true
+  ) {
+    return 'Outstanding';
   }
 
   if (doc.isSubmitted) {

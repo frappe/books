@@ -66,6 +66,7 @@
     <AlertModal
       :open-modal="openAlertModal"
       @toggle-modal="emitEvent('toggleModal', 'Alert')"
+      @save-and-continue="(value:any)=>emitEvent('saveAndContinue',value)"
     />
 
     <div
@@ -84,47 +85,38 @@
         <div class="rounded-md p-4 col-span-5">
           <div class="flex gap-x-2">
             <!-- Item Search -->
-            <Link
-              :class="
-                fyo.singles.InventorySettings?.enableBarcodes
-                  ? 'flex-shrink-0 w-2/3'
-                  : 'w-full'
-              "
+            <MultiLabelLink
+              class="w-full"
+              secondary-link="barcode"
+              third-link="itemCode"
               :df="{
-                label: t`Search an Item`,
+                label: t`Search Item (Name or
+            Barcode)`,
                 fieldtype: 'Link',
                 fieldname: 'item',
                 target: 'Item',
               }"
               :border="true"
               :value="itemSearchTerm"
-              @keyup.enter="
-                async () => emitEvent('addItem', await getItem(itemSearchTerm) as Item)
+              :show-clear-button="true"
+              @keyup.enter="(item) =>
+                  emitEvent('handleItemSearch', item.target.value as string, true)
               "
-              @change="(item: string) =>itemSearchTerm= item"
+              @change="(item: string) => emitEvent('handleItemSearch', item)"
             />
 
-            <Barcode
-              v-if="
-                fyo.singles.InventorySettings?.enableBarcodes &&
-                !fyo.singles.POSSettings?.weightEnabledBarcode
-              "
-              class="w-1/3"
-              @item-selected="
-                async (name: string) => {
-                  emitEvent('addItem', await getItem(name) as Item);
-                }
-              "
-            />
-
-            <WeightEnabledBarcode
-              v-if="fyo.singles.POSSettings?.weightEnabledBarcode"
-              class="w-1/3"
-              @item-selected="
-                async (name: string,qty:number) => {
-                  emitEvent('addItem', await getItem(name) as Item,qty as number);
-                }
-              "
+            <Link
+              v-if="fyo.singles.AccountingSettings?.enableitemGroup"
+              :df="{
+                label: t`Filter by Group`,
+                fieldtype: 'Link',
+                fieldname: 'itemGroup',
+                target: 'ItemGroup',
+              }"
+              :border="true"
+              :show-clear-button="true"
+              :value="selectedItemGroup"
+              @change="(group: string) => emitEvent('setItemGroup',group)"
             />
           </div>
 
@@ -177,6 +169,7 @@
               :border="true"
               :value="sinvDoc?.party"
               :df="sinvDoc?.fieldMap.party"
+              :show-clear-button="true"
               @change="(value:string) => $emit('setCustomer',value)"
             />
 
@@ -254,7 +247,9 @@
                   <Button
                     class="w-full"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.saveButtonColour,
+                      backgroundColor:
+                        profile?.saveButtonColour ||
+                        fyo.singles.Defaults?.saveButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="!sinvDoc?.party || !sinvDoc?.items?.length"
@@ -269,7 +264,9 @@
                   <Button
                     class="w-full"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.cancelButtonColour,
+                      backgroundColor:
+                        profile?.cancelButtonColour ||
+                        fyo.singles.Defaults?.cancelButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="!sinvDoc?.items?.length"
@@ -289,7 +286,9 @@
                   <Button
                     class="w-full"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.heldButtonColour,
+                      backgroundColor:
+                        profile?.heldButtonColour ||
+                        fyo.singles.Defaults?.heldButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     @click="emitEvent('toggleModal', 'SavedInvoice', true)"
@@ -305,7 +304,9 @@
                     v-if="isReturnInvoiceEnabledReturn"
                     class="w-full py-5"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.returnButtonColour,
+                      backgroundColor:
+                        profile?.returnButtonColour ||
+                        fyo.singles.Defaults?.returnButtonColour,
                     }"
                     @click="
                       emitEvent('toggleModal', 'ReturnSalesInvoice', true)
@@ -321,7 +322,9 @@
                     v-else
                     class="w-full"
                     :style="{
-                      backgroundColor: fyo.singles.Defaults?.payButtonColour,
+                      backgroundColor:
+                        profile?.payButton ||
+                        fyo.singles.Defaults?.payButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                     :disabled="disablePayButton"
@@ -338,7 +341,9 @@
                   v-if="isReturnInvoiceEnabledReturn"
                   class="w-full mt-2 py-5"
                   :style="{
-                    backgroundColor: fyo.singles.Defaults?.payButtonColour,
+                    backgroundColor:
+                      profile?.payButtonColour ||
+                      fyo.singles.Defaults?.payButtonColour,
                   }"
                   :disabled="disablePayButton"
                   @click="emitEvent('toggleModal', 'Payment', true)"
@@ -368,23 +373,22 @@ import Button from 'src/components/Button.vue';
 import { defineComponent, PropType } from 'vue';
 import PriceListModal from './PriceListModal.vue';
 import { Item } from 'models/baseModels/Item/Item';
-import Link from 'src/components/Controls/Link.vue';
 import CouponCodeModal from './CouponCodeModal.vue';
 import POSQuickActions from './POSQuickActions.vue';
 import { PosEmits } from 'src/components/POS/types';
+import Link from 'src/components/Controls/Link.vue';
 import SavedInvoiceModal from './SavedInvoiceModal.vue';
 import OpenPOSShiftModal from './OpenPOSShiftModal.vue';
 import ClosePOSShiftModal from './ClosePOSShiftModal.vue';
-import Barcode from 'src/components/Controls/Barcode.vue';
 import LoyaltyProgramModal from './LoyaltyProgramModal.vue';
 import { POSItem, ItemQtyMap } from 'src/components/POS/types';
 import ItemsGrid from 'src/components/POS/Classic/ItemsGrid.vue';
 import ItemsTable from 'src/components/POS/Classic/ItemsTable.vue';
 import ReturnSalesInvoiceModal from './ReturnSalesInvoiceModal.vue';
+import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 import MultiLabelLink from 'src/components/Controls/MultiLabelLink.vue';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import SelectedItemTable from 'src/components/POS/Classic/SelectedItemTable.vue';
-import WeightEnabledBarcode from 'src/components/Controls/WeightEnabledBarcode.vue';
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
@@ -394,7 +398,6 @@ export default defineComponent({
   components: {
     Link,
     Button,
-    Barcode,
     ItemsGrid,
     AlertModal,
     ItemsTable,
@@ -408,7 +411,6 @@ export default defineComponent({
     SavedInvoiceModal,
     ClosePOSShiftModal,
     LoyaltyProgramModal,
-    WeightEnabledBarcode,
     FloatingLabelFloatInput,
     ReturnSalesInvoiceModal,
     FloatingLabelCurrencyInput,
@@ -436,6 +438,14 @@ export default defineComponent({
       type: Number,
       default: 0,
     },
+    itemSearchTerm: {
+      type: String,
+      default: '',
+    },
+    selectedItemGroup: {
+      type: String,
+      default: '',
+    },
     loyaltyProgram: {
       type: String,
       default: '',
@@ -460,6 +470,11 @@ export default defineComponent({
       type: Array as PropType<POSItem[] | undefined>,
       default: () => [],
     },
+    profile: {
+      type: Object as PropType<POSProfile>,
+      required: false,
+      default: null,
+    },
   },
   emits: [
     'addItem',
@@ -467,9 +482,11 @@ export default defineComponent({
     'toggleModal',
     'setCustomer',
     'clearValues',
+    'setItemGroup',
     'setPaidAmount',
     'setCouponsCount',
     'routeToSinvList',
+    'handleItemSearch',
     'setPaymentMethod',
     'setTransferRefNo',
     'setLoyaltyPoints',
@@ -480,11 +497,12 @@ export default defineComponent({
     'selectedInvoiceName',
     'selectedReturnInvoice',
     'setTransferClearanceDate',
+    'saveAndContinue',
   ],
   data() {
     return {
+      itemGroupFilter: '',
       additionalDiscounts: fyo.pesa(0),
-      itemSearchTerm: '',
     };
   },
   computed: {

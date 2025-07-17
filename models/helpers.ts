@@ -79,10 +79,23 @@ export async function getItemQtyMap(doc: SalesInvoice): Promise<ItemQtyMap> {
 
   const rawSLEs = await getRawStockLedgerEntries(doc.fyo);
   const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
-  const posInventory = doc.fyo.singles.POSSettings?.inventory;
+
+  const posProfileName = doc.fyo.singles.POSSettings?.posProfile;
+  let inventoryLocation: string | undefined;
+
+  if (posProfileName) {
+    const posProfile = await doc.fyo.doc.getDoc(
+      ModelNameEnum.POSProfile,
+      posProfileName as string
+    );
+
+    inventoryLocation = posProfile?.inventory as string | undefined;
+  } else {
+    inventoryLocation = doc.fyo.singles.POSSettings?.inventory;
+  }
 
   const stockBalance = getStockBalanceEntries(rawData, {
-    location: posInventory,
+    location: inventoryLocation,
   });
 
   for (const row of stockBalance) {
@@ -288,7 +301,8 @@ export function getMakeReturnDocAction(fyo: Fyo): Action {
     condition: (doc: Doc) =>
       (!!fyo.singles.AccountingSettings?.enableInvoiceReturns ||
         !!fyo.singles.InventorySettings?.enableStockReturns) &&
-      doc.isSubmitted,
+      doc.isSubmitted &&
+      !doc.isReturn,
     action: async (doc: Doc) => {
       let returnDoc: Invoice | StockTransfer | undefined;
 
@@ -319,6 +333,11 @@ export function getTransactionStatusColumn(): ColumnConfig {
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
       };
     },
   };
@@ -352,16 +371,17 @@ export const statusColor: Record<
   Opportunity: 'yellow',
   Unpaid: 'orange',
   Paid: 'green',
+  PartlyPaid: 'yellow',
   Interested: 'yellow',
   Converted: 'green',
   Quotation: 'green',
-  Saved: 'gray',
+  Saved: 'blue',
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
   DonotContact: 'red',
-  Return: 'green',
-  ReturnIssued: 'green',
+  Return: 'lime',
+  ReturnIssued: 'lime',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -380,6 +400,8 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Paid`;
     case 'Unpaid':
       return t`Unpaid`;
+    case 'PartlyPaid':
+      return t`Partly Paid`;
     case 'Return':
       return t`Return`;
     case 'ReturnIssued':
@@ -496,13 +518,22 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   if (
     doc.submitted &&
     !doc.cancelled &&
-    (doc.outstandingAmount as Money).isPositive()
+    (doc.outstandingAmount as Money).eq(doc.grandTotal as Money)
   ) {
     return 'Unpaid';
   }
 
   if (doc.cancelled) {
     return 'Cancelled';
+  }
+
+  if (
+    doc.submitted &&
+    !doc.isCancelled &&
+    (doc.outstandingAmount as Money).isPositive() &&
+    (doc.outstandingAmount as Money).neq(doc.grandTotal as Money)
+  ) {
+    return 'PartlyPaid';
   }
 
   return 'Saved';
@@ -681,6 +712,11 @@ export function getDocStatusListColumn(): ColumnConfig {
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
       };
     },
   };
@@ -708,6 +744,50 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   }
 
   await item.set('item', name);
+}
+
+export async function getReturnQtyTotal(
+  doc: Invoice
+): Promise<Record<string, number>> {
+  const returnDocs = await doc.fyo.db.getAll(doc.schemaName, {
+    fields: ['*'],
+    filters: {
+      returnAgainst: doc.name as string,
+    },
+  });
+
+  const returnedDocs = await Promise.all(
+    returnDocs.map((docss) =>
+      doc.fyo.doc.getDoc(doc.schemaName, docss.name as string)
+    )
+  );
+
+  const quantitySum: { [key: string]: number } = {};
+
+  if ('items' in doc && Array.isArray(doc.items)) {
+    doc.items.forEach((docItem) => {
+      const itemName = docItem.item as string;
+      if (itemName) {
+        quantitySum[itemName] = (docItem.quantity as number) || 0;
+      }
+    });
+  }
+
+  if (!returnedDocs) {
+    return quantitySum;
+  }
+  returnedDocs.forEach((returnedDoc) => {
+    if (returnedDoc && returnedDoc.items) {
+      (returnedDoc.items as InvoiceItem[]).forEach((item) => {
+        const itemName = item.item;
+        if (itemName && quantitySum.hasOwnProperty(itemName)) {
+          quantitySum[itemName] =
+            quantitySum[itemName] - Math.abs(item.quantity as number);
+        }
+      });
+    }
+  });
+  return quantitySum;
 }
 
 export async function createLoyaltyPointEntry(doc: Invoice) {
@@ -840,7 +920,7 @@ export async function removeLoyaltyPoint(doc: Doc) {
 
 export async function validateQty(
   sinvDoc: SalesInvoice,
-  item: Item | undefined,
+  item: Item | SalesInvoiceItem | undefined,
   existingItems: InvoiceItem[]
 ) {
   if (!item) {
@@ -864,6 +944,16 @@ export async function validateQty(
     if (!item.batch) {
       throw new ValidationError(t`Please select a batch first`);
     }
+  }
+
+  const trackItem = await sinvDoc.fyo.getValue(
+    ModelNameEnum.Item,
+    item.item as string,
+    'trackItem'
+  );
+
+  if (!trackItem) {
+    return;
   }
 
   if (!itemQtyMap[itemName] || itemQtyMap[itemName].availableQty === 0) {
@@ -1007,10 +1097,22 @@ export async function getPricingRule(
       continue;
     }
 
+    const itemQuantity: Record<string, number> = {};
+
+    for (const item of doc.items) {
+      if (!item?.item) continue;
+
+      if (!itemQuantity[item.item]) {
+        itemQuantity[item.item] = item.quantity ?? 0;
+      } else {
+        itemQuantity[item.item] += item.quantity ?? 0;
+      }
+    }
+
     const filtered = filterPricingRules(
       doc as SalesInvoice,
       pricingRuleDocsForItem,
-      item.quantity as number,
+      itemQuantity[item.item as string],
       item.amount as Money
     );
 
@@ -1124,21 +1226,22 @@ export function canApplyPricingRule(
   }
 
   // Filter by Validity
-  if (
-    pricingRuleDoc.validFrom &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
-      pricingRuleDoc.validFrom.toISOString()
-  ) {
-    return false;
+  if (sinvDate) {
+    if (
+      pricingRuleDoc.validFrom &&
+      new Date(sinvDate).toISOString() < pricingRuleDoc.validFrom.toISOString()
+    ) {
+      return false;
+    }
+
+    if (
+      pricingRuleDoc.validTo &&
+      new Date(sinvDate).toISOString() > pricingRuleDoc.validTo.toISOString()
+    ) {
+      return false;
+    }
   }
 
-  if (
-    pricingRuleDoc.validTo &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
-      pricingRuleDoc.validTo.toISOString()
-  ) {
-    return false;
-  }
   return true;
 }
 
@@ -1165,23 +1268,19 @@ export function canApplyCouponCode(
   // Filter by Validity
   if (
     couponCodeData.validFrom &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() <
-      couponCodeData.validFrom.toISOString()
+    new Date(sinvDate).toISOString() < couponCodeData.validFrom.toISOString()
   ) {
     return false;
   }
 
   if (
     couponCodeData.validTo &&
-    new Date(sinvDate.setHours(0, 0, 0, 0)).toISOString() >
-      couponCodeData.validTo.toISOString()
+    new Date(sinvDate).toISOString() > couponCodeData.validTo.toISOString()
   ) {
     return false;
   }
-
   return true;
 }
-
 export async function removeUnusedCoupons(sinvDoc: SalesInvoice) {
   if (!sinvDoc.coupons?.length) {
     return;
@@ -1349,6 +1448,30 @@ export function removeFreeItems(sinvDoc: SalesInvoice) {
       );
     }
   }
+}
+
+export async function updatePricingRule(sinvDoc: SalesInvoice) {
+  const applicablePricingRuleNames = await getPricingRule(sinvDoc);
+
+  if (!applicablePricingRuleNames || !applicablePricingRuleNames.length) {
+    sinvDoc.pricingRuleDetail = undefined;
+    sinvDoc.isPricingRuleApplied = false;
+    removeFreeItems(sinvDoc);
+    return;
+  }
+
+  const appliedPricingRuleCount = sinvDoc?.items?.filter(
+    (val) => val.isFreeItem
+  ).length;
+
+  setTimeout(() => {
+    void (async () => {
+      if (appliedPricingRuleCount !== applicablePricingRuleNames?.length) {
+        await sinvDoc.appendPricingRuleDetail(applicablePricingRuleNames);
+        await sinvDoc.applyProductDiscount();
+      }
+    })();
+  }, 1);
 }
 
 export function getPricingRulesConflicts(

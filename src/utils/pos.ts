@@ -54,14 +54,18 @@ export function getItemDiscounts(items: SalesInvoiceItem[]): Money {
   }
 
   for (const item of items) {
-    if (!item.itemDiscountAmount?.isZero()) {
-      itemDiscounts = itemDiscounts.add(item.itemDiscountAmount as Money);
-    }
-
-    if (item.amount && (item.itemDiscountPercent as number) > 1) {
-      itemDiscounts = itemDiscounts.add(
-        item.amount.percent(item.itemDiscountPercent as number)
-      );
+    if (item.setItemDiscountAmount) {
+      if (!item.itemDiscountAmount?.isZero()) {
+        itemDiscounts = itemDiscounts.add(
+          (item.itemDiscountAmount as Money).mul(item.quantity as number)
+        );
+      }
+    } else {
+      if (item.amount && (item.itemDiscountPercent as number) > 1) {
+        itemDiscounts = itemDiscounts.add(
+          item.amount.percent(item.itemDiscountPercent as number)
+        );
+      }
     }
   }
   return itemDiscounts;
@@ -76,24 +80,37 @@ export async function getItem(item: string): Promise<Item | undefined> {
   return itemDoc;
 }
 
-export function validateSinv(sinvDoc: SalesInvoice, itemQtyMap: ItemQtyMap) {
+export async function validateSinv(
+  sinvDoc: SalesInvoice,
+  itemQtyMap: ItemQtyMap
+) {
   if (!sinvDoc) {
     return;
   }
 
-  validateSinvItems(
+  await validateSinvItems(
     sinvDoc.items as SalesInvoiceItem[],
     itemQtyMap,
     sinvDoc.returnAgainst as string
   );
 }
 
-function validateSinvItems(
+async function validateSinvItems(
   sinvItems: SalesInvoiceItem[],
   itemQtyMap: ItemQtyMap,
   isReturn?: string
 ) {
   for (const item of sinvItems) {
+    const trackItem = await fyo.getValue(
+      ModelNameEnum.Item,
+      item.item as string,
+      'trackItem'
+    );
+
+    if (!trackItem) {
+      return;
+    }
+
     if (!item.quantity || (item.quantity < 1 && !isReturn)) {
       throw new ValidationError(
         t`Invalid Quantity for Item ${item.item as string}`

@@ -64,13 +64,14 @@ export async function getPrintTemplatePropValues(
   }
 
   if (doc.referenceType == ModelNameEnum.SalesInvoice) {
-    sinvDoc = await fyo.doc.getDoc(
-      ModelNameEnum.SalesInvoice,
-      (doc as Payment)?.for![0].referenceName
-    );
+    const referenceName = (doc as Payment)?.for![0]?.referenceName;
 
-    if (sinvDoc.taxes) {
-      (values.doc as PrintTemplateData).taxes = sinvDoc.taxes;
+    if (referenceName) {
+      sinvDoc = await fyo.doc.getDoc(ModelNameEnum.SalesInvoice, referenceName);
+
+      if (sinvDoc.taxes) {
+        (values.doc as PrintTemplateData).taxes = sinvDoc.taxes;
+      }
     }
   }
 
@@ -124,6 +125,10 @@ export async function getPrintTemplatePropValues(
 
   if (printSettings.displayTime) {
     (values.doc as PrintTemplateData).time = getTime(doc.date as string);
+  }
+
+  if (printSettings.displayDescription) {
+    (values.doc as PrintTemplateData).description = showDescription(doc);
   }
 
   return values;
@@ -310,6 +315,13 @@ function showHSN(doc: Doc): boolean {
   return items.map((i: Doc) => i.hsnCode).every(Boolean);
 }
 
+function showDescription(doc: Doc): boolean {
+  const description = Array.isArray(doc.items)
+    ? doc.items.map((item: Doc) => item.description).filter(Boolean)
+    : [];
+  return description.length > 0;
+}
+
 function formattedTotalDiscount(doc: Doc): string {
   if (!(doc instanceof Invoice)) {
     return '';
@@ -468,11 +480,33 @@ function constructPrintDocument(innerHTML: string) {
   const body = document.createElement('body');
   const style = getAllCSSAsStyleElem();
 
+  const printCSS = document.createElement('style');
+  printCSS.innerHTML = `
+    @media print {
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white;
+      }
+
+      @page {
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  `;
+
   head.innerHTML = [
     '<meta charset="UTF-8">',
     '<title>Print Window</title>',
   ].join('\n');
-  head.append(style);
+
+  head.append(style, printCSS);
 
   body.innerHTML = innerHTML;
   html.append(head, body);

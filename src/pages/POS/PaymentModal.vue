@@ -7,14 +7,14 @@
         :border="true"
         :text-right="true"
         :value="paidAmount"
-        @change="(amount:Money)=> $emit('setPaidAmount', amount)"
+        @change="(amount:Money)=>  $emit('setPaidAmount', (amount as Money).float)"
       />
       <div class="grid grid-cols-2 gap-6">
         <Button
           v-for="method in paymentMethods"
           :key="method"
           class="w-full py-5 bg-teal-500"
-          @click="setPaymentMethodAndAmount(method, paidAmount)"
+          @click="setPaymentMethodAndAmount(method)"
         >
           <slot>
             <p class="uppercase text-lg text-white font-semibold">
@@ -31,6 +31,7 @@
           :show-label="true"
           :border="true"
           :required="!transferAmount.isZero()"
+          :read-only="false"
           :value="transferRefNo"
           @change="(value:string) => $emit('setTransferRefNo', value)"
         />
@@ -41,6 +42,7 @@
           :show-label="true"
           :border="true"
           :required="!transferAmount.isZero()"
+          :read-only="false"
           :value="transferClearanceDate"
           @change="(value:Date) => $emit('setTransferClearanceDate', value)"
         />
@@ -127,6 +129,15 @@
           :border="true"
           :text-right="true"
           :value="sinvDoc?.grandTotal"
+        />
+
+        <Currency
+          :df="sinvDoc.fieldMap.outstandingAmount"
+          :read-only="true"
+          :show-label="true"
+          :border="true"
+          :text-right="true"
+          :value="sinvDoc?.outstandingAmount"
         />
       </div>
 
@@ -278,10 +289,7 @@ export default defineComponent({
       return this.fyo.pesa(this.paidAmount.float).sub(grandTotal);
     },
     showBalanceAmount(): boolean {
-      if (
-        this.fyo.pesa(this.paidAmount.float).eq(fyo.pesa(0)) &&
-        this.transferAmount.eq(fyo.pesa(0))
-      ) {
+      if (this.paidAmount.float === 0) {
         return false;
       }
 
@@ -300,6 +308,10 @@ export default defineComponent({
       return true;
     },
     showPaidChange(): boolean {
+      if (this.sinvDoc.isReturn) {
+        return false;
+      }
+
       if (
         this.fyo.pesa(this.paidAmount.float).eq(fyo.pesa(0)) &&
         this.transferAmount.eq(fyo.pesa(0))
@@ -335,7 +347,7 @@ export default defineComponent({
       }
 
       if (
-        this.paymentMethod !== 'Cash' &&
+        !this.paymentMethod &&
         (!this.transferRefNo || !this.transferClearanceDate)
       ) {
         return true;
@@ -352,7 +364,7 @@ export default defineComponent({
       }
 
       if (
-        this.paymentMethod !== 'Cash' &&
+        !this.paymentMethod &&
         (!this.transferRefNo || !this.transferClearanceDate)
       ) {
         return true;
@@ -365,22 +377,13 @@ export default defineComponent({
     await this.setPaymentMethods();
   },
   methods: {
-    setPaymentMethodAndAmount(paymentMethod?: string, amount?: Money) {
+    setPaymentMethodAndAmount(paymentMethod?: string) {
       if (paymentMethod) {
         this.$emit('setPaymentMethod', paymentMethod);
-      }
-
-      if (amount) {
-        if (this.sinvDoc.isReturn) {
-          this.$emit(
-            'setPaidAmount',
-            (this.sinvDoc.outstandingAmount as Money).neg().float
-          );
-
-          return;
-        }
-
-        this.$emit('setPaidAmount', this.sinvDoc.outstandingAmount?.float);
+        this.$emit(
+          'setPaidAmount',
+          (this.sinvDoc.outstandingAmount as Money).float
+        );
       }
     },
     async setPaymentMethods() {

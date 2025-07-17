@@ -99,6 +99,9 @@
       "
     >
       <div class="w-4/12 text-left">{{ t`Item` }}</div>
+      <div class="w-4/12 text-left" v-if="doc.description">
+        {{ t`Description` }}
+      </div>
       <div class="w-2/12 text-right" v-if="doc.showHSN">{{ t`HSN/SAC` }}</div>
       <div class="w-2/12 text-right">{{ t`Quantity` }}</div>
       <div class="w-3/12 text-right">{{ t`Rate` }}</div>
@@ -108,6 +111,9 @@
     <!-- Body Rows -->
     <section class="flex py-1 text-lg" v-for="row in doc.items" :key="row.name">
       <div class="w-4/12 text-left">{{ row.item }}</div>
+      <div class="w-4/12 text-left" v-if="doc.description">
+        {{ row.description }}
+      </div>
       <div class="w-2/12 text-right" v-if="doc.showHSN">{{ row.hsnCode }}</div>
       <div class="w-2/12 text-right">{{ row.quantity }}</div>
       <div class="w-3/12 text-right">{{ row.rate }}</div>

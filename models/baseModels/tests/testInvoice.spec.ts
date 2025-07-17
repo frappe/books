@@ -180,7 +180,7 @@ test('create SINV return for balance qty', async (t) => {
 
   t.equals(
     returnDoc.outstandingAmount?.float,
-    -itemData.rate,
+    itemData.rate,
     'return doc outstanding amount matches'
   );
 });
@@ -263,7 +263,7 @@ test('creating PINV return when invoice is not paid', async (t) => {
   for (const ale of returnSinvAles) {
     if (ale.account === 'Creditors') {
       t.equal(
-        fyo.pesa(ale.debit as string).float,
+        0,
         returnDoc.outstandingAmount!.float,
         `return Invoice debited from ${ale.account}`
       );

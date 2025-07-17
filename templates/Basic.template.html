@@ -61,6 +61,7 @@
     <!-- Heading Row -->
     <section class="text-gray-600 w-full flex border-b">
       <div class="py-4 w-5/12">{{ t`Item` }}</div>
+      <div class="py-4 w-5/12" v-if="doc.description">{{ t`Description` }}</div>
       <div class="py-4 text-right w-2/12" v-if="doc.showHSN">
         {{ t`HSN/SAC` }}
       </div>
@@ -76,6 +77,9 @@
       :key="row.name"
     >
       <div class="w-5/12 py-4">{{ row.item }}</div>
+      <div class="w-5/12 py-4" v-if="doc.description">
+        {{ row.description }}
+      </div>
       <div class="w-2/12 text-right py-4" v-if="doc.showHSN">
         {{ row.hsnCode }}
       </div>

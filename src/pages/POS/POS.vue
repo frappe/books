@@ -11,13 +11,19 @@
       </slot>
     </PageHeader>
     <ClassicPOS
-      v-if="fyo.singles.POSSettings?.posUI == 'Classic'"
+      v-if="
+        posProfile?.posUI === 'Classic' ||
+        (!posProfile?.posUI && fyo.singles.POSSettings?.posUI === 'Classic')
+      "
       :table-view="tableView"
+      :profile="(posProfile as POSProfile)"
       :total-quantity="totalQuantity"
       :item-quantity-qap="itemQtyMap"
       :loyalty-points="loyaltyPoints"
       :open-alert-modal="openAlertModal"
       :default-customer="defaultCustomer"
+      :item-search-term="itemSearchTerm"
+      :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
       :sinv-doc="(sinvDoc as SalesInvoice)"
@@ -39,6 +45,8 @@
       @clear-values="clearValues"
       @set-customer="setCustomer"
       @toggle-modal="toggleModal"
+      @set-item-group="setItemGroup"
+      @handle-item-search="handleItemSearch"
       @set-paid-amount="setPaidAmount"
       @set-payment-method="setPaymentMethod"
       @set-coupons-count="setCouponsCount"
@@ -52,15 +60,19 @@
       @selected-invoice-name="selectedInvoiceName"
       @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
+      @save-and-continue="handleSaveAndContinue"
     />
     <ModernPOS
       v-else
       :table-view="tableView"
+      :profile="(posProfile as POSProfile)"
       :total-quantity="totalQuantity"
       :item-quantity-qap="itemQtyMap"
       :loyalty-points="loyaltyPoints"
       :open-alert-modal="openAlertModal"
       :default-customer="defaultCustomer"
+      :item-search-term="itemSearchTerm"
+      :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
       :sinv-doc="(sinvDoc as SalesInvoice)"
@@ -83,6 +95,8 @@
       @clear-values="clearValues"
       @set-customer="setCustomer"
       @toggle-modal="toggleModal"
+      @set-item-group="setItemGroup"
+      @handle-item-search="handleItemSearch"
       @set-paid-amount="setPaidAmount"
       @set-payment-method="setPaymentMethod"
       @set-coupons-count="setCouponsCount"
@@ -95,6 +109,7 @@
       @set-transfer-amount="setTransferAmount"
       @selected-invoice-name="selectedInvoiceName"
       @selected-return-invoice="selectedReturnInvoice"
+      @save-and-continue="handleSaveAndContinue"
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
   </div>
@@ -117,6 +132,7 @@ import PageHeader from 'src/components/PageHeader.vue';
 import { computed, defineComponent, inject } from 'vue';
 import { Payment } from 'models/baseModels/Payment/Payment';
 import { ModalName, modalNames } from 'src/components/POS/types';
+import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
@@ -134,7 +150,6 @@ import {
   getItemQtyMap,
   getPricingRule,
   removeFreeItems,
-  getAddedLPWithGrandTotal,
   getItemRateFromPriceList,
 } from 'models/helpers';
 import {
@@ -170,6 +185,7 @@ export default defineComponent({
       itemSerialNumbers: computed(() => this.itemSerialNumbers),
       isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
       transferClearanceDate: computed(() => this.transferClearanceDate),
+      posSettings: computed(() => fyo.singles.POSSettings),
     };
   },
   setup() {
@@ -209,6 +225,7 @@ export default defineComponent({
       appliedCoupons: [] as AppliedCouponCodes[],
 
       itemSearchTerm: '',
+      selectedItemGroup: '',
       paymentMethod: undefined as string | undefined,
       transferRefNo: undefined as string | undefined,
       defaultCustomer: undefined as string | undefined,
@@ -216,6 +233,7 @@ export default defineComponent({
 
       paymentDoc: {} as Payment,
       sinvDoc: {} as SalesInvoice,
+      posProfile: {} as POSProfile,
       itemQtyMap: {} as ItemQtyMap,
       coupons: {} as AppliedCouponCodes,
       itemSerialNumbers: {} as ItemSerialNumbers,
@@ -251,6 +269,7 @@ export default defineComponent({
 
   async mounted() {
     await this.setItems();
+    await this.loadPOSProfile();
   },
   async activated() {
     toggleSidebar(false);
@@ -284,6 +303,100 @@ export default defineComponent({
       this.loyaltyProgram = party[0]?.loyaltyProgram as string;
       this.loyaltyPoints = party[0]?.loyaltyPoints as number;
     },
+
+    async loadPOSProfile() {
+      const posProfileName = fyo.singles.POSSettings?.posProfile;
+
+      if (!posProfileName) {
+        return;
+      }
+
+      this.posProfile = (await fyo.doc.getDoc(
+        ModelNameEnum.POSProfile,
+        posProfileName as string
+      )) as POSProfile;
+    },
+
+    async handleItemSearch(searchTerm: string, addItem?: boolean) {
+      this.itemSearchTerm = searchTerm;
+      if (!addItem) return;
+
+      let quantity = 1;
+      const posSettings = fyo.singles.POSSettings;
+      const isWeightEnabledBarcode = posSettings?.weightEnabledBarcode;
+
+      const checkDigits = posSettings?.checkDigits || '';
+      const itemCodeDigits = posSettings?.itemCodeDigits || 0;
+      const weightDigits = posSettings?.itemWeightDigits || 0;
+
+      const expectedWeightBarcodeLength =
+        String(checkDigits).length +
+        Number(itemCodeDigits) +
+        Number(weightDigits);
+
+      let isWeightBarcode = false;
+      let itemCode = searchTerm;
+      let weightPart = '';
+
+      if (
+        isWeightEnabledBarcode &&
+        searchTerm.length === expectedWeightBarcodeLength
+      ) {
+        const extractedItemCode = searchTerm.slice(
+          checkDigits.toString().length,
+          checkDigits.toString().length + itemCodeDigits
+        );
+        const weightData = searchTerm.slice(
+          checkDigits.toString().length + itemCodeDigits
+        );
+
+        if (!isNaN(Number(weightData))) {
+          isWeightBarcode = true;
+          itemCode = extractedItemCode;
+          weightPart = weightData;
+        }
+      }
+
+      const allItems = await this.fyo.db.getAll(ModelNameEnum.Item, {
+        fields: ['name', 'barcode', 'itemCode', 'unit'],
+      });
+
+      let matchedItem = null;
+
+      if (isWeightBarcode) {
+        matchedItem = allItems.find(
+          (item) => item.itemCode === itemCode || item.barcode === itemCode
+        );
+      } else if (searchTerm.length === 12) {
+        matchedItem = allItems.find((item) => item.barcode === searchTerm);
+      }
+
+      if (!matchedItem) {
+        matchedItem = allItems.find((item) => item.name === searchTerm);
+      }
+
+      if (!matchedItem) return;
+
+      if (isWeightBarcode && weightPart) {
+        const weightValue = parseInt(weightPart, 10);
+        if ((matchedItem.unit as string)?.toLowerCase() === 'kg') {
+          quantity = weightValue / 1000;
+        } else {
+          quantity = weightValue;
+        }
+      }
+
+      const itemDoc = this.getItem(matchedItem.name as string);
+      if (itemDoc && addItem) {
+        await this.addItem(itemDoc as POSItem, quantity);
+        this.itemSearchTerm = '';
+      }
+    },
+
+    getItem(name: string) {
+      return this.items.find((item) => item.name === name);
+    },
+
     isModalOpen() {
       for (const modal of modalNames) {
         if (modal && this[`open${modal}Modal`]) {
@@ -372,10 +485,33 @@ export default defineComponent({
 
       await this.afterSync();
     },
+    async setItemGroup(itemGroupName: string) {
+      this.selectedItemGroup = itemGroupName;
+      await this.setItems();
+    },
     async setItems() {
+      const filters: Record<string, boolean | string> = {};
+      const itemVisibility =
+        this.posProfile?.itemVisibility ??
+        this.fyo.singles.POSSettings?.itemVisibility;
+
+      const hideUnavailable =
+        this.posProfile?.hideUnavailableItems ??
+        this.fyo.singles.POSSettings?.hideUnavailableItems;
+
+      if (itemVisibility === 'Inventory Items') {
+        filters.trackItem = true;
+      } else {
+        filters.trackItem = false;
+      }
+
+      if (this.selectedItemGroup) {
+        filters.itemGroup = this.selectedItemGroup;
+      }
+
       const items = (await fyo.db.getAll(ModelNameEnum.Item, {
         fields: [],
-        filters: { trackItem: true },
+        filters: filters,
       })) as Item[];
 
       this.items = [] as POSItem[];
@@ -388,6 +524,9 @@ export default defineComponent({
 
         if (!item.name) {
           return;
+        }
+        if (hideUnavailable && filters.trackItem && availableQty <= 0) {
+          continue;
         }
 
         this.items.push({
@@ -419,13 +558,16 @@ export default defineComponent({
       this.tableView = !this.tableView;
     },
     setPaidAmount(amount: Money) {
-      this.paidAmount = amount;
+      this.paidAmount = this.fyo.pesa(amount.toString());
     },
     setPaymentMethod(method: string) {
       this.paymentMethod = method;
     },
     setDefaultCustomer() {
-      this.defaultCustomer = this.fyo.singles.Defaults?.posCustomer ?? '';
+      this.defaultCustomer =
+        this.posProfile?.posCustomer ??
+        this.fyo.singles.Defaults?.posCustomer ??
+        '';
       this.sinvDoc.party = this.defaultCustomer;
     },
     setItemDiscounts() {
@@ -438,7 +580,7 @@ export default defineComponent({
     },
     setSinvDoc() {
       this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
-        account: 'Debtors',
+        account: this.fyo.singles.POSSettings?.defaultAccount,
         party: this.sinvDoc.party ?? this.defaultCustomer,
         isPOS: true,
       }) as SalesInvoice;
@@ -456,6 +598,13 @@ export default defineComponent({
         this.sinvDoc.items as SalesInvoiceItem[]
       );
     },
+    ignorePricingRules(): boolean {
+      if (this.posProfile) {
+        return this.posProfile.ignorePricingRule as boolean;
+      }
+
+      return !!this.fyo.singles.POSSettings?.ignorePricingRule;
+    },
     setTotalTaxedAmount() {
       this.totalTaxedAmount = getTotalTaxedAmount(this.sinvDoc as SalesInvoice);
     },
@@ -464,19 +613,7 @@ export default defineComponent({
     },
     async setLoyaltyPoints(value: number) {
       this.appliedLoyaltyPoints = value;
-      this.sinvDoc.redeemLoyaltyPoints = true;
-
-      const totalLotaltyAmount = await getAddedLPWithGrandTotal(
-        this.fyo,
-        this.loyaltyProgram,
-        value
-      );
-
-      const total = totalLotaltyAmount
-        .sub(this.sinvDoc.baseGrandTotal as Money)
-        .abs();
-
-      this.sinvDoc.grandTotal = total;
+      await this.sinvDoc.set('redeemLoyaltyPoints', true);
     },
     async selectedInvoiceName(doc: SalesInvoice) {
       const salesInvoiceDoc = (await this.fyo.doc.getDoc(
@@ -522,11 +659,33 @@ export default defineComponent({
           return;
         }
 
+        const isInventoryItem = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          item.name as string,
+          'trackItem'
+        );
+
+        if (isInventoryItem) {
+          const availableQty =
+            this.itemQtyMap[item.name as string]?.availableQty ?? 0;
+          if (availableQty <= 0) {
+            throw new ValidationError(
+              t`Item  is out of stock (quantity is zero)`
+            );
+          }
+        }
+
         const existingItems =
           this.sinvDoc.items?.filter(
             (invoiceItem) =>
               invoiceItem.item === item.name && !invoiceItem.isFreeItem
           ) ?? [];
+
+        await validateQty(
+          this.sinvDoc as SalesInvoice,
+          item as Item,
+          existingItems as InvoiceItem[]
+        );
 
         const itemsHsncode = (await this.fyo.getValue(
           'Item',
@@ -535,37 +694,39 @@ export default defineComponent({
         )) as number;
 
         if (item.hasBatch) {
-          for (const invItem of existingItems) {
-            const itemQty = invItem.quantity ?? 0;
-            const qtyInBatch =
-              this.itemQtyMap[invItem.item as string][
-                invItem.batch as string
-              ] ?? 0;
+          const addQty = quantity ?? 1;
 
-            if (itemQty < qtyInBatch) {
-              invItem.quantity = quantity
-                ? (invItem.quantity as number) + quantity
-                : (invItem.quantity as number) + 1;
-              invItem.rate = item.rate as Money;
-
-              await this.applyPricingRule();
-              await this.sinvDoc.runFormulas();
-              await validateQty(
-                this.sinvDoc as SalesInvoice,
-                item as Item,
-                existingItems as InvoiceItem[]
+          if (existingItems.length > 0) {
+            for (let item of existingItems) {
+              const availableQty = await fyo.db.getStockQuantity(
+                item.item as string,
+                undefined,
+                undefined,
+                undefined,
+                item.batch
               );
-
-              return;
+              if (
+                item.batch != null &&
+                availableQty != null &&
+                availableQty > (item.quantity as number)
+              ) {
+                const currentQty = item.quantity ?? 0;
+                await item.set('quantity', currentQty + addQty);
+                await this.applyPricingRule();
+                await this.sinvDoc.runFormulas();
+                return;
+              }
             }
           }
 
           await this.sinvDoc.append('items', {
             rate: item.rate as Money,
             item: item.name,
+            quantity: addQty,
             hsnCode: itemsHsncode,
           });
-
+          await this.applyPricingRule();
+          await this.sinvDoc.runFormulas();
           return;
         }
 
@@ -574,23 +735,30 @@ export default defineComponent({
             existingItems[0].rate = item.rate as Money;
           }
 
-          await existingItems[0].set(
-            'quantity',
-            quantity
-              ? (existingItems[0].quantity as number) + quantity
-              : (existingItems[0].quantity as number) + 1
-          );
+          const currentQty = existingItems[0].quantity ?? 0;
+          const addQty = quantity ?? 1;
+          if (isInventoryItem) {
+            const availableQty =
+              this.itemQtyMap[item.name as string]?.availableQty ?? 0;
+            if (currentQty + addQty > availableQty) {
+              throw new ValidationError(
+                'Cannot add more than the available quantity'
+              );
+            }
+          }
 
-          await this.applyPricingRule();
+          await existingItems[0].set('quantity', currentQty + addQty);
           await this.sinvDoc.runFormulas();
-          await validateQty(
-            this.sinvDoc as SalesInvoice,
-            item as Item,
-            existingItems as InvoiceItem[]
-          );
-
+          if (isInventoryItem) {
+            await validateQty(
+              this.sinvDoc as SalesInvoice,
+              item as Item,
+              existingItems as InvoiceItem[]
+            );
+          }
           return;
         }
+
         await this.sinvDoc.append('items', {
           rate: item.rate as Money,
           item: item.name,
@@ -610,6 +778,7 @@ export default defineComponent({
         }
 
         await this.applyPricingRule();
+
         await this.sinvDoc.runFormulas();
       } catch (error) {
         return showToast({
@@ -620,10 +789,16 @@ export default defineComponent({
     },
     async createTransaction(shouldPrint = false, isPay = false) {
       try {
+        this.sinvDoc.date = new Date();
         await this.validate();
         await this.submitSinvDoc();
 
-        if (this.sinvDoc.stockNotTransferred) {
+        const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+
+        if (
+          this.sinvDoc.stockNotTransferred &&
+          itemVisibility === 'Inventory Items'
+        ) {
           await this.makeStockTransfer();
         }
 
@@ -649,9 +824,14 @@ export default defineComponent({
     },
     async makePayment(shouldPrint: boolean) {
       this.paymentDoc = this.sinvDoc.getPayment() as Payment;
+      if (!this.paymentDoc) {
+        return null;
+      }
+
       const paymentMethod = this.paymentMethod;
 
       await this.paymentDoc.set('paymentMethod', paymentMethod);
+      await this.paymentDoc.set('amount', this.fyo.pesa(this.paidAmount.float));
 
       const paymentMethodDoc = await this.paymentDoc.loadAndGetLink(
         'paymentMethod'
@@ -659,7 +839,6 @@ export default defineComponent({
 
       if (paymentMethodDoc?.type !== 'Cash') {
         await this.paymentDoc.setMultiple({
-          amount: this.paidAmount.float,
           referenceId: this.transferRefNo,
           clearanceDate: this.transferClearanceDate,
         });
@@ -668,7 +847,6 @@ export default defineComponent({
       if (paymentMethodDoc?.type === 'Cash') {
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
-          amount: this.paidAmount.float,
         });
       }
 
@@ -704,7 +882,22 @@ export default defineComponent({
       }
 
       for (const item of shipmentDoc.items) {
-        item.location = fyo.singles.POSSettings?.inventory;
+        const trackItem = await fyo.getValue(
+          ModelNameEnum.Item,
+          item.item as string,
+          'trackItem'
+        );
+
+        if (!trackItem) {
+          continue;
+        }
+
+        if (this.posProfile) {
+          item.location = this.posProfile.inventory;
+        } else {
+          item.location = fyo.singles.POSSettings?.inventory;
+        }
+
         item.serialNumber =
           this.itemSerialNumbers[item.item as string] ?? undefined;
       }
@@ -754,8 +947,10 @@ export default defineComponent({
     },
     async afterTransaction() {
       await this.setItemQtyMap();
-      await this.clearValues();
-      this.setSinvDoc();
+      if (this.sinvDoc.isSubmitted) {
+        await this.clearValues();
+        this.setSinvDoc();
+      }
       this.toggleModal('Payment', false);
     },
     async clearValues() {
@@ -783,10 +978,13 @@ export default defineComponent({
       this.setTotalTaxedAmount();
     },
     async validate() {
-      validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
+      await validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
       await validateShipment(this.itemSerialNumbers);
     },
     async applyPricingRule() {
+      if (this.ignorePricingRules()) {
+        return;
+      }
       const hasPricingRules = await getPricingRule(
         this.sinvDoc as SalesInvoice
       );
@@ -835,6 +1033,24 @@ export default defineComponent({
       }
 
       this.openAlertModal = true;
+    },
+    async handleSaveAndContinue() {
+      try {
+        if (!this.sinvDoc.party) {
+          return showToast({
+            type: 'error',
+            message: t`Please add a customer before saving`,
+          });
+        }
+        await this.saveInvoiceAction();
+        this.toggleModal('Alert', false);
+        await this.routeTo('/list/SalesInvoice');
+      } catch (error) {
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
     },
     async saveInvoiceAction() {
       if (!this.sinvDoc.party && !this.sinvDoc.items?.length) {

@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
@@ -24,6 +24,7 @@ import {
   getPricingRulesConflicts,
   removeLoyaltyPoint,
   roundFreeItemQty,
+  getReturnQtyTotal,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -78,6 +79,7 @@ export abstract class Invoice extends Transactional {
   grandTotal?: Money;
   baseGrandTotal?: Money;
   outstandingAmount?: Money;
+  initialGrandTotal?: Money;
   exchangeRate?: number;
   setDiscountAmount?: boolean;
   discountAmount?: Money;
@@ -87,7 +89,6 @@ export abstract class Invoice extends Transactional {
   stockNotTransferred?: number;
   loyaltyProgram?: string;
   backReference?: string;
-
   submitted?: boolean;
   cancelled?: boolean;
   makeAutoPayment?: boolean;
@@ -95,6 +96,7 @@ export abstract class Invoice extends Transactional {
 
   isReturned?: boolean;
   returnAgainst?: string;
+  isFullyReturned?: boolean;
 
   pricingRuleDetail?: PricingRuleDetail[];
 
@@ -191,13 +193,29 @@ export abstract class Invoice extends Transactional {
     await this._validatePricingRule();
   }
 
+  async beforeSubmit() {
+    const partyDoc = (await this.fyo.doc.getDoc(
+      ModelNameEnum.Party,
+      this.party
+    )) as Party;
+
+    if ((this.loyaltyPoints as number) > (partyDoc?.loyaltyPoints || 0)) {
+      throw new ValidationError(
+        t`${this.party as string} only has ${
+          partyDoc.loyaltyPoints as number
+        } points`
+      );
+    }
+  }
+
   async afterSubmit() {
     await super.afterSubmit();
-
     if (this.isReturn) {
       await this._removeLoyaltyPointEntry();
+      await this._updateIsItemsReturned();
       this.reduceUsedCountOfCoupons();
-
+      if (this.schemaName === ModelNameEnum.SalesInvoice)
+        [await this.updateIsItemsFullyReturned(this)];
       return;
     }
 
@@ -332,22 +350,33 @@ export abstract class Invoice extends Transactional {
       const tax = await this.getTax(item.tax);
       for (const details of (tax.details ?? []) as TaxDetail[]) {
         let amount = item.amount!;
-        if (
-          this.enableDiscounting &&
-          !this.discountAfterTax &&
-          !item.itemDiscountedTotal?.isZero()
-        ) {
-          amount = item.itemDiscountedTotal!;
+
+        if (this.isReturn && amount.isPositive()) {
+          amount = amount.neg();
         }
 
-        const taxItem: InvoiceTaxItem = {
-          details,
-          exchangeRate: this.exchangeRate ?? 1,
-          fullAmount: amount,
-          taxAmount: amount.mul(details.rate / 100),
-        };
+        if (!this.discountAfterTax) {
+          let itemDiscountAmount = this.getDiscountAmount(item);
 
-        taxItems.push(taxItem);
+          if (this.isReturn && itemDiscountAmount.isNegative()) {
+            itemDiscountAmount = itemDiscountAmount.abs();
+          }
+
+          if (this.isReturn) {
+            amount = amount.add(itemDiscountAmount);
+          } else {
+            amount = amount.sub(itemDiscountAmount);
+          }
+
+          const taxItem: InvoiceTaxItem = {
+            details,
+            exchangeRate: this.exchangeRate ?? 1,
+            fullAmount: amount,
+            taxAmount: amount.mul(details.rate / 100),
+          };
+
+          taxItems.push(taxItem);
+        }
       }
     }
 
@@ -417,15 +446,42 @@ export abstract class Invoice extends Transactional {
 
     const itemDiscountAmount = this.getItemDiscountAmount();
     const invoiceDiscountAmount = this.getInvoiceDiscountAmount();
+
+    if (
+      this.isReturn &&
+      itemDiscountAmount.add(invoiceDiscountAmount).isPositive()
+    ) {
+      return itemDiscountAmount.add(invoiceDiscountAmount).neg();
+    }
+
     return itemDiscountAmount.add(invoiceDiscountAmount);
   }
 
   getGrandTotal() {
     const totalDiscount = this.getTotalDiscount();
-    return ((this.taxes ?? []) as Doc[])
+
+    if (!this.taxes!.length) {
+      if (this.redeemLoyaltyPoints) {
+        return this.getLPAddedBaseGrandTotal();
+      }
+      return (this.netTotal as Money).sub(totalDiscount);
+    }
+
+    const grandTotal = ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
-      .reduce((a, b) => a.add(b), this.netTotal!)
+      .reduce((a, b) => {
+        if (this.isReturn) {
+          return a.abs().add(b.abs()).neg();
+        }
+
+        return a.add(b.abs());
+      }, (this.netTotal as Money).abs())
       .sub(totalDiscount);
+
+    if (this.redeemLoyaltyPoints) {
+      return this.getLPAddedBaseGrandTotal();
+    }
+    return grandTotal;
   }
 
   getInvoiceDiscountAmount() {
@@ -448,7 +504,58 @@ export abstract class Invoice extends Transactional {
 
     return totalItemAmounts.percent(this.discountPercent ?? 0);
   }
+  getDiscountAmount(item: InvoiceItem) {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
 
+    if (!this?.items?.length) {
+      return this.fyo.pesa(0);
+    }
+
+    let discountAmount = this.fyo.pesa(0);
+    if (item.setItemDiscountAmount) {
+      discountAmount = discountAmount.add(
+        (item.itemDiscountAmount ?? this.fyo.pesa(0)).mul(
+          item.quantity as number
+        )
+      );
+    } else if (!this.discountAfterTax) {
+      if (this.isReturn) {
+        discountAmount = discountAmount.add(
+          (item.amount ?? this.fyo.pesa(0)).mul(
+            -Math.abs(item.itemDiscountPercent as number) / 100
+          )
+        );
+      } else {
+        discountAmount = discountAmount.add(
+          (item.amount ?? this.fyo.pesa(0)).mul(
+            (item.itemDiscountPercent ?? 0) / 100
+          )
+        );
+      }
+    } else if (this.discountAfterTax) {
+      if (this.isReturn) {
+        discountAmount = discountAmount.add(
+          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+            -Math.abs(item.itemDiscountPercent as number) / 100
+          )
+        );
+      } else {
+        discountAmount = discountAmount.add(
+          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+            (item.itemDiscountPercent ?? 0) / 100
+          )
+        );
+      }
+    }
+
+    if (this.isReturn) {
+      return discountAmount.neg();
+    }
+
+    return discountAmount;
+  }
   getItemDiscountAmount() {
     if (!this.enableDiscounting) {
       return this.fyo.pesa(0);
@@ -462,24 +569,93 @@ export abstract class Invoice extends Transactional {
     for (const item of this.items) {
       if (item.setItemDiscountAmount) {
         discountAmount = discountAmount.add(
-          item.itemDiscountAmount ?? this.fyo.pesa(0)
+          (item.itemDiscountAmount ?? this.fyo.pesa(0)).mul(
+            item.quantity as number
+          )
         );
       } else if (!this.discountAfterTax) {
-        discountAmount = discountAmount.add(
-          (item.amount ?? this.fyo.pesa(0)).mul(
-            (item.itemDiscountPercent ?? 0) / 100
-          )
-        );
+        if (this.isReturn) {
+          discountAmount = discountAmount.add(
+            (item.amount ?? this.fyo.pesa(0)).mul(
+              Math.abs(item.itemDiscountPercent as number) / 100
+            )
+          );
+        } else {
+          discountAmount = discountAmount.add(
+            (item.amount ?? this.fyo.pesa(0)).mul(
+              (item.itemDiscountPercent ?? 0) / 100
+            )
+          );
+        }
       } else if (this.discountAfterTax) {
-        discountAmount = discountAmount.add(
-          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
-            (item.itemDiscountPercent ?? 0) / 100
-          )
-        );
+        if (this.isReturn) {
+          discountAmount = discountAmount.add(
+            (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+              -Math.abs(item.itemDiscountPercent as number) / 100
+            )
+          );
+        } else {
+          discountAmount = discountAmount.add(
+            (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+              (item.itemDiscountPercent ?? 0) / 100
+            )
+          );
+        }
       }
     }
 
+    if (this.isReturn) {
+      return discountAmount.neg();
+    }
+
     return discountAmount;
+  }
+  async getTotalTaxRate(row: InvoiceItem): Promise<number> {
+    if (!this.taxes!.length) {
+      return 0;
+    }
+
+    const details =
+      ((await this.fyo.getValue(
+        'Tax',
+        row.tax as string,
+        'details'
+      )) as Doc[]) ?? [];
+    return details.reduce((acc, doc) => {
+      return (doc.rate as number) + acc;
+    }, 0);
+  }
+
+  async getItemsDiscountedTotal(row: InvoiceItem) {
+    const totalTaxRate = await this.getTotalTaxRate(row);
+    const rate = row.rate ?? this.fyo.pesa(0);
+    const quantity = row.quantity ?? 1;
+    const itemDiscountAmount = row.itemDiscountAmount ?? this.fyo.pesa(0);
+    const itemDiscountPercent = row.itemDiscountPercent ?? 0;
+
+    if (row.setItemDiscountAmount && row.itemDiscountAmount?.isZero()) {
+      return rate.mul(quantity);
+    }
+
+    if (!row.setItemDiscountAmount && row.itemDiscountPercent === 0) {
+      return rate.mul(quantity);
+    }
+
+    if (!this.discountAfterTax) {
+      const amount = rate.mul(quantity);
+      if (row.setItemDiscountAmount) {
+        return amount.sub(itemDiscountAmount);
+      }
+
+      return amount.mul(1 - itemDiscountPercent / 100);
+    }
+
+    const taxedTotal = rate.mul(quantity).mul(1 + totalTaxRate / 100);
+    if (row.setItemDiscountAmount) {
+      return taxedTotal.sub(itemDiscountAmount);
+    }
+
+    return taxedTotal.mul(1 - itemDiscountPercent / 100);
   }
 
   async getReturnDoc(): Promise<Invoice | undefined> {
@@ -488,6 +664,7 @@ export abstract class Invoice extends Transactional {
     }
 
     const docData = this.getValidDict(true, true);
+    docData.pricingRuleDetail = [];
     const docItems = docData.items as DocValueMap[];
 
     if (!docItems) {
@@ -496,6 +673,8 @@ export abstract class Invoice extends Transactional {
 
     let returnDocItems: DocValueMap[] = [];
 
+    const totalQtyOfReturnedItems = await getReturnQtyTotal(this);
+
     const returnBalanceItemsQty = await this.fyo.db.getReturnBalanceItemsQty(
       this.schemaName,
       this.name
@@ -503,12 +682,17 @@ export abstract class Invoice extends Transactional {
 
     for (const item of docItems) {
       if (!returnBalanceItemsQty) {
-        returnDocItems = docItems;
-        returnDocItems.map((row) => {
-          row.name = undefined;
-          (row.quantity as number) *= -1;
-          return row;
-        });
+        returnDocItems = docItems.map((docItem) => ({
+          ...docItem,
+          name: undefined,
+          quantity: -(totalQtyOfReturnedItems[docItem.item as string] || 0),
+        }));
+
+        for (const row of returnDocItems) {
+          row.itemDiscountedTotal = await this.getItemsDiscountedTotal(
+            row as InvoiceItem
+          );
+        }
         break;
       }
 
@@ -522,6 +706,10 @@ export abstract class Invoice extends Transactional {
 
       const returnedItem: ReturnDocItem | undefined =
         returnBalanceItemsQty[item.item as string];
+
+      if (!returnedItem) {
+        continue;
+      }
 
       let quantity = returnedItem.quantity;
       let serialNumber: string | undefined =
@@ -549,6 +737,22 @@ export abstract class Invoice extends Transactional {
         quantity: quantity,
       });
     }
+
+    returnDocItems.forEach((docItems) => {
+      const itemName = docItems.item as string;
+      if (itemName in totalQtyOfReturnedItems) {
+        docItems.quantity = totalQtyOfReturnedItems[itemName];
+      }
+    });
+
+    returnDocItems = returnDocItems.filter(
+      (docItems) => (docItems.quantity as number) > 0
+    );
+
+    returnDocItems.forEach((docItems) => {
+      docItems.quantity = -(docItems.quantity as number);
+    });
+
     const returnDocData = {
       ...docData,
       name: undefined,
@@ -589,6 +793,32 @@ export abstract class Invoice extends Transactional {
 
       await couponDoc.setAndSync({ used: (couponDoc.used as number) - 1 });
     });
+  }
+
+  async updateIsItemsFullyReturned(doc?: Invoice) {
+    let sinvDoc;
+    if (doc?.returnAgainst) {
+      sinvDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.SalesInvoice,
+        doc.returnAgainst
+      );
+    }
+
+    const totalQtyOfReturnedItems = await getReturnQtyTotal(
+      (sinvDoc as Invoice) ?? this
+    );
+    const isFullyReturned = Object.values(totalQtyOfReturnedItems).every(
+      (quantity) => quantity === 0
+    );
+    if (!isFullyReturned) {
+      return;
+    }
+    const invoiceDoc = await this.fyo.doc.getDoc(
+      this.schemaName,
+      this.returnAgainst
+    );
+    await invoiceDoc.setAndSync({ isFullyReturned });
+    await invoiceDoc.submit();
   }
 
   async _updateIsItemsReturned() {
@@ -658,15 +888,22 @@ export abstract class Invoice extends Transactional {
   }
 
   async getLPAddedBaseGrandTotal() {
+    if (!this.initialGrandTotal) {
+      this.initialGrandTotal = this.grandTotal;
+    }
+
     const totalLotaltyAmount = await getAddedLPWithGrandTotal(
       this.fyo,
       this.loyaltyProgram as string,
       this.loyaltyPoints as number
     );
 
-    return totalLotaltyAmount.sub(this.baseGrandTotal as Money).abs();
-  }
+    if (this.isReturn) {
+      return this.grandTotal;
+    }
 
+    return this.initialGrandTotal?.sub(totalLotaltyAmount);
+  }
   formulas: FormulaMap = {
     account: {
       formula: async () => {
@@ -722,7 +959,10 @@ export abstract class Invoice extends Transactional {
     },
     netTotal: { formula: () => this.getSum('items', 'amount', false) },
     taxes: { formula: async () => await this.getTaxSummary() },
-    grandTotal: { formula: () => this.getGrandTotal() },
+    grandTotal: {
+      formula: async () => await this.getGrandTotal(),
+      dependsOn: ['loyaltyPoints'],
+    },
     baseGrandTotal: {
       formula: () => (this.grandTotal as Money).mul(this.exchangeRate! ?? 1),
       dependsOn: ['grandTotal', 'exchangeRate'],
@@ -732,17 +972,50 @@ export abstract class Invoice extends Transactional {
         if (this.submitted) {
           return;
         }
-        if (this.redeemLoyaltyPoints) {
-          return await this.getLPAddedBaseGrandTotal();
+        if (this.isReturn) {
+          const sinvreturnedDoc = (await this.fyo.doc.getDoc(
+            this.schemaName,
+            this.returnAgainst
+          )) as Invoice;
+          if (sinvreturnedDoc.outstandingAmount?.isZero()) {
+            return this.grandTotal?.abs();
+          } else {
+            const totalPaid = sinvreturnedDoc.grandTotal
+              ?.abs()
+              .sub(sinvreturnedDoc.outstandingAmount as Money);
+
+            if (!sinvreturnedDoc.isReturn) {
+              return totalPaid?.abs();
+            }
+
+            if (!this.grandTotal?.isNegative()) {
+              this.grandTotal = this.grandTotal?.neg();
+            }
+
+            return this.grandTotal?.add(totalPaid as Money).abs();
+          }
         }
 
         return this.baseGrandTotal;
       },
+      dependsOn: ['discountAmount', 'discountPercent'],
     },
     stockNotTransferred: {
-      formula: () => {
+      formula: async () => {
         if (this.submitted) {
           return;
+        }
+        if (this.isReturn) {
+          const sinvreturnedDoc = (await this.fyo.doc.getDoc(
+            this.schemaName,
+            this.returnAgainst
+          )) as Invoice;
+
+          if (sinvreturnedDoc.stockNotTransferred === 0) {
+            return this.getStockNotTransferred();
+          } else {
+            return 0;
+          }
         }
 
         return this.getStockNotTransferred();
@@ -767,12 +1040,13 @@ export abstract class Invoice extends Transactional {
 
         const pricingRule = await this.getPricingRule();
 
-        if (!pricingRule || !pricingRule.length) {
+        if (pricingRule) {
+          await this.appendPricingRuleDetail(pricingRule);
+          return !!pricingRule;
+        } else {
+          this.pricingRuleDetail = [];
           return false;
         }
-
-        await this.appendPricingRuleDetail(pricingRule);
-        return !!pricingRule;
       },
       dependsOn: ['items', 'coupons'],
     },
@@ -838,9 +1112,6 @@ export abstract class Invoice extends Transactional {
     taxes: () => !this.taxes?.length,
     baseGrandTotal: () =>
       this.exchangeRate === 1 || this.baseGrandTotal!.isZero(),
-    stockNotTransferred: () => !this.stockNotTransferred,
-    outstandingAmount: () =>
-      !!this.outstandingAmount?.isZero() || !this.isSubmitted,
     terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
@@ -955,7 +1226,7 @@ export abstract class Invoice extends Transactional {
 
     const data = {
       party: this.party,
-      date: new Date().toISOString().slice(0, 10),
+      date: new Date().toISOString(),
       paymentType,
       amount: this.outstandingAmount?.abs(),
       [accountField]: this.account,
@@ -992,7 +1263,9 @@ export abstract class Invoice extends Transactional {
       linkedEntries = await getLinkedEntries(sinvDoc);
     }
 
-    if (!this.stockNotTransferred) {
+    const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+
+    if (!this.stockNotTransferred && itemVisibility === 'Inventory Items') {
       return null;
     }
 
@@ -1038,9 +1311,13 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
+      let quantity;
+      if (itemDoc.trackItem) {
+        quantity = row.stockNotTransferred;
+      } else {
+        quantity = row.quantity;
+      }
       const item = row.item;
-      const quantity = row.stockNotTransferred;
-      const trackItem = itemDoc.trackItem;
       const batch = row.batch || null;
       const description = row.description;
       const hsnCode = row.hsnCode;
@@ -1050,7 +1327,7 @@ export abstract class Invoice extends Transactional {
         rate = rate.mul(this.exchangeRate);
       }
 
-      if (!quantity || !trackItem) {
+      if (!quantity && itemVisibility === 'Inventory Items') {
         continue;
       }
 
@@ -1063,7 +1340,7 @@ export abstract class Invoice extends Transactional {
             data.date
           )) ?? 0;
 
-        if (stock < quantity) {
+        if (stock < (quantity as number)) {
           continue;
         }
       }
@@ -1255,7 +1532,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async applyProductDiscount() {
-    if (!this.items) {
+    if (!this.items || (await this.ignorePricingRules())) {
       return;
     }
 
@@ -1320,6 +1597,23 @@ export abstract class Invoice extends Transactional {
     }
   }
 
+  async ignorePricingRules(): Promise<boolean> {
+    const posProfileName = this.fyo.singles.POSSettings?.posProfile as string;
+
+    if (posProfileName) {
+      const posProfile = await this.fyo.doc.getDoc(
+        ModelNameEnum.POSProfile,
+        posProfileName
+      );
+
+      if (posProfile) {
+        return posProfile.ignorePricingRule as boolean;
+      }
+    }
+
+    return !!this.fyo.singles.POSSettings?.ignorePricingRule;
+  }
+
   async getPricingRuleDocNames(
     item: SalesInvoiceItem,
     sinvDoc: SalesInvoice
@@ -1336,6 +1630,9 @@ export abstract class Invoice extends Transactional {
   }
 
   async getPricingRule(): Promise<ApplicablePricingRules[] | undefined> {
+    if (await this.ignorePricingRules()) {
+      return;
+    }
     if (!this.isSales || !this.items) {
       return;
     }
@@ -1413,7 +1710,10 @@ export abstract class Invoice extends Transactional {
         }
       )) as PricingRule[];
 
-      if (pricingRuleDocsForItem[0].isCouponCodeBased) {
+      if (
+        pricingRuleDocsForItem.length &&
+        pricingRuleDocsForItem[0].isCouponCodeBased
+      ) {
         if (!this.coupons?.length) {
           continue;
         }
@@ -1457,11 +1757,15 @@ export abstract class Invoice extends Transactional {
         }
       }
 
+      const docItem = await this.fyo.doc.getDoc(ModelNameEnum.Item, item.item);
+
+      const totalAmount = (docItem.rate as Money).mul(item.quantity as number);
+
       const filtered = filterPricingRules(
         this as SalesInvoice,
         pricingRuleDocsForItem,
         item.quantity as number,
-        item.amount as Money
+        totalAmount
       );
 
       if (!filtered || !filtered.length) {

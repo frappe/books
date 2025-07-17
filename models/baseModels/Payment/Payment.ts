@@ -42,6 +42,7 @@ export class Payment extends Transactional {
   referenceType?: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
   for?: PaymentFor[];
   _accountsMap?: AccountTypeMap;
+  initialAmount?: Money;
 
   async paymentMethodDoc() {
     return (await this.loadAndGetLink('paymentMethod')) as PaymentMethod;
@@ -464,6 +465,29 @@ export class Payment extends Transactional {
     }
   }
 
+  async beforeSync(): Promise<void> {
+    await super.beforeSync();
+
+    for (const row of this.for ?? []) {
+      if (!this.fyo.singles.AccountingSettings?.enablePartialPayment) {
+        const amount = (this.writeoff as Money).isZero()
+          ? (this.amount as Money)
+          : (this.amountPaid as Money);
+
+        const totalAmount = this.totalAmount as Money;
+        if (amount.lt(totalAmount)) {
+          if (this.writeoff?.isZero()) {
+            this.amount = totalAmount;
+            row.amountPaid = this.fyo.pesa(0);
+            throw new ValidationError(
+              this.fyo.t`Enable Partial payment to pay partial amount`
+            );
+          }
+        }
+      }
+    }
+  }
+
   async afterCancel() {
     await super.afterCancel();
     await this.revertOutstandingAmount();
@@ -630,20 +654,26 @@ export class Payment extends Transactional {
           return;
         }
 
+        const reference = this?.for?.[0];
+        const refDoc = (await reference?.loadAndGetLink(
+          'referenceName'
+        )) as Invoice | null;
+
         const partyDoc = (await this.loadAndGetLink('party')) as Party;
         const outstanding = partyDoc.outstandingAmount as Money;
 
-        if (outstanding.isNegative()) {
-          if (this.referenceType === ModelNameEnum.PurchaseInvoice) {
+        if (partyDoc.role === 'Supplier') {
+          if (refDoc?.isReturn) {
+            return 'Receive';
+          } else {
             return 'Pay';
           }
-          return 'Receive';
-        }
-
-        if (partyDoc.role === 'Supplier') {
-          return 'Pay';
         } else if (partyDoc.role === 'Customer') {
-          return 'Receive';
+          if (refDoc?.isSales && refDoc.isReturn) {
+            return 'Pay';
+          } else {
+            return 'Receive';
+          }
         }
 
         if (outstanding?.isZero() ?? true) {
@@ -666,17 +696,15 @@ export class Payment extends Transactional {
     },
     referenceType: {
       formula: () => {
-        if (this.referenceType) {
-          return;
-        }
-        return this.for![0].referenceType;
+        return this.referenceType || undefined;
       },
+      dependsOn: ['for'],
     },
     taxes: { formula: async () => await this.getTaxSummary() },
   };
 
   validations: ValidationMap = {
-    amount: (value: DocValue) => {
+    amount: async (value: DocValue) => {
       if ((value as Money).isNegative()) {
         throw new ValidationError(
           this.fyo.t`Payment amount cannot be less than zero.`
@@ -687,17 +715,31 @@ export class Payment extends Transactional {
         return;
       }
 
-      const amount = (this.getSum('for', 'amount', false) as Money).abs();
+      if (!this.totalAmount) {
+        for (const row of this.for ?? []) {
+          const referenceDoc = (await this.fyo.doc.getDoc(
+            row.referenceType as string,
+            row.referenceName as string
+          )) as Invoice;
 
-      if ((value as Money).gt(amount)) {
+          this.totalAmount = referenceDoc.outstandingAmount?.abs();
+        }
+      }
+
+      if ((value as Money).gt(this.totalAmount as Money)) {
+        this.amount = this.initialAmount;
         throw new ValidationError(
-          this.fyo.t`Payment amount cannot 
-              exceed ${this.fyo.format(amount, 'Currency')}.`
+          this.fyo.t`Payment amount cannot exceed ${this.fyo.format(
+            this.totalAmount,
+            'Currency'
+          )}.`
         );
       } else if ((value as Money).isZero()) {
         throw new ValidationError(
-          this.fyo.t`Payment amount cannot
-              be ${this.fyo.format(value, 'Currency')}.`
+          this.fyo.t`Payment amount cannot be ${this.fyo.format(
+            value as Money,
+            'Currency'
+          )}.`
         );
       }
     },

@@ -66,9 +66,12 @@
           h-row-mid
           flex
           items-center
+          focus:outline-none focus:ring-1 focus:ring-blue-500
         "
         :class="value.length > 0 ? 'border-t dark:border-gray-800' : ''"
+        tabindex="0"
         @click="addRow"
+        @keydown.enter="addRow"
       >
         <div class="flex items-center ps-1">
           <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
@@ -162,6 +165,7 @@ export default {
       window.tab = this;
     }
   },
+
   methods: {
     focus() {},
     async addRow() {
@@ -169,20 +173,30 @@ export default {
       await nextTick();
       this.scrollToRow(this.value.length - 1);
       this.triggerChange(this.value);
+      this.$nextTick(() => {
+        const rows = this.$refs['table-row'];
+        if (rows && rows.length > 0) {
+          const lastRow = rows[rows.length - 1];
+          if (lastRow.focusFirstInput) {
+            lastRow.focusFirstInput();
+          }
+        }
+      });
     },
     removeRow(row) {
       this.doc.remove(this.df.fieldname, row.idx).then((s) => {
         if (!s) {
           return;
         }
-
         this.triggerChange(this.value);
       });
     },
+
     scrollToRow(index) {
       const row = this.$refs['table-row'][index];
       row && row.$el.scrollIntoView({ block: 'nearest' });
     },
+
     setMaxHeight() {
       if (this.maxRowsBeforeOverflow === 0) {
         return (this.maxHeight = '');

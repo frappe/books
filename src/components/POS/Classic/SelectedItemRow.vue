@@ -87,48 +87,6 @@
 
   <template v-if="isExapanded">
     <div class="px-4 pt-6 col-span-1">
-      <Float
-        :df="{
-          fieldname: 'quantity',
-          fieldtype: 'Float',
-          label: 'Quantity',
-        }"
-        size="medium"
-        :min="0"
-        :border="true"
-        :show-label="true"
-        :value="row.quantity"
-        @change="(value:number) => setQuantity((row.quantity = value))"
-        :read-only="isReadOnly"
-      />
-    </div>
-
-    <div class="px-4 pt-6 col-span-2 flex">
-      <Link
-        v-if="isUOMConversionEnabled"
-        :df="{
-          fieldname: 'transferUnit',
-          fieldtype: 'Link',
-          target: 'UOM',
-          label: t`Transfer Unit`,
-        }"
-        class="flex-1"
-        :show-label="true"
-        :border="true"
-        :value="row.transferUnit"
-        @change="(value:string) => row.set('transferUnit', value)"
-        :read-only="isReadOnly"
-      />
-      <feather-icon
-        v-if="isUOMConversionEnabled"
-        name="refresh-ccw"
-        class="w-3.5 ml-2 mt-4 text-blue-500"
-        @click="row.transferUnit = row.unit"
-        :read-only="isReadOnly"
-      />
-    </div>
-
-    <div class="px-4 pt-6 col-span-2">
       <Int
         v-if="isUOMConversionEnabled"
         :df="{
@@ -145,10 +103,45 @@
       />
     </div>
 
+    <div class="px-4 pt-6 col-span-2">
+      <Link
+        v-if="isUOMConversionEnabled"
+        :df="{
+          fieldname: 'transferUnit',
+          fieldtype: 'Link',
+          target: 'UOM',
+          label: t`Transfer Unit`,
+        }"
+        class="flex-1"
+        :show-label="true"
+        :border="true"
+        :value="row.transferUnit"
+        @change="(value:string) => row.set('transferUnit', value)"
+        :read-only="isReadOnly"
+      />
+    </div>
+
+    <div class="px-4 pt-6 col-span-2">
+      <Float
+        :df="{
+          fieldname: 'quantity',
+          fieldtype: 'Float',
+          label: 'Quantity',
+        }"
+        size="medium"
+        :min="0"
+        :border="true"
+        :show-label="true"
+        :value="row.quantity"
+        @change="(value:number) => setQuantity(value)"
+        :read-only="isUOMConversionEnabled"
+      />
+    </div>
+
     <div></div>
     <div></div>
 
-    <div class="px-4 pt-6 flex">
+    <div class="px-4 pt-6">
       <Currency
         :df="{
           fieldtype: 'Currency',
@@ -159,13 +152,8 @@
         :show-label="true"
         :border="true"
         :value="row.rate"
-        :read-only="isReadOnly"
+        :read-only="isRateReadOnly()"
         @change="(value:Money) => setRate((row.rate = value))"
-      />
-      <feather-icon
-        name="refresh-ccw"
-        class="w-3.5 ml-2 mt-5 text-blue-500 flex-none"
-        @click="row.rate= (defaultRate as Money)"
       />
     </div>
     <div class="px-6 pt-6 col-span-2">
@@ -181,7 +169,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountAmount"
-        :read-only="row.itemDiscountPercent as number > 0 || isReadOnly"
+        :read-only="isDiscountsReadOnly(row.itemDiscountPercent as number > 0)"
         @change="(value:number) => setItemDiscount('amount', value)"
       />
     </div>
@@ -198,7 +186,7 @@
         :show-label="true"
         :border="true"
         :value="row.itemDiscountPercent"
-        :read-only="!row.itemDiscountAmount?.isZero() || isReadOnly"
+        :read-only="isDiscountsReadOnly(!row.itemDiscountAmount?.isZero())"
         @change="(value:number) => setItemDiscount('percent', value)"
       />
     </div>
@@ -224,10 +212,7 @@
       />
     </div>
 
-    <div
-      v-if="row.links?.item && row.links?.item.hasBatch"
-      class="px-2 pt-6 col-span-2"
-    >
+    <div v-if="showAvlQuantityInBatch()" class="px-2 pt-6 col-span-2">
       <Float
         :df="{
           fieldname: 'availableQtyInBatch',
@@ -279,6 +264,7 @@ import { validateQty } from 'models/helpers';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { showToast } from 'src/utils/interactive';
+import { ModelNameEnum } from 'models/types';
 
 export default defineComponent({
   name: 'SelectedItemRow',
@@ -302,6 +288,8 @@ export default defineComponent({
       availableQtyInBatch: 0,
 
       defaultRate: this.row.rate as Money,
+      profileDiscountSetting: null as boolean | null,
+      profileRateSetting: null as boolean | null,
     };
   },
   computed: {
@@ -315,6 +303,34 @@ export default defineComponent({
       return this.row.isFreeItem;
     },
   },
+
+  async mounted() {
+    this.$watch('row.quantity', (newVal: number) => {
+      this.setQuantity(newVal);
+    });
+    const posProfileName = this.fyo.singles.POSSettings?.posProfile;
+
+    if (posProfileName) {
+      const profile = await this.fyo.doc.getDoc(
+        ModelNameEnum.POSProfile,
+        posProfileName as string
+      );
+
+      this.profileDiscountSetting =
+        !!profile?.canEditDiscount ||
+        !!this.fyo.singles.POSSettings?.canEditDiscount;
+
+      this.profileRateSetting =
+        !!profile?.canChangeRate ||
+        !!this.fyo.singles.POSSettings?.canChangeRate;
+    } else {
+      this.profileDiscountSetting =
+        !!this.fyo.singles.POSSettings?.canEditDiscount;
+
+      this.profileRateSetting = !!this.fyo.singles.POSSettings?.canChangeRate;
+    }
+  },
+
   methods: {
     async getAvailableQtyInBatch(): Promise<number> {
       if (!this.row.batch) {
@@ -330,6 +346,22 @@ export default defineComponent({
           this.row.batch
         )) ?? 0
       );
+    },
+
+    showAvlQuantityInBatch() {
+      const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+
+      return (
+        this.row.links?.item &&
+        this.row.links?.item.hasBatch &&
+        itemVisibility === 'Inventory Items'
+      );
+    },
+
+    isDiscountsReadOnly(isValidDiscount: boolean) {
+      const canEditDiscount = this.profileDiscountSetting;
+
+      return this.row.isFreeItem || !canEditDiscount || isValidDiscount;
     },
     async setBatch(batch: string) {
       this.row.set('batch', batch);
@@ -347,6 +379,10 @@ export default defineComponent({
         this.row.item!
       );
     },
+    isRateReadOnly() {
+      const canChangeRate = this.profileRateSetting;
+      return this.row.isFreeItem || !canChangeRate;
+    },
     setItemDiscount(type: DiscountType, value: Money | number) {
       if (type === 'percent') {
         this.row.set('setItemDiscountAmount', false);
@@ -361,6 +397,21 @@ export default defineComponent({
       this.$emit('runSinvFormulas');
     },
     async setQuantity(quantity: number) {
+      const hasManualDiscount = this.row.setItemDiscountAmount;
+      const isPercentageDiscount =
+        !hasManualDiscount && this.row.itemDiscountPercent !== 0;
+      const manualDiscountAmount = this.row.itemDiscountAmount;
+      const manualDiscountPercent = this.row.itemDiscountPercent;
+      if (!this.row.isReturn && quantity <= 0) {
+        showToast({
+          type: 'error',
+          message: 'Quantity must be greater than zero.',
+          duration: 'short',
+        });
+
+        quantity = this.row.quantity ?? 1;
+      }
+
       this.row.set('quantity', quantity);
 
       const existingItems =
@@ -369,6 +420,8 @@ export default defineComponent({
             invoiceItem.item === this.row.item && !invoiceItem.isFreeItem
         ) ?? [];
 
+      quantity = this.row.quantity ?? 1;
+
       try {
         await validateQty(
           this.row.parentdoc as SalesInvoice,
@@ -376,7 +429,7 @@ export default defineComponent({
           existingItems
         );
       } catch (error) {
-        this.row.set('quantity', existingItems[0].stockNotTransferred);
+        this.row.set('quantity', quantity);
 
         return showToast({
           type: 'error',
@@ -388,6 +441,20 @@ export default defineComponent({
       if (!this.row.isFreeItem) {
         this.$emit('applyPricingRule');
         this.$emit('runSinvFormulas');
+
+        if (!hasManualDiscount && !isPercentageDiscount) {
+          this.row.set('setItemDiscountAmount', false);
+          this.row.set('itemDiscountPercent', 0);
+        }
+        this.row.set('rate', this.fyo.pesa(0));
+
+        if (hasManualDiscount) {
+          this.row.set('setItemDiscountAmount', true);
+          this.row.set('itemDiscountAmount', manualDiscountAmount);
+        } else if (isPercentageDiscount) {
+          this.row.set('setItemDiscountAmount', false);
+          this.row.set('itemDiscountPercent', manualDiscountPercent);
+        }
       }
     },
     async removeAddedItem(row: SalesInvoiceItem) {

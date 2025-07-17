@@ -21,6 +21,10 @@
         {
           "value": "Bank",
           "label": "Bank"
+        },
+        {
+          "value": "Transfer",
+          "label": "Transfer"
         }
       ]
     },

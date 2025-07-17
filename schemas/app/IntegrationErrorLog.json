@@ -1,0 +1,29 @@
+{
+  "name": "IntegrationErrorLog",
+  "label": "Integration Error Log",
+  "naming": "autoincrement",
+
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Entry No.",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "data",
+      "label": "Data",
+      "readonly": true,
+      "fieldtype": "Text",
+      "section": "Default"
+    },
+    {
+      "fieldname": "error",
+      "label": "Error",
+      "readonly": true,
+      "fieldtype": "Text",
+      "section": "Default"
+    }
+  ],
+  "keywordFields": ["name"]
+}

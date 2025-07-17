@@ -101,6 +101,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableERPNextSync",
+      "label": "Enable ERPNext Sync",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "enableLead",
       "label": "Enable Lead",
       "fieldtype": "Check",
@@ -124,6 +131,27 @@
     {
       "fieldname": "enableCouponCode",
       "label": "Enable Coupon Code",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableitemGroup",
+      "label": "Enable Item Group",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enablePointOfSaleWithOutInventory",
+      "label": "Enable POS Without Inventory",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enablePartialPayment",
+      "label": "Enable Partial Payment",
       "fieldtype": "Check",
       "default": false,
       "section": "Features"

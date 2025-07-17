@@ -6,6 +6,25 @@
 
     <hr class="mt-2 dark:border-gray-800" />
 
+    <div class="mt-4">
+      <input
+        v-model="invoiceSearchTerm"
+        type="text"
+        placeholder="Search by Invoice Name"
+        class="
+          w-full
+          p-2
+          border
+          rounded-md
+          dark:bg-gray-800 dark:text-white
+          focus:outline-none focus:ring-0
+        "
+        @keydown.enter="handleSearchEnter"
+      />
+    </div>
+
+    <hr class="mt-2 dark:border-gray-800" />
+
     <Row
       :ratio="ratio"
       class="
@@ -34,7 +53,7 @@
       style="height: 65vh; width: 60vh"
     >
       <Row
-        v-for="row in returnedInvoices"
+        v-for="row in filteredInvoices"
         :key="row.name"
         :ratio="ratio"
         :border="true"
@@ -89,6 +108,7 @@ import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { defineComponent, inject } from 'vue';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
+import { Money } from 'pesa';
 
 export default defineComponent({
   name: 'ReturnSalesInvoice',
@@ -110,6 +130,7 @@ export default defineComponent({
   data() {
     return {
       returnedInvoices: [] as SalesInvoice[],
+      invoiceSearchTerm: '',
     };
   },
   computed: {
@@ -147,6 +168,13 @@ export default defineComponent({
         },
       ] as Field[];
     },
+    filteredInvoices() {
+      return this.returnedInvoices.filter((invoice) =>
+        (invoice.name as string)
+          .toLowerCase()
+          .includes(this.invoiceSearchTerm.toLowerCase())
+      );
+    },
   },
   watch: {
     async modalStatus(newVal) {
@@ -167,14 +195,45 @@ export default defineComponent({
       this.$emit('selectedReturnInvoice', row.name);
       this.$emit('toggleModal', 'ReturnSalesInvoice');
     },
+    handleSearchEnter() {
+      if (this.filteredInvoices.length === 1) {
+        this.returnInvoice(this.filteredInvoices[0] as SalesInvoice);
+      }
+    },
     async setReturnedInvoices() {
-      this.returnedInvoices = (await this.fyo.db.getAll(
-        ModelNameEnum.SalesInvoice,
-        {
-          fields: [],
-          filters: { isPOS: true, submitted: true, returnAgainst: null },
-        }
-      )) as SalesInvoice[];
+      const allInvoices = await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {
+        fields: [],
+        filters: {
+          isPOS: true,
+          submitted: true,
+          cancelled: false,
+        },
+      });
+
+      const returnedInvoiceNames = allInvoices
+        .filter((inv) => {
+          if (inv.isFullyReturned || inv.returnAgainst) {
+            return false;
+          }
+
+          if (inv.isReturned && !inv.isFullyReturned) {
+            return true;
+          }
+
+          if (!inv.isReturned && !inv.returnAgainst) {
+            return true;
+          }
+
+          if (!inv.isReturned && !(inv.outstandingAmount as Money).isZero()) {
+            return true;
+          }
+
+          return false;
+        })
+        .map((inv) => inv.name);
+      this.returnedInvoices = allInvoices.filter((inv) =>
+        returnedInvoiceNames.includes(inv.name)
+      ) as SalesInvoice[];
     },
   },
 });

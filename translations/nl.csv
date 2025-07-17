@@ -553,7 +553,7 @@ More,Meer,
 "Movement Type","Bewegingstype",
 Name,Naam,
 Navigate,Navigeren,
-"Need ${0} Serial Numbers for Item ${1}. You have provided ${2}", "Er zijn ${0} serienummers vereist voor artikel ${1}. U heeft er ${2} opgegeven"
+"Need ${0} Serial Numbers for Item ${1}. You have provided ${2}","Er zijn ${0} serienummers vereist voor artikel ${1}. U heeft er ${2} opgegeven"
 "Net Total","Netto Totaal",
 "New ${0}","Nieuw ${0}",
 "New ${0} ${1}","Nieuw ${0} ${1}",

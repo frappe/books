@@ -14,6 +14,14 @@
       "section": "Default"
     },
     {
+      "fieldname": "posProfile",
+      "label": "POS Profile",
+      "fieldtype": "Link",
+      "target": "POSProfile",
+      "create": true,
+      "section": "Default"
+    },
+    {
       "fieldname": "cashAccount",
       "label": "Counter Cash Account",
       "fieldtype": "Link",
@@ -58,8 +66,17 @@
       "hidden": true
     },
     {
+      "fieldname": "defaultAccount",
+      "label": "default Account",
+      "fieldtype": "Link",
+      "create": true,
+      "required": true,
+      "target": "Account",
+      "section": "Default"
+    },
+    {
       "fieldname": "weightEnabledBarcode",
-      "label": "Weigth Enabled Barcode",
+      "label": "Weight Enabled Barcode",
       "fieldtype": "Check",
       "default": false,
       "section": "Barcode"
@@ -84,6 +101,52 @@
       "fieldtype": "Int",
       "default": 0,
       "section": "Barcode"
+    },
+    {
+      "fieldname": "itemVisibility",
+      "label": "Item Visibility",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Inventory Items",
+          "label": "Inventory Items"
+        },
+        {
+          "value": "Non-Inventory Items",
+          "label": "Non-Inventory Items"
+        }
+      ],
+      "default": "Inventory Items",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "canChangeRate",
+      "label": "Can Change Rate",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "hideUnavailableItems",
+      "label": "Hide Unavailable Items",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "canEditDiscount",
+      "label": "Can Change Discount",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "ignorePricingRule",
+      "label": "Ignore Pricing Rule",
+      "fieldtype": "Check",
+      "section": "Default",
+      "default": false
     }
   ]
 }

@@ -14,7 +14,12 @@ export class POSSettings extends Doc {
   checkDigits?: number;
   itemCodeDigits?: number;
   itemWeightDigits?: number;
+  defaultAccount?: string;
+  itemVisibility?: string;
   posUI?: 'Classic' | 'Modern';
+  canChangeRate?: boolean;
+  canEditDiscount?: boolean;
+  ignorePricingRule?: boolean;
 
   static filters: FiltersMap = {
     cashAccount: () => ({
@@ -22,13 +27,25 @@ export class POSSettings extends Doc {
       accountType: AccountTypeEnum.Cash,
       isGroup: false,
     }),
+    defaultAccount: () => ({
+      isGroup: false,
+      accountType: AccountTypeEnum.Receivable,
+    }),
   };
 
   hidden: HiddenMap = {
     weightEnabledBarcode: () =>
       !this.fyo.singles.InventorySettings?.enableBarcodes,
-    checkDigits: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    itemCodeDigits: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    itemWeightDigits: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
+    checkDigits: () =>
+      !this.fyo.singles.InventorySettings?.enableBarcodes ||
+      !this.weightEnabledBarcode,
+    itemCodeDigits: () =>
+      !this.fyo.singles.InventorySettings?.enableBarcodes ||
+      !this.weightEnabledBarcode,
+    itemWeightDigits: () =>
+      !this.fyo.singles.InventorySettings?.enableBarcodes ||
+      !this.weightEnabledBarcode,
+    itemVisibility: () =>
+      !this.fyo.singles.AccountingSettings?.enablePointOfSaleWithOutInventory,
   };
 }
