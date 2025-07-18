@@ -189,4 +189,4 @@ If you want to contribute code then you can fork this repo, make changes and rai
 
 - [Telegram Group](https://t.me/frappebooks): Used for discussions and decisions regarding everything Frappe Books.
 - [GitHub Discussions](https://github.com/frappe/books/discussions): Used for discussions around a specific topic.
-- [Documentation](https://docs.frappe.io/books): Offaicial documentation for more details.
+- [Documentation](https://docs.frappe.io/books): Official documentation for more details.
