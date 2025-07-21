@@ -35,7 +35,6 @@
       "fieldname": "similarProduct",
       "label": "Similar Product",
       "fieldtype": "Data",
-      "readOnly": true,
       "section": "Default"
     }
   ]

@@ -4,130 +4,43 @@
     <div class="px-10">
       <hr class="dark:border-gray-800" />
       <div class="flex flex-col gap-5 pt-8">
-        <div class="relative">
-          <label class="text-sm font-medium">{{ t`Item Name` }} *</label>
-          <input
-            v-model="form.itemName"
-            type="text"
-            required
-            class="
-              w-full
-              border
-              dark:border-gray-700
-              rounded
-              px-3
-              py-2
-              mt-1
-              dark:bg-gray-800 dark:text-white
-              focus:outline-none
-            "
-            autocomplete="off"
-            @input="suggestSimilarProduct"
-            @focus="dropdownOpen = true"
-            @blur="dropdownOpen = false"
-          />
-          <ul
-            v-if="dropdownOpen"
-            class="
-              absolute
-              z-50
-              bg-white
-              dark:bg-gray-800
-              shadow-md
-              border border-gray-300
-              dark:border-gray-700
-              w-40
-              max-h-40
-              overflow-y-auto
-              rounded
-              mt-1
-            "
-          >
-            <li
-              v-for="item in itemOptions"
-              :key="item.name"
-              class="
-                px-3
-                py-1
-                text-sm text-gray-800
-                dark:text-white
-                cursor-pointer
-                hover:bg-gray-100
-                dark:hover:bg-gray-700
-              "
-              @mousedown.prevent="
-                form.itemName = item.name;
-                form.description = item.description || '';
-                dropdownOpen = false;
-                suggestSimilarProduct();
-              "
-            >
-              {{ item.name }}
-            </li>
-          </ul>
-        </div>
+        <Link
+          :df="{
+            fieldname: 'itemName',
+            fieldtype: 'Link',
+            target: 'Item',
+            label: t`Item Name`,
+            required: true,
+          }"
+          :value="form.itemName"
+          :border="true"
+          :show-label="true"
+          @change="(value: string) => {
+            form.itemName = value;
+          }"
+        />
 
-        <div class="relative">
-          <label class="text-sm font-medium">{{ t`Customer Name` }}</label>
-          <input
-            v-model="form.customerName"
-            type="text"
-            class="
-              w-full
-              border
-              dark:border-gray-700
-              rounded
-              px-3
-              py-2
-              mt-1
-              dark:bg-gray-800 dark:text-white
-              focus:outline-none
-            "
-            autocomplete="off"
-            @focus="partyDropdownOpen = true"
-          />
-          <ul
-            v-if="partyDropdownOpen"
-            class="
-              absolute
-              z-50
-              bg-white
-              dark:bg-gray-800
-              shadow-md
-              border border-gray-300
-              dark:border-gray-700
-              w-full
-              max-h-40
-              overflow-y-auto
-              rounded
-              mt-1
-            "
-          >
-            <li
-              v-for="party in parties"
-              :key="party.name"
-              class="
-                px-3
-                py-1
-                text-sm text-gray-800
-                dark:text-white
-                cursor-pointer
-                hover:bg-gray-100
-                dark:hover:bg-gray-700
-              "
-              @mousedown.prevent="
-                form.customerName = party.name;
-                form.contact = party.phone;
-                partyDropdownOpen = false;
-              "
-            >
-              {{ party.name }}
-            </li>
-          </ul>
-        </div>
+        <Link
+          :df="{
+            fieldname: 'customerName',
+            fieldtype: 'Link',
+            target: 'Party',
+            label: t`Customer Name`,
+            filter: { role: ['in', ['Customer', 'Both']] },
+          }"
+          :value="form.customerName"
+          :border="true"
+          :show-label="true"
+          @change="(value: string) => {
+            form.customerName = value;
+            updateCustomerContact(value);
+          }"
+        />
 
         <div>
-          <label class="text-sm font-medium">{{ t`Contact` }}</label>
+          <label class="block text-sm text-gray-700 dark:text-white mb-1">
+            {{ t`Contact` }}
+          </label>
           <input
             v-model="form.contact"
             type="text"
@@ -146,7 +59,9 @@
         </div>
 
         <div>
-          <label class="text-sm font-medium">{{ t`Description` }}</label>
+          <label class="block text-sm text-gray-700 dark:text-white mb-1">
+            {{ t`Description` }}
+          </label>
           <textarea
             v-model="form.description"
             rows="2"
@@ -164,25 +79,18 @@
           />
         </div>
 
-        <div>
-          <label class="text-sm font-medium">{{ t`Similar Product` }}</label>
-          <input
-            v-model="form.similarProduct"
-            type="text"
-            class="
-              w-full
-              border
-              dark:border-gray-700
-              rounded
-              px-3
-              py-2
-              mt-1
-              dark:bg-gray-800 dark:text-white
-              focus:outline-none focus:ring-0
-            "
-            readonly
-          />
-        </div>
+        <Link
+          :df="{
+            fieldname: 'similarProduct',
+            fieldtype: 'Link',
+            target: 'Item',
+            label: t`Similar Product`,
+          }"
+          :value="form.similarProduct"
+          :border="true"
+          :show-label="true"
+          @change="(value: string) => form.similarProduct = value"
+        />
       </div>
 
       <div class="grid grid-cols-2 gap-4 mt-10 mb-4">
@@ -201,7 +109,6 @@
         </div>
       </div>
 
-      <!-- Cancel Button -->
       <div class="grid grid-cols-2 gap-4 mb-6">
         <div class="col-span-2">
           <Button
@@ -227,12 +134,14 @@ import { t } from 'fyo';
 import { showToast } from 'src/utils/interactive';
 import Modal from 'src/components/Modal.vue';
 import Button from 'src/components/Button.vue';
+import Link from 'src/components/Controls/Link.vue';
 
 export default defineComponent({
   name: 'ItemEnquiryModal',
   components: {
     Modal,
     Button,
+    Link,
   },
   emits: ['toggleModal'],
   data() {
@@ -244,68 +153,21 @@ export default defineComponent({
         description: '',
         similarProduct: '',
       },
-      itemOptions: [] as { name: string; description?: string }[],
-      dropdownOpen: false,
-
-      parties: [] as { name: string; phone: string }[],
-      partyDropdownOpen: false,
     };
   },
-  async mounted() {
-    await this.fetchItems();
-    await this.fetchParties();
-  },
   methods: {
-    async fetchItems() {
-      try {
-        const items = await this.fyo.db.getAll('Item', {
-          filters: {},
-          fields: ['name', 'description'],
-        });
-
-        this.itemOptions = (items as Record<string, string>[])
-          .filter((item) => item.name)
-          .map((item) => ({
-            name: item.name,
-            description: item.description,
-          }));
-      } catch (error) {
-        showToast({ type: 'error', message: t`Failed to load items.` });
-      }
-    },
-
-    async fetchParties() {
-      try {
-        const partyData = await this.fyo.db.getAll('Party', {
-          filters: { role: ['in', ['Customer', 'Both']] },
-          fields: ['name', 'phone'],
-        });
-
-        this.parties = (partyData as Record<string, string>[])
-          .filter((p) => p.name && p.phone)
-          .map((p) => ({
-            name: p.name,
-            phone: p.phone,
-          }));
-      } catch (error) {
-        showToast({ type: 'error', message: t`Failed to load customers.` });
-      }
-    },
-
-    suggestSimilarProduct() {
-      const input = this.form.itemName.toLowerCase().trim();
-      if (!input) {
-        this.form.similarProduct = '';
+    async updateCustomerContact(customerName: string) {
+      if (!customerName) {
+        this.form.contact = '';
         return;
       }
 
-      const match = this.itemOptions.find(
-        (item) =>
-          input.includes(item.name.toLowerCase()) &&
-          item.name.toLowerCase() !== input
-      );
-
-      this.form.similarProduct = match ? match.name : '';
+      try {
+        const party = await this.fyo.db.get('Party', customerName);
+        this.form.contact = party?.phone?.toString?.() || '';
+      } catch (error) {
+        this.form.contact = '';
+      }
     },
 
     clearFormValues() {
@@ -316,8 +178,6 @@ export default defineComponent({
         description: '',
         similarProduct: '',
       };
-      this.dropdownOpen = false;
-      this.partyDropdownOpen = false;
     },
 
     async submitForm() {
