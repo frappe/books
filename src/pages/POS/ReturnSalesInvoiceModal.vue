@@ -82,7 +82,7 @@
       </Row>
     </div>
 
-    <div class="mt-4">
+    <div class="mt-1 mb-1">
       <Paginator
         :item-count="filteredInvoices.length"
         :allowed-counts="[20, 40, -1]"
@@ -90,7 +90,7 @@
       />
     </div>
 
-    <div class="row-start-6 grid grid-cols-2 gap-4 mt-4">
+    <div class="row-start-6 grid grid-cols-2 gap-4 mt-1">
       <div class="col-span-2">
         <Button
           class="w-full p-5 bg-red-500 dark:bg-red-700"
