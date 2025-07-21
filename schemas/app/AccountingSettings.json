@@ -125,7 +125,7 @@
       "fieldname": "enableItemEnquiry",
       "label": "Enable Item Enquiry",
       "fieldtype": "Check",
-      "default": true,
+      "default": false,
       "section": "Features"
     },
     {
