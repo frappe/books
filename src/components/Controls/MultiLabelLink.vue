@@ -72,18 +72,25 @@ export default {
       const schema = fyo.schemaMap[schemaName];
       const filters = await this.getFilters();
 
-      const fields = [
-        ...new Set([
-          'name',
-          this.secondaryLink,
-          schema.titleField,
-          this.df.groupBy,
-        ]),
+      const baseFields = [
+        'name',
+        this.secondaryLink,
+        schema.titleField,
+        this.df.groupBy,
       ].filter(Boolean);
+
+      try {
+        const tableInfo = await fyo.db.getSchemaInfo(schemaName);
+        if (tableInfo.columns.barcode) {
+          baseFields.push('barcode');
+        }
+      } catch (error) {
+        console.debug('Could not check for barcode column', error);
+      }
 
       const results = await fyo.db.getAll(schemaName, {
         filters,
-        fields,
+        fields: baseFields,
       });
 
       return (this.results = results
@@ -91,10 +98,11 @@ export default {
           const option = {
             label:
               r[this.secondaryLink] && this.showSecondaryLink
-                ? `${r[schema.titleField]}  ` + `  ${r[this.secondaryLink]}`
+                ? `${r[schema.titleField]}  ${r[this.secondaryLink]}`
                 : r[schema.titleField],
             value: r.name,
             value2: r[this.secondaryLink],
+            barcode: r.barcode || null,
           };
 
           if (this.df.groupBy) {
@@ -108,8 +116,22 @@ export default {
       let options = await this.getOptions();
 
       if (keyword) {
+        const hasBarcode = options.some(
+          (opt) => opt.barcode !== undefined && opt.barcode !== null
+        );
+        if (hasBarcode) {
+          const barcodeMatch = options.find((opt) => opt.barcode === keyword);
+          if (barcodeMatch) return [barcodeMatch];
+        }
+
         options = options
-          .map((item) => ({ ...fuzzyMatch(keyword, item.label), item }))
+          .map((item) => {
+            const searchString = `${item.label} ${item.barcode || ''}`;
+            return {
+              ...fuzzyMatch(keyword, searchString),
+              item,
+            };
+          })
           .filter(({ isMatch }) => isMatch)
           .sort((a, b) => a.distance - b.distance)
           .map(({ item }) => item);

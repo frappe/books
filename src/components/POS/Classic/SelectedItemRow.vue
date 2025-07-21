@@ -27,17 +27,31 @@
     </p>
   </div>
 
-  <Int
-    :df="{
-      fieldname: 'quantity',
-      fieldtype: 'Int',
-      label: 'Quantity',
-    }"
-    size="small"
-    :border="false"
-    :value="row.quantity"
-    :read-only="true"
-  />
+  <div class="flex items-center">
+    <Int
+      :df="{
+        fieldname: 'quantity',
+        fieldtype: 'Int',
+        label: 'Quantity',
+      }"
+      size="small"
+      :border="false"
+      :value="displayQuantity"
+      :read-only="true"
+    />
+    <div class="flex flex-col ml-1">
+      <feather-icon
+        name="chevron-up"
+        class="w-3 h-3 cursor-pointer hover:text-blue-500"
+        @click="adjustQuantity(1)"
+      />
+      <feather-icon
+        name="chevron-down"
+        class="w-3 h-3 cursor-pointer hover:text-blue-500"
+        @click="adjustQuantity(-1)"
+      />
+    </div>
+  </div>
 
   <Link
     :df="{
@@ -129,10 +143,10 @@
           label: 'Quantity',
         }"
         size="medium"
-        :min="0"
+        :min="isReturnDocument ? -Infinity : 0"
         :border="true"
         :show-label="true"
-        :value="row.quantity"
+        :value="displayQuantity"
         @change="(value:number) => setQuantity(value)"
         :read-only="isUOMConversionEnabled"
       />
@@ -302,12 +316,19 @@ export default defineComponent({
     isReadOnly() {
       return this.row.isFreeItem;
     },
+    isReturnDocument(): boolean {
+      return this.row.parentdoc?.isReturn ?? false;
+    },
+    displayQuantity() {
+      if (this.isReturnDocument) {
+        return this.row.transferQuantity
+          ? -Math.abs(this.row.transferQuantity)
+          : -Math.abs(this.row.quantity);
+      }
+      return this.row.quantity;
+    },
   },
-
   async mounted() {
-    // this.$watch('row.quantity', (newVal: number) => {
-    //   this.setQuantity(newVal);
-    // });
     const posProfileName = this.fyo.singles.POSSettings?.posProfile;
 
     if (posProfileName) {
@@ -330,8 +351,23 @@ export default defineComponent({
       this.profileRateSetting = !!this.fyo.singles.POSSettings?.canChangeRate;
     }
   },
-
   methods: {
+    adjustQuantity(change: number) {
+      let currentQuantity = this.row.quantity ?? 1;
+      if (this.isReturnDocument) {
+        currentQuantity = Math.abs(currentQuantity);
+      }
+
+      let newQuantity = currentQuantity + change;
+
+      if (this.isReturnDocument) {
+        newQuantity = -Math.abs(newQuantity);
+      } else if (newQuantity < 1) {
+        return;
+      }
+
+      this.setQuantity(newQuantity);
+    },
     async getAvailableQtyInBatch(): Promise<number> {
       if (!this.row.batch) {
         return 0;
@@ -372,7 +408,6 @@ export default defineComponent({
         itemVisibility === 'Inventory Items'
       );
     },
-
     isDiscountsReadOnly(isValidDiscount: boolean) {
       const canEditDiscount = this.profileDiscountSetting;
 
@@ -390,7 +425,7 @@ export default defineComponent({
 
       validateSerialNumberCount(
         serialNumber,
-        this.row.quantity ?? 0,
+        Math.abs(this.row.quantity ?? 0),
         this.row.item!
       );
     },
@@ -412,30 +447,30 @@ export default defineComponent({
       this.$emit('runSinvFormulas');
     },
     async setQuantity(quantity: number) {
-      const hasManualDiscount = this.row.setItemDiscountAmount;
-      const isPercentageDiscount =
-        !hasManualDiscount && this.row.itemDiscountPercent !== 0;
-      const manualDiscountAmount = this.row.itemDiscountAmount;
-      const manualDiscountPercent = this.row.itemDiscountPercent;
-      if (!this.row.isReturn && quantity <= 0) {
+      const workingQuantity = this.isReturnDocument
+        ? Math.abs(quantity)
+        : quantity;
+
+      if (!this.isReturnDocument && workingQuantity <= 0) {
         showToast({
           type: 'error',
           message: 'Quantity must be greater than zero.',
           duration: 'short',
         });
-
-        quantity = this.row.quantity ?? 1;
+        return;
       }
 
-      this.row.set('quantity', quantity);
+      const storedQuantity = this.isReturnDocument
+        ? -Math.abs(quantity)
+        : quantity;
+
+      this.row.set('quantity', storedQuantity);
 
       const existingItems =
         (this.row.parentdoc as SalesInvoice).items?.filter(
           (invoiceItem: InvoiceItem) =>
             invoiceItem.item === this.row.item && !invoiceItem.isFreeItem
         ) ?? [];
-
-      quantity = this.row.quantity ?? 1;
 
       try {
         await validateQty(
@@ -444,8 +479,7 @@ export default defineComponent({
           existingItems
         );
       } catch (error) {
-        this.row.set('quantity', quantity);
-
+        this.row.set('quantity', storedQuantity);
         return showToast({
           type: 'error',
           message: this.t`${error as string}`,
@@ -456,20 +490,6 @@ export default defineComponent({
       if (!this.row.isFreeItem) {
         this.$emit('applyPricingRule');
         this.$emit('runSinvFormulas');
-
-        if (!hasManualDiscount && !isPercentageDiscount) {
-          this.row.set('setItemDiscountAmount', false);
-          this.row.set('itemDiscountPercent', 0);
-        }
-        this.row.set('rate', this.fyo.pesa(0));
-
-        if (hasManualDiscount) {
-          this.row.set('setItemDiscountAmount', true);
-          this.row.set('itemDiscountAmount', manualDiscountAmount);
-        } else if (isPercentageDiscount) {
-          this.row.set('setItemDiscountAmount', false);
-          this.row.set('itemDiscountPercent', manualDiscountPercent);
-        }
       }
     },
     async removeAddedItem(row: SalesInvoiceItem) {

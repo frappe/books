@@ -62,6 +62,7 @@
       @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
       @save-and-continue="handleSaveAndContinue"
+      @handle-pay-click="handlePayClick"
     />
     <ModernPOS
       v-else
@@ -324,6 +325,7 @@ export default defineComponent({
       if (!addItem) return;
 
       let quantity = 1;
+      let transferQuantity = 1;
       const posSettings = fyo.singles.POSSettings;
       const isWeightEnabledBarcode = posSettings?.weightEnabledBarcode;
 
@@ -383,14 +385,16 @@ export default defineComponent({
         const weightValue = parseInt(weightPart, 10);
         if ((matchedItem.unit as string)?.toLowerCase() === 'kg') {
           quantity = weightValue / 1000;
+          transferQuantity = quantity;
         } else {
           quantity = weightValue;
+          transferQuantity = quantity;
         }
       }
 
       const itemDoc = this.getItem(matchedItem.name as string);
       if (itemDoc && addItem) {
-        await this.addItem(itemDoc as POSItem, quantity);
+        await this.addItem(itemDoc as POSItem, quantity, transferQuantity);
         this.itemSearchTerm = '';
       }
     },
@@ -553,6 +557,13 @@ export default defineComponent({
       if (!returnDoc || !returnDoc.name) {
         return;
       }
+      if (returnDoc.items) {
+        for (const item of returnDoc.items) {
+          if (item.hasBatch && item.transferQuantity) {
+            await item.set('quantity', Math.abs(item.transferQuantity));
+          }
+        }
+      }
 
       this.sinvDoc = returnDoc;
     },
@@ -653,7 +664,11 @@ export default defineComponent({
         );
       }
     },
-    async addItem(item: POSItem | Item | undefined, quantity?: number) {
+    async addItem(
+      item: POSItem | Item | undefined,
+      quantity?: number,
+      transferQuantity?: number
+    ) {
       try {
         await this.sinvDoc.runFormulas();
         this.validateInvoice();
@@ -696,6 +711,11 @@ export default defineComponent({
           'hsnCode'
         )) as number;
 
+        const qty = quantity ?? 1;
+
+        const transferQty =
+          transferQuantity !== undefined ? transferQuantity : qty;
+
         if (item.hasBatch) {
           const addQty = quantity ?? 1;
 
@@ -722,15 +742,29 @@ export default defineComponent({
             }
           }
 
-          await this.sinvDoc.append('items', {
+          const success = await this.sinvDoc.append('items', {
             rate: item.rate as Money,
             item: item.name,
             quantity: addQty,
+            transferQuantity: transferQty,
             hsnCode: itemsHsncode,
           });
+
+          if (!success) {
+            throw new Error('Failed to add item');
+          }
+
+          const newItems = this.sinvDoc.items?.filter(
+            (i) => i.item === item.name && !existingItems.includes(i)
+          );
+
+          if (newItems?.length) {
+            const newItem = newItems[newItems.length - 1];
+            await newItem.set('transferQuantity', transferQty);
+          }
+
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
-          return;
         }
 
         if (existingItems.length) {
@@ -739,7 +773,7 @@ export default defineComponent({
           }
 
           const currentQty = existingItems[0].quantity ?? 0;
-          const addQty = quantity ?? 1;
+          const addQty = qty;
           if (isInventoryItem) {
             const availableQty =
               this.itemQtyMap[item.name as string]?.availableQty ?? 0;
@@ -751,6 +785,9 @@ export default defineComponent({
           }
 
           await existingItems[0].set('quantity', currentQty + addQty);
+          if (transferQuantity !== undefined) {
+            await existingItems[0].set('transferQuantity', transferQty);
+          }
           await this.sinvDoc.runFormulas();
           if (isInventoryItem) {
             await validateQty(
@@ -762,26 +799,34 @@ export default defineComponent({
           return;
         }
 
-        await this.sinvDoc.append('items', {
+        const success = await this.sinvDoc.append('items', {
           rate: item.rate as Money,
           item: item.name,
-          quantity: quantity ? quantity : 1,
+          quantity: qty,
+          transferQuantity: transferQty,
           hsnCode: itemsHsncode,
         });
 
-        if (this.sinvDoc.priceList) {
-          let itemData = this.sinvDoc.items?.filter(
-            (val) => val.item == item.name
-          ) as SalesInvoiceItem[];
+        if (!success) {
+          throw new Error('Failed to add item');
+        }
 
-          itemData[0].rate = await getItemRateFromPriceList(
-            itemData[0],
-            this.sinvDoc.priceList
+        if (this.sinvDoc.priceList) {
+          const newItems = this.sinvDoc.items?.filter(
+            (i) => i.item === item.name && !existingItems.includes(i)
           );
+
+          if (newItems?.length) {
+            const newItem = newItems[newItems.length - 1];
+
+            newItem.rate = await getItemRateFromPriceList(
+              newItem,
+              this.sinvDoc.priceList
+            );
+          }
         }
 
         await this.applyPricingRule();
-
         await this.sinvDoc.runFormulas();
       } catch (error) {
         return showToast({
@@ -1058,9 +1103,36 @@ export default defineComponent({
         });
       }
     },
+    handlePayClick() {
+      if (!this.sinvDoc.items?.length) {
+        return showToast({
+          type: 'error',
+          message: t`Please add items before payment`,
+        });
+      }
+
+      if (!this.sinvDoc.party) {
+        return showToast({
+          type: 'error',
+          message: t`Please select a customer before payment`,
+        });
+      }
+
+      this.toggleModal('Payment', true);
+    },
     async saveInvoiceAction() {
-      if (!this.sinvDoc.party && !this.sinvDoc.items?.length) {
-        return;
+      if (!this.sinvDoc.items?.length) {
+        return showToast({
+          type: 'error',
+          message: t`Please add items before saving`,
+        });
+      }
+
+      if (!this.sinvDoc.party) {
+        return showToast({
+          type: 'error',
+          message: t`Please select a customer before saving`,
+        });
       }
 
       await this.saveOrder();

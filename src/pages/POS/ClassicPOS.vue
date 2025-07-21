@@ -257,7 +257,6 @@
                         fyo.singles.Defaults?.saveButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
-                    :disabled="!sinvDoc?.party || !sinvDoc?.items?.length"
                     @click="$emit('saveInvoiceAction')"
                   >
                     <slot>
@@ -274,7 +273,6 @@
                         fyo.singles.Defaults?.cancelButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
-                    :disabled="!sinvDoc?.items?.length"
                     @click="() => $emit('clearValues')"
                   >
                     <slot>
@@ -332,7 +330,6 @@
                         fyo.singles.Defaults?.payButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
-                    :disabled="disablePayButton"
                     @click="emitEvent('toggleModal', 'Payment', true)"
                   >
                     <slot>
@@ -350,7 +347,6 @@
                       profile?.payButtonColour ||
                       fyo.singles.Defaults?.payButtonColour,
                   }"
-                  :disabled="disablePayButton"
                   @click="emitEvent('toggleModal', 'Payment', true)"
                 >
                   <slot>
@@ -506,6 +502,7 @@ export default defineComponent({
     'selectedReturnInvoice',
     'setTransferClearanceDate',
     'saveAndContinue',
+    'handlePayClick',
   ],
   data() {
     return {
