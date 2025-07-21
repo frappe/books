@@ -7,15 +7,15 @@
   "naming": "autoincrement",
   "fields": [
     {
-      "fieldname": "itemName",
-      "label": "Item Name",
+      "fieldname": "item",
+      "label": "Item",
       "fieldtype": "Data",
       "required": true,
       "section": "Default"
     },
     {
-      "fieldname": "customerName",
-      "label": "Customer Name",
+      "fieldname": "customer",
+      "label": "Customer",
       "fieldtype": "Data",
       "section": "Default"
     },

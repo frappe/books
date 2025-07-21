@@ -128,6 +128,7 @@ export default {
       isLoading: false,
       suggestions: [],
       highlightedIndex: -1,
+      isFocused: false,
     };
   },
   computed: {
@@ -289,12 +290,14 @@ export default {
       this.toggleDropdown(false);
     },
     onFocus(e, toggleDropdown) {
+      this.isFocused = true;
       this.toggleDropdown = toggleDropdown;
       this.toggleDropdown(true);
       this.updateSuggestions();
       this.$emit('focus', e);
     },
     async onBlur(label) {
+      this.isFocused = false;
       if (!label && !this.value) {
         return;
       }
