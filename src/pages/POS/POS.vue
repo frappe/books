@@ -979,7 +979,10 @@ export default defineComponent({
     },
     async validate() {
       await validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
-      await validateShipment(this.itemSerialNumbers);
+
+      if (!this.sinvDoc.isReturn) {
+        await validateShipment(this.itemSerialNumbers);
+      }
     },
     async applyPricingRule() {
       if (this.ignorePricingRules()) {

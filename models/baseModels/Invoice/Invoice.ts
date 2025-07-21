@@ -735,6 +735,7 @@ export abstract class Invoice extends Transactional {
         serialNumber,
         name: undefined,
         quantity: quantity,
+        transferQuantity: quantity,
       });
     }
 
