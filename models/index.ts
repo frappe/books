@@ -57,6 +57,7 @@ import { ERPNextSyncSettings } from './baseModels/ERPNextSyncSettings/ERPNextSyn
 import { ERPNextSyncQueue } from './baseModels/ERPNextSyncQueue/ERPNextSyncQueue';
 import { FetchFromERPNextQueue } from './baseModels/FetchFromERPNextQueue/FetchFromERPNextQueue';
 import { IntegrationErrorLog } from './baseModels/IntegrationErrorLog/IntegrationErrorLog';
+import { ItemEnquiry } from './baseModels/ItemEnquiry/ItemEnquiry';
 
 export const models = {
   Account,
@@ -67,6 +68,7 @@ export const models = {
   Defaults,
   Item,
   ItemGroup,
+  ItemEnquiry,
   JournalEntry,
   JournalEntryAccount,
   Misc,

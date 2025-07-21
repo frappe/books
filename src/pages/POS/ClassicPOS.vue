@@ -40,6 +40,11 @@
       @toggle-modal="emitEvent('toggleModal', 'PriceList')"
     />
 
+    <ItemEnquiryModal
+      :open-modal="openItemEnquiryModal"
+      @toggle-modal="emitEvent('toggleModal', 'ItemEnquiry')"
+    />
+
     <PaymentModal
       :open-modal="openPaymentModal"
       @toggle-modal="emitEvent('toggleModal', 'Payment')"
@@ -372,6 +377,7 @@ import PaymentModal from './PaymentModal.vue';
 import Button from 'src/components/Button.vue';
 import { defineComponent, PropType } from 'vue';
 import PriceListModal from './PriceListModal.vue';
+import ItemEnquiryModal from './ItemEnquiryModal.vue';
 import { Item } from 'models/baseModels/Item/Item';
 import CouponCodeModal from './CouponCodeModal.vue';
 import POSQuickActions from './POSQuickActions.vue';
@@ -404,6 +410,7 @@ export default defineComponent({
     PaymentModal,
     MultiLabelLink,
     PriceListModal,
+    ItemEnquiryModal,
     CouponCodeModal,
     POSQuickActions,
     OpenPOSShiftModal,
@@ -424,6 +431,7 @@ export default defineComponent({
     disablePayButton: Boolean,
     openPaymentModal: Boolean,
     openPriceListModal: Boolean,
+    openItemEnquiryModal: Boolean,
     openCouponCodeModal: Boolean,
     openShiftCloseModal: Boolean,
     openSavedInvoiceModal: Boolean,
