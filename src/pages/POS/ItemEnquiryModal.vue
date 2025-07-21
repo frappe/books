@@ -6,78 +6,59 @@
       <div class="flex flex-col gap-5 pt-8">
         <Link
           :df="{
-            fieldname: 'itemName',
+            fieldname: 'item',
             fieldtype: 'Link',
             target: 'Item',
-            label: t`Item Name`,
+            label: t`Item`,
             required: true,
           }"
-          :value="form.itemName"
+          :value="form.item"
           :border="true"
           :show-label="true"
           @change="(value: string) => {
-            form.itemName = value;
+      form.item = value;
+    }"
+        />
+
+        <Text
+          :df="{
+            fieldname: 'description',
+            fieldtype: 'Text',
+            label: t`Description`,
           }"
+          :value="form.description"
+          :border="true"
+          :show-label="true"
+          @change="(value: string) => form.description = value"
         />
 
         <Link
           :df="{
-            fieldname: 'customerName',
+            fieldname: 'customer',
             fieldtype: 'Link',
             target: 'Party',
-            label: t`Customer Name`,
-            filter: { role: ['in', ['Customer', 'Both']] },
+            label: t`Customer`,
           }"
-          :value="form.customerName"
+          :value="form.customer"
           :border="true"
           :show-label="true"
           @change="(value: string) => {
-            form.customerName = value;
-            updateCustomerContact(value);
-          }"
+      form.customer = value;
+      updateCustomerContact(value);
+    }"
         />
 
-        <div>
-          <label class="block text-sm text-gray-700 dark:text-white mb-1">
-            {{ t`Contact` }}
-          </label>
-          <input
-            v-model="form.contact"
-            type="text"
-            class="
-              w-full
-              border
-              dark:border-gray-700
-              rounded
-              px-3
-              py-2
-              mt-1
-              dark:bg-gray-800 dark:text-white
-              focus:outline-none focus:ring-0
-            "
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm text-gray-700 dark:text-white mb-1">
-            {{ t`Description` }}
-          </label>
-          <textarea
-            v-model="form.description"
-            rows="2"
-            class="
-              w-full
-              border
-              dark:border-gray-700
-              rounded
-              px-3
-              py-2
-              mt-1
-              dark:bg-gray-800 dark:text-white
-              focus:outline-none focus:ring-0
-            "
-          />
-        </div>
+        <Data
+          :df="{
+            fieldname: 'contact',
+            fieldtype: 'Data',
+            label: t`Contact`,
+          }"
+          :value="form.contact"
+          :border="true"
+          :show-label="true"
+          @change="(value: string) => form.contact = value"
+        />
 
         <Link
           :df="{
@@ -135,6 +116,8 @@ import { showToast } from 'src/utils/interactive';
 import Modal from 'src/components/Modal.vue';
 import Button from 'src/components/Button.vue';
 import Link from 'src/components/Controls/Link.vue';
+import Text from 'src/components/Controls/Text.vue';
+import Data from 'src/components/Controls/Data.vue';
 
 export default defineComponent({
   name: 'ItemEnquiryModal',
@@ -142,13 +125,15 @@ export default defineComponent({
     Modal,
     Button,
     Link,
+    Text,
+    Data,
   },
   emits: ['toggleModal'],
   data() {
     return {
       form: {
-        itemName: '',
-        customerName: '',
+        item: '',
+        customer: '',
         contact: '',
         description: '',
         similarProduct: '',
@@ -156,14 +141,14 @@ export default defineComponent({
     };
   },
   methods: {
-    async updateCustomerContact(customerName: string) {
-      if (!customerName) {
+    async updateCustomerContact(customer: string) {
+      if (!customer) {
         this.form.contact = '';
         return;
       }
 
       try {
-        const party = await this.fyo.db.get('Party', customerName);
+        const party = await this.fyo.db.get('Party', customer);
         this.form.contact = party?.phone?.toString?.() || '';
       } catch (error) {
         this.form.contact = '';
@@ -172,8 +157,8 @@ export default defineComponent({
 
     clearFormValues() {
       this.form = {
-        itemName: '',
-        customerName: '',
+        item: '',
+        customer: '',
         contact: '',
         description: '',
         similarProduct: '',
@@ -181,7 +166,7 @@ export default defineComponent({
     },
 
     async submitForm() {
-      if (!this.form.itemName.trim()) {
+      if (!this.form.item.trim()) {
         showToast({
           type: 'error',
           message: t`Item Name is required`,
@@ -191,8 +176,8 @@ export default defineComponent({
 
       try {
         const doc = this.fyo.doc.getNewDoc('ItemEnquiry');
-        doc.itemName = this.form.itemName;
-        doc.customerName = this.form.customerName;
+        doc.item = this.form.item;
+        doc.customer = this.form.customer;
         doc.contact = this.form.contact;
         doc.description = this.form.description;
         doc.similarProduct = this.form.similarProduct;
