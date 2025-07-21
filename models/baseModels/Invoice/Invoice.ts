@@ -891,10 +891,10 @@ export abstract class Invoice extends Transactional {
     const totalDiscount = this.getTotalDiscount();
 
     let baseTotal = this.fyo.pesa(0);
-    if (!this.taxes!.length) {
+    if (!this.taxes || !this.taxes.length) {
       baseTotal = (this.netTotal as Money).sub(totalDiscount);
     } else {
-      baseTotal = ((this.taxes ?? []) as Doc[])
+      baseTotal = this.taxes
         .map((doc) => doc.amount as Money)
         .reduce((a, b) => {
           return a.add(b.abs());
