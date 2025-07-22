@@ -23,6 +23,7 @@ export class AccountingSettings extends Doc {
   enableInvoiceReturns?: boolean;
   enableLoyaltyProgram?: boolean;
   enablePricingRule?: boolean;
+  enaenableItemEnquiry?: boolean;
   enableERPNextSync?: boolean;
   enablePointOfSaleWithOutInventory?: boolean;
   enablePartialPayment?: boolean;

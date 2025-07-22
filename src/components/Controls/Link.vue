@@ -109,7 +109,7 @@ export default {
               actionOnly: true,
             },
           ];
-        } else if (!this.doc || !this.df.create) {
+        } else if (this.isFocused && (!this.doc || !this.df.create)) {
           options = [
             {
               component: markRaw({

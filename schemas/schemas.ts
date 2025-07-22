@@ -81,6 +81,7 @@ import FetchFromERPNextQueue from './app/FetchFromERPNextQueue.json';
 import IntegrationErrorLog from './app/IntegrationErrorLog.json';
 import ItemGroup from './app/ItemGroup.json';
 import { Schema, SchemaStub } from './types';
+import ItemEnquiry from './app/ItemEnquiry.json';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -132,6 +133,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   JournalEntryAccount as Schema,
 
   Invoice as Schema,
+  ItemEnquiry as Schema,
   SalesInvoice as Schema,
   PurchaseInvoice as Schema,
   SalesQuote as Schema,
