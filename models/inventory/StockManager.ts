@@ -285,7 +285,8 @@ class StockManagerItem {
       const snStockLedgerEntries = this.#getSerialNumberedStockLedgerEntries(
         location,
         isOutward,
-        serialNumbers
+        serialNumbers,
+        quantity
       );
 
       this.stockLedgerEntries?.push(...snStockLedgerEntries);
@@ -303,10 +304,15 @@ class StockManagerItem {
   #getSerialNumberedStockLedgerEntries(
     location: string,
     isOutward: boolean,
-    serialNumbers: string[]
+    serialNumbers: string[],
+    quantity: number
   ): StockLedgerEntry[] {
-    let quantity = 1;
-    if (isOutward) {
+    if (quantity > 0) {
+      quantity = 1;
+    }
+    if (quantity < 0) {
+      quantity = 1;
+    } else if (isOutward) {
       quantity = -1;
     }
 

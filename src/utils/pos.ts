@@ -290,7 +290,7 @@ export function validateSerialNumberCount(
     serialNumberCount = serialNumbers.split('\n').length;
   }
 
-  if (quantity !== serialNumberCount) {
+  if (Math.abs(quantity) !== serialNumberCount) {
     const errorMessage = t`Need ${quantity} Serial Numbers for Item ${item}. You have provided ${serialNumberCount}`;
 
     showToast({
