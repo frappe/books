@@ -97,8 +97,9 @@ export default defineComponent({
   emits: ['applyPricingRule'],
   computed: {
     ratio() {
-      return [0.1, 1, 0.8, 0.8, 0.8, 0.8, 0.2];
+      return [0.1, 0.9, 1.1, 0.6, 0.8, 0.8, 0.2];
     },
+
     tableFields() {
       return [
         {

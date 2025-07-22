@@ -36,7 +36,7 @@
       }"
       size="small"
       :border="false"
-      :value="displayQuantity"
+      :value="row.quantity"
       :read-only="true"
     />
     <div class="flex flex-col ml-1">
@@ -54,6 +54,7 @@
   </div>
 
   <Link
+    class="ml-2"
     :df="{
       fieldname: 'unit',
       fieldtype: 'Data',
@@ -143,10 +144,10 @@
           label: 'Quantity',
         }"
         size="medium"
-        :min="isReturnDocument ? -Infinity : 0"
+        :min="0"
         :border="true"
         :show-label="true"
-        :value="displayQuantity"
+        :value="row.quantity"
         @change="(value:number) => setQuantity(value)"
         :read-only="isUOMConversionEnabled"
       />
@@ -316,17 +317,6 @@ export default defineComponent({
     isReadOnly() {
       return this.row.isFreeItem;
     },
-    isReturnDocument(): boolean {
-      return this.row.parentdoc?.isReturn ?? false;
-    },
-    displayQuantity() {
-      if (this.isReturnDocument) {
-        return this.row.transferQuantity
-          ? -Math.abs(this.row.transferQuantity)
-          : -Math.abs(this.row.quantity);
-      }
-      return this.row.quantity;
-    },
   },
   async mounted() {
     const posProfileName = this.fyo.singles.POSSettings?.posProfile;
@@ -354,15 +344,9 @@ export default defineComponent({
   methods: {
     adjustQuantity(change: number) {
       let currentQuantity = this.row.quantity ?? 1;
-      if (this.isReturnDocument) {
-        currentQuantity = Math.abs(currentQuantity);
-      }
-
       let newQuantity = currentQuantity + change;
 
-      if (this.isReturnDocument) {
-        newQuantity = -Math.abs(newQuantity);
-      } else if (newQuantity < 1) {
+      if (newQuantity === 0) {
         return;
       }
 
@@ -447,30 +431,28 @@ export default defineComponent({
       this.$emit('runSinvFormulas');
     },
     async setQuantity(quantity: number) {
-      const workingQuantity = this.isReturnDocument
-        ? Math.abs(quantity)
-        : quantity;
-
-      if (!this.isReturnDocument && workingQuantity <= 0) {
+      const hasManualDiscount = this.row.setItemDiscountAmount;
+      const isPercentageDiscount =
+        !hasManualDiscount && this.row.itemDiscountPercent !== 0;
+      const manualDiscountAmount = this.row.itemDiscountAmount;
+      const manualDiscountPercent = this.row.itemDiscountPercent;
+      if (!this.row.isReturn && quantity <= 0) {
         showToast({
           type: 'error',
           message: 'Quantity must be greater than zero.',
           duration: 'short',
         });
-        return;
+        quantity = this.row.quantity ?? 1;
       }
 
-      const storedQuantity = this.isReturnDocument
-        ? -Math.abs(quantity)
-        : quantity;
-
-      this.row.set('quantity', storedQuantity);
+      this.row.set('quantity', quantity);
 
       const existingItems =
         (this.row.parentdoc as SalesInvoice).items?.filter(
           (invoiceItem: InvoiceItem) =>
             invoiceItem.item === this.row.item && !invoiceItem.isFreeItem
         ) ?? [];
+      quantity = this.row.quantity ?? 1;
 
       try {
         await validateQty(
@@ -479,7 +461,7 @@ export default defineComponent({
           existingItems
         );
       } catch (error) {
-        this.row.set('quantity', storedQuantity);
+        this.row.set('quantity', quantity);
         return showToast({
           type: 'error',
           message: this.t`${error as string}`,
@@ -490,6 +472,18 @@ export default defineComponent({
       if (!this.row.isFreeItem) {
         this.$emit('applyPricingRule');
         this.$emit('runSinvFormulas');
+        if (!hasManualDiscount && !isPercentageDiscount) {
+          this.row.set('setItemDiscountAmount', false);
+          this.row.set('itemDiscountPercent', 0);
+        }
+        this.row.set('rate', this.fyo.pesa(0));
+        if (hasManualDiscount) {
+          this.row.set('setItemDiscountAmount', true);
+          this.row.set('itemDiscountAmount', manualDiscountAmount);
+        } else if (isPercentageDiscount) {
+          this.row.set('setItemDiscountAmount', false);
+          this.row.set('itemDiscountPercent', manualDiscountPercent);
+        }
       }
     },
     async removeAddedItem(row: SalesInvoiceItem) {
