@@ -54,7 +54,7 @@
   </div>
 
   <Link
-    class="ml-2"
+    class="ml-5"
     :df="{
       fieldname: 'unit',
       fieldtype: 'Data',
@@ -318,6 +318,7 @@ export default defineComponent({
       return this.row.isFreeItem;
     },
   },
+
   async mounted() {
     const posProfileName = this.fyo.singles.POSSettings?.posProfile;
 
@@ -341,6 +342,7 @@ export default defineComponent({
       this.profileRateSetting = !!this.fyo.singles.POSSettings?.canChangeRate;
     }
   },
+
   methods: {
     adjustQuantity(change: number) {
       let currentQuantity = this.row.quantity ?? 1;
@@ -392,6 +394,7 @@ export default defineComponent({
         itemVisibility === 'Inventory Items'
       );
     },
+
     isDiscountsReadOnly(isValidDiscount: boolean) {
       const canEditDiscount = this.profileDiscountSetting;
 
@@ -442,6 +445,7 @@ export default defineComponent({
           message: 'Quantity must be greater than zero.',
           duration: 'short',
         });
+
         quantity = this.row.quantity ?? 1;
       }
 
@@ -452,6 +456,7 @@ export default defineComponent({
           (invoiceItem: InvoiceItem) =>
             invoiceItem.item === this.row.item && !invoiceItem.isFreeItem
         ) ?? [];
+
       quantity = this.row.quantity ?? 1;
 
       try {
@@ -462,6 +467,7 @@ export default defineComponent({
         );
       } catch (error) {
         this.row.set('quantity', quantity);
+
         return showToast({
           type: 'error',
           message: this.t`${error as string}`,
@@ -472,11 +478,13 @@ export default defineComponent({
       if (!this.row.isFreeItem) {
         this.$emit('applyPricingRule');
         this.$emit('runSinvFormulas');
+
         if (!hasManualDiscount && !isPercentageDiscount) {
           this.row.set('setItemDiscountAmount', false);
           this.row.set('itemDiscountPercent', 0);
         }
         this.row.set('rate', this.fyo.pesa(0));
+
         if (hasManualDiscount) {
           this.row.set('setItemDiscountAmount', true);
           this.row.set('itemDiscountAmount', manualDiscountAmount);
