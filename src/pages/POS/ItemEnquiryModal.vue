@@ -12,12 +12,10 @@
             label: t`Item`,
             required: true,
           }"
-          :value="form.item"
+          :value="ItemEnquiry.item"
           :border="true"
           :show-label="true"
-          @change="(value: string) => {
-      form.item = value;
-    }"
+          @change="(value: string) => ItemEnquiry.item = value"
         />
 
         <Text
@@ -26,10 +24,10 @@
             fieldtype: 'Text',
             label: t`Description`,
           }"
-          :value="form.description"
+          :value="ItemEnquiry.description"
           :border="true"
           :show-label="true"
-          @change="(value: string) => form.description = value"
+          @change="(value: string) => ItemEnquiry.description = value"
         />
 
         <Link
@@ -39,11 +37,11 @@
             target: 'Party',
             label: t`Customer`,
           }"
-          :value="form.customer"
+          :value="ItemEnquiry.customer"
           :border="true"
           :show-label="true"
           @change="(value: string) => {
-      form.customer = value;
+      ItemEnquiry.customer = value;
       updateCustomerContact(value);
     }"
         />
@@ -54,10 +52,10 @@
             fieldtype: 'Data',
             label: t`Contact`,
           }"
-          :value="form.contact"
+          :value="ItemEnquiry.contact"
           :border="true"
           :show-label="true"
-          @change="(value: string) => form.contact = value"
+          @change="(value: string) => ItemEnquiry.contact = value"
         />
 
         <Link
@@ -67,10 +65,10 @@
             target: 'Item',
             label: t`Similar Product`,
           }"
-          :value="form.similarProduct"
+          :value="ItemEnquiry.similarProduct"
           :border="true"
           :show-label="true"
-          @change="(value: string) => form.similarProduct = value"
+          @change="(value: string) => ItemEnquiry.similarProduct = value"
         />
       </div>
 
@@ -118,6 +116,9 @@ import Button from 'src/components/Button.vue';
 import Link from 'src/components/Controls/Link.vue';
 import Text from 'src/components/Controls/Text.vue';
 import Data from 'src/components/Controls/Data.vue';
+import { ItemEnquiry } from 'models/baseModels/ItemEnquiry/ItemEnquiry';
+import { ModelNameEnum } from 'models/types';
+import { DocValueMap } from 'fyo/core/types';
 
 export default defineComponent({
   name: 'ItemEnquiryModal',
@@ -131,65 +132,26 @@ export default defineComponent({
   emits: ['toggleModal'],
   data() {
     return {
-      form: {
-        item: '',
-        customer: '',
-        contact: '',
-        description: '',
-        similarProduct: '',
-      },
+      ItemEnquiry: {} as ItemEnquiry,
     };
   },
   methods: {
     async updateCustomerContact(customer: string) {
-      if (!customer) {
-        this.form.contact = '';
-        return;
-      }
-
-      try {
-        const party = await this.fyo.db.get('Party', customer);
-        this.form.contact = party?.phone?.toString?.() || '';
-      } catch (error) {
-        this.form.contact = '';
-      }
-    },
-
-    clearFormValues() {
-      this.form = {
-        item: '',
-        customer: '',
-        contact: '',
-        description: '',
-        similarProduct: '',
-      };
+      this.ItemEnquiry.contact =
+        ((await this.fyo.getValue('Party', customer, 'phone')) as string) || '';
     },
 
     async submitForm() {
-      if (!this.form.item.trim()) {
-        showToast({
-          type: 'error',
-          message: t`Item Name is required`,
-        });
-        return;
-      }
-
       try {
-        const doc = this.fyo.doc.getNewDoc('ItemEnquiry');
-        doc.item = this.form.item;
-        doc.customer = this.form.customer;
-        doc.contact = this.form.contact;
-        doc.description = this.form.description;
-        doc.similarProduct = this.form.similarProduct;
-
-        await doc.sync();
-
+        const itemEnquiryDoc = this.fyo.doc.getNewDoc(
+          ModelNameEnum.ItemEnquiry,
+          this.ItemEnquiry as DocValueMap
+        );
+        await itemEnquiryDoc.sync();
         showToast({
           type: 'success',
           message: t`Item enquiry submitted`,
         });
-
-        this.clearFormValues();
         this.$emit('toggleModal', 'ItemEnquiry');
       } catch (error) {
         showToast({
@@ -200,7 +162,6 @@ export default defineComponent({
     },
 
     closeModal() {
-      this.clearFormValues();
       this.$emit('toggleModal', 'ItemEnquiry');
     },
   },
