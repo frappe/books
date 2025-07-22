@@ -729,7 +729,6 @@ export default defineComponent({
             quantity: addQty,
             hsnCode: itemsHsncode,
           });
-
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
           return;
@@ -781,7 +780,6 @@ export default defineComponent({
             this.sinvDoc.priceList
           );
         }
-
         await this.applyPricingRule();
         await this.sinvDoc.runFormulas();
       } catch (error) {
