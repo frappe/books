@@ -122,6 +122,13 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableItemEnquiry",
+      "label": "Enable Item Enquiry",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "enableLoyaltyProgram",
       "label": "Enable Loyalty Program",
       "fieldtype": "Check",

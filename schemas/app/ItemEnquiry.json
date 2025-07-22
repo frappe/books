@@ -1,0 +1,41 @@
+{
+  "name": "ItemEnquiry",
+  "label": "Item Enquiry",
+  "create": false,
+  "isSingle": false,
+  "isChild": false,
+  "naming": "autoincrement",
+  "fields": [
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "customer",
+      "label": "Customer",
+      "fieldtype": "Data",
+      "section": "Default"
+    },
+    {
+      "fieldname": "contact",
+      "label": "Contact",
+      "fieldtype": "Data",
+      "section": "Default"
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "fieldtype": "Text",
+      "section": "Default"
+    },
+    {
+      "fieldname": "similarProduct",
+      "label": "Similar Product",
+      "fieldtype": "Data",
+      "section": "Default"
+    }
+  ]
+}
