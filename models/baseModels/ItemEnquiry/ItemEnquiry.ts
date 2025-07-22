@@ -2,8 +2,8 @@ import { Doc } from 'fyo/model/doc';
 import { ListViewSettings } from 'fyo/model/types';
 
 export class ItemEnquiry extends Doc {
-  item!: string;
-  customer!: string;
+  item?: string;
+  customer?: string;
   contact?: string;
   description?: string;
   similarProduct?: string;
