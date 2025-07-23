@@ -27,19 +27,34 @@
     </p>
   </div>
 
-  <Int
-    :df="{
-      fieldname: 'quantity',
-      fieldtype: 'Int',
-      label: 'Quantity',
-    }"
-    size="small"
-    :border="false"
-    :value="row.quantity"
-    :read-only="true"
-  />
+  <div class="flex items-center">
+    <Int
+      :df="{
+        fieldname: 'quantity',
+        fieldtype: 'Int',
+        label: 'Quantity',
+      }"
+      size="small"
+      :border="false"
+      :value="row.quantity"
+      :read-only="true"
+    />
+    <div class="flex flex-col ml-1">
+      <feather-icon
+        name="chevron-up"
+        class="w-3 h-3 cursor-pointer hover:text-blue-500"
+        @click="adjustQuantity(1)"
+      />
+      <feather-icon
+        name="chevron-down"
+        class="w-3 h-3 cursor-pointer hover:text-blue-500"
+        @click="adjustQuantity(-1)"
+      />
+    </div>
+  </div>
 
   <Link
+    class="ml-5"
     :df="{
       fieldname: 'unit',
       fieldtype: 'Data',
@@ -305,9 +320,6 @@ export default defineComponent({
   },
 
   async mounted() {
-    // this.$watch('row.quantity', (newVal: number) => {
-    //   this.setQuantity(newVal);
-    // });
     const posProfileName = this.fyo.singles.POSSettings?.posProfile;
 
     if (posProfileName) {
@@ -332,6 +344,16 @@ export default defineComponent({
   },
 
   methods: {
+    adjustQuantity(change: number) {
+      let currentQuantity = this.row.quantity ?? 1;
+      let newQuantity = currentQuantity + change;
+
+      if (newQuantity === 0) {
+        return;
+      }
+
+      this.setQuantity(newQuantity);
+    },
     async getAvailableQtyInBatch(): Promise<number> {
       if (!this.row.batch) {
         return 0;
@@ -390,7 +412,7 @@ export default defineComponent({
 
       validateSerialNumberCount(
         serialNumber,
-        this.row.quantity ?? 0,
+        Math.abs(this.row.quantity ?? 0),
         this.row.item!
       );
     },
