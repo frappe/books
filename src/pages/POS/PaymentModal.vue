@@ -149,14 +149,10 @@
               backgroundColor: fyo.singles.Defaults?.submitButtonColour,
             }"
             style="padding: 1.35rem"
-            :disabled="disableSubmitButton"
-            @click="submitTransaction()"
+            @click="submitTransaction"
           >
             <slot>
-              <p
-                class="uppercase text-lg text-white font-semibold"
-                :disabled="sinvDoc.submitted"
-              >
+              <p class="uppercase text-lg text-white font-semibold">
                 {{ t`Submit` }}
               </p>
             </slot>
@@ -170,7 +166,7 @@
               backgroundColor: fyo.singles.Defaults?.cancelButtonColour,
             }"
             style="padding: 1.35rem"
-            @click="cancelTransaction()"
+            @click="cancelTransaction"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
@@ -185,8 +181,7 @@
             class="w-full"
             :style="{ backgroundColor: fyo.singles.Defaults?.payButtonColour }"
             style="padding: 1.35rem"
-            :disabled="disablePayButton"
-            @click="payTransaction()"
+            @click="payTransaction"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
@@ -203,8 +198,7 @@
               backgroundColor: fyo.singles.Defaults?.payAndPrintButtonColour,
             }"
             style="padding: 1.35rem"
-            :disabled="disablePayButton"
-            @click="$emit('createTransaction', true, true)"
+            @click="payAndPrintTransaction"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
@@ -230,6 +224,7 @@ import { defineComponent, inject } from 'vue';
 import { fyo } from 'src/initFyo';
 import { isPesa } from 'fyo/utils';
 import { ModelNameEnum } from 'models/types';
+import { showToast } from 'src/utils/interactive';
 
 export default defineComponent({
   name: 'PaymentModal',
@@ -333,45 +328,6 @@ export default defineComponent({
 
       return false;
     },
-    disableSubmitButton(): boolean {
-      if (this.sinvDoc.submitted) {
-        return true;
-      }
-
-      if (
-        (this.sinvDoc.grandTotal?.float as number) < 1 &&
-        this.fyo.pesa(this.paidAmount.float).isZero() &&
-        !this.sinvDoc.returnAgainst
-      ) {
-        return true;
-      }
-
-      if (
-        !this.paymentMethod &&
-        (!this.transferRefNo || !this.transferClearanceDate)
-      ) {
-        return true;
-      }
-      return false;
-    },
-    disablePayButton(): boolean {
-      if (
-        (this.sinvDoc.grandTotal?.float as number) < 1 &&
-        this.fyo.pesa(this.paidAmount.float).isZero() &&
-        !this.sinvDoc.returnAgainst
-      ) {
-        return true;
-      }
-
-      if (
-        !this.paymentMethod &&
-        (!this.transferRefNo || !this.transferClearanceDate)
-      ) {
-        return true;
-      }
-
-      return false;
-    },
   },
   async activated() {
     await this.setPaymentMethods();
@@ -394,10 +350,38 @@ export default defineComponent({
       ).map((d) => d.name);
     },
     submitTransaction() {
+      if (!this.paymentMethod) {
+        return showToast({
+          type: 'error',
+          message: this.fyo
+            .t`Please select a payment method before submitting.`,
+        });
+        return;
+      }
       this.$emit('createTransaction');
     },
     payTransaction() {
+      if (!this.paymentMethod) {
+        return showToast({
+          type: 'error',
+          message: this.fyo
+            .t`Please select a payment method before proceeding with payment.`,
+        });
+        return;
+      }
       this.$emit('createTransaction', false, true);
+    },
+    payAndPrintTransaction() {
+      if (!this.paymentMethod) {
+        return showToast({
+          type: 'error',
+          message: this.fyo
+            .t`Please select a payment method before proceeding with payment.`,
+        });
+        return;
+      }
+
+      this.$emit('createTransaction', true, true);
     },
     cancelTransaction() {
       this.$emit('setPaidAmount', fyo.pesa(0));

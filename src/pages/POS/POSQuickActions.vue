@@ -86,11 +86,7 @@
         'dark:bg-gray-600 cursor-not-allowed':
           !loyaltyPoints || !sinvDoc?.party || !sinvDoc?.items?.length,
       }"
-      @click="
-        loyaltyPoints && sinvDoc?.party && sinvDoc?.items?.length
-          ? $emit('toggleModal', 'LoyaltyProgram')
-          : null
-      "
+      @click="openLoyaltyModal"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -142,7 +138,7 @@
         'dark:bg-gray-600 cursor-not-allowed':
           !sinvDoc?.party || !sinvDoc?.items?.length,
       }"
-      @click="openCouponModal()"
+      @click="openCouponModal"
     >
       <svg
         fill="#000000"
@@ -351,6 +347,9 @@ import { defineComponent, PropType } from 'vue';
 import { Payment } from 'models/baseModels/Payment/Payment';
 import { ItemSerialNumbers } from 'src/components/POS/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { showToast } from 'src/utils/interactive';
+import { t } from 'fyo';
+
 export default defineComponent({
   name: 'POSQuickActions',
   props: {
@@ -399,10 +398,39 @@ export default defineComponent({
       this.tableView = !this.tableView;
       this.$emit('toggleView');
     },
-    openCouponModal() {
-      if (this.sinvDoc?.party && this.sinvDoc?.items?.length) {
-        this.$emit('toggleModal', 'CouponCode');
+    showValidationToast(action: string, isLoyalty = false) {
+      let message = '';
+
+      if (!this.sinvDoc?.items?.length) {
+        message = t`Please add items`;
+      } else if (!this.sinvDoc?.party) {
+        message = t`Please select a customer`;
+      } else if (isLoyalty && !this.loyaltyPoints) {
+        message = t`Customer has no loyalty points to redeem`;
       }
+
+      showToast({
+        type: 'error',
+        message: t`${message} before ${action}`,
+      });
+    },
+    openCouponModal() {
+      if (!this.sinvDoc?.items?.length || !this.sinvDoc?.party) {
+        this.showValidationToast('applying coupon');
+        return;
+      }
+      this.$emit('toggleModal', 'CouponCode');
+    },
+    openLoyaltyModal() {
+      if (
+        !this.sinvDoc?.items?.length ||
+        !this.sinvDoc?.party ||
+        !this.loyaltyPoints
+      ) {
+        this.showValidationToast('applying loyalty points', true);
+        return;
+      }
+      this.$emit('toggleModal', 'LoyaltyProgram');
     },
   },
 });
