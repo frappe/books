@@ -62,7 +62,7 @@
       @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
       @save-and-continue="handleSaveAndContinue"
-      @handle-pay-click="handlePayClick"
+      @show-pay-button-toast="showPayButtonToast"
     />
     <ModernPOS
       v-else
@@ -780,7 +780,9 @@ export default defineComponent({
             this.sinvDoc.priceList
           );
         }
+
         await this.applyPricingRule();
+
         await this.sinvDoc.runFormulas();
       } catch (error) {
         return showToast({
@@ -1057,39 +1059,34 @@ export default defineComponent({
         });
       }
     },
-    handlePayClick() {
-      if (!this.sinvDoc.items?.length) {
-        return showToast({
-          type: 'error',
-          message: t`Please add items before payment`,
-        });
-      }
-
-      if (!this.sinvDoc.party) {
-        return showToast({
-          type: 'error',
-          message: t`Please select a customer before payment`,
-        });
-      }
-
-      this.toggleModal('Payment', true);
-    },
     async saveInvoiceAction() {
-      if (!this.sinvDoc.items?.length) {
+      if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
         return showToast({
           type: 'error',
-          message: t`Please add items before saving`,
-        });
-      }
-
-      if (!this.sinvDoc.party) {
-        return showToast({
-          type: 'error',
-          message: t`Please select a customer before saving`,
+          message: t`${
+            !this.sinvDoc.items?.length
+              ? 'Please add items'
+              : 'Please select a customer'
+          } before saving`,
         });
       }
 
       await this.saveOrder();
+    },
+    showPayButtonToast() {
+      if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
+        showToast({
+          type: 'error',
+          message: t`${
+            !this.sinvDoc.items?.length
+              ? 'Please add items'
+              : 'Please select a customer'
+          } before payment`,
+        });
+        return;
+      }
+
+      this.toggleModal('Payment', true);
     },
     routeTo,
   },

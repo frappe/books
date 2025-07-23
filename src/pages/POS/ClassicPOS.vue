@@ -330,7 +330,7 @@
                         fyo.singles.Defaults?.payButtonColour,
                     }"
                     :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
-                    @click="emitEvent('toggleModal', 'Payment', true)"
+                    @click="emitEvent('showPayButtonToast')"
                   >
                     <slot>
                       <p class="uppercase text-lg text-white font-semibold">
@@ -347,7 +347,7 @@
                       profile?.payButtonColour ||
                       fyo.singles.Defaults?.payButtonColour,
                   }"
-                  @click="emitEvent('toggleModal', 'Payment', true)"
+                  @click="emitEvent('showPayButtonToast')"
                 >
                   <slot>
                     <p class="uppercase text-lg text-white font-semibold">
@@ -502,7 +502,7 @@ export default defineComponent({
     'selectedReturnInvoice',
     'setTransferClearanceDate',
     'saveAndContinue',
-    'handlePayClick',
+    'showPayButtonToast',
   ],
   data() {
     return {

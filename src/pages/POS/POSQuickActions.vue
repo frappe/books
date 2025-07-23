@@ -86,11 +86,7 @@
         'dark:bg-gray-600 cursor-not-allowed':
           !loyaltyPoints || !sinvDoc?.party || !sinvDoc?.items?.length,
       }"
-      @click="
-        loyaltyPoints && sinvDoc?.party && sinvDoc?.items?.length
-          ? $emit('toggleModal', 'LoyaltyProgram')
-          : null
-      "
+      @click="openLoyaltyModal"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -142,7 +138,7 @@
         'dark:bg-gray-600 cursor-not-allowed':
           !sinvDoc?.party || !sinvDoc?.items?.length,
       }"
-      @click="openCouponModal()"
+      @click="openCouponModal"
     >
       <svg
         fill="#000000"
@@ -351,6 +347,9 @@ import { defineComponent, PropType } from 'vue';
 import { Payment } from 'models/baseModels/Payment/Payment';
 import { ItemSerialNumbers } from 'src/components/POS/types';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { showToast } from 'src/utils/interactive';
+import { t } from 'fyo';
+
 export default defineComponent({
   name: 'POSQuickActions',
   props: {
@@ -400,9 +399,38 @@ export default defineComponent({
       this.$emit('toggleView');
     },
     openCouponModal() {
-      if (this.sinvDoc?.party && this.sinvDoc?.items?.length) {
-        this.$emit('toggleModal', 'CouponCode');
+      if (!this.sinvDoc?.items?.length || !this.sinvDoc?.party) {
+        return showToast({
+          type: 'error',
+          message: t`${
+            !this.sinvDoc?.items?.length
+              ? 'Please add items'
+              : 'Please select a customer'
+          } before applying coupon`,
+        });
       }
+
+      this.$emit('toggleModal', 'CouponCode');
+    },
+    openLoyaltyModal() {
+      if (
+        !this.sinvDoc?.items?.length ||
+        !this.sinvDoc?.party ||
+        !this.loyaltyPoints
+      ) {
+        return showToast({
+          type: 'error',
+          message: t`${
+            !this.sinvDoc?.items?.length
+              ? 'Please add items'
+              : !this.sinvDoc?.party
+              ? 'Please select a customer'
+              : 'Customer has no loyalty points to redeem'
+          } before applying loyalty points`,
+        });
+      }
+
+      this.$emit('toggleModal', 'LoyaltyProgram');
     },
   },
 });
