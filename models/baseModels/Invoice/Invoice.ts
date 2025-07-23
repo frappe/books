@@ -79,7 +79,6 @@ export abstract class Invoice extends Transactional {
   grandTotal?: Money;
   baseGrandTotal?: Money;
   outstandingAmount?: Money;
-  initialGrandTotal?: Money;
   exchangeRate?: number;
   setDiscountAmount?: boolean;
   discountAmount?: Money;
@@ -909,7 +908,7 @@ export abstract class Invoice extends Transactional {
     );
 
     if (this.isReturn) {
-      return baseTotal.abs().sub(totalLoyaltyAmount);
+      return this.grandTotal;
     }
 
     return baseTotal.sub(totalLoyaltyAmount);
