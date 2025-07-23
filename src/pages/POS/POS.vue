@@ -62,7 +62,7 @@
       @selected-return-invoice="selectedReturnInvoice"
       @set-transfer-clearance-date="setTransferClearanceDate"
       @save-and-continue="handleSaveAndContinue"
-      @show-pay-button-toast="showPayButtonToast"
+      @handle-payment-action="handlePaymentAction"
     />
     <ModernPOS
       v-else
@@ -1059,30 +1059,27 @@ export default defineComponent({
         });
       }
     },
+    showValidationToast(method: string) {
+      showToast({
+        type: 'error',
+        message: t`${
+          !this.sinvDoc.items?.length
+            ? 'Please add items'
+            : 'Please select a customer'
+        } before ${method}`,
+      });
+    },
+
     async saveInvoiceAction() {
       if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
-        return showToast({
-          type: 'error',
-          message: t`${
-            !this.sinvDoc.items?.length
-              ? 'Please add items'
-              : 'Please select a customer'
-          } before saving`,
-        });
+        this.showValidationToast('saving');
+        return;
       }
-
       await this.saveOrder();
     },
-    showPayButtonToast() {
+    handlePaymentAction() {
       if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
-        showToast({
-          type: 'error',
-          message: t`${
-            !this.sinvDoc.items?.length
-              ? 'Please add items'
-              : 'Please select a customer'
-          } before payment`,
-        });
+        this.showValidationToast('payment');
         return;
       }
 

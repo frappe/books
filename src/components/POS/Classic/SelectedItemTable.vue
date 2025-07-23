@@ -99,7 +99,6 @@ export default defineComponent({
     ratio() {
       return [0.1, 0.9, 0.8, 0.8, 0.8, 0.8, 0.2];
     },
-
     tableFields() {
       return [
         {
