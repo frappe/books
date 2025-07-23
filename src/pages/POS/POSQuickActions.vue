@@ -398,18 +398,27 @@ export default defineComponent({
       this.tableView = !this.tableView;
       this.$emit('toggleView');
     },
-    openCouponModal() {
-      if (!this.sinvDoc?.items?.length || !this.sinvDoc?.party) {
-        return showToast({
-          type: 'error',
-          message: t`${
-            !this.sinvDoc?.items?.length
-              ? 'Please add items'
-              : 'Please select a customer'
-          } before applying coupon`,
-        });
+    showValidationToast(action: string, isLoyalty = false) {
+      let message = '';
+
+      if (!this.sinvDoc?.items?.length) {
+        message = t`Please add items`;
+      } else if (!this.sinvDoc?.party) {
+        message = t`Please select a customer`;
+      } else if (isLoyalty && !this.loyaltyPoints) {
+        message = t`Customer has no loyalty points to redeem`;
       }
 
+      showToast({
+        type: 'error',
+        message: t`${message} before ${action}`,
+      });
+    },
+    openCouponModal() {
+      if (!this.sinvDoc?.items?.length || !this.sinvDoc?.party) {
+        this.showValidationToast('applying coupon');
+        return;
+      }
       this.$emit('toggleModal', 'CouponCode');
     },
     openLoyaltyModal() {
@@ -418,18 +427,9 @@ export default defineComponent({
         !this.sinvDoc?.party ||
         !this.loyaltyPoints
       ) {
-        return showToast({
-          type: 'error',
-          message: t`${
-            !this.sinvDoc?.items?.length
-              ? 'Please add items'
-              : !this.sinvDoc?.party
-              ? 'Please select a customer'
-              : 'Customer has no loyalty points to redeem'
-          } before applying loyalty points`,
-        });
+        this.showValidationToast('applying loyalty points', true);
+        return;
       }
-
       this.$emit('toggleModal', 'LoyaltyProgram');
     },
   },
