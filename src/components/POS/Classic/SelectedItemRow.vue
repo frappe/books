@@ -97,7 +97,7 @@
         size="medium"
         :border="true"
         :show-label="true"
-        :value="row.transferQuantity"
+        :value="getDisplayTransferQuantity()"
         @change="(value:string) => row.set('transferQuantity', value)"
         :read-only="isReadOnly"
       />
@@ -305,9 +305,9 @@ export default defineComponent({
   },
 
   async mounted() {
-    this.$watch('row.quantity', (newVal: number) => {
-      this.setQuantity(newVal);
-    });
+    // this.$watch('row.quantity', (newVal: number) => {
+    //   this.setQuantity(newVal);
+    // });
     const posProfileName = this.fyo.singles.POSSettings?.posProfile;
 
     if (posProfileName) {
@@ -348,6 +348,21 @@ export default defineComponent({
       );
     },
 
+    getDisplayTransferQuantity() {
+      const transferQty = this.row.transferQuantity;
+
+      if (!this.isUOMConversionEnabled) {
+        return transferQty;
+      }
+
+      const hasValidQuantity = transferQty && transferQty;
+
+      if (this.row.isReturn && hasValidQuantity) {
+        return -Math.abs(transferQty);
+      }
+
+      return transferQty;
+    },
     showAvlQuantityInBatch() {
       const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
 

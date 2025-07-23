@@ -711,6 +711,8 @@ export abstract class Invoice extends Transactional {
       }
 
       let quantity = returnedItem.quantity;
+      const transferQuantity = quantity / (item.unitConversionFactor as number);
+
       let serialNumber: string | undefined =
         returnedItem.serialNumbers?.join('\n');
 
@@ -734,7 +736,7 @@ export abstract class Invoice extends Transactional {
         serialNumber,
         name: undefined,
         quantity: quantity,
-        transferQuantity: quantity,
+        transferQuantity,
       });
     }
 
