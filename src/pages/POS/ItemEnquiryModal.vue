@@ -152,6 +152,7 @@ export default defineComponent({
           type: 'success',
           message: t`Item enquiry submitted`,
         });
+        this.clearValues();
         this.$emit('toggleModal', 'ItemEnquiry');
       } catch (error) {
         showToast({
@@ -160,8 +161,11 @@ export default defineComponent({
         });
       }
     },
-
+    clearValues() {
+      this.ItemEnquiry = {} as ItemEnquiry;
+    },
     closeModal() {
+      this.clearValues();
       this.$emit('toggleModal', 'ItemEnquiry');
     },
   },
