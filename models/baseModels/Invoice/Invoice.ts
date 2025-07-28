@@ -672,7 +672,10 @@ export abstract class Invoice extends Transactional {
 
     let returnDocItems: DocValueMap[] = [];
 
-    const totalQtyOfReturnedItems = await getReturnQtyTotal(this);
+    const totalQtyOfReturnedItems: Record<
+      string,
+      number | { quantity?: number; batches?: Record<string, number> }
+    > = await getReturnQtyTotal(this);
 
     const returnBalanceItemsQty = await this.fyo.db.getReturnBalanceItemsQty(
       this.schemaName,
@@ -685,9 +688,11 @@ export abstract class Invoice extends Transactional {
       let balQuantity: number;
       if (!returnBalanceItemsQty) {
         if (item.batch) {
-          balQuantity =
-            -totalQtyOfReturnedItems[item.item as string].batches[item.batch] ||
-            0;
+          const returnData = totalQtyOfReturnedItems[item.item as string];
+
+          if (typeof returnData === 'object' && returnData?.batches) {
+            balQuantity = -returnData.batches[item.batch as string] || 0;
+          }
         } else {
           balQuantity = -(totalQtyOfReturnedItems[itemName] || 0);
         }
@@ -740,10 +745,14 @@ export abstract class Invoice extends Transactional {
               '\n'
             );
         }
-        const returned = totalQtyOfReturnedItems[itemName];
-
-        quantity = -(returned as any)?.batches?.[item.batch as string];
-        transferQuantity = quantity / (item.unitConversionFactor as number);
+        const returnedItemsData = totalQtyOfReturnedItems[itemName];
+        if (
+          typeof returnedItemsData === 'object' &&
+          returnedItemsData?.batches
+        ) {
+          quantity = -returnedItemsData?.batches?.[item.batch as string];
+          transferQuantity = quantity / (item.unitConversionFactor as number);
+        }
       }
 
       returnDocItems.push({

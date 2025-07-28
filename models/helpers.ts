@@ -771,8 +771,8 @@ export async function getReturnQtyTotal(
   > = {};
 
   for (const item of doc.items || []) {
-    const itemName = item.item as string;
-    const batch = item.batch as string | undefined;
+    const itemName = item.item;
+    const batch = item.batch;
     const qty = item.quantity as number;
 
     if (!itemName) {
