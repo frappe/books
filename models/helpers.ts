@@ -746,6 +746,29 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   await item.set('item', name);
 }
 
+export async function getReturnLoyaltyPoints(doc: Invoice) {
+  const returnDocs = await doc.fyo.db.getAll(doc.schemaName, {
+    fields: ['*'],
+    filters: {
+      returnAgainst: doc.returnAgainst as string,
+      submitted: true,
+    },
+  });
+
+  const totalLoyaltyPoints = returnDocs.reduce(
+    (sum, doc) => sum + Math.abs(doc.loyaltyPoints as number),
+    0
+  );
+
+  const loyaltyPoints = await doc.fyo.getValue(
+    ModelNameEnum.SalesInvoice,
+    doc.returnAgainst as string,
+    'loyaltyPoints'
+  );
+
+  return Math.abs((loyaltyPoints as number) - Math.abs(totalLoyaltyPoints));
+}
+
 export async function getReturnQtyTotal(
   doc: Invoice
 ): Promise<

@@ -5,6 +5,7 @@ import { ModelNameEnum } from 'models/types';
 import {
   getAddedLPWithGrandTotal,
   getInvoiceActions,
+  getReturnLoyaltyPoints,
   getTransactionStatusColumn,
 } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
@@ -42,11 +43,17 @@ export class SalesInvoice extends Invoice {
         this.loyaltyProgram
       )) as LoyaltyProgram;
 
-      const totalAmount = await getAddedLPWithGrandTotal(
-        this.fyo,
-        this.loyaltyProgram as string,
-        this.loyaltyPoints as number
-      );
+      let totalAmount;
+
+      if (this.isReturn) {
+        totalAmount = this.fyo.pesa(await getReturnLoyaltyPoints(this));
+      } else {
+        totalAmount = await getAddedLPWithGrandTotal(
+          this.fyo,
+          this.loyaltyProgram as string,
+          this.loyaltyPoints as number
+        );
+      }
 
       await posting.debit(
         loyaltyProgramDoc.expenseAccount as string,
