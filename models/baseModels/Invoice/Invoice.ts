@@ -672,7 +672,10 @@ export abstract class Invoice extends Transactional {
 
     let returnDocItems: DocValueMap[] = [];
 
-    const totalQtyOfReturnedItems = await getReturnQtyTotal(this);
+    const totalQtyOfReturnedItems: Record<
+      string,
+      number | { quantity?: number; batches?: Record<string, number> }
+    > = await getReturnQtyTotal(this);
 
     const returnBalanceItemsQty = await this.fyo.db.getReturnBalanceItemsQty(
       this.schemaName,
@@ -680,19 +683,34 @@ export abstract class Invoice extends Transactional {
     );
 
     for (const item of docItems) {
+      const itemName = item.item as string;
+
+      let balQuantity: number;
       if (!returnBalanceItemsQty) {
-        returnDocItems = docItems.map((docItem) => ({
+        if (item.batch) {
+          const returnData = totalQtyOfReturnedItems[item.item as string];
+
+          if (typeof returnData === 'object' && returnData?.batches) {
+            balQuantity = -returnData.batches[item.batch as string] || 0;
+          }
+        } else {
+          balQuantity = -(totalQtyOfReturnedItems[itemName] || 0);
+        }
+
+        const returnDocs = docItems.map((docItem) => ({
           ...docItem,
           name: undefined,
-          quantity: -(totalQtyOfReturnedItems[docItem.item as string] || 0),
+          quantity: balQuantity,
         }));
+
+        returnDocItems.push(returnDocs[0]);
 
         for (const row of returnDocItems) {
           row.itemDiscountedTotal = await this.getItemsDiscountedTotal(
             row as InvoiceItem
           );
         }
-        break;
+        continue;
       }
 
       const isItemExist = !!returnDocItems.filter(
@@ -711,7 +729,7 @@ export abstract class Invoice extends Transactional {
       }
 
       let quantity = returnedItem.quantity;
-      const transferQuantity = quantity / (item.unitConversionFactor as number);
+      let transferQuantity = quantity / (item.unitConversionFactor as number);
 
       let serialNumber: string | undefined =
         returnedItem.serialNumbers?.join('\n');
@@ -721,13 +739,19 @@ export abstract class Invoice extends Transactional {
         returnedItem.batches &&
         returnedItem.batches[item.batch as string]
       ) {
-        quantity = returnedItem.batches[item.batch as string].quantity;
-
         if (returnedItem.batches[item.batch as string].serialNumbers) {
           serialNumber =
             returnedItem.batches[item.batch as string].serialNumbers?.join(
               '\n'
             );
+        }
+        const returnedItemsData = totalQtyOfReturnedItems[itemName];
+        if (
+          typeof returnedItemsData === 'object' &&
+          returnedItemsData?.batches
+        ) {
+          quantity = -returnedItemsData?.batches?.[item.batch as string];
+          transferQuantity = quantity / (item.unitConversionFactor as number);
         }
       }
 
@@ -740,20 +764,9 @@ export abstract class Invoice extends Transactional {
       });
     }
 
-    returnDocItems.forEach((docItems) => {
-      const itemName = docItems.item as string;
-      if (itemName in totalQtyOfReturnedItems) {
-        docItems.quantity = totalQtyOfReturnedItems[itemName];
-      }
-    });
-
     returnDocItems = returnDocItems.filter(
-      (docItems) => (docItems.quantity as number) > 0
+      (docItems) => (docItems.quantity as number) < 0
     );
-
-    returnDocItems.forEach((docItems) => {
-      docItems.quantity = -(docItems.quantity as number);
-    });
 
     const returnDocData = {
       ...docData,
@@ -892,29 +905,49 @@ export abstract class Invoice extends Transactional {
   async getLPAddedBaseGrandTotal() {
     const totalDiscount = this.getTotalDiscount();
 
-    let baseTotal = this.fyo.pesa(0);
-    if (!this.taxes || !this.taxes.length) {
+    let baseTotal: Money;
+
+    if (!this.taxes?.length) {
       baseTotal = (this.netTotal as Money).sub(totalDiscount);
     } else {
       baseTotal = this.taxes
         .map((doc) => doc.amount as Money)
-        .reduce((a, b) => {
-          return a.add(b.abs());
-        }, (this.netTotal as Money).abs())
+        .reduce((a, b) => a.add(b.abs()), (this.netTotal as Money).abs())
         .sub(totalDiscount);
     }
+    if (!this.isReturn) {
+      const totalLoyaltyAmount = await getAddedLPWithGrandTotal(
+        this.fyo,
+        this.loyaltyProgram as string,
+        this.loyaltyPoints as number
+      );
 
-    const totalLoyaltyAmount = await getAddedLPWithGrandTotal(
-      this.fyo,
-      this.loyaltyProgram as string,
-      this.loyaltyPoints as number
-    );
-
-    if (this.isReturn) {
-      return this.grandTotal;
+      const result = baseTotal.sub(totalLoyaltyAmount);
+      return result;
     }
 
-    return baseTotal.sub(totalLoyaltyAmount);
+    if (this.isReturn) {
+      const originalInvoice = (await this.fyo.doc.getDoc(
+        this.schemaName,
+        this.returnAgainst
+      )) as Invoice;
+
+      const returnRatio = baseTotal
+        .abs()
+        .div(originalInvoice.netTotal as Money);
+
+      const originalLoyaltyAmount = await getAddedLPWithGrandTotal(
+        this.fyo,
+        originalInvoice.loyaltyProgram as string,
+        originalInvoice.loyaltyPoints as number
+      );
+
+      const proportionalLoyaltyAmount = originalLoyaltyAmount.mul(returnRatio);
+
+      return baseTotal.abs().sub(proportionalLoyaltyAmount).neg();
+    }
+
+    return baseTotal;
   }
   formulas: FormulaMap = {
     account: {
