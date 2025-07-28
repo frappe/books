@@ -25,6 +25,7 @@ import {
   removeLoyaltyPoint,
   roundFreeItemQty,
   getReturnQtyTotal,
+  getReturnLoyaltyPoints,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -922,29 +923,20 @@ export abstract class Invoice extends Transactional {
         this.loyaltyPoints as number
       );
 
-      const result = baseTotal.sub(totalLoyaltyAmount);
-      return result;
+      return baseTotal.sub(totalLoyaltyAmount);
     }
-
     if (this.isReturn) {
-      const originalInvoice = (await this.fyo.doc.getDoc(
-        this.schemaName,
-        this.returnAgainst
-      )) as Invoice;
+      const loyaltyAmount = await getReturnLoyaltyPoints(this);
 
-      const returnRatio = baseTotal
-        .abs()
-        .div(originalInvoice.netTotal as Money);
+      const totalAmount = baseTotal.abs().sub(loyaltyAmount);
 
-      const originalLoyaltyAmount = await getAddedLPWithGrandTotal(
-        this.fyo,
-        originalInvoice.loyaltyProgram as string,
-        originalInvoice.loyaltyPoints as number
-      );
+      this.loyaltyPoints = loyaltyAmount;
+      if (totalAmount.isNegative()) {
+        this.loyaltyPoints = totalAmount.abs().float - Math.abs(loyaltyAmount);
+        return this.fyo.pesa(0);
+      }
 
-      const proportionalLoyaltyAmount = originalLoyaltyAmount.mul(returnRatio);
-
-      return baseTotal.abs().sub(proportionalLoyaltyAmount).neg();
+      return baseTotal.abs().sub(loyaltyAmount);
     }
 
     return baseTotal;
