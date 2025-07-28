@@ -748,7 +748,12 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
 
 export async function getReturnQtyTotal(
   doc: Invoice
-): Promise<Record<string, number>> {
+): Promise<
+  Record<
+    string,
+    number | { quantity: number; batches?: Record<string, number> }
+  >
+> {
   const returnDocs = await doc.fyo.db.getAll(doc.schemaName, {
     fields: ['*'],
     filters: {
@@ -757,36 +762,64 @@ export async function getReturnQtyTotal(
   });
 
   const returnedDocs = await Promise.all(
-    returnDocs.map((docss) =>
-      doc.fyo.doc.getDoc(doc.schemaName, docss.name as string)
-    )
+    returnDocs.map((d) => doc.fyo.doc.getDoc(doc.schemaName, d.name as string))
   );
 
-  const quantitySum: { [key: string]: number } = {};
+  const quantitySum: Record<
+    string,
+    number | { quantity: number; batches?: Record<string, number> }
+  > = {};
 
-  if ('items' in doc && Array.isArray(doc.items)) {
-    doc.items.forEach((docItem) => {
-      const itemName = docItem.item as string;
-      if (itemName) {
-        quantitySum[itemName] = (docItem.quantity as number) || 0;
-      }
-    });
-  }
+  for (const item of doc.items || []) {
+    const itemName = item.item as string;
+    const batch = item.batch as string | undefined;
+    const qty = item.quantity as number;
 
-  if (!returnedDocs) {
-    return quantitySum;
-  }
-  returnedDocs.forEach((returnedDoc) => {
-    if (returnedDoc && returnedDoc.items) {
-      (returnedDoc.items as InvoiceItem[]).forEach((item) => {
-        const itemName = item.item;
-        if (itemName && quantitySum.hasOwnProperty(itemName)) {
-          quantitySum[itemName] =
-            quantitySum[itemName] - Math.abs(item.quantity as number);
-        }
-      });
+    if (!itemName) {
+      continue;
     }
-  });
+
+    if (batch) {
+      if (!quantitySum[itemName]) {
+        quantitySum[itemName] = { quantity: qty, batches: { [batch]: qty } };
+      } else {
+        const entry = quantitySum[itemName] as {
+          quantity: number;
+          batches?: Record<string, number>;
+        };
+        entry.quantity += qty;
+        entry.batches![batch] = (entry.batches![batch] || 0) + qty;
+      }
+    } else {
+      quantitySum[itemName] = ((quantitySum[itemName] as number) || 0) + qty;
+    }
+  }
+
+  for (const returnedDoc of returnedDocs) {
+    for (const item of (returnedDoc?.items as InvoiceItem[]) || []) {
+      const itemName = item.item;
+      const batch = item.batch;
+      const qty = Math.abs(item.quantity!);
+
+      if (!itemName || !quantitySum[itemName]) {
+        continue;
+      }
+
+      if (batch && quantitySum[itemName]) {
+        const entry = quantitySum[itemName] as {
+          quantity: number;
+          batches?: Record<string, number>;
+        };
+        entry.quantity -= qty;
+        if (entry.batches?.[batch]) {
+          entry.batches[batch] -= qty;
+        }
+      } else {
+        quantitySum[itemName] = (quantitySum[itemName] as number) - qty;
+      }
+    }
+  }
+
   return quantitySum;
 }
 
