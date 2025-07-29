@@ -59,6 +59,13 @@ export type TaxDetail = {
   rate: number;
 };
 
+export type ReturnedItemData =
+  | number
+  | {
+      quantity?: number;
+      batches?: Record<string, number>;
+    };
+
 export type InvoiceTaxItem = {
   details: TaxDetail;
   exchangeRate?: number;
@@ -684,34 +691,30 @@ export abstract class Invoice extends Transactional {
     );
 
     for (const item of docItems) {
-      const itemName = item.item as string;
-
-      let balQuantity: number;
-      if (!returnBalanceItemsQty) {
+      if (totalQtyOfReturnedItems) {
         if (item.batch) {
           const returnData = totalQtyOfReturnedItems[item.item as string];
-
           if (typeof returnData === 'object' && returnData?.batches) {
-            balQuantity = -returnData.batches[item.batch as string] || 0;
+            returnDocItems = docItems.map((docItem) => ({
+              ...docItem,
+              name: undefined,
+              quantity: -returnData?.batches![docItem.batch as string] || 0,
+            }));
           }
         } else {
-          balQuantity = -(totalQtyOfReturnedItems[itemName] || 0);
+          returnDocItems = docItems.map((docItem) => ({
+            ...docItem,
+            name: undefined,
+            quantity: -(totalQtyOfReturnedItems[docItem.item as string] || 0),
+          }));
         }
-
-        const returnDocs = docItems.map((docItem) => ({
-          ...docItem,
-          name: undefined,
-          quantity: balQuantity,
-        }));
-
-        returnDocItems.push(returnDocs[0]);
 
         for (const row of returnDocItems) {
           row.itemDiscountedTotal = await this.getItemsDiscountedTotal(
             row as InvoiceItem
           );
         }
-        continue;
+        break;
       }
 
       const isItemExist = !!returnDocItems.filter(
@@ -723,7 +726,7 @@ export abstract class Invoice extends Transactional {
       }
 
       const returnedItem: ReturnDocItem | undefined =
-        returnBalanceItemsQty[item.item as string];
+        returnBalanceItemsQty![item.item as string];
 
       if (!returnedItem) {
         continue;
@@ -746,12 +749,15 @@ export abstract class Invoice extends Transactional {
               '\n'
             );
         }
-        const returnedItemsData = totalQtyOfReturnedItems[itemName];
+        const returnedItemsData = totalQtyOfReturnedItems[
+          item.item as string
+        ] as ReturnedItemData;
+
         if (
           typeof returnedItemsData === 'object' &&
-          returnedItemsData?.batches
+          returnedItemsData.batches
         ) {
-          quantity = -returnedItemsData?.batches?.[item.batch as string];
+          quantity = -returnedItemsData?.batches[item.batch as string];
           transferQuantity = quantity / (item.unitConversionFactor as number);
         }
       }
@@ -925,6 +931,7 @@ export abstract class Invoice extends Transactional {
 
       return baseTotal.sub(totalLoyaltyAmount);
     }
+
     if (this.isReturn) {
       const loyaltyAmount = await getReturnLoyaltyPoints(this);
 
@@ -941,6 +948,7 @@ export abstract class Invoice extends Transactional {
 
     return baseTotal;
   }
+
   formulas: FormulaMap = {
     account: {
       formula: async () => {
