@@ -706,6 +706,10 @@ export abstract class Invoice extends Transactional {
             ...docItem,
             name: undefined,
             quantity: -(totalQtyOfReturnedItems[docItem.item as string] || 0),
+            transferQuantity: -(
+              (totalQtyOfReturnedItems[docItem.item as string] as number) /
+              (item.unitConversionFactor as number)
+            ),
           }));
         }
 
