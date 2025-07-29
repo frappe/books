@@ -227,7 +227,7 @@
       />
     </div>
 
-    <div v-if="showAvlQuantityInBatch()" class="px-2 pt-6 col-span-2">
+    <div v-if="showAvlQuantityInBatch()" class="px-5 pt-6 col-span-2">
       <Float
         :df="{
           fieldname: 'availableQtyInBatch',
@@ -244,7 +244,7 @@
       />
     </div>
 
-    <div v-if="hasSerialNumber" class="px-2 pt-8 col-span-2">
+    <div v-if="hasSerialNumber" class="px-6 pt-6 col-span-3">
       <Text
         :df="{
           label: t`Serial Number`,
