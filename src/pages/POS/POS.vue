@@ -752,6 +752,7 @@ export default defineComponent({
           }
 
           await existingItems[0].set('quantity', currentQty + addQty);
+          await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
           if (isInventoryItem) {
             await validateQty(
