@@ -3,6 +3,7 @@ import { CustomerAnalytics } from './services/CustomerAnalytics';
 import { FraudDetector } from './services/FraudDetector';
 import { DynamicPricing } from './services/DynamicPricing';
 import { SalesPredictor } from './services/SalesPredictor';
+import { ChatAssistant } from './services/ChatAssistant';
 import { Fyo } from 'fyo';
 
 export interface AIConfig {
@@ -21,6 +22,7 @@ export class AIService {
   public fraudDetector: FraudDetector;
   public dynamicPricing: DynamicPricing;
   public salesPredictor: SalesPredictor;
+  public chatAssistant: ChatAssistant;
 
   constructor(fyo: Fyo, config: AIConfig) {
     this.fyo = fyo;
@@ -32,6 +34,7 @@ export class AIService {
     this.fraudDetector = new FraudDetector(fyo, config);
     this.dynamicPricing = new DynamicPricing(fyo, config);
     this.salesPredictor = new SalesPredictor(fyo, config);
+    this.chatAssistant = new ChatAssistant(fyo, config);
   }
 
   async initialize(): Promise<void> {
@@ -48,7 +51,8 @@ export class AIService {
         this.customerAnalytics.initialize(),
         this.fraudDetector.initialize(),
         this.dynamicPricing.initialize(),
-        this.salesPredictor.initialize()
+        this.salesPredictor.initialize(),
+        this.chatAssistant.initialize()
       ]);
       
       console.log('AI services initialized successfully');
