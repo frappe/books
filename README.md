@@ -1,16 +1,18 @@
 <div align="center" markdown="1">
 <br/>
 
-<img src="https://frappe.io/files/books.png" alt="Frappe Books logo" width="80"/>
+<img src="https://frappe.io/files/books.png" alt="UniPOS logo" width="80"/>
 
 <br/>
 
-<h1>Frappe Books</h1>
+<h1>UniPOS - Universal Point of Sale</h1>
 
-**Modern Accounting Made Simple**
+**AI-Powered POS Built on Frappe Books Foundation**
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/frappe/books)](https://github.com/frappe/books/releases)
 ![Platforms](https://img.shields.io/badge/platform-mac%2C%20windows%2C%20linux-yellowgreen)
+![AI Powered](https://img.shields.io/badge/AI-powered-blue)
+![Offline First](https://img.shields.io/badge/offline-first-green)
 [![Publish](https://github.com/frappe/books/actions/workflows/publish.yml/badge.svg)](https://github.com/frappe/books/actions/workflows/publish.yml)
 
 </div>
@@ -25,9 +27,45 @@
 	<a href="https://docs.frappe.io/books">Documentation</a>
 </div>
 
-## Frappe Books
+## UniPOS - AI-Powered Universal Point of Sale
 
-Frappe Books is an open-source accounting software aimed at simplifying financial management for businesses. With its clean and user-friendly interface, it streamlines accounting tasks for small and medium-sized enterprises, offering a seamless solution for modern businesses to manage their finances with ease.
+UniPOS transforms Frappe Books' proven accounting foundation into an intelligent, AI-enhanced Point of Sale system. Designed for businesses that value data ownership, offline operation, and cutting-edge automation, UniPOS combines the reliability of established accounting software with the power of artificial intelligence.
+
+### 🚀 **Key Features**
+
+#### 🤖 **AI-Powered Automation**
+- **Conversational POS**: Natural language processing for common operations ("Add 2 Blue T-shirts for John Doe")
+- **Inventory Forecasting**: ML-powered demand prediction and automated reordering
+- **Customer Analytics**: Lifetime value calculation, churn prediction, and personalized recommendations
+- **Fraud Detection**: Real-time transaction analysis and risk assessment
+- **Dynamic Pricing**: Intelligent price optimization based on demand and market conditions
+- **Sales Prediction**: Advanced revenue forecasting and peak hour analysis
+
+#### 🔐 **Multi-Tier Licensing**
+- **Starter Edition** ($29/month): Core POS features, single location, up to 1,000 transactions
+- **Professional Edition** ($79/month): Multi-location, full AI features, unlimited transactions
+- **Enterprise Edition** ($199/month): White-label options, custom development, dedicated support
+
+#### 🏗️ **Offline-First Architecture**
+- **Complete Offline Operation**: Full POS functionality without internet connection
+- **Local AI Processing**: All machine learning runs locally using TensorFlow.js
+- **Data Ownership**: Complete control over your business data
+- **Cross-Platform**: Native support for Windows, macOS, and Linux
+
+#### 💬 **Conversational Interface**
+- **Voice Commands**: Hands-free operation with speech recognition
+- **Chat Assistant**: Natural language interface for complex operations
+- **Smart Suggestions**: Context-aware recommendations and shortcuts
+- **Multi-Language**: Localization support for international markets
+
+### 📊 **Business Intelligence**
+Real-time dashboards, predictive analytics, and AI-driven insights help you make informed decisions about inventory, pricing, and customer engagement.
+
+---
+
+## Original Frappe Books
+
+UniPOS is built upon the solid foundation of Frappe Books, an open-source accounting software aimed at simplifying financial management for businesses. With its clean and user-friendly interface, it streamlines accounting tasks for small and medium-sized enterprises, offering a seamless solution for modern businesses to manage their finances with ease.
 
 <details>
 <summary>Screenshots</summary>

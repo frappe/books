@@ -1,0 +1,90 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "UniPOS Development",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/scripts/dev.mjs",
+      "args": [],
+      "env": {
+        "NODE_ENV": "development",
+        "DEBUG": "unipos:*"
+      },
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node",
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "name": "UniPOS Build",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/scripts/build.mjs",
+      "args": [],
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node"
+    },
+    {
+      "name": "Integration Test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/test-integration.js",
+      "args": [],
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node"
+    },
+    {
+      "name": "Electron Main Process",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.ts",
+      "args": [],
+      "env": {
+        "NODE_ENV": "development",
+        "ELECTRON_RUN_AS_NODE": "1"
+      },
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node"
+    },
+    {
+      "name": "Debug Jest Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--no-cache",
+        "--no-coverage"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "env": {
+        "NODE_ENV": "test"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "UniPOS Full Stack",
+      "configurations": [
+        "UniPOS Development",
+        "Electron Main Process"
+      ],
+      "stopAll": true
+    }
+  ]
+}

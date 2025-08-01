@@ -1,0 +1,99 @@
+{
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  
+  "vue.updateImportsOnFileMove.enabled": true,
+  "vue.complete.casing.tags": "pascal",
+  "vue.complete.casing.props": "camel",
+  
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ],
+  "eslint.format.enable": true,
+  
+  "prettier.enable": true,
+  "prettier.useEditorConfig": false,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  
+  "files.associations": {
+    "*.vue": "vue",
+    "*.ts": "typescript",
+    "*.js": "javascript",
+    "*.mjs": "javascript",
+    "*.json": "jsonc"
+  },
+  
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/dist_electron": true,
+    "**/.git": true,
+    "**/coverage": true,
+    "**/.cache": true
+  },
+  
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/dist_electron": true,
+    "**/.cache": true,
+    "**/coverage": true
+  },
+  
+  "emmet.includeLanguages": {
+    "vue": "html",
+    "vue-html": "html"
+  },
+  
+  "tailwindCSS.includeLanguages": {
+    "vue": "html",
+    "vue-html": "html"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["class:\\s*([\"'`][^\"'`]*[\"'`])", "[\"'`]([^\"'`]*)[\"'`]"],
+    ["className:\\s*([\"'`][^\"'`]*[\"'`])", "[\"'`]([^\"'`]*)[\"'`]"]
+  ],
+  
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#3b82f6",
+    "activityBar.activeBorder": "#3b82f6",
+    "activityBar.background": "#1e293b",
+    "activityBar.foreground": "#e2e8f0",
+    "activityBar.inactiveForeground": "#64748b",
+    "activityBarBadge.background": "#ef4444",
+    "activityBarBadge.foreground": "#ffffff"
+  },
+  
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  
+  "debug.terminal.clearBeforeReusing": true,
+  
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  
+  "diffEditor.ignoreTrimWhitespace": false,
+  
+  "editor.rulers": [80, 120],
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  
+  "cursor.ai.enable": true,
+  "cursor.ai.model": "claude-3.5-sonnet",
+  "cursor.ai.contextLength": 200000
+}
