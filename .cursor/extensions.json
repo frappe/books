@@ -1,0 +1,33 @@
+{
+  "recommendations": [
+    "vue.volar",
+    "vue.vscode-typescript-vue-plugin",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-typescript-next",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "zignd.html-css-class-completion",
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "ms-vscode.vscode-markdown",
+    "yzhang.markdown-all-in-one",
+    "streetsidesoftware.code-spell-checker",
+    "aaron-bond.better-comments",
+    "pkief.material-icon-theme",
+    "github.copilot",
+    "ms-vscode.sublime-keybindings",
+    "johnsoncodehk.volar-preview",
+    "antfu.iconify",
+    "antfu.unocss",
+    "unifiedjs.vscode-mdx",
+    "ms-playwright.playwright",
+    "vitest.explorer"
+  ],
+  "unwantedRecommendations": [
+    "octref.vetur",
+    "ms-vscode.vscode-typescript",
+    "hookyqr.beautify"
+  ]
+}
