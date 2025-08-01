@@ -108,6 +108,23 @@ function getPOSSidebar() {
     route: '/pos',
     icon: 'pos',
     hidden: () => !fyo.singles.InventorySettings?.enablePointOfSale,
+    items: [
+      {
+        label: t`Classic POS`,
+        name: 'classic-pos',
+        route: '/pos',
+      },
+      {
+        label: t`UniPOS (AI-Enhanced)`,
+        name: 'unipos',
+        route: '/unipos',
+      },
+      {
+        label: t`AI Assistant`,
+        name: 'ai-assistant',
+        route: '/ai-assistant',
+      },
+    ],
   };
 }
 

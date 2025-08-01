@@ -3,6 +3,18 @@
     <PageHeader :title="t`Point of Sale`">
       <slot>
         <Button
+          class="bg-blue-500 dark:bg-blue-700 mr-2"
+          @click="switchToUniPOS"
+        >
+          <span class="font-medium text-white">{{ t`Switch to UniPOS` }}</span>
+        </Button>
+        <Button
+          class="bg-green-500 dark:bg-green-700 mr-2"
+          @click="openAIAssistant"
+        >
+          <span class="font-medium text-white">🤖 {{ t`AI Assistant` }}</span>
+        </Button>
+        <Button
           class="bg-red-500 dark:bg-red-700"
           @click="toggleModal('ShiftClose')"
         >
@@ -290,6 +302,14 @@ export default defineComponent({
     toggleSidebar(true);
   },
   methods: {
+    switchToUniPOS() {
+      this.$router.push('/unipos');
+    },
+    
+    openAIAssistant() {
+      this.$router.push('/ai-assistant');
+    },
+    
     async setCustomer(value: string) {
       if (!value) {
         this.sinvDoc.party = '';
