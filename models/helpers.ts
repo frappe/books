@@ -47,6 +47,7 @@ import {
   getStockBalanceEntries,
   getStockLedgerEntries,
 } from 'reports/inventory/helpers';
+import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEntry';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -748,14 +749,16 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
 
 export async function getReturnLoyaltyPoints(doc: Invoice) {
   const returnDocs = await doc.fyo.db.getAll(doc.schemaName, {
-    fields: ['*'],
+    fields: ['name', 'loyaltyPoints'],
     filters: {
       returnAgainst: doc.returnAgainst as string,
       submitted: true,
     },
   });
 
-  const totalLoyaltyPoints = returnDocs.reduce(
+  const sunvDocs = returnDocs.filter((sinvDoc) => sinvDoc.name !== doc.name);
+
+  const totalLoyaltyPoints = sunvDocs.reduce(
     (sum, doc) => sum + Math.abs(doc.loyaltyPoints as number),
     0
   );
@@ -960,17 +963,38 @@ export async function removeLoyaltyPoint(doc: Doc) {
     return;
   }
 
-  const loyalityPointEntryDoc = await doc.fyo.doc.getDoc(
+  const lPEntryDoc = (await doc.fyo.doc.getDoc(
     ModelNameEnum.LoyaltyPointEntry,
     data[0].name
-  );
+  )) as LoyaltyPointEntry;
+
+  const newLoyaltyPoint =
+    (lPEntryDoc?.loyaltyPoints as number) +
+    Math.abs(doc.loyaltyPoints as number);
+
+  if (newLoyaltyPoint !== 0) {
+    const newLoyaltyPointEntry = doc.fyo.doc.getNewDoc(
+      ModelNameEnum.LoyaltyPointEntry,
+      {
+        loyaltyProgram: lPEntryDoc.loyaltyProgram,
+        customer: lPEntryDoc.customer,
+        invoice: lPEntryDoc.invoice,
+        postingDate: lPEntryDoc.date as Date,
+        purchaseAmount: lPEntryDoc.purchaseAmount,
+        expiryDate: lPEntryDoc.expiryDate,
+        loyaltyProgramTier: lPEntryDoc.loyaltyProgramTier,
+        loyaltyPoints: newLoyaltyPoint,
+      }
+    );
+    await newLoyaltyPointEntry.sync();
+  }
 
   const party = (await doc.fyo.doc.getDoc(
     ModelNameEnum.Party,
     doc.party as string
   )) as Party;
 
-  await loyalityPointEntryDoc.delete();
+  await lPEntryDoc.delete();
   await party.updateLoyaltyPoints();
 }
 
