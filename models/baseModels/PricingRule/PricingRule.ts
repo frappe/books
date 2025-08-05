@@ -30,7 +30,6 @@ export class PricingRule extends Doc {
   freeItem?: string;
   freeItemQuantity?: number;
   freeItemUnit?: string;
-  freeItemRate?: Money;
   roundFreeItemQty?: number;
   roundingMethod?: string;
 
@@ -158,7 +157,6 @@ export class PricingRule extends Doc {
     freeItem: () => this.isDiscountTypeIsPriceDiscount,
     freeItemQuantity: () => this.isDiscountTypeIsPriceDiscount,
     freeItemUnit: () => this.isDiscountTypeIsPriceDiscount,
-    freeItemRate: () => this.isDiscountTypeIsPriceDiscount,
     roundFreeItemQty: () => this.isDiscountTypeIsPriceDiscount,
     roundingMethod: () =>
       this.isDiscountTypeIsPriceDiscount || !this.roundFreeItemQty,
