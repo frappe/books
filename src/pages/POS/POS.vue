@@ -837,6 +837,7 @@ export default defineComponent({
 
       await this.paymentDoc.set('paymentMethod', paymentMethod);
       await this.paymentDoc.set('amount', this.fyo.pesa(this.paidAmount.float));
+      await this.paymentDoc.set('referenceType', ModelNameEnum.SalesInvoice);
 
       const paymentMethodDoc = await this.paymentDoc.loadAndGetLink(
         'paymentMethod'
