@@ -834,19 +834,14 @@ export abstract class Invoice extends Transactional {
   }
 
   async updateIsItemsFullyReturned(doc?: Invoice) {
-    if (!doc?.returnAgainst) {
+    if (!doc?.returnAgainst || doc.schemaName !== ModelNameEnum.SalesInvoice) {
       return;
     }
 
-    let sinvDoc;
-    try {
-      sinvDoc = await this.fyo.doc.getDoc(
-        ModelNameEnum.SalesInvoice,
-        doc.returnAgainst
-      );
-    } catch (error) {
-      return;
-    }
+    const sinvDoc = await this.fyo.doc.getDoc(
+      ModelNameEnum.SalesInvoice,
+      doc.returnAgainst
+    );
 
     const totalQtyOfReturnedItems = await getReturnQtyTotal(
       (sinvDoc as Invoice) ?? this
@@ -1673,7 +1668,10 @@ export abstract class Invoice extends Transactional {
 
       if (roundFreeItemQuantity <= 0) {
         throw new ValidationError(
-          t`Cannot add free item - calculated quantity is zero or negative`
+          t`Free item "${
+            pricingRuleDoc.freeItem as string
+          }" was not added due to zero
+           quantity`
         );
       }
 
