@@ -148,12 +148,6 @@
       "section": "Product Discount Scheme"
     },
     {
-      "fieldname": "freeItemRate",
-      "label": "Rate",
-      "fieldtype": "Currency",
-      "section": "Product Discount Scheme"
-    },
-    {
       "fieldname": "roundFreeItemQty",
       "label": "Round Free Item Quantity",
       "fieldtype": "Check",

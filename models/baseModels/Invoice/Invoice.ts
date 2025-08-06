@@ -26,6 +26,7 @@ import {
   roundFreeItemQty,
   getReturnQtyTotal,
   getReturnLoyaltyPoints,
+  getItemQtyMap,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -221,9 +222,7 @@ export abstract class Invoice extends Transactional {
       await this._removeLoyaltyPointEntry();
       await this._updateIsItemsReturned();
       this.reduceUsedCountOfCoupons();
-      if (this.schemaName === ModelNameEnum.SalesInvoice)
-        [await this.updateIsItemsFullyReturned(this)];
-      return;
+      await this.updateIsItemsFullyReturned(this);
     }
 
     if (this.isQuote) {
@@ -264,7 +263,9 @@ export abstract class Invoice extends Transactional {
     }
 
     await this._updateIsItemsReturned();
-    await this._createLoyaltyPointEntry();
+    if (!this.isReturn) {
+      await this._createLoyaltyPointEntry();
+    }
 
     if (this.schemaName === ModelNameEnum.SalesInvoice) {
       this.updateUsedCountOfCoupons();
@@ -692,6 +693,17 @@ export abstract class Invoice extends Transactional {
 
     for (const item of docItems) {
       if (totalQtyOfReturnedItems) {
+        if (item.isFreeItem) {
+          returnDocItems.push({
+            ...item,
+            name: undefined,
+            quantity: -(item.quantity as number),
+            transferQuantity: -(
+              (item.quantity as number) / (item.unitConversionFactor as number)
+            ),
+          });
+          continue;
+        }
         if (item.batch) {
           const returnData = totalQtyOfReturnedItems[item.item as string];
           if (typeof returnData === 'object' && returnData?.batches) {
@@ -822,19 +834,21 @@ export abstract class Invoice extends Transactional {
   }
 
   async updateIsItemsFullyReturned(doc?: Invoice) {
-    let sinvDoc;
-    if (doc?.returnAgainst) {
-      sinvDoc = await this.fyo.doc.getDoc(
-        ModelNameEnum.SalesInvoice,
-        doc.returnAgainst
-      );
+    if (!doc?.returnAgainst || doc.schemaName !== ModelNameEnum.SalesInvoice) {
+      return;
     }
+
+    const sinvDoc = await this.fyo.doc.getDoc(
+      ModelNameEnum.SalesInvoice,
+      doc.returnAgainst
+    );
 
     const totalQtyOfReturnedItems = await getReturnQtyTotal(
       (sinvDoc as Invoice) ?? this
     );
     const isFullyReturned = Object.values(totalQtyOfReturnedItems).every(
-      (quantity) => quantity === 0
+      (value) =>
+        typeof value === 'number' ? value === 0 : value?.quantity === 0
     );
     if (!isFullyReturned) {
       return;
@@ -1360,6 +1374,21 @@ export abstract class Invoice extends Transactional {
         continue;
       }
 
+      const isFreeItem = row.isFreeItem ?? false;
+      if (isFreeItem) {
+        await transfer.append('items', {
+          item: row.item,
+          quantity: row.quantity,
+          location,
+          rate: this.fyo.pesa(0),
+          batch: row.batch || null,
+          description: row.description,
+          hsnCode: row.hsnCode,
+          isFreeItem,
+        });
+        continue;
+      }
+
       let quantity;
       if (itemDoc.trackItem) {
         quantity = row.stockNotTransferred;
@@ -1567,7 +1596,7 @@ export abstract class Invoice extends Transactional {
   }
 
   clearFreeItems() {
-    if (this.pricingRuleDetail?.length || !this.items) {
+    if (this.pricingRuleDetail?.length || !this.items || this.isReturn) {
       return;
     }
 
@@ -1585,7 +1614,9 @@ export abstract class Invoice extends Transactional {
       return;
     }
 
-    this.items = this.items.filter((item) => !item.isFreeItem);
+    if (!this.isReturn) {
+      this.items = this.items.filter((item) => !item.isFreeItem);
+    }
 
     for (const item of this.items) {
       const pricingRuleDetailForItem = this.pricingRuleDetail?.filter(
@@ -1629,18 +1660,34 @@ export abstract class Invoice extends Transactional {
       }
 
       if (pricingRuleDoc.roundFreeItemQty) {
-        roundFreeItemQty(
+        roundFreeItemQuantity = roundFreeItemQty(
           roundFreeItemQuantity,
-          pricingRuleDoc.roundingMethod as 'round' | 'floor' | 'ceil'
+          'floor'
         );
       }
 
+      if (roundFreeItemQuantity <= 0) {
+        throw new ValidationError(
+          t`Free item "${
+            pricingRuleDoc.freeItem as string
+          }" was not added due to zero
+           quantity`
+        );
+      }
+
+      const freeItem = pricingRuleDoc.freeItem as string;
+      const itemQtyMap = await getItemQtyMap(this as SalesInvoice);
+      const availableQty = itemQtyMap[freeItem]?.availableQty ?? 0;
+
+      if (availableQty < roundFreeItemQuantity) {
+        continue;
+      }
+
       await this.append('items', {
-        item: pricingRuleDoc.freeItem as string,
+        item: freeItem,
         quantity: roundFreeItemQuantity,
         isFreeItem: true,
         pricingRule: pricingRuleDoc.title,
-        rate: pricingRuleDoc.freeItemRate,
         unit: pricingRuleDoc.freeItemUnit,
       });
     }
