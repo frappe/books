@@ -192,6 +192,79 @@ export function getErrorHandledSync<T extends (...args: any[]) => any>(
   };
 }
 
+function getFeatureFlags(): string[] {
+  const getBooleanFields = (docName: string) => {
+    const doc = fyo.singles[docName];
+    if (!doc) {
+      return {};
+    }
+
+    const schema = fyo.schemaMap[docName];
+    const booleanFields: Record<string, boolean> = {};
+
+    for (const [key, value] of Object.entries(doc)) {
+      const field = schema?.fields.find((f) => f.fieldname === key);
+      if (
+        typeof value === 'boolean' &&
+        !field?.hidden &&
+        !key.startsWith('_')
+      ) {
+        booleanFields[key] = value;
+      }
+    }
+
+    return booleanFields;
+  };
+
+  const accountingFlags = getBooleanFields('AccountingSettings');
+  const posFlags = getBooleanFields('POSSettings');
+  const inventoryFlags = getBooleanFields('InventorySettings');
+
+  const sections = [];
+
+  if (Object.keys(accountingFlags).length > 0) {
+    sections.push(
+      '**Accounting Settings**:',
+      '```json',
+      JSON.stringify(accountingFlags, null, 2),
+      '```',
+      ''
+    );
+  }
+
+  if (Object.keys(posFlags).length > 0) {
+    sections.push(
+      '**POS Settings**:',
+      '```json',
+      JSON.stringify(posFlags, null, 2),
+      '```',
+      ''
+    );
+  }
+
+  if (Object.keys(inventoryFlags).length > 0) {
+    sections.push(
+      '**Inventory Settings**:',
+      '```json',
+      JSON.stringify(inventoryFlags, null, 2),
+      '```',
+      ''
+    );
+  }
+
+  if (sections.length === 0) {
+    return [];
+  }
+
+  return [
+    '<details>',
+    '<summary><strong>Feature Flags</strong></summary>',
+    '',
+    ...sections,
+    '</details>',
+  ];
+}
+
 function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   const baseUrl = 'https://github.com/frappe/books/issues/new?labels=bug';
 
@@ -222,9 +295,10 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   if (fyo.singles.SystemSettings?.countryCode) {
     body.push(`**Country**: \`${fyo.singles.SystemSettings.countryCode}\``);
   }
+  body.push('', ...getFeatureFlags());
 
-  const url = [baseUrl, `body=${body.join('\n')}`].join('&');
-  return encodeURI(url);
+  const encodedBody = encodeURIComponent(body.join('\n'));
+  return `${baseUrl}&body=${encodedBody}`;
 }
 
 export function reportIssue(errorLogObj?: ErrorLog) {
