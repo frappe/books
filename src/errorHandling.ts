@@ -192,6 +192,52 @@ export function getErrorHandledSync<T extends (...args: any[]) => any>(
   };
 }
 
+function getFeatureFlags(): string[] {
+  const getBooleanFields = (docName: string) => {
+    const doc = fyo.singles[docName];
+    if (!doc) return {};
+
+    return Object.entries(doc).reduce((acc, [key, value]) => {
+      const field = fyo.schemaMap[docName]?.fields.find(
+        (f) => f.fieldname === key
+      );
+      if (
+        typeof value === 'boolean' &&
+        !field?.hidden &&
+        !key.startsWith('_')
+      ) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, boolean>);
+  };
+
+  const sections = [
+    { name: 'Accounting', flags: getBooleanFields('AccountingSettings') },
+    { name: 'POS', flags: getBooleanFields('POSSettings') },
+    { name: 'Inventory', flags: getBooleanFields('InventorySettings') },
+  ]
+    .filter(({ flags }) => Object.keys(flags).length > 0)
+    .map(({ name, flags }) => [
+      `**${name} Settings**:`,
+      '```json',
+      JSON.stringify(flags, null, 2),
+      '```',
+      '',
+    ])
+    .flat();
+
+  return sections.length
+    ? [
+        '<details>',
+        '<summary><strong>Feature Flags</strong></summary>',
+        '',
+        ...sections,
+        '</details>',
+      ]
+    : [];
+}
+
 function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   const baseUrl = 'https://github.com/frappe/books/issues/new?labels=bug';
 
@@ -222,9 +268,10 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   if (fyo.singles.SystemSettings?.countryCode) {
     body.push(`**Country**: \`${fyo.singles.SystemSettings.countryCode}\``);
   }
+  body.push('', ...getFeatureFlags());
 
-  const url = [baseUrl, `body=${body.join('\n')}`].join('&');
-  return encodeURI(url);
+  const encodedBody = encodeURIComponent(body.join('\n'));
+  return `${baseUrl}&body=${encodedBody}`;
 }
 
 export function reportIssue(errorLogObj?: ErrorLog) {
