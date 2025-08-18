@@ -43,13 +43,18 @@ export abstract class LedgerReport extends Report {
     return groupBy;
   }
 
-  _getGroupedMap(sort: boolean, groupBy?: GroupByKey): GroupedMap {
+  _getGroupedMap(
+    sort: boolean,
+    groupBy?: GroupByKey,
+    data?: LedgerEntry[]
+  ): GroupedMap {
     groupBy ??= this._getGroupByKey();
+    data ??= this._rawData;
     /**
      * Sort rows by ascending or descending
      */
     if (sort) {
-      this._rawData.sort((a, b) => {
+      data.sort((a, b) => {
         if (this.ascending) {
           return +a.date! - +b.date!;
         }
@@ -63,7 +68,7 @@ export abstract class LedgerReport extends Report {
      * ∴ presorting maintains grouping order
      */
     const map: GroupedMap = new Map();
-    for (const entry of this._rawData) {
+    for (const entry of data) {
       const groupingKey = entry[groupBy];
       if (!map.has(groupingKey)) {
         map.set(groupingKey, []);
