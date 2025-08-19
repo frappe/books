@@ -42,6 +42,7 @@ import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 import { defineComponent } from 'vue';
+import { DateTime } from 'luxon';
 
 // Linting broken in this file cause of `extends: ...`
 /*
@@ -58,11 +59,13 @@ export default defineComponent({
   extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
+    fromDate: { type: [String, Date], default: '' },
+    toDate: { type: [String, Date], default: '' },
   },
   data: () => ({
     data: [] as { yearmonth: string; balance: number }[],
     hasData: false,
-    periodOptions: ['This Year', 'This Quarter', 'YTD'],
+    periodOptions: ['This Year', 'This Quarter', 'YTD', 'Custom'],
   }),
   computed: {
     chartData() {
@@ -90,14 +93,45 @@ export default defineComponent({
       };
     },
   },
+  watch: {
+    fromDate: 'setData',
+    toDate: 'setData',
+    period: 'setData',
+  },
   activated() {
     this.setData();
   },
   methods: {
     async setData() {
-      const { fromDate, toDate, periodList } = getDatesAndPeriodList(
-        this.period
-      );
+      let fromDate: DateTime;
+      let toDate: DateTime;
+      let periodList: DateTime[] = [];
+
+      if (this.period === 'Custom') {
+        const parseDate = (date: string | Date) =>
+          DateTime.fromISO(
+            typeof date === 'string' ? date : date.toISOString()
+          );
+
+        fromDate = parseDate(this.fromDate);
+        toDate = parseDate(this.toDate);
+
+        let current = fromDate.startOf('month');
+
+        const toMonthStart = toDate.startOf('month');
+
+        while (current <= toMonthStart) {
+          periodList.push(current);
+          current = current.plus({ months: 1 });
+        }
+
+        periodList.push(fromDate.startOf('month'));
+      } else {
+        const result = getDatesAndPeriodList(this.period);
+        fromDate = result.fromDate;
+        toDate = result.toDate;
+        periodList = result.periodList;
+      }
 
       const data = await fyo.db.getIncomeAndExpenses(
         fromDate.toISO(),
