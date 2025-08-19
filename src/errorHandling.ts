@@ -8,6 +8,7 @@ import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
 import type { DialogOptions, ToastOptions } from './utils/types';
+import { ModelNameEnum } from 'models/types';
 
 function shouldNotStore(error: Error) {
   const shouldLog = (error as BaseError).shouldStore ?? true;
@@ -198,9 +199,10 @@ function getFeatureFlags(): string[] {
     if (!doc) return {};
 
     return Object.entries(doc).reduce((acc, [key, value]) => {
-      const field = fyo.schemaMap[docName]?.fields.find(
-        (f) => f.fieldname === key
-      );
+      const fieldsArray = fyo.schemaMap[docName]?.fields ?? [];
+      const fieldsMap = new Map(fieldsArray.map((f) => [f.fieldname, f]));
+
+      const field = fieldsMap.get(key);
       if (
         typeof value === 'boolean' &&
         !field?.hidden &&
@@ -213,19 +215,25 @@ function getFeatureFlags(): string[] {
   };
 
   const sections = [
-    { name: 'Accounting', flags: getBooleanFields('AccountingSettings') },
-    { name: 'POS', flags: getBooleanFields('POSSettings') },
-    { name: 'Inventory', flags: getBooleanFields('InventorySettings') },
+    {
+      name: 'Accounting',
+      flags: getBooleanFields(ModelNameEnum.AccountingSettings),
+    },
+    { name: 'POS', flags: getBooleanFields(ModelNameEnum.POSSettings) },
+    {
+      name: 'Inventory',
+      flags: getBooleanFields(ModelNameEnum.InventorySettings),
+    },
   ]
+
     .filter(({ flags }) => Object.keys(flags).length > 0)
-    .map(({ name, flags }) => [
+    .flatMap(({ name, flags }) => [
       `**${name} Settings**:`,
       '```json',
       JSON.stringify(flags, null, 2),
       '```',
       '',
-    ])
-    .flat();
+    ]);
 
   return sections.length
     ? [
