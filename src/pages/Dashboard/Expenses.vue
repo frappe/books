@@ -63,7 +63,7 @@ import DonutChart from '../../components/Charts/DonutChart.vue';
 import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
-
+import { DateTime } from 'luxon';
 // Linting broken in this file cause of `extends: ...`
 /*
   eslint-disable @typescript-eslint/no-unsafe-argument,
@@ -80,6 +80,8 @@ export default defineComponent({
   extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
+    fromDate: { type: [String, Date], default: '' },
+    toDate: { type: [String, Date], default: '' },
   },
   data: () => ({
     active: null as null | number,
@@ -109,12 +111,26 @@ export default defineComponent({
       }));
     },
   },
+  watch: {
+    period: 'setData',
+    fromDate: 'setData',
+    toDate: 'setData',
+  },
   activated() {
     this.setData();
   },
   methods: {
     async setData() {
-      const { fromDate, toDate } = getDatesAndPeriodList(this.period);
+      const parseDate = (date: string | Date) =>
+        DateTime.fromISO(typeof date === 'string' ? date : date.toISOString());
+
+      const { fromDate, toDate } =
+        this.period === 'Custom'
+          ? {
+              fromDate: parseDate(this.fromDate),
+              toDate: parseDate(this.toDate),
+            }
+          : getDatesAndPeriodList(this.period);
       let topExpenses = await fyo.db.getTopExpenses(
         fromDate.toISO(),
         toDate.toISO()

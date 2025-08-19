@@ -125,6 +125,8 @@ export default defineComponent({
   props: {
     schemaName: { type: String as PropType<string>, required: true },
     darkMode: { type: Boolean, default: false },
+    fromDate: { type: [String, Date], default: '' },
+    toDate: { type: [String, Date], default: '' },
   },
   data() {
     return {
@@ -179,6 +181,11 @@ export default defineComponent({
       return `bg-${this.color}-${this.darkMode ? '700 bg-opacity-20' : '200'}`;
     },
   },
+  watch: {
+    period: 'setData',
+    fromDate: 'setData',
+    toDate: 'setData',
+  },
   async activated() {
     await this.setData();
   },
@@ -206,7 +213,16 @@ export default defineComponent({
       await routeTo({ path, query });
     },
     async setData() {
-      const { fromDate, toDate } = getDatesAndPeriodList(this.period);
+      const parseDate = (date: string | Date) =>
+        DateTime.fromISO(typeof date === 'string' ? date : date.toISOString());
+
+      const { fromDate, toDate } =
+        this.period === 'Custom'
+          ? {
+              fromDate: parseDate(this.fromDate),
+              toDate: parseDate(this.toDate),
+            }
+          : getDatesAndPeriodList(this.period);
 
       const { total, outstanding } = await fyo.db.getTotalOutstanding(
         this.schemaName,
