@@ -182,7 +182,7 @@
     },
     {
       "fieldname": "posPrintTemplate",
-      "label": "Pos Print Template",
+      "label": "POS Print Template",
       "fieldtype": "Link",
       "target": "PrintTemplate",
       "section": "Print Templates"
