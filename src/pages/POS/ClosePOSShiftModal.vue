@@ -1,7 +1,7 @@
 <template>
   <Modal :open-modal="openModal" class="w-3/6 p-4">
     <h1 class="text-xl font-semibold text-center dark:text-gray-100 pb-4">
-      Close POS Shift
+      {{ t`Close POS Shift` }}
     </h1>
 
     <h2 class="mt-4 mb-2 text-lg font-medium dark:text-gray-100">
