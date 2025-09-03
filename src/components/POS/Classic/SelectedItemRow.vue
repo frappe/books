@@ -82,7 +82,7 @@
     :df="{
       fieldtype: 'Currency',
       fieldname: 'amount',
-      label: 'Amount',
+      label: t`Amount`,
     }"
     size="small"
     :border="false"
