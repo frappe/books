@@ -58,6 +58,7 @@ import Row from 'src/components/Row.vue';
 import RowEditForm from 'src/pages/CommonForm/RowEditForm.vue';
 import ModernPOSSelectedItemRow from './ModernPOSSelectedItemRow.vue';
 import { isNumeric } from 'src/utils';
+import { t } from 'fyo';
 import { inject, defineComponent } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
@@ -98,14 +99,14 @@ export default defineComponent({
         {
           fieldname: 'item',
           fieldtype: 'Link',
-          label: 'Item',
+          label: t`Item`,
           placeholder: 'Item',
           required: true,
           schemaName: 'Item',
         },
         {
           fieldname: 'quantity',
-          label: 'Quantity',
+          label: t`Quantity`,
           placeholder: 'Quantity',
           fieldtype: 'Int',
           required: true,
@@ -113,7 +114,7 @@ export default defineComponent({
         },
         {
           fieldname: 'rate',
-          label: 'Rate',
+          label: t`Rate`,
           placeholder: 'Rate',
           fieldtype: 'Currency',
           required: true,
@@ -121,7 +122,7 @@ export default defineComponent({
         },
         {
           fieldname: 'amount',
-          label: 'Amount',
+          label: t`Amount`,
           placeholder: 'Amount',
           fieldtype: 'Currency',
           required: true,

@@ -5,7 +5,7 @@
     </h1>
 
     <h2 class="mt-4 mb-2 text-lg font-medium dark:text-gray-100">
-      Closing Cash
+      {{ t`Closing Cash` }}
     </h2>
     <Table
       v-if="isValuesSeeded"

@@ -125,6 +125,7 @@
 import FormControl from 'src/components/Controls/FormControl.vue';
 import Row from 'src/components/Row.vue';
 import { isNumeric } from 'src/utils';
+import { t } from 'fyo';
 import { defineComponent } from 'vue';
 import { Field } from 'schemas/types';
 import { POSItem } from '../types';
@@ -146,27 +147,27 @@ export default defineComponent({
         {
           fieldname: 'name',
           fieldtype: 'Data',
-          label: 'Item',
+          label: t`Item`,
           placeholder: 'Item',
           readOnly: true,
         },
         {
           fieldname: 'rate',
-          label: 'Rate',
+          label: t`Rate`,
           placeholder: 'Rate',
           fieldtype: 'Currency',
           readOnly: true,
         },
         {
           fieldname: 'availableQty',
-          label: 'Qty',
+          label: t`Qty`,
           placeholder: 'Available Qty',
           fieldtype: 'Float',
           readOnly: true,
         },
         {
           fieldname: 'unit',
-          label: 'Unit',
+          label: t`Unit`,
           placeholder: 'Unit',
           fieldtype: 'Data',
           target: 'UOM',
