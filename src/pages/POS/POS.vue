@@ -63,6 +63,7 @@
       @set-transfer-clearance-date="setTransferClearanceDate"
       @save-and-continue="handleSaveAndContinue"
       @handle-payment-action="handlePaymentAction"
+      @selected-row="setQuickQtySelectedRow"
     />
     <ModernPOS
       v-else
@@ -113,6 +114,7 @@
       @selected-return-invoice="selectedReturnInvoice"
       @save-and-continue="handleSaveAndContinue"
       @set-transfer-clearance-date="setTransferClearanceDate"
+      @selected-row="setQuickQtySelectedRow"
     />
   </div>
 </template>
@@ -240,6 +242,13 @@ export default defineComponent({
       itemQtyMap: {} as ItemQtyMap,
       coupons: {} as AppliedCouponCodes,
       itemSerialNumbers: {} as ItemSerialNumbers,
+
+      // Quick Quantity via holding 'Q'
+      quickQtyActive: false,
+      quickQtyBuffer: '' as string,
+      quickQtyRow: null as SalesInvoiceItem | null,
+      quickQtyKeyDownHandler: null as ((e: KeyboardEvent) => void) | null,
+      quickQtyKeyUpHandler: null as ((e: KeyboardEvent) => void) | null,
     };
   },
   computed: {
@@ -281,6 +290,7 @@ export default defineComponent({
     this.setSinvDoc();
     this.setDefaultCustomer();
     this.setShortcuts();
+    this.addQuickQtyListeners();
 
     await this.setItemQtyMap();
     await this.setItems();
@@ -288,8 +298,177 @@ export default defineComponent({
   deactivated() {
     this.shortcuts?.delete(COMPONENT_NAME);
     toggleSidebar(true);
+    this.removeQuickQtyListeners();
   },
   methods: {
+    setQuickQtySelectedRow(row: SalesInvoiceItem) {
+      this.quickQtyRow = row;
+    },
+    addQuickQtyListeners() {
+      this.quickQtyKeyDownHandler = (e: KeyboardEvent) =>
+        this.onQuickQtyKeyDown(e);
+      this.quickQtyKeyUpHandler = (e: KeyboardEvent) => this.onQuickQtyKeyUp(e);
+      window.addEventListener(
+        'keydown',
+        this.quickQtyKeyDownHandler as EventListener
+      );
+      window.addEventListener(
+        'keyup',
+        this.quickQtyKeyUpHandler as EventListener
+      );
+    },
+    removeQuickQtyListeners() {
+      if (this.quickQtyKeyDownHandler) {
+        window.removeEventListener(
+          'keydown',
+          this.quickQtyKeyDownHandler as EventListener
+        );
+        this.quickQtyKeyDownHandler = null;
+      }
+      if (this.quickQtyKeyUpHandler) {
+        window.removeEventListener(
+          'keyup',
+          this.quickQtyKeyUpHandler as EventListener
+        );
+        this.quickQtyKeyUpHandler = null;
+      }
+    },
+    hasAnyOpenModal(): boolean {
+      return (
+        this.openAlertModal ||
+        this.openPaymentModal ||
+        this.openKeyboardModal ||
+        this.openPriceListModal ||
+        this.openItemEnquiryModal ||
+        this.openCouponCodeModal ||
+        this.openShiftCloseModal ||
+        this.openSavedInvoiceModal ||
+        this.openLoyaltyProgramModal ||
+        this.openAppliedCouponsModal ||
+        this.openReturnSalesInvoiceModal
+      );
+    },
+    onQuickQtyKeyDown(e: KeyboardEvent) {
+      // Ignore if focus is in an input/contentEditable without modifiers
+      const notMods = !(e.altKey || e.metaKey || e.ctrlKey);
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        notMods &&
+        ((target instanceof HTMLInputElement && target.type !== 'button') ||
+          target instanceof HTMLTextAreaElement ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      // Only active on POS page with no modal open
+      if (this.hasAnyOpenModal()) {
+        return;
+      }
+
+      if (e.code === 'KeyQ' && !this.quickQtyActive) {
+        this.quickQtyActive = true;
+        this.quickQtyBuffer = '';
+        return;
+      }
+
+      if (!this.quickQtyActive) {
+        return;
+      }
+
+      // While holding Q, collect digits; support both main digits and numpad
+      if (/^Digit[0-9]$/.test(e.code)) {
+        this.quickQtyBuffer += e.code.replace('Digit', '');
+        e.preventDefault();
+        return;
+      }
+
+      if (/^Numpad[0-9]$/.test(e.code)) {
+        this.quickQtyBuffer += e.code.replace('Numpad', '');
+        e.preventDefault();
+        return;
+      }
+
+      if (e.code === 'Backspace') {
+        this.quickQtyBuffer = this.quickQtyBuffer.slice(0, -1);
+        e.preventDefault();
+        return;
+      }
+    },
+    async onQuickQtyKeyUp(e: KeyboardEvent) {
+      if (e.code !== 'KeyQ' || !this.quickQtyActive) {
+        return;
+      }
+
+      this.quickQtyActive = false;
+
+      const buffer = this.quickQtyBuffer;
+      this.quickQtyBuffer = '';
+
+      if (!buffer || !buffer.length) {
+        return;
+      }
+
+      const qty = Number(buffer);
+      if (!Number.isFinite(qty)) {
+        return;
+      }
+
+      // Determine target row: prefer explicitly selected row; else fallback to last non-free item
+      let row: SalesInvoiceItem | null = this.quickQtyRow;
+      if (!row || !(this.sinvDoc.items || []).includes(row)) {
+        const items = (this.sinvDoc.items || []).filter((r) => !r.isFreeItem);
+        row = items.length
+          ? (items[items.length - 1] as SalesInvoiceItem)
+          : null;
+      }
+
+      if (!row) {
+        return;
+      }
+
+      // Validate and recalculate similar to keyboard modal quantity change
+      const prevQty = row.quantity ?? 1;
+
+      if (!row.isReturn && qty <= 0) {
+        showToast({
+          type: 'error',
+          message: t`Quantity must be greater than zero.`,
+          duration: 'short',
+        });
+        return;
+      }
+
+      try {
+        await row.set('quantity', qty);
+
+        const existingItems =
+          (this.sinvDoc.items || []).filter(
+            (invoiceItem: InvoiceItem) =>
+              invoiceItem.item === row!.item && !invoiceItem.isFreeItem
+          ) || [];
+
+        await validateQty(
+          this.sinvDoc as SalesInvoice,
+          row,
+          existingItems as unknown as InvoiceItem[]
+        );
+      } catch (error) {
+        await row.set('quantity', prevQty);
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+          duration: 'short',
+        });
+        return;
+      }
+
+      if (!row.isFreeItem) {
+        await this.applyPricingRule();
+        await this.sinvDoc.runFormulas();
+      }
+    },
     async setCustomer(value: string) {
       if (!value) {
         this.sinvDoc.party = '';
