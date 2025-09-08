@@ -1,7 +1,7 @@
 <template>
   <feather-icon
     :name="isExapanded ? 'chevron-up' : 'chevron-down'"
-    class="w-4 h-4 inline-flex"
+    class="w-4 h-4 inline-flex cursor-pointer text-gray-700 dark:text-gray-200"
     @click="isExapanded = !isExapanded"
   />
 
@@ -42,12 +42,26 @@
     <div class="flex flex-col ml-1">
       <feather-icon
         name="chevron-up"
-        class="w-3 h-3 cursor-pointer hover:text-blue-500"
+        class="
+          w-3
+          h-3
+          cursor-pointer
+          hover:text-blue-500
+          text-gray-700
+          dark:text-gray-200
+        "
         @click="adjustQuantity(1)"
       />
       <feather-icon
         name="chevron-down"
-        class="w-3 h-3 cursor-pointer hover:text-blue-500"
+        class="
+          w-3
+          h-3
+          cursor-pointer
+          hover:text-blue-500
+          text-gray-700
+          dark:text-gray-200
+        "
         @click="adjustQuantity(-1)"
       />
     </div>
@@ -213,6 +227,7 @@
       class="pl-6 px-4 pt-6 col-span-2"
     >
       <Link
+        ref="batchField"
         :df="{
           fieldname: 'batch',
           fieldtype: 'Link',

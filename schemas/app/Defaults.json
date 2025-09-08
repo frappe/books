@@ -129,6 +129,7 @@
       "label": "Sales Quote Print Template",
       "fieldtype": "Link",
       "target": "PrintTemplate",
+      "default": "Business - Quote",
       "section": "Print Templates"
     },
     {
@@ -136,6 +137,7 @@
       "label": "Sales Invoice Print Template",
       "fieldtype": "Link",
       "target": "PrintTemplate",
+      "default": "Business - Sales Invoice",
       "section": "Print Templates"
     },
     {
@@ -143,6 +145,7 @@
       "label": "Purchase Invoice Print Template",
       "fieldtype": "Link",
       "target": "PrintTemplate",
+      "default": "Business - Purchase Invoice",
       "section": "Print Templates"
     },
     {
@@ -157,6 +160,7 @@
       "label": "Payment Print Template",
       "fieldtype": "Link",
       "target": "PrintTemplate",
+      "default": "Business - Payment",
       "section": "Print Templates"
     },
     {
@@ -164,6 +168,7 @@
       "label": "Shipment Print Template",
       "fieldtype": "Link",
       "target": "PrintTemplate",
+      "default": "Business - Shipment",
       "section": "Print Templates"
     },
     {
@@ -185,6 +190,7 @@
       "label": "Pos Print Template",
       "fieldtype": "Link",
       "target": "PrintTemplate",
+      "default": "Business-POS - Sales Invoice",
       "section": "Print Templates"
     },
     {
