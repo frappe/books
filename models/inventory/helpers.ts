@@ -15,6 +15,9 @@ import type { SerialNumberStatus } from './types';
 export async function validateBatch(
   doc: StockMovement | StockTransfer | Invoice
 ) {
+  if (doc.schemaName === 'SalesQuote') {
+    return;
+  }
   for (const row of doc.items ?? []) {
     await validateItemRowBatch(row);
   }
@@ -52,6 +55,9 @@ async function validateItemRowBatch(
 }
 
 export async function validateSerialNumber(doc: StockMovement | StockTransfer) {
+  if (doc.schemaName === 'SalesQuote') {
+    return;
+  }
   if (doc.isCancelled) {
     return;
   }
@@ -64,6 +70,9 @@ export async function validateSerialNumber(doc: StockMovement | StockTransfer) {
 async function validateItemRowSerialNumber(
   row: StockMovementItem | StockTransferItem
 ) {
+  if (row.parentdoc?.schemaName === 'SalesQuote') {
+    return;
+  }
   const idx = row.idx ?? 0;
   const item = row.item;
 

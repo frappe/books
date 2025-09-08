@@ -26,8 +26,8 @@
           :placeholder="inputPlaceholder"
           :readonly="isReadOnly"
           :tabindex="isReadOnly ? '-1' : '0'"
-          @focus="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
-          @click="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
+          @focus="(e) => !isReadOnly && onInputFocus(e)"
+          @dblclick="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
           @blur="(e) => !isReadOnly && onBlur(e.target.value)"
           @input="onInput"
           @keydown.up="highlightItemUp"
@@ -288,6 +288,9 @@ export default {
       }
 
       this.toggleDropdown(false);
+    },
+    onInputFocus(e) {
+      this.isFocused = true;
     },
     onFocus(e, toggleDropdown) {
       this.isFocused = true;
