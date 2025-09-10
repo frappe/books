@@ -217,6 +217,10 @@ export default defineComponent({
             description: t`Set Price List`,
           },
           {
+            shortcut: ['Q', '0-9'],
+            description: t`Hold Q and type digits to set selected item quantity`,
+          },
+          {
             shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'H'],
             description: t`Open Saved or Submitted Invoice List.`,
           },

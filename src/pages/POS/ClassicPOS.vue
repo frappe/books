@@ -180,6 +180,7 @@
 
             <SelectedItemTable
               @apply-pricing-rule="emitEvent('applyPricingRule')"
+              @selected-row="(row) => $emit('selectedRow', row)"
             />
           </div>
 
@@ -503,6 +504,7 @@ export default defineComponent({
     'setTransferClearanceDate',
     'saveAndContinue',
     'handlePaymentAction',
+    'selectedRow',
   ],
   data() {
     return {
