@@ -499,6 +499,7 @@ export default defineComponent({
     'selectedReturnInvoice',
     'setTransferClearanceDate',
     'saveAndContinue',
+    'selectedRow',
   ],
   data() {
     return {
@@ -524,6 +525,8 @@ export default defineComponent({
     selectedRow(row: SalesInvoiceItem, field: string) {
       this.selectedItemRow = row;
       this.selectedItemField = field;
+      // Bubble up to POS to allow keyboard shortcuts to target this row
+      this.$emit('selectedRow', row);
     },
     getItem,
   },

@@ -12,7 +12,7 @@
       :df="{
         fieldname: 'item',
         fieldtype: 'Data',
-        label: 'item',
+        label: t`Item`,
       }"
       :class="row.isFreeItem ? 'mt-2' : ''"
       size="small"
@@ -33,7 +33,7 @@
     :df="{
       fieldname: 'quantity',
       fieldtype: 'Int',
-      label: 'Quantity',
+      label: t`Quantity`,
     }"
     size="small"
     :border="false"
@@ -45,7 +45,7 @@
     :df="{
       fieldtype: 'Currency',
       fieldname: 'rate',
-      label: 'rate',
+      label: t`Rate`,
     }"
     size="small"
     :border="false"
@@ -57,7 +57,7 @@
     :df="{
       fieldtype: 'Currency',
       fieldname: 'amount',
-      label: 'Amount',
+      label: t`Amount`,
     }"
     size="small"
     :border="false"
@@ -82,7 +82,7 @@
           :df="{
             fieldname: 'quantity',
             fieldtype: 'Float',
-            label: 'Quantity',
+            label: t`Quantity`,
           }"
           @click="handleOpenKeyboard(row, 'quantity')"
           size="medium"
@@ -117,7 +117,7 @@
           :df="{
             fieldtype: 'Int',
             fieldname: 'transferQuantity',
-            label: 'Transfer Quantity',
+            label: t`Transfer Quantity`,
           }"
           @click="!isReadOnly && handleOpenKeyboard(row, 'transferQuantity')"
           size="medium"
@@ -132,7 +132,7 @@
           :df="{
             fieldtype: 'Currency',
             fieldname: 'rate',
-            label: 'Rate',
+            label: t`Rate`,
           }"
           @click="!isReadOnly && handleOpenKeyboard(row, 'rate')"
           size="medium"
@@ -166,7 +166,7 @@
           :df="{
             fieldtype: 'Float',
             fieldname: 'itemDiscountPercent',
-            label: 'Discount Percent',
+            label: t`Discount Percent`,
           }"
           @click="handleOpenKeyboard(row, 'itemDiscountPercent')"
           size="medium"

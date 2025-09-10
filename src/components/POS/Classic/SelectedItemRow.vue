@@ -5,7 +5,7 @@
     @click="isExapanded = !isExapanded"
   />
 
-  <div class="relative">
+  <div class="relative" @click="emitSelectedRow">
     <Link
       class="pt-2"
       :df="{
@@ -27,7 +27,7 @@
     </p>
   </div>
 
-  <div class="flex items-center">
+  <div class="flex items-center" @click="emitSelectedRow">
     <Int
       :df="{
         fieldname: 'quantity',
@@ -82,7 +82,7 @@
     :df="{
       fieldtype: 'Currency',
       fieldname: 'amount',
-      label: 'Amount',
+      label: t`Amount`,
     }"
     size="small"
     :border="false"
@@ -101,7 +101,7 @@
   <div></div>
 
   <template v-if="isExapanded">
-    <div class="px-4 pt-6 col-span-1">
+    <div class="px-4 pt-6 col-span-1" @click="emitSelectedRow">
       <Int
         v-if="isUOMConversionEnabled"
         :df="{
@@ -287,7 +287,7 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
   },
-  emits: ['runSinvFormulas', 'applyPricingRule'],
+  emits: ['runSinvFormulas', 'applyPricingRule', 'selectedRow'],
   setup() {
     return {
       isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
@@ -344,6 +344,9 @@ export default defineComponent({
   },
 
   methods: {
+    emitSelectedRow() {
+      this.$emit('selectedRow', this.row);
+    },
     adjustQuantity(change: number) {
       let currentQuantity = this.row.quantity ?? 1;
       let newQuantity = currentQuantity + change;

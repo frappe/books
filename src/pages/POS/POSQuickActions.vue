@@ -27,7 +27,7 @@
         dark:bg-gray-800 dark:text-white
       "
     >
-      {{ tableView ? 'Grid View' : 'List View' }}
+      {{ tableView ? t`Grid View` : t`List View` }}
     </span>
   </div>
 
@@ -69,7 +69,7 @@
         dark:bg-gray-800 dark:text-white
       "
     >
-      Sales Invoice List
+      {{ t`Sales Invoice List` }}
     </span>
   </div>
 
@@ -122,7 +122,7 @@
         dark:bg-gray-800 dark:text-white
       "
     >
-      Loyalty Program
+      {{ t`Loyalty Program` }}
     </span>
   </div>
 

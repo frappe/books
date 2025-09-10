@@ -1,13 +1,13 @@
 <template>
   <Modal class="w-3/6 p-4">
     <h1 class="text-xl font-semibold text-center dark:text-gray-100 pb-4">
-      Open POS Shift
+      {{ t`Open POS Shift` }}
     </h1>
 
     <div class="grid grid-cols-12 gap-6">
       <div class="col-span-6">
         <h2 class="text-lg font-medium dark:text-gray-100">
-          Cash In Denominations
+          {{ t`Cash In Denominations` }}
         </h2>
 
         <Table
@@ -22,7 +22,9 @@
       </div>
 
       <div class="col-span-6">
-        <h2 class="text-lg font-medium dark:text-gray-100">Opening Amount</h2>
+        <h2 class="text-lg font-medium dark:text-gray-100">
+          {{ t`Opening Amount` }}
+        </h2>
 
         <Table
           v-if="isValuesSeeded"
