@@ -8,6 +8,7 @@ import { fyo } from './initFyo';
 import router from './router';
 import { getErrorMessage, stringifyCircular } from './utils';
 import type { DialogOptions, ToastOptions } from './utils/types';
+import { ModelNameEnum } from 'models/types';
 
 function shouldNotStore(error: Error) {
   const shouldLog = (error as BaseError).shouldStore ?? true;
@@ -192,6 +193,58 @@ export function getErrorHandledSync<T extends (...args: any[]) => any>(
   };
 }
 
+function getFeatureFlags(): string[] {
+  const getBooleanFields = (docName: string) => {
+    const doc = fyo.singles[docName];
+
+    return Object.entries(doc as Doc).reduce((acc, [key, value]) => {
+      const fieldsArray = fyo.schemaMap[docName]?.fields ?? [];
+      const fieldsMap = new Map(fieldsArray.map((f) => [f.fieldname, f]));
+
+      const field = fieldsMap.get(key);
+      if (
+        typeof value === 'boolean' &&
+        !field?.hidden &&
+        !key.startsWith('_')
+      ) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, boolean>);
+  };
+
+  const sections = [
+    {
+      name: 'Accounting',
+      flags: getBooleanFields(ModelNameEnum.AccountingSettings),
+    },
+    { name: 'POS', flags: getBooleanFields(ModelNameEnum.POSSettings) },
+    {
+      name: 'Inventory',
+      flags: getBooleanFields(ModelNameEnum.InventorySettings),
+    },
+  ]
+
+    .filter(({ flags }) => Object.keys(flags).length > 0)
+    .flatMap(({ name, flags }) => [
+      `**${name} Settings**:`,
+      '```json',
+      JSON.stringify(flags, null, 2),
+      '```',
+      '',
+    ]);
+
+  return sections.length
+    ? [
+        '<details>',
+        '<summary><strong>Feature Flags</strong></summary>',
+        '',
+        ...sections,
+        '</details>',
+      ]
+    : [];
+}
+
 function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   const baseUrl = 'https://github.com/frappe/books/issues/new?labels=bug';
 
@@ -222,9 +275,10 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   if (fyo.singles.SystemSettings?.countryCode) {
     body.push(`**Country**: \`${fyo.singles.SystemSettings.countryCode}\``);
   }
+  body.push('', ...getFeatureFlags());
 
-  const url = [baseUrl, `body=${body.join('\n')}`].join('&');
-  return encodeURI(url);
+  const encodedBody = encodeURIComponent(body.join('\n'));
+  return `${baseUrl}&body=${encodedBody}`;
 }
 
 export function reportIssue(errorLogObj?: ErrorLog) {
