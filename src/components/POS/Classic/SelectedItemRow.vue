@@ -227,7 +227,6 @@
       class="pl-6 px-4 pt-6 col-span-2"
     >
       <Link
-        ref="batchField"
         :df="{
           fieldname: 'batch',
           fieldtype: 'Link',
