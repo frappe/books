@@ -659,8 +659,17 @@ export abstract class InvoiceItem extends Doc {
       );
       const conversionUoms = conversionItems.map((i) => i.uom) as string[];
 
+      const baseUnit = await doc.fyo.getValue(
+        ModelNameEnum.Item,
+        doc.item as string,
+        'unit'
+      );
+      const validUoms = [...conversionUoms, baseUnit].filter(
+        Boolean
+      ) as string[];
+
       return {
-        name: ['in', conversionUoms],
+        name: ['in', validUoms],
       };
     },
   };
