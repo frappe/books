@@ -79,6 +79,7 @@
                   @mousedown.stop
                   @click.stop
                   @change="(value) => updateNewFilters(i, 'fieldname', value)"
+                  @keydown.enter="applyFilters"
                 />
 
                 <Select
@@ -97,6 +98,7 @@
                   @mousedown.stop
                   @click.stop
                   @change="(value) => updateNewFilters(i, 'condition', value)"
+                  @keydown.enter="applyFilters"
                 />
 
                 <Data
@@ -114,6 +116,7 @@
                   @mousedown.stop
                   @click.stop
                   @change="(value) => updateNewFilters(i, 'value', value)"
+                  @keydown.enter="applyFilters"
                 />
               </div>
             </div>
