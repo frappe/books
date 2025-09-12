@@ -15,6 +15,7 @@ import { safeParseFloat } from 'utils/index';
 import { StockMovement } from './StockMovement';
 import { TransferItem } from './TransferItem';
 import { MovementTypeEnum } from './types';
+import { Doc } from 'fyo/model/doc';
 
 export class StockMovementItem extends TransferItem {
   name?: string;
@@ -54,6 +55,31 @@ export class StockMovementItem extends TransferItem {
 
   static filters: FiltersMap = {
     item: () => ({ trackItem: true }),
+    transferUnit: async (doc: Doc) => {
+      const conversionItems = await doc.fyo.db.getAll(
+        ModelNameEnum.UOMConversionItem,
+        {
+          fields: ['uom'],
+          filters: { parent: doc.item as string },
+        }
+      );
+      const conversionUoms = conversionItems.map((i) => i.uom) as string[];
+
+      return {
+        name: ['in', conversionUoms],
+      };
+    },
+    batch: async (doc: Doc) => {
+      const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
+        fields: ['name'],
+        filters: { item: doc.item as string },
+      });
+      const batchName = batches.map((b) => b.name) as string[];
+
+      return {
+        name: ['in', batchName],
+      };
+    },
   };
 
   async validate() {
