@@ -26,8 +26,8 @@
           :placeholder="inputPlaceholder"
           :readonly="isReadOnly"
           :tabindex="isReadOnly ? '-1' : '0'"
-          @focus="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
-          @click="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
+          @focus="(e) => !isReadOnly && onInputFocus(e)"
+          @click="(e) => !isReadOnly && onClick(e, toggleDropdown)"
           @blur="(e) => !isReadOnly && onBlur(e.target.value)"
           @input="onInput"
           @keydown.up="highlightItemUp"
@@ -36,6 +36,7 @@
           @keydown.tab="toggleDropdown(false)"
           @keydown.esc="toggleDropdown(false)"
         />
+
         <svg
           v-if="!isReadOnly && !canLink"
           class="w-3 h-3"
@@ -288,6 +289,17 @@ export default {
       }
 
       this.toggleDropdown(false);
+    },
+    onInputFocus(e) {
+      this.isFocused = true;
+    },
+    onClick(e, toggleDropdown) {
+      if (this.isFocused) {
+        this.toggleDropdown = toggleDropdown;
+        this.toggleDropdown(true);
+        this.updateSuggestions();
+        this.$emit('focus', e);
+      }
     },
     onFocus(e, toggleDropdown) {
       this.isFocused = true;

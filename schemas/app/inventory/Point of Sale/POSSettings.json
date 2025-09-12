@@ -42,7 +42,7 @@
     },
     {
       "fieldname": "posUI",
-      "label": "Pos Ui",
+      "label": "POS UI",
       "fieldtype": "Select",
       "options": [
         {
@@ -67,11 +67,12 @@
     },
     {
       "fieldname": "defaultAccount",
-      "label": "default Account",
+      "label": "Default Account",
       "fieldtype": "Link",
       "create": true,
       "required": true,
       "target": "Account",
+      "default": "Debtors",
       "section": "Default"
     },
     {

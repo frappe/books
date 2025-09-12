@@ -191,6 +191,9 @@ export abstract class Invoice extends Transactional {
 
   async validate() {
     await super.validate();
+    if (this.isQuote) {
+      return;
+    }
     if (
       this.enableDiscounting &&
       !this.fyo.singles?.AccountingSettings?.discountAccount
