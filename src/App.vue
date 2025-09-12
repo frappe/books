@@ -247,7 +247,7 @@ export default defineComponent({
             `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
           );
         } catch (error) {
-          showToast({ message: error as string, type: 'error' });
+          showToast({ message: 'Connection Failed', type: 'error' });
         }
       }
 
