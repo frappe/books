@@ -483,7 +483,6 @@ export default defineComponent({
           this.row.set('setItemDiscountAmount', false);
           this.row.set('itemDiscountPercent', 0);
         }
-        this.row.set('rate', this.fyo.pesa(0));
 
         if (hasManualDiscount) {
           this.row.set('setItemDiscountAmount', true);
