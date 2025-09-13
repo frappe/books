@@ -47,7 +47,7 @@ const frappeBooksConfig = {
   },
   win: {
     publisherName: 'Frappe Technologies Pvt. Ltd.',
-    artifactName: '${productName}-v${version}-windows-${arch}-installer.${ext}',
+    artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
     signDlls: true,
     icon: 'build/icon.ico',
     publish: ['github'],
@@ -59,8 +59,6 @@ const frappeBooksConfig = {
       {
         target: 'portable',
         arch: ['x64', 'ia32'],
-        artifactName:
-          '${productName}-v${version}-windows-${arch}-portable.${ext}',
       },
     ],
   },
@@ -74,7 +72,7 @@ const frappeBooksConfig = {
   },
   linux: {
     icon: 'build/icons',
-    artifactName: '${productName}-v${version}-linux-${arch}-${ext}',
+    artifactName: '${productName}-v${version}-linux-${arch}.${ext}',
     category: 'Finance',
     publish: ['github'],
     target: [
