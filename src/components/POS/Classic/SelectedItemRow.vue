@@ -232,6 +232,7 @@
           fieldtype: 'Link',
           target: 'Batch',
           label: t`Batch`,
+          filters: { item: row.item as string},
         }"
         :value="row.batch"
         :border="true"
@@ -300,6 +301,7 @@ export default defineComponent({
   components: { Currency, Data, Float, Int, Link, Text },
   props: {
     row: { type: SalesInvoiceItem, required: true },
+    batchAdded: { type: Boolean, default: false },
   },
   emits: ['runSinvFormulas', 'applyPricingRule', 'selectedRow'],
   setup() {
@@ -320,6 +322,26 @@ export default defineComponent({
       profileDiscountSetting: null as boolean | null,
       profileRateSetting: null as boolean | null,
     };
+  },
+  watch: {
+    'row.batch': {
+      async handler(newBatch) {
+        if (newBatch) {
+          await this.getAvailableQtyInBatch();
+        } else {
+          this.availableQtyInBatch = 0;
+        }
+      },
+      immediate: true,
+    },
+    batchAdded: {
+      handler(newValue) {
+        if (newValue) {
+          this.isExapanded = true;
+        }
+      },
+      immediate: true,
+    },
   },
   computed: {
     isUOMConversionEnabled(): boolean {
@@ -373,18 +395,25 @@ export default defineComponent({
     },
     async getAvailableQtyInBatch(): Promise<number> {
       if (!this.row.batch) {
+        this.availableQtyInBatch = 0;
         return 0;
       }
 
-      return (
-        (await fyo.db.getStockQuantity(
+      try {
+        const qty = await fyo.db.getStockQuantity(
           this.row.item as string,
           undefined,
           undefined,
           undefined,
           this.row.batch
-        )) ?? 0
-      );
+        );
+
+        this.availableQtyInBatch = qty ?? 0;
+        return this.availableQtyInBatch;
+      } catch (error) {
+        this.availableQtyInBatch = 0;
+        return 0;
+      }
     },
 
     getDisplayTransferQuantity() {
@@ -419,7 +448,7 @@ export default defineComponent({
     },
     async setBatch(batch: string) {
       this.row.set('batch', batch);
-      this.availableQtyInBatch = await this.getAvailableQtyInBatch();
+      await this.getAvailableQtyInBatch();
     },
     setSerialNumber(serialNumber: string) {
       if (!serialNumber) {

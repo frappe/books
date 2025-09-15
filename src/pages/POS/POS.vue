@@ -40,6 +40,9 @@
       :open-loyalty-program-modal="openLoyaltyProgramModal"
       :open-applied-coupons-modal="openAppliedCouponsModal"
       :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
+      :open-batch-selection-modal="openBatchSelectionModal"
+      :selected-item-for-batch="selectedItemForBatch"
+      :batch-added-items="batchAddedItems"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -64,6 +67,7 @@
       @save-and-continue="handleSaveAndContinue"
       @handle-payment-action="handlePaymentAction"
       @selected-row="setQuickQtySelectedRow"
+      @batch-selected="handleBatchSelected"
     />
     <ModernPOS
       v-else
@@ -214,6 +218,7 @@ export default defineComponent({
       openLoyaltyProgramModal: false,
       openAppliedCouponsModal: false,
       openReturnSalesInvoiceModal: false,
+      openBatchSelectionModal: false,
 
       totalQuantity: 0,
       paidAmount: fyo.pesa(0),
@@ -242,13 +247,14 @@ export default defineComponent({
       itemQtyMap: {} as ItemQtyMap,
       coupons: {} as AppliedCouponCodes,
       itemSerialNumbers: {} as ItemSerialNumbers,
-
-      // Quick Quantity via holding 'Q'
       quickQtyActive: false,
       quickQtyBuffer: '' as string,
       quickQtyRow: null as SalesInvoiceItem | null,
       quickQtyKeyDownHandler: null as ((e: KeyboardEvent) => void) | null,
       quickQtyKeyUpHandler: null as ((e: KeyboardEvent) => void) | null,
+      selectedItemForBatch: '' as string,
+      pendingBatchItem: null as { item: POSItem; quantity: number } | null,
+      batchAddedItems: [] as string[],
     };
   },
   computed: {
@@ -416,7 +422,7 @@ export default defineComponent({
       }
 
       // Determine target row: prefer explicitly selected row; else fallback to last non-free item
-      let row: SalesInvoiceItem | null = this.quickQtyRow;
+      let row = this.quickQtyRow as SalesInvoiceItem | null;
       if (!row || !(this.sinvDoc.items || []).includes(row)) {
         const items = (this.sinvDoc.items || []).filter((r) => !r.isFreeItem);
         row = items.length
@@ -443,11 +449,11 @@ export default defineComponent({
       try {
         await row.set('quantity', qty);
 
-        const existingItems =
-          (this.sinvDoc.items || []).filter(
-            (invoiceItem: InvoiceItem) =>
-              invoiceItem.item === row!.item && !invoiceItem.isFreeItem
-          ) || [];
+        const existingItems = (this.sinvDoc.items || []).filter(
+          (invoiceItem) =>
+            (invoiceItem as InvoiceItem).item === row!.item &&
+            !(invoiceItem as InvoiceItem).isFreeItem
+        ) as InvoiceItem[];
 
         await validateQty(
           this.sinvDoc as SalesInvoice,
@@ -719,6 +725,8 @@ export default defineComponent({
           unit: item.unit as string,
           hasBatch: !!item.hasBatch,
           hasSerialNumber: !!item.hasSerialNumber,
+          item: '',
+          batch: '',
         });
       }
     },
@@ -759,6 +767,13 @@ export default defineComponent({
     },
     async setItemQtyMap() {
       this.itemQtyMap = await getItemQtyMap(this.sinvDoc as SalesInvoice);
+      for (const itemName in this.itemQtyMap) {
+        const itemIndex = this.items.findIndex((i) => i.name === itemName);
+        if (itemIndex !== -1) {
+          this.items[itemIndex].availableQty =
+            this.itemQtyMap[itemName].availableQty;
+        }
+      }
     },
     setSinvDoc() {
       this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
@@ -833,7 +848,7 @@ export default defineComponent({
         );
       }
     },
-    async addItem(item: POSItem | Item | undefined, quantity?: number) {
+    async addItem(item: POSItem | undefined, quantity?: number) {
       try {
         await this.sinvDoc.runFormulas();
         this.validateInvoice();
@@ -842,15 +857,23 @@ export default defineComponent({
           return;
         }
 
+        if (item.hasBatch) {
+          this.selectedItemForBatch = item.name;
+          this.pendingBatchItem = { item, quantity: quantity ?? 1 };
+
+          this.toggleModal('BatchSelection', true);
+
+          return;
+        }
+
         const isInventoryItem = await this.fyo.getValue(
           ModelNameEnum.Item,
-          item.name as string,
+          item.name,
           'trackItem'
         );
 
         if (isInventoryItem) {
-          const availableQty =
-            this.itemQtyMap[item.name as string]?.availableQty ?? 0;
+          const availableQty = this.itemQtyMap[item.name]?.availableQty ?? 0;
           if (availableQty <= 0) {
             throw new ValidationError(
               t`Item  is out of stock (quantity is zero)`
@@ -866,13 +889,13 @@ export default defineComponent({
 
         await validateQty(
           this.sinvDoc as SalesInvoice,
-          item as Item,
+          item,
           existingItems as InvoiceItem[]
         );
 
         const itemsHsncode = (await this.fyo.getValue(
           'Item',
-          item?.name as string,
+          item?.name,
           'hsnCode'
         )) as number;
 
@@ -903,7 +926,7 @@ export default defineComponent({
           }
 
           await this.sinvDoc.append('items', {
-            rate: item.rate as Money,
+            rate: item.rate,
             item: item.name,
             quantity: addQty,
             hsnCode: itemsHsncode,
@@ -915,14 +938,13 @@ export default defineComponent({
 
         if (existingItems.length) {
           if (!this.sinvDoc.priceList) {
-            existingItems[0].rate = item.rate as Money;
+            existingItems[0].rate = item.rate;
           }
 
           const currentQty = existingItems[0].quantity ?? 0;
           const addQty = quantity ?? 1;
           if (isInventoryItem) {
-            const availableQty =
-              this.itemQtyMap[item.name as string]?.availableQty ?? 0;
+            const availableQty = this.itemQtyMap[item.name]?.availableQty ?? 0;
             if (currentQty + addQty > availableQty) {
               throw new ValidationError(
                 'Cannot add more than the available quantity'
@@ -934,9 +956,13 @@ export default defineComponent({
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
           if (isInventoryItem) {
+            const completeItem = (await this.fyo.doc.getDoc(
+              ModelNameEnum.Item,
+              item.name
+            )) as Item;
             await validateQty(
               this.sinvDoc as SalesInvoice,
-              item as Item,
+              completeItem,
               existingItems as InvoiceItem[]
             );
           }
@@ -944,7 +970,7 @@ export default defineComponent({
         }
 
         await this.sinvDoc.append('items', {
-          rate: item.rate as Money,
+          rate: item.rate,
           item: item.name,
           quantity: quantity ? quantity : 1,
           hsnCode: itemsHsncode,
@@ -971,6 +997,122 @@ export default defineComponent({
         });
       }
     },
+    async handleBatchSelected(batchName: string) {
+      if (!this.pendingBatchItem) {
+        return;
+      }
+
+      const { item, quantity } = this.pendingBatchItem;
+      this.pendingBatchItem = null;
+
+      try {
+        const isInventoryItem = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          item.name,
+          'trackItem'
+        );
+        if (!this.batchAddedItems.includes(item.name)) {
+          this.batchAddedItems.push(item.name);
+        }
+
+        let availableQty = 0;
+        if (isInventoryItem) {
+          availableQty =
+            (await fyo.db.getStockQuantity(
+              item.name,
+              undefined,
+              undefined,
+              undefined,
+              batchName
+            )) ?? 0;
+
+          const itemIndex = this.items.findIndex((i) => i.name === item.name);
+          if (itemIndex !== -1) {
+            this.items[itemIndex].availableQty = availableQty ?? 0;
+          }
+        }
+
+        const existingItems =
+          this.sinvDoc.items?.filter(
+            (invoiceItem) =>
+              invoiceItem.item === item.name &&
+              invoiceItem.batch === batchName &&
+              !invoiceItem.isFreeItem
+          ) ?? [];
+
+        const completeItem = (await this.fyo.doc.getDoc(
+          ModelNameEnum.Item,
+          item.name
+        )) as Item;
+
+        await validateQty(
+          this.sinvDoc as SalesInvoice,
+          completeItem,
+          existingItems as InvoiceItem[]
+        );
+
+        const itemsHsncode = (await this.fyo.getValue(
+          'Item',
+          item?.name,
+          'hsnCode'
+        )) as number;
+
+        if (existingItems.length) {
+          const currentQty = existingItems[0].quantity ?? 0;
+          const addQty = quantity ?? 1;
+
+          await existingItems[0].set('quantity', currentQty + addQty);
+        } else {
+          await this.sinvDoc.append('items', {
+            rate: item.rate as Money,
+            item: item.name,
+            quantity: quantity ?? 1,
+            hsnCode: itemsHsncode,
+            batch: batchName,
+          });
+        }
+
+        await this.applyPricingRule();
+        await this.sinvDoc.runFormulas();
+
+        await this.setItemQtyMap();
+      } catch (error) {
+        showToast({
+          type: 'error',
+          message: t`${error as string}`,
+        });
+      }
+    },
+
+    async updateAvailableQtyInBatch(itemName: string, batchName: string) {
+      const itemRow = this.sinvDoc.items?.find(
+        (item) => item.item === itemName && item.batch === batchName
+      );
+
+      if (itemRow) {
+        await itemRow.set('batch', batchName);
+      }
+    },
+
+    async getAvailableQtyInBatch(
+      itemName: string,
+      batchName: string
+    ): Promise<number> {
+      try {
+        const qty = await fyo.db.getStockQuantity(
+          itemName,
+          undefined,
+          undefined,
+          undefined,
+          batchName
+        );
+
+        return qty ?? 0;
+      } catch (error) {
+        return 0;
+      }
+    },
+
     async createTransaction(shouldPrint = false, isPay = false) {
       try {
         this.sinvDoc.date = new Date();
@@ -1141,6 +1283,7 @@ export default defineComponent({
     async clearValues() {
       this.setSinvDoc();
       this.itemSerialNumbers = {};
+      this.batchAddedItems = [];
 
       this.paidAmount = fyo.pesa(0);
       this.transferAmount = fyo.pesa(0);

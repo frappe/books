@@ -40,7 +40,7 @@ import { safeParseFloat } from 'utils/index';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
-import { ItemQtyMap } from 'src/components/POS/types';
+import { ItemQtyMap, POSItem } from 'src/components/POS/types';
 import { ValuationMethod } from './inventory/types';
 import {
   getRawStockLedgerEntries,
@@ -1000,7 +1000,7 @@ export async function removeLoyaltyPoint(doc: Doc) {
 
 export async function validateQty(
   sinvDoc: SalesInvoice,
-  item: Item | SalesInvoiceItem | undefined,
+  item: Item | SalesInvoiceItem | POSItem | undefined,
   existingItems: InvoiceItem[]
 ) {
   if (!item) {

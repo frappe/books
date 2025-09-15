@@ -189,6 +189,9 @@ export default {
       return getCreateFiltersFromListViewFilters(filters);
     },
     async getFilters() {
+      if (this.df.filters) {
+        return this.df.filters;
+      }
       const { schemaName, fieldname } = this.df;
       const getFilters = fyo.models[schemaName]?.filters?.[fieldname];
 
