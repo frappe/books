@@ -528,7 +528,6 @@ export default defineComponent({
     return {
       itemGroupFilter: '',
       additionalDiscounts: fyo.pesa(0),
-      // selectedItemForBatch: '' as string,
     };
   },
   computed: {
