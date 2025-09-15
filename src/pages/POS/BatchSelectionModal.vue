@@ -1,6 +1,8 @@
 <template>
   <Modal class="h-auto w-96" :set-close-listener="false">
-    <p class="text-center font-semibold py-3">{{ t`Select the Batch` }}</p>
+    <p class="text-center font-semibold py-3 text-gray-800 dark:text-gray-200">
+      {{ t`Select the Batch` }}
+    </p>
 
     <div class="px-10 pt-6">
       <Link
