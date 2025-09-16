@@ -27,6 +27,7 @@ export class Item extends Doc {
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatch?: boolean;
   itemGroup?: string;
+  hsnCode?: number;
   hasSerialNumber?: boolean;
   uomConversions: UOMConversionItem[] = [];
 

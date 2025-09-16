@@ -53,8 +53,8 @@ export interface POSItem {
   image?: string;
   name: string;
   rate: Money;
-  item: string;
-  batch: string;
+  item?: string;
+  batch?: string;
   availableQty: number;
   unit: string;
   hasBatch: boolean;
