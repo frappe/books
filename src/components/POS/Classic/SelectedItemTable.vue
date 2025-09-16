@@ -53,7 +53,6 @@
     >
       <SelectedItemRow
         :row="(row as SalesInvoiceItem)"
-        :batch-added="isBatchAdded(row.item)"
         @run-sinv-formulas="runSinvFormulas"
         @apply-pricing-rule="$emit('applyPricingRule')"
         @selected-row="selectedItemRow"
@@ -91,12 +90,6 @@ export default defineComponent({
       sinvDoc: inject('sinvDoc') as SalesInvoice,
     };
   },
-  props: {
-    batchAddedItems: {
-      type: Array as () => string[],
-      default: () => [],
-    },
-  },
   data() {
     return {
       isExapanded: false,
@@ -104,9 +97,6 @@ export default defineComponent({
   },
   emits: ['applyPricingRule', 'selectedRow'],
   computed: {
-    isBatchAdded() {
-      return (itemName: string) => this.batchAddedItems.includes(itemName);
-    },
     ratio() {
       return [0.1, 0.9, 0.8, 0.8, 0.8, 0.8, 0.2];
     },

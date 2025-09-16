@@ -184,7 +184,6 @@
             />
 
             <SelectedItemTable
-              :batch-added-items="batchAddedItems"
               @apply-pricing-rule="emitEvent('applyPricingRule')"
               @selected-row="(row) => $emit('selectedRow', row)"
             />
