@@ -10,7 +10,6 @@ import DatabaseCore from './core';
 import { BespokeFunction } from './types';
 import { DocItem, ReturnDocItem } from 'models/inventory/types';
 import { safeParseFloat } from 'utils/index';
-import { Money } from 'pesa';
 
 export class BespokeQueries {
   [key: string]: BespokeFunction;
@@ -415,48 +414,72 @@ export class BespokeQueries {
     fromDate: Date,
     toDate: Date,
     lastShiftClosingDate?: Date
-  ): Promise<Record<string, Money> | undefined> {
-    const sinvNamesQuery = db.knex!(ModelNameEnum.SalesInvoice)
-      .select('name')
+  ): Promise<Record<string, number> | undefined> {
+    const invoicesQuery = db.knex!(ModelNameEnum.SalesInvoice)
+      .select('name', 'returnAgainst')
       .where('isPOS', true)
       .andWhereBetween('date', [fromDate.toISOString(), toDate.toISOString()]);
 
     if (lastShiftClosingDate) {
-      sinvNamesQuery.andWhere(
+      invoicesQuery.andWhere(
         'created',
         '>',
         lastShiftClosingDate.toISOString()
       );
     }
 
-    const sinvNames = (await sinvNamesQuery).map(
-      (row: { name: string }) => row.name
-    );
+    const invoices = (await invoicesQuery) as {
+      name: string;
+      returnAgainst: string | null;
+    }[];
 
-    if (!sinvNames.length) {
+    if (!invoices.length) {
       return;
     }
+
+    const sinvNames = invoices.map((row) => row.name);
+    const invoiceSignMap = invoices.reduce<Record<string, number>>(
+      (map, inv) => {
+        map[inv.name] = inv.returnAgainst ? -1 : 1;
+        return map;
+      },
+      {}
+    );
 
     const paymentEntryNames: string[] = (
       await db.knex!(ModelNameEnum.PaymentFor)
-        .select('parent')
+        .select('parent', 'referenceName')
         .whereIn('referenceName', sinvNames)
     ).map((doc: { parent: string }) => doc.parent);
 
-    const groupedAmounts = (await db.knex!(ModelNameEnum.Payment)
-      .select('paymentMethod')
-      .whereIn('name', paymentEntryNames)
-      .groupBy('paymentMethod')
-      .sum({ amount: 'amount' })) as { paymentMethod: string; amount: Money }[];
-
-    const transactedAmounts = {} as { [paymentMethod: string]: Money };
-
-    if (!groupedAmounts) {
+    if (!paymentEntryNames.length) {
       return;
     }
 
+    const groupedAmounts = (await db.knex!(ModelNameEnum.Payment)
+      .select('paymentMethod', 'name')
+      .whereIn('name', paymentEntryNames)
+      .groupBy('paymentMethod', 'name')
+      .sum({ amount: 'amount' })) as {
+      paymentMethod: string;
+      name: string;
+      amount: number;
+    }[];
+
+    const transactedAmounts: Record<string, number> = {};
+
     for (const row of groupedAmounts) {
-      transactedAmounts[row.paymentMethod] = row.amount;
+      const paymentRefs = (await db.knex!(ModelNameEnum.PaymentFor)
+        .select('referenceName')
+        .where('parent', row.name)) as { referenceName: string }[];
+
+      for (const ref of paymentRefs) {
+        const sign = invoiceSignMap[ref.referenceName] ?? 1;
+        const signedAmount = Number(row.amount) * sign;
+
+        transactedAmounts[row.paymentMethod] =
+          (transactedAmounts[row.paymentMethod] ?? 0) + signedAmount;
+      }
     }
 
     return transactedAmounts;
