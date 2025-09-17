@@ -5,6 +5,7 @@ import { Money } from 'pesa';
 import { StockLedgerEntry } from './StockLedgerEntry';
 import { SMDetails, SMIDetails, SMTransferDetails } from './types';
 import { getSerialNumbers } from './helpers';
+import { getItemVisibility } from 'models/helpers';
 
 export class StockManager {
   /**
@@ -86,13 +87,13 @@ export class StockManager {
 
   async #validate(details: SMIDetails) {
     this.#validateRate(details);
-    this.#validateQuantity(details);
+    await this.#validateQuantity(details);
     this.#validateLocation(details);
     await this.#validateStockAvailability(details);
   }
 
-  #validateQuantity(details: SMIDetails) {
-    const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+  async #validateQuantity(details: SMIDetails) {
+    const itemVisibility = await getItemVisibility(this.fyo);
     if (itemVisibility !== 'Inventory Items') {
       return;
     }

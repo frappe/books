@@ -329,7 +329,7 @@ export default defineComponent({
       return false;
     },
   },
-  async activated() {
+  async mounted() {
     await this.setPaymentMethods();
   },
   methods: {

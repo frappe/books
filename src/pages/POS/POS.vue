@@ -158,6 +158,7 @@ import {
   getPricingRule,
   removeFreeItems,
   getItemRateFromPriceList,
+  getItemVisibility,
 } from 'models/helpers';
 import {
   POSItem,
@@ -677,9 +678,7 @@ export default defineComponent({
     },
     async setItems() {
       const filters: Record<string, boolean | string> = {};
-      const itemVisibility =
-        this.posProfile?.itemVisibility ??
-        this.fyo.singles.POSSettings?.itemVisibility;
+      const itemVisibility = await getItemVisibility(this.fyo);
 
       const hideUnavailable =
         this.posProfile?.hideUnavailableItems ??
@@ -1058,7 +1057,7 @@ export default defineComponent({
         await this.validate();
         await this.submitSinvDoc();
 
-        const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+        const itemVisibility = await getItemVisibility(this.fyo);
 
         if (
           this.sinvDoc.stockNotTransferred &&

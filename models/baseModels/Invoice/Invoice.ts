@@ -27,6 +27,7 @@ import {
   getReturnQtyTotal,
   getReturnLoyaltyPoints,
   getItemQtyMap,
+  getItemVisibility,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -1329,17 +1330,17 @@ export abstract class Invoice extends Transactional {
       linkedEntries = await getLinkedEntries(sinvDoc);
     }
 
-    const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
+    const itemVisibility = await getItemVisibility(this.fyo);
 
     if (!this.stockNotTransferred && itemVisibility === 'Inventory Items') {
       return null;
     }
 
     const schemaName = this.stockTransferSchemaName;
-
     const defaults = (this.fyo.singles.Defaults as Defaults) ?? {};
     let terms;
     let numberSeries;
+
     if (this.isSales) {
       terms = defaults.shipmentTerms ?? '';
       numberSeries = defaults.shipmentNumberSeries ?? undefined;
@@ -1367,6 +1368,7 @@ export abstract class Invoice extends Transactional {
     }
 
     const transfer = this.fyo.doc.getNewDoc(schemaName, data) as StockTransfer;
+
     for (const row of this.items ?? []) {
       if (!row.item) {
         continue;
@@ -1398,6 +1400,7 @@ export abstract class Invoice extends Transactional {
       } else {
         quantity = row.quantity;
       }
+
       const item = row.item;
       const batch = row.batch || null;
       const description = row.description;
