@@ -10,6 +10,8 @@ export type ItemGroupMap = Record<string, string>;
 
 export type DiscountType = 'percent' | 'amount';
 
+export type ItemVisibility = 'Inventory Items' | 'Non-Inventory Items'
+
 export const modalNames = [
   'Keyboard',
   'Payment',
@@ -21,6 +23,7 @@ export const modalNames = [
   'PriceList',
   'ItemEnquiry',
   'ReturnSalesInvoice',
+  'BatchSelection',
 ] as const;
 
 export type ModalName = typeof modalNames[number];
@@ -44,13 +47,16 @@ export type PosEmits =
   | 'selectedReturnInvoice'
   | 'saveAndContinue'
   | 'handlePaymentAction'
-  | 'setTransferClearanceDate';
+  | 'setTransferClearanceDate'
+  | 'batchSelected'; 
 
 export interface POSItem {
   id?: number;
   image?: string;
   name: string;
   rate: Money;
+  item?: string;
+  batch?: string;
   availableQty: number;
   unit: string;
   hasBatch: boolean;

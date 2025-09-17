@@ -19,6 +19,13 @@
       @set-loyalty-points="(points) => emitEvent('setLoyaltyPoints', points)"
     />
 
+    <BatchSelectionModal
+      :open-modal="openBatchSelectionModal"
+      :item-code="selectedItemForBatch"
+      @toggle-modal="emitEvent('toggleModal', 'BatchSelection')"
+      @batch-selected="(batch) => emitEvent('batchSelected', batch)"
+    />
+
     <SavedInvoiceModal
       :open-modal="openSavedInvoiceModal"
       :modal-status="openSavedInvoiceModal"
@@ -104,9 +111,7 @@
               :border="true"
               :value="itemSearchTerm"
               :show-clear-button="true"
-              @keyup.enter="(item) =>
-                  emitEvent('handleItemSearch', item.target.value as string, true)
-              "
+              @keyup.enter="(event: KeyboardEvent) => emitEvent('handleItemSearch', (event.target as HTMLInputElement).value, true)"
               @change="(item: string) => emitEvent('handleItemSearch', item)"
             />
 
@@ -395,6 +400,7 @@ import SelectedItemTable from 'src/components/POS/Classic/SelectedItemTable.vue'
 import FloatingLabelFloatInput from 'src/components/POS/FloatingLabelFloatInput.vue';
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
+import BatchSelectionModal from 'src/pages/POS/BatchSelectionModal.vue';
 
 export default defineComponent({
   name: 'ClassicPOS',
@@ -418,6 +424,7 @@ export default defineComponent({
     FloatingLabelFloatInput,
     ReturnSalesInvoiceModal,
     FloatingLabelCurrencyInput,
+    BatchSelectionModal,
   },
   props: {
     paidAmount: Money,
@@ -435,6 +442,7 @@ export default defineComponent({
     openLoyaltyProgramModal: Boolean,
     openAppliedCouponsModal: Boolean,
     openReturnSalesInvoiceModal: Boolean,
+    openBatchSelectionModal: Boolean,
     totalQuantity: {
       type: Number,
       default: 0,
@@ -480,6 +488,14 @@ export default defineComponent({
       required: false,
       default: null,
     },
+    batchAddedItems: {
+      type: Array as () => string[],
+      default: () => [],
+    },
+    selectedItemForBatch: {
+      type: String,
+      default: '',
+    },
   },
   emits: [
     'addItem',
@@ -505,6 +521,7 @@ export default defineComponent({
     'saveAndContinue',
     'handlePaymentAction',
     'selectedRow',
+    'batchSelected',
   ],
   data() {
     return {

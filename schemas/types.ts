@@ -69,6 +69,8 @@ export interface BaseField {
   tab?: string;                  // UI Facing config, for grouping by tabs
   abstract?: string;             // Used to mark the location of a field in an Abstract schema 
   isCustom?: boolean;            // Whether the field is a custom field
+  filters?: Record<string, string>;
+  getOptions?: () => Promise<{ label: string; value: string }[]>; 
 }
 
 export type SelectOption = { value: string; label: string };
