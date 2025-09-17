@@ -40,7 +40,7 @@ import { safeParseFloat } from 'utils/index';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
-import { ItemQtyMap } from 'src/components/POS/types';
+import { ItemQtyMap, ItemVisibility, POSItem } from 'src/components/POS/types';
 import { ValuationMethod } from './inventory/types';
 import {
   getRawStockLedgerEntries,
@@ -111,6 +111,20 @@ export async function getItemQtyMap(doc: SalesInvoice): Promise<ItemQtyMap> {
     itemQtyMap[row.item]!.availableQty += row.balanceQuantity;
   }
   return itemQtyMap;
+}
+
+export async function getItemVisibility(fyo: Fyo): Promise<ItemVisibility> {
+  const posProfileName = fyo.singles.POSSettings?.posProfile as string;
+
+  if (posProfileName) {
+    const posProfile = await fyo.doc.getDoc(
+      ModelNameEnum.POSProfile,
+      posProfileName
+    );
+    return posProfile?.itemVisibility as ItemVisibility;
+  }
+
+  return fyo.singles.POSSettings?.itemVisibility as ItemVisibility;
 }
 
 export function getStockTransferActions(
@@ -1000,7 +1014,7 @@ export async function removeLoyaltyPoint(doc: Doc) {
 
 export async function validateQty(
   sinvDoc: SalesInvoice,
-  item: Item | SalesInvoiceItem | undefined,
+  item: Item | SalesInvoiceItem | POSItem | undefined,
   existingItems: InvoiceItem[]
 ) {
   if (!item) {

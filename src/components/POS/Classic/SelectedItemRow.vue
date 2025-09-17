@@ -232,6 +232,7 @@
           fieldtype: 'Link',
           target: 'Batch',
           label: t`Batch`,
+          filters: { item: row.item as string},
         }"
         :value="row.batch"
         :border="true"
@@ -241,7 +242,7 @@
       />
     </div>
 
-    <div v-if="showAvlQuantityInBatch()" class="px-5 pt-6 col-span-2">
+    <div v-if="showAvlQuantityInBatch" class="px-5 pt-6 col-span-2">
       <Float
         :df="{
           fieldname: 'availableQtyInBatch',
@@ -289,17 +290,19 @@ import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoic
 import { Money } from 'pesa';
 import { DiscountType } from '../types';
 import { validateSerialNumberCount } from 'src/utils/pos';
-import { validateQty } from 'models/helpers';
+import { getItemVisibility, validateQty } from 'models/helpers';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { showToast } from 'src/utils/interactive';
 import { ModelNameEnum } from 'models/types';
+import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 
 export default defineComponent({
   name: 'SelectedItemRow',
   components: { Currency, Data, Float, Int, Link, Text },
   props: {
     row: { type: SalesInvoiceItem, required: true },
+    batchAdded: { type: Boolean, default: false },
   },
   emits: ['runSinvFormulas', 'applyPricingRule', 'selectedRow'],
   setup() {
@@ -315,11 +318,22 @@ export default defineComponent({
       isExapanded: false,
       batches: [] as string[],
       availableQtyInBatch: 0,
-
+      itemVisibility: '',
       defaultRate: this.row.rate as Money,
       profileDiscountSetting: null as boolean | null,
       profileRateSetting: null as boolean | null,
     };
+  },
+  watch: {
+    'row.batch': {
+      async handler(newBatch) {
+        if (newBatch) {
+          this.availableQtyInBatch = await this.getAvailableQtyInBatch();
+          this.isExapanded = true;
+        }
+      },
+      immediate: true,
+    },
   },
   computed: {
     isUOMConversionEnabled(): boolean {
@@ -330,6 +344,13 @@ export default defineComponent({
     },
     isReadOnly() {
       return this.row.isFreeItem;
+    },
+    showAvlQuantityInBatch() {
+      return (
+        this.row.links?.item &&
+        this.row.links?.item.hasBatch &&
+        this.itemVisibility
+      );
     },
   },
 
@@ -349,11 +370,14 @@ export default defineComponent({
       this.profileRateSetting =
         !!profile?.canChangeRate ||
         !!this.fyo.singles.POSSettings?.canChangeRate;
+
+      this.itemVisibility = await getItemVisibility(this.fyo);
     } else {
       this.profileDiscountSetting =
         !!this.fyo.singles.POSSettings?.canEditDiscount;
 
       this.profileRateSetting = !!this.fyo.singles.POSSettings?.canChangeRate;
+      this.itemVisibility = await getItemVisibility(this.fyo);
     }
   },
 
@@ -402,15 +426,6 @@ export default defineComponent({
 
       return transferQty;
     },
-    showAvlQuantityInBatch() {
-      const itemVisibility = this.fyo.singles.POSSettings?.itemVisibility;
-
-      return (
-        this.row.links?.item &&
-        this.row.links?.item.hasBatch &&
-        itemVisibility === 'Inventory Items'
-      );
-    },
 
     isDiscountsReadOnly(isValidDiscount: boolean) {
       const canEditDiscount = this.profileDiscountSetting;
@@ -419,7 +434,7 @@ export default defineComponent({
     },
     async setBatch(batch: string) {
       this.row.set('batch', batch);
-      this.availableQtyInBatch = await this.getAvailableQtyInBatch();
+      await this.getAvailableQtyInBatch();
     },
     setSerialNumber(serialNumber: string) {
       if (!serialNumber) {
