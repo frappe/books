@@ -62,8 +62,7 @@ import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import { defineComponent } from 'vue';
 import { getMapFromList } from 'utils/index';
-import { PeriodKey } from 'src/utils/types';
-
+import { DateTime } from 'luxon';
 // Linting broken in this file cause of `extends: ...`
 /* 
   eslint-disable @typescript-eslint/no-unsafe-argument, 
@@ -79,11 +78,14 @@ export default defineComponent({
   extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
+    fromDate: { type: [String, Date], default: '' },
+    toDate: { type: [String, Date], default: '' },
+    customPeriod: { type: String, default: 'This Year' },
   },
   data: () => ({
     data: [] as { inflow: number; outflow: number; yearmonth: string }[],
     periodList: [],
-    periodOptions: ['This Year', 'This Quarter', 'YTD'],
+    periodOptions: ['This Year', 'This Quarter', 'YTD', 'Custom'],
     hasData: false,
   }),
   computed: {
@@ -120,6 +122,11 @@ export default defineComponent({
       };
     },
   },
+  watch: {
+    period: 'setData',
+    fromDate: 'setData',
+    toDate: 'setData',
+  },
   async activated() {
     await this.setData();
     if (!this.hasData) {
@@ -128,24 +135,50 @@ export default defineComponent({
   },
   methods: {
     async setData() {
-      const { periodList, fromDate, toDate } = getDatesAndPeriodList(
-        this.period as PeriodKey
-      );
+      let fromDate: DateTime;
+      let toDate: DateTime;
+      let periodList: DateTime[] = [];
+
+      if (this.period === 'Custom') {
+        const parseDate = (date: string | Date) =>
+          DateTime.fromISO(
+            typeof date === 'string' ? date : date.toISOString()
+          );
+
+        fromDate = parseDate(this.fromDate);
+        toDate = parseDate(this.toDate);
+
+        let current = fromDate.startOf('month');
+
+        const toMonthStart = toDate.startOf('month');
+
+        while (current <= toMonthStart) {
+          periodList.push(current);
+          current = current.plus({ months: 1 });
+        }
+
+        periodList.push(fromDate.startOf('month'));
+      } else {
+        const result = getDatesAndPeriodList(this.period);
+        fromDate = result.fromDate;
+        toDate = result.toDate;
+        periodList = result.periodList;
+      }
 
       const data = await fyo.db.getCashflow(fromDate.toISO(), toDate.toISO());
       const dataMap = getMapFromList(data, 'yearmonth');
+      this.period = this.commonPeriod;
       this.data = periodList.map((p) => {
         const key = p.toFormat('yyyy-MM');
         const item = dataMap[key];
-        if (item) {
-          return item;
-        }
 
-        return {
-          inflow: 0,
-          outflow: 0,
-          yearmonth: key,
-        };
+        return (
+          item ?? {
+            inflow: 0,
+            outflow: 0,
+            yearmonth: key,
+          }
+        );
       });
     },
     async setHasData() {
