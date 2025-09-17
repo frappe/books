@@ -242,7 +242,7 @@
       />
     </div>
 
-    <div v-if="shouldShowBatchQuantity" class="px-5 pt-6 col-span-2">
+    <div v-if="showAvlQuantityInBatch" class="px-5 pt-6 col-span-2">
       <Float
         :df="{
           fieldname: 'availableQtyInBatch',
@@ -345,11 +345,11 @@ export default defineComponent({
     isReadOnly() {
       return this.row.isFreeItem;
     },
-    shouldShowBatchQuantity(): boolean {
-      return !!(
+    showAvlQuantityInBatch() {
+      return (
         this.row.links?.item &&
         this.row.links?.item.hasBatch &&
-        this.itemVisibility === 'Inventory Items'
+        this.itemVisibility
       );
     },
   },
@@ -401,25 +401,18 @@ export default defineComponent({
     },
     async getAvailableQtyInBatch(): Promise<number> {
       if (!this.row.batch) {
-        this.availableQtyInBatch = 0;
         return 0;
       }
 
-      try {
-        const qty = await fyo.db.getStockQuantity(
+      return (
+        (await fyo.db.getStockQuantity(
           this.row.item as string,
           undefined,
           undefined,
           undefined,
           this.row.batch
-        );
-
-        this.availableQtyInBatch = qty ?? 0;
-        return this.availableQtyInBatch;
-      } catch (error) {
-        this.availableQtyInBatch = 0;
-        return 0;
-      }
+        )) ?? 0
+      );
     },
 
     getDisplayTransferQuantity() {
