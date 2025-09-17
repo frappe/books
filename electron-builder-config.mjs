@@ -17,6 +17,7 @@ const packageDirPath = path.join(root, 'dist_electron', 'bundled');
 const frappeBooksConfig = {
   productName: 'Frappe Books',
   appId: 'io.frappe.books',
+  artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
   asarUnpack: '**/*.node',
   extraResources: [
     { from: 'log_creds.txt', to: '../creds/log_creds.txt' },
@@ -31,6 +32,7 @@ const frappeBooksConfig = {
   },
   mac: {
     type: 'distribution',
+    artifactName: '${productName}-v${version}-mac-${arch}.${ext}',
     category: 'public.app-category.finance',
     icon: 'build/icon.icns',
     notarize: {
@@ -45,6 +47,7 @@ const frappeBooksConfig = {
   },
   win: {
     publisherName: 'Frappe Technologies Pvt. Ltd.',
+    artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
     signDlls: true,
     icon: 'build/icon.ico',
     publish: ['github'],
@@ -69,6 +72,7 @@ const frappeBooksConfig = {
   },
   linux: {
     icon: 'build/icons',
+    artifactName: '${productName}-v${version}-linux-${arch}.${ext}',
     category: 'Finance',
     publish: ['github'],
     target: [
