@@ -10,6 +10,8 @@ export type ItemGroupMap = Record<string, string>;
 
 export type DiscountType = 'percent' | 'amount';
 
+export type ItemVisibility = 'Inventory Items' | 'Non-Inventory Items'
+
 export const modalNames = [
   'Keyboard',
   'Payment',

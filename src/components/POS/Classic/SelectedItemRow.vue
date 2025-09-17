@@ -290,7 +290,7 @@ import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoic
 import { Money } from 'pesa';
 import { DiscountType } from '../types';
 import { validateSerialNumberCount } from 'src/utils/pos';
-import { validateQty } from 'models/helpers';
+import { getItemVisibility, validateQty } from 'models/helpers';
 import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { showToast } from 'src/utils/interactive';
@@ -371,17 +371,13 @@ export default defineComponent({
         !!profile?.canChangeRate ||
         !!this.fyo.singles.POSSettings?.canChangeRate;
 
-      this.itemVisibility = profile?.itemVisibility as string;
+      this.itemVisibility = await getItemVisibility(this.fyo);
     } else {
       this.profileDiscountSetting =
         !!this.fyo.singles.POSSettings?.canEditDiscount;
 
       this.profileRateSetting = !!this.fyo.singles.POSSettings?.canChangeRate;
-    }
-
-    if (!this.itemVisibility) {
-      this.itemVisibility = this.fyo.singles.POSSettings
-        ?.itemVisibility as string;
+      this.itemVisibility = await getItemVisibility(this.fyo);
     }
   },
 
