@@ -285,7 +285,7 @@ export default defineComponent({
       delete this.errors[fieldname];
 
       try {
-        await this.doc?.set(fieldname, value);
+        await this.doc?.set(fieldname, value ?? '');
       } catch (err) {
         if (!(err instanceof Error)) {
           return;
