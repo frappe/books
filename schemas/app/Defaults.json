@@ -213,7 +213,7 @@
       "label": "Save Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#9575cd",
+      "default": "#66bb6a",
       "options": [
         {
           "label": "Red",
@@ -313,7 +313,7 @@
       "label": "Submit Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#00bcd4",
+      "default": "#66bb6a",
       "options": [
         {
           "label": "Red",
@@ -363,7 +363,7 @@
       "label": "Held Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#ff9800",
+      "default": "#e86674",
       "options": [
         {
           "label": "Red",
@@ -413,7 +413,7 @@
       "label": "Return Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#00bcd4",
+      "default": "#e86674",
       "options": [
         {
           "label": "Red",
@@ -513,7 +513,7 @@
       "label": "Pay And Print Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#ff9800",
+      "default": "#66bb6a",
       "options": [
         {
           "label": "Red",
