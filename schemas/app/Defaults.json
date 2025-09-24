@@ -459,56 +459,6 @@
       "section": "Point of Sale"
     },
     {
-      "fieldname": "buyButtonColour",
-      "label": "Buy Button Colour",
-      "placeholder": "Select Colour",
-      "fieldtype": "Color",
-      "default": "#66bb6a",
-      "options": [
-        {
-          "label": "Red",
-          "value": "#e86674"
-        },
-        {
-          "label": "Orange",
-          "value": "#ff9800"
-        },
-        {
-          "label": "Yellow",
-          "value": "#ecc94b"
-        },
-        {
-          "label": "Green",
-          "value": "#66bb6a"
-        },
-        {
-          "label": "Teal",
-          "value": "#38b2ac"
-        },
-        {
-          "label": "Blue",
-          "value": "#00bcd4"
-        },
-        {
-          "label": "Indigo",
-          "value": "#667eea"
-        },
-        {
-          "label": "Purple",
-          "value": "#9575cd"
-        },
-        {
-          "label": "Pink",
-          "value": "#ed64a6"
-        },
-        {
-          "label": "Black",
-          "value": "#112B42"
-        }
-      ],
-      "section": "Point of Sale"
-    },
-    {
       "fieldname": "payButtonColour",
       "label": "Pay Button Colour",
       "placeholder": "Select Colour",
