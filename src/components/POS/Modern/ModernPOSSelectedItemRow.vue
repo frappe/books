@@ -187,6 +187,7 @@
             fieldtype: 'Link',
             target: 'Batch',
             label: t`Batch`,
+            filters: { item: row.item as string},
           }"
           size="medium"
           :value="row.batch"
@@ -254,6 +255,7 @@ export default defineComponent({
   components: { Currency, Data, Float, Int, Link, Text },
   props: {
     row: { type: SalesInvoiceItem, required: true },
+    batchAdded: { type: Boolean, default: false },
   },
   emits: ['toggleModal', 'runSinvFormulas', 'selectedRow', 'applyPricingRule'],
 
@@ -270,9 +272,21 @@ export default defineComponent({
       isExapanded: false,
       batches: [] as string[],
       availableQtyInBatch: 0,
+      itemVisibility: '',
 
       defaultRate: this.row.rate as Money,
     };
+  },
+  watch: {
+    'row.batch': {
+      async handler(newBatch) {
+        if (newBatch) {
+          this.availableQtyInBatch = await this.getAvailableQtyInBatch();
+          this.isExapanded = true;
+        }
+      },
+      immediate: true,
+    },
   },
   computed: {
     isUOMConversionEnabled(): boolean {

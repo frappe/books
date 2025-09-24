@@ -88,6 +88,7 @@
       :item-discounts="(itemDiscounts as Money)"
       :coupons="(coupons as AppliedCouponCodes)"
       :open-price-list-modal="openPriceListModal"
+      :open-item-enquiry-modal="openItemEnquiryModal"
       :applied-coupons-count="appliedCouponsCount"
       :open-shift-close-modal="openShiftCloseModal"
       :open-coupon-code-modal="openCouponCodeModal"
@@ -95,6 +96,8 @@
       :open-loyalty-program-modal="openLoyaltyProgramModal"
       :open-applied-coupons-modal="openAppliedCouponsModal"
       :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
+      :open-batch-selection-modal="openBatchSelectionModal"
+      :selected-item-for-batch="selectedItemForBatch"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -118,6 +121,8 @@
       @save-and-continue="handleSaveAndContinue"
       @set-transfer-clearance-date="setTransferClearanceDate"
       @selected-row="setQuickQtySelectedRow"
+      @handle-payment-action="handlePaymentAction"
+      @batch-selected="handleBatchSelected"
     />
   </div>
 </template>
