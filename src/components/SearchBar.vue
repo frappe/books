@@ -317,6 +317,7 @@ export default defineComponent({
         List: 'teal',
         Report: 'yellow',
         Page: 'orange',
+        Recent: 'purple',
       };
     },
     groupColorClassMap(): Record<SearchGroup, string> {
@@ -422,7 +423,13 @@ export default defineComponent({
     },
     select(idx?: number): void {
       this.idx = idx ?? this.idx;
-      this.suggestions[this.idx]?.action?.();
+      const selectedItem = this.suggestions[this.idx];
+
+      if (selectedItem?.action) {
+        this.searcher?.addToRecent(selectedItem);
+        selectedItem.action();
+      }
+
       this.close();
     },
     scrollToHighlighted(): void {
