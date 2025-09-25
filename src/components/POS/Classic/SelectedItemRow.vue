@@ -295,7 +295,6 @@ import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { showToast } from 'src/utils/interactive';
 import { ModelNameEnum } from 'models/types';
-import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 
 export default defineComponent({
   name: 'SelectedItemRow',

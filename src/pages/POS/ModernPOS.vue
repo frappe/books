@@ -19,6 +19,13 @@
       @set-loyalty-points="(points) => emitEvent('setLoyaltyPoints', points)"
     />
 
+    <BatchSelectionModal
+      :open-modal="openBatchSelectionModal"
+      :item-code="selectedItemForBatch"
+      @toggle-modal="emitEvent('toggleModal', 'BatchSelection')"
+      @batch-selected="(batch) => emitEvent('batchSelected', batch)"
+    />
+
     <SavedInvoiceModal
       :open-modal="openSavedInvoiceModal"
       :modal-status="openSavedInvoiceModal"
@@ -38,6 +45,11 @@
     <PriceListModal
       :open-modal="openPriceListModal"
       @toggle-modal="emitEvent('toggleModal', 'PriceList')"
+    />
+
+    <ItemEnquiryModal
+      :open-modal="openItemEnquiryModal"
+      @toggle-modal="emitEvent('toggleModal', 'ItemEnquiry')"
     />
 
     <PaymentModal
@@ -185,7 +197,7 @@
                       profile?.saveButtonColour ||
                       fyo.singles.Defaults?.saveButtonColour,
                   }"
-                  :disabled="!sinvDoc?.party || !sinvDoc?.items?.length"
+                  :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                   @click="$emit('saveInvoiceAction')"
                 >
                   <slot>
@@ -201,6 +213,7 @@
                       profile?.heldButtonColour ||
                       fyo.singles.Defaults?.heldButtonColour,
                   }"
+                  :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                   @click="emitEvent('toggleModal', 'SavedInvoice', true)"
                 >
                   <slot>
@@ -218,7 +231,7 @@
                       profile?.cancelButtonColour ||
                       fyo.singles.Defaults?.cancelButtonColour,
                   }"
-                  :disabled="!sinvDoc?.items?.length"
+                  :class="`${isReturnInvoiceEnabledReturn ? 'py-5' : 'py-6'}`"
                   @click="() => $emit('clearValues')"
                 >
                   <slot>
@@ -248,15 +261,14 @@
                   class="mt-2 w-full py-5"
                   :style="{
                     backgroundColor:
-                      profile?.buyButtonColour ||
-                      fyo.singles.Defaults?.buyButtonColour,
+                      profile?.payButtonColour ||
+                      fyo.singles.Defaults?.payButtonColour,
                   }"
-                  :disabled="disablePayButton"
-                  @click="emitEvent('toggleModal', 'Payment', true)"
+                  @click="emitEvent('handlePaymentAction')"
                 >
                   <slot>
                     <p class="uppercase text-lg text-white font-semibold">
-                      {{ t`Buy` }}
+                      {{ t`Pay` }}
                     </p>
                   </slot>
                 </Button>
@@ -267,15 +279,14 @@
               class="mt-2 w-full py-5"
               :style="{
                 backgroundColor:
-                  profile?.buyButtonColour ||
-                  fyo.singles.Defaults?.buyButtonColour,
+                  profile?.payButtonColour ||
+                  fyo.singles.Defaults?.payButtonColour,
               }"
-              :disabled="disablePayButton"
-              @click="emitEvent('toggleModal', 'Payment', true)"
+              @click="emitEvent('handlePaymentAction')"
             >
               <slot>
                 <p class="uppercase text-lg text-white font-semibold">
-                  {{ t`Buy` }}
+                  {{ t`Pay` }}
                 </p>
               </slot>
             </Button>
@@ -311,9 +322,7 @@
               :border="true"
               :value="itemSearchTerm"
               :show-clear-button="true"
-              @keyup.enter="(item) =>
-                  emitEvent('handleItemSearch', item.target.value as string, true)
-              "
+              @keyup.enter="(event: KeyboardEvent) => emitEvent('handleItemSearch', (event.target as HTMLInputElement).value, true)"
               @change="(item: string) => emitEvent('handleItemSearch', item)"
             />
 
@@ -374,6 +383,7 @@ import PaymentModal from './PaymentModal.vue';
 import Button from 'src/components/Button.vue';
 import KeyboardModal from './KeyboardModal.vue';
 import PriceListModal from './PriceListModal.vue';
+import ItemEnquiryModal from './ItemEnquiryModal.vue';
 import { Item } from 'models/baseModels/Item/Item';
 import Link from 'src/components/Controls/Link.vue';
 import CouponCodeModal from './CouponCodeModal.vue';
@@ -394,6 +404,7 @@ import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoic
 import FloatingLabelCurrencyInput from 'src/components/POS/FloatingLabelCurrencyInput.vue';
 import { AppliedCouponCodes } from 'models/baseModels/AppliedCouponCodes/AppliedCouponCodes';
 import ModernPOSSelectedItemTable from 'src/components/POS/Modern/ModernPOSSelectedItemTable.vue';
+import BatchSelectionModal from 'src/pages/POS/BatchSelectionModal.vue';
 
 export default defineComponent({
   name: 'ModernPos',
@@ -405,6 +416,7 @@ export default defineComponent({
     KeyboardModal,
     MultiLabelLink,
     PriceListModal,
+    ItemEnquiryModal,
     POSQuickActions,
     CouponCodeModal,
     OpenPOSShiftModal,
@@ -417,6 +429,7 @@ export default defineComponent({
     ReturnSalesInvoiceModal,
     FloatingLabelCurrencyInput,
     ModernPOSSelectedItemTable,
+    BatchSelectionModal,
   },
   props: {
     paidAmount: Money,
@@ -428,12 +441,14 @@ export default defineComponent({
     openPaymentModal: Boolean,
     openKeyboardModal: Boolean,
     openPriceListModal: Boolean,
+    openItemEnquiryModal: Boolean,
     openCouponCodeModal: Boolean,
     openShiftCloseModal: Boolean,
     openSavedInvoiceModal: Boolean,
     openLoyaltyProgramModal: Boolean,
     openAppliedCouponsModal: Boolean,
     openReturnSalesInvoiceModal: Boolean,
+    openBatchSelectionModal: Boolean,
     totalQuantity: {
       type: Number,
       default: 0,
@@ -479,6 +494,14 @@ export default defineComponent({
       required: false,
       default: null,
     },
+    batchAddedItems: {
+      type: Array as () => string[],
+      default: () => [],
+    },
+    selectedItemForBatch: {
+      type: String,
+      default: '',
+    },
   },
   emits: [
     'addItem',
@@ -502,7 +525,9 @@ export default defineComponent({
     'selectedReturnInvoice',
     'setTransferClearanceDate',
     'saveAndContinue',
+    'handlePaymentAction',
     'selectedRow',
+    'batchSelected',
   ],
   data() {
     return {
