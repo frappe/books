@@ -1275,13 +1275,16 @@ export abstract class Invoice extends Transactional {
 
     let accountField: AccountFieldEnum = AccountFieldEnum.Account;
     let paymentType: PaymentTypeEnum = PaymentTypeEnum.Receive;
+    let referenceType: 'SalesInvoice' | 'PurchaseInvoice';
 
-    if (this.isSales && this.isReturn) {
-      accountField = AccountFieldEnum.PaymentAccount;
-      paymentType = PaymentTypeEnum.Pay;
-    }
-
-    if (!this.isSales) {
+    if (this.isSales) {
+      referenceType = 'SalesInvoice';
+      if (this.isReturn) {
+        accountField = AccountFieldEnum.PaymentAccount;
+        paymentType = PaymentTypeEnum.Pay;
+      }
+    } else {
+      referenceType = 'PurchaseInvoice';
       accountField = AccountFieldEnum.PaymentAccount;
       paymentType = PaymentTypeEnum.Pay;
 
@@ -1297,6 +1300,7 @@ export abstract class Invoice extends Transactional {
       paymentType,
       amount: this.outstandingAmount?.abs(),
       [accountField]: this.account,
+      referenceType,
       for: [
         {
           referenceType: this.schemaName,
