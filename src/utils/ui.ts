@@ -192,6 +192,7 @@ export function getActionsForDoc(doc?: Doc): Action[] {
   const actions: Action[] = [
     ...getActions(doc),
     getDuplicateAction(doc),
+    getNewAction(doc),
     getDeleteAction(doc),
     getCancelAction(doc),
   ];
@@ -283,6 +284,21 @@ function getDuplicateAction(doc: Doc): Action {
       try {
         const dupe = doc.duplicate();
         await openEdit(dupe);
+      } catch (err) {
+        await handleErrorWithDialog(err as Error, doc);
+      }
+    },
+  };
+}
+
+function getNewAction(doc: Doc): Action {
+  return {
+    label: t`New Entry`,
+    group: t`Create`,
+    async action() {
+      try {
+        const newDoc = fyo.doc.getNewDoc(doc.schemaName);
+        await openEdit(newDoc);
       } catch (err) {
         await handleErrorWithDialog(err as Error, doc);
       }
