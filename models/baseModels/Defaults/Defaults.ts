@@ -50,7 +50,6 @@ export class Defaults extends Doc {
   cancelButtonColour?: string;
   heldButtonColour?: string;
   returnButtonColour?: string;
-  buyButtonColour?: string;
   payButtonColour?: string;
   payAndPrintButtonColour?: string;
 
@@ -127,7 +126,6 @@ export class Defaults extends Doc {
     submitButtonColour: this.getPointOfSaleHidden(),
     heldButtonColour: this.getPointOfSaleHidden(),
     returnButtonColour: this.getPointOfSaleHidden(),
-    buyButtonColour: this.getPointOfSaleHidden(),
     payButtonColour: this.getPointOfSaleHidden(),
     payAndPrintButtonColour: this.getPointOfSaleHidden(),
   };

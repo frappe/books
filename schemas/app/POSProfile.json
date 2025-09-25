@@ -107,47 +107,47 @@
       "label": "Save Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#9575cd",
+      "default": "#86efac",
       "options": [
         {
           "label": "Red",
-          "value": "#e86674"
+          "value": "#f98080"
         },
         {
           "label": "Orange",
-          "value": "#ff9800"
+          "value": "#fbbf70"
         },
         {
           "label": "Yellow",
-          "value": "#ecc94b"
+          "value": "#fde047"
         },
         {
           "label": "Green",
-          "value": "#66bb6a"
+          "value": "#86efac"
         },
         {
           "label": "Teal",
-          "value": "#38b2ac"
+          "value": "#5eead4"
         },
         {
           "label": "Blue",
-          "value": "#00bcd4"
+          "value": "#60a5fa"
         },
         {
           "label": "Indigo",
-          "value": "#667eea"
+          "value": "#818cf8"
         },
         {
           "label": "Purple",
-          "value": "#9575cd"
+          "value": "#a78bfa"
         },
         {
           "label": "Pink",
-          "value": "#ed64a6"
+          "value": "#f472b6"
         },
         {
           "label": "Black",
-          "value": "#112B42"
+          "value": "#9ca3af"
         }
       ],
       "section": "Colour"
@@ -157,47 +157,47 @@
       "label": "Cancel Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#e86674",
+      "default": "#f98080",
       "options": [
         {
           "label": "Red",
-          "value": "#e86674"
+          "value": "#f98080"
         },
         {
           "label": "Orange",
-          "value": "#ff9800"
+          "value": "#fbbf70"
         },
         {
           "label": "Yellow",
-          "value": "#ecc94b"
+          "value": "#fde047"
         },
         {
           "label": "Green",
-          "value": "#66bb6a"
+          "value": "#86efac"
         },
         {
           "label": "Teal",
-          "value": "#38b2ac"
+          "value": "#5eead4"
         },
         {
           "label": "Blue",
-          "value": "#00bcd4"
+          "value": "#60a5fa"
         },
         {
           "label": "Indigo",
-          "value": "#667eea"
+          "value": "#818cf8"
         },
         {
           "label": "Purple",
-          "value": "#9575cd"
+          "value": "#a78bfa"
         },
         {
           "label": "Pink",
-          "value": "#ed64a6"
+          "value": "#f472b6"
         },
         {
           "label": "Black",
-          "value": "#112B42"
+          "value": "#9ca3af"
         }
       ],
       "section": "Colour"
@@ -207,47 +207,47 @@
       "label": "Submit Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#00bcd4",
+      "default": "#86efac",
       "options": [
         {
           "label": "Red",
-          "value": "#e86674"
+          "value": "#f98080"
         },
         {
           "label": "Orange",
-          "value": "#ff9800"
+          "value": "#fbbf70"
         },
         {
           "label": "Yellow",
-          "value": "#ecc94b"
+          "value": "#fde047"
         },
         {
           "label": "Green",
-          "value": "#66bb6a"
+          "value": "#86efac"
         },
         {
           "label": "Teal",
-          "value": "#38b2ac"
+          "value": "#5eead4"
         },
         {
           "label": "Blue",
-          "value": "#00bcd4"
+          "value": "#60a5fa"
         },
         {
           "label": "Indigo",
-          "value": "#667eea"
+          "value": "#818cf8"
         },
         {
           "label": "Purple",
-          "value": "#9575cd"
+          "value": "#a78bfa"
         },
         {
           "label": "Pink",
-          "value": "#ed64a6"
+          "value": "#f472b6"
         },
         {
           "label": "Black",
-          "value": "#112B42"
+          "value": "#9ca3af"
         }
       ],
       "section": "Colour"
@@ -257,47 +257,47 @@
       "label": "Held Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#ff9800",
+      "default": "#f98080",
       "options": [
         {
           "label": "Red",
-          "value": "#e86674"
+          "value": "#f98080"
         },
         {
           "label": "Orange",
-          "value": "#ff9800"
+          "value": "#fbbf70"
         },
         {
           "label": "Yellow",
-          "value": "#ecc94b"
+          "value": "#fde047"
         },
         {
           "label": "Green",
-          "value": "#66bb6a"
+          "value": "#86efac"
         },
         {
           "label": "Teal",
-          "value": "#38b2ac"
+          "value": "#5eead4"
         },
         {
           "label": "Blue",
-          "value": "#00bcd4"
+          "value": "#60a5fa"
         },
         {
           "label": "Indigo",
-          "value": "#667eea"
+          "value": "#818cf8"
         },
         {
           "label": "Purple",
-          "value": "#9575cd"
+          "value": "#a78bfa"
         },
         {
           "label": "Pink",
-          "value": "#ed64a6"
+          "value": "#f472b6"
         },
         {
           "label": "Black",
-          "value": "#112B42"
+          "value": "#9ca3af"
         }
       ],
       "section": "Colour"
@@ -307,97 +307,47 @@
       "label": "Return Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#00bcd4",
+      "default": "#f98080",
       "options": [
         {
           "label": "Red",
-          "value": "#e86674"
+          "value": "#f98080"
         },
         {
           "label": "Orange",
-          "value": "#ff9800"
+          "value": "#fbbf70"
         },
         {
           "label": "Yellow",
-          "value": "#ecc94b"
+          "value": "#fde047"
         },
         {
           "label": "Green",
-          "value": "#66bb6a"
+          "value": "#86efac"
         },
         {
           "label": "Teal",
-          "value": "#38b2ac"
+          "value": "#5eead4"
         },
         {
           "label": "Blue",
-          "value": "#00bcd4"
+          "value": "#60a5fa"
         },
         {
           "label": "Indigo",
-          "value": "#667eea"
+          "value": "#818cf8"
         },
         {
           "label": "Purple",
-          "value": "#9575cd"
+          "value": "#a78bfa"
         },
         {
           "label": "Pink",
-          "value": "#ed64a6"
+          "value": "#f472b6"
         },
         {
           "label": "Black",
-          "value": "#112B42"
-        }
-      ],
-      "section": "Colour"
-    },
-    {
-      "fieldname": "buyButtonColour",
-      "label": "Buy Button Colour",
-      "placeholder": "Select Colour",
-      "fieldtype": "Color",
-      "default": "#66bb6a",
-      "options": [
-        {
-          "label": "Red",
-          "value": "#e86674"
-        },
-        {
-          "label": "Orange",
-          "value": "#ff9800"
-        },
-        {
-          "label": "Yellow",
-          "value": "#ecc94b"
-        },
-        {
-          "label": "Green",
-          "value": "#66bb6a"
-        },
-        {
-          "label": "Teal",
-          "value": "#38b2ac"
-        },
-        {
-          "label": "Blue",
-          "value": "#00bcd4"
-        },
-        {
-          "label": "Indigo",
-          "value": "#667eea"
-        },
-        {
-          "label": "Purple",
-          "value": "#9575cd"
-        },
-        {
-          "label": "Pink",
-          "value": "#ed64a6"
-        },
-        {
-          "label": "Black",
-          "value": "#112B42"
+          "value": "#9ca3af"
         }
       ],
       "section": "Colour"
@@ -407,47 +357,47 @@
       "label": "Pay Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#66bb6a",
+      "default": "#86efac",
       "options": [
         {
           "label": "Red",
-          "value": "#e86674"
+          "value": "#f98080"
         },
         {
           "label": "Orange",
-          "value": "#ff9800"
+          "value": "#fbbf70"
         },
         {
           "label": "Yellow",
-          "value": "#ecc94b"
+          "value": "#fde047"
         },
         {
           "label": "Green",
-          "value": "#66bb6a"
+          "value": "#86efac"
         },
         {
           "label": "Teal",
-          "value": "#38b2ac"
+          "value": "#5eead4"
         },
         {
           "label": "Blue",
-          "value": "#00bcd4"
+          "value": "#60a5fa"
         },
         {
           "label": "Indigo",
-          "value": "#667eea"
+          "value": "#818cf8"
         },
         {
           "label": "Purple",
-          "value": "#9575cd"
+          "value": "#a78bfa"
         },
         {
           "label": "Pink",
-          "value": "#ed64a6"
+          "value": "#f472b6"
         },
         {
           "label": "Black",
-          "value": "#112B42"
+          "value": "#9ca3af"
         }
       ],
       "section": "Colour"
@@ -457,47 +407,47 @@
       "label": "Pay And Print Button Colour",
       "placeholder": "Select Colour",
       "fieldtype": "Color",
-      "default": "#ff9800",
+      "default": "#86efac",
       "options": [
         {
           "label": "Red",
-          "value": "#e86674"
+          "value": "#f98080"
         },
         {
           "label": "Orange",
-          "value": "#ff9800"
+          "value": "#fbbf70"
         },
         {
           "label": "Yellow",
-          "value": "#ecc94b"
+          "value": "#fde047"
         },
         {
           "label": "Green",
-          "value": "#66bb6a"
+          "value": "#86efac"
         },
         {
           "label": "Teal",
-          "value": "#38b2ac"
+          "value": "#5eead4"
         },
         {
           "label": "Blue",
-          "value": "#00bcd4"
+          "value": "#60a5fa"
         },
         {
           "label": "Indigo",
-          "value": "#667eea"
+          "value": "#818cf8"
         },
         {
           "label": "Purple",
-          "value": "#9575cd"
+          "value": "#a78bfa"
         },
         {
           "label": "Pink",
-          "value": "#ed64a6"
+          "value": "#f472b6"
         },
         {
           "label": "Black",
-          "value": "#112B42"
+          "value": "#9ca3af"
         }
       ],
       "section": "Colour"
