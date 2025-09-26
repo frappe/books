@@ -36,12 +36,12 @@ import BarChart from 'src/components/Charts/BarChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
 import { uicolors } from 'src/utils/colors';
-import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getValueMapFromList } from 'utils';
 import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 import { defineComponent } from 'vue';
+import { getDashboardDates } from 'src/utils/dashboardDateUtils';
 
 // Linting broken in this file cause of `extends: ...`
 /*
@@ -58,11 +58,13 @@ export default defineComponent({
   extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
+    fromDate: { type: [String, Date], default: '' },
+    toDate: { type: [String, Date], default: '' },
   },
   data: () => ({
     data: [] as { yearmonth: string; balance: number }[],
     hasData: false,
-    periodOptions: ['This Year', 'This Quarter', 'YTD'],
+    periodOptions: ['This Year', 'This Quarter', 'YTD', 'Custom'],
   }),
   computed: {
     chartData() {
@@ -90,13 +92,20 @@ export default defineComponent({
       };
     },
   },
+  watch: {
+    fromDate: 'setData',
+    toDate: 'setData',
+    period: 'setData',
+  },
   activated() {
     this.setData();
   },
   methods: {
     async setData() {
-      const { fromDate, toDate, periodList } = getDatesAndPeriodList(
-        this.period
+      const { fromDate, toDate, periodList } = getDashboardDates(
+        this.period,
+        this.fromDate,
+        this.toDate
       );
 
       const data = await fyo.db.getIncomeAndExpenses(
