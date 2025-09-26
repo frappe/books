@@ -16,30 +16,44 @@
           />
         </clipPath>
       </defs>
+
+      <!-- Empty State -->
+      <template v-if="!hasNonZeroValues">
+        <circle
+          :cx="cx"
+          :cy="cy"
+          :r="radius"
+          :stroke-width="thickness"
+          stroke="#f4f4f6"
+          fill="transparent"
+        />
+        <text
+          :x="cx"
+          :y="cy"
+          text-anchor="middle"
+          style="font-size: 5px; fill: #a1abb4"
+        >
+          No Expenses
+        </text>
+      </template>
+
+      <!-- Single Sector -->
       <circle
-        v-if="thetasAndStarts.length === 1 || thetasAndStarts.length === 0"
+        v-else-if="thetasAndStarts.length === 1"
         clip-path="url(#donut-hole)"
         :cx="cx"
         :cy="cy"
         :r="radius"
-        :stroke-width="
-          thickness +
-          (hasNonZeroValues && active === thetasAndStarts[0][0] ? 4 : 0)
-        "
-        :stroke="
-          hasNonZeroValues ? sectors[thetasAndStarts[0][0]].color : '#f4f4f6'
-        "
-        :class="hasNonZeroValues ? 'sector' : ''"
+        :stroke-width="thickness + (active === thetasAndStarts[0][0] ? 4 : 0)"
+        :stroke="sectors[thetasAndStarts[0][0]].color"
+        :class="'sector'"
         :style="{ transformOrigin: `${cx}px ${cy}px` }"
         fill="transparent"
-        @mouseover="
-          $emit(
-            'change',
-            thetasAndStarts.length === 1 ? thetasAndStarts[0][0] : null
-          )
-        "
+        @mouseover="$emit('change', thetasAndStarts[0][0])"
       />
-      <template v-if="thetasAndStarts.length > 1">
+
+      <!-- Multiple Sectors -->
+      <template v-else>
         <path
           v-for="[i, theta, start_] in thetasAndStarts"
           :key="i"
@@ -53,7 +67,10 @@
           @mouseover="$emit('change', i)"
         />
       </template>
+
+      <!-- Center Value -->
       <text
+        v-if="hasNonZeroValues"
         :x="cx"
         :y="cy"
         text-anchor="middle"
@@ -67,12 +84,14 @@
           valueFormatter(
             active !== null && sectors.length !== 0
               ? sectors[active].value
-              : totalValue,
-            'Currency'
+              : totalValue
           )
         }}
       </text>
+
+      <!-- Center Label -->
       <text
+        v-if="hasNonZeroValues"
         :x="cx"
         :y="cy + 8"
         text-anchor="middle"
@@ -91,20 +110,15 @@
 <script>
 export default {
   props: {
-    sectors: {
-      default: () => [],
-      type: Array,
-    },
+    sectors: { default: () => [], type: Array },
     totalLabel: { default: 'Total', type: String },
     radius: { default: 36, type: Number },
     startAngle: { default: Math.PI, type: Number },
     thickness: { default: 10, type: Number },
     active: { default: null, type: Number },
-    valueFormatter: { default: (v) => v.toString(), Function },
+    valueFormatter: { default: (v) => v.toString(), type: Function },
     offsetX: { default: 0, type: Number },
     offsetY: { default: 0, type: Number },
-    textOffsetX: { default: 0, type: Number },
-    textOffsetY: { default: 0, type: Number },
     darkMode: { type: Boolean, default: false },
   },
   emits: ['change'],
@@ -116,51 +130,49 @@ export default {
       return 50 + this.offsetY;
     },
     totalValue() {
-      return this.sectors.map(({ value }) => value).reduce((a, b) => a + b, 0);
+      const total = this.sectors.reduce(
+        (sum, { value }) => sum + (value || 0),
+        0
+      );
+      return total > 0 ? total : 0;
     },
     thetasAndStarts() {
+      if (this.totalValue === 0) return [];
       const thetas = this.sectors
         .map(({ value }, i) => ({
           value: (2 * Math.PI * value) / this.totalValue,
-          filterOut: value !== 0,
+          valid: value > 0,
           i,
         }))
-        .filter(({ filterOut }) => filterOut);
+        .filter(({ valid }) => valid);
 
-      const starts = [...thetas.map(({ value }) => value)];
-      starts.forEach(({ value }, i) => {
+      const starts = thetas.map(({ value }) => value);
+      starts.forEach((_, i) => {
         starts[i] += starts[i - 1] ?? 0;
       });
-
       starts.unshift(0);
       starts.pop();
 
       return thetas.map((t, i) => [t.i, t.value, starts[i]]);
     },
     hasNonZeroValues() {
-      return this.thetasAndStarts.some((t) => this.sectors[t[0]].value !== 0);
+      return this.totalValue > 0;
     },
   },
   methods: {
-    getArcPath(...args) {
-      let [cx, cy, r, start, theta] = args.map(parseFloat);
-
-      start += parseFloat(this.startAngle);
+    getArcPath(cx, cy, r, start, theta) {
+      start += this.startAngle;
       const startX = cx + r * Math.cos(start);
       const startY = cy + r * Math.sin(start);
       const endX = cx + r * Math.cos(start + theta);
       const endY = cy + r * Math.sin(start + theta);
       const largeArcFlag = theta > Math.PI ? 1 : 0;
-      const sweepFlag = 1;
-
-      return `M ${startX} ${startY} A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${endX} ${endY}`;
+      return `M ${startX} ${startY} A ${r} ${r} 0 ${largeArcFlag} 1 ${endX} ${endY}`;
     },
     getSectorColor(index) {
-      if (this.darkMode) {
-        return this.sectors[index].color.darkColor;
-      } else {
-        return this.sectors[index].color.color;
-      }
+      return this.darkMode
+        ? this.sectors[index].color.darkColor
+        : this.sectors[index].color.color;
     },
   },
 };

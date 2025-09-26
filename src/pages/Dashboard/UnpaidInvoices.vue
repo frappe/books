@@ -99,7 +99,6 @@ import { ModelNameEnum } from 'models/types';
 import MouseFollower from 'src/components/MouseFollower.vue';
 import { fyo } from 'src/initFyo';
 import { uicolors } from 'src/utils/colors';
-import { getDatesAndPeriodList } from 'src/utils/misc';
 import { PeriodKey } from 'src/utils/types';
 import { routeTo } from 'src/utils/ui';
 import { safeParseFloat } from 'utils/index';
@@ -107,6 +106,7 @@ import { PropType, defineComponent } from 'vue';
 import BaseDashboardChart from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
+import { getDashboardDates } from 'src/utils/dashboardDateUtils';
 
 // Linting broken in this file cause of `extends: ...`
 /* 
@@ -190,39 +190,13 @@ export default defineComponent({
     await this.setData();
   },
   methods: {
-    async routeToInvoices(type: 'paid' | 'unpaid') {
-      if (type === 'paid' && !this.paidCount) {
-        return;
-      }
-
-      if (type === 'unpaid' && !this.unpaidCount) {
-        return;
-      }
-
-      const zero = this.fyo.pesa(0).store;
-      const filters = { outstandingAmount: ['=', zero] };
-      const schemaLabel = fyo.schemaMap[this.schemaName]?.label ?? '';
-      let label = t`Paid ${schemaLabel}`;
-      if (type === 'unpaid') {
-        filters.outstandingAmount[0] = '!=';
-        label = t`Unpaid ${schemaLabel}`;
-      }
-
-      const path = `/list/${this.schemaName}/${label}`;
-      const query = { filters: JSON.stringify(filters) };
-      await routeTo({ path, query });
-    },
     async setData() {
-      const parseDate = (date: string | Date) =>
-        DateTime.fromISO(typeof date === 'string' ? date : date.toISOString());
-
-      const { fromDate, toDate } =
-        this.period === 'Custom'
-          ? {
-              fromDate: parseDate(this.fromDate),
-              toDate: parseDate(this.toDate),
-            }
-          : getDatesAndPeriodList(this.period);
+      // Use the reusable function
+      const { fromDate, toDate } = getDashboardDates(
+        this.period,
+        this.fromDate,
+        this.toDate
+      );
 
       const { total, outstanding } = await fyo.db.getTotalOutstanding(
         this.schemaName,
@@ -245,6 +219,31 @@ export default defineComponent({
       this.unpaidCount = countOutstanding;
       this.barWidth = (this.paid / (this.total || 1)) * 100;
     },
+
+    // ... rest of your methods remain the same
+    async routeToInvoices(type: 'paid' | 'unpaid') {
+      if (type === 'paid' && !this.paidCount) {
+        return;
+      }
+
+      if (type === 'unpaid' && !this.unpaidCount) {
+        return;
+      }
+
+      const zero = this.fyo.pesa(0).store;
+      const filters = { outstandingAmount: ['=', zero] };
+      const schemaLabel = fyo.schemaMap[this.schemaName]?.label ?? '';
+      let label = t`Paid ${schemaLabel}`;
+      if (type === 'unpaid') {
+        filters.outstandingAmount[0] = '!=';
+        label = t`Unpaid ${schemaLabel}`;
+      }
+
+      const path = `/list/${this.schemaName}/${label}`;
+      const query = { filters: JSON.stringify(filters) };
+      await routeTo({ path, query });
+    },
+
     async newInvoice() {
       const doc = fyo.doc.getNewDoc(this.schemaName);
       await routeTo(`/edit/${this.schemaName}/${doc.name!}`);

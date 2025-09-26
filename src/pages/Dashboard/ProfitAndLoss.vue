@@ -36,13 +36,12 @@ import BarChart from 'src/components/Charts/BarChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
 import { uicolors } from 'src/utils/colors';
-import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getValueMapFromList } from 'utils';
 import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 import { defineComponent } from 'vue';
-import { DateTime } from 'luxon';
+import { getDashboardDates } from 'src/utils/dashboardDateUtils';
 
 // Linting broken in this file cause of `extends: ...`
 /*
@@ -103,35 +102,11 @@ export default defineComponent({
   },
   methods: {
     async setData() {
-      let fromDate: DateTime;
-      let toDate: DateTime;
-      let periodList: DateTime[] = [];
-
-      if (this.period === 'Custom') {
-        const parseDate = (date: string | Date) =>
-          DateTime.fromISO(
-            typeof date === 'string' ? date : date.toISOString()
-          );
-
-        fromDate = parseDate(this.fromDate);
-        toDate = parseDate(this.toDate);
-
-        let current = fromDate.startOf('month');
-
-        const toMonthStart = toDate.startOf('month');
-
-        while (current <= toMonthStart) {
-          periodList.push(current);
-          current = current.plus({ months: 1 });
-        }
-
-        periodList.push(fromDate.startOf('month'));
-      } else {
-        const result = getDatesAndPeriodList(this.period);
-        fromDate = result.fromDate;
-        toDate = result.toDate;
-        periodList = result.periodList;
-      }
+      const { fromDate, toDate, periodList } = getDashboardDates(
+        this.period,
+        this.fromDate,
+        this.toDate
+      );
 
       const data = await fyo.db.getIncomeAndExpenses(
         fromDate.toISO(),
