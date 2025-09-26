@@ -16,21 +16,21 @@ test('ItemEnquiry lifecycle with similarProduct', async (t) => {
   };
 
   try {
-    const enquiryDoc = fyo.doc.getNewDoc(
+    const newEnquiry = fyo.doc.getNewDoc(
       ModelNameEnum.ItemEnquiry,
       initialData
     ) as ItemEnquiry;
-    await enquiryDoc.sync();
+    await newEnquiry.sync();
 
-    const fetched = (await fyo.doc.getDoc(
+    const createdEnquiry = (await fyo.doc.getDoc(
       ModelNameEnum.ItemEnquiry,
-      enquiryDoc.name as string
+      newEnquiry.name as string
     )) as ItemEnquiry;
 
-    t.ok(fetched, 'ItemEnquiry was created and fetched from DB');
-    t.equal(fetched.item, initialData.item, 'Item matches after save');
+    t.ok(createdEnquiry, 'ItemEnquiry was created and fetched from DB');
+    t.equal(createdEnquiry.item, initialData.item, 'Item matches after save');
     t.equal(
-      fetched.similarProduct,
+      createdEnquiry.similarProduct,
       initialData.similarProduct,
       'Similar product saved correctly'
     );
@@ -40,22 +40,22 @@ test('ItemEnquiry lifecycle with similarProduct', async (t) => {
       similarProduct: 'Gel Pen',
     };
 
-    fetched.description = updatedData.description;
-    fetched.similarProduct = updatedData.similarProduct;
-    await fetched.sync();
+    createdEnquiry.description = updatedData.description;
+    createdEnquiry.similarProduct = updatedData.similarProduct;
+    await createdEnquiry.sync();
 
-    const updated = (await fyo.doc.getDoc(
+    const updatedEnquiry = (await fyo.doc.getDoc(
       ModelNameEnum.ItemEnquiry,
-      enquiryDoc.name as string
+      newEnquiry.name as string
     )) as ItemEnquiry;
 
     t.equal(
-      updated.description,
+      updatedEnquiry.description,
       updatedData.description,
       'Description updated successfully'
     );
     t.equal(
-      updated.similarProduct,
+      updatedEnquiry.similarProduct,
       updatedData.similarProduct,
       'Similar product updated successfully'
     );
