@@ -83,38 +83,44 @@ export default defineComponent({
     customPeriod: { type: String, default: 'This Year' },
   },
   data: () => ({
-    data: [] as { inflow: number; outflow: number; yearmonth: string }[],
+    cashflowRecords: [] as {
+      inflow: number;
+      outflow: number;
+      yearmonth: string;
+    }[],
     periodList: [],
     periodOptions: ['This Year', 'This Quarter', 'YTD', 'Custom'],
     hasData: false,
   }),
   computed: {
     chartData() {
-      let data = this.data;
+      let records = this.cashflowRecords;
       let colors = [
         uicolors.blue[this.darkMode ? '600' : '500'],
         uicolors.pink[this.darkMode ? '600' : '500'],
       ];
       if (!this.hasData) {
-        data = dummyData;
+        records = dummyData;
         colors = [
           this.darkMode ? uicolors.gray['700'] : uicolors.gray['200'],
           this.darkMode ? uicolors.gray['800'] : uicolors.gray['100'],
         ];
       }
 
-      const xLabels = data.map((cf) => cf.yearmonth);
-      const points = (['inflow', 'outflow'] as const).map((k) =>
-        data.map((d) => d[k])
+      const xLabels = records.map((cf) => cf.yearmonth);
+      const points = (['inflow', 'outflow'] as const).map((flowType) =>
+        records.map((entry) => entry[flowType])
       );
 
-      const format = (value: number) => fyo.format(value ?? 0, 'Currency');
+      const formatCurrency = (value: number) =>
+        fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
+
       return {
         points,
         xLabels,
         colors,
-        format,
+        format: formatCurrency,
         yMax,
         formatX: formatXLabels,
         gridColor: this.darkMode ? 'rgba(200, 200, 200, 0.2)' : undefined,
@@ -137,7 +143,7 @@ export default defineComponent({
     async setData() {
       let fromDate: DateTime;
       let toDate: DateTime;
-      let periodList: DateTime[] = [];
+      let generatedPeriods: DateTime[] = [];
 
       if (this.period === 'Custom') {
         const parseDate = (date: string | Date) =>
@@ -148,32 +154,35 @@ export default defineComponent({
         fromDate = parseDate(this.fromDate);
         toDate = parseDate(this.toDate);
 
-        let current = fromDate.startOf('month');
-
+        let monthPointer = fromDate.startOf('month');
         const toMonthStart = toDate.startOf('month');
 
-        while (current <= toMonthStart) {
-          periodList.push(current);
-          current = current.plus({ months: 1 });
+        while (monthPointer <= toMonthStart) {
+          generatedPeriods.push(monthPointer);
+          monthPointer = monthPointer.plus({ months: 1 });
         }
 
-        periodList.push(fromDate.startOf('month'));
+        generatedPeriods.push(fromDate.startOf('month'));
       } else {
-        const result = getDatesAndPeriodList(this.period);
-        fromDate = result.fromDate;
-        toDate = result.toDate;
-        periodList = result.periodList;
+        const dateRange = getDatesAndPeriodList(this.period);
+        fromDate = dateRange.fromDate;
+        toDate = dateRange.toDate;
+        generatedPeriods = dateRange.periodList;
       }
 
-      const data = await fyo.db.getCashflow(fromDate.toISO(), toDate.toISO());
-      const dataMap = getMapFromList(data, 'yearmonth');
+      const cashflowData = await fyo.db.getCashflow(
+        fromDate.toISO(),
+        toDate.toISO()
+      );
+      const cashflowMap = getMapFromList(cashflowData, 'yearmonth');
+
       this.period = this.commonPeriod;
-      this.data = periodList.map((p) => {
-        const key = p.toFormat('yyyy-MM');
-        const item = dataMap[key];
+      this.cashflowRecords = generatedPeriods.map((periodDate) => {
+        const key = periodDate.toFormat('yyyy-MM');
+        const entry = cashflowMap[key];
 
         return (
-          item ?? {
+          entry ?? {
             inflow: 0,
             outflow: 0,
             yearmonth: key,
@@ -187,11 +196,14 @@ export default defineComponent({
           accountType: ['in', [AccountTypeEnum.Cash, AccountTypeEnum.Bank]],
         },
       });
-      const accountNames = accounts.map((a) => a.name as string);
-      const count = await fyo.db.count(ModelNameEnum.AccountingLedgerEntry, {
-        filters: { account: ['in', accountNames] },
-      });
-      this.hasData = count > 0;
+      const accountNames = accounts.map((account) => account.name as string);
+      const ledgerEntryCount = await fyo.db.count(
+        ModelNameEnum.AccountingLedgerEntry,
+        {
+          filters: { account: ['in', accountNames] },
+        }
+      );
+      this.hasData = ledgerEntryCount > 0;
     },
   },
 });

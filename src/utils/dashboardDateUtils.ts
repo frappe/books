@@ -32,10 +32,10 @@ export function getDashboardDates(
       current = current.plus({ months: 1 });
     }
   } else {
-    const result = getDatesAndPeriodList(period as PeriodKey);
-    fromDateResult = result.fromDate;
-    toDateResult = result.toDate;
-    periodList = result.periodList;
+    const dateRange = getDatesAndPeriodList(period as PeriodKey);
+    fromDateResult = dateRange.fromDate;
+    toDateResult = dateRange.toDate;
+    periodList = dateRange.periodList;
   }
 
   return {
