@@ -19,8 +19,13 @@ import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { isPesa } from 'fyo/utils';
 import { PricingRule } from '../PricingRule/PricingRule';
-import { getItemRateFromPriceList, getPricingRule } from 'models/helpers';
+import {
+  getItemRateFromPriceList,
+  getItemVisibility,
+  getPricingRule,
+} from 'models/helpers';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
+import { QueryFilter } from 'utils/db/types';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -630,13 +635,27 @@ export abstract class InvoiceItem extends Doc {
   };
 
   static filters: FiltersMap = {
-    item: (doc: Doc) => {
+    item: async (doc: Doc) => {
       let itemNotFor = 'Sales';
       if (doc.isSales) {
         itemNotFor = 'Purchases';
       }
 
-      return { for: ['not in', [itemNotFor]] };
+      const baseFilter: QueryFilter = {
+        for: ['not in', [itemNotFor]],
+      };
+
+      const itemVisibility = await getItemVisibility(doc.fyo);
+
+      if (itemVisibility === 'Inventory Items') {
+        return { ...baseFilter, trackItem: true };
+      }
+
+      if (itemVisibility === 'Non-Inventory Items') {
+        return { ...baseFilter, trackItem: false };
+      }
+
+      return baseFilter;
     },
     batch: async (doc: Doc) => {
       const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
