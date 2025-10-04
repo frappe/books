@@ -1047,19 +1047,16 @@ export abstract class Invoice extends Transactional {
           if (sinvreturnedDoc.outstandingAmount?.isZero()) {
             return this.grandTotal?.abs();
           } else {
-            const totalPaid = sinvreturnedDoc.grandTotal
-              ?.abs()
-              .sub(sinvreturnedDoc.outstandingAmount as Money);
+            const totalPaid = sinvreturnedDoc
+              .grandTotal!.abs()
+              .sub(sinvreturnedDoc.outstandingAmount!);
 
-            if (!sinvreturnedDoc.isReturn) {
-              return totalPaid?.abs();
-            }
+            const returnAmount = this.grandTotal!.abs();
 
-            if (!this.grandTotal?.isNegative()) {
-              this.grandTotal = this.grandTotal?.neg();
-            }
-
-            return this.grandTotal?.add(totalPaid as Money).abs();
+            const result = returnAmount.lte(totalPaid)
+              ? returnAmount
+              : totalPaid;
+            return result;
           }
         }
 
@@ -1290,18 +1287,21 @@ export abstract class Invoice extends Transactional {
         paymentType = PaymentTypeEnum.Receive;
       }
     }
+    const paymentAmount = this.isReturn
+      ? outstandingAmount
+      : outstandingAmount?.abs();
 
     const data = {
       party: this.party,
       date: new Date().toISOString(),
       paymentType,
-      amount: this.outstandingAmount?.abs(),
+      amount: paymentAmount,
       [accountField]: this.account,
       for: [
         {
           referenceType: this.schemaName,
           referenceName: this.name,
-          amount: this.outstandingAmount,
+          amount: this.isReturn ? this.grandTotal : outstandingAmount,
         },
       ],
     };
@@ -1313,7 +1313,6 @@ export abstract class Invoice extends Transactional {
 
     return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
   }
-
   async getStockTransfer(isAuto = false): Promise<StockTransfer | null> {
     if (!this.isSubmitted) {
       return null;
