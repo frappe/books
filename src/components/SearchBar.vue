@@ -252,6 +252,7 @@ import { docsPathMap } from 'src/utils/misc';
 import {
   SearchGroup,
   SearchItems,
+  SearchItem,
   getGroupLabelMap,
   searchGroups,
 } from 'src/utils/search';
