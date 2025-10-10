@@ -1051,12 +1051,11 @@ export abstract class Invoice extends Transactional {
               .grandTotal!.abs()
               .sub(sinvreturnedDoc.outstandingAmount!);
 
-            const returnAmount = this.grandTotal!.abs();
+            const intendedReturnAmount = this.grandTotal!.abs();
 
-            const result = returnAmount.lte(totalPaid)
-              ? returnAmount
+            return intendedReturnAmount.lte(totalPaid)
+              ? intendedReturnAmount
               : totalPaid;
-            return result;
           }
         }
 
