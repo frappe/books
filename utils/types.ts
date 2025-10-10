@@ -79,3 +79,21 @@ interface ModMap {
 export interface ConfigFilesWithModified extends ConfigFile {
   modified: string;
 }
+
+export const searchGroups = [
+  'Docs',
+  'List',
+  'Create',
+  'Report',
+  'Page',
+  'Recent',
+] as const;
+
+export type SearchGroup = typeof searchGroups[number];
+
+export interface SearchItem {
+  label: string;
+  group: Exclude<SearchGroup, 'Docs' | 'Recent'>;
+  route?: string;
+  action?: () => void | Promise<void>;
+}

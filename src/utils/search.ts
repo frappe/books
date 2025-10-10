@@ -10,23 +10,11 @@ import { safeParseFloat } from 'utils/index';
 import { RouteLocationRaw } from 'vue-router';
 import { fuzzyMatch } from '.';
 import { getFormRoute, routeTo } from './ui';
+import { searchGroups } from '../../utils/types';
+import type { SearchGroup, SearchItem } from '../../utils/types';
 
-export const searchGroups = [
-  'Docs',
-  'List',
-  'Create',
-  'Report',
-  'Page',
-  'Recent',
-] as const;
-
-export type SearchGroup = typeof searchGroups[number];
-interface SearchItem {
-  label: string;
-  group: Exclude<SearchGroup, 'Docs' | 'Recent'>;
-  route?: string;
-  action?: () => void | Promise<void>;
-}
+export { searchGroups };
+export type { SearchGroup, SearchItem };
 
 interface StoredRecentItem {
   label: string;
@@ -416,58 +404,40 @@ export class Search {
    * `skipT*` filters and the `schemaFilters`.
    */
 
-  debugRecentItems() {
-    const recents = this._loadAndCleanRecentItems();
-    return recents;
-  }
-
   private _loadAndCleanRecentItems(): StoredRecentItem[] {
     try {
       const raw = localStorage.getItem(this.recentKey);
-      if (!raw) {
-        return [];
-      }
-
-      const parsed: StoredRecentItem[] = JSON.parse(
-        raw ?? '[]'
-      ) as StoredRecentItem[];
-
-      return parsed;
+      return raw ? (JSON.parse(raw) as StoredRecentItem[]) : [];
     } catch (error) {
       return [];
     }
   }
 
   private _saveRecentItems(items: StoredRecentItem[]) {
-    try {
-      localStorage.setItem(this.recentKey, JSON.stringify(items));
-    } catch (error) {}
+    localStorage.setItem(this.recentKey, JSON.stringify(items));
   }
 
-  addToRecent(item: SearchItem | DocSearchItem) {
-    try {
-      const recents = this._loadAndCleanRecentItems();
+  addToRecent(item: SearchItems[number]) {
+    const recents = this._loadAndCleanRecentItems();
 
-      const recentItem: StoredRecentItem = {
-        label: item.label,
-        group: item.group,
-        timestamp: Date.now(),
-      };
+    const recentItem: StoredRecentItem = {
+      label: item.label,
+      group: item.group,
+      timestamp: Date.now(),
+    };
 
-      if ('route' in item && item.route) {
-        recentItem.route = item.route;
-      } else if (item.group === 'Docs') {
-        const docItem = item;
-        recentItem.schemaName = docItem.schemaLabel;
-      }
+    if ('route' in item && item.route) {
+      recentItem.route = item.route;
+    } else if (item.group === 'Docs') {
+      recentItem.schemaName = item.schemaLabel;
+    }
 
-      const updatedRecents = [
-        recentItem,
-        ...recents.filter((r) => r.label !== recentItem.label),
-      ].slice(0, this.maxRecentItems);
+    const updatedRecents = [
+      recentItem,
+      ...recents.filter((r) => r.label !== recentItem.label),
+    ].slice(0, this.maxRecentItems);
 
-      this._saveRecentItems(updatedRecents);
-    } catch (error) {}
+    this._saveRecentItems(updatedRecents);
   }
 
   getRecentItems(searchTerm?: string): RecentSearchItem[] {
@@ -515,12 +485,6 @@ export class Search {
   private _openReport(reportName: string) {
     const route = `/report/${reportName}`;
     void routeTo(route);
-  }
-
-  clearRecentItems() {
-    try {
-      localStorage.removeItem(this.recentKey);
-    } catch (error) {}
   }
 
   get skipTables() {
@@ -627,7 +591,7 @@ export class Search {
   }
 
   _searchSuggestions(input: string): SearchItems {
-    const matches: { si: SearchItem | DocSearchItem; distance: number }[] = [];
+    const matches: { si: SearchItems[number]; distance: number }[] = [];
 
     for (const si of this._intermediate.suggestions) {
       const label = si.label;
@@ -748,8 +712,7 @@ export class Search {
     items: (SearchItem | Keyword)[],
     input?: string
   ): SearchItems {
-    const subArray: { item: SearchItem | DocSearchItem; distance: number }[] =
-      [];
+    const subArray: { item: SearchItems[number]; distance: number }[] = [];
 
     for (const item of items) {
       const subArrayItem = this._getSubArrayItem(item, input);
@@ -764,7 +727,10 @@ export class Search {
     return subArray.map(({ item }) => item);
   }
 
-  _getSubArrayItem(item: SearchItem | Keyword, input?: string) {
+  _getSubArrayItem(
+    item: SearchItem | Keyword,
+    input?: string
+  ): { item: SearchItems[number]; distance: number } | null {
     if (isSearchItem(item)) {
       return this._getSubArrayItemFromSearchItem(item, input);
     }
