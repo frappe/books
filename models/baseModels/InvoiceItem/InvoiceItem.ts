@@ -19,11 +19,7 @@ import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { isPesa } from 'fyo/utils';
 import { PricingRule } from '../PricingRule/PricingRule';
-import {
-  getItemRateFromPriceList,
-  getItemVisibility,
-  getPricingRule,
-} from 'models/helpers';
+import { getItemRateFromPriceList, getPricingRule } from 'models/helpers';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
 import { QueryFilter } from 'utils/db/types';
 
@@ -635,7 +631,7 @@ export abstract class InvoiceItem extends Doc {
   };
 
   static filters: FiltersMap = {
-    item: async (doc: Doc) => {
+    item: (doc: Doc) => {
       let itemNotFor = 'Sales';
       if (doc.isSales) {
         itemNotFor = 'Purchases';
@@ -645,13 +641,32 @@ export abstract class InvoiceItem extends Doc {
         for: ['not in', [itemNotFor]],
       };
 
-      const itemVisibility = await getItemVisibility(doc.fyo);
+      const accountingSettings = doc.fyo.singles?.AccountingSettings;
+      const inventorySettings = doc.fyo.singles?.InventorySettings;
 
-      if (itemVisibility === 'Inventory Items') {
+      if (accountingSettings?.enablePointOfSaleWithOutInventory) {
+        const posSettings = doc.fyo.singles?.POSSettings;
+
+        const posItemVisibility = posSettings?.itemVisibility;
+
+        if (posItemVisibility === 'Inventory Items') {
+          return { ...baseFilter, trackItem: true };
+        }
+
+        if (posItemVisibility === 'Non-Inventory Items') {
+          return { ...baseFilter, trackItem: false };
+        }
+
+        return baseFilter;
+      }
+
+      const invItemVisibility = inventorySettings?.itemVisibility;
+
+      if (invItemVisibility === 'Inventory Items') {
         return { ...baseFilter, trackItem: true };
       }
 
-      if (itemVisibility === 'Non-Inventory Items') {
+      if (invItemVisibility === 'Non-Inventory Items') {
         return { ...baseFilter, trackItem: false };
       }
 
