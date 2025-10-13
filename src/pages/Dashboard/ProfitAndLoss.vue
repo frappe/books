@@ -32,6 +32,7 @@
   </div>
 </template>
 <script lang="ts">
+import { DateTime } from 'luxon';
 import BarChart from 'src/components/Charts/BarChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
@@ -101,6 +102,9 @@ export default defineComponent({
     this.setData();
   },
   methods: {
+    formatCustomRange(fromDate: DateTime, toDate: DateTime): string {
+      return `${fromDate.toFormat('MMM dd')} - ${toDate.toFormat('MMM dd')}`;
+    },
     async setData() {
       const { fromDate, toDate, periodList } = getDashboardDates(
         this.period,
@@ -125,6 +129,14 @@ export default defineComponent({
         const exp = expenses[key] ?? 0;
         return { yearmonth: key, balance: inc - exp };
       });
+      if (
+        this.period === 'Custom' &&
+        toDate.diff(fromDate, 'days').days < 30 &&
+        this.data.length === 1
+      ) {
+        this.data[0].yearmonth = this.formatCustomRange(fromDate, toDate);
+      }
+
       this.hasData = data.income.length > 0 || data.expense.length > 0;
     },
   },

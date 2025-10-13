@@ -41,7 +41,7 @@ export class BespokeQueries {
       .from('Account')
       .where('rootType', 'Expense');
 
-    const topExpenses = await db
+    let topExpenses = await db
       .knex!.select({
         total: db.knex!.raw('sum(cast(debit as real) - cast(credit as real))'),
       })
@@ -53,6 +53,23 @@ export class BespokeQueries {
       .groupBy('account')
       .orderBy('total', 'desc')
       .limit(5);
+
+    if (topExpenses.length === 0) {
+      topExpenses = await db.knex!('PurchaseInvoiceItem as piItem')
+        .join('PurchaseInvoice as pi', 'piItem.parent', 'pi.name')
+        .select({
+          total: db.knex!.raw('sum(cast(piItem.baseAmount as real))'),
+          account: 'piItem.account',
+        })
+        .where('pi.submitted', true)
+        .where('pi.cancelled', false)
+        .whereBetween('pi.date', [fromDate, toDate])
+        .where('piItem.account', 'in', expenseAccounts)
+        .groupBy('piItem.account')
+        .orderBy('total', 'desc')
+        .limit(5);
+    }
+
     return topExpenses as TopExpenses;
   }
 
@@ -96,7 +113,7 @@ export class BespokeQueries {
     fromDate: string,
     toDate: string
   ) {
-    const income = (await db.knex!.raw(
+    let income = (await db.knex!.raw(
       `
       select sum(cast(credit as real) - cast(debit as real)) as balance, strftime('%Y-%m', date) as yearmonth
       from AccountingLedgerEntry
@@ -112,7 +129,7 @@ export class BespokeQueries {
       [fromDate, toDate]
     )) as IncomeExpense['income'];
 
-    const expense = (await db.knex!.raw(
+    let expense = (await db.knex!.raw(
       `
       select sum(cast(debit as real) - cast(credit as real)) as balance, strftime('%Y-%m', date) as yearmonth
       from AccountingLedgerEntry
@@ -127,6 +144,32 @@ export class BespokeQueries {
       group by yearmonth`,
       [fromDate, toDate]
     )) as IncomeExpense['expense'];
+
+    if (income.length === 0) {
+      income = await db.knex!('SalesInvoice')
+        .select(
+          db.knex!.raw(
+            "sum(cast(baseGrandTotal as real)) as balance, strftime('%Y-%m', date) as yearmonth"
+          )
+        )
+        .where('submitted', true)
+        .where('cancelled', false)
+        .whereBetween('date', [fromDate, toDate])
+        .groupBy('yearmonth');
+    }
+
+    if (expense.length === 0) {
+      expense = await db.knex!('PurchaseInvoice')
+        .select(
+          db.knex!.raw(
+            "sum(cast(baseGrandTotal as real)) as balance, strftime('%Y-%m', date) as yearmonth"
+          )
+        )
+        .where('submitted', true)
+        .where('cancelled', false)
+        .whereBetween('date', [fromDate, toDate])
+        .groupBy('yearmonth');
+    }
 
     return { income, expense };
   }
