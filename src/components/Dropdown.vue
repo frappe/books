@@ -190,10 +190,12 @@ export default defineComponent({
       }
 
       if (this.doc) {
-        return await d.action(this.doc, this.$router);
+        await d.action(this.doc, this.$router);
+      } else {
+        await d.action();
       }
 
-      await d.action();
+      this.toggleDropdown(false);
     },
     toggleDropdown(flag?: boolean): void {
       if (typeof flag !== 'boolean') {
@@ -203,9 +205,17 @@ export default defineComponent({
       this.isShown = flag;
     },
     async selectHighlightedItem(): Promise<void> {
-      let item = this.items[this.highlightedIndex];
-      if (!item && this.dropdownItems.length === 1) {
-        item = this.dropdownItems[0];
+      let item = this.dropdownItems[this.highlightedIndex];
+      if (!item) {
+        if (this.dropdownItems.length === 1) {
+          item = this.dropdownItems[0];
+        } else {
+          return;
+        }
+      }
+
+      if (item.isGroup) {
+        return;
       }
 
       return await this.selectItem(item);
