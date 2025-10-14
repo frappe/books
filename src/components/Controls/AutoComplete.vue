@@ -28,13 +28,17 @@
           :tabindex="isReadOnly ? '-1' : '0'"
           @focus="(e) => !isReadOnly && onInputFocus(e)"
           @click="(e) => !isReadOnly && onClick(e, toggleDropdown)"
-          @blur="(e) => !isReadOnly && onBlur(e.target.value)"
-          @input="onInput"
-          @keydown.up="highlightItemUp"
-          @keydown.down="highlightItemDown"
-          @keydown.enter="selectHighlightedItem"
-          @keydown.tab="toggleDropdown(false)"
-          @keydown.esc="toggleDropdown(false)"
+          @blur="(e) => !isReadOnly && onBlur(e.target.value, toggleDropdown)"
+          @input="(e) => onInput(e, toggleDropdown)"
+          @keydown.up="onKeyDownUp($event, toggleDropdown, highlightItemUp)"
+          @keydown.down="
+            onKeyDownDown($event, toggleDropdown, highlightItemDown)
+          "
+          @keydown.enter="
+            onPressEnter($event, toggleDropdown, selectHighlightedItem)
+          "
+          @keydown.tab="onTab($event, toggleDropdown)"
+          @keydown.esc="onEsc($event, toggleDropdown)"
         />
 
         <svg
@@ -130,6 +134,7 @@ export default {
       suggestions: [],
       highlightedIndex: -1,
       isFocused: false,
+      isDropdownOpen: false,
     };
   },
   computed: {
@@ -231,11 +236,8 @@ export default {
     getLinkValue(value) {
       const oldValue = this.linkValue;
       let option = this.options.find((o) => o.value === value);
-      if (option === undefined) {
-        option = this.options.find((o) => o.label === value);
-      }
-
-      if (!value && option === undefined) {
+      if (!option) option = this.options.find((o) => o.label === value);
+      if (!value && !option) {
         return null;
       }
 
@@ -254,13 +256,9 @@ export default {
 
     setSetSuggestionAction(suggestions) {
       for (const option of suggestions) {
-        if (option.action) {
-          continue;
+        if (!option.action) {
+          option.action = () => this.setSuggestion(option);
         }
-
-        option.action = () => {
-          this.setSuggestion(option);
-        };
       }
 
       return suggestions;
@@ -287,29 +285,28 @@ export default {
         this.setLinkValue(suggestion.label);
         this.triggerChange(suggestion.value);
       }
-
-      this.toggleDropdown(false);
     },
     onInputFocus(e) {
       this.isFocused = true;
     },
     onClick(e, toggleDropdown) {
       if (this.isFocused) {
-        this.toggleDropdown = toggleDropdown;
-        this.toggleDropdown(true);
+        toggleDropdown(true);
         this.updateSuggestions();
+        this.isDropdownOpen = true;
         this.$emit('focus', e);
       }
     },
     onFocus(e, toggleDropdown) {
       this.isFocused = true;
-      this.toggleDropdown = toggleDropdown;
-      this.toggleDropdown(true);
+      toggleDropdown(true);
       this.updateSuggestions();
+      this.isDropdownOpen = true;
       this.$emit('focus', e);
     },
-    async onBlur(label) {
+    async onBlur(label, toggleDropdown) {
       this.isFocused = false;
+      this.isDropdownOpen = false;
       if (!label && !this.value) {
         return;
       }
@@ -331,22 +328,63 @@ export default {
         this.setSuggestion(suggestions[0]);
       }
     },
-    onInput(e) {
-      if (this.isReadOnly) {
-        return;
-      }
+
+    onInput(e, toggleDropdown) {
+      if (this.isReadOnly) return;
 
       if (!e.target.value || this.focInp) {
         e.target.value = null;
         this.focInp = false;
-        this.toggleDropdown(false);
-
+        toggleDropdown(false);
         return;
       }
 
       this.triggerChange(e.target.value);
-      this.toggleDropdown(true);
       this.updateSuggestions(e.target.value);
+    },
+
+    async onPressEnter(e, toggleDropdown, selectHighlightedItem) {
+      e.preventDefault();
+
+      if (
+        this.suggestions.length > 0 &&
+        this.isFocused &&
+        this.isDropdownOpen
+      ) {
+        await selectHighlightedItem();
+        toggleDropdown(false);
+        this.isDropdownOpen = false;
+        return;
+      }
+
+      await this.updateSuggestions(this.linkValue || e.target.value);
+      toggleDropdown(true);
+      this.isDropdownOpen = true;
+    },
+
+    onKeyDownUp(e, toggleDropdown, highlightItemUp) {
+      if (this.suggestions.length === 0) {
+        this.updateSuggestions();
+        toggleDropdown(true);
+        this.isDropdownOpen = true;
+      }
+      highlightItemUp();
+    },
+    onKeyDownDown(e, toggleDropdown, highlightItemDown) {
+      if (this.suggestions.length === 0) {
+        this.updateSuggestions();
+        toggleDropdown(true);
+        this.isDropdownOpen = true;
+      }
+      highlightItemDown();
+    },
+    onTab(e, toggleDropdown) {
+      toggleDropdown(false);
+      this.isDropdownOpen = false;
+    },
+    onEsc(e, toggleDropdown) {
+      toggleDropdown(false);
+      this.isDropdownOpen = false;
     },
   },
 };
