@@ -37,8 +37,8 @@
           @keydown.enter="
             onPressEnter($event, toggleDropdown, selectHighlightedItem)
           "
-          @keydown.tab="onTab($event, toggleDropdown)"
-          @keydown.esc="onEsc($event, toggleDropdown)"
+          @keydown.tab="closeDropdown($event, toggleDropdown)"
+          @keydown.esc="closeDropdown($event, toggleDropdown)"
         />
 
         <svg
@@ -236,7 +236,9 @@ export default {
     getLinkValue(value) {
       const oldValue = this.linkValue;
       let option = this.options.find((o) => o.value === value);
-      if (!option) option = this.options.find((o) => o.label === value);
+      if (!option) {
+        option = this.options.find((o) => o.label === value);
+      }
       if (!value && !option) {
         return null;
       }
@@ -330,7 +332,9 @@ export default {
     },
 
     onInput(e, toggleDropdown) {
-      if (this.isReadOnly) return;
+      if (this.isReadOnly) {
+        return;
+      }
 
       if (!e.target.value || this.focInp) {
         e.target.value = null;
@@ -352,8 +356,7 @@ export default {
         this.isDropdownOpen
       ) {
         await selectHighlightedItem();
-        toggleDropdown(false);
-        this.isDropdownOpen = false;
+        this.closeDropdown(e, toggleDropdown);
         return;
       }
 
@@ -378,11 +381,7 @@ export default {
       }
       highlightItemDown();
     },
-    onTab(e, toggleDropdown) {
-      toggleDropdown(false);
-      this.isDropdownOpen = false;
-    },
-    onEsc(e, toggleDropdown) {
+    closeDropdown(e, toggleDropdown) {
       toggleDropdown(false);
       this.isDropdownOpen = false;
     },
