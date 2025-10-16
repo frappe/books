@@ -33,6 +33,14 @@
           />
         </button>
 
+        <!-- Open Button -->
+        <button v-if="value" class="p-0.5 rounded" @click="open">
+          <FeatherIcon
+            name="eye"
+            class="h-4 w-4 text-gray-600 dark:text-gray-400"
+          />
+        </button>
+
         <!-- Download Button -->
         <button v-if="value" class="p-0.5 rounded" @click="download">
           <FeatherIcon
@@ -124,6 +132,18 @@ export default defineComponent({
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    },
+    open() {
+      if (!this.value) {
+        return;
+      }
+
+      const { name, data } = this.value;
+      if (!name || !data) {
+        return;
+      }
+
+      ipc.openDataURL(data, name);
     },
     async selectFile(e: Event) {
       const target = e.target as HTMLInputElement;
