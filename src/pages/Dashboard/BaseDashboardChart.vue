@@ -16,6 +16,7 @@ export default defineComponent({
         'YTD',
         'This Quarter',
         'This Month',
+        'Custom',
       ] as PeriodKey[],
     };
   },

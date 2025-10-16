@@ -32,16 +32,17 @@
   </div>
 </template>
 <script lang="ts">
+import { DateTime } from 'luxon';
 import BarChart from 'src/components/Charts/BarChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
 import { uicolors } from 'src/utils/colors';
-import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getValueMapFromList } from 'utils';
 import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 import { defineComponent } from 'vue';
+import { getDashboardDates } from 'src/utils/dashboardDateUtils';
 
 // Linting broken in this file cause of `extends: ...`
 /*
@@ -58,11 +59,13 @@ export default defineComponent({
   extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
+    fromDate: { type: [String, Date], default: '' },
+    toDate: { type: [String, Date], default: '' },
   },
   data: () => ({
     data: [] as { yearmonth: string; balance: number }[],
     hasData: false,
-    periodOptions: ['This Year', 'This Quarter', 'YTD'],
+    periodOptions: ['This Year', 'This Quarter', 'YTD', 'Custom'],
   }),
   computed: {
     chartData() {
@@ -90,13 +93,23 @@ export default defineComponent({
       };
     },
   },
+  watch: {
+    fromDate: 'setData',
+    toDate: 'setData',
+    period: 'setData',
+  },
   activated() {
     this.setData();
   },
   methods: {
+    formatCustomRange(fromDate: DateTime, toDate: DateTime): string {
+      return `${fromDate.toFormat('MMM dd')} - ${toDate.toFormat('MMM dd')}`;
+    },
     async setData() {
-      const { fromDate, toDate, periodList } = getDatesAndPeriodList(
-        this.period
+      const { fromDate, toDate, periodList } = getDashboardDates(
+        this.period,
+        this.fromDate,
+        this.toDate
       );
 
       const data = await fyo.db.getIncomeAndExpenses(
@@ -116,6 +129,14 @@ export default defineComponent({
         const exp = expenses[key] ?? 0;
         return { yearmonth: key, balance: inc - exp };
       });
+      if (
+        this.period === 'Custom' &&
+        toDate.diff(fromDate, 'days').days < 30 &&
+        this.data.length === 1
+      ) {
+        this.data[0].yearmonth = this.formatCustomRange(fromDate, toDate);
+      }
+
       this.hasData = data.income.length > 0 || data.expense.length > 0;
     },
   },

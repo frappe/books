@@ -62,8 +62,7 @@ import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import { defineComponent } from 'vue';
 import { getMapFromList } from 'utils/index';
-import { PeriodKey } from 'src/utils/types';
-
+import { DateTime } from 'luxon';
 // Linting broken in this file cause of `extends: ...`
 /* 
   eslint-disable @typescript-eslint/no-unsafe-argument, 
@@ -79,46 +78,60 @@ export default defineComponent({
   extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
+    fromDate: { type: [String, Date], default: '' },
+    toDate: { type: [String, Date], default: '' },
+    customPeriod: { type: String, default: 'This Year' },
   },
   data: () => ({
-    data: [] as { inflow: number; outflow: number; yearmonth: string }[],
+    cashflowRecords: [] as {
+      inflow: number;
+      outflow: number;
+      yearmonth: string;
+    }[],
     periodList: [],
-    periodOptions: ['This Year', 'This Quarter', 'YTD'],
+    periodOptions: ['This Year', 'This Quarter', 'YTD', 'Custom'],
     hasData: false,
   }),
   computed: {
     chartData() {
-      let data = this.data;
+      let records = this.cashflowRecords;
       let colors = [
         uicolors.blue[this.darkMode ? '600' : '500'],
         uicolors.pink[this.darkMode ? '600' : '500'],
       ];
       if (!this.hasData) {
-        data = dummyData;
+        records = dummyData;
         colors = [
           this.darkMode ? uicolors.gray['700'] : uicolors.gray['200'],
           this.darkMode ? uicolors.gray['800'] : uicolors.gray['100'],
         ];
       }
 
-      const xLabels = data.map((cf) => cf.yearmonth);
-      const points = (['inflow', 'outflow'] as const).map((k) =>
-        data.map((d) => d[k])
+      const xLabels = records.map((cf) => cf.yearmonth);
+      const points = (['inflow', 'outflow'] as const).map((flowType) =>
+        records.map((entry) => entry[flowType])
       );
 
-      const format = (value: number) => fyo.format(value ?? 0, 'Currency');
+      const formatCurrency = (value: number) =>
+        fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
+
       return {
         points,
         xLabels,
         colors,
-        format,
+        format: formatCurrency,
         yMax,
         formatX: formatXLabels,
         gridColor: this.darkMode ? 'rgba(200, 200, 200, 0.2)' : undefined,
         fontColor: this.darkMode ? uicolors.gray['400'] : undefined,
       };
     },
+  },
+  watch: {
+    period: 'setData',
+    fromDate: 'setData',
+    toDate: 'setData',
   },
   async activated() {
     await this.setData();
@@ -128,24 +141,53 @@ export default defineComponent({
   },
   methods: {
     async setData() {
-      const { periodList, fromDate, toDate } = getDatesAndPeriodList(
-        this.period as PeriodKey
-      );
+      let fromDate: DateTime;
+      let toDate: DateTime;
+      let generatedPeriods: DateTime[] = [];
 
-      const data = await fyo.db.getCashflow(fromDate.toISO(), toDate.toISO());
-      const dataMap = getMapFromList(data, 'yearmonth');
-      this.data = periodList.map((p) => {
-        const key = p.toFormat('yyyy-MM');
-        const item = dataMap[key];
-        if (item) {
-          return item;
+      if (this.period === 'Custom') {
+        const parseDate = (date: string | Date) =>
+          DateTime.fromISO(
+            typeof date === 'string' ? date : date.toISOString()
+          );
+
+        fromDate = parseDate(this.fromDate);
+        toDate = parseDate(this.toDate);
+
+        let monthPointer = fromDate.startOf('month');
+        const toMonthStart = toDate.startOf('month');
+
+        while (monthPointer <= toMonthStart) {
+          generatedPeriods.push(monthPointer);
+          monthPointer = monthPointer.plus({ months: 1 });
         }
 
-        return {
-          inflow: 0,
-          outflow: 0,
-          yearmonth: key,
-        };
+        generatedPeriods.push(fromDate.startOf('month'));
+      } else {
+        const dateRange = getDatesAndPeriodList(this.period);
+        fromDate = dateRange.fromDate;
+        toDate = dateRange.toDate;
+        generatedPeriods = dateRange.periodList;
+      }
+
+      const cashflowData = await fyo.db.getCashflow(
+        fromDate.toISO(),
+        toDate.toISO()
+      );
+      const cashflowMap = getMapFromList(cashflowData, 'yearmonth');
+
+      this.period = this.commonPeriod;
+      this.cashflowRecords = generatedPeriods.map((periodDate) => {
+        const key = periodDate.toFormat('yyyy-MM');
+        const entry = cashflowMap[key];
+
+        return (
+          entry ?? {
+            inflow: 0,
+            outflow: 0,
+            yearmonth: key,
+          }
+        );
       });
     },
     async setHasData() {
@@ -154,11 +196,14 @@ export default defineComponent({
           accountType: ['in', [AccountTypeEnum.Cash, AccountTypeEnum.Bank]],
         },
       });
-      const accountNames = accounts.map((a) => a.name as string);
-      const count = await fyo.db.count(ModelNameEnum.AccountingLedgerEntry, {
-        filters: { account: ['in', accountNames] },
-      });
-      this.hasData = count > 0;
+      const accountNames = accounts.map((account) => account.name as string);
+      const ledgerEntryCount = await fyo.db.count(
+        ModelNameEnum.AccountingLedgerEntry,
+        {
+          filters: { account: ['in', accountNames] },
+        }
+      );
+      this.hasData = ledgerEntryCount > 0;
     },
   },
 });
