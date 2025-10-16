@@ -4,6 +4,8 @@ import { emitMainProcessError } from '../backend/helpers';
 import { Main } from '../main';
 import { isNetworkError } from './helpers';
 
+let availableUpdate: UpdateInfo | null = null;
+
 export default function registerAutoUpdaterListeners(main: Main) {
   autoUpdater.autoDownload = false;
   autoUpdater.allowPrerelease = true;
@@ -21,34 +23,44 @@ export default function registerAutoUpdaterListeners(main: Main) {
     emitMainProcessError(error);
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  autoUpdater.on('update-available', async (info: UpdateInfo) => {
-    const currentVersion = app.getVersion();
-    const nextVersion = info.version;
-    const isCurrentBeta = currentVersion.includes('beta');
-    const isNextBeta = nextVersion.includes('beta');
+  autoUpdater.on('update-available', (info: UpdateInfo) => {
+    void (async () => {
+      const updateInfo = info;
 
-    let downloadUpdate = true;
-    if (!isCurrentBeta && isNextBeta) {
-      const option = await dialog.showMessageBox({
-        type: 'info',
-        title: 'Update Available',
-        message: `Download version ${nextVersion}?`,
-        buttons: ['Yes', 'No'],
-      });
+      availableUpdate = updateInfo;
 
-      downloadUpdate = option.response === 0;
-    }
+      const currentVersion = app.getVersion();
+      const nextVersion = updateInfo.version;
+      const isCurrentBeta = currentVersion.includes('beta');
+      const isNextBeta = nextVersion.includes('beta');
 
-    if (!downloadUpdate) {
-      return;
-    }
+      let downloadUpdate = true;
+      if (!isCurrentBeta && isNextBeta) {
+        const option = await dialog.showMessageBox({
+          type: 'info',
+          title: 'Update Available',
+          message: `Download version ${nextVersion}?`,
+          buttons: ['Yes', 'No'],
+        });
 
-    await autoUpdater.downloadUpdate();
+        downloadUpdate = option.response === 0;
+      }
+
+      if (!downloadUpdate) {
+        availableUpdate = null;
+        return;
+      }
+
+      await autoUpdater.downloadUpdate();
+    })();
   });
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   autoUpdater.on('update-downloaded', async () => {
+    if (main.mainWindow && !main.mainWindow.isDestroyed()) {
+      main.mainWindow.webContents.send('update-downloaded');
+    }
+
     const option = await dialog.showMessageBox({
       type: 'info',
       title: 'Update Downloaded',
@@ -60,6 +72,15 @@ export default function registerAutoUpdaterListeners(main: Main) {
       return;
     }
 
+    availableUpdate = null;
     autoUpdater.quitAndInstall();
   });
+}
+
+export function getAvailableUpdate(): UpdateInfo | null {
+  return availableUpdate;
+}
+
+export function clearAvailableUpdate(): void {
+  availableUpdate = null;
 }
