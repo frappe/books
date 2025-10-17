@@ -674,6 +674,12 @@ export class Payment extends Transactional {
           } else {
             return 'Receive';
           }
+        } else if (partyDoc.role === 'Both') {
+          if (refDoc?.isSales && refDoc.isReturn) {
+            return 'Pay';
+          } else {
+            return 'Receive';
+          }
         }
 
         if (outstanding?.isZero() ?? true) {
