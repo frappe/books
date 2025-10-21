@@ -163,17 +163,11 @@ export default function registerIpcMainActionListeners(main: Main) {
       const availableUpdate = getAvailableUpdate();
       if (availableUpdate) {
         const currentVersion = app.getVersion();
-        const isCurrentBeta = currentVersion.includes('beta');
-        const isNextBeta = availableUpdate.version.includes('beta');
 
         return {
           available: true,
           currentVersion,
-          nextVersion: availableUpdate.version,
-          isCurrentBeta,
-          isNextBeta,
-          releaseNotes: availableUpdate.releaseNotes,
-          releaseDate: availableUpdate.releaseDate,
+          newVersion: availableUpdate.version,
         };
       }
 
@@ -200,7 +194,7 @@ export default function registerIpcMainActionListeners(main: Main) {
     return obj;
   });
 
-  ipcMain.handle('download-update-manual', async () => {
+  ipcMain.handle(IPC_ACTIONS.DOWNLOAD_UPDATE_MANUAL, async () => {
     const availableUpdate = getAvailableUpdate();
     if (!availableUpdate) {
       throw new Error('No update available to download');

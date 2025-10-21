@@ -29,6 +29,8 @@ export enum IPC_ACTIONS {
   SEND_ERROR = 'send-error',
   GET_LANGUAGE_MAP = 'get-language-map',
   CHECK_FOR_UPDATES = 'check-for-updates',
+  DOWNLOAD_UPDATE = 'download-update',
+  DOWNLOAD_UPDATE_MANUAL = 'download-update-manual',
   CHECK_DB_ACCESS = 'check-db-access',
   SELECT_FILE = 'select-file',
   GET_CREDS = 'get-creds',

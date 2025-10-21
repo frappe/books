@@ -21,22 +21,9 @@ export interface MessageDialogOptions {
   detail?: string;
   buttons?: MessageDialogButton[];
 }
-export interface UpdateInfo {
-  currentVersion: string;
-  nextVersion: string;
-  isCurrentBeta: boolean;
-  isNextBeta: boolean;
-  releaseNotes?: string;
-  releaseDate?: string;
-}
 
 export interface UpdateCheckResult {
   available: boolean;
-  currentVersion?: string;
-  nextVersion?: string;
-  isCurrentBeta?: boolean;
-  isNextBeta?: boolean;
-  releaseNotes?: string;
   releaseDate?: string;
   error?: string;
 }

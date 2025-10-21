@@ -1,4 +1,4 @@
-import { app, dialog } from 'electron';
+import { dialog } from 'electron';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
 import { emitMainProcessError } from '../backend/helpers';
 import { Main } from '../main';
@@ -28,28 +28,6 @@ export default function registerAutoUpdaterListeners(main: Main) {
       const updateInfo = info;
 
       availableUpdate = updateInfo;
-
-      const currentVersion = app.getVersion();
-      const nextVersion = updateInfo.version;
-      const isCurrentBeta = currentVersion.includes('beta');
-      const isNextBeta = nextVersion.includes('beta');
-
-      let downloadUpdate = true;
-      if (!isCurrentBeta && isNextBeta) {
-        const option = await dialog.showMessageBox({
-          type: 'info',
-          title: 'Update Available',
-          message: `Download version ${nextVersion}?`,
-          buttons: ['Yes', 'No'],
-        });
-
-        downloadUpdate = option.response === 0;
-      }
-
-      if (!downloadUpdate) {
-        availableUpdate = null;
-        return;
-      }
 
       await autoUpdater.downloadUpdate();
     })();

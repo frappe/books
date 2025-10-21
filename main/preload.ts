@@ -64,7 +64,9 @@ const ipc = {
   },
 
   async downloadUpdate(): Promise<unknown> {
-    const result: unknown = await ipcRenderer.invoke('download-update');
+    const result: unknown = await ipcRenderer.invoke(
+      IPC_ACTIONS.DOWNLOAD_UPDATE
+    );
     return result;
   },
 
@@ -144,7 +146,7 @@ const ipc = {
 
   async downloadUpdateManual(): Promise<{ path: string }> {
     const result: { path: string } = (await ipcRenderer.invoke(
-      'download-update-manual'
+      IPC_ACTIONS.DOWNLOAD_UPDATE_MANUAL
     )) as { path: string };
     return result;
   },
