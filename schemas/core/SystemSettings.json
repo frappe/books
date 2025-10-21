@@ -73,6 +73,14 @@
       "section": "Default"
     },
     {
+      "fieldname": "removeFilter",
+      "label": "Remove Filter",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "When enabled, removes all default filters applied across the system, showing all available options instead of filtered ones.",
+      "section": "Default"
+    },
+    {
       "fieldname": "locale",
       "label": "Locale",
       "fieldtype": "AutoComplete",

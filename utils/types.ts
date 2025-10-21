@@ -1,4 +1,4 @@
-import type { ConfigFile } from 'fyo/core/types';
+import type { ConfigFile, RawValueMap } from 'fyo/core/types';
 
 export type UnknownMap = Record<string, unknown>;
 export type Translation = { translation: string; context?: string };
@@ -96,4 +96,6 @@ export interface SearchItem {
   group: Exclude<SearchGroup, 'Docs' | 'Recent'>;
   route?: string;
   action?: () => void | Promise<void>;
+  schemaName?: string;
+  initData?: RawValueMap;
 }
