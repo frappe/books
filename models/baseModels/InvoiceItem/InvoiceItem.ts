@@ -662,11 +662,9 @@ export abstract class InvoiceItem extends Doc {
 
       const invItemVisibility = inventorySettings?.itemVisibility;
 
-      if (invItemVisibility === 'Inventory Items') {
+      if (invItemVisibility) {
         return { ...baseFilter, trackItem: true };
-      }
-
-      if (invItemVisibility === 'Non-Inventory Items') {
+      } else {
         return { ...baseFilter, trackItem: false };
       }
 

@@ -15,18 +15,8 @@
     {
       "fieldname": "itemVisibility",
       "label": "Item Visibility",
-      "fieldtype": "Select",
-      "options": [
-        {
-          "value": "Inventory Items",
-          "label": "Inventory Items"
-        },
-        {
-          "value": "Non-Inventory Items",
-          "label": "Non-Inventory Items"
-        }
-      ],
-      "default": "Non-Inventory Items",
+      "fieldtype": "Check",
+      "default": false,
       "required": true,
       "section": "Default"
     },
