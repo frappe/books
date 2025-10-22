@@ -1,6 +1,14 @@
 <template>
   <div class="flex flex-col">
     <PageHeader :title="title">
+      <Button
+        v-if="customizeEnabled"
+        ref="customizeColumnsButton"
+        :icon="false"
+        @click="openColumnSelectorModal = true"
+      >
+        {{ t`Customize Columns` }}
+      </Button>
       <Button ref="exportButton" :icon="false" @click="openExportModal = true">
         {{ t`Export` }}
       </Button>
@@ -40,11 +48,20 @@
         :list-filters="listFilters"
       />
     </Modal>
+    <ColumnSelectorModal
+      v-if="customizeEnabled"
+      :open-modal="openColumnSelectorModal"
+      :schema-name="schemaName"
+      :current-columns="currentColumns"
+      @close="openColumnSelectorModal = false"
+      @columns-saved="saveColumns"
+    />
   </div>
 </template>
 <script lang="ts">
 import { Field } from 'schemas/types';
 import Button from 'src/components/Button.vue';
+import ColumnSelectorModal from 'src/components/ColumnSelectorModal.vue';
 import ExportWizard from 'src/components/ExportWizard.vue';
 import FilterDropdown from 'src/components/FilterDropdown.vue';
 import Modal from 'src/components/Modal.vue';
@@ -60,6 +77,7 @@ import { getFormRoute, routeTo } from 'src/utils/ui';
 import { QueryFilter } from 'utils/db/types';
 import { defineComponent, inject, ref } from 'vue';
 import List from './List.vue';
+import { ListViewSettings } from 'fyo/model/types';
 
 export default defineComponent({
   name: 'ListView',
@@ -67,6 +85,7 @@ export default defineComponent({
     PageHeader,
     List,
     Button,
+    ColumnSelectorModal,
     FilterDropdown,
     Modal,
     ExportWizard,
@@ -82,6 +101,7 @@ export default defineComponent({
       list: ref<InstanceType<typeof List> | null>(null),
       makeNewDocButton: ref<InstanceType<typeof Button> | null>(null),
       exportButton: ref<InstanceType<typeof Button> | null>(null),
+      customizeColumnsButton: ref<InstanceType<typeof Button> | null>(null),
       filterDropdown: ref<InstanceType<typeof FilterDropdown> | null>(null),
     };
   },
@@ -89,10 +109,14 @@ export default defineComponent({
     return {
       listConfig: undefined,
       openExportModal: false,
+      openColumnSelectorModal: false,
+      currentColumns: [] as string[],
       listFilters: {},
     } as {
       listConfig: undefined | ReturnType<typeof getListConfig>;
       openExportModal: boolean;
+      openColumnSelectorModal: boolean;
+      currentColumns: string[];
       listFilters: QueryFilter;
     };
   },
@@ -113,9 +137,16 @@ export default defineComponent({
     canCreate(): boolean {
       return fyo.schemaMap[this.schemaName]?.create !== false;
     },
+    customizeEnabled(): boolean {
+      return !!fyo.singles.SystemSettings?.customize;
+    },
   },
   activated() {
     this.listConfig = getListConfig(this.schemaName);
+    this.currentColumns =
+      this.listConfig?.columns?.map((col) =>
+        typeof col === 'string' ? col : col.fieldname
+      ) || [];
     docsPathRef.value =
       docsPathMap[this.schemaName] ?? docsPathMap.Entries ?? '';
 
@@ -142,6 +173,9 @@ export default defineComponent({
       this.shortcuts.pmod.set(this.context, ['KeyE'], () =>
         this.exportButton?.$el.click()
       );
+      this.shortcuts.pmod.set(this.context, ['KeyC'], () =>
+        this.customizeColumnsButton?.$el.click()
+      );
     },
     updatedData(listFilters: QueryFilter) {
       this.listFilters = listFilters;
@@ -163,16 +197,46 @@ export default defineComponent({
     applyFilter(filters: QueryFilter) {
       this.list?.updateData(filters);
     },
+    saveColumns(selectedColumns: string[]) {
+      this.currentColumns = selectedColumns;
+      this.listConfig = { ...this.listConfig, columns: selectedColumns };
+      localStorage.setItem(
+        `listViewColumns_${this.schemaName}`,
+        JSON.stringify(selectedColumns)
+      );
+    },
   },
 });
 
-function getListConfig(schemaName: string) {
+function getListConfig(schemaName: string): ListViewSettings {
   const listConfig = fyo.models[schemaName]?.getListViewSettings?.(fyo);
-  if (listConfig?.columns === undefined) {
-    return {
-      columns: ['name'],
-    };
+  let columns: string[] | undefined;
+
+  const savedColumns = localStorage.getItem(`listViewColumns_${schemaName}`);
+  if (savedColumns) {
+    try {
+      columns = JSON.parse(savedColumns);
+      if (!columns || columns.length === 0) {
+        columns = undefined;
+      }
+    } catch (e) {
+      columns = undefined;
+    }
   }
-  return listConfig;
+
+  if (columns === undefined) {
+    if (!listConfig?.columns || listConfig.columns.length === 0) {
+      columns = ['name'];
+    } else {
+      columns = listConfig.columns.map((col) =>
+        typeof col === 'string' ? col : col.fieldname
+      );
+    }
+  }
+
+  return {
+    ...listConfig,
+    columns,
+  };
 }
 </script>
