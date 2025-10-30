@@ -124,6 +124,21 @@ function getReportSidebar() {
         route: '/report/GeneralLedger',
       },
       {
+        label: t`Party Ledger`,
+        name: 'party-ledger',
+        route: '/report/PartyLedger',
+      },
+      {
+        label: t`Customer Ledger`,
+        name: 'customer-ledger',
+        route: '/report/PartyLedger?role=Customer',
+      },
+      {
+        label: t`Supplier Ledger`,
+        name: 'supplier-ledger',
+        route: '/report/PartyLedger?role=Supplier',
+      },
+      {
         label: t`Profit And Loss`,
         name: 'profit-and-loss',
         route: '/report/ProfitAndLoss',
