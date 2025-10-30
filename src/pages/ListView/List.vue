@@ -7,7 +7,24 @@
         paddingRight: dataSlice.length > 13 ? 'var(--w-scrollbar)' : '',
       }"
     >
-      <p class="w-8 text-end me-4 text-gray-700 dark:text-gray-400">#</p>
+      <div
+        v-if="!isSelectionMode"
+        class="w-8 text-end me-2 text-gray-700 dark:text-gray-400"
+      >
+        #
+      </div>
+      <div v-else class="w-8 flex justify-end me-2">
+        <Check
+          :df="{
+            fieldtype: 'Check',
+            fieldname: 'selectAll',
+            label: '',
+          }"
+          :show-label="false"
+          :value="isAllSelected"
+          @change="toggleSelectAll"
+        />
+      </div>
       <Row
         class="flex-1 text-gray-700 dark:text-gray-400 h-row-mid"
         :column-count="columns.length"
@@ -47,9 +64,25 @@
       <div v-for="(row, i) in dataSlice" :key="(row.name as string)">
         <!-- Row Content -->
         <div class="flex hover:bg-gray-50 dark:hover:bg-gray-850 items-center">
-          <p class="w-8 text-end me-4 text-gray-900 dark:text-gray-25">
+          <div
+            v-if="!isSelectionMode"
+            class="w-8 text-end me-2 text-gray-700 dark:text-gray-400"
+          >
             {{ i + pageStart + 1 }}
-          </p>
+          </div>
+          <div v-else class="w-8 flex justify-end me-2">
+            <Check
+              :df="{
+                fieldtype: 'Check',
+                fieldname: 'selectItem',
+                label: '',
+              }"
+              :show-label="false"
+              :value="selectedItems.includes(row.name as string)"
+              @change="toggleItemSelection(row.name as string)"
+            />
+          </div>
+
           <Row
             gap="1rem"
             class="
@@ -60,7 +93,7 @@
               h-row-mid
             "
             :column-count="columns.length"
-            @click="$emit('openDoc', row.name)"
+            @click="isSelectionMode ? null : $emit('openDoc', row.name)"
           >
             <ListCell
               v-for="(column, c) in columns"
@@ -111,6 +144,7 @@
 import { ListViewSettings, RenderData } from 'fyo/model/types';
 import { cloneDeep } from 'lodash';
 import Button from 'src/components/Button.vue';
+import Check from 'src/components/Controls/Check.vue';
 import Paginator from 'src/components/Paginator.vue';
 import Row from 'src/components/Row.vue';
 import { fyo } from 'src/initFyo';
@@ -125,6 +159,7 @@ export default defineComponent({
     Row,
     ListCell,
     Button,
+    Check,
     Paginator,
   },
   props: {
@@ -138,14 +173,16 @@ export default defineComponent({
     },
     schemaName: { type: String, required: true },
     canCreate: Boolean,
+    isSelectionMode: Boolean,
   },
-  emits: ['openDoc', 'makeNewDoc', 'updatedData'],
+  emits: ['openDoc', 'makeNewDoc', 'updatedData', 'selected-items-changed'],
   data() {
     return {
       data: [] as RenderData[],
       pageStart: 0,
       pageEnd: 0,
       statusMap: {} as Record<string, string>,
+      selectedItems: [] as string[],
     };
   },
   computed: {
@@ -154,6 +191,11 @@ export default defineComponent({
     },
     count() {
       return this.pageEnd - this.pageStart + 1;
+    },
+    isAllSelected(): boolean {
+      return (
+        this.data.length > 0 && this.selectedItems.length === this.data.length
+      );
     },
     columns() {
       let columns = this.listConfig?.columns ?? [];
@@ -260,6 +302,21 @@ export default defineComponent({
         schema: fyo.schemaMap[this.schemaName],
       })) as RenderData[];
       this.$emit('updatedData', filters);
+    },
+    toggleItemSelection(itemName: string) {
+      const index = this.selectedItems.indexOf(itemName);
+      if (index > -1) {
+        this.selectedItems.splice(index, 1);
+      } else {
+        this.selectedItems.push(itemName);
+      }
+      this.$emit('selected-items-changed', this.selectedItems);
+    },
+    toggleSelectAll(checked: boolean) {
+      this.selectedItems = checked
+        ? this.data.map((row) => row.name as string)
+        : [];
+      this.$emit('selected-items-changed', this.selectedItems);
     },
   },
 });
