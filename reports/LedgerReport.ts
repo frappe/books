@@ -111,10 +111,26 @@ export abstract class LedgerReport extends Report {
         referenceType: entry.referenceType,
         referenceName: entry.referenceName,
         party: entry.party,
+        role: '',
         reverted: Boolean(entry.reverted),
         reverts: entry.reverts,
       } as LedgerEntry;
     });
+    const uniqueParties = [
+      ...new Set(this._rawData.map((e) => e.party).filter((p) => p)),
+    ];
+    if (uniqueParties.length > 0) {
+      const partyRoles = await this.fyo.db.getAllRaw('Party', {
+        fields: ['name', 'role'],
+        filters: { name: ['in', uniqueParties] },
+      });
+      const roleMap = new Map(
+        partyRoles.map((p) => [p.name, p.role as string])
+      );
+      this._rawData.forEach((entry) => {
+        entry.role = roleMap.get(entry.party) || '';
+      });
+    }
   }
 
   abstract _getQueryFilters(): QueryFilter | Promise<QueryFilter>;
