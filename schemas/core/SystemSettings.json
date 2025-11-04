@@ -133,6 +133,13 @@
       "default": false,
       "description": "Sets the theme of the app.",
       "section": "Theme"
+    },
+    {
+      "fieldname": "displayTermsAndConditions",
+      "label": "Display Terms and Conditions",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Customizations"
     }
   ],
   "quickEditFields": [
