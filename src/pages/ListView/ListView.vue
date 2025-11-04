@@ -6,9 +6,6 @@
           schemaName === 'Item' &&
           (!isSelectionMode || (isSelectionMode && selectedItems.length === 0))
         "
-        ref="selectButton"
-        :icon="false"
-        @click="toggleSelectionMode"
       >
         {{ t`Select` }}
       </Button>
@@ -16,7 +13,6 @@
         v-if="
           isSelectionMode && schemaName === 'Item' && selectedItems.length > 0
         "
-        ref="actionSelect"
         :df="{
           fieldtype: 'Select',
           fieldname: 'Create ',
@@ -90,6 +86,7 @@ import { QueryFilter } from 'utils/db/types';
 import { defineComponent, inject, ref } from 'vue';
 import List from './List.vue';
 import { Money } from 'pesa';
+import { ModelNameEnum } from 'models/types';
 
 export default defineComponent({
   name: 'ListView',
@@ -113,7 +110,6 @@ export default defineComponent({
       list: ref<InstanceType<typeof List> | null>(null),
       makeNewDocButton: ref<InstanceType<typeof Button> | null>(null),
       exportButton: ref<InstanceType<typeof Button> | null>(null),
-      selectButton: ref<InstanceType<typeof Button> | null>(null),
       filterDropdown: ref<InstanceType<typeof FilterDropdown> | null>(null),
     };
   },
@@ -219,7 +215,10 @@ export default defineComponent({
     },
     async onActionChange(value: string) {
       this.selectedAction = value;
-      if (value === 'SalesInvoice' || value === 'PurchaseInvoice') {
+      if (
+        value === ModelNameEnum.SalesInvoice ||
+        value === ModelNameEnum.PurchaseInvoice
+      ) {
         const doc = fyo.doc.getNewDoc(value);
 
         for (const itemName of this.selectedItems) {
