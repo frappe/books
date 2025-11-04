@@ -4,6 +4,12 @@
   "naming": "manual",
   "fields": [
     {
+      "fieldname": "image",
+      "label": "Image",
+      "section": "Default",
+      "fieldtype": "AttachImage"
+    },
+    {
       "fieldname": "name",
       "label": "Name",
       "fieldtype": "Data",
