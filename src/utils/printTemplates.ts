@@ -38,6 +38,8 @@ const printSettingsFields = [
   'address',
   'companyName',
   'amountInWords',
+  'displaytermsandconditions',
+  'termsAndConditions',
 ];
 const accountingSettingsFields = ['gstin', 'taxId'];
 

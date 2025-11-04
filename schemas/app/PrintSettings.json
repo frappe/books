@@ -134,6 +134,18 @@
       "section": "Customizations"
     },
     {
+      "fieldname": "displaytermsandconditions",
+      "label": "Display Terms and Conditions",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "termsAndConditions",
+      "label": "Terms and Conditions",
+      "fieldtype": "Text",
+      "section": "Customizations"
+    },
+    {
       "fieldname": "posPrintWidth",
       "label": "Pos Print Width",
       "fieldtype": "Float",
