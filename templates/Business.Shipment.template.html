@@ -107,5 +107,16 @@
 
       <p class="mt-4 text-lg whitespace-pre-line">{{ doc.terms }}</p>
     </section>
+
+    <!-- Terms and Conditions -->
+    <section
+      class="mt-12"
+      v-if="print.displaytermsandconditions && print.termsAndConditions"
+    >
+      <h3 class="text-lg font-semibold">{{t`Terms and Conditions`}}</h3>
+      <p class="mt-4 text-lg whitespace-pre-line">
+        {{ print.termsAndConditions }}
+      </p>
+    </section>
   </footer>
 </main>
