@@ -258,19 +258,6 @@ function getViewActions(doc: Doc): Action[] {
       },
     },
   ];
-
-  if (doc.isSubmitted) {
-    actions.push({
-      label: t`Ledger`,
-      group: t`View`,
-      condition: (doc: Doc) => doc.schemaName === 'Party' && doc.isSubmitted,
-      action: async () => {
-        const route = getLedgerLink(doc, 'GeneralLedger');
-        await routeTo(route);
-      },
-    });
-  }
-
   return actions;
 }
 
@@ -1088,4 +1075,3 @@ export async function getSavePath(name: string, extention: string) {
 
   return { canceled, filePath };
 }
-export { getLedgerLink };

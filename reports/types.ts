@@ -66,7 +66,6 @@ export interface LedgerEntry {
   referenceType: string;
   referenceName: string;
   party: string;
-  role: string;
   reverted: boolean;
   reverts: string;
 }
