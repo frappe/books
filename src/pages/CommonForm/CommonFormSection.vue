@@ -23,6 +23,7 @@
           field.fieldtype === 'Table' ? 'col-span-2 text-base' : '',
           field.fieldtype === 'AttachImage' ? 'row-span-2' : '',
           field.fieldtype === 'Check' ? 'mt-auto' : 'mb-auto',
+          field.fieldname === 'termsAndConditions' ? 'col-span-2' : '',
         ]"
       >
         <Table

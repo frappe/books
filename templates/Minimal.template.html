@@ -177,4 +177,17 @@
       </div>
     </section>
   </footer>
+
+  <!-- Terms and Conditions -->
+  <section
+    class="px-12 py-10"
+    v-if="print.displaytermsandconditions && print.termsAndConditions"
+  >
+    <h3 class="uppercase text-sm tracking-widest font-semibold text-gray-800">
+      {{ t`Terms and Conditions` }}
+    </h3>
+    <p class="mt-4 text-lg whitespace-pre-line">
+      {{ print.termsAndConditions }}
+    </p>
+  </section>
 </main>
