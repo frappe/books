@@ -127,8 +127,14 @@ export default defineComponent({
 
     const filters = this.$route.query as Record<string, DocValue>;
     const validFilters: Record<string, DocValue> = {};
+
+    if (filters.defaultFilters && typeof filters.defaultFilters === 'string') {
+      const parsed = JSON.parse(filters.defaultFilters);
+      Object.assign(validFilters, parsed);
+    }
+
     for (const [key, value] of Object.entries(filters)) {
-      if (typeof value === 'string') {
+      if (key !== 'defaultFilters' && typeof value === 'string') {
         validFilters[key] = value;
       }
     }
