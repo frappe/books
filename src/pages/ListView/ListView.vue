@@ -6,23 +6,41 @@
           schemaName === 'Item' &&
           (!isSelectionMode || (isSelectionMode && selectedItems.length === 0))
         "
+        @click="toggleSelectionMode"
       >
         {{ t`Select` }}
       </Button>
-      <Select
+      <div
         v-if="
           isSelectionMode && schemaName === 'Item' && selectedItems.length > 0
         "
-        :df="{
-          fieldtype: 'Select',
-          fieldname: 'Create ',
-          label: 'Create Invoice',
-          options: actionOptions,
-        }"
-        :value="selectedAction"
-        class="w-40"
-        @change="onActionChange"
-      />
+        class="relative"
+      >
+        <Button class="w-40" @click="toggleDropdown"> Create Invoice </Button>
+        <div
+          v-if="showDropdown"
+          class="
+            absolute
+            top-full
+            mt-1
+            bg-white
+            border border-gray-300
+            rounded
+            shadow-lg
+            z-10
+            w-40
+          "
+        >
+          <div
+            v-for="option in actionOptions"
+            :key="option.value"
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+            @click="createInvoice(option.value)"
+          >
+            {{ option.label }}
+          </div>
+        </div>
+      </div>
       <Button ref="exportButton" :icon="false" @click="openExportModal = true">
         {{ t`Export` }}
       </Button>
@@ -73,7 +91,7 @@ import ExportWizard from 'src/components/ExportWizard.vue';
 import FilterDropdown from 'src/components/FilterDropdown.vue';
 import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
-import Select from 'src/components/Controls/Select.vue';
+
 import { fyo } from 'src/initFyo';
 import { shortcutsKey } from 'src/utils/injectionKeys';
 import {
@@ -97,7 +115,6 @@ export default defineComponent({
     FilterDropdown,
     Modal,
     ExportWizard,
-    Select,
   },
   props: {
     schemaName: { type: String, required: true },
@@ -119,14 +136,14 @@ export default defineComponent({
       openExportModal: false,
       listFilters: {},
       isSelectionMode: false,
-      selectedAction: '',
+      showDropdown: false,
       selectedItems: [] as string[],
     } as {
       listConfig: undefined | ReturnType<typeof getListConfig>;
       openExportModal: boolean;
       listFilters: QueryFilter;
       isSelectionMode: boolean;
-      selectedAction: string;
+      showDropdown: boolean;
       selectedItems: string[];
     };
   },
@@ -209,12 +226,14 @@ export default defineComponent({
     toggleSelectionMode() {
       this.isSelectionMode = !this.isSelectionMode;
       if (!this.isSelectionMode) {
-        this.selectedAction = '';
+        this.showDropdown = false;
         this.selectedItems = [];
       }
     },
-    async onActionChange(value: string) {
-      this.selectedAction = value;
+    toggleDropdown() {
+      this.showDropdown = !this.showDropdown;
+    },
+    async createInvoice(value: string) {
       if (
         value === ModelNameEnum.SalesInvoice ||
         value === ModelNameEnum.PurchaseInvoice
@@ -237,6 +256,7 @@ export default defineComponent({
         await routeTo(route);
         this.selectedItems = [];
         this.isSelectionMode = false;
+        this.showDropdown = false;
       }
     },
 
