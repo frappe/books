@@ -193,7 +193,6 @@ export function getActionsForDoc(doc?: Doc): Action[] {
     ...getActions(doc),
     getDuplicateAction(doc),
     getNewAction(doc),
-    getViewPartyLedgerAction(doc),
     getDeleteAction(doc),
     getCancelAction(doc),
   ];
@@ -300,28 +299,6 @@ function getNewAction(doc: Doc): Action {
       try {
         const newDoc = fyo.doc.getNewDoc(doc.schemaName);
         await openEdit(newDoc);
-      } catch (err) {
-        await handleErrorWithDialog(err as Error, doc);
-      }
-    },
-  };
-}
-
-function getViewPartyLedgerAction(doc: Doc): Action {
-  return {
-    label: t`View Party Ledger`,
-    group: t`Create`,
-    condition: (doc: Doc) => doc.schemaName === 'Party',
-    async action() {
-      try {
-        const role = doc.role as string;
-        const query: Record<string, string> = {
-          party: encodeURIComponent(doc.name!),
-        };
-        if (role && role !== 'Both') {
-          query.role = role;
-        }
-        await routeTo({ path: '/report/PartyLedger', query });
       } catch (err) {
         await handleErrorWithDialog(err as Error, doc);
       }
@@ -1072,3 +1049,4 @@ export async function getSavePath(name: string, extention: string) {
 
   return { canceled, filePath };
 }
+export { getLedgerLink };
