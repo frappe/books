@@ -1,11 +1,14 @@
 <template>
-  <p class="pill font-medium" :class="styleClass">{{ text }}</p>
+  <p v-if="showStatus" class="pill font-medium" :class="styleClass">
+    {{ text }}
+  </p>
 </template>
 <script lang="ts">
 import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/baseModels/Party/Party';
+import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { getBgTextColorClass } from 'src/utils/colors';
 import { defineComponent } from 'vue';
@@ -15,6 +18,11 @@ type UIColors = 'gray' | 'orange' | 'red' | 'green' | 'blue' | 'yellow';
 
 export default defineComponent({
   props: { doc: { type: Doc, required: true } },
+  data() {
+    return {
+      showStatus: true,
+    };
+  },
   computed: {
     styleClass(): string {
       return getBgTextColorClass(this.color);
@@ -23,6 +31,13 @@ export default defineComponent({
       return getStatus(this.doc);
     },
     text() {
+      if (
+        this.doc.schemaName === ModelNameEnum.SalesQuote &&
+        this.doc.isSubmitted
+      ) {
+        this.showStatus = false;
+      }
+
       const hasOutstanding = isPesa(this.doc.outstandingAmount);
 
       if (hasOutstanding && this.status === 'Unpaid') {
