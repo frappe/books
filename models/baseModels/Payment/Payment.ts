@@ -26,7 +26,8 @@ import { AccountTypeEnum } from '../Account/types';
 import { Invoice } from '../Invoice/Invoice';
 import { Party } from '../Party/Party';
 import { PaymentFor } from '../PaymentFor/PaymentFor';
-import { PaymentType } from './types';
+import { PaymentType, PaymentTypeEnum } from './types';
+import { PartyRoleEnum } from '../Party/types';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { PaymentMethod } from '../PaymentMethod/PaymentMethod';
 
@@ -662,17 +663,23 @@ export class Payment extends Transactional {
         const partyDoc = (await this.loadAndGetLink('party')) as Party;
         const outstanding = partyDoc.outstandingAmount as Money;
 
-        if (partyDoc.role === 'Supplier') {
+        if (partyDoc.role === PartyRoleEnum.Supplier) {
           if (refDoc?.isReturn) {
-            return 'Receive';
+            return PaymentTypeEnum.Receive;
           } else {
-            return 'Pay';
+            return PaymentTypeEnum.Pay;
           }
-        } else if (partyDoc.role === 'Customer') {
+        } else if (partyDoc.role === PartyRoleEnum.Customer) {
           if (refDoc?.isSales && refDoc.isReturn) {
-            return 'Pay';
+            return PaymentTypeEnum.Pay;
           } else {
-            return 'Receive';
+            return PaymentTypeEnum.Receive;
+          }
+        } else if (partyDoc.role === PartyRoleEnum.Both) {
+          if (refDoc?.isSales && refDoc.isReturn) {
+            return PaymentTypeEnum.Pay;
+          } else {
+            return PaymentTypeEnum.Receive;
           }
         }
 
@@ -681,9 +688,9 @@ export class Payment extends Transactional {
         }
 
         if (outstanding?.isPositive()) {
-          return 'Receive';
+          return PaymentTypeEnum.Receive;
         }
-        return 'Pay';
+        return PaymentTypeEnum.Pay;
       },
     },
     amount: {
