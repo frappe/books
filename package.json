@@ -68,7 +68,7 @@
     "eslint-plugin-vue": "^9.15.0",
     "execa": "^7.1.1",
     "fs-extra": "^11.1.1",
-    "playwright": "^1.35.1",
+    "playwright": "^1.55.1",
     "postcss": "^8",
     "prettier": "^2.4.1",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
