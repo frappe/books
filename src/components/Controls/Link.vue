@@ -155,7 +155,7 @@ export default {
       this.filtersDisabled = true;
       this.results = [];
       setTimeout(() => {
-        this.toggleDropdown(true);
+        this.isDropdownOpen = true;
         this.updateSuggestions(keyword);
       }, 1);
     },
@@ -192,6 +192,11 @@ export default {
       if (this.df.filters) {
         return this.df.filters;
       }
+
+      if (fyo.singles.SystemSettings?.removeFilter) {
+        return null;
+      }
+
       const { schemaName, fieldname } = this.df;
       const getFilters = fyo.models[schemaName]?.filters?.[fieldname];
 

@@ -8,7 +8,7 @@
         {{ df.label }}
       </div>
       <div
-        style="width: 14px; height: 14px; overflow: hidden"
+        style="width: 14px; height: 14px"
         :class="isReadOnly ? 'cursor-default' : 'cursor-pointer'"
       >
         <svg

@@ -125,10 +125,22 @@ export default defineComponent({
       docsPathMap[this.reportClassName] ?? docsPathMap.Reports!;
     await this.setReportData();
 
-    const filters = JSON.parse(this.defaultFilters) as Record<string, DocValue>;
-    const filterKeys = Object.keys(filters);
+    const filters = this.$route.query as Record<string, DocValue>;
+    const validFilters: Record<string, DocValue> = {};
+
+    if (filters.defaultFilters && typeof filters.defaultFilters === 'string') {
+      const parsed = JSON.parse(filters.defaultFilters);
+      Object.assign(validFilters, parsed);
+    }
+
+    for (const [key, value] of Object.entries(filters)) {
+      if (key !== 'defaultFilters' && typeof value === 'string') {
+        validFilters[key] = value;
+      }
+    }
+    const filterKeys = Object.keys(validFilters);
     for (const key of filterKeys) {
-      await this.report?.set(key, filters[key]);
+      await this.report?.set(key, validFilters[key]);
     }
 
     if (filterKeys.length) {

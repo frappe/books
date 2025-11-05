@@ -73,6 +73,14 @@
       "section": "Default"
     },
     {
+      "fieldname": "removeFilter",
+      "label": "Remove Filter",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "When enabled, removes all default filters applied across the system, showing all available options instead of filtered ones.",
+      "section": "Default"
+    },
+    {
       "fieldname": "locale",
       "label": "Locale",
       "fieldtype": "AutoComplete",
@@ -133,6 +141,13 @@
       "default": false,
       "description": "Sets the theme of the app.",
       "section": "Theme"
+    },
+    {
+      "fieldname": "displayTermsAndConditions",
+      "label": "Display Terms and Conditions",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Customizations"
     }
   ],
   "quickEditFields": [

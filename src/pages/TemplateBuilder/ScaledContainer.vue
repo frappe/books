@@ -2,7 +2,7 @@
   <div class="overflow-hidden" :style="outerContainerStyle">
     <div
       :style="innerContainerStyle"
-      :class="showOverflow ? 'overflow-auto no-scrollbar' : ''"
+      :class="showOverflow ? 'overflow-auto no-scrollbar' : 'overflow-visible'"
     >
       <slot></slot>
     </div>

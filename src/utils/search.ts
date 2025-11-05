@@ -22,6 +22,7 @@ interface StoredRecentItem {
   route?: string;
   schemaName?: string;
   reportName?: string;
+  initData?: RawValueMap;
   timestamp: number;
 }
 
@@ -102,6 +103,7 @@ function getCreateList(fyo: Fyo): SearchItem[] {
         label: fyo.schemaMap[schemaName]?.label,
         group: 'Create',
         action: getCreateAction(fyo, schemaName),
+        schemaName,
       } as SearchItem)
   );
 
@@ -151,6 +153,8 @@ function getCreateList(fyo: Fyo): SearchItem[] {
       label,
       group: 'Create',
       action: getCreateAction(fyo, schemaName, create),
+      schemaName,
+      initData: create,
     } as SearchItem;
   });
 
@@ -430,6 +434,9 @@ export class Search {
       recentItem.route = item.route;
     } else if (item.group === 'Docs') {
       recentItem.schemaName = item.schemaLabel;
+    } else if (item.group === 'Create') {
+      recentItem.schemaName = item.schemaName;
+      recentItem.initData = item.initData;
     }
 
     const updatedRecents = [
@@ -470,6 +477,9 @@ export class Search {
   private _executeRecentAction(item: StoredRecentItem) {
     if (item.route) {
       void routeTo(item.route);
+    } else if (item.schemaName && item.group === 'Create') {
+      const action = getCreateAction(this.fyo, item.schemaName, item.initData);
+      void action();
     } else if (item.schemaName) {
       this._openDocList(item.schemaName);
     } else if (item.reportName) {

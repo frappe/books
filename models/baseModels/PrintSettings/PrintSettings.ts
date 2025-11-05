@@ -13,7 +13,11 @@ export class PrintSettings extends Doc {
   displayLogo?: boolean;
   displayTime?: boolean;
   displayDescription?: boolean;
+  displaytermsandconditions?: boolean;
+  termsAndConditions?: string;
   posPrintWidth?: number;
   amountInWords?: boolean;
-  override hidden: HiddenMap = {};
+  override hidden: HiddenMap = {
+    termsAndConditions: () => !this.displaytermsandconditions,
+  };
 }

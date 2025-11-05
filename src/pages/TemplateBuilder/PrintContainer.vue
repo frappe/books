@@ -4,6 +4,7 @@
     :scale="Math.max(scale, 0.1)"
     :width="width"
     :height="height"
+    :show-overflow="true"
     class="mx-auto shadow-lg border"
   >
     <ErrorBoundary
