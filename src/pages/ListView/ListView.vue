@@ -16,7 +16,7 @@
         "
         class="relative"
       >
-        <Button class="w-40" @click="toggleDropdown"> Create Invoice </Button>
+        <Button class="w-40" @click="toggleDropdown"> Create </Button>
         <div
           v-if="showDropdown"
           class="
@@ -166,6 +166,7 @@ export default defineComponent({
     },
     actionOptions(): { value: string; label: string }[] {
       return [
+        { value: 'SalesQuote', label: 'Sales Quote' },
         { value: 'SalesInvoice', label: 'Sales Invoice' },
         { value: 'PurchaseInvoice', label: 'Purchase Invoice' },
       ];
@@ -235,6 +236,7 @@ export default defineComponent({
     },
     async createInvoice(value: string) {
       if (
+        value === ModelNameEnum.SalesQuote ||
         value === ModelNameEnum.SalesInvoice ||
         value === ModelNameEnum.PurchaseInvoice
       ) {
