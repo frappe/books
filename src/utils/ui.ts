@@ -197,6 +197,11 @@ export function getActionsForDoc(doc?: Doc): Action[] {
     getCancelAction(doc),
   ];
 
+  if (doc?.schemaName === 'Party') {
+    const viewActions = getViewActions(doc);
+    actions.push(...viewActions);
+  }
+
   return actions
     .filter((d) => d.condition?.(doc) ?? true)
     .map((d) => {
@@ -233,6 +238,40 @@ export function getGroupedActionsForDoc(doc?: Doc): ActionGroup[] {
     .map((k) => actionsMap[k]);
 
   return [grouped, actionsMap['']].flat().filter(Boolean);
+}
+
+function getViewActions(doc: Doc): Action[] {
+  const actions: Action[] = [
+    {
+      label: t`General Ledger`,
+      group: t`View`,
+      condition: (doc: Doc) => doc.schemaName === 'Party',
+      action: async () => {
+        await router.push({
+          path: '/report/GeneralLedger',
+          query: {
+            defaultFilters: JSON.stringify({
+              party: doc.name,
+            }),
+          },
+        });
+      },
+    },
+  ];
+
+  if (doc.isSubmitted) {
+    actions.push({
+      label: t`Ledger`,
+      group: t`View`,
+      condition: (doc: Doc) => doc.schemaName === 'Party' && doc.isSubmitted,
+      action: async () => {
+        const route = getLedgerLink(doc, 'GeneralLedger');
+        await routeTo(route);
+      },
+    });
+  }
+
+  return actions;
 }
 
 function getCancelAction(doc: Doc): Action {

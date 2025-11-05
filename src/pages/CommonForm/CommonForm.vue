@@ -57,14 +57,6 @@
       </Button>
 
       <DropdownWithActions
-        v-if="canShowViewButton"
-        type="secondary"
-        :actions="viewActions"
-      >
-        <p>{{ t`View` }}</p>
-      </DropdownWithActions>
-
-      <DropdownWithActions
         v-for="group of groupedActions"
         :key="group.label"
         :type="group.type"
@@ -208,7 +200,6 @@ import {
   getFieldsGroupedByTabAndSection,
   getFormRoute,
   getGroupedActionsForDoc,
-  getLedgerLink,
   isPrintable,
   routeTo,
 } from 'src/utils/ui';
@@ -217,7 +208,6 @@ import { computed, defineComponent, inject, nextTick, ref } from 'vue';
 import CommonFormSection from './CommonFormSection.vue';
 import LinkedEntries from './LinkedEntries.vue';
 import RowEditForm from './RowEditForm.vue';
-import { Action } from 'fyo/model/types';
 
 export default defineComponent({
   components: {
@@ -335,36 +325,6 @@ export default defineComponent({
       }
 
       return this.doc.inserted;
-    },
-    canShowViewButton(): boolean {
-      return this.schemaName === 'Party';
-    },
-    viewActions(): Action[] {
-      const actions: Action[] = [
-        {
-          label: this.t`General Ledger`,
-          action: async () => {
-            await this.$router.push({
-              path: '/report/GeneralLedger',
-              query: {
-                defaultFilters: JSON.stringify({
-                  party: this.doc.name,
-                }),
-              },
-            });
-          },
-        },
-      ];
-      if (this.hasDoc && this.doc.isSubmitted) {
-        actions.push({
-          label: this.t`Ledger`,
-          action: async () => {
-            const route = getLedgerLink(this.doc, 'GeneralLedger');
-            await this.routeTo(route);
-          },
-        });
-      }
-      return actions;
     },
     hasDoc(): boolean {
       return this.docOrNull instanceof Doc;
