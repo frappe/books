@@ -140,16 +140,16 @@
       "section": "Customizations"
     },
     {
-      "fieldname": "termsAndConditions",
-      "label": "Terms and Conditions",
-      "fieldtype": "Text",
-      "section": "Customizations"
-    },
-    {
       "fieldname": "posPrintWidth",
       "label": "Pos Print Width",
       "fieldtype": "Float",
       "default": 8,
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "termsAndConditions",
+      "label": "Terms and Conditions",
+      "fieldtype": "Text",
       "section": "Customizations"
     }
   ]
