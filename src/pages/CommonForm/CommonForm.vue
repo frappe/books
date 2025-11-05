@@ -55,7 +55,6 @@
           class="w-4 h-4"
         ></feather-icon>
       </Button>
-
       <DropdownWithActions
         v-for="group of groupedActions"
         :key="group.label"
@@ -463,7 +462,7 @@ export default defineComponent({
         return;
       }
 
-      void this.doc.once('afterSync', async () => {
+      this.doc.once('afterSync', async () => {
         const route = getFormRoute(this.schemaName, this.doc.name!);
         await this.$router.replace(route);
       });
