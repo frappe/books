@@ -256,7 +256,7 @@ export default defineComponent({
             entryType: 'Bank Entry', // <--- Missing mandatory field fixed
             voucherType: 'Bank Entry',
             title: tx.description.substring(0, 140),
-            description: tx.description.substring(0, 140),
+            userRemark: tx.description.substring(0, 140),
             accounts: [
               {
                 doctype: 'JournalEntryAccount',
