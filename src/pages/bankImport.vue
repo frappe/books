@@ -253,8 +253,8 @@ export default defineComponent({
           const jeData = {
             doctype: schemaName,
             date: tx.date,
-            entryType: 'Journal Entry', // <--- Missing mandatory field fixed
-            voucherType: 'Journal Entry',
+            entryType: 'Bank Entry', // <--- Missing mandatory field fixed
+            voucherType: 'Bank Entry',
             title: tx.description.substring(0, 140),
             description: tx.description.substring(0, 140),
             accounts: [
