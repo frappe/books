@@ -49,6 +49,14 @@
         :schema-name="schemaName"
         @change="applyFilter"
       />
+	  <Button
+        v-if="schemaName === 'JournalEntry'"
+        type="secondary"
+        class="mr-2"
+        @click="$router.push('/bank-import')"
+      >
+        {{ t`Import QIF/OFX File` }}
+      </Button>
       <Button
         v-if="canCreate"
         ref="makeNewDocButton"

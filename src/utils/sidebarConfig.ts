@@ -275,6 +275,11 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/list/JournalEntry',
           schemaName: 'JournalEntry',
         },
+		{
+		  label: 'Import Bank Statement (QIF/OFX)',
+		  route: '/bank-import',
+		  icon: 'upload-cloud' // or any other valid feather-icon name
+		},
         {
           label: t`Party`,
           name: 'party',
