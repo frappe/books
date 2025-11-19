@@ -50,6 +50,14 @@
         @change="applyFilter"
       />
       <Button
+        v-if="schemaName === 'JournalEntry'"
+        type="secondary"
+        class="mr-2"
+        @click="$router.push('/bank-import')"
+      >
+        {{ t`Bank Import` }}
+      </Button>
+      <Button
         v-if="canCreate"
         ref="makeNewDocButton"
         :icon="true"
