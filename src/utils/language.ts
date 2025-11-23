@@ -23,6 +23,7 @@ export const languageCodeMap: Record<string, string> = {
   'Traditional Chinese': 'zh-Hant',
   Spanish: 'es',
   Swedish: 'sv',
+  Albanian: 'sq',
   Turkish: 'tr',
 };
 
