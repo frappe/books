@@ -13,12 +13,14 @@ export async function importBankTransactions(
 
   // Pre-check: Ensure we can create a doc
   try {
-      const tempDoc = fyo.doc.getNewDoc(schemaName, {});
-      if (!tempDoc) {
-        console.warn("Importer: Failed to initialize a temporary JournalEntry doc.");
-      }
+    const tempDoc = fyo.doc.getNewDoc(schemaName, {});
+    if (!tempDoc) {
+      console.warn(
+        'Importer: Failed to initialize a temporary JournalEntry doc.'
+      );
+    }
   } catch (e) {
-      console.warn("Importer: Pre-check failed", e);
+    console.warn('Importer: Pre-check failed', e);
   }
 
   for (const tx of transactions) {
@@ -46,21 +48,23 @@ export async function importBankTransactions(
     const doc = fyo.doc.getNewDoc(schemaName, {
       date: tx.date,
       entryType: 'Bank Entry',
-      userRemark: tx.description ? tx.description.substring(0, 280) : 'Bank Import',
+      userRemark: tx.description
+        ? tx.description.substring(0, 280)
+        : 'Bank Import',
       accounts: [
         {
           account: debitAccount,
           debit: finalAmount,
           credit: 0,
-          description: tx.description
+          description: tx.description,
         },
         {
           account: creditAccount,
           debit: 0,
           credit: finalAmount,
-          description: tx.description
-        }
-      ]
+          description: tx.description,
+        },
+      ],
     });
 
     try {
@@ -68,15 +72,15 @@ export async function importBankTransactions(
       await doc.sync();
       importCount++;
     } catch (error) {
-      console.error("Importer: Failed to save transaction", tx, error);
+      console.error('Importer: Failed to save transaction', tx, error);
       lastError = error;
       // Stop at the first error to allow debugging
-      break; 
+      break;
     }
   }
 
   if (importCount === 0 && transactions.length > 0 && lastError) {
-      throw lastError; 
+    throw lastError;
   }
 
   return importCount;

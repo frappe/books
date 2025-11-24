@@ -8,13 +8,18 @@ export interface BankTransaction {
 
 export function parseDate(dateStr: string): string | null {
   if (!dateStr) return null;
-  
+
   // Clean up input (remove 'D' prefix from QIF)
   const cleanDate = dateStr.trim().replace(/^D/, '');
-  
+
   // List of formats to try
   const formats = [
-    'd/M/yyyy', 'd/M/yy', 'yyyy-MM-dd', 'M/d/yyyy', 'd MMM yyyy', 'yyyyMMdd'
+    'd/M/yyyy',
+    'd/M/yy',
+    'yyyy-MM-dd',
+    'M/d/yyyy',
+    'd MMM yyyy',
+    'yyyyMMdd',
   ];
 
   for (const fmt of formats) {
@@ -23,7 +28,7 @@ export function parseDate(dateStr: string): string | null {
       return dt.toISODate();
     }
   }
-  
+
   return null;
 }
 
@@ -65,7 +70,7 @@ export function parseQIF(content: string): BankTransaction[] {
       transactions.push({
         date,
         amount,
-        description: descParts.join(' / ')
+        description: descParts.join(' / '),
       });
     }
   }
@@ -90,15 +95,15 @@ export function parseOFX(content: string): BankTransaction[] {
     const memoMatch = txContent.match(/<MEMO>(.*?)<\/MEMO>/i);
 
     if (dateMatch && amtMatch) {
-        const descParts = [];
-        if (nameMatch) descParts.push(nameMatch[1].trim());
-        if (memoMatch) descParts.push(memoMatch[1].trim());
+      const descParts = [];
+      if (nameMatch) descParts.push(nameMatch[1].trim());
+      if (memoMatch) descParts.push(memoMatch[1].trim());
 
-        transactions.push({
-            date: parseDate(dateMatch[1]) || '',
-            amount: parseFloat(amtMatch[1]),
-            description: descParts.join(' / ')
-        });
+      transactions.push({
+        date: parseDate(dateMatch[1]) || '',
+        amount: parseFloat(amtMatch[1]),
+        description: descParts.join(' / '),
+      });
     }
   }
 

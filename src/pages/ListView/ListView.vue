@@ -49,7 +49,7 @@
         :schema-name="schemaName"
         @change="applyFilter"
       />
-	  <Button
+      <Button
         v-if="schemaName === 'JournalEntry'"
         type="secondary"
         class="mr-2"

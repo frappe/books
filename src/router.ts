@@ -104,7 +104,7 @@ const routes: RouteRecordRaw[] = [
     component: ImportWizard,
   },
   {
-    path: '/bank-import',     // <--- ROUTE DEFINED HERE
+    path: '/bank-import', // <--- ROUTE DEFINED HERE
     name: 'Bank Import',
     component: BankImport,
   },
