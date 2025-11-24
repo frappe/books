@@ -17,7 +17,6 @@ import {
 import { Transactional } from 'models/Transactional/Transactional';
 import { Money } from 'pesa';
 import { LedgerPosting } from '../../Transactional/LedgerPosting';
-import { ModelNameEnum } from 'models/types';
 
 export class JournalEntry extends Transactional {
   accounts?: Doc[];
@@ -38,72 +37,6 @@ export class JournalEntry extends Transactional {
     }
 
     return posting;
-  }
-
-  /**
-   * Overridden to allow editing of submitted 'Bank Entry' documents.
-   * Standard Journal Entries remain locked after submission.
-   */
-  get canEdit() {
-    if (this.isCancelled) return false;
-
-    // If submitted, only allow editing if it's a Bank Entry
-    if (this.isSubmitted && this.entryType !== 'Bank Entry') {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Overridden to allow saving of submitted 'Bank Entry' documents if they have changes.
-   */
-  get canSave() {
-    if (this.isCancelled) return false;
-
-    // If submitted, only allow saving if it's a Bank Entry
-    if (this.isSubmitted && this.entryType !== 'Bank Entry') {
-      return false;
-    }
-
-    return this.dirty;
-  }
-
-  /**
-   * Hook called after the document is synced (saved).
-   * If submitted, it deletes old ledger entries and creates new ones.
-   */
-  async afterSync() {
-    await super.afterSync();
-
-    if (this.isSubmitted) {
-      // 1. Find existing ledger entries linked to this Journal Entry
-      const ledgerEntryIds = (await this.fyo.db.getAll(
-        ModelNameEnum.AccountingLedgerEntry,
-        {
-          fields: ['name'],
-          filters: {
-            referenceType: this.schemaName,
-            referenceName: this.name!,
-          },
-        }
-      )) as { name: string }[];
-
-      // 2. Delete them one by one to ensure proper cleanup hooks run
-      for (const { name } of ledgerEntryIds) {
-        const ledgerEntryDoc = await this.fyo.doc.getDoc(
-          ModelNameEnum.AccountingLedgerEntry,
-          name
-        );
-        await ledgerEntryDoc.delete();
-      }
-
-      // 3. Repost new ledger entries based on the updated document data
-      const posting = await this.getPosting();
-      if (posting) {
-        await posting.post();
-      }
-    }
   }
 
   hidden: HiddenMap = {

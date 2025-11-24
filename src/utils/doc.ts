@@ -14,23 +14,12 @@ export function evaluateReadOnly(field: Field, doc?: Doc) {
     return true;
   }
 
-  // Prevent editing if cancelled
-  if (doc?.isCancelled || doc?.parentdoc?.isCancelled) {
+  if (doc?.isSubmitted || doc?.parentdoc?.isSubmitted) {
     return true;
   }
 
-  // CHANGE: Allow editing of submitted documents if the model explicitly allows it (doc.canEdit)
-  if (doc?.isSubmitted || doc?.parentdoc?.isSubmitted) {
-    // For child tables (like JournalEntryAccount), check the parent's editability
-    if (doc.schema.isChild) {
-      if (!doc.parentdoc?.canEdit) {
-        return true;
-      }
-    } 
-    // For parent docs (like JournalEntry), check its own editability
-    else if (!doc.canEdit) {
-      return true;
-    }
+  if (doc?.isCancelled || doc?.parentdoc?.isCancelled) {
+    return true;
   }
 
   return evaluateFieldMeta(field, doc, 'readOnly');
@@ -40,7 +29,6 @@ export function evaluateHidden(field: Field, doc?: Doc) {
   return evaluateFieldMeta(field, doc, 'hidden');
 }
 
-// ... rest of the file (evaluateRequired, evaluateFieldMeta, getLinkedEntries) remains unchanged
 export function evaluateRequired(field: Field, doc?: Doc) {
   return evaluateFieldMeta(field, doc, 'required');
 }

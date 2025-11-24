@@ -7,8 +7,19 @@ export async function importBankTransactions(
   bankAccount: string,
   suspenseAccount: string
 ) {
-  const schemaName = 'AccountingLedgerEntry';
+  const schemaName = 'JournalEntry';
   let importCount = 0;
+  let lastError: any = null;
+
+  // Pre-check: Ensure we can create a doc
+  try {
+      const tempDoc = fyo.doc.getNewDoc(schemaName, {});
+      if (!tempDoc) {
+        console.warn("Importer: Failed to initialize a temporary JournalEntry doc.");
+      }
+  } catch (e) {
+      console.warn("Importer: Pre-check failed", e);
+  }
 
   for (const tx of transactions) {
     if (tx.amount === 0) continue;
@@ -31,35 +42,41 @@ export async function importBankTransactions(
       finalAmount = Math.abs(tx.amount);
     }
 
-    const commonData = {
-        date: tx.date,
-        voucherType: 'Bank Import',
-        remark: tx.description.substring(0, 280),
-    };
-
-    // Entry 1 (Debit Side)
-    const doc1 = fyo.doc.getNewDoc(schemaName, {
-        ...commonData,
-        account: debitAccount,
-        debit: finalAmount,
-        credit: 0
-    }, false);
-
-    // Entry 2 (Credit Side)
-    const doc2 = fyo.doc.getNewDoc(schemaName, {
-        ...commonData,
-        account: creditAccount,
-        debit: 0,
-        credit: finalAmount
-    }, false);
+    // Create a single Journal Entry document
+    const doc = fyo.doc.getNewDoc(schemaName, {
+      date: tx.date,
+      entryType: 'Bank Entry',
+      userRemark: tx.description ? tx.description.substring(0, 280) : 'Bank Import',
+      accounts: [
+        {
+          account: debitAccount,
+          debit: finalAmount,
+          credit: 0,
+          description: tx.description
+        },
+        {
+          account: creditAccount,
+          debit: 0,
+          credit: finalAmount,
+          description: tx.description
+        }
+      ]
+    });
 
     try {
-        await fyo.db.set(schemaName, doc1);
-        await fyo.db.set(schemaName, doc2);
-        importCount++;
+      // Saves as Draft. To submit immediately, call await doc.submit() after sync.
+      await doc.sync();
+      importCount++;
     } catch (error) {
-        console.error("Importer: Failed to save transaction", tx, error);
+      console.error("Importer: Failed to save transaction", tx, error);
+      lastError = error;
+      // Stop at the first error to allow debugging
+      break; 
     }
+  }
+
+  if (importCount === 0 && transactions.length > 0 && lastError) {
+      throw lastError; 
   }
 
   return importCount;
