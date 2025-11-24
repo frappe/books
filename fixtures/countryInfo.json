@@ -1127,6 +1127,16 @@
     "currency_name": "Won",
     "locale": "ko-KR"
   },
+  "Kosovo": {
+    "code": "xk",
+    "currency": "EUR",
+    "currency_fraction": "Cent",
+    "currency_fraction_units": 100,
+    "currency_name": "Euro",
+    "currency_symbol": "€",
+    "timezones": ["Europe/Skopje"],
+    "locale": "sq-XK"
+  },
   "Kuwait": {
     "code": "kw",
     "currency": "KWD",
