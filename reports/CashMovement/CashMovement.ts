@@ -11,6 +11,7 @@ import {
 } from 'reports/AccountReport';
 import {
   AccountListNode,
+  AccountTreeNode,
   LedgerEntry,
   RawLedgerEntry,
   ReportData,
@@ -20,12 +21,18 @@ import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
 import { safeParseFloat, safeParseInt } from 'utils/index';
 
+// Extend the Account interface locally to hold our custom "Section" type
+interface CashAccount extends AccountTreeNode {
+  sectionType: AccountRootType;
+}
+
 export class CashMovement extends AccountReport {
   static title = t`Cash Movement`;
   static reportName = 'cash-movement';
   loading = false;
   cashAccounts: string[] = [];
 
+  // We want to fetch all types, but we will organize them differently
   get rootTypes(): AccountRootType[] {
     return [
       AccountRootTypeEnum.Income,
@@ -49,107 +56,93 @@ export class CashMovement extends AccountReport {
     const rangeGroupedMap = await this._getGroupedByDateRanges(map);
     const accountTree = await this._getAccountTree(rangeGroupedMap);
 
-    // Filter out accounts that are not in our target list
-    for (const name of Object.keys(accountTree)) {
-      const { rootType } = accountTree[name];
-      if (this.rootTypes.includes(rootType)) {
-        continue;
+    // Cast tree nodes to our custom type for easier access
+    const cashTree = accountTree as Record<string, CashAccount>;
+
+    // Filter out accounts that shouldn't be in the report
+    // (If it wasn't assigned a sectionType in _setAndReturnAccountMap, ignore it)
+    for (const name of Object.keys(cashTree)) {
+      if (!cashTree[name].sectionType) {
+        delete cashTree[name];
       }
-      delete accountTree[name];
     }
 
     const sections: ReportData[] = [];
-    const totals: Record<string, AccountListNode> = {};
+    const totals: Record<string, number> = {};
 
-    // Helper to process a specific root type
-    const processRootType = (type: AccountRootType, title: string) => {
-      const roots = this.getRootNodes(type, accountTree);
+    // Helper to process a specific SECTION type (not rootType, which is now 'Income' for all)
+    const processSection = (type: AccountRootType, title: string) => {
+      // Find root nodes for this Section
+      const roots = Object.values(cashTree).filter(
+        (n) => n.sectionType === type && !n.parentAccount
+      );
+
       if (!roots || roots.length === 0) return null;
 
       const list = convertAccountRootNodesToAccountList(roots);
       const rows = this.getReportRowsFromAccountList(list);
       const totalNode = this.getTotalNode(roots, t`Total ${title}`);
+      
+      // Store total for Summary
+      const totalVal = [...(totalNode.valueMap?.values() || [])].reduce((acc, v) => acc + v.balance, 0);
+      totals[type] = totalVal;
+
       const totalRow = this.getRowFromAccountListNode(totalNode);
       totalRow.cells.forEach((c) => (c.bold = true));
-
-      totals[type] = totalNode;
 
       return { rows, totalRow };
     };
 
     // 1. Income Section
-    const incomeData = processRootType(AccountRootTypeEnum.Income, t`Income`);
+    const incomeData = processSection(AccountRootTypeEnum.Income, t`Income`);
     if (incomeData) {
       sections.push(this.getSectionHeader(t`Income`));
-      sections.push(
-        ...incomeData.rows,
-        incomeData.totalRow,
-        this.getEmptyRow()
-      );
+      sections.push(...incomeData.rows, incomeData.totalRow, this.getEmptyRow());
     }
 
     // 2. Expense Section
-    const expenseData = processRootType(
-      AccountRootTypeEnum.Expense,
-      t`Expenses`
-    );
+    const expenseData = processSection(AccountRootTypeEnum.Expense, t`Expenses`);
     if (expenseData) {
       sections.push(this.getSectionHeader(t`Expenses`));
-      sections.push(
-        ...expenseData.rows,
-        expenseData.totalRow,
-        this.getEmptyRow()
-      );
+      sections.push(...expenseData.rows, expenseData.totalRow, this.getEmptyRow());
     }
 
-    // 3. Net Profit / Net Cash Movement
-    if (
-      totals[AccountRootTypeEnum.Income] ||
-      totals[AccountRootTypeEnum.Expense]
-    ) {
-      const netProfitRow = this.getNetProfitRow(
-        totals[AccountRootTypeEnum.Income],
-        totals[AccountRootTypeEnum.Expense]
-      );
-      sections.push([netProfitRow], this.getEmptyRow());
+    // 3. Net Cash from Operations (Income + Expense)
+    // Note: Since Expenses are now negative numbers, we just add them.
+    if (incomeData || expenseData) {
+      const netOps = (totals[AccountRootTypeEnum.Income] || 0) + (totals[AccountRootTypeEnum.Expense] || 0);
+      sections.push(this.getSummaryRow(t`Net Cash from Operations`, netOps), this.getEmptyRow());
     }
 
-    // 4. Asset Section
-    const assetData = processRootType(AccountRootTypeEnum.Asset, t`Assets`);
+    // 4. Asset Section (Investing)
+    const assetData = processSection(AccountRootTypeEnum.Asset, t`Assets`);
     if (assetData) {
-      sections.push(this.getSectionHeader(t`Assets`));
+      sections.push(this.getSectionHeader(t`Assets (Investing)`));
       sections.push(...assetData.rows, assetData.totalRow, this.getEmptyRow());
     }
 
-    // 5. Liability Section
-    const liabilityData = processRootType(
-      AccountRootTypeEnum.Liability,
-      t`Liabilities`
-    );
+    // 5. Liability Section (Financing)
+    const liabilityData = processSection(AccountRootTypeEnum.Liability, t`Liabilities (Financing)`);
     if (liabilityData) {
-      sections.push(this.getSectionHeader(t`Liabilities`));
-      sections.push(
-        ...liabilityData.rows,
-        liabilityData.totalRow,
-        this.getEmptyRow()
-      );
+      sections.push(this.getSectionHeader(t`Liabilities (Financing)`));
+      sections.push(...liabilityData.rows, liabilityData.totalRow, this.getEmptyRow());
     }
 
     // 6. Equity Section
-    const equityData = processRootType(AccountRootTypeEnum.Equity, t`Equity`);
+    const equityData = processSection(AccountRootTypeEnum.Equity, t`Equity`);
     if (equityData) {
       sections.push(this.getSectionHeader(t`Equity`));
-      sections.push(
-        ...equityData.rows,
-        equityData.totalRow,
-        this.getEmptyRow()
-      );
+      sections.push(...equityData.rows, equityData.totalRow, this.getEmptyRow());
     }
 
-    // 7. Bank Accounts Summary
+    // 7. Net Cash Movement (Grand Total)
+    const grandTotal = Object.values(totals).reduce((a, b) => a + b, 0);
+    sections.push(this.getSummaryRow(t`Net Cash Movement`, grandTotal));
+    
+    // 8. Bank Accounts Summary
     const bankRows = await this.getBankMovementRows();
     if (bankRows.length > 0) {
-      sections.push(this.getSectionHeader(t`Cash & Bank`));
+      sections.push(this.getEmptyRow(), this.getSectionHeader(t`Cash & Bank Changes`));
       sections.push(...bankRows);
     }
 
@@ -164,32 +157,26 @@ export class CashMovement extends AccountReport {
     return [row];
   }
 
-  getNetProfitRow(incomeNode?: AccountListNode, expenseNode?: AccountListNode) {
-    const valueMap: ValueMap = new Map();
+  getSummaryRow(title: string, balance: number) {
+    const row = this.getEmptyRow();
+    const cells = row.cells;
+    cells[0].value = title;
+    cells[0].bold = true;
 
-    for (const range of this._dateRanges!) {
-      const income = incomeNode?.valueMap?.get(range)?.balance ?? 0;
-      const expense = expenseNode?.valueMap?.get(range)?.balance ?? 0;
-      valueMap.set(range, { balance: income - expense });
-    }
+    // Place the value in the last column (Totals column)
+    // Assuming the last column is where we want the total. 
+    // In multi-column reports (by month), this simple summary might be visually off, 
+    // but correct for the aggregate. Ideally, we would sum per-column.
+    const lastIdx = cells.length - 1;
+    cells[lastIdx].rawValue = balance;
+    cells[lastIdx].value = this.fyo.format(balance, 'Currency');
+    cells[lastIdx].bold = true;
+    
+    // Color coding
+    if (balance >= 0) cells[lastIdx].color = 'green';
+    else cells[lastIdx].color = 'red';
 
-    const node: AccountListNode = {
-      name: t`Net Cash Movement`,
-      valueMap,
-      rootType: AccountRootTypeEnum.Equity,
-      isGroup: false,
-      parentAccount: null,
-      level: 0,
-    };
-
-    const row = this.getRowFromAccountListNode(node);
-    row.cells.forEach((c) => {
-      c.bold = true;
-      if (typeof c.rawValue === 'number') {
-        c.color = c.rawValue >= 0 ? 'green' : 'red';
-      }
-    });
-    return row;
+    return [row]; 
   }
 
   async getBankMovementRows(): Promise<ReportData> {
@@ -224,42 +211,38 @@ export class CashMovement extends AccountReport {
       groupedMap.get(entry.account)!.push(entry);
     }
 
-    const valueMaps = await this._getGroupedByDateRanges(groupedMap);
-    const sortedAccounts = [...valueMaps.keys()].sort();
-
     const rows: ReportData = [];
-    const totalValueMap = new Map<any, any>();
+    let totalMovement = 0;
+
+    const sortedAccounts = [...groupedMap.keys()].sort();
 
     for (const account of sortedAccounts) {
-      const valueMap = valueMaps.get(account)!;
-      for (const [range, val] of valueMap) {
-        const current = totalValueMap.get(range)?.balance ?? 0;
-        totalValueMap.set(range, { balance: current + val.balance });
+      const acEntries = groupedMap.get(account)!;
+      // Calculate Net Movement: Debit (In) - Credit (Out) for BANK
+      // This is standard asset logic, not our forced Income logic.
+      let balance = 0;
+      for (const e of acEntries) {
+        balance += (e.debit || 0) - (e.credit || 0);
       }
+      totalMovement += balance;
 
-      const node = {
-        name: account,
-        valueMap,
-        rootType: AccountRootTypeEnum.Asset,
-        isGroup: false,
-        parentAccount: null,
-        level: 0,
-      };
-      rows.push(this.getRowFromAccountListNode(node));
+      const row = this.getEmptyRow();
+      row.cells[0].value = account;
+      const colIdx = row.cells.length - 1;
+      row.cells[colIdx].rawValue = balance;
+      row.cells[colIdx].value = this.fyo.format(balance, 'Currency');
+      rows.push(row);
     }
 
-    const totalNode = {
-      name: t`Total Cash Change`,
-      valueMap: totalValueMap,
-      rootType: AccountRootTypeEnum.Asset,
-      isGroup: false,
-      parentAccount: null,
-      level: 0,
-    };
-    const totalRow = this.getRowFromAccountListNode(totalNode);
-    totalRow.cells.forEach((c) => (c.bold = true));
+    const totalRow = this.getEmptyRow();
+    totalRow.cells[0].value = t`Total Cash Change`;
+    totalRow.cells[0].bold = true;
+    const lastIdx = totalRow.cells.length - 1;
+    totalRow.cells[lastIdx].rawValue = totalMovement;
+    totalRow.cells[lastIdx].value = this.fyo.format(totalMovement, 'Currency');
+    totalRow.cells[lastIdx].bold = true;
+    
     rows.push(totalRow);
-
     return rows;
   }
 
@@ -291,11 +274,16 @@ export class CashMovement extends AccountReport {
 
     this.accountMap = getMapFromList(accountList, 'name');
 
+    // --- RESTRUCTURE TREE AND FORCE SIGNS ---
+    
     let incomeRoot = '';
     let expenseRoot = '';
     
+    // 1. Identify roots and initialize custom 'sectionType'
     for (const name of Object.keys(this.accountMap)) {
-      const acc = this.accountMap[name];
+      const acc = this.accountMap[name] as CashAccount;
+      acc.sectionType = acc.rootType; // Default section is original root
+
       if (!acc.parentAccount) {
         if (acc.rootType === AccountRootTypeEnum.Income) incomeRoot = name;
         if (acc.rootType === AccountRootTypeEnum.Expense) expenseRoot = name;
@@ -305,47 +293,55 @@ export class CashMovement extends AccountReport {
     const receivableAccounts = new Set<string>();
     const payableAccounts = new Set<string>();
 
+    // 2. Identify explicitly typed accounts
     for (const name of Object.keys(this.accountMap)) {
       const acc = this.accountMap[name] as any;
       if (acc.accountType === AccountTypeEnum.Receivable) {
         receivableAccounts.add(name);
-        acc.rootType = AccountRootTypeEnum.Income;
       } else if (acc.accountType === AccountTypeEnum.Payable) {
         payableAccounts.add(name);
-        acc.rootType = AccountRootTypeEnum.Expense;
       }
     }
 
+    // 3. Propagate types & Re-parent
     let changed = true;
     while (changed) {
       changed = false;
       for (const name of Object.keys(this.accountMap)) {
-        const acc = this.accountMap[name] as any;
+        const acc = this.accountMap[name] as CashAccount;
         if (!acc.parentAccount) continue;
 
-        const parent = this.accountMap[acc.parentAccount];
+        const parent = this.accountMap[acc.parentAccount] as CashAccount;
         if (!parent) continue;
 
+        // Propagate Receivable -> Income Section
         if (receivableAccounts.has(acc.parentAccount) && !receivableAccounts.has(name)) {
           receivableAccounts.add(name);
-          acc.rootType = AccountRootTypeEnum.Income;
-          // Tag as Receivable so resolution logic skips it
-          acc.accountType = AccountTypeEnum.Receivable; 
+          acc.sectionType = AccountRootTypeEnum.Income;
+          (acc as any).accountType = AccountTypeEnum.Receivable; 
           changed = true;
-        } else if (payableAccounts.has(acc.parentAccount) && !payableAccounts.has(name)) {
+        } 
+        // Propagate Payable -> Expense Section
+        else if (payableAccounts.has(acc.parentAccount) && !payableAccounts.has(name)) {
           payableAccounts.add(name);
-          acc.rootType = AccountRootTypeEnum.Expense;
-          // Tag as Payable so resolution logic skips it
-          acc.accountType = AccountTypeEnum.Payable;
+          acc.sectionType = AccountRootTypeEnum.Expense;
+          (acc as any).accountType = AccountTypeEnum.Payable;
           changed = true;
         }
 
-        if (acc.rootType === AccountRootTypeEnum.Income && parent.rootType !== AccountRootTypeEnum.Income) {
+        // Apply explicit re-parenting for Tree Structure in report
+        if (acc.sectionType === AccountRootTypeEnum.Income && parent.sectionType !== AccountRootTypeEnum.Income) {
           if (incomeRoot) acc.parentAccount = incomeRoot;
-        } else if (acc.rootType === AccountRootTypeEnum.Expense && parent.rootType !== AccountRootTypeEnum.Expense) {
+        } else if (acc.sectionType === AccountRootTypeEnum.Expense && parent.sectionType !== AccountRootTypeEnum.Expense) {
           if (expenseRoot) acc.parentAccount = expenseRoot;
         }
       }
+    }
+
+    // 4. GLOBAL FORCE: Set rootType = Income for EVERYONE to standardize signage
+    for (const name of Object.keys(this.accountMap)) {
+      const acc = this.accountMap[name];
+      acc.rootType = AccountRootTypeEnum.Income;
     }
 
     return this.accountMap;
@@ -435,7 +431,6 @@ export class CashMovement extends AccountReport {
       }
     }
 
-    // Resolve allocations and replace "Debtors" with real categories
     const finalEntries = await this._resolveContraAccounts(cashBasisEntries);
     this._rawData = finalEntries;
   }
@@ -446,17 +441,17 @@ export class CashMovement extends AccountReport {
     const entriesToResolve: LedgerEntry[] = [];
 
     for (const entry of entries) {
-      const account = this.accountMap?.[entry.account];
+      const account = this.accountMap?.[entry.account] as CashAccount;
       if (!account) {
         entriesToKeep.push(entry);
         continue;
       }
 
-      // Check for generic "Debtors"/"Creditors" entries that need resolution
+      // Identify entries that are purely Debtors/Creditors placeholders
+      const accType = (account as any).accountType;
       const isContra = 
         (entry.referenceType === 'Payment' || entry.referenceType === 'SalesInvoice' || entry.referenceType === 'PurchaseInvoice') &&
-        (account.rootType === AccountRootTypeEnum.Income || account.rootType === AccountRootTypeEnum.Expense) &&
-        ((account as any).accountType === AccountTypeEnum.Receivable || (account as any).accountType === AccountTypeEnum.Payable);
+        (accType === AccountTypeEnum.Receivable || accType === AccountTypeEnum.Payable);
 
       if (isContra) {
         if (entry.referenceType === 'Payment') paymentIds.add(entry.referenceName);
@@ -468,8 +463,7 @@ export class CashMovement extends AccountReport {
 
     if (entriesToResolve.length === 0) return entries;
 
-    // 1. Map Payment -> Invoices (and amount allocated)
-    const paymentAllocations = new Map<string, Array<{invoice: string, amount: number, type: string}>>();
+    const paymentAllocations = new Map<string, Array<{invoice: string, amount: number}>>();
     const allInvoiceIds = new Set<string>();
 
     if (paymentIds.size > 0) {
@@ -480,15 +474,13 @@ export class CashMovement extends AccountReport {
         });
 
         for (const ref of refs) {
-          const type = ref.referenceType as string;
-          if (type === 'SalesInvoice' || type === 'PurchaseInvoice') {
+          if (ref.referenceType === 'SalesInvoice' || ref.referenceType === 'PurchaseInvoice') {
             const pid = ref.parent as string;
             if (!paymentAllocations.has(pid)) paymentAllocations.set(pid, []);
             
             paymentAllocations.get(pid)!.push({
               invoice: ref.referenceName as string,
-              amount: safeParseFloat(ref.amount),
-              type: type
+              amount: safeParseFloat(ref.amount)
             });
             allInvoiceIds.add(ref.referenceName as string);
           }
@@ -496,17 +488,14 @@ export class CashMovement extends AccountReport {
       } catch (e) { console.warn('Err fetching PaymentFor', e); }
     }
 
-    // Add directly referenced invoices to the set
     for (const entry of entriesToResolve) {
       if (entry.referenceType === 'SalesInvoice' || entry.referenceType === 'PurchaseInvoice') {
         allInvoiceIds.add(entry.referenceName);
       }
     }
 
-    if (allInvoiceIds.size === 0) return [...entriesToKeep, ...entriesToResolve]; // No invoices found
+    if (allInvoiceIds.size === 0) return [...entriesToKeep, ...entriesToResolve];
 
-    // 2. Build Invoice Account Distributions
-    // InvoiceID -> [ { account: 'Sales', weight: 0.9 }, { account: 'Tax', weight: 0.1 } ]
     const invoiceDistributions = new Map<string, Array<{account: string, ratio: number}>>();
     
     try {
@@ -522,19 +511,12 @@ export class CashMovement extends AccountReport {
 
       for (const gl of glEntries) {
         const id = gl.referenceName as string;
-        const account = this.accountMap?.[gl.account as string];
+        const account = this.accountMap?.[gl.account as string] as CashAccount;
         if (!account) continue;
 
-        // Determine if this line is part of the "Contra" side (e.g. Sales, Tax)
-        // For Sales Invoice (Income), we look for Credits.
-        // For Purchase Invoice (Expense), we look for Debits.
-        // We skip the Receivable/Payable account itself.
-        
+        // Skip the Debtor/Creditor line to find the real Income/Expense lines
         const accType = (account as any).accountType;
-        const isReceivable = accType === AccountTypeEnum.Receivable;
-        const isPayable = accType === AccountTypeEnum.Payable;
-
-        if (isReceivable || isPayable) continue; // Skip the debtor/creditor line
+        if (accType === AccountTypeEnum.Receivable || accType === AccountTypeEnum.Payable) continue;
 
         const val = Math.abs(safeParseFloat(gl.debit)) + Math.abs(safeParseFloat(gl.credit));
         if (val === 0) continue;
@@ -545,7 +527,6 @@ export class CashMovement extends AccountReport {
         rec.entries.push({ account: gl.account, val });
       }
 
-      // Convert to ratios
       for (const [id, data] of invoiceTotals) {
         if (data.total === 0) continue;
         const dist = data.entries.map(e => ({
@@ -557,36 +538,33 @@ export class CashMovement extends AccountReport {
 
     } catch(e) { console.warn('Err building distribution', e); }
 
-    // 3. Resolve and Split Entries
     const resolvedEntries: LedgerEntry[] = [];
 
     for (const entry of entriesToResolve) {
-      // Determine which invoice(s) this entry pays for
       let allocations: Array<{invoice: string, amount: number}> = [];
+      const entryTotal = (entry.debit || 0) + (entry.credit || 0);
 
       if (entry.referenceType === 'Payment') {
         allocations = paymentAllocations.get(entry.referenceName) || [];
       } else {
-        // Direct link
-        const val = (entry.debit || 0) + (entry.credit || 0);
-        allocations = [{ invoice: entry.referenceName, amount: val }];
+        allocations = [{ invoice: entry.referenceName, amount: entryTotal }];
       }
 
+      // Handle unallocated payments (Payment on Account)
+      // Or if no allocations found at all.
       if (allocations.length === 0) {
-        // Unallocated payment -> Keep original (Debtors)
         resolvedEntries.push(entry);
         continue;
       }
-
-      // If we have allocations, we split this entry
-      // Note: The original entry amount might match the sum of allocations, or differ (if partial/overpayment).
-      // We should generally respect the allocations found.
       
+      let allocatedSum = 0;
+
       for (const alloc of allocations) {
+        allocatedSum += alloc.amount;
         const dist = invoiceDistributions.get(alloc.invoice);
+        
         if (!dist) {
-          // Allocation points to invoice we couldn't resolve -> Keep as generic portion?
-          // Or map to "Unresolved". Let's keep original account for this portion.
+          // Allocation points to invoice we couldn't resolve -> Keep as generic portion
           resolvedEntries.push({
             ...entry,
             debit: entry.debit ? alloc.amount : 0,
@@ -595,7 +573,7 @@ export class CashMovement extends AccountReport {
           continue;
         }
 
-        // Split based on invoice distribution
+        // Split this allocation based on invoice distribution
         for (const part of dist) {
           const partAmount = alloc.amount * part.ratio;
           resolvedEntries.push({
@@ -605,6 +583,18 @@ export class CashMovement extends AccountReport {
             credit: entry.credit ? partAmount : 0
           });
         }
+      }
+
+      // CRITICAL FIX: Handle Remainder (Partial Allocations)
+      // If payment was 100 but only 80 allocated, keep 20 as "Debtors" (Payment on Account)
+      // Floating point tolerance check
+      if (entryTotal - allocatedSum > 0.01) {
+        const remainder = entryTotal - allocatedSum;
+        resolvedEntries.push({
+          ...entry,
+          debit: entry.debit ? remainder : 0,
+          credit: entry.credit ? remainder : 0
+        });
       }
     }
 
