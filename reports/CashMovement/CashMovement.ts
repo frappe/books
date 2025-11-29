@@ -104,7 +104,7 @@ export class CashMovement extends AccountReport {
     // 3. Net Cash from Operations
     if (incomeData || expenseData) {
       const netOpsRow = this.getCalculatedRow(
-        t`Net Cash from Operations`, 
+        t`Cash Net Profit/Loss`, 
         (vals) => (vals[AccountRootTypeEnum.Income] || 0) - (vals[AccountRootTypeEnum.Expense] || 0),
         sectionTotals
       );
