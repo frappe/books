@@ -23,4 +23,23 @@
     }
   ],
   "keywordFields": ["name"]
+  
+  "states": [
+    {
+      "label": "Active",
+      "color": "blue",
+      "filter": { "status": "Active" }
+    },
+    {
+      "label": "Completed",
+      "color": "green",
+      "filter": { "status": "Completed" }
+    },
+    {
+      "label": "Cancelled",
+      "color": "gray",
+      "filter": { "status": "Cancelled" }
+    }
+  ]
+}
 }

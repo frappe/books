@@ -296,6 +296,11 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'PriceList',
           hidden: () => !fyo.singles.AccountingSettings?.enablePriceList,
         },
+		{
+          label: t('Projects'),
+          route: '/list/Project',
+          condition: () => fyo.singles.AccountingSettings?.enableProjects,
+        },
       ] as SidebarItem[],
     },
     getReportSidebar(),
