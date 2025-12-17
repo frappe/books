@@ -55,7 +55,7 @@
         class="mr-2"
         @click="$router.push('/bank-import')"
       >
-        {{ t`Import QIF/OFX File` }}
+        {{ t`Bank Import` }}
       </Button>
       <Button
         v-if="canCreate"
