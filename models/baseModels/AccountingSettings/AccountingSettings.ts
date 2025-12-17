@@ -28,6 +28,7 @@ export class AccountingSettings extends Doc {
   enablePointOfSaleWithOutInventory?: boolean;
   enablePartialPayment?: boolean;
   enableitemGroup?: boolean;
+  enableProjects?: boolean;
 
   static filters: FiltersMap = {
     writeOffAccount: () => ({
@@ -76,6 +77,9 @@ export class AccountingSettings extends Doc {
     },
     enableitemGroup: () => {
       return !!this.enableitemGroup;
+    },
+	enableProjects: () => {
+      return !!this.enableProjects;
     },
   };
 

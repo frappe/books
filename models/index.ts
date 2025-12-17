@@ -98,6 +98,7 @@ export const models = {
   PrintTemplate,
   Tax,
   TaxSummary,
+  Project,
   // Inventory Models
   InventorySettings,
   StockMovement,
