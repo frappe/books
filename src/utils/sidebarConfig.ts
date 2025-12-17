@@ -297,7 +297,7 @@ function getCompleteSidebar(): SidebarConfig {
           hidden: () => !fyo.singles.AccountingSettings?.enablePriceList,
         },
 		{
-          label: t('Projects'),
+          label: t`Projects`,
           route: '/list/Project',
           condition: () => fyo.singles.AccountingSettings?.enableProjects,
         },

@@ -22,8 +22,7 @@
       "required": true
     }
   ],
-  "keywordFields": ["name"]
-  
+  "keywordFields": ["name"],
   "states": [
     {
       "label": "Active",
@@ -41,5 +40,4 @@
       "filter": { "status": "Cancelled" }
     }
   ]
-}
 }
