@@ -28,11 +28,13 @@ export class JournalEntry extends Transactional {
       const debit = row.debit as Money;
       const credit = row.credit as Money;
       const account = row.account as string;
+      // Cast row to any or specific type to access project
+      const project = (row as any).project as string;
 
       if (!debit.isZero()) {
-        await posting.debit(account, debit);
+        await posting.debit(account, debit, project);
       } else if (!credit.isZero()) {
-        await posting.credit(account, credit);
+        await posting.credit(account, credit, project);
       }
     }
 

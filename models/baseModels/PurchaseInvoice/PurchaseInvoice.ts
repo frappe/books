@@ -13,17 +13,17 @@ export class PurchaseInvoice extends Invoice {
     const exchangeRate = this.exchangeRate ?? 1;
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
     if (this.isReturn) {
-      await posting.debit(this.account!, this.baseGrandTotal!);
-    } else {
       await posting.credit(this.account!, this.baseGrandTotal!);
+    } else {
+      await posting.debit(this.account!, this.baseGrandTotal!);
     }
 
     for (const item of this.items!) {
       if (this.isReturn) {
-        await posting.credit(item.account!, item.amount!.mul(exchangeRate));
+        await posting.debit(item.account!, item.amount!.mul(exchangeRate), item.project);
         continue;
       }
-      await posting.debit(item.account!, item.amount!.mul(exchangeRate));
+      await posting.credit(item.account!, item.amount!.mul(exchangeRate), item.project);
     }
 
     if (this.taxes) {
