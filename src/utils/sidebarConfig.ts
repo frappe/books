@@ -301,7 +301,11 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'projects',
           route: '/list/Project',
           schemaName: 'Project',
-          hidden: () => !fyo.singles.AccountingSettings?.enableProjects,
+          hidden: () => {
+            const settings = fyo.singles.AccountingSettings;
+            // Hide if settings aren't loaded, or if enableProjects is false/undefined/null.
+            return !settings || !settings.enableProjects;
+          },
         },
       ] as SidebarItem[],
     },
