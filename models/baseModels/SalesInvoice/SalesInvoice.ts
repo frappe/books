@@ -31,10 +31,10 @@ export class SalesInvoice extends Invoice {
 
     for (const item of this.items!) {
       if (this.isReturn) {
-        await posting.debit(item.account!, item.amount!.mul(exchangeRate), item.project);
+        await posting.debit(item.account!, item.amount!.mul(exchangeRate), this.project);
         continue;
       }
-      await posting.credit(item.account!, item.amount!.mul(exchangeRate), item.project);
+      await posting.credit(item.account!, item.amount!.mul(exchangeRate), this.project);
     }
 
     if (this.redeemLoyaltyPoints) {

@@ -1,5 +1,4 @@
 import { Fyo, t } from 'fyo';
-import { Doc } from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,
@@ -16,10 +15,11 @@ import {
 } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { Money } from 'pesa';
+import { JournalEntryAccount } from '../JournalEntryAccount/JournalEntryAccount';
 import { LedgerPosting } from '../../Transactional/LedgerPosting';
 
 export class JournalEntry extends Transactional {
-  accounts?: Doc[];
+  accounts?: JournalEntryAccount[];
 
   async getPosting() {
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
@@ -28,8 +28,7 @@ export class JournalEntry extends Transactional {
       const debit = row.debit as Money;
       const credit = row.credit as Money;
       const account = row.account as string;
-      // Cast row to any or specific type to access project
-      const project = (row as any).project as string;
+      const project = row.project;
 
       if (!debit.isZero()) {
         await posting.debit(account, debit, project);
