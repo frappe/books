@@ -29,7 +29,8 @@
       "label": "Project",
       "fieldtype": "Link",
       "target": "Project",
-      "section": "Default"
+      "section": "Default",
+      "create": true
     },
     {
       "fieldname": "coupons",
