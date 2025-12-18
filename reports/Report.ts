@@ -47,13 +47,19 @@ export abstract class Report extends Observable<RawValue> {
 
   get filterMap() {
     const filterMap: Record<string, RawValue> = {};
-    for (const { fieldname } of this.filters) {
+    for (const field of this.filters) {
+      const { fieldname } = field;
       const value = this.get(fieldname);
-      if (getIsNullOrUndef(value)) {
-        continue;
-      }
 
-      filterMap[fieldname] = value;
+      // Check if the current field is a multi-select type.
+      // We assume Link and AutoComplete fields can be multi-select.
+      const isMultiSelectFieldType = field.fieldtype === 'Link' || field.fieldtype === 'AutoComplete';
+
+      // Keep the value if it's not considered null/undefined by getIsNullOrUndef,
+      // OR if it's an empty string which represents 'Select All' for a multi-select field.
+      if (!getIsNullOrUndef(value) || (isMultiSelectFieldType && value === '')) {
+        filterMap[fieldname] = value;
+      }
     }
 
     return filterMap;
