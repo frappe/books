@@ -18,6 +18,7 @@ export class ProfitAndLoss extends AccountReport {
   static title = t`Profit And Loss`;
   static reportName = 'profit-and-loss';
   loading = false;
+  project?: string;
 
   get rootTypes(): AccountRootType[] {
     return [AccountRootTypeEnum.Income, AccountRootTypeEnum.Expense];
