@@ -35,7 +35,6 @@ export class TrialBalance extends AccountReport {
 
   fromDate?: string;
   toDate?: string;
-  project?: string;
   hideGroupAmounts = false;
   loading = false;
 
@@ -243,6 +242,7 @@ export class TrialBalance extends AccountReport {
         fieldtype: 'Link',
         target: 'Project',
         label: t`Project`,
+        placeholder: t`Project`,
         fieldname: 'project',
       } as Field);
     }
