@@ -3,31 +3,39 @@ import { routeFilters } from 'src/utils/filters';
 import { fyo } from '../initFyo';
 import { SidebarConfig, SidebarItem, SidebarRoot } from './types';
 
-export function getSidebarConfig(): SidebarConfig {
-  const sideBar = getCompleteSidebar();
+export async function getSidebarConfig(): Promise<SidebarConfig> {
+  const sideBar = await getCompleteSidebar();
   return getFilteredSidebar(sideBar);
 }
 
 function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
   return sideBar.filter((root) => {
-    root.items = root.items?.filter((item) => {
-      if (item.hidden !== undefined) {
-        return !item.hidden();
-      }
-
-      return true;
-    });
-
+    // Check if the root group itself should be hidden
     if (root.hidden !== undefined) {
-      return !root.hidden();
+      if (root.hidden()) {
+        return false;
+      }
     }
 
-    return true;
+    // Filter items within the root group
+    if (root.items) {
+      root.items = root.items.filter((item) => {
+        if (item.hidden !== undefined) {
+          return !item.hidden();
+        }
+        return true;
+      });
+    }
+
+    // Only include root if it has visible items or no items (and is not hidden itself)
+    return !root.items || root.items.length > 0;
   });
 }
 
-function getRegionalSidebar(): SidebarRoot[] {
-  const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
+async function getRegionalSidebar(
+  accountingSettings: typeof fyo.singles.AccountingSettings
+): Promise<SidebarRoot[]> {
+  const hasGstin = !!accountingSettings?.gstin;
   if (!hasGstin) {
     return [];
   }
@@ -54,8 +62,10 @@ function getRegionalSidebar(): SidebarRoot[] {
   ];
 }
 
-function getInventorySidebar(): SidebarRoot[] {
-  const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
+async function getInventorySidebar(
+  accountingSettings: typeof fyo.singles.AccountingSettings
+): Promise<SidebarRoot[]> {
+  const hasInventory = !!accountingSettings?.enableInventory;
   if (!hasInventory) {
     return [];
   }
@@ -101,17 +111,19 @@ function getInventorySidebar(): SidebarRoot[] {
   ];
 }
 
-function getPOSSidebar() {
+async function getPOSSidebar(
+  inventorySettings: typeof fyo.singles.InventorySettings
+) {
   return {
     label: t`POS`,
     name: 'pos',
     route: '/pos',
     icon: 'pos',
-    hidden: () => !fyo.singles.InventorySettings?.enablePointOfSale,
+    hidden: () => !inventorySettings?.enablePointOfSale,
   };
 }
 
-function getReportSidebar() {
+function getReportSidebar(): SidebarRoot {
   return {
     label: t`Reports`,
     name: 'reports',
@@ -142,7 +154,21 @@ function getReportSidebar() {
   };
 }
 
-function getCompleteSidebar(): SidebarConfig {
+async function getCompleteSidebar(): Promise<SidebarConfig> {
+  // Explicitly load singletons to ensure the latest values are used
+  const accountingSettings = (await fyo.doc.getDoc(
+    'AccountingSettings'
+  )) as typeof fyo.singles.AccountingSettings;
+  const systemSettings = (await fyo.doc.getDoc(
+    'SystemSettings'
+  )) as typeof fyo.singles.SystemSettings;
+  const inventorySettings = (await fyo.doc.getDoc(
+    'InventorySettings'
+  )) as typeof fyo.singles.InventorySettings;
+
+  // Pre-compute project visibility for clarity
+  const hideProjects = !accountingSettings?.enableProjects;
+
   return [
     {
       label: t`Get Started`,
@@ -151,7 +177,7 @@ function getCompleteSidebar(): SidebarConfig {
       icon: 'general',
       iconSize: '24',
       iconHeight: 5,
-      hidden: () => !!fyo.singles.SystemSettings?.hideGetStarted,
+      hidden: () => !!systemSettings?.hideGetStarted,
     },
     {
       label: t`Dashboard`,
@@ -203,28 +229,28 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'loyalty-program',
           route: '/list/LoyaltyProgram',
           schemaName: 'LoyaltyProgram',
-          hidden: () => !fyo.singles.AccountingSettings?.enableLoyaltyProgram,
+          hidden: () => !accountingSettings?.enableLoyaltyProgram,
         },
         {
           label: t`Lead`,
           name: 'lead',
           route: '/list/Lead',
           schemaName: 'Lead',
-          hidden: () => !fyo.singles.AccountingSettings?.enableLead,
+          hidden: () => !accountingSettings?.enableLead,
         },
         {
           label: t`Pricing Rule`,
           name: 'pricing-rule',
           route: '/list/PricingRule',
           schemaName: 'PricingRule',
-          hidden: () => !fyo.singles.AccountingSettings?.enablePricingRule,
+          hidden: () => !accountingSettings?.enablePricingRule,
         },
         {
           label: t`Coupon Code`,
           name: 'coupon-code',
           route: `/list/CouponCode`,
           schemaName: 'CouponCode',
-          hidden: () => !fyo.singles.AccountingSettings?.enableCouponCode,
+          hidden: () => !accountingSettings?.enableCouponCode,
         },
       ] as SidebarItem[],
     },
@@ -294,25 +320,21 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'price-list',
           route: '/list/PriceList',
           schemaName: 'PriceList',
-          hidden: () => !fyo.singles.AccountingSettings?.enablePriceList,
+          hidden: () => !accountingSettings?.enablePriceList,
         },
-		{
+        {
           label: t`Projects`,
           name: 'projects',
           route: '/list/Project',
           schemaName: 'Project',
-          hidden: () => {
-            const settings = fyo.singles.AccountingSettings;
-            // Hide if settings aren't loaded, or if enableProjects is false/undefined/null.
-            return !settings || !settings.enableProjects;
-          },
+          hidden: () => hideProjects, // Use the pre-computed flag
         },
       ] as SidebarItem[],
     },
     getReportSidebar(),
-    getInventorySidebar(),
-    getPOSSidebar(),
-    getRegionalSidebar(),
+    ...(await getInventorySidebar(accountingSettings)), // Await and spread result
+    (await getPOSSidebar(inventorySettings)), // Await for POS sidebar
+    ...(await getRegionalSidebar(accountingSettings)), // Await and spread result
     {
       label: t`Setup`,
       name: 'setup',
@@ -345,8 +367,7 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'customize-form',
           // route: `/customize-form`,
           route: `/list/CustomForm/${t`Customize Form`}`,
-          hidden: () =>
-            !fyo.singles.AccountingSettings?.enableFormCustomization,
+          hidden: () => !accountingSettings?.enableFormCustomization,
         },
         {
           label: t`Settings`,
