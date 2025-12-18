@@ -238,7 +238,7 @@ export class TrialBalance extends AccountReport {
     ] as Field[];
 
     if (this.fyo.singles.AccountingSettings?.enableProjects) {
-      filters.push({
+      filters.splice(2, 0, {
         fieldtype: 'Link',
         target: 'Project',
         label: t`Project`,

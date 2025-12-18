@@ -420,6 +420,7 @@ export abstract class AccountReport extends LedgerReport {
         fieldtype: 'Link',
         target: 'Project',
         label: t`Project`,
+        placeholder: t`Project`,
         fieldname: 'project',
       } as Field);
     }

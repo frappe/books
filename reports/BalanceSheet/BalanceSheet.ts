@@ -156,7 +156,7 @@ export class BalanceSheet extends AccountReport {
     ];
 
     if (this.fyo.singles.AccountingSettings?.enableProjects) {
-      filters.push({
+      filters.splice(1, 0, {
         fieldtype: 'Link',
         target: 'Project',
         label: t`Project`,
