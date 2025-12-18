@@ -258,6 +258,7 @@ export default defineComponent({
       viewShortcuts: boolean;
       activeGroup: null | SidebarRoot;
       showDevMode: boolean;
+      accountingSettingsUnsubscribe: (() => void) | null; // Added to store unsubscribe function
     };
   },
   computed: {
@@ -268,12 +269,20 @@ export default defineComponent({
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
     this.companyName = companyName as string;
-    this.groups = await getSidebarConfig();
+    this.groups = await getSidebarConfig(); // Initial load
 
     this.setActiveGroup();
     router.afterEach(() => {
       this.setActiveGroup();
     });
+
+    // Subscribe to AccountingSettings changes to update sidebar reactivity
+    if (fyo.singles.AccountingSettings) {
+      this.accountingSettingsUnsubscribe = fyo.singles.AccountingSettings.on(
+        'change',
+        this.handleAccountingSettingsChange
+      );
+    }
 
     this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyH'], () => {
       if (document.body === document.activeElement) {
@@ -286,11 +295,19 @@ export default defineComponent({
   },
   unmounted() {
     this.shortcuts?.delete(COMPONENT_NAME);
+    // Unsubscribe from AccountingSettings changes when the component is unmounted
+    if (this.accountingSettingsUnsubscribe) {
+      this.accountingSettingsUnsubscribe();
+    }
   },
   methods: {
     routeTo,
     reportIssue,
     toggleSidebar,
+    // Handle changes to AccountingSettings to refresh sidebar groups
+    async handleAccountingSettingsChange() {
+      this.groups = await getSidebarConfig();
+    },
     openDocumentation() {
       ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
     },
