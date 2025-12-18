@@ -63,10 +63,8 @@ export abstract class Report extends Observable<RawValue> {
     if (isMultiSelectFieldType) {
       if (typeof rawStoredValue === 'string') {
         if (rawStoredValue === '') {
-          // An empty string in storage means 'Select All'.
-          // Returning undefined signals to the UI component that no specific item is selected,
-          // which often results in the placeholder text (e.g., "Select All" or "Project") being shown.
-          return undefined;
+          // An empty string in storage means 'Select All', which the UI expects as an empty array.
+          return [];
         } else {
           // For a non-empty string, split it into an array of selected items for UI display.
           return rawStoredValue.split(',').map((s) => s.trim());
