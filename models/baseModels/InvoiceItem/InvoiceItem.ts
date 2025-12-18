@@ -38,6 +38,7 @@ export abstract class InvoiceItem extends Doc {
   transferQuantity?: number;
   unitConversionFactor?: number;
   batch?: string;
+  serialNumber?: string;
 
   tax?: string;
   stockNotTransferred?: number;
@@ -136,6 +137,82 @@ export abstract class InvoiceItem extends Doc {
           'itemCode'
         )) as string,
       dependsOn: ['item'],
+    },
+
+    batch: {
+      formula: async () => {
+        if (this.batch || !this.item) {
+          return this.batch;
+        }
+
+        const hasBatch = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          this.item,
+          'hasBatch'
+        );
+
+        if (!hasBatch) {
+          return null; 
+        }
+
+        const batches = await this.fyo.db.getAll(ModelNameEnum.Batch, {
+          fields: ['name'],
+          filters: { item: this.item as string },
+          orderBy: 'name',
+          order: 'asc',
+        });
+
+        if (batches.length > 0) {
+          return batches[0].name as string;
+        }
+
+        return this.batch; 
+      },
+      dependsOn: ['item', 'batch'],
+    },
+
+
+    serialNumber: {
+      formula: async () => {
+        
+        if (this.serialNumber || !this.item) {
+          return this.serialNumber;
+        }
+
+        const hasSerialNumber = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          this.item,
+          'hasSerialNumber'
+        );
+
+        if (!hasSerialNumber) {
+          return null;
+        }
+
+        const quantity = this.quantity ?? 1;
+        
+        if (quantity <= 0) {
+          return null;
+        }
+
+        const serialNumbers = await this.fyo.db.getAll(ModelNameEnum.SerialNumber, {
+          fields: ['name'],
+          filters: { item: this.item as string },
+          orderBy: 'name',
+          order: 'asc',
+          limit: quantity
+        });
+
+
+        if (serialNumbers.length > 0) {
+          const serialNames = serialNumbers.map(sn => sn.name as string);
+          const result = serialNames.join(', ');
+          return result;
+        }
+
+        return this.serialNumber;
+      },
+      dependsOn: ['item', 'serialNumber', 'quantity'],
     },
     rate: {
       formula: async (fieldname) => {
@@ -621,6 +698,7 @@ export abstract class InvoiceItem extends Doc {
     itemDiscountPercent: () =>
       !(this.enableDiscounting && !this.setItemDiscountAmount),
     batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    serialNumber: () => !this.fyo.singles.InventorySettings?.enableSerialNumber,
     transferUnit: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
     transferQuantity: () =>
