@@ -42,6 +42,6 @@ export class JournalEntryAccount extends Doc {
 
   static filters: FiltersMap = {
     account: () => ({ isGroup: false }),
-    project: () => ({ isActive: true }),
+    project: () => ({ status: 'Active' }),
   };
 }

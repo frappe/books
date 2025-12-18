@@ -120,7 +120,7 @@ export default defineComponent({
       if (this.projectsEnabled) {
         this.projects = await fyo.db.getAll('Project', {
           fields: ['name'],
-          filters: { isActive: true },
+          filters: { status: 'Active' },
         });
       }
     },

@@ -1228,7 +1228,7 @@ export abstract class Invoice extends Transactional {
       isEnabled: true,
       ...(doc.isSales ? { isSales: true } : { isPurchase: true }),
     }),
-    project: () => ({ isActive: true }),
+    project: () => ({ status: 'Active' }),
   };
 
   static createFilters: FiltersMap = {
