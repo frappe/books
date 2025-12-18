@@ -19,7 +19,7 @@ import {
   ReportRow,
   RootTypeRow,
 } from 'reports/types';
-import { Field } from 'schemas/types';
+import { Field, SelectOption } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
 
@@ -124,7 +124,7 @@ export class BalanceSheet extends AccountReport {
     filters.date = ['<', toDate];
     filters.reverted = false;
 
-    if (this.project) {
+    if (this.project && this.project !== 'all') {
       filters.project = this.project;
     }
     return filters;
@@ -157,11 +157,11 @@ export class BalanceSheet extends AccountReport {
 
     if (this.fyo.singles.AccountingSettings?.enableProjects) {
       filters.splice(1, 0, {
-        fieldtype: 'Link',
-        target: 'Project',
+        fieldtype: 'Select',
         label: t`Project`,
         placeholder: t`Project`,
         fieldname: 'project',
+        options: this.projectOptions,
       } as Field);
     }
     return filters;

@@ -25,7 +25,7 @@ import {
   TreeNode,
   ValueMap,
 } from 'reports/types';
-import { Field } from 'schemas/types';
+import { Field, SelectOption } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
 
@@ -35,6 +35,7 @@ export const ACC_BAL_WIDTH = 1.25;
 export abstract class AccountReport extends LedgerReport {
   toDate?: string;
   project?: string;
+  projectOptions: SelectOption[] = [];
   count = 3;
   fromYear?: number;
   toYear?: number;
@@ -56,6 +57,18 @@ export abstract class AccountReport extends LedgerReport {
     if (this.basedOn === 'Fiscal Year' && !this.toYear) {
       this.fromYear = DateTime.now().year;
       this.toYear = this.fromYear + 1;
+    }
+
+    if (this.fyo.singles.AccountingSettings?.enableProjects) {
+      this.project = 'all';
+      const projects = (await this.fyo.db.getAll('Project', {
+        fields: ['name'],
+        filters: { status: 'Active' },
+      })) as { name: string }[];
+      this.projectOptions = [{ label: t`Show All`, value: 'all' }];
+      for (const p of projects) {
+        this.projectOptions.push({ label: p.name, value: p.name });
+      }
     }
 
     await this._setDateRanges();
@@ -324,7 +337,7 @@ export abstract class AccountReport extends LedgerReport {
     filters.date = dateFilter;
     filters.reverted = false;
 
-    if (this.project) {
+    if (this.project && this.project !== 'all') {
       filters.project = this.project;
     }
     return filters;
@@ -417,11 +430,11 @@ export abstract class AccountReport extends LedgerReport {
 
     if (this.fyo.singles.AccountingSettings?.enableProjects) {
       allFilters.push({
-        fieldtype: 'Link',
-        target: 'Project',
+        fieldtype: 'Select',
         label: t`Project`,
         placeholder: t`Project`,
         fieldname: 'project',
+        options: this.projectOptions,
       } as Field);
     }
 
