@@ -25,6 +25,13 @@
       "section": "Default"
     },
     {
+      "fieldname": "project",
+      "label": "Project",
+      "fieldtype": "Link",
+      "target": "Project",
+      "section": "Default"
+    },
+    {
       "fieldname": "backReference",
       "label": "Back Reference",
       "fieldtype": "Link",
@@ -61,13 +68,6 @@
       "target": "PurchaseInvoice",
       "label": "Return Against",
       "section": "References"
-    },
-	{
-      "fieldname": "project",
-      "label": "Project",
-      "fieldtype": "Link",
-      "target": "Project",
-      "hidden": true
     }
   ],
   "keywordFields": ["name", "party"]

@@ -25,6 +25,13 @@
       "section": "Default"
     },
     {
+      "fieldname": "project",
+      "label": "Project",
+      "fieldtype": "Link",
+      "target": "Project",
+      "section": "Default"
+    },
+    {
       "fieldname": "coupons",
       "label": "Coupons",
       "fieldtype": "Table",
