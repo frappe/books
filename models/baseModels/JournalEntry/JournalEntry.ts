@@ -24,11 +24,13 @@ export class JournalEntry extends Transactional {
   async getPosting() {
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
 
+    const enableProjects = this.fyo.singles.AccountingSettings?.enableProjects;
+
     for (const row of this.accounts ?? []) {
       const debit = row.debit as Money;
       const credit = row.credit as Money;
       const account = row.account as string;
-      const project = row.project;
+      const project = enableProjects ? row.project : undefined;
 
       if (!debit.isZero()) {
         await posting.debit(account, debit, project);
