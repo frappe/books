@@ -31,6 +31,9 @@ export class GeneralLedger extends LedgerReport {
   reverted = false;
   referenceType: ReferenceType = 'All';
   project?: string;
+  account?: string;
+  party?: string;
+  referenceName?: string;
   groupBy: 'none' | 'party' | 'account' | 'referenceName' = 'none';
   _rawData: LedgerEntry[] = [];
 
@@ -242,15 +245,18 @@ export class GeneralLedger extends LedgerReport {
 
   _getQueryFilters(): QueryFilter {
     const filters: QueryFilter = {};
-    const stringFilters = ['account', 'party', 'referenceName', 'project'];
 
-    for (const sf of stringFilters) {
-      const value = this[sf];
-      if (value === undefined) {
-        continue;
-      }
-
-      filters[sf] = value as string;
+    if (this.account) {
+      filters.account = this.account;
+    }
+    if (this.party) {
+      filters.party = this.party;
+    }
+    if (this.referenceName) {
+      filters.referenceName = this.referenceName;
+    }
+    if (this.project) {
+      filters.project = this.project;
     }
 
     if (this.referenceType !== 'All') {
