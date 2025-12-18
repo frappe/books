@@ -359,7 +359,6 @@ export abstract class AccountReport extends LedgerReport {
         label: t`Periodicity`,
         fieldname: 'periodicity',
       },
-      ,
     ] as Field[];
 
     let dateFilters = [
