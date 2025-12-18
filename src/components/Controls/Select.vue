@@ -25,13 +25,13 @@
           "
           :class="{
             'pointer-events-none': isReadOnly,
-            'text-gray-500': !modelValue,
+            'text-gray-500': !value,
           }"
         >
           <span
-            v-if="modelValue"
+            v-if="value"
             class="cursor-text text-black dark:text-white w-full"
-            >{{ selectedLabel || modelValue }}</span
+            >{{ selectedLabel || value }}</span
           >
           <span v-else>{{ inputPlaceholder }}</span>
           <svg
@@ -125,25 +125,17 @@ import { SelectOption } from 'schemas/types';
 export default defineComponent({
   name: 'Select',
   extends: Base,
-  emits: {
-    focus: () => true,
-    'update:modelValue': (value: string | number) => true,
-    change: (value: string | number) => true,
-  },
-  props: {
-    modelValue: {
-      type: [String, Number, Array, Object, Boolean, Date, Function, Symbol],
-      default: null,
-    },
-    closeDropDown: {
-      type: Boolean,
-      default: true,
-    },
-  },
+  emits: ['focus', 'update:modelValue', 'change'],
   data() {
     return {
       dropdownVisible: false,
     };
+  },
+  props: {
+    closeDropDown: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     options(): SelectOption[] {
@@ -154,7 +146,7 @@ export default defineComponent({
       return this.df.options;
     },
     selectedLabel(): string {
-      const option = this.options.find((o) => o.value === this.modelValue);
+      const option = this.options.find((o) => o.value === this.value);
       return option ? option.label : '';
     },
   },
