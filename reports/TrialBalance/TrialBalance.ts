@@ -35,6 +35,7 @@ export class TrialBalance extends AccountReport {
 
   fromDate?: string;
   toDate?: string;
+  project?: string;
   hideGroupAmounts = false;
   loading = false;
 
@@ -194,6 +195,9 @@ export class TrialBalance extends AccountReport {
   async _getQueryFilters(): Promise<QueryFilter> {
     const filters: QueryFilter = {};
     filters.reverted = false;
+    if (this.project) {
+      filters.project = this.project;
+    }
     return filters;
   }
 
@@ -212,7 +216,7 @@ export class TrialBalance extends AccountReport {
   }
 
   getFilters(): Field[] {
-    return [
+    const filters = [
       {
         fieldtype: 'Date',
         fieldname: 'fromDate',
@@ -233,6 +237,17 @@ export class TrialBalance extends AccountReport {
         fieldname: 'hideGroupAmounts',
       } as Field,
     ] as Field[];
+
+    if (this.fyo.singles.AccountingSettings?.enableProjects) {
+      filters.push({
+        fieldtype: 'Link',
+        target: 'Project',
+        label: t`Project`,
+        fieldname: 'project',
+      } as Field);
+    }
+
+    return filters;
   }
 
   getColumns(): ColumnField[] {
