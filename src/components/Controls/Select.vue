@@ -125,7 +125,7 @@ import { SelectOption } from 'schemas/types';
 export default defineComponent({
   name: 'Select',
   extends: Base,
-  emits: ['focus', 'update:modelValue', 'change'],
+  emits: ['focus'],
   data() {
     return {
       dropdownVisible: false,
@@ -159,8 +159,7 @@ export default defineComponent({
       }
     },
     selectOption(option: SelectOption) {
-      this.$emit('update:modelValue', option.value);
-      this.$emit('change', option.value);
+      this.triggerChange(option.value);
 
       if (this.closeDropDown) {
         this.dropdownVisible = !this.dropdownVisible;
