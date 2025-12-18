@@ -115,7 +115,13 @@
         {{ row.description }}
       </div>
       <div class="w-2/12 text-right" v-if="doc.showHSN">{{ row.hsnCode }}</div>
-      <div class="w-2/12 text-right">{{ row.quantity }}</div>
+      <div class="w-2/12 text-right">
+        <div>{{ row.quantity }}</div>
+        <div v-if="row.transferUnit">
+          ({{row.transferQuantity}} of {{ row.transferUnit }})
+        </div>
+        <div v-else-if="row.unit">({{row.quantity}} of {{ row.unit }})</div>
+      </div>
       <div class="w-3/12 text-right">{{ row.rate }}</div>
       <div class="w-3/12 text-right">{{ row.amount }}</div>
     </section>
