@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap, FormulaMap } from 'fyo/model/types';
+import { FiltersMap, FormulaMap, HiddenMap } from 'fyo/model/types';
 import { Money } from 'pesa';
 
 export class JournalEntryAccount extends Doc {
@@ -36,7 +36,12 @@ export class JournalEntryAccount extends Doc {
     },
   };
 
+  hidden: HiddenMap = {
+    project: () => !this.fyo.singles.AccountingSettings?.enableProjects,
+  };
+
   static filters: FiltersMap = {
     account: () => ({ isGroup: false }),
+    project: () => ({ isActive: true }),
   };
 }

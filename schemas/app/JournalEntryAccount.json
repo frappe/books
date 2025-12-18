@@ -26,10 +26,9 @@
       "fieldname": "project",
       "label": "Project",
       "fieldtype": "Link",
-      "target": "Project",
-      "hidden": true
+      "target": "Project"
     }
   ],
-  "tableFields": ["account", "debit", "credit"],
+  "tableFields": ["account", "debit", "credit", "project"],
   "keywordFields": ["account"]
 }
