@@ -34,6 +34,7 @@ export const ACC_BAL_WIDTH = 1.25;
 
 export abstract class AccountReport extends LedgerReport {
   toDate?: string;
+  project?: string;
   count = 3;
   fromYear?: number;
   toYear?: number;
@@ -322,6 +323,10 @@ export abstract class AccountReport extends LedgerReport {
 
     filters.date = dateFilter;
     filters.reverted = false;
+
+    if (this.project) {
+      filters.project = this.project;
+    }
     return filters;
   }
 
@@ -396,9 +401,9 @@ export abstract class AccountReport extends LedgerReport {
       ] as Field[];
     }
 
-    return [
-      filters,
-      dateFilters,
+    const allFilters = [
+      ...filters,
+      ...dateFilters,
       {
         fieldtype: 'Check',
         label: t`Consolidate Columns`,
@@ -409,7 +414,18 @@ export abstract class AccountReport extends LedgerReport {
         label: t`Hide Group Amounts`,
         fieldname: 'hideGroupAmounts',
       } as Field,
-    ].flat();
+    ];
+
+    if (this.fyo.singles.AccountingSettings?.enableProjects) {
+      allFilters.push({
+        fieldtype: 'Link',
+        target: 'Project',
+        label: t`Project`,
+        fieldname: 'project',
+      } as Field);
+    }
+
+    return allFilters;
   }
 
   getColumns(): ColumnField[] {
