@@ -26,7 +26,7 @@ import {
   RootTypeRow,
   ValueMap,
 } from 'reports/types';
-import { Field, SelectOption } from 'schemas/types';
+import { Field } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 
 export class TrialBalance extends AccountReport {
@@ -194,7 +194,7 @@ export class TrialBalance extends AccountReport {
   async _getQueryFilters(): Promise<QueryFilter> {
     const filters: QueryFilter = {};
     filters.reverted = false;
-    if (this.project && this.project !== 'all') {
+    if (this.project) {
       filters.project = this.project;
     }
     return filters;
@@ -209,18 +209,6 @@ export class TrialBalance extends AccountReport {
       this.toDate = DateTime.fromISO(endpoints.toDate)
         .minus({ days: 1 })
         .toISODate();
-    }
-
-    if (this.fyo.singles.AccountingSettings?.enableProjects) {
-      this.project = 'all';
-      const projects = (await this.fyo.db.getAll('Project', {
-        fields: ['name'],
-        filters: { status: 'Active' },
-      })) as { name: string }[];
-      this.projectOptions = [{ label: t`Show All`, value: 'all' }];
-      for (const p of projects) {
-        this.projectOptions.push({ label: p.name, value: p.name });
-      }
     }
 
     await this._setDateRanges();
@@ -251,11 +239,11 @@ export class TrialBalance extends AccountReport {
 
     if (this.fyo.singles.AccountingSettings?.enableProjects) {
       filters.splice(2, 0, {
-        fieldtype: 'Select',
+        fieldtype: 'Link',
+        target: 'Project',
         label: t`Project`,
         placeholder: t`Project`,
         fieldname: 'project',
-        options: this.projectOptions,
       } as Field);
     }
 

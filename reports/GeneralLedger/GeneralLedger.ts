@@ -9,7 +9,7 @@ import {
   ReportData,
   ReportRow,
 } from 'reports/types';
-import { Field, FieldTypeEnum, SelectOption } from 'schemas/types';
+import { Field, FieldTypeEnum } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 
 type ReferenceType =
@@ -31,7 +31,6 @@ export class GeneralLedger extends LedgerReport {
   reverted = false;
   referenceType: ReferenceType = 'All';
   project?: string;
-  projectOptions: SelectOption[] = [];
   account?: string;
   party?: string;
   referenceName?: string;
@@ -42,22 +41,10 @@ export class GeneralLedger extends LedgerReport {
     super(fyo);
   }
 
-  async setDefaultFilters() {
+  setDefaultFilters() {
     if (!this.toDate) {
       this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
       this.fromDate = DateTime.now().minus({ years: 1 }).toISODate();
-    }
-
-    if (this.fyo.singles.AccountingSettings?.enableProjects) {
-      this.project = 'all';
-      const projects = (await this.fyo.db.getAll('Project', {
-        fields: ['name'],
-        filters: { status: 'Active' },
-      })) as { name: string }[];
-      this.projectOptions = [{ label: t`Show All`, value: 'all' }];
-      for (const p of projects) {
-        this.projectOptions.push({ label: p.name, value: p.name });
-      }
     }
   }
 
@@ -268,7 +255,7 @@ export class GeneralLedger extends LedgerReport {
     if (this.referenceName) {
       filters.referenceName = this.referenceName;
     }
-    if (this.project && this.project !== 'all') {
+    if (this.project) {
       filters.project = this.project;
     }
 
@@ -377,11 +364,11 @@ export class GeneralLedger extends LedgerReport {
 
     if (this.fyo.singles.AccountingSettings?.enableProjects) {
       filters.splice(4, 0, {
-        fieldtype: 'Select',
+        fieldtype: 'Link',
+        target: 'Project',
         label: t`Project`,
         placeholder: t`Project`,
         fieldname: 'project',
-        options: this.projectOptions,
       } as Field);
     }
 
