@@ -255,7 +255,7 @@ export class GeneralLedger extends LedgerReport {
     if (this.referenceName) {
       filters.referenceName = this.referenceName;
     }
-    if (this.project) {
+    if (this.fyo.singles.AccountingSettings?.enableProjects && this.project) {
       filters.project = this.project;
     }
 

@@ -1228,7 +1228,10 @@ export abstract class Invoice extends Transactional {
       isEnabled: true,
       ...(doc.isSales ? { isSales: true } : { isPurchase: true }),
     }),
-    project: () => ({ status: 'Active' }),
+    project: (doc: Doc) =>
+      doc.fyo.singles.AccountingSettings?.enableProjects
+        ? { status: 'Active' }
+        : {},
   };
 
   static createFilters: FiltersMap = {
