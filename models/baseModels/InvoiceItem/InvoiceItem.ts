@@ -51,6 +51,42 @@ export abstract class InvoiceItem extends Doc {
 
   isFreeItem?: boolean;
 
+  // --- MERGED HIDDEN MAP STARTS HERE ---
+  hidden: HiddenMap = {
+    // 1. Project Logic
+    project: () => !this.fyo.singles.AccountingSettings?.enableProjects,
+
+    // 2. Existing Logic
+    itemDiscountedTotal: () => {
+      if (!this.enableDiscounting) {
+        return true;
+      }
+
+      if (!!this.setItemDiscountAmount && this.itemDiscountAmount?.isZero()) {
+        return true;
+      }
+
+      if (!this.setItemDiscountAmount && this.itemDiscountPercent === 0) {
+        return true;
+      }
+
+      return false;
+    },
+    setItemDiscountAmount: () => !this.enableDiscounting,
+    itemDiscountAmount: () =>
+      !(this.enableDiscounting && !!this.setItemDiscountAmount),
+    itemDiscountPercent: () =>
+      !(this.enableDiscounting && !this.setItemDiscountAmount),
+    batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    transferUnit: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+    transferQuantity: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+    unitConversionFactor: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+  };
+  // --- MERGED HIDDEN MAP ENDS HERE ---
+
   get isSales() {
     return (
       this.schemaName === 'SalesInvoiceItem' ||
@@ -598,36 +634,6 @@ export abstract class InvoiceItem extends Doc {
           }`
         );
     },
-  };
-
-  hidden: HiddenMap = {
-    itemDiscountedTotal: () => {
-      if (!this.enableDiscounting) {
-        return true;
-      }
-
-      if (!!this.setItemDiscountAmount && this.itemDiscountAmount?.isZero()) {
-        return true;
-      }
-
-      if (!this.setItemDiscountAmount && this.itemDiscountPercent === 0) {
-        return true;
-      }
-
-      return false;
-    },
-    setItemDiscountAmount: () => !this.enableDiscounting,
-    itemDiscountAmount: () =>
-      !(this.enableDiscounting && !!this.setItemDiscountAmount),
-    itemDiscountPercent: () =>
-      !(this.enableDiscounting && !this.setItemDiscountAmount),
-    batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
-    transferUnit: () =>
-      !this.fyo.singles.InventorySettings?.enableUomConversions,
-    transferQuantity: () =>
-      !this.fyo.singles.InventorySettings?.enableUomConversions,
-    unitConversionFactor: () =>
-      !this.fyo.singles.InventorySettings?.enableUomConversions,
   };
 
   static filters: FiltersMap = {

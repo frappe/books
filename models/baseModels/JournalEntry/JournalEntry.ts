@@ -42,6 +42,7 @@ export class JournalEntry extends Transactional {
   }
 
   hidden: HiddenMap = {
+	project: () => !this.fyo.singles.AccountingSettings?.enableProjects,
     referenceNumber: () =>
       !(this.referenceNumber || !(this.isSubmitted || this.isCancelled)),
     referenceDate: () =>
