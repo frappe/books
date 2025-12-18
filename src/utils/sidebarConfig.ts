@@ -3,8 +3,10 @@ import { routeFilters } from 'src/utils/filters';
 import { fyo } from '../initFyo';
 import { SidebarConfig, SidebarItem, SidebarRoot } from './types';
 
-export async function getSidebarConfig(): Promise<SidebarConfig> {
-  const sideBar = await getCompleteSidebar();
+export async function getSidebarConfig(
+  accountingSettings?: typeof fyo.singles.AccountingSettings // Accept AccountingSettings here
+): Promise<SidebarConfig> {
+  const sideBar = await getCompleteSidebar(accountingSettings);
   return getFilteredSidebar(sideBar);
 }
 
@@ -33,7 +35,7 @@ function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
 }
 
 async function getRegionalSidebar(
-  accountingSettings: typeof fyo.singles.AccountingSettings
+  accountingSettings?: typeof fyo.singles.AccountingSettings // Use passed settings
 ): Promise<SidebarRoot[]> {
   const hasGstin = !!accountingSettings?.gstin;
   if (!hasGstin) {
@@ -63,7 +65,7 @@ async function getRegionalSidebar(
 }
 
 async function getInventorySidebar(
-  accountingSettings: typeof fyo.singles.AccountingSettings
+  accountingSettings?: typeof fyo.singles.AccountingSettings // Use passed settings
 ): Promise<SidebarRoot[]> {
   const hasInventory = !!accountingSettings?.enableInventory;
   if (!hasInventory) {
@@ -154,11 +156,16 @@ function getReportSidebar(): SidebarRoot {
   };
 }
 
-async function getCompleteSidebar(): Promise<SidebarConfig> {
-  // Explicitly load singletons to ensure the latest values are used
-  const accountingSettings = (await fyo.doc.getDoc(
-    'AccountingSettings'
-  )) as typeof fyo.singles.AccountingSettings;
+async function getCompleteSidebar(
+  initialAccountingSettings?: typeof fyo.singles.AccountingSettings
+): Promise<SidebarConfig> {
+  // Use the passed settings or explicitly load singletons if not provided
+  const accountingSettings =
+    initialAccountingSettings ||
+    ((await fyo.doc.getDoc(
+      'AccountingSettings'
+    )) as typeof fyo.singles.AccountingSettings);
+
   const systemSettings = (await fyo.doc.getDoc(
     'SystemSettings'
   )) as typeof fyo.singles.SystemSettings;
@@ -166,7 +173,7 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
     'InventorySettings'
   )) as typeof fyo.singles.InventorySettings;
 
-  // Pre-compute project visibility for clarity
+  // Pre-compute project visibility for clarity using the consistent accountingSettings instance
   const hideProjects = !accountingSettings?.enableProjects;
 
   return [
@@ -332,9 +339,9 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
       ] as SidebarItem[],
     },
     getReportSidebar(),
-    ...(await getInventorySidebar(accountingSettings)), // Await and spread result
-    (await getPOSSidebar(inventorySettings)), // Await for POS sidebar
-    ...(await getRegionalSidebar(accountingSettings)), // Await and spread result
+    ...(await getInventorySidebar(accountingSettings)),
+    await getPOSSidebar(inventorySettings),
+    ...(await getRegionalSidebar(accountingSettings)),
     {
       label: t`Setup`,
       name: 'setup',

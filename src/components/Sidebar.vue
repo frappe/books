@@ -267,18 +267,21 @@ export default defineComponent({
     },
   },
   async mounted() {
-    const { companyName } = await fyo.doc.getDoc('AccountingSettings');
-    this.companyName = companyName as string;
-    this.groups = await getSidebarConfig(); // Initial load
+    const accountingSettings = (await fyo.doc.getDoc(
+      'AccountingSettings'
+    )) as typeof fyo.singles.AccountingSettings;
+
+    this.companyName = accountingSettings.companyName as string;
+    this.groups = await getSidebarConfig(accountingSettings); // Initial load, pass the fetched instance
 
     this.setActiveGroup();
     router.afterEach(() => {
       this.setActiveGroup();
     });
 
-    // Subscribe to AccountingSettings changes to update sidebar reactivity
-    if (fyo.singles.AccountingSettings) {
-      this.accountingSettingsUnsubscribe = fyo.singles.AccountingSettings.on(
+    // Subscribe to changes on this specific instance
+    if (accountingSettings) {
+      this.accountingSettingsUnsubscribe = accountingSettings.on(
         'change',
         this.handleAccountingSettingsChange
       );
@@ -305,8 +308,11 @@ export default defineComponent({
     reportIssue,
     toggleSidebar,
     // Handle changes to AccountingSettings to refresh sidebar groups
-    async handleAccountingSettingsChange() {
-      this.groups = await getSidebarConfig();
+    async handleAccountingSettingsChange(
+      changedDoc: typeof fyo.singles.AccountingSettings
+    ) {
+      // Pass the updated document instance to getSidebarConfig
+      this.groups = await getSidebarConfig(changedDoc);
     },
     openDocumentation() {
       ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
