@@ -29,9 +29,9 @@
           }"
         >
           <span
-            v-if="value"
+            v-if="selectValue || value"
             class="cursor-text text-black dark:text-white w-full"
-            >{{ selectedLabel || value }}</span
+            >{{ selectValue ? selectValue : value }}</span
           >
           <span v-else>{{ inputPlaceholder }}</span>
           <svg
@@ -91,10 +91,10 @@
                 dark:hover:bg-gray-875
                 flex
               "
-              :class="selectedLabel !== option.label ? 'pl-6' : 'pl-2'"
+              :class="selectValue !== option.label ? 'pl-6' : 'pl-2'"
             >
               <svg
-                v-if="selectedLabel === option.label"
+                v-if="selectValue === option.label"
                 xmlns="http://www.w3.org/2000/svg"
                 x="0px"
                 y="0px"
@@ -129,6 +129,7 @@ export default defineComponent({
   data() {
     return {
       dropdownVisible: false,
+      selectValue: this.value,
     };
   },
   props: {
@@ -145,10 +146,6 @@ export default defineComponent({
 
       return this.df.options;
     },
-    selectedLabel(): string {
-      const option = this.options.find((o) => o.value === this.value);
-      return option ? option.label : '';
-    },
   },
   methods: {
     toggleDropdown() {
@@ -159,6 +156,7 @@ export default defineComponent({
       }
     },
     selectOption(option: SelectOption) {
+      this.selectValue = option.label;
       this.triggerChange(option.value);
 
       if (this.closeDropDown) {
