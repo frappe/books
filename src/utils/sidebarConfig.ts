@@ -298,8 +298,10 @@ function getCompleteSidebar(): SidebarConfig {
         },
 		{
           label: t`Projects`,
+          name: 'projects',
           route: '/list/Project',
-          condition: () => fyo.singles.AccountingSettings?.enableProjects,
+          schemaName: 'Project',
+          hidden: () => !fyo.singles.AccountingSettings?.enableProjects,
         },
       ] as SidebarItem[],
     },
