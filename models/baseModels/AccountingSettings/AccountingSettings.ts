@@ -78,7 +78,7 @@ export class AccountingSettings extends Doc {
     enableitemGroup: () => {
       return !!this.enableitemGroup;
     },
-	enableProjects: () => {
+    enableProjects: () => {
       return !!this.enableProjects;
     },
   };

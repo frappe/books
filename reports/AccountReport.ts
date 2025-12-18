@@ -29,6 +29,27 @@ import { Field, SelectOption } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function setProjectOptionsOnReport(report: any): Promise<void> {
+  if (!report.fyo.singles.AccountingSettings?.enableProjects) {
+    return;
+  }
+
+  report.project = 'all';
+  const projects = (await report.fyo.db.getAll('Project', {
+    fields: ['name'],
+    filters: { status: 'Active' },
+  })) as { name: string }[];
+
+  report.projectOptions = [
+    { label: report.fyo.t`Show All`, value: 'all' },
+    ...projects.map((p: { name: string }) => ({
+      label: p.name,
+      value: p.name,
+    })),
+  ];
+}
+
 export const ACC_NAME_WIDTH = 2;
 export const ACC_BAL_WIDTH = 1.25;
 
@@ -59,17 +80,7 @@ export abstract class AccountReport extends LedgerReport {
       this.toYear = this.fromYear + 1;
     }
 
-    if (this.fyo.singles.AccountingSettings?.enableProjects) {
-      this.project = 'all';
-      const projects = (await this.fyo.db.getAll('Project', {
-        fields: ['name'],
-        filters: { status: 'Active' },
-      })) as { name: string }[];
-      this.projectOptions = [{ label: t`Show All`, value: 'all' }];
-      for (const p of projects) {
-        this.projectOptions.push({ label: p.name, value: p.name });
-      }
-    }
+    await setProjectOptionsOnReport(this);
 
     await this._setDateRanges();
   }

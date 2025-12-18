@@ -1,5 +1,6 @@
 import { Fyo, t } from 'fyo';
 import { DateTime } from 'luxon';
+import { setProjectOptionsOnReport } from 'reports/AccountReport';
 import { ModelNameEnum } from 'models/types';
 import { LedgerReport } from 'reports/LedgerReport';
 import {
@@ -48,17 +49,7 @@ export class GeneralLedger extends LedgerReport {
       this.fromDate = DateTime.now().minus({ years: 1 }).toISODate();
     }
 
-    if (this.fyo.singles.AccountingSettings?.enableProjects) {
-      this.project = 'all';
-      const projects = (await this.fyo.db.getAll('Project', {
-        fields: ['name'],
-        filters: { status: 'Active' },
-      })) as { name: string }[];
-      this.projectOptions = [{ label: t`Show All`, value: 'all' }];
-      for (const p of projects) {
-        this.projectOptions.push({ label: p.name, value: p.name });
-      }
-    }
+    await setProjectOptionsOnReport(this);
   }
 
   async setReportData(filter?: string, force?: boolean) {
