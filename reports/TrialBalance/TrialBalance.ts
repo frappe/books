@@ -11,7 +11,6 @@ import {
   ACC_NAME_WIDTH,
   convertAccountRootNodesToAccountList,
   getFiscalEndpoints,
-  setProjectOptionsOnReport,
 } from 'reports/AccountReport';
 import {
   Account,
@@ -212,7 +211,17 @@ export class TrialBalance extends AccountReport {
         .toISODate();
     }
 
-    await setProjectOptionsOnReport(this);
+    if (this.fyo.singles.AccountingSettings?.enableProjects) {
+      this.project = 'all';
+      const projects = (await this.fyo.db.getAll('Project', {
+        fields: ['name'],
+        filters: { status: 'Active' },
+      })) as { name: string }[];
+      this.projectOptions = [{ label: t`Show All`, value: 'all' }];
+      for (const p of projects) {
+        this.projectOptions.push({ label: p.name, value: p.name });
+      }
+    }
 
     await this._setDateRanges();
   }
