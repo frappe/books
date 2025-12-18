@@ -45,55 +45,20 @@ export abstract class Report extends Observable<RawValue> {
     await this.setReportData();
   }
 
-  // Override the get method to provide the correct display value for UI components.
-  // This will convert stored comma-separated strings back into arrays for multi-select fields.
-  get(key: string): RawValue | RawValue[] | undefined {
-    // Retrieve the raw stored value directly from the instance property.
-    // Assuming `this[key]` is where the `set` method stores values.
-    const rawStoredValue = (this as any)[key] as RawValue;
-
-    const field = this.filters.find((f) => f.fieldname === key);
-    if (!field) {
-      // If no field definition, return the raw value as is.
-      return rawStoredValue;
-    }
-
-    const isMultiSelectFieldType = field.fieldtype === 'Link' || field.fieldtype === 'AutoComplete';
-
-    if (isMultiSelectFieldType) {
-      if (typeof rawStoredValue === 'string') {
-        if (rawStoredValue === '') {
-          // An empty string in storage means 'Select All', which the UI expects as an empty array.
-          return [];
-        } else {
-          // For a non-empty string, split it into an array of selected items for UI display.
-          return rawStoredValue.split(',').map((s) => s.trim());
-        }
-      }
-      // If it's not a string (e.g., null, undefined, or already an array for some reason), return it directly.
-      return rawStoredValue;
-    }
-
-    // For non-multi-select fields, return the raw stored value without transformation.
-    return rawStoredValue;
-  }
-
   get filterMap() {
     const filterMap: Record<string, RawValue> = {};
     for (const field of this.filters) {
       const { fieldname } = field;
-      // IMPORTANT: For `filterMap`, we need the raw stored value (string),
-      // not the potentially transformed array from the overridden `get` method.
-      // We explicitly access the instance property to get the raw string.
-      const rawValueForBackend = (this as any)[fieldname] as RawValue;
+      const value = this.get(fieldname);
 
       // Check if the current field is a multi-select type.
+      // We assume Link and AutoComplete fields can be multi-select.
       const isMultiSelectFieldType = field.fieldtype === 'Link' || field.fieldtype === 'AutoComplete';
 
-      // Include the filter in the map if its raw value is not null/undefined OR
-      // if it's a multi-select field with an empty string (representing 'Select All').
-      if (!getIsNullOrUndef(rawValueForBackend) || (isMultiSelectFieldType && rawValueForBackend === '')) {
-        filterMap[fieldname] = rawValueForBackend;
+      // Keep the value if it's not considered null/undefined by getIsNullOrUndef,
+      // OR if it's an empty string which represents 'Select All' for a multi-select field.
+      if (!getIsNullOrUndef(value) || (isMultiSelectFieldType && value === '')) {
+        filterMap[fieldname] = value;
       }
     }
 
@@ -103,7 +68,6 @@ export abstract class Report extends Observable<RawValue> {
   async set(key: string, value: DocValue, callPostSet = true) {
     const field = this.filters.find((f) => f.fieldname === key);
     if (field === undefined) {
-      // If the field isn't defined in the report's filters, we can't process it.
       return;
     }
 
