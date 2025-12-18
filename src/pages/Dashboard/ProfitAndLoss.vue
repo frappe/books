@@ -7,7 +7,7 @@
           v-if="projectsEnabled"
           v-model="project"
           class="w-40 mr-2"
-          :options="projectOptions"
+          :df="projectSelectDf"
           @change="setData"
         />
         <PeriodSelector
@@ -85,6 +85,14 @@ export default defineComponent({
         options.push({ label: p.name, value: p.name });
       }
       return options;
+    },
+    projectSelectDf() {
+      return {
+        fieldname: 'project',
+        fieldtype: 'Select',
+        label: this.t`Project`,
+        options: this.projectOptions,
+      };
     },
     chartData() {
       const points = [this.data.map((d) => d.balance)];
