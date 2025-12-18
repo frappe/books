@@ -362,7 +362,7 @@ export class GeneralLedger extends LedgerReport {
       },
     ] as Field[];
 
-    if (this.fyo.singles.AccountingSettings?.enableProjects) {
+    if (!!this.fyo.singles.AccountingSettings?.enableProjects) {
       filters.splice(4, 0, {
         fieldtype: 'Link',
         target: 'Project',
