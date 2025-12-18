@@ -30,6 +30,7 @@ export class GeneralLedger extends LedgerReport {
   ascending = false;
   reverted = false;
   referenceType: ReferenceType = 'All';
+  project?: string;
   groupBy: 'none' | 'party' | 'account' | 'referenceName' = 'none';
   _rawData: LedgerEntry[] = [];
 
@@ -241,7 +242,7 @@ export class GeneralLedger extends LedgerReport {
 
   _getQueryFilters(): QueryFilter {
     const filters: QueryFilter = {};
-    const stringFilters = ['account', 'party', 'referenceName'];
+    const stringFilters = ['account', 'party', 'referenceName', 'project'];
 
     for (const sf of stringFilters) {
       const value = this[sf];
@@ -289,7 +290,7 @@ export class GeneralLedger extends LedgerReport {
       );
     }
 
-    return [
+    const filters = [
       {
         fieldtype: 'Select',
         options: refTypeOptions,
@@ -353,6 +354,18 @@ export class GeneralLedger extends LedgerReport {
         fieldname: 'ascending',
       },
     ] as Field[];
+
+    if (this.fyo.singles.AccountingSettings?.enableProjects) {
+      filters.splice(4, 0, {
+        fieldtype: 'Link',
+        target: 'Project',
+        label: t`Project`,
+        placeholder: t`Project`,
+        fieldname: 'project',
+      } as Field);
+    }
+
+    return filters;
   }
 
   getColumns(): ColumnField[] {
