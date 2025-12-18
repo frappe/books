@@ -40,7 +40,7 @@
 </template>
 <script lang="ts">
 import BarChart from 'src/components/Charts/BarChart.vue';
-import Select from 'src/components/Form/Select.vue';
+import Select from 'src/components/Controls/Select.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
 import { uicolors } from 'src/utils/colors';
