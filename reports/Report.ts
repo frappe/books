@@ -107,43 +107,39 @@ export abstract class Report extends Observable<RawValue> {
       return;
     }
 
+    // Check if the current field is a multi-select type.
+    // We assume Link and AutoComplete fields can be multi-select.
     const isMultiSelectFieldType = field.fieldtype === 'Link' || field.fieldtype === 'AutoComplete';
 
     let finalValueToStore: RawValue;
     let isValueForSelectAll = false;
 
-    // Explicitly handle array values for multi-select fields.
-    if (isMultiSelectFieldType && Array.isArray(value)) {
-      if (value.length === 0) {
-        // An empty array means 'Select All', stored as an empty string.
-        finalValueToStore = '';
-        isValueForSelectAll = true;
-      } else {
-        // Convert non-empty array of selected items to a comma-separated string for storage.
-        // Assuming array elements are of a type that can be converted to string (e.g., project names).
-        finalValueToStore = value.map((item) => String(item)).join(',');
-      }
+    // If the incoming value is an empty array, it often signifies 'Select All' for multi-selects.
+    if (isMultiSelectFieldType && Array.isArray(value) && value.length === 0) {
+      // Store an empty string to represent 'Select All' for multi-selects.
+      // This string will be passed to the backend, which should interpret it correctly.
+      finalValueToStore = '';
+      isValueForSelectAll = true;
     } else {
-      // For all other field types or if `value` is already a scalar (string, number, boolean, null),
-      // use Converter.toRawValue for conversion.
+      // For other cases, convert the value to RawValue.
+      // This will handle single-select fields, non-empty multi-select arrays (e.g., ['proj1', 'proj2'] -> 'proj1,proj2'),
+      // and other field types.
       finalValueToStore = Converter.toRawValue(value, field, this.fyo);
     }
 
-    // Retrieve the previous RAW stored value directly from the instance property
-    // to ensure a like-for-like comparison (string vs string), bypassing the 'get' method's UI transformation.
-    const prevRawValue = (this as any)[key] as RawValue;
-
-    // If the raw stored value is identical to the new value to store, no update is needed.
-    if (prevRawValue === finalValueToStore) {
+    const prevValue = this[key];
+    // If the value hasn't changed, no need to update.
+    if (prevValue === finalValueToStore) {
       return;
     }
 
-    // If the value to store is null/undefined and it's NOT the 'Select All' empty string,
-    // then delete the property. Otherwise, set the property with the final value.
+    // If `finalValueToStore` is considered "null or undefined" by `getIsNullOrUndef`
+    // but it's actually the "Select All" state for a multi-select field,
+    // we should explicitly set it instead of deleting the property.
     if (getIsNullOrUndef(finalValueToStore) && !isValueForSelectAll) {
-      delete (this as any)[key]; // Use explicit 'any' for deletion as well for consistency
+      delete this[key];
     } else {
-      (this as any)[key] = finalValueToStore; // Explicitly set the raw value
+      this[key] = finalValueToStore;
     }
 
     if (callPostSet) {
