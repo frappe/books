@@ -34,7 +34,7 @@ export class GeneralLedger extends LedgerReport {
   account?: string;
   party?: string;
   referenceName?: string;
-  groupBy: 'none' | 'party' | 'account' | 'referenceName' = 'none';
+  groupBy: 'none' | 'party' | 'account' | 'referenceName' | 'project' = 'none';
   _rawData: LedgerEntry[] = [];
 
   constructor(fyo: Fyo) {
@@ -347,6 +347,7 @@ export class GeneralLedger extends LedgerReport {
           { label: t`Party`, value: 'party' },
           { label: t`Account`, value: 'account' },
           { label: t`Reference`, value: 'referenceName' },
+          { label: t`Project`, value: 'project' },
         ],
       },
       {
