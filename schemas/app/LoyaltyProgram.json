@@ -51,7 +51,7 @@
       "label": "Expiry Duration",
       "fieldtype": "Int",
       "default": 1,
-      "required": true
+      "hidden": true
     },
     {
       "fieldname": "expenseAccount",
@@ -59,6 +59,23 @@
       "fieldtype": "Link",
       "target": "Account",
       "required": true
+    },
+    {
+      "fieldname": "maximumUse",
+      "label": "Maximum Use",
+      "fieldtype": "Int",
+      "default": 0,
+      "required": true,
+      "section": "Validity and Usage"
+    },
+    {
+      "fieldname": "used",
+      "label": "Used",
+      "fieldtype": "Int",
+      "default": 0,
+      "required": true,
+      "readOnly": true,
+      "section": "Validity and Usage"
     }
   ],
   "quickEditFields": [
@@ -67,7 +84,8 @@
     "toDate",
     "conversionFactor",
     "expenseAccount",
-    "expiryDuration"
+    "maximumUse",
+    "used"
   ],
   "keywordFields": ["name"]
 }

@@ -115,6 +115,15 @@ export class SalesInvoice extends Invoice {
         ModelNameEnum.LoyaltyProgram,
         this.loyaltyProgram
       )) as LoyaltyProgram;
+      const toDate = loyaltyProgramDoc?.toDate as Date;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (toDate && new Date(toDate).getTime() < today.getTime()) {
+        throw new ValidationError(
+          t`Loyalty program has expired and cannot be applied`
+        );
+      }
 
       if (!this?.grandTotal) {
         return;

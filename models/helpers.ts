@@ -738,6 +738,64 @@ export function getDocStatusListColumn(): ColumnConfig {
   };
 }
 
+export function getLoyaltyProgramStatusColumn(): ColumnConfig {
+  return {
+    label: t`Status`,
+    fieldname: 'status',
+    fieldtype: 'Select',
+    render(doc) {
+      const status = getLoyaltyProgramStatus(doc);
+      const color = loyaltyProgramStatusColor[status] ?? 'gray';
+      const label = getLoyaltyProgramStatusText(status);
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
+      };
+    },
+  };
+}
+
+export function getLoyaltyProgramStatus(doc?: RenderData | Doc): string {
+  if (!doc) {
+    return '';
+  }
+
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  const toDate = doc.toDate as Date;
+
+  if (toDate && toDate <= currentDate) {
+    return 'Expired';
+  }
+
+  return 'Active';
+}
+
+export const loyaltyProgramStatusColor: Record<string, string | undefined> = {
+  Active: 'green',
+  Disabled: 'gray',
+  Expired: 'red',
+};
+
+export function getLoyaltyProgramStatusText(status: string): string {
+  switch (status) {
+    case 'Active':
+      return t`Active`;
+    case 'Disabled':
+      return t`Disabled`;
+    case 'Expired':
+      return t`Expired`;
+    default:
+      return '';
+  }
+}
+
 type ModelsWithItems = Invoice | StockTransfer | StockMovement;
 export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   if (!doc.canEdit) {
@@ -883,6 +941,15 @@ export async function createLoyaltyPointEntry(doc: Invoice) {
   if (!loyaltyProgramDoc.isEnabled) {
     return;
   }
+
+  const toDate = loyaltyProgramDoc.toDate as Date;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (toDate && new Date(toDate).getTime() < today.getTime()) {
+    return;
+  }
+
   const expiryDate = new Date(Date.now());
 
   expiryDate.setDate(
@@ -951,18 +1018,22 @@ export function getLoyaltyProgramTier(
   let loyaltyProgramTier: CollectionRulesItems | undefined;
 
   for (const row of loyaltyProgramData.collectionRules) {
-    if (isPesa(row.minimumTotalSpent)) {
-      const minimumSpent = row.minimumTotalSpent;
+    if (row.minimumTotalSpent !== undefined && row.minimumTotalSpent !== null) {
+      let minimumSpent: Money;
 
-      if (!minimumSpent.lte(grandTotal)) {
-        continue;
+      if (isPesa(row.minimumTotalSpent)) {
+        minimumSpent = row.minimumTotalSpent;
+      } else {
+        minimumSpent = new Money(row.minimumTotalSpent as number);
       }
 
-      if (
-        !loyaltyProgramTier ||
-        minimumSpent.gt(loyaltyProgramTier.minimumTotalSpent as Money)
-      ) {
-        loyaltyProgramTier = row;
+      if (minimumSpent.lte(grandTotal)) {
+        if (
+          !loyaltyProgramTier ||
+          minimumSpent.gt(loyaltyProgramTier.minimumTotalSpent as Money)
+        ) {
+          loyaltyProgramTier = row;
+        }
       }
     }
   }
@@ -1534,6 +1605,52 @@ export async function validateCouponCode(
     throw new ValidationError(
       t`Valid To Date should be greater than Valid From Date.`
     );
+  }
+}
+
+export async function validateLoyaltyProgram(
+  doc: Invoice,
+  loyaltyProgramName: string
+) {
+  const loyaltyProgram = await doc.fyo.db.getAll(ModelNameEnum.LoyaltyProgram, {
+    fields: ['fromDate', 'toDate', 'maximumUse', 'used', 'isEnabled'],
+    filters: { name: loyaltyProgramName },
+  });
+
+  if (!loyaltyProgram[0]?.isEnabled) {
+    throw new ValidationError(
+      'Loyalty program cannot be applied as it is not enabled'
+    );
+  }
+
+  if (
+    (loyaltyProgram[0]?.maximumUse as number) > 0 &&
+    (loyaltyProgram[0]?.used as number) >=
+      (loyaltyProgram[0]?.maximumUse as number)
+  ) {
+    throw new ValidationError(
+      'Loyalty program has reached maximum usage limit'
+    );
+  }
+
+  if (
+    loyaltyProgram[0].fromDate &&
+    (doc.date as Date) < (loyaltyProgram[0].fromDate as Date)
+  ) {
+    throw new ValidationError('Loyalty program is not yet active');
+  }
+
+  const toDate = loyaltyProgram[0].toDate as Date;
+  if (toDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const normalizedToDate = new Date(toDate);
+    normalizedToDate.setHours(0, 0, 0, 0);
+
+    // Only throw error if toDate is clearly in the past
+    if (normalizedToDate.getTime() < today.getTime()) {
+      throw new ValidationError('Loyalty program has expired');
+    }
   }
 }
 

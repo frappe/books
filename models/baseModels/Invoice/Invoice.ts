@@ -28,6 +28,8 @@ import {
   getReturnLoyaltyPoints,
   getItemQtyMap,
   getItemVisibility,
+  validateLoyaltyProgram,
+  getLoyaltyProgramTier,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -212,12 +214,48 @@ export abstract class Invoice extends Transactional {
       this.party
     )) as Party;
 
-    if ((this.loyaltyPoints as number) > (partyDoc?.loyaltyPoints || 0)) {
+    if (this.redeemLoyaltyPoints && (this.loyaltyPoints as number) > 0) {
+      const currentPoints = partyDoc?.loyaltyPoints || 0;
+
+      let pointsToBeEarned = 0;
+      if (!this.isReturn && this.loyaltyProgram) {
+        const loyaltyProgramDoc = (await this.fyo.doc.getDoc(
+          ModelNameEnum.LoyaltyProgram,
+          this.loyaltyProgram
+        )) as LoyaltyProgram;
+
+        const tier = getLoyaltyProgramTier(
+          loyaltyProgramDoc,
+          this?.grandTotal as Money
+        );
+
+        if (tier) {
+          const collectionFactor = tier.collectionFactor as number;
+          pointsToBeEarned =
+            Math.round(this?.grandTotal?.float || 0) * collectionFactor;
+        }
+      }
+
+      const totalAvailablePoints = currentPoints + pointsToBeEarned;
+      if ((this.loyaltyPoints as number) > totalAvailablePoints) {
+        throw new ValidationError(
+          t`${
+            this.party as string
+          } only has ${currentPoints} points (${pointsToBeEarned} will be earned from this transaction)`
+        );
+      }
+    } else if (
+      (this.loyaltyPoints as number) > (partyDoc?.loyaltyPoints || 0)
+    ) {
       throw new ValidationError(
         t`${this.party as string} only has ${
           partyDoc.loyaltyPoints as number
         } points`
       );
+    }
+
+    if (this.loyaltyProgram) {
+      await validateLoyaltyProgram(this, this.loyaltyProgram);
     }
   }
 
@@ -275,6 +313,10 @@ export abstract class Invoice extends Transactional {
     if (this.schemaName === ModelNameEnum.SalesInvoice) {
       this.updateUsedCountOfCoupons();
     }
+
+    if (this.loyaltyProgram) {
+      await this.updateUsedCountOfLoyaltyProgram();
+    }
   }
 
   async afterCancel() {
@@ -284,6 +326,10 @@ export abstract class Invoice extends Transactional {
     await this._updateIsItemsReturned();
     await this._removeLoyaltyPointEntry();
     this.reduceUsedCountOfCoupons();
+
+    if (this.loyaltyProgram) {
+      await this.reduceUsedCountOfLoyaltyProgram();
+    }
   }
 
   async _removeLoyaltyPointEntry() {
@@ -838,6 +884,36 @@ export abstract class Invoice extends Transactional {
     });
   }
 
+  async updateUsedCountOfLoyaltyProgram() {
+    if (!this.loyaltyProgram) {
+      return;
+    }
+
+    const loyaltyProgramDoc = await this.fyo.doc.getDoc(
+      ModelNameEnum.LoyaltyProgram,
+      this.loyaltyProgram
+    );
+
+    await loyaltyProgramDoc.setAndSync({
+      used: (loyaltyProgramDoc.used as number) + 1,
+    });
+  }
+
+  async reduceUsedCountOfLoyaltyProgram() {
+    if (!this.loyaltyProgram) {
+      return;
+    }
+
+    const loyaltyProgramDoc = await this.fyo.doc.getDoc(
+      ModelNameEnum.LoyaltyProgram,
+      this.loyaltyProgram
+    );
+
+    await loyaltyProgramDoc.setAndSync({
+      used: (loyaltyProgramDoc.used as number) - 1,
+    });
+  }
+
   async updateIsItemsFullyReturned(doc?: Invoice) {
     if (!doc?.returnAgainst || doc.schemaName !== ModelNameEnum.SalesInvoice) {
       return;
@@ -898,11 +974,32 @@ export abstract class Invoice extends Transactional {
       this.loyaltyProgram
     )) as LoyaltyProgram;
 
-    const expiryDate = this.date as Date;
+    // Check if loyalty program is enabled
+    if (!loyaltyProgramDoc.isEnabled) {
+      return;
+    }
+
+    const invoiceDate = this.date as Date;
     const fromDate = loyaltyProgramDoc.fromDate as Date;
     const toDate = loyaltyProgramDoc.toDate as Date;
 
-    if (fromDate <= expiryDate && toDate >= expiryDate) {
+    const normalizedInvoiceDate = new Date(invoiceDate);
+    normalizedInvoiceDate.setHours(0, 0, 0, 0);
+
+    const normalizedFromDate = new Date(fromDate);
+    normalizedFromDate.setHours(0, 0, 0, 0);
+
+    const normalizedToDate = new Date(toDate);
+    normalizedToDate.setHours(0, 0, 0, 0);
+
+    if (normalizedToDate.getTime() < normalizedInvoiceDate.getTime()) {
+      return;
+    }
+
+    if (
+      normalizedInvoiceDate.getTime() >= normalizedFromDate.getTime() &&
+      normalizedInvoiceDate.getTime() <= normalizedToDate.getTime()
+    ) {
       const party = (await this.loadAndGetLink('party')) as Party;
 
       await createLoyaltyPointEntry(this);
