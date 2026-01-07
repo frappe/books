@@ -36,6 +36,7 @@ export abstract class InvoiceItem extends Doc {
   transferUnit?: string;
   quantity?: number;
   transferQuantity?: number;
+  quantities?: number;
   unitConversionFactor?: number;
   batch?: string;
 
@@ -231,13 +232,28 @@ export abstract class InvoiceItem extends Doc {
     },
     transferQuantity: {
       formula: (fieldname) => {
+        if (fieldname === 'quantities') {
+          return this.quantities
+        }
         if (fieldname === 'quantity' || this.unit === this.transferUnit) {
           return this.quantity;
         }
 
         return this.transferQuantity;
       },
-      dependsOn: ['item', 'quantity'],
+      dependsOn: ['item', 'quantity', 'quantities'],
+    },
+    quantities: {
+      formula: (fieldname) => {
+        if (fieldname === 'transferQuantity') {
+          return this.transferQuantity
+        }
+         if (fieldname === 'quantity' || this.unit === this.transferUnit) {
+          return this.quantity;
+        }
+        return this.transferQuantity;
+      },
+      dependsOn: ['transferQuantity', 'quantity'],
     },
     quantity: {
       formula: async (fieldname) => {
@@ -250,7 +266,7 @@ export abstract class InvoiceItem extends Doc {
           this.item
         );
         const unitDoc = itemDoc.getLink('uom');
-
+        
         let quantity: number = this.quantity ?? 1;
 
         if (this.isReturn && quantity > 0) {

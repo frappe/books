@@ -56,13 +56,7 @@
     >
       <div class="w-4 py-1">{{ index + 1 }}</div>
       <div class="w-2/5 py-1">{{ row.item }}</div>
-      <div class="w-1/12 py-1 text-left">
-        <div>{{ row.quantity }}</div>
-        <div v-if="row.transferUnit">
-          ({{row.transferQuantity}} of {{ row.transferUnit }})
-        </div>
-        <div v-else-if="row.unit">({{row.quantity}} of {{ row.unit }})</div>
-      </div>
+      <div class="w-1/12 py-1 text-left">{{ row.quantity }}</div>
       <div class="w-3/12 text-right py-1">{{ row.rate }}</div>
       <div class="w-3/12 text-right py-1">{{ row.amount }}</div>
     </section>
