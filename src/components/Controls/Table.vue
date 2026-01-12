@@ -23,7 +23,7 @@
         <div
           v-for="df in tableFields"
           :key="df.fieldname"
-          class="items-center flex px-2 h-row-mid"
+          class="items-center px-2 h-row-mid"
           :class="{
             'ms-auto': isNumeric(df),
           }"
@@ -32,6 +32,7 @@
           }"
         >
           {{ df.label }}
+          <p class="text-xs">{{ df.sub_label }}</p>
         </div>
       </Row>
 
