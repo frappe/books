@@ -120,9 +120,7 @@
         <div v-if="row.transferUnit">
           ({{ row.quantity }} of {{ row.transferUnit }})
         </div>
-        <div v-else-if="row.unit">
-          ({{ row.quantity }} of {{ row.unit }})
-        </div>
+        <div v-else-if="row.unit">({{ row.quantity }} of {{ row.unit }})</div>
       </div>
       <div class="w-3/12 text-right">{{ row.rate }}</div>
       <div class="w-3/12 text-right">{{ row.amount }}</div>

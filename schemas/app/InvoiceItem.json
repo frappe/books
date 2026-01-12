@@ -45,7 +45,7 @@
       "required": true
     },
     {
-      "fieldname": "quantities",
+      "fieldname": "qty",
       "label": "Qty",
       "fieldtype": "Float",
       "default": 1,
@@ -147,7 +147,7 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "tax", "quantities", "rate", "amount"],
+  "tableFields": ["item", "tax", "qty", "rate", "amount"],
   "keywordFields": ["item", "tax"],
   "quickEditFields": [
     "item",
