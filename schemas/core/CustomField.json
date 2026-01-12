@@ -25,6 +25,10 @@
           "value": "Data"
         },
         {
+          "label": "Spacer",
+          "value": "Spacer"
+        },
+        {
           "label": "Select",
           "value": "Select"
         },
@@ -125,6 +129,26 @@
       "fieldname": "references",
       "label": "References",
       "fieldtype": "AutoComplete"
+    },
+    {
+      "fieldname": "size",
+      "label": "Size",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "label": "Small",
+          "value": "s"
+        },
+        {
+          "label": "Medium",
+          "value": "m"
+        },
+        {
+          "label": "Large",
+          "value": "l"
+        }
+      ],
+      "default": "m"
     }
   ],
   "tableFields": ["label", "fieldname", "fieldtype", "isRequired"],
@@ -137,6 +161,7 @@
     "options",
     "target",
     "references",
+    "size",
     "section",
     "tab"
   ]
