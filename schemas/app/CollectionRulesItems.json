@@ -10,8 +10,9 @@
     },
     {
       "fieldname": "collectionFactor",
-      "label": "Collection Factor (=1 LP)",
-      "fieldtype": "Float"
+      "label": "Collection Factor",
+      "fieldtype": "Float",
+      "sub_label": "Sale 100→ 100 (1), 50 (0.5)"
     },
     {
       "fieldname": "minimumTotalSpent",

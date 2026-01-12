@@ -43,7 +43,8 @@
       "label": "Conversion Factor",
       "fieldtype": "Float",
       "default": 1,
-      "required": true
+      "required": true,
+      "sub_label": "100 Points → 100 (Factor 1), 50 (Factor 0.5)"
     },
     {
       "fieldname": "expiryDuration",
