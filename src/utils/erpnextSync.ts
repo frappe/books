@@ -13,6 +13,37 @@ import { ValidationError } from 'fyo/utils/errors';
 import { PricingRule } from 'models/baseModels/PricingRule/PricingRule';
 import { PricingRuleItem } from 'models/baseModels/PricingRuleItem/PricingRuleItem';
 
+interface ErrorLoggingData {
+  instance?: string;
+  instance_name?: string;
+  deviceID?: string;
+  baseURL?: string;
+  [key: string]: unknown;
+}
+
+async function logIntegrationError(
+  fyo: Fyo,
+  error: Error | string,
+  data: ErrorLoggingData,
+  context?: string
+) {
+  try {
+    const errorMessage = error instanceof Error ? error.message : error;
+    const stackTrace = error instanceof Error ? error.stack ?? '' : '';
+
+    const errorData = {
+      error: context
+        ? `${context}: ${errorMessage}\n${stackTrace}`
+        : `${errorMessage}\n${stackTrace}`,
+      data: typeof data === 'string' ? data : JSON.stringify(data, null, 2),
+    };
+
+    await fyo.doc.getNewDoc(ErrorLogEnum.IntegrationErrorLog, errorData).sync();
+  } catch (logError) {
+    // console.error('Failed to log integration error:', logError);
+  }
+}
+
 export async function registerInstanceToERPNext(fyo: Fyo) {
   if (!navigator.onLine) {
     return;
@@ -39,23 +70,33 @@ export async function registerInstanceToERPNext(fyo: Fyo) {
   const registerInstance = fyo.singles.ERPNextSyncSettings
     ?.registerInstance as string;
 
-  const response = (await sendAPIRequest(
-    `${baseURL}/api/method/books_integration.api.${registerInstance}`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `token ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        instance: deviceID,
-        instance_name: instanceName,
-      }),
-    }
-  )) as unknown as ERPNextSyncSettingsAPIResponse;
+  try {
+    const response = (await sendAPIRequest(
+      `${baseURL}/api/method/books_integration.api.${registerInstance}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `token ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          instance: deviceID,
+          instance_name: instanceName,
+        }),
+      }
+    )) as unknown as ERPNextSyncSettingsAPIResponse;
 
-  if (!response.message.success) {
-    throw new ValidationError(response.message.message);
+    if (!response.message.success) {
+      throw new ValidationError(response.message.message);
+    }
+  } catch (error) {
+    await logIntegrationError(
+      fyo,
+      error as Error,
+      { instance: deviceID, instance_name: instanceName },
+      'Register Instance Failed'
+    );
+    throw error;
   }
 }
 
@@ -76,13 +117,22 @@ export async function updateERPNSyncSettings(fyo: Fyo) {
     return;
   }
 
-  const res = await getERPNSyncSettings(fyo, baseURL, authToken);
-  if (!res || !res.message || !res.message.success) {
-    return;
-  }
+  try {
+    const res = await getERPNSyncSettings(fyo, baseURL, authToken);
+    if (!res || !res.message || !res.message.success) {
+      return;
+    }
 
-  await syncSettingsDoc.setMultiple(parseSyncSettingsData(res));
-  await syncSettingsDoc.sync();
+    await syncSettingsDoc.setMultiple(parseSyncSettingsData(res));
+    await syncSettingsDoc.sync();
+  } catch (error) {
+    await logIntegrationError(
+      fyo,
+      error as Error,
+      { deviceID, baseURL },
+      'Update Sync Settings Failed'
+    );
+  }
 }
 
 async function getERPNSyncSettings(
@@ -109,7 +159,16 @@ export async function initERPNSync(fyo: Fyo) {
     return;
   }
 
-  await syncDocumentsFromERPNext(fyo);
+  try {
+    await syncDocumentsFromERPNext(fyo);
+  } catch (error) {
+    await logIntegrationError(
+      fyo,
+      error as Error,
+      {},
+      'Init ERPNext Sync Failed'
+    );
+  }
 }
 
 export async function syncDocumentsFromERPNext(fyo: Fyo) {
@@ -126,15 +185,33 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
     return;
   }
 
-  const docsToSync = await getDocsFromERPNext(fyo, baseURL, token, deviceID);
-  if (!docsToSync?.message.success) {
-    throw new ValidationError(docsToSync?.message.message as string);
-  }
-  if (!docsToSync || !docsToSync.message.success || !docsToSync.message.data) {
-    return;
+  let docsToSync: ERPNSyncDocsResponse | undefined;
+
+  try {
+    docsToSync = await getDocsFromERPNext(fyo, baseURL, token, deviceID);
+
+    if (!docsToSync?.message.success) {
+      throw new ValidationError(docsToSync?.message.message as string);
+    }
+
+    if (
+      !docsToSync ||
+      !docsToSync.message.success ||
+      !docsToSync.message.data
+    ) {
+      return;
+    }
+  } catch (error) {
+    await logIntegrationError(
+      fyo,
+      error as Error,
+      { deviceID, baseURL },
+      'Failed to Fetch Documents from ERPNext'
+    );
+    throw error;
   }
 
-  for (let doc of docsToSync.message.data.reverse()) {
+  for (const doc of docsToSync.message.data.reverse()) {
     if (!isValidSyncableDocName(doc.doctype as string)) {
       continue;
     }
@@ -150,78 +227,110 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
         );
 
         if (isDocExists) {
-          const existingDoc = await fyo.doc.getDoc(
-            getDocTypeName(doc),
-            (doc.fbooksDocName as string) || (doc.name as string)
-          );
-
-          doc.name = doc.fbooksDocName ?? doc.name;
-          doc = checkDocDataTypes(fyo, doc) as DocValueMap;
-
-          await existingDoc.setMultiple(doc);
-          await performPreSync(fyo, doc);
-          await appendDocValues(existingDoc as DocValueMap, doc);
-          existingDoc._addDocToSyncQueue = false;
-
-          await existingDoc.sync();
-
-          if (doc.submitted) {
-            await existingDoc.submit();
-          }
-
-          if (doc.cancelled) {
-            await existingDoc.cancel();
-          }
-
-          await afterDocSync(
-            fyo,
-            baseURL,
-            token,
-            deviceID,
-            doc,
-            (doc.erpnextDocName as string) || (doc.name as string),
-            doc.name as string
-          );
+          await updateExistingDocument(fyo, doc, baseURL, token, deviceID);
           continue;
         }
       }
     } catch (error) {
-      await fyo.doc
-        .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
-          error: error as string,
-          data: JSON.stringify({ instance: deviceID, records: docsToSync }),
-        })
-        .sync();
+      await logIntegrationError(
+        fyo,
+        error as Error,
+        doc,
+        `Failed to Update Existing Document: ${String(doc.doctype)} - ${String(
+          (doc.name as string) || (doc.fbooksDocName as string) || 'N/A'
+        )}`
+      );
+      continue;
     }
 
     try {
-      const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
-
-      await performPreSync(fyo, doc);
-      await appendDocValues(newDoc as DocValueMap, doc);
-      newDoc._addDocToSyncQueue = false;
-
-      await newDoc.sync();
-
-      if (doc.submitted) {
-        await newDoc.submit();
-      }
-
-      if (doc.cancelled) {
-        await newDoc.cancel();
-      }
-
-      await afterDocSync(
+      await createNewDocument(fyo, doc, baseURL, token, deviceID);
+    } catch (error) {
+      await logIntegrationError(
         fyo,
-        baseURL,
-        token,
-        deviceID,
+        error as Error,
         doc,
-        (doc.erpnextDocName as string) || (doc.name as string),
-        newDoc.name as string
+        `Failed to Create New Document: ${String(doc.doctype)} - ${String(
+          (doc.name as string) || (doc.fbooksDocName as string) || 'N/A'
+        )}`
       );
-    } catch (error) {}
+    }
   }
+}
+
+async function updateExistingDocument(
+  fyo: Fyo,
+  doc: DocValueMap,
+  baseURL: string,
+  token: string,
+  deviceID: string
+) {
+  const existingDoc = await fyo.doc.getDoc(
+    getDocTypeName(doc),
+    (doc.fbooksDocName as string) || (doc.name as string)
+  );
+
+  doc.name = doc.fbooksDocName ?? doc.name;
+  doc = checkDocDataTypes(fyo, doc) as DocValueMap;
+
+  await existingDoc.setMultiple(doc);
+  await performPreSync(fyo, doc);
+  await appendDocValues(existingDoc as DocValueMap, doc);
+  existingDoc._addDocToSyncQueue = false;
+
+  await existingDoc.sync();
+
+  if (doc.submitted) {
+    await existingDoc.submit();
+  }
+
+  if (doc.cancelled) {
+    await existingDoc.cancel();
+  }
+
+  await afterDocSync(
+    fyo,
+    baseURL,
+    token,
+    deviceID,
+    doc,
+    (doc.erpnextDocName as string) || (doc.name as string),
+    doc.name as string
+  );
+}
+
+async function createNewDocument(
+  fyo: Fyo,
+  doc: DocValueMap,
+  baseURL: string,
+  token: string,
+  deviceID: string
+) {
+  const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
+
+  await performPreSync(fyo, doc);
+  await appendDocValues(newDoc as DocValueMap, doc);
+  newDoc._addDocToSyncQueue = false;
+
+  await newDoc.sync();
+
+  if (doc.submitted) {
+    await newDoc.submit();
+  }
+
+  if (doc.cancelled) {
+    await newDoc.cancel();
+  }
+
+  await afterDocSync(
+    fyo,
+    baseURL,
+    token,
+    deviceID,
+    doc,
+    (doc.erpnextDocName as string) || (doc.name as string),
+    newDoc.name as string
+  );
 }
 
 async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
@@ -233,6 +342,7 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
           conversionFactor: uomDoc.conversionFactor,
         });
       }
+      break;
 
     case ModelNameEnum.PricingRule:
       const itemSet = new Set<string>();
@@ -240,7 +350,7 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
       (newDoc as Doc).appliedItems = (
         newDoc as PricingRule
       ).appliedItems?.filter((row: PricingRuleItem) => {
-        const key = `${row.item as string}::${row.unit as string}`;
+        const key = `${row.item ?? ''}::${row.unit ?? ''}`;
 
         if (itemSet.has(key)) {
           return false;
@@ -252,15 +362,14 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
 
       const docItemSet = new Set<string>(
         (doc as PricingRule).appliedItems?.map(
-          (row: PricingRuleItem) =>
-            `${row.item as string}::${row.unit as string}`
+          (row: PricingRuleItem) => `${row.item ?? ''}::${row.unit ?? ''}`
         ) || []
       );
 
       (newDoc as PricingRule).appliedItems = (
         newDoc as PricingRule
       ).appliedItems?.filter((row: PricingRuleItem) =>
-        docItemSet.has(`${row.item as string}::${row.unit as string}`)
+        docItemSet.has(`${row.item ?? ''}::${row.unit ?? ''}`)
       );
       break;
   }
@@ -478,12 +587,17 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
     )) as unknown as InsertDocsAPIResponse;
 
     if (!res.message.success) {
-      return await fyo.doc
-        .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
-          error: JSON.stringify(res),
-          data: JSON.stringify({ instance: deviceID, records: docsToSync }),
-        })
-        .sync();
+      await logIntegrationError(
+        fyo,
+        'Sync to ERPNext Failed',
+        {
+          instance: deviceID,
+          recordsCount: docsToSync.length,
+          response: JSON.stringify(res),
+        },
+        'Sync Documents to ERPNext'
+      );
+      return;
     }
 
     for (const doc of syncQueueItems) {
@@ -495,12 +609,12 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
       await syncQueueDoc.delete();
     }
   } catch (error) {
-    return await fyo.doc
-      .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
-        error: error as string,
-        data: JSON.stringify({ instance: deviceID, records: docsToSync }),
-      })
-      .sync();
+    await logIntegrationError(
+      fyo,
+      error as Error,
+      { instance: deviceID, records: docsToSync },
+      'Sync Documents to ERPNext Failed'
+    );
   }
 }
 
@@ -535,30 +649,45 @@ async function afterDocSync(
   erpnDocName: string,
   fbooksDocName: string
 ) {
-  const data = {
-    doctype: getDocTypeName(doc),
-    nameInERPNext: erpnDocName,
-    nameInFBooks: fbooksDocName,
-    doc,
-  };
-
   const clearSyncedDocsFromErpNextSyncQueue = fyo.singles.ERPNextSyncSettings
     ?.clearSyncedDocsFromErpNextSyncQueue as string;
 
-  return await ipc.sendAPIRequest(
-    `${baseURL}/api/method/books_integration.api.${clearSyncedDocsFromErpNextSyncQueue}`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `token ${token}`,
-        'Content-Type': 'application/json',
+  try {
+    const docData = doc instanceof Doc ? doc.getValidDict() : doc;
+
+    const payload = {
+      doctype: getDocTypeName(doc),
+      nameInERPNext: erpnDocName,
+      nameInFBooks: fbooksDocName,
+      doc: docData,
+    };
+
+    return await sendAPIRequest(
+      `${baseURL}/api/method/books_integration.api.${clearSyncedDocsFromErpNextSyncQueue}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `token ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          instance: deviceID,
+          data: payload,
+        }),
+      }
+    );
+  } catch (error) {
+    await logIntegrationError(
+      fyo,
+      error as Error,
+      {
+        doctype: getDocTypeName(doc),
+        erpnDocName,
+        fbooksDocName,
       },
-      body: JSON.stringify({
-        instance: deviceID,
-        data,
-      }),
-    }
-  );
+      'After Doc Sync Failed'
+    );
+  }
 }
 
 export function getShouldDocSyncToERPNext(doc: Doc): boolean {

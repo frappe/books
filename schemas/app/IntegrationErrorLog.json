@@ -2,27 +2,35 @@
   "name": "IntegrationErrorLog",
   "label": "Integration Error Log",
   "naming": "autoincrement",
+  "create": false,
 
   "fields": [
     {
       "fieldname": "name",
       "label": "Entry No.",
       "fieldtype": "Data",
-      "required": true
+      "required": true,
+      "size": "s"
+    },
+    {
+      "fieldname": "spacer1",
+      "fieldtype": "Spacer"
     },
     {
       "fieldname": "data",
       "label": "Data",
       "readonly": true,
       "fieldtype": "Text",
-      "section": "Default"
+      "section": "Default",
+      "size": "l"
     },
     {
       "fieldname": "error",
       "label": "Error",
       "readonly": true,
       "fieldtype": "Text",
-      "section": "Default"
+      "section": "Default",
+      "size": "l"
     }
   ],
   "keywordFields": ["name"]

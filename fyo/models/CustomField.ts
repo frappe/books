@@ -26,6 +26,7 @@ export class CustomField extends Doc {
   options?: string;
   target?: string;
   references?: string;
+  size?: string;
 
   get parentSchema() {
     return this.parentdoc?.parentSchema ?? null;
@@ -49,12 +50,24 @@ export class CustomField extends Doc {
   };
 
   hidden: HiddenMap = {
+    label: () => this.fieldtype === 'Spacer',
+    isRequired: () => this.fieldtype === 'Spacer',
+    default: () => this.fieldtype === 'Spacer',
+    section: () => this.fieldtype === 'Spacer',
+    tab: () => this.fieldtype === 'Spacer',
     options: () =>
-      this.fieldtype !== 'Select' &&
-      this.fieldtype !== 'AutoComplete' &&
-      this.fieldtype !== 'Color',
-    target: () => this.fieldtype !== 'Link' && this.fieldtype !== 'Table',
-    references: () => this.fieldtype !== 'DynamicLink',
+      this.fieldtype === 'Spacer' ||
+      (this.fieldtype !== 'Select' &&
+        this.fieldtype !== 'AutoComplete' &&
+        this.fieldtype !== 'Color'),
+    target: () =>
+      this.fieldtype === 'Spacer' ||
+      (this.fieldtype !== 'Link' && this.fieldtype !== 'Table'),
+    references: () =>
+      this.fieldtype === 'Spacer' || this.fieldtype !== 'DynamicLink',
+    size: () =>
+      this.fieldtype === 'Spacer' ||
+      (this.fieldtype !== 'Data' && this.fieldtype !== 'Text'),
   };
 
   validations: ValidationMap = {
@@ -143,6 +156,11 @@ export class CustomField extends Doc {
 
       return [customFields, schemaFields].flat();
     },
+    size: () => [
+      { label: 'Small', value: 's' },
+      { label: 'Medium', value: 'm' },
+      { label: 'Large', value: 'l' },
+    ],
   };
 
   required: RequiredMap = {

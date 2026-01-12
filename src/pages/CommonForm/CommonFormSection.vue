@@ -20,14 +20,17 @@
         v-for="field of fields"
         :key="field.fieldname"
         :class="[
+          field.fieldtype === 'Spacer' ? 'col-span-2 h-0' : '',
           field.fieldtype === 'Table' ? 'col-span-2 text-base' : '',
           field.fieldtype === 'AttachImage' ? 'row-span-2' : '',
           field.fieldtype === 'Check' ? 'mt-auto' : 'mb-auto',
           field.fieldname === 'termsAndConditions' ? 'col-span-2' : '',
         ]"
       >
+        <div v-if="field.fieldtype === 'Spacer'" class="hidden"></div>
+
         <Table
-          v-if="field.fieldtype === 'Table'"
+          v-else-if="field.fieldtype === 'Table'"
           ref="fields"
           :show-label="true"
           :border="true"
@@ -40,7 +43,7 @@
         <FormControl
           v-else
           :ref="field.fieldname === 'name' ? 'nameField' : 'fields'"
-          :size="field.fieldtype === 'AttachImage' ? 'form' : undefined"
+          :size="field.fieldtype === 'AttachImage' ? 'form' : field.size"
           :show-label="true"
           :border="true"
           :df="field"

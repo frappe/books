@@ -101,15 +101,35 @@ export default defineComponent({
     },
     baseInputClasses(): string[] {
       return [
-        'text-base',
+        this.textSizeClass,
         'focus:outline-none',
         'w-full',
         'placeholder-gray-500',
       ];
     },
+    textSizeClass(): string {
+      const size = this.size?.toLowerCase();
+      if (size === 's' || size === 'small') {
+        return 'text-sm';
+      }
+      if (size === 'm' || size === 'medium') {
+        return 'text-base';
+      }
+      if (size === 'l' || size === 'large') {
+        return 'text-lg';
+      }
+      return 'text-base';
+    },
     sizeClasses(): string {
-      if (this.size === 'small') {
+      const size = this.size?.toLowerCase();
+      if (size === 's' || size === 'small') {
         return 'px-2 py-1';
+      }
+      if (size === 'm' || size === 'medium') {
+        return 'px-3 py-2';
+      }
+      if (size === 'l' || size === 'large') {
+        return 'px-4 py-3';
       }
       return 'px-3 py-2';
     },
