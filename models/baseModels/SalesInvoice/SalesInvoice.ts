@@ -43,12 +43,12 @@ export class SalesInvoice extends Invoice {
         this.loyaltyProgram
       )) as LoyaltyProgram;
 
-      let totalAmount;
+      let loyaltyAmount;
 
       if (this.isReturn) {
-        totalAmount = this.fyo.pesa(await getReturnLoyaltyPoints(this));
+        loyaltyAmount = this.fyo.pesa(await getReturnLoyaltyPoints(this));
       } else {
-        totalAmount = await getAddedLPWithGrandTotal(
+        loyaltyAmount = await getAddedLPWithGrandTotal(
           this.fyo,
           this.loyaltyProgram as string,
           this.loyaltyPoints as number
@@ -57,10 +57,28 @@ export class SalesInvoice extends Invoice {
 
       await posting.debit(
         loyaltyProgramDoc.expenseAccount as string,
-        totalAmount
+        loyaltyAmount
       );
 
-      await posting.credit(this.account!, totalAmount);
+      await posting.credit(this.account!, loyaltyAmount);
+
+      const { debit, credit } = posting._getTotalDebitAndCredit();
+      const difference = debit.sub(credit);
+      const absoluteValue = difference.abs();
+
+      if (!absoluteValue.eq(0)) {
+        if (difference.gt(0)) {
+          await posting.credit(
+            loyaltyProgramDoc.expenseAccount as string,
+            absoluteValue
+          );
+        } else {
+          await posting.debit(
+            loyaltyProgramDoc.expenseAccount as string,
+            absoluteValue
+          );
+        }
+      }
     }
 
     if (this.taxes) {
