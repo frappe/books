@@ -6,6 +6,7 @@ import { safeParseFloat, safeParseInt } from 'utils/index';
 import type {
   ComputedStockLedgerEntry,
   RawStockLedgerEntry,
+  SerialNumberStatus,
   StockBalanceEntry,
 } from './types';
 import type { QueryFilter } from 'utils/db/types';
@@ -192,11 +193,13 @@ export function getStockBalanceEntries(
     fromDate?: string;
     toDate?: string;
     batch?: string;
-  }
+  },
+  showSerialNumbers = false,
+  serialNumberFilter: SerialNumberStatus = 'All'
 ): StockBalanceEntry[] {
   const sbeMap: Record<
     Item,
-    Record<Location, Record<Batch, StockBalanceEntry>>
+    Record<Location, Record<Batch, Record<string, StockBalanceEntry>>>
   > = {};
 
   const fromDate = filters.fromDate ? Date.parse(filters.fromDate) : null;
@@ -215,19 +218,29 @@ export function getStockBalanceEntries(
       continue;
     }
 
+    if (
+      showSerialNumbers &&
+      (!sle.serialNumber || sle.serialNumber.trim() === '')
+    ) {
+      continue;
+    }
+
     const batch = sle.batch || '';
+    const serialNumber = showSerialNumbers ? sle.serialNumber : '';
 
     sbeMap[sle.item] ??= {};
     sbeMap[sle.item][sle.location] ??= {};
-    sbeMap[sle.item][sle.location][batch] ??= getSBE(
+    sbeMap[sle.item][sle.location][batch] ??= {};
+    sbeMap[sle.item][sle.location][batch][serialNumber] ??= getSBE(
       sle.item,
       sle.location,
-      batch
+      batch,
+      serialNumber
     );
     const date = sle.date.valueOf();
 
     if (fromDate && date < fromDate) {
-      const sbe = sbeMap[sle.item][sle.location][batch];
+      const sbe = sbeMap[sle.item][sle.location][batch][serialNumber];
       updateOpeningBalances(sbe, sle);
       continue;
     }
@@ -236,21 +249,33 @@ export function getStockBalanceEntries(
       continue;
     }
 
-    const sbe = sbeMap[sle.item][sle.location][batch];
+    const sbe = sbeMap[sle.item][sle.location][batch][serialNumber];
     updateCurrentBalances(sbe, sle);
   }
 
-  return Object.values(sbeMap)
+  let entries = Object.values(sbeMap)
     .map((sbeBatched) =>
-      Object.values(sbeBatched).map((sbes) => Object.values(sbes))
+      Object.values(sbeBatched).map((sbes) =>
+        Object.values(sbes).map((sbeWithSN) => Object.values(sbeWithSN))
+      )
     )
-    .flat(2);
+    .flat(3);
+
+  // Filter by serial number status
+  if (serialNumberFilter === 'In stock') {
+    entries = entries.filter((entry) => entry.balanceQuantity > 0);
+  } else if (serialNumberFilter === 'Out stock') {
+    entries = entries.filter((entry) => entry.balanceQuantity <= 0);
+  }
+
+  return entries;
 }
 
 function getSBE(
   item: string,
   location: string,
-  batch: string
+  batch: string,
+  serialNumber: string
 ): StockBalanceEntry {
   return {
     name: 0,
@@ -258,6 +283,7 @@ function getSBE(
     item,
     location,
     batch,
+    serialNumber,
 
     balanceQuantity: 0,
     balanceValue: 0,

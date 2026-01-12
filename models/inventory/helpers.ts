@@ -6,11 +6,12 @@ import { ModelNameEnum } from 'models/types';
 import { SerialNumber } from './SerialNumber';
 import type { StockMovement } from './StockMovement';
 import type { StockMovementItem } from './StockMovementItem';
-import type { StockTransfer } from './StockTransfer';
+import { StockTransfer } from './StockTransfer';
 import type { StockTransferItem } from './StockTransferItem';
 import { Transfer } from './Transfer';
 import { TransferItem } from './TransferItem';
 import type { SerialNumberStatus } from './types';
+import SerialNumberSeries from 'fyo/models/SerialNumberSeries';
 
 export async function validateBatch(
   doc: StockMovement | StockTransfer | Invoice
@@ -339,4 +340,209 @@ function getSerialNumberStatusForStockMovement(
   }
 
   return isCancel ? 'Inactive' : 'Active';
+}
+
+export async function generateSerialNumbersForItem(
+  fyo: Fyo,
+  item: string,
+  quantity: number
+): Promise<string> {
+  if (!quantity || quantity <= 0) {
+    return '';
+  }
+
+  const hasSerialNumber = await fyo.getValue(
+    ModelNameEnum.Item,
+    item,
+    'hasSerialNumber'
+  );
+
+  if (!hasSerialNumber) {
+    return '';
+  }
+
+  const serialNumberSeries = await fyo.getValue(
+    ModelNameEnum.Item,
+    item,
+    'serialNumberSeries'
+  );
+
+  if (!serialNumberSeries || typeof serialNumberSeries !== 'string') {
+    return '';
+  }
+
+  const seriesName = serialNumberSeries.trim();
+  if (!seriesName) {
+    return '';
+  }
+
+  const exists = await fyo.db.exists(
+    ModelNameEnum.SerialNumberSeries,
+    seriesName
+  );
+
+  if (!exists) {
+    return '';
+  }
+
+  const seriesDoc = (await fyo.doc.getDoc(
+    ModelNameEnum.SerialNumberSeries,
+    seriesName
+  )) as SerialNumberSeries;
+
+  const serialNumbers: string[] = [];
+  const padZeros = seriesDoc.padZeros as number;
+
+  let currentValue = await getHighestSerialNumberForItem(fyo, item, seriesName);
+
+  if (currentValue === null) {
+    currentValue =
+      ((seriesDoc.current as number) || (seriesDoc.start as number)) - 1;
+  }
+
+  let generatedCount = 0;
+  let attempts = 0;
+  const maxAttempts = quantity * 10;
+
+  while (generatedCount < quantity && attempts < maxAttempts) {
+    attempts++;
+    currentValue++;
+
+    const serialNumber = getPaddedName(seriesName, currentValue, padZeros);
+
+    const snExists = await fyo.db.exists(
+      ModelNameEnum.SerialNumber,
+      serialNumber
+    );
+
+    if (!snExists) {
+      serialNumbers.push(serialNumber);
+      generatedCount++;
+    }
+  }
+
+  if (generatedCount < quantity) {
+  }
+
+  if (serialNumbers.length > 0) {
+    await seriesDoc.set('current', currentValue);
+    await seriesDoc.sync();
+  }
+
+  const result = serialNumbers.join('\n');
+  return result;
+}
+
+async function getHighestSerialNumberForItem(
+  fyo: Fyo,
+  item: string,
+  seriesName: string
+): Promise<number | null> {
+  const serialNumbers = await fyo.db.getAllRaw(ModelNameEnum.SerialNumber, {
+    filters: { item: item },
+    fields: ['name'],
+  });
+
+  if (!serialNumbers || serialNumbers.length === 0) {
+    return null;
+  }
+
+  let highestValue = -1;
+
+  for (const sn of serialNumbers) {
+    const name = sn.name as string;
+
+    if (name.startsWith(seriesName)) {
+      const numericPart = name.substring(seriesName.length);
+      const value = parseInt(numericPart, 10);
+
+      if (!isNaN(value) && value > highestValue) {
+        highestValue = value;
+      }
+    }
+  }
+
+  return highestValue >= 0 ? highestValue : null;
+}
+
+function getPaddedName(prefix: string, next: number, padZeros: number): string {
+  return prefix + next.toString().padStart(padZeros ?? 4, '0');
+}
+
+export async function getExistingActiveSerialNumbersForItem(
+  fyo: Fyo,
+  item: string,
+  quantity: number
+): Promise<string> {
+  if (!quantity || quantity <= 0) {
+    return '';
+  }
+
+  const hasSerialNumber = await fyo.getValue(
+    ModelNameEnum.Item,
+    item,
+    'hasSerialNumber'
+  );
+
+  if (!hasSerialNumber) {
+    return '';
+  }
+
+  const activeSerialNumbers = await fyo.db.getAll(ModelNameEnum.SerialNumber, {
+    fields: ['name'],
+    filters: { item: item, status: 'Active' },
+    orderBy: 'name',
+    order: 'asc',
+  });
+
+  if (!activeSerialNumbers || activeSerialNumbers.length === 0) {
+    return '';
+  }
+
+  const usedInShipments = await fyo.db.getAll(ModelNameEnum.ShipmentItem, {
+    fields: ['serialNumber'],
+    filters: {
+      item: item,
+    },
+  });
+
+  const usedInPurchaseReceipts = await fyo.db.getAll(
+    ModelNameEnum.PurchaseReceiptItem,
+    {
+      fields: ['serialNumber'],
+      filters: {
+        item: item,
+      },
+    }
+  );
+
+  const usedSerialNumbers = new Set<string>();
+
+  usedInShipments.forEach((shipmentItem) => {
+    if (shipmentItem.serialNumber) {
+      const serialNumArray = getSerialNumbers(
+        String(shipmentItem.serialNumber)
+      );
+      serialNumArray.forEach((sn) => usedSerialNumbers.add(sn));
+    }
+  });
+
+  usedInPurchaseReceipts.forEach((receiptItem) => {
+    if (receiptItem.serialNumber) {
+      const serialNumArray = getSerialNumbers(String(receiptItem.serialNumber));
+      serialNumArray.forEach((sn) => usedSerialNumbers.add(sn));
+    }
+  });
+
+  const availableSerialNumbers = activeSerialNumbers
+    .map((sn) => String(sn.name))
+    .filter((snName) => !usedSerialNumbers.has(snName));
+
+  if (availableSerialNumbers.length === 0) {
+    return '';
+  }
+
+  const selectedSerialNumbers = availableSerialNumbers.slice(0, quantity);
+
+  return selectedSerialNumbers.join('\n');
 }

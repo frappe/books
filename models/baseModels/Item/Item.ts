@@ -29,6 +29,7 @@ export class Item extends Doc {
   itemGroup?: string;
   hsnCode?: number;
   hasSerialNumber?: boolean;
+  serialNumberSeries?: string;
   uomConversions: UOMConversionItem[] = [];
 
   formulas: FormulaMap = {
@@ -92,6 +93,38 @@ export class Item extends Doc {
     });
 
     this.uomConversions = Array.from(latestByUom.values());
+
+    if (this.serialNumberSeries && this.hasSerialNumber) {
+      const series = this.serialNumberSeries.trim();
+      if (series && !series.endsWith('-')) {
+        this.serialNumberSeries = series + '-';
+      }
+    }
+  }
+
+  async afterSync(): Promise<void> {
+    await super.afterSync();
+
+    if (this.hasSerialNumber && this.serialNumberSeries) {
+      const seriesName = this.serialNumberSeries?.trim();
+
+      if (!seriesName) {
+        return;
+      }
+
+      const exists = await this.fyo.db.exists('SerialNumberSeries', seriesName);
+
+      if (!exists) {
+        await this.fyo.doc
+          .getNewDoc('SerialNumberSeries', {
+            name: seriesName,
+            start: 1001,
+            padZeros: 4,
+            current: 1000,
+          })
+          .sync();
+      }
+    }
   }
 
   static filters: FiltersMap = {
@@ -123,6 +156,21 @@ export class Item extends Doc {
     hsnCode: (value: DocValue) => {
       if (value && !(value as string).match(/^\d{4,8}$/)) {
         throw new ValidationError(this.fyo.t`Invalid HSN Code.`);
+      }
+    },
+    serialNumberSeries: (value: DocValue) => {
+      if (!value) {
+        return;
+      }
+
+      const series = (value as string).trim();
+      const invalidChars = /[/\=\?\&\%]/;
+
+      if (invalidChars.test(series)) {
+        throw new ValidationError(
+          this.fyo
+            .t`Serial Number Series cannot contain the following characters: /, ?, &, =, %`
+        );
       }
     },
   };
@@ -177,6 +225,7 @@ export class Item extends Doc {
       !(
         this.fyo.singles.InventorySettings?.enableSerialNumber && this.trackItem
       ),
+    serialNumberSeries: () => !this.hasSerialNumber,
     uomConversions: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
     itemGroup: () => !this.fyo.singles.AccountingSettings?.enableitemGroup,
