@@ -94,6 +94,7 @@ export abstract class Invoice extends Transactional {
   discountAmount?: Money;
   discountPercent?: number;
   loyaltyPoints?: number;
+  availableLoyaltyPoints?: number;
   discountAfterTax?: boolean;
   stockNotTransferred?: number;
   loyaltyProgram?: string;
@@ -992,6 +993,21 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['party', 'name'],
     },
+    availableLoyaltyPoints: {
+      formula: async () => {
+        if (!this.party) {
+          return 0;
+        }
+
+        const partyDoc = (await this.fyo.doc.getDoc(
+          ModelNameEnum.Party,
+          this.party
+        )) as Party;
+
+        return partyDoc?.loyaltyPoints || 0;
+      },
+      dependsOn: ['party'],
+    },
     currency: {
       formula: async () => {
         const currency = (await this.fyo.getValue(
@@ -1181,6 +1197,7 @@ export abstract class Invoice extends Transactional {
     backReference: () => !this.backReference,
     quote: () => !this.quote,
     loyaltyProgram: () => !this.loyaltyProgram,
+    availableLoyaltyPoints: () => !this.loyaltyProgram || this.isReturn,
     loyaltyPoints: () => !this.redeemLoyaltyPoints || this.isReturn,
     redeemLoyaltyPoints: () => !this.loyaltyProgram || this.isReturn,
     coupons: () => this.isSubmitted && !this.coupons?.length,

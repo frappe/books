@@ -13,7 +13,7 @@
   >
     <label class="flex items-center justify-between w-full">
       <div v-if="showLabel && !labelRight" :class="labelClasses">
-        {{ df.label }}
+        <span :class="{ 'font-bold': df.bold }">{{ df.label }}</span>
       </div>
       <button
         :class="['flex items-center justify-center']"

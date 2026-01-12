@@ -67,10 +67,11 @@ export interface BaseField {
   computed?: boolean;            // Computed values are not stored in the database.
   section?: string;              // UI Facing config, for grouping by sections
   tab?: string;                  // UI Facing config, for grouping by tabs
-  abstract?: string;             // Used to mark the location of a field in an Abstract schema 
+  abstract?: string;             // Used to mark the location of a field in an Abstract schema
   isCustom?: boolean;            // Whether the field is a custom field
+  bold?: boolean;                // UI Facing config, whether to make the label bold
   filters?: Record<string, string>;
-  getOptions?: () => Promise<{ label: string; value: string }[]>; 
+  getOptions?: () => Promise<{ label: string; value: string }[]>;
 }
 
 export type SelectOption = { value: string; label: string };

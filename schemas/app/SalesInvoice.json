@@ -86,6 +86,13 @@
       "readOnly": true
     },
     {
+      "fieldname": "availableLoyaltyPoints",
+      "fieldtype": "Int",
+      "label": "Available Loyalty Points",
+      "readOnly": true,
+      "section": "References"
+    },
+    {
       "fieldname": "redeemLoyaltyPoints",
       "fieldtype": "Check",
       "default": false,
