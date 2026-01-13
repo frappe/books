@@ -60,10 +60,10 @@
   <section class="px-12 pt-12 text-lg">
     <!-- Heading Row -->
     <section class="mb-4 flex font-semibold">
-      <div class="w-4/12">{{ t`Item` }}</div>
-      <div class="w-4/12" v-if="doc.description">{{ t`Description` }}</div>
-      <div class="w-2/12 text-right" v-if="doc.showHSN">{{ t`HSN/SAC` }}</div>
-      <div class="w-2/12 text-right">{{ t`Quantity` }}</div>
+      <div class="w-3/12">{{ t`Item` }}</div>
+      <div class="w-3/12" v-if="doc.description">{{ t`Description` }}</div>
+      <div class="w-3/12 text-right" v-if="doc.showHSN">{{ t`HSN/SAC` }}</div>
+      <div class="w-3/12 text-right">{{ t`Qty` }}</div>
       <div class="w-3/12 text-right">{{ t`Rate` }}</div>
       <div class="w-3/12 text-right">{{ t`Amount` }}</div>
     </section>
@@ -74,10 +74,13 @@
       v-for="row in doc.items"
       :key="row.name"
     >
-      <div class="w-4/12">{{ row.item }}</div>
-      <div class="w-4/12" v-if="doc.description">{{ row.description }}</div>
-      <div class="w-2/12 text-right" v-if="doc.showHSN">{{ row.hsnCode }}</div>
-      <div class="w-2/12 text-right">{{ row.quantity }}</div>
+      <div class="w-3/12">{{ row.item }}</div>
+      <div class="w-3/12" v-if="doc.description">{{ row.description }}</div>
+      <div class="w-3/12 text-right" v-if="doc.showHSN">{{ row.hsnCode }}</div>
+      <div class="w-3/12 text-right">
+        <div v-if="row.transferUnit">{{ row.transferUnit }} {{ row.qty }}</div>
+        <div v-else>{{ row.qty }}</div>
+      </div>
       <div class="w-3/12 text-right">{{ row.rate }}</div>
       <div class="w-3/12 text-right">{{ row.amount }}</div>
     </section>
