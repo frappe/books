@@ -45,6 +45,13 @@
       "required": true
     },
     {
+      "fieldname": "qty",
+      "label": "Qty",
+      "fieldtype": "Float",
+      "default": 1,
+      "computed": true
+    },
+    {
       "fieldname": "unit",
       "label": "Stock Unit",
       "fieldtype": "Link",
@@ -140,7 +147,7 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "tax", "quantity", "rate", "amount"],
+  "tableFields": ["item", "tax", "qty", "rate", "amount"],
   "keywordFields": ["item", "tax"],
   "quickEditFields": [
     "item",
