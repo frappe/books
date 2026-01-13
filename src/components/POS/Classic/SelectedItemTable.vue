@@ -125,7 +125,7 @@ export default defineComponent({
         },
         {
           fieldname: 'unit',
-          label: 'Stock Unit',
+          label: 'Unit Type',
           placeholder: 'Unit',
           fieldtype: 'Link',
           required: true,
