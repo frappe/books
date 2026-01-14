@@ -160,7 +160,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
 
           await existingDoc.setMultiple(doc);
           await performPreSync(fyo, doc);
-          await appendDocValues(existingDoc as DocValueMap, doc);
+          await appendDocValues(fyo, existingDoc as DocValueMap, doc);
           existingDoc._addDocToSyncQueue = false;
 
           await existingDoc.sync();
@@ -198,7 +198,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
       const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
 
       await performPreSync(fyo, doc);
-      await appendDocValues(newDoc as DocValueMap, doc);
+      await appendDocValues(fyo, newDoc as DocValueMap, doc);
       newDoc._addDocToSyncQueue = false;
 
       await newDoc.sync();
@@ -224,7 +224,11 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
   }
 }
 
-async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
+async function appendDocValues(
+  fyo: Fyo,
+  newDoc: DocValueMap,
+  doc: DocValueMap
+) {
   switch (doc.doctype) {
     case ModelNameEnum.Item:
       for (const uomDoc of doc.uomConversions as DocValueMap[]) {
@@ -233,11 +237,34 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
           conversionFactor: uomDoc.conversionFactor,
         });
       }
+      break;
+
+    case ModelNameEnum.PriceList:
+      (newDoc as Doc).items = [];
+
+      const uniqueKeys = new Set<string>();
+
+      if (doc.items && Array.isArray(doc.items)) {
+        for (const row of doc.items as DocValueMap[]) {
+          const itemValue = row.item;
+          const unitValue = row.unit;
+
+          if (itemValue == null || unitValue == null) continue;
+
+          const key = `${String(itemValue)}::${String(unitValue)}`;
+
+          if (uniqueKeys.has(key)) continue;
+
+          uniqueKeys.add(key);
+          await (newDoc as Doc).append('items', row);
+        }
+      }
+      break;
 
     case ModelNameEnum.PricingRule:
       const itemSet = new Set<string>();
 
-      (newDoc as Doc).appliedItems = (
+      (newDoc as PricingRule).appliedItems = (
         newDoc as PricingRule
       ).appliedItems?.filter((row: PricingRuleItem) => {
         const key = `${row.item as string}::${row.unit as string}`;
@@ -647,6 +674,7 @@ function isValidSyncableDocName(doctype: string): boolean {
     ModelNameEnum.ItemGroup,
     ModelNameEnum.Batch,
     ModelNameEnum.PricingRule,
+    ModelNameEnum.PriceList,
   ] as string[];
 
   if (syncableDocNames.includes(doctype)) {
