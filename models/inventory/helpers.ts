@@ -400,12 +400,7 @@ export async function generateSerialNumbersForItem(
       ((seriesDoc.current as number) || (seriesDoc.start as number)) - 1;
   }
 
-  let generatedCount = 0;
-  let attempts = 0;
-  const maxAttempts = quantity * 10;
-
-  while (generatedCount < quantity && attempts < maxAttempts) {
-    attempts++;
+  while (serialNumbers.length < quantity) {
     currentValue++;
 
     const serialNumber = getPaddedName(seriesName, currentValue, padZeros);
@@ -417,11 +412,7 @@ export async function generateSerialNumbersForItem(
 
     if (!snExists) {
       serialNumbers.push(serialNumber);
-      generatedCount++;
     }
-  }
-
-  if (generatedCount < quantity) {
   }
 
   if (serialNumbers.length > 0) {
