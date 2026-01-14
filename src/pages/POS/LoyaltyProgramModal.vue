@@ -17,7 +17,9 @@
         />
       </svg>
 
-      <p class="dark:text-gray-100">{{ loyaltyPoints }}</p>
+      <p class="dark:text-gray-100 pr-6">
+        {{ loyaltyPoints }} - ({{ loyaltyProgram }})
+      </p>
     </div>
 
     <Int
