@@ -999,12 +999,12 @@ export abstract class Invoice extends Transactional {
           return 0;
         }
 
-        const partyDoc = (await this.fyo.doc.getDoc(
+        const loyaltyPoints = await this.fyo.getValue(
           ModelNameEnum.Party,
-          this.party
-        )) as Party;
-
-        return partyDoc?.loyaltyPoints || 0;
+          this.party,
+          'loyaltyPoints'
+        );
+        return loyaltyPoints || 0;
       },
       dependsOn: ['party'],
     },

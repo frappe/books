@@ -49,8 +49,13 @@
       "label": "Sync Data From Server",
       "fieldname": "syncDataFromServer",
       "fieldtype": "Button",
-      "section": "Default",
-      "bold": true
+      "section": "Default"
+    },
+    {
+      "label": "Sync Data To Server",
+      "fieldname": "syncDataToServer",
+      "fieldtype": "Button",
+      "section": "Default"
     },
     {
       "label": "Register Instance",
