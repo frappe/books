@@ -70,6 +70,7 @@ export interface BaseField {
   abstract?: string;             // Used to mark the location of a field in an Abstract schema
   isCustom?: boolean;            // Whether the field is a custom field
   bold?: boolean;                // UI Facing config, whether to make the label bold
+  sub_label?: string;
   filters?: Record<string, string>;
   getOptions?: () => Promise<{ label: string; value: string }[]>;
 }
