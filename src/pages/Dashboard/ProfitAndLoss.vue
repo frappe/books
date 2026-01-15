@@ -3,6 +3,13 @@
     <SectionHeader>
       <template #title>{{ t`Profit and Loss` }}</template>
       <template #action>
+        <Select
+          v-if="projectsEnabled"
+          v-model="project"
+          class="w-40 mr-2"
+          :df="projectSelectDf"
+          @change="setData"
+        />
         <PeriodSelector
           :value="period"
           :options="periodOptions"
@@ -33,6 +40,7 @@
 </template>
 <script lang="ts">
 import BarChart from 'src/components/Charts/BarChart.vue';
+import Select from 'src/components/Controls/Select.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
 import { uicolors } from 'src/utils/colors';
@@ -54,6 +62,7 @@ export default defineComponent({
     PeriodSelector,
     SectionHeader,
     BarChart,
+    Select,
   },
   extends: DashboardChartBase,
   props: {
@@ -63,8 +72,28 @@ export default defineComponent({
     data: [] as { yearmonth: string; balance: number }[],
     hasData: false,
     periodOptions: ['This Year', 'This Quarter', 'YTD'],
+    project: 'all',
+    projects: [] as { name: string }[],
   }),
   computed: {
+    projectsEnabled() {
+      return fyo.singles.AccountingSettings?.enableProjects;
+    },
+    projectOptions() {
+      const options = [{ label: this.t`Show All`, value: 'all' }];
+      for (const p of this.projects) {
+        options.push({ label: p.name, value: p.name });
+      }
+      return options;
+    },
+    projectSelectDf() {
+      return {
+        fieldname: 'project',
+        fieldtype: 'Select',
+        label: this.t`Project`,
+        options: this.projectOptions,
+      };
+    },
     chartData() {
       const points = [this.data.map((d) => d.balance)];
       const colors = [
@@ -92,16 +121,27 @@ export default defineComponent({
   },
   activated() {
     this.setData();
+    this.fetchProjects();
   },
   methods: {
+    async fetchProjects() {
+      if (this.projectsEnabled) {
+        this.projects = await fyo.db.getAll('Project', {
+          fields: ['name'],
+          filters: { status: 'Active' },
+        });
+      }
+    },
     async setData() {
       const { fromDate, toDate, periodList } = getDatesAndPeriodList(
         this.period
       );
 
+      const project = this.project === 'all' ? undefined : this.project;
       const data = await fyo.db.getIncomeAndExpenses(
         fromDate.toISO(),
-        toDate.toISO()
+        toDate.toISO(),
+        project
       );
       const incomes = getValueMapFromList(data.income, 'yearmonth', 'balance');
       const expenses = getValueMapFromList(

@@ -25,6 +25,14 @@
       "section": "Default"
     },
     {
+      "fieldname": "project",
+      "label": "Project",
+      "fieldtype": "Link",
+      "target": "Project",
+      "section": "Default",
+      "create": true
+    },
+    {
       "fieldname": "backReference",
       "label": "Back Reference",
       "fieldtype": "Link",

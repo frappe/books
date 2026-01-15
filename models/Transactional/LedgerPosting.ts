@@ -37,13 +37,13 @@ export class LedgerPosting {
     this.reverted = false;
   }
 
-  async debit(account: string, amount: Money) {
-    const ledgerEntry = this._getLedgerEntry(account, 'debit');
+  async debit(account: string, amount: Money, project?: string) {
+    const ledgerEntry = this._getLedgerEntry(account, 'debit', project);
     await ledgerEntry.set('debit', ledgerEntry.debit!.add(amount));
   }
 
-  async credit(account: string, amount: Money) {
-    const ledgerEntry = this._getLedgerEntry(account, 'credit');
+  async credit(account: string, amount: Money, project?: string) {
+    const ledgerEntry = this._getLedgerEntry(account, 'credit', project);
     await ledgerEntry.set('credit', ledgerEntry.credit!.add(amount));
   }
 
@@ -94,12 +94,15 @@ export class LedgerPosting {
 
   _getLedgerEntry(
     account: string,
-    type: TransactionType
+    type: TransactionType,
+	project?: string
   ): AccountingLedgerEntry {
     let map = this.creditMap;
     if (type === 'debit') {
       map = this.debitMap;
     }
+	
+	const key = project ? `${account}-${project}` : account;
 
     if (map[account]) {
       return map[account];
@@ -118,6 +121,7 @@ export class LedgerPosting {
         reverted: this.reverted,
         debit: this.fyo.pesa(0),
         credit: this.fyo.pesa(0),
+        project: project, // Set the project
       },
       false
     ) as AccountingLedgerEntry;

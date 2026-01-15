@@ -168,6 +168,14 @@
         }
       ],
       "hidden": true
+    },
+	{
+      "fieldname": "project",
+      "label": "Project",
+      "fieldtype": "Link",
+      "target": "Project",
+      "hidden": true,
+      "section": "Details"
     }
   ],
   "quickEditFields": [

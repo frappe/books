@@ -82,6 +82,14 @@
       "target": "AccountingLedgerEntry",
       "readOnly": true,
       "section": "Reference"
+    },
+	{
+      "fieldname": "project",
+      "label": "Project",
+      "fieldtype": "Link",
+      "target": "Project",
+      "readOnly": true,
+      "section": "Reference"
     }
   ],
   "quickEditFields": [

@@ -1,14 +1,27 @@
 import { t } from 'fyo';
+import { DateTime } from 'luxon';
 import {
   AccountRootType,
   AccountRootTypeEnum,
 } from 'models/baseModels/Account/types';
 import {
   AccountReport,
+  ACC_BAL_WIDTH,
+  ACC_NAME_WIDTH,
   convertAccountRootNodesToAccountList,
 } from 'reports/AccountReport';
-import { ReportData, RootTypeRow } from 'reports/types';
+import {
+  AccountListNode,
+  ColumnField,
+  DateRange,
+  ReportCell,
+  ReportData,
+  ReportRow,
+  RootTypeRow,
+} from 'reports/types';
+import { Field } from 'schemas/types';
 import { getMapFromList } from 'utils';
+import { QueryFilter } from 'utils/db/types';
 
 export class BalanceSheet extends AccountReport {
   static title = t`Balance Sheet`;
@@ -102,5 +115,107 @@ export class BalanceSheet extends AccountReport {
     }
 
     return reportData;
+  }
+
+  async _getQueryFilters(): Promise<QueryFilter> {
+    const filters: QueryFilter = {};
+    const toDate = DateTime.fromISO(this.toDate!).plus({ days: 1 }).toISODate();
+
+    filters.date = ['<', toDate];
+    filters.reverted = false;
+
+    if (this.project) {
+      filters.project = this.project;
+    }
+    return filters;
+  }
+
+  async _getDateRanges(): Promise<DateRange[]> {
+    return [
+      {
+        fromDate: DateTime.fromISO('0001-01-01'),
+        toDate: DateTime.fromISO(this.toDate!).plus({ days: 1 }),
+      },
+    ];
+  }
+
+  getFilters(): Field[] {
+    const filters: Field[] = [
+      {
+        fieldtype: 'Date',
+        fieldname: 'toDate',
+        placeholder: t`As on Date`,
+        label: t`As on Date`,
+        required: true,
+      },
+      {
+        fieldtype: 'Check',
+        label: t`Hide Group Amounts`,
+        fieldname: 'hideGroupAmounts',
+      } as Field,
+    ];
+
+    if (this.fyo.singles.AccountingSettings?.enableProjects) {
+      filters.splice(1, 0, {
+        fieldtype: 'Link',
+        target: 'Project',
+        label: t`Project`,
+        placeholder: t`Project`,
+        fieldname: 'project',
+      } as Field);
+    }
+    return filters;
+  }
+
+  getColumns(): ColumnField[] {
+    return [
+      {
+        label: t`Account`,
+        fieldtype: 'Link',
+        fieldname: 'account',
+        align: 'left',
+        width: ACC_NAME_WIDTH,
+      },
+      {
+        label: t`Amount`,
+        fieldtype: 'Data',
+        fieldname: 'amount',
+        align: 'right',
+        width: ACC_BAL_WIDTH,
+      },
+    ] as ColumnField[];
+  }
+
+  getRowFromAccountListNode(al: AccountListNode) {
+    const nameCell = {
+      value: al.name,
+      rawValue: al.name,
+      align: 'left',
+      width: ACC_NAME_WIDTH,
+      bold: !al.level,
+      indent: al.level ?? 0,
+    } as ReportCell;
+
+    const [dateRange] = this._dateRanges!;
+    const rawValue = al.valueMap?.get(dateRange)?.balance ?? 0;
+    let value = this.fyo.format(rawValue, 'Currency');
+    if (this.hideGroupAmounts && al.isGroup) {
+      value = '';
+    }
+
+    const balanceCell = {
+      rawValue,
+      value,
+      align: 'right',
+      width: ACC_BAL_WIDTH,
+    } as ReportCell;
+
+    return {
+      cells: [nameCell, balanceCell],
+      level: al.level,
+      isGroup: !!al.isGroup,
+      folded: false,
+      foldedBelow: false,
+    } as ReportRow;
   }
 }

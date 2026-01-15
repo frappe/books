@@ -258,6 +258,7 @@ export default defineComponent({
       viewShortcuts: boolean;
       activeGroup: null | SidebarRoot;
       showDevMode: boolean;
+      accountingSettingsUnsubscribe: (() => void) | null; // Added to store unsubscribe function
     };
   },
   computed: {
@@ -266,14 +267,25 @@ export default defineComponent({
     },
   },
   async mounted() {
-    const { companyName } = await fyo.doc.getDoc('AccountingSettings');
-    this.companyName = companyName as string;
-    this.groups = await getSidebarConfig();
+    const accountingSettings = (await fyo.doc.getDoc(
+      'AccountingSettings'
+    )) as typeof fyo.singles.AccountingSettings;
+
+    this.companyName = accountingSettings.companyName as string;
+    this.groups = await getSidebarConfig(accountingSettings); // Initial load, pass the fetched instance
 
     this.setActiveGroup();
     router.afterEach(() => {
       this.setActiveGroup();
     });
+
+    // Subscribe to changes on this specific instance
+    if (accountingSettings) {
+      this.accountingSettingsUnsubscribe = accountingSettings.on(
+        'change',
+        this.handleAccountingSettingsChange
+      );
+    }
 
     this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyH'], () => {
       if (document.body === document.activeElement) {
@@ -286,11 +298,22 @@ export default defineComponent({
   },
   unmounted() {
     this.shortcuts?.delete(COMPONENT_NAME);
+    // Unsubscribe from AccountingSettings changes when the component is unmounted
+    if (this.accountingSettingsUnsubscribe) {
+      this.accountingSettingsUnsubscribe();
+    }
   },
   methods: {
     routeTo,
     reportIssue,
     toggleSidebar,
+    // Handle changes to AccountingSettings to refresh sidebar groups
+    async handleAccountingSettingsChange(
+      changedDoc: typeof fyo.singles.AccountingSettings
+    ) {
+      // Pass the updated document instance to getSidebarConfig
+      this.groups = await getSidebarConfig(changedDoc);
+    },
     openDocumentation() {
       ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
     },

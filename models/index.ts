@@ -24,6 +24,7 @@ import { PricingRule } from './baseModels/PricingRule/PricingRule';
 import { PricingRuleItem } from './baseModels/PricingRuleItem/PricingRuleItem';
 import { PrintSettings } from './baseModels/PrintSettings/PrintSettings';
 import { PrintTemplate } from './baseModels/PrintTemplate';
+import { Project } from './baseModels/Project/Project';
 import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
 import { PurchaseInvoiceItem } from './baseModels/PurchaseInvoiceItem/PurchaseInvoiceItem';
 import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
@@ -86,6 +87,7 @@ export const models = {
   PriceListItem,
   PricingRule,
   PricingRuleItem,
+  Project, // This now has a matching import
   PurchaseInvoice,
   PurchaseInvoiceItem,
   SalesInvoice,

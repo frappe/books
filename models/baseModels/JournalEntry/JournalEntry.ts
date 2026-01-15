@@ -1,5 +1,4 @@
 import { Fyo, t } from 'fyo';
-import { Doc } from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,
@@ -16,23 +15,27 @@ import {
 } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { Money } from 'pesa';
+import { JournalEntryAccount } from '../JournalEntryAccount/JournalEntryAccount';
 import { LedgerPosting } from '../../Transactional/LedgerPosting';
 
 export class JournalEntry extends Transactional {
-  accounts?: Doc[];
+  accounts?: JournalEntryAccount[];
 
   async getPosting() {
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
+
+    const enableProjects = this.fyo.singles.AccountingSettings?.enableProjects;
 
     for (const row of this.accounts ?? []) {
       const debit = row.debit as Money;
       const credit = row.credit as Money;
       const account = row.account as string;
+      const project = enableProjects ? row.project : undefined;
 
       if (!debit.isZero()) {
-        await posting.debit(account, debit);
+        await posting.debit(account, debit, project);
       } else if (!credit.isZero()) {
-        await posting.credit(account, credit);
+        await posting.credit(account, credit, project);
       }
     }
 
