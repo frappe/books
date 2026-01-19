@@ -1,0 +1,22 @@
+{
+  "name": "License",
+  "label": "License",
+  "isSingle": true,
+  "fields": [
+    {
+      "fieldname": "license_key",
+      "label": "License Key",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": [
+        { "value": "Valid", "label": "Valid" },
+        { "value": "Invalid", "label": "Invalid" },
+        { "value": "Expired", "label": "Expired" }
+      ]
+    }
+  ]
+}

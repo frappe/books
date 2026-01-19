@@ -230,6 +230,13 @@ export default defineComponent({
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
 
+      const license = await fyo.doc.getDoc('License');
+      if (license.status !== 'Valid') {
+        await this.setDesk(filePath);
+        await routeTo('/edit/License/License');
+        return;
+      }
+
       const syncSettingsDoc = (await fyo.doc.getDoc(
         ModelNameEnum.ERPNextSyncSettings
       )) as ERPNextSyncSettings;

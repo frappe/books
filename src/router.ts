@@ -12,11 +12,17 @@ import Settings from 'src/pages/Settings/Settings.vue';
 import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
 import CustomizeForm from 'src/pages/CustomizeForm/CustomizeForm.vue';
 import POS from 'src/pages/POS/POS.vue';
+import Login from '../custom/src/pages/Login.vue';
 import type { HistoryState } from 'vue-router';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { historyState } from './utils/refs';
 
 const routes: RouteRecordRaw[] = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+  },
   {
     path: '/',
     component: Dashboard,
@@ -140,6 +146,17 @@ const routes: RouteRecordRaw[] = [
 ];
 
 const router = createRouter({ routes, history: createWebHistory() });
+
+router.beforeEach((to, from, next) => {
+  const sessionToken = localStorage.getItem('session_token');
+  if (to.path !== '/login' && !sessionToken) {
+    next('/login');
+  } else if (to.path === '/login' && sessionToken) {
+    next('/');
+  } else {
+    next();
+  }
+});
 
 router.afterEach(({ fullPath }) => {
   const state = history.state as HistoryState;

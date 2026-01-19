@@ -24,7 +24,8 @@
       "reports/*": ["reports/*"],
       "models/*": ["models/*"],
       "utils/*": ["utils/*"],
-      "dummy/*": ["dummy/*"]
+      "dummy/*": ["dummy/*"],
+      "custom/*": ["custom/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
@@ -49,7 +50,9 @@
     "utils/**/*.ts",
     "tests/**/*.ts",
     "dummy/**/*.ts",
-    "jobs/**/*.ts"
+    "jobs/**/*.ts",
+    "custom/**/*.ts",
+    "custom/**/*.json"
   ],
   "exclude": ["node_modules"]
 }
