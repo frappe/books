@@ -22,19 +22,22 @@
           platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'
         "
       >
-        <h6
-          data-testid="company-name"
-          class="
-            font-semibold
-            dark:text-gray-200
-            whitespace-nowrap
-            overflow-auto
-            no-scrollbar
-            select-none
-          "
-        >
-          {{ companyName }}
-        </h6>
+        <div>
+          <h6
+            data-testid="company-name"
+            class="
+              font-semibold
+              dark:text-gray-200
+              whitespace-nowrap
+              overflow-auto
+              no-scrollbar
+              select-none
+            "
+          >
+            {{ companyName }}
+          </h6>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ username }}</p>
+        </div>
       </div>
 
       <!-- Sidebar Items -->
@@ -178,6 +181,22 @@
         </p>
       </button>
 
+      <button
+        class="
+          flex
+          text-sm text-gray-600
+          dark:text-gray-500
+          hover:text-gray-800
+          dark:hover:text-gray-400
+          gap-1
+          items-center
+        "
+        @click="logout"
+      >
+        <feather-icon name="log-out" class="h-4 w-4 flex-shrink-0" />
+        <p>{{ t`Logout` }}</p>
+      </button>
+
       <p
         v-if="showDevMode"
         class="text-xs text-gray-500 select-none cursor-pointer"
@@ -248,12 +267,14 @@ export default defineComponent({
   data() {
     return {
       companyName: '',
+      username: '',
       groups: [],
       viewShortcuts: false,
       activeGroup: null,
       showDevMode: false,
     } as {
       companyName: string;
+      username: string;
       groups: SidebarConfig;
       viewShortcuts: boolean;
       activeGroup: null | SidebarRoot;
@@ -268,6 +289,7 @@ export default defineComponent({
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
     this.companyName = companyName as string;
+    this.username = localStorage.getItem('username') || '';
     this.groups = await getSidebarConfig();
 
     this.setActiveGroup();
@@ -291,6 +313,11 @@ export default defineComponent({
     routeTo,
     reportIssue,
     toggleSidebar,
+    logout() {
+      localStorage.removeItem('session_token');
+      localStorage.removeItem('username');
+      this.$router.push('/login');
+    },
     openDocumentation() {
       ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
     },

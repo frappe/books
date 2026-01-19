@@ -58,6 +58,7 @@ import { ERPNextSyncQueue } from './baseModels/ERPNextSyncQueue/ERPNextSyncQueue
 import { FetchFromERPNextQueue } from './baseModels/FetchFromERPNextQueue/FetchFromERPNextQueue';
 import { IntegrationErrorLog } from './baseModels/IntegrationErrorLog/IntegrationErrorLog';
 import { ItemEnquiry } from './baseModels/ItemEnquiry/ItemEnquiry';
+import customModels from '../custom/models';
 
 export const models = {
   Account,
@@ -123,6 +124,7 @@ export const models = {
   FetchFromERPNextQueue,
   // Error Log
   IntegrationErrorLog,
+  ...customModels,
 } as ModelMap;
 
 export async function getRegionalModels(

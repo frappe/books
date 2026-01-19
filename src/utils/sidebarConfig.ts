@@ -229,6 +229,13 @@ function getCompleteSidebar(): SidebarConfig {
       ] as SidebarItem[],
     },
     {
+      label: t`Expenses`,
+      name: 'expenses',
+      icon: 'purchase',
+      route: '/list/Expense',
+      schemaName: 'Expense',
+    },
+    {
       label: t`Purchases`,
       name: 'purchases',
       icon: 'purchase',
@@ -341,6 +348,11 @@ function getCompleteSidebar(): SidebarConfig {
           label: t`Settings`,
           name: 'settings',
           route: '/settings',
+        },
+        {
+          label: t`License`,
+          name: 'license',
+          route: '/edit/License/License',
         },
       ] as SidebarItem[],
     },
