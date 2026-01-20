@@ -21,6 +21,7 @@ import { isPesa } from 'fyo/utils';
 import { PricingRule } from '../PricingRule/PricingRule';
 import { getItemRateFromPriceList, getPricingRule } from 'models/helpers';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
+import { QueryFilter } from 'utils/db/types';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -652,7 +653,38 @@ export abstract class InvoiceItem extends Doc {
         itemNotFor = 'Purchases';
       }
 
-      return { for: ['not in', [itemNotFor]] };
+      const baseFilter: QueryFilter = {
+        for: ['not in', [itemNotFor]],
+      };
+
+      const accountingSettings = doc.fyo.singles?.AccountingSettings;
+      const inventorySettings = doc.fyo.singles?.InventorySettings;
+
+      if (accountingSettings?.enablePointOfSaleWithOutInventory) {
+        const posSettings = doc.fyo.singles?.POSSettings;
+
+        const posItemVisibility = posSettings?.itemVisibility;
+
+        if (posItemVisibility === 'Inventory Items') {
+          return { ...baseFilter, trackItem: true };
+        }
+
+        if (posItemVisibility === 'Non-Inventory Items') {
+          return { ...baseFilter, trackItem: false };
+        }
+
+        return baseFilter;
+      }
+
+      const invItemVisibility = inventorySettings?.itemVisibility;
+
+      if (invItemVisibility) {
+        return { ...baseFilter, trackItem: true };
+      } else {
+        return { ...baseFilter, trackItem: false };
+      }
+
+      return baseFilter;
     },
     batch: async (doc: Doc) => {
       const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {

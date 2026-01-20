@@ -13,6 +13,14 @@
       "section": "Default"
     },
     {
+      "fieldname": "itemVisibility",
+      "label": "Item Visibility",
+      "fieldtype": "Check",
+      "default": false,
+      "required": true,
+      "section": "Default"
+    },
+    {
       "fieldname": "stockInHand",
       "label": "Stock In Hand Acc.",
       "fieldtype": "Link",

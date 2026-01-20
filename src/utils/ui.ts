@@ -318,9 +318,15 @@ function getDuplicateAction(doc: Doc): Action {
 }
 
 function getNewAction(doc: Doc): Action {
+  const isSubmittable = !!doc.schema.isSubmittable;
   return {
     label: t`New Entry`,
     group: t`Create`,
+    condition: (doc: Doc) =>
+      !!(
+        ((isSubmittable && doc.submitted) || !isSubmittable) &&
+        !doc.notInserted
+      ),
     async action() {
       try {
         const newDoc = fyo.doc.getNewDoc(doc.schemaName);
