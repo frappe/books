@@ -1,7 +1,8 @@
 {
   "name": "Expense",
-  "label": "Expense",
+  "label": "Expenses",
   "isSubmittable": true,
+  "tableFields": ["date", "vendor", "expense_account", "amount", "description"],
   "fields": [
     {
       "fieldname": "date",
