@@ -39,6 +39,7 @@ export abstract class AccountReport extends LedgerReport {
   toYear?: number;
   consolidateColumns = false;
   hideGroupAmounts = false;
+  showOpeningAndClosing = false;
   periodicity: Periodicity = 'Monthly';
   basedOn: BasedOn = 'Until Date';
 
@@ -47,7 +48,15 @@ export abstract class AccountReport extends LedgerReport {
 
   accountMap?: Record<string, Account>;
 
+  get acceptSingleTimePeriod() {
+    return true;
+  }
+
   async setDefaultFilters(): Promise<void> {
+    if (this.basedOn === 'Period' && !this.toDate) {
+      this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
+    }
+
     if (this.basedOn === 'Until Date' && !this.toDate) {
       this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
     }
@@ -55,6 +64,14 @@ export abstract class AccountReport extends LedgerReport {
     if (this.basedOn === 'Fiscal Year' && !this.toYear) {
       this.fromYear = DateTime.now().year;
       this.toYear = this.fromYear + 1;
+    }
+
+    if (this.basedOn === 'Period' && !this.fromDate) {
+      this.fromDate = DateTime.now()
+        .plus({ days: 1 })
+        .minus({ month: 1 })
+        .toISODate();
+      this.count = 3;
     }
 
     await this._setDateRanges();
@@ -124,12 +141,16 @@ export abstract class AccountReport extends LedgerReport {
       indent: al.level ?? 0,
     } as ReportCell;
 
+    let sumValue = 0;
+
     const balanceCells = this._dateRanges!.map((k) => {
       const rawValue = al.valueMap?.get(k)?.balance ?? 0;
       let value = this.fyo.format(rawValue, 'Currency');
       if (this.hideGroupAmounts && al.isGroup) {
         value = '';
       }
+
+      sumValue += rawValue;
 
       return {
         rawValue,
@@ -138,6 +159,18 @@ export abstract class AccountReport extends LedgerReport {
         width: ACC_BAL_WIDTH,
       } as ReportCell;
     });
+
+    if (this.showOpeningAndClosing) {
+      balanceCells.push({
+        rawValue: sumValue,
+        value:
+          this.hideGroupAmounts && al.isGroup
+            ? ''
+            : this.fyo.format(sumValue, 'Currency'),
+        align: 'right',
+        width: ACC_BAL_WIDTH,
+      });
+    }
 
     return {
       cells: [nameCell, balanceCells].flat(),
@@ -251,51 +284,108 @@ export abstract class AccountReport extends LedgerReport {
   }
 
   async _getDateRanges(): Promise<DateRange[]> {
-    const endpoints = await this._getFromAndToDates();
-    const fromDate = DateTime.fromISO(endpoints.fromDate);
-    const toDate = DateTime.fromISO(endpoints.toDate);
+    let dateRanges: DateRange[];
 
-    if (this.consolidateColumns) {
-      return [
+    if (this.basedOn === 'Period') {
+      const toDate = DateTime.fromISO(this.toDate!).plus({ days: 1 });
+      const fromDate = DateTime.fromISO(this.fromDate);
+
+      dateRanges = [
         {
           toDate,
           fromDate,
         },
       ];
-    }
 
-    const months: number = monthsMap[this.periodicity];
-    const dateRanges: DateRange[] = [
-      {
-        toDate,
-        fromDate: this._fixMonthsJump(toDate, toDate.minus({ months })),
-      },
-    ];
+      const interval = toDate.diff(fromDate, ['years', 'months', 'days']);
+      const count = this.count ?? 1;
 
-    let count = this.count ?? 1;
-    if (this.basedOn === 'Fiscal Year') {
-      count = Math.ceil(((this.toYear! - this.fromYear!) * 12) / months);
-    }
+      for (let i = 1; i < count; i++) {
+        const lastRange = dateRanges.at(-1)!;
+        dateRanges.push({
+          toDate: lastRange.fromDate,
+          fromDate: this._fixMonthsJump(
+            toDate,
+            lastRange.fromDate.minus(interval)
+          ),
+        });
+      }
 
-    for (let i = 1; i < count; i++) {
-      const lastRange = dateRanges.at(-1)!;
-      dateRanges.push({
-        toDate: lastRange.fromDate,
-        fromDate: this._fixMonthsJump(
+      if (this.consolidateColumns) {
+        const firstRange = dateRanges.at(0)!;
+        const lastRange = dateRanges.at(-1)!;
+        return [
+          {
+            toDate: firstRange.toDate,
+            fromDate: lastRange.fromDate,
+          },
+        ];
+      }
+    } else {
+      const endpoints = await this._getFromAndToDates();
+      const fromDate = DateTime.fromISO(endpoints.fromDate);
+      const toDate = DateTime.fromISO(endpoints.toDate);
+
+      if (this.consolidateColumns) {
+        return [
+          {
+            toDate,
+            fromDate,
+          },
+        ];
+      }
+
+      const months: number = monthsMap[this.periodicity];
+      const interval = { months };
+      dateRanges = [
+        {
           toDate,
-          lastRange.fromDate.minus({ months })
-        ),
-      });
+          fromDate: this._fixMonthsJump(toDate, toDate.minus(interval)),
+        },
+      ];
+
+      let count = this.count ?? 1;
+      if (this.basedOn === 'Fiscal Year') {
+        count = Math.ceil(((this.toYear! - this.fromYear!) * 12) / months);
+      }
+
+      for (let i = 1; i < count; i++) {
+        const lastRange = dateRanges.at(-1)!;
+        dateRanges.push({
+          toDate: lastRange.fromDate,
+          fromDate: this._fixMonthsJump(
+            toDate,
+            lastRange.fromDate.minus({ months })
+          ),
+        });
+      }
     }
 
-    return dateRanges.sort((b, a) => b.toDate.toMillis() - a.toDate.toMillis());
+    dateRanges = dateRanges.sort(
+      (b, a) => b.toDate.toMillis() - a.toDate.toMillis()
+    );
+
+    if (this.showOpeningAndClosing) {
+      const openingPeriod = {
+        fromDate: DateTime.fromISO('0001-01-01'),
+        toDate: dateRanges[0].fromDate,
+      };
+      dateRanges = dateRanges.reverse();
+      dateRanges.unshift(openingPeriod);
+    }
+
+    return dateRanges;
   }
 
   async _getFromAndToDates() {
     let toDate: string;
     let fromDate: string;
 
-    if (this.basedOn === 'Until Date') {
+    if (this.basedOn === 'Period') {
+      throw new Error(
+        '_getFromAndToDates should not be called with period basedOn'
+      );
+    } else if (this.basedOn === 'Until Date') {
       toDate = DateTime.fromISO(this.toDate!).plus({ days: 1 }).toISODate();
       const months = monthsMap[this.periodicity] * Math.max(this.count ?? 1, 1);
       fromDate = DateTime.fromISO(this.toDate!).minus({ months }).toISODate();
@@ -312,13 +402,28 @@ export abstract class AccountReport extends LedgerReport {
     return { fromDate, toDate };
   }
 
-  async _getQueryFilters(): Promise<QueryFilter> {
+  _getDateBoundaries() {
+    const last = this._dateRanges.length - 1;
+    if (this.showOpeningAndClosing) {
+      return {
+        fromDate: this._dateRanges[0].fromDate,
+        toDate: this._dateRanges[last].toDate,
+      };
+    } else {
+      return {
+        fromDate: this._dateRanges[last].fromDate,
+        toDate: this._dateRanges[0].toDate,
+      };
+    }
+  }
+
+  _getQueryFilters(): QueryFilter {
     const filters: QueryFilter = {};
-    const { fromDate, toDate } = await this._getFromAndToDates();
+    const { fromDate, toDate } = this._getDateBoundaries();
 
     const dateFilter: string[] = [];
-    dateFilter.push('<', toDate);
-    dateFilter.push('>=', fromDate);
+    dateFilter.push('<', toDate.toISODate());
+    dateFilter.push('>=', fromDate.toISODate());
 
     filters.date = dateFilter;
     filters.reverted = false;
@@ -339,23 +444,29 @@ export abstract class AccountReport extends LedgerReport {
         options: [
           { label: t`Fiscal Year`, value: 'Fiscal Year' },
           { label: t`Until Date`, value: 'Until Date' },
+          { label: t`Period`, value: 'Period' },
         ],
         label: t`Based On`,
         fieldname: 'basedOn',
       },
-      {
-        fieldtype: 'Select',
-        options: [
-          { label: t`Monthly`, value: 'Monthly' },
-          { label: t`Quarterly`, value: 'Quarterly' },
-          { label: t`Half Yearly`, value: 'Half Yearly' },
-          { label: t`Yearly`, value: 'Yearly' },
-        ],
-        label: t`Periodicity`,
-        fieldname: 'periodicity',
-      },
-      ,
     ] as Field[];
+
+    let periodicityFilters = [] as Field[];
+    if (this.basedOn !== 'Period') {
+      periodicityFilters = [
+        {
+          fieldtype: 'Select',
+          options: [
+            { label: t`Monthly`, value: 'Monthly' },
+            { label: t`Quarterly`, value: 'Quarterly' },
+            { label: t`Half Yearly`, value: 'Half Yearly' },
+            { label: t`Yearly`, value: 'Yearly' },
+          ],
+          label: t`Periodicity`,
+          fieldname: 'periodicity',
+        },
+      ] as Field[];
+    }
 
     let dateFilters = [
       {
@@ -376,7 +487,32 @@ export abstract class AccountReport extends LedgerReport {
       },
     ] as Field[];
 
-    if (this.basedOn === 'Until Date') {
+    if (this.basedOn === 'Period') {
+      dateFilters = [
+        {
+          fieldtype: 'Date',
+          fieldname: 'fromDate',
+          placeholder: t`From Date`,
+          label: t`From Date`,
+          required: true,
+        },
+        {
+          fieldtype: 'Date',
+          fieldname: 'toDate',
+          placeholder: t`To Date`,
+          label: t`To Date`,
+          required: true,
+        },
+        {
+          fieldtype: 'Int',
+          fieldname: 'count',
+          minvalue: 1,
+          placeholder: t`Number of periods`,
+          label: t`Number of periods`,
+          required: true,
+        },
+      ] as Field[];
+    } else if (this.basedOn === 'Until Date') {
       dateFilters = [
         {
           fieldtype: 'Date',
@@ -398,6 +534,7 @@ export abstract class AccountReport extends LedgerReport {
 
     return [
       filters,
+      periodicityFilters,
       dateFilters,
       {
         fieldtype: 'Check',
@@ -408,6 +545,11 @@ export abstract class AccountReport extends LedgerReport {
         fieldtype: 'Check',
         label: t`Hide Group Amounts`,
         fieldname: 'hideGroupAmounts',
+      } as Field,
+      {
+        fieldtype: 'Check',
+        label: t`Show Openings and Closings`,
+        fieldname: 'showOpeningAndClosing',
       } as Field,
     ].flat();
   }
@@ -423,11 +565,18 @@ export abstract class AccountReport extends LedgerReport {
       },
     ] as ColumnField[];
 
-    const dateColumns = this._dateRanges!.sort(
+    let ranges = this._dateRanges!.sort(
       (a, b) => b.toDate.toMillis() - a.toDate.toMillis()
-    ).map((d) => {
+    );
+    if (this.showOpeningAndClosing) {
+      ranges = ranges.reverse();
+    }
+
+    const dateColumns = ranges.map((d) => {
       const toDate = d.toDate.minus({ days: 1 });
-      const label = this.fyo.format(toDate.toJSDate(), 'Date');
+      const label =
+        // this.fyo.format(d.fromDate.toJSDate(), 'Date') + " - " +
+        this.fyo.format(toDate.toJSDate(), 'Date');
 
       return {
         label,
@@ -437,6 +586,17 @@ export abstract class AccountReport extends LedgerReport {
         width: ACC_BAL_WIDTH,
       } as ColumnField;
     });
+
+    if (this.showOpeningAndClosing) {
+      dateColumns[0].label = t`Opening`;
+      dateColumns.push({
+        label: t`Closing`,
+        fieldtype: 'Data',
+        fieldname: 'toDate',
+        align: 'right',
+        width: ACC_BAL_WIDTH,
+      });
+    }
 
     return [columns, dateColumns].flat();
   }
