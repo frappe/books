@@ -147,6 +147,7 @@
       </button>
 
       <button
+        v-if="isSuperAdmin"
         data-testid="change-db"
         class="
           flex
@@ -164,6 +165,7 @@
       </button>
 
       <button
+        v-if="isSuperAdmin"
         class="
           flex
           text-sm text-gray-600
@@ -237,7 +239,7 @@ import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
 import { docsPathRef } from 'src/utils/refs';
-import { getSidebarConfig } from 'src/utils/sidebarConfig';
+import { getSidebarConfig } from '../../custom/src/utils/sidebarConfig';
 import { SidebarConfig, SidebarItem, SidebarRoot } from 'src/utils/types';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { defineComponent, inject } from 'vue';
@@ -284,6 +286,10 @@ export default defineComponent({
   computed: {
     appVersion() {
       return fyo.store.appVersion;
+    },
+    isSuperAdmin() {
+      const currentRole = localStorage.getItem('current_role') || '';
+      return currentRole === 'Super Admin';
     },
   },
   async mounted() {

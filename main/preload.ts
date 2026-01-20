@@ -275,6 +275,24 @@ const ipc = {
       return config.delete(key);
     },
   },
+
+  // Custom auth methods
+  async hashPassword(password: string) {
+    return (await ipcRenderer.invoke('hash-password', password)) as string;
+  },
+
+  async validatePassword(password: string, hash: string) {
+    return (await ipcRenderer.invoke('validate-password', password, hash)) as boolean;
+  },
+
+  async validateLicense(licenseKey: string) {
+    return (await ipcRenderer.invoke('validate-license', licenseKey)) as {
+      valid: boolean;
+      status: string;
+      lastValidated?: string;
+      error?: string;
+    };
+  },
 } as const;
 
 contextBridge.exposeInMainWorld('ipc', ipc);

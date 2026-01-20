@@ -52,7 +52,8 @@
     "dummy/**/*.ts",
     "jobs/**/*.ts",
     "custom/**/*.ts",
-    "custom/**/*.json"
+    "custom/**/*.json",
+    "custom/**/*.vue"
   ],
   "exclude": ["node_modules"]
 }

@@ -1,0 +1,31 @@
+{
+  "name": "SystemUser",
+  "label": "System User",
+  "isSingle": true,
+  "fields": [
+    {
+      "fieldname": "current_user",
+      "label": "Current User",
+      "fieldtype": "Link",
+      "target": "User"
+    },
+    {
+      "fieldname": "current_role",
+      "label": "Current Role",
+      "fieldtype": "Data",
+      "readOnly": true
+    },
+    {
+      "fieldname": "current_organization",
+      "label": "Current Organization",
+      "fieldtype": "Data",
+      "readOnly": true
+    },
+    {
+      "fieldname": "session_token",
+      "label": "Session Token",
+      "fieldtype": "Data",
+      "hidden": true
+    }
+  ]
+}
