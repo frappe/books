@@ -114,7 +114,7 @@ export default defineComponent({
       isLoading.value = true;
 
       try {
-        // Authenticate user
+        // Authenticate a user
         const user = await User.authenticate(fyo, email.value, password.value);
 
         if (!user) {
