@@ -40,3 +40,8 @@ export async function initializeLicensing() {
   const manager = getLicenseManager();
   return await manager.initialize();
 }
+
+/**
+ * Default singleton instance for convenience
+ */
+export const licenseManager = getLicenseManager();
