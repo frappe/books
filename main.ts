@@ -5,7 +5,13 @@ require('source-map-support').install({
 });
 
 // Load environment variables from .env file
-require('dotenv').config();
+// Must use require here as it runs before imports
+const dotenvPath = require('path');
+require('dotenv').config({ 
+  path: process.env.NODE_ENV === 'development' 
+    ? dotenvPath.resolve(process.cwd(), '.env')
+    : dotenvPath.resolve(__dirname, '../.env')
+});
 
 import { emitMainProcessError } from 'backend/helpers';
 import {

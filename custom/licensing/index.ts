@@ -20,6 +20,14 @@ const config: LicenseConfig = {
   backgroundCheckInterval: 3600000, // 1 hour
 };
 
+// Debug: Log config (with sensitive data masked)
+console.log('Licensing config loaded:', {
+  apiUrl: config.apiUrl,
+  accessToken: config.accessToken ? `${config.accessToken.substring(0, 10)}...` : 'MISSING',
+  productId: config.productId || 'MISSING',
+  productIdLength: config.productId.length,
+});
+
 // Singleton instance
 let licenseManagerInstance: LicenseManager | null = null;
 
