@@ -33,6 +33,7 @@
     "lodash": "^4.17.21",
     "luxon": "^2.5.2",
     "node-fetch": "2",
+    "node-machine-id": "^1.1.12",
     "pesa": "^1.1.12",
     "source-map-support": "^0.5.21",
     "vue": "^3.2.40",
