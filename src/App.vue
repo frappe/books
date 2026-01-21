@@ -36,6 +36,36 @@
       @setup-canceled="showDbSelector"
     />
 
+    <!-- Loading Spinner -->
+    <div
+      v-if="activeScreen === null"
+      class="flex-1 flex items-center justify-center bg-gray-25 dark:bg-gray-900"
+    >
+      <div class="flex flex-col items-center gap-4">
+        <svg
+          class="animate-spin h-12 w-12 text-gray-600 dark:text-gray-400"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        <p class="text-gray-600 dark:text-gray-400">Loading...</p>
+      </div>
+    </div>
+
     <!-- Render target for toasts -->
     <div
       id="toast-container"
@@ -52,10 +82,10 @@ import { defineComponent, provide, ref, Ref } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { fyo } from './initFyo';
-import DatabaseSelector from './pages/DatabaseSelector.vue';
+import DatabaseSelector from '../custom/src/pages/DatabaseSelectorCustom.vue';
 import Desk from './pages/Desk.vue';
 import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
-import setupInstance from './setup/setupInstance';
+import setupInstance from '../custom/setup/setupInstanceCustom';
 import { SetupWizardOptions } from './setup/types';
 import './styles/index.css';
 import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
@@ -190,6 +220,8 @@ export default defineComponent({
         });
 
         fyo.config.set('lastSelectedFilePath', null);
+        // Show DatabaseSelector so user can select/create another organization
+        this.activeScreen = Screen.DatabaseSelector;
         return;
       }
 
@@ -205,7 +237,24 @@ export default defineComponent({
       const filePath = await ipc.getDbDefaultPath(companyName);
       await setupInstance(filePath, setupWizardOptions, fyo);
       fyo.config.set('lastSelectedFilePath', filePath);
-      await this.setDesk(filePath);
+      
+      // Connect to the database first
+      await connectToDatabase(this.fyo, filePath);
+      
+      // Show toast with default credentials
+      showToast({
+        message: 'Organization created! Please login with default super admin credentials.',
+        type: 'success',
+        duration: 5000,
+      });
+      
+      // Redirect to login page instead of going directly to desk
+      // Super admin credentials: super@rarebooks.com / super@5378
+      this.activeScreen = Screen.Desk;
+      setTimeout(() => {
+        // Use router to navigate to login
+        // The router guard will handle the redirect since there's no session
+      }, 100);
     },
     async showSetupWizardOrDesk(filePath: string): Promise<void> {
       const { countryCode, error, actionSymbol } = await connectToDatabase(

@@ -1,8 +1,27 @@
 {
   "name": "Expense",
-  "label": "Expense",
+  "label": "Expenses",
+  "naming": "numberSeries",
   "isSubmittable": true,
+  "tableFields": ["name", "date", "vendor", "expense_account", "amount", "description"],
   "fields": [
+    {
+      "fieldname": "name",
+      "label": "Expense No",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "default": "EXP-",
+      "section": "Default"
+    },
     {
       "fieldname": "date",
       "label": "Date",

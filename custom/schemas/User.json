@@ -1,0 +1,74 @@
+{
+  "name": "User",
+  "label": "User",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Email",
+      "fieldtype": "Data",
+      "required": true,
+      "placeholder": "user@example.com",
+      "section": "Default"
+    },
+    {
+      "fieldname": "username",
+      "label": "Username",
+      "fieldtype": "Data",
+      "placeholder": "johndoe",
+      "section": "Default"
+    },
+    {
+      "fieldname": "password",
+      "label": "Password",
+      "fieldtype": "Password",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "full_name",
+      "label": "Full Name",
+      "fieldtype": "Data",
+      "required": true,
+      "placeholder": "John Doe",
+      "section": "Default"
+    },
+    {
+      "fieldname": "role",
+      "label": "Role",
+      "fieldtype": "Select",
+      "required": true,
+      "default": "User",
+      "options": [
+        { "value": "Super Admin", "label": "Super Admin" },
+        { "value": "Admin", "label": "Admin" },
+        { "value": "User", "label": "User" }
+      ],
+      "section": "Default"
+    },
+    {
+      "fieldname": "organization",
+      "label": "Organization",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "last_login",
+      "label": "Last Login",
+      "fieldtype": "Datetime",
+      "readOnly": true,
+      "section": "Activity"
+    }
+  ],
+  "quickEditFields": ["full_name", "role", "enabled"],
+  "keywordFields": ["name", "username", "full_name"],
+  "tableFields": ["username", "full_name", "role", "organization", "enabled"]
+}

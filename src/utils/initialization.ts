@@ -8,6 +8,7 @@ import {
   getRandomString,
   getValueMapFromList,
 } from 'utils/index';
+import { migrateExpenseTable } from '../../custom/setup/migrateExpenseTable';
 
 export async function initializeInstance(
   dbPath: string,
@@ -24,6 +25,9 @@ export async function initializeInstance(
 
   const regionalModels = await getRegionalModels(countryCode);
   await fyo.initializeAndRegister(models, regionalModels);
+
+  // Run custom migrations
+  await migrateExpenseTable(fyo);
 
   await checkSingleLinks(fyo);
   await setSingles(fyo);
