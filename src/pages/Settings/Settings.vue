@@ -63,7 +63,7 @@
         "
       >
         <div
-          v-for="key of groupedFields.keys()"
+          v-for="key of [...groupedFields.keys(), 'License']"
           :key="key"
           class="text-sm cursor-pointer"
           :class="
