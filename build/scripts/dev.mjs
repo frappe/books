@@ -35,7 +35,7 @@ console.log(`running Frappe Books in dev mode\nroot: ${root}`);
 /**
  * @type {import('execa').ExecaChildProcess<string>}
  */
-const viteProcess = $$`yarn vite`;
+const viteProcess = $$`npx vite`;
 /**
  * Create esbuild context that is used
  * to [re]build the main process code
