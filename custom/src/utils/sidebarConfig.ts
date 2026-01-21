@@ -138,6 +138,11 @@ function getReportSidebar() {
         name: 'trial-balance',
         route: '/report/TrialBalance',
       },
+      {
+        label: t`License`,
+        name: 'license',
+        route: '/settings?tab=License',
+      },
     ],
   };
 }
@@ -364,11 +369,6 @@ function getCompleteSidebar(): SidebarConfig {
           label: t`Settings`,
           name: 'settings',
           route: '/settings',
-        },
-        {
-          label: t`License`,
-          name: 'license',
-          route: '/edit/License/License',
         },
       ] as SidebarItem[],
     },
