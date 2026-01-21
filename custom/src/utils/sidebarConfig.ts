@@ -54,22 +54,6 @@ function getRegionalSidebar(): SidebarRoot[] {
   ];
 }
 
-function getSettingsSidebar(): SidebarRoot {
-  return {
-    label: t`Settings`,
-    name: 'settings-group',
-    icon: 'settings',
-    route: '/settings?tab=License',
-    items: [
-      {
-        label: t`License`,
-        name: 'license',
-        route: '/settings?tab=License',
-      },
-    ],
-  };
-}
-
 function getInventorySidebar(): SidebarRoot[] {
   const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
   if (!hasInventory) {
@@ -325,7 +309,6 @@ function getCompleteSidebar(): SidebarConfig {
     getInventorySidebar(),
     getPOSSidebar(),
     getRegionalSidebar(),
-    getSettingsSidebar(),
     {
       label: t`Setup`,
       name: 'setup',
