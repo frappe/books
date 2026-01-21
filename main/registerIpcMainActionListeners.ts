@@ -29,8 +29,11 @@ import {
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 import { sendAPIRequest } from './api';
 import { initScheduler } from './initSheduler';
+import { registerAuthHandlers } from '../custom/main/authHandlers';
 
 export default function registerIpcMainActionListeners(main: Main) {
+  // Register custom auth handlers
+  registerAuthHandlers();
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
     try {
       await fs.access(filePath, constants.W_OK | constants.R_OK);
