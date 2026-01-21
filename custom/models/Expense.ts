@@ -1,5 +1,7 @@
 import { Doc } from 'fyo/model/doc';
+import { DefaultMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
+import { getNumberSeries } from 'models/helpers';
 
 export class Expense extends Doc {
   date?: Date;
@@ -9,9 +11,14 @@ export class Expense extends Doc {
   amount?: any;
   description?: string;
 
+  static defaults: DefaultMap = {
+    numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
+    date: () => new Date(),
+  };
+
   static getListViewSettings() {
     return {
-      columns: ['date', 'vendor', 'expense_account', 'amount', 'description'],
+      columns: ['name', 'date', 'vendor', 'expense_account', 'amount', 'description'],
     };
   }
 
