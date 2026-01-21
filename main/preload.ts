@@ -293,6 +293,11 @@ const ipc = {
       error?: string;
     };
   },
+
+  // Licensing methods
+  async invoke(channel: string, ...args: unknown[]) {
+    return await ipcRenderer.invoke(channel, ...args);
+  },
 } as const;
 
 contextBridge.exposeInMainWorld('ipc', ipc);
