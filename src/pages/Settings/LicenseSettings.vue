@@ -2,7 +2,7 @@
   <div class="p-4">
     <!-- License Section -->
     <div class="border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-      <h2 class="text-lg font-semibold mb-4">License Management</h2>
+      <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">License Management</h2>
       
       <div class="flex items-center gap-4 mb-4">
         <!-- Current Status -->
@@ -49,9 +49,9 @@
           </div>
           <div>
             <p class="text-gray-500 dark:text-gray-400 text-xs">Last validated</p>
-            <p class="font-medium">
+            <p class="font-medium text-gray-900 dark:text-gray-100">
               {{ formatDate(licenseState.lastValidatedAt) }}
-              <span class="text-xs text-gray-500">
+              <span class="text-xs text-gray-500 dark:text-gray-400">
                 {{ licenseState.validatedOnline ? '(online)' : '(offline)' }}
               </span>
             </p>
