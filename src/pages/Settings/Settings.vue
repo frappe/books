@@ -21,7 +21,10 @@
       </FormHeader>
 
       <!-- Section Container -->
-      <div v-if="doc" class="overflow-auto custom-scroll custom-scroll-thumb1">
+      <div v-if="activeTab === 'License'" class="overflow-auto custom-scroll custom-scroll-thumb1">
+        <LicenseSettings />
+      </div>
+      <div v-else-if="doc" class="overflow-auto custom-scroll custom-scroll-thumb1">
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
           :key="name + idx"
@@ -98,11 +101,12 @@ import { docsPathRef } from 'src/utils/refs';
 import { UIGroupedFields } from 'src/utils/types';
 import { computed, defineComponent, inject } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
+import LicenseSettings from './LicenseSettings.vue';
 
 const COMPONENT_NAME = 'Settings';
 
 export default defineComponent({
-  components: { FormContainer, Button, FormHeader, CommonFormSection },
+  components: { FormContainer, Button, FormHeader, CommonFormSection, LicenseSettings },
   provide() {
     return { doc: computed(() => this.doc) };
   },
@@ -151,6 +155,7 @@ export default defineComponent({
         [ModelNameEnum.POSSettings]: this.t`POS Settings`,
         [ModelNameEnum.ERPNextSyncSettings]: this.t`ERPNext Sync`,
         [ModelNameEnum.SystemSettings]: this.t`System`,
+        'License': this.t`License`,
       };
     },
     schemas(): Schema[] {
@@ -188,6 +193,11 @@ export default defineComponent({
     },
     activeGroup(): Map<string, Field[]> {
       if (!this.groupedFields) {
+        return new Map();
+      }
+
+      // License tab doesn't use groupedFields
+      if (this.activeTab === 'License') {
         return new Map();
       }
 
