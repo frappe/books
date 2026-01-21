@@ -3,7 +3,7 @@
  * AES-256-GCM encryption with HMAC integrity verification
  */
 
-import { createCipheriv, createDecipheriv, createHmac, randomBytes } from 'crypto';
+import { createCipheriv, createDecipheriv, createHmac, randomBytes, createHash } from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
 const KEY_LENGTH = 32; // 256 bits
@@ -19,10 +19,11 @@ let encryptionKey: Buffer | null = null;
  */
 export function getEncryptionKey(): Buffer {
   if (!encryptionKey) {
-    // Generate a consistent key based on machine
-    // In production, you might want to use electron's safeStorage
-    // For now, generate a random key that persists per session
-    encryptionKey = randomBytes(KEY_LENGTH);
+    // Generate a consistent key based on a fixed seed for this app
+    // This allows decryption across sessions
+    // Using a hash of a constant string to derive the key
+    const seed = 'rarebooks-license-encryption-key-v1-2026';
+    encryptionKey = createHash('sha256').update(seed).digest();
   }
   return encryptionKey;
 }
