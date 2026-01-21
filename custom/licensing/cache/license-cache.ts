@@ -48,15 +48,18 @@ export function loadLicenseCache(): LicenseCacheData | null {
     const cached = store.get('licenseCache');
     
     if (!cached) {
+      console.log('No license cache found');
       return null;
     }
-
+    
+    console.log('Loading license from cache...');
+    
     // Decrypt the data
     const decrypted = decrypt(cached.encrypted, cached.iv, cached.authTag);
     const data = JSON.parse(decrypted) as LicenseCacheData;
-
+    
     // Verify integrity
-    const { apiResponseHash, ...dataWithoutHash } = data;
+    const { apiResponseHash, ...dataWithoutHash } = data as any;
     const expectedHash = generateHmac(JSON.stringify(dataWithoutHash));
     
     if (!verifyHmac(JSON.stringify(dataWithoutHash), apiResponseHash)) {
@@ -64,10 +67,12 @@ export function loadLicenseCache(): LicenseCacheData | null {
       clearLicenseCache();
       return null;
     }
-
-    return data;
+    
+    console.log('License cache loaded successfully, expires:', dataWithoutHash.expiresAt);
+    return dataWithoutHash;
   } catch (error) {
     console.error('Failed to load license cache:', error);
+    clearLicenseCache();
     return null;
   }
 }
