@@ -1,6 +1,6 @@
 import { Doc } from 'fyo/model/doc';
 import { ChangeArg, HiddenMap } from 'fyo/model/types';
-import { initERPNSync } from 'src/utils/erpnextSync';
+import { initERPNSync, syncDocumentsToERPNext } from 'src/utils/erpnextSync';
 
 export class ERPNextSyncSettings extends Doc {
   deviceID?: string;
@@ -12,6 +12,7 @@ export class ERPNextSyncSettings extends Doc {
 
   dataSyncInterval?: string;
   syncDataFromServer?: boolean;
+  syncDataToServer?: boolean;
 
   registerInstance?: string;
   syncSettings?: string;
@@ -43,6 +44,9 @@ export class ERPNextSyncSettings extends Doc {
   async change(ch: ChangeArg) {
     if (ch.changed === 'syncDataFromServer') {
       await initERPNSync(this.fyo);
+      ipc.reloadWindow();
+    } else if (ch.changed === 'syncDataToServer') {
+      await syncDocumentsToERPNext(this.fyo);
       ipc.reloadWindow();
     }
   }
