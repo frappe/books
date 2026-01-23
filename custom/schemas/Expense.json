@@ -1,0 +1,45 @@
+{
+  "name": "Expense",
+  "label": "Expenses",
+  "isSubmittable": true,
+  "tableFields": ["date", "vendor", "expense_account", "amount", "description"],
+  "fields": [
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "vendor",
+      "label": "Vendor",
+      "fieldtype": "Link",
+      "target": "Party"
+    },
+    {
+      "fieldname": "expense_account",
+      "label": "Expense Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true
+    },
+    {
+      "fieldname": "payment_account",
+      "label": "Payment Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true
+    },
+    {
+      "fieldname": "amount",
+      "label": "Amount",
+      "fieldtype": "Currency",
+      "required": true
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "fieldtype": "Small Text"
+    }
+  ]
+}

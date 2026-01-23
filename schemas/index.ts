@@ -1,6 +1,7 @@
 import { RawCustomField } from 'backend/database/types';
 import { cloneDeep } from 'lodash';
 import { getListFromMap, getMapFromList } from 'utils';
+import customSchemas from '../custom/schemas';
 import regionalSchemas from './regional';
 import { appSchemas, coreSchemas, metaSchemas } from './schemas';
 import type {
@@ -154,6 +155,9 @@ function getCoreSchemas(): SchemaMap {
 
 function getAppSchemas(countryCode: string): SchemaMap {
   const appSchemaMap = getMapFromList(cloneDeep(appSchemas), 'name');
+  const customSchemaMap = getMapFromList(cloneDeep(customSchemas), 'name');
+  Object.assign(appSchemaMap, customSchemaMap);
+
   const regionalSchemaMap = getRegionalSchemaMap(countryCode);
   const combinedSchemas = getRegionalCombinedSchemas(
     appSchemaMap,

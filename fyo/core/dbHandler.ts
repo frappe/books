@@ -356,6 +356,12 @@ export class DatabaseHandler extends DatabaseBase {
     )) as Promise<Record<string, Money> | undefined>;
   }
 
+  async migrateExpenseDescription(): Promise<void> {
+    return (await this.#demux.callBespoke(
+      'migrateExpenseDescription'
+    )) as Promise<void>;
+  }
+
   /**
    * Internal methods
    */

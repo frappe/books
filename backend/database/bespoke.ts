@@ -183,6 +183,24 @@ export class BespokeQueries {
     return value[0][Object.keys(value[0])[0]];
   }
 
+  static async migrateExpenseDescription(db: DatabaseCore): Promise<void> {
+    // Check if Expense table exists
+    const hasTable = await db.knex!.schema.hasTable('Expense');
+    if (!hasTable) {
+      return;
+    }
+
+    // Check if description column exists
+    const columns = await db.knex!.raw('PRAGMA table_info(Expense)') as any[];
+    const hasDescription = columns.some((col: any) => col.name === 'description');
+
+    if (!hasDescription) {
+      // Add description column
+      await db.knex!.raw('ALTER TABLE Expense ADD COLUMN description TEXT');
+      console.log('✅ Added description column to Expense table');
+    }
+  }
+
   static async getReturnBalanceItemsQty(
     db: DatabaseCore,
     schemaName: ModelNameEnum,

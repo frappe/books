@@ -1,0 +1,56 @@
+{
+  "name": "License",
+  "label": "License",
+  "isSingle": true,
+  "fields": [
+    {
+      "fieldname": "license_key",
+      "label": "License Key",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "readOnly": true,
+      "default": "Pending",
+      "options": [
+        { "value": "Valid", "label": "Valid" },
+        { "value": "Invalid", "label": "Invalid" },
+        { "value": "Expired", "label": "Expired" },
+        { "value": "Pending", "label": "Pending" }
+      ]
+    },
+    {
+      "fieldname": "organization",
+      "label": "Organization",
+      "fieldtype": "Data",
+      "hidden": true
+    },
+    {
+      "fieldname": "last_validation_date",
+      "label": "Last Validation Date",
+      "fieldtype": "Datetime",
+      "readOnly": true
+    },
+    {
+      "fieldname": "next_validation_due",
+      "label": "Next Validation Due",
+      "fieldtype": "Datetime",
+      "readOnly": true
+    },
+    {
+      "fieldname": "validation_status",
+      "label": "Validation Status",
+      "fieldtype": "Select",
+      "readOnly": true,
+      "options": [
+        { "value": "Valid", "label": "Valid" },
+        { "value": "Invalid", "label": "Invalid" },
+        { "value": "Expired", "label": "Expired" },
+        { "value": "Pending", "label": "Pending" }
+      ]
+    }
+  ]
+}
