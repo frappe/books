@@ -1,11 +1,11 @@
 <template>
   <feather-icon
-    :name="isExapanded ? 'chevron-up' : 'chevron-down'"
+    :name="isExpanded ? 'chevron-up' : 'chevron-down'"
     class="w-4 h-4 inline-flex cursor-pointer text-gray-700 dark:text-gray-200"
-    @click="isExapanded = !isExapanded"
+    @click="toggleExpanded"
   />
 
-  <div class="relative" @click="emitSelectedRow">
+  <div class="relative cursor-pointer" @click="toggleExpanded">
     <Link
       class="pt-2"
       :df="{
@@ -114,7 +114,7 @@
 
   <div></div>
 
-  <template v-if="isExapanded">
+  <template v-if="isExpanded">
     <div class="px-4 pt-6 col-span-1" @click="emitSelectedRow">
       <Int
         v-if="isUOMConversionEnabled"
@@ -314,7 +314,7 @@ export default defineComponent({
   },
   data() {
     return {
-      isExapanded: false,
+      isExpanded: false,
       batches: [] as string[],
       availableQtyInBatch: 0,
       itemVisibility: '',
@@ -328,7 +328,7 @@ export default defineComponent({
       async handler(newBatch) {
         if (newBatch) {
           this.availableQtyInBatch = await this.getAvailableQtyInBatch();
-          this.isExapanded = true;
+          this.isExpanded = true;
         }
       },
       immediate: true,
@@ -383,6 +383,9 @@ export default defineComponent({
   methods: {
     emitSelectedRow() {
       this.$emit('selectedRow', this.row);
+    },
+    toggleExpanded() {
+      this.isExpanded = !this.isExpanded;
     },
     adjustQuantity(change: number) {
       let currentQuantity = this.row.quantity ?? 1;

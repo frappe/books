@@ -9,6 +9,7 @@ export class ERPNextSyncSettings extends Doc {
   authToken?: string;
   integrationAppVersion?: string;
   isEnabled?: boolean;
+  initialSyncData?: boolean;
 
   dataSyncInterval?: string;
   syncDataFromServer?: boolean;
@@ -43,7 +44,7 @@ export class ERPNextSyncSettings extends Doc {
   async change(ch: ChangeArg) {
     if (ch.changed === 'syncDataFromServer') {
       await initERPNSync(this.fyo);
-      ipc.reloadWindow();
+      // ipc.reloadWindow();
     }
   }
 }

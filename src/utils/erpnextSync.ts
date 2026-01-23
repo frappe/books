@@ -155,12 +155,18 @@ async function getERPNSyncSettings(
 
 export async function initERPNSync(fyo: Fyo) {
   const isSyncEnabled = fyo.singles.ERPNextSyncSettings?.isEnabled;
+  const initialSyncData = fyo.singles.ERPNextSyncSettings?.initialSyncData;
+
   if (!isSyncEnabled) {
     return;
   }
 
   try {
-    await syncDocumentsFromERPNext(fyo);
+    if (!initialSyncData) {
+      await performInitialFullSync(fyo);
+    } else {
+      await syncDocumentsFromERPNext(fyo);
+    }
   } catch (error) {
     await logIntegrationError(
       fyo,
@@ -215,6 +221,7 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
     if (!isValidSyncableDocName(doc.doctype as string)) {
       continue;
     }
+
     if (!(getDocTypeName(doc) in ModelNameEnum)) {
       continue;
     }
@@ -376,6 +383,9 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
 }
 
 async function performPreSync(fyo: Fyo, doc: DocValueMap) {
+  const initialSyncData = fyo.singles.ERPNextSyncSettings?.initialSyncData;
+  const isInitialSync = !initialSyncData;
+
   switch (doc.doctype) {
     case ModelNameEnum.Item:
       const isUnitExists = await fyo.db.exists(
@@ -397,6 +407,61 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
           referenceType: ModelNameEnum.UOM,
           documentName: doc.unit,
         });
+      }
+
+      if (doc.itemGroup) {
+        const isItemGroupExists = await fyo.db.exists(
+          ModelNameEnum.ItemGroup,
+          doc.itemGroup as string
+        );
+
+        if (!isItemGroupExists) {
+          if (isInitialSync) {
+            const itemGroupData = {
+              name: doc.itemGroup,
+            };
+
+            const itemGroupDoc = fyo.doc.getNewDoc(
+              ModelNameEnum.ItemGroup,
+              itemGroupData
+            );
+            itemGroupDoc._addDocToSyncQueue = false;
+            await itemGroupDoc.sync();
+          } else {
+            await addToFetchFromERPNextQueue(fyo, {
+              referenceType: ModelNameEnum.ItemGroup,
+              documentName: doc.itemGroup,
+            });
+
+            throw new ValidationError(
+              `Item Group "${String(
+                doc.itemGroup
+              )}" not found. Item will be retried later.`
+            );
+          }
+        } else {
+        }
+      } else {
+        const defaultItemGroup = 'Products';
+        doc.itemGroup = defaultItemGroup;
+
+        const isDefaultExists = await fyo.db.exists(
+          ModelNameEnum.ItemGroup,
+          defaultItemGroup
+        );
+
+        if (!isDefaultExists) {
+          const itemGroupData = {
+            name: defaultItemGroup,
+          };
+
+          const itemGroupDoc = fyo.doc.getNewDoc(
+            ModelNameEnum.ItemGroup,
+            itemGroupData
+          );
+          itemGroupDoc._addDocToSyncQueue = false;
+          await itemGroupDoc.sync();
+        }
       }
 
       if (doc.uomConversions) {
@@ -455,6 +520,147 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
       return;
     default:
       return;
+  }
+}
+
+export async function performInitialFullSync(fyo: Fyo) {
+  const isEnabled = fyo.singles.ERPNextSyncSettings?.isEnabled;
+  const initialSyncData = fyo.singles.ERPNextSyncSettings?.initialSyncData;
+
+  if (!isEnabled || initialSyncData) {
+    return;
+  }
+
+  const token = fyo.singles.ERPNextSyncSettings?.authToken as string;
+  const baseURL = fyo.singles.ERPNextSyncSettings?.baseURL as string;
+  const deviceID = fyo.singles.ERPNextSyncSettings?.deviceID as string;
+
+  if (!token || !baseURL) {
+    return;
+  }
+
+  try {
+    const allDocs = await getAllDocsForInitialSync(
+      fyo,
+      baseURL,
+      token,
+      deviceID
+    );
+
+    if (!allDocs || allDocs.length === 0) {
+      const syncSettingsDoc = (await fyo.doc.getDoc(
+        ModelNameEnum.ERPNextSyncSettings
+      )) as ERPNextSyncSettings;
+      await syncSettingsDoc.setAndSync('initialSyncData', true);
+      return;
+    }
+
+    const processOrder = [
+      ModelNameEnum.UOM,
+      ModelNameEnum.PriceList,
+      ModelNameEnum.ItemGroup,
+      ModelNameEnum.Party,
+      ModelNameEnum.Address,
+      ModelNameEnum.Batch,
+      ModelNameEnum.Item,
+      ModelNameEnum.PricingRule,
+    ];
+
+    const docsByType: Record<string, DocValueMap[]> = {};
+    for (const doc of allDocs) {
+      const docType = getDocTypeName(doc);
+      if (!docsByType[docType]) {
+        docsByType[docType] = [];
+      }
+      docsByType[docType].push(doc);
+    }
+
+    for (const docType of processOrder) {
+      if (docsByType[docType] && docsByType[docType].length > 0) {
+        for (const doc of docsByType[docType]) {
+          try {
+            const isDocExists = await fyo.db.exists(
+              docType,
+              (doc.fbooksDocName as string) || (doc.name as string)
+            );
+
+            if (isDocExists) {
+              await updateExistingDocument(fyo, doc, baseURL, token, deviceID);
+            } else {
+              await createNewDocument(fyo, doc, baseURL, token, deviceID);
+            }
+          } catch (error) {
+            if (docType === ModelNameEnum.Item) {
+              const errorMessage =
+                error instanceof Error ? error.message : String(error);
+              if (errorMessage.includes('Item Group')) {
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (const [docType, docs] of Object.entries(docsByType)) {
+      if (!processOrder.includes(docType as ModelNameEnum) && docs.length > 0) {
+        for (const doc of docs) {
+          try {
+            const isDocExists = await fyo.db.exists(
+              docType,
+              (doc.fbooksDocName as string) || (doc.name as string)
+            );
+
+            if (isDocExists) {
+              await updateExistingDocument(fyo, doc, baseURL, token, deviceID);
+            } else {
+              await createNewDocument(fyo, doc, baseURL, token, deviceID);
+            }
+          } catch (error) {}
+        }
+      }
+    }
+
+    const syncSettingsDoc = (await fyo.doc.getDoc(
+      ModelNameEnum.ERPNextSyncSettings
+    )) as ERPNextSyncSettings;
+    await syncSettingsDoc.setAndSync('initialSyncData', true);
+  } catch (error) {
+    await logIntegrationError(
+      fyo,
+      error as Error,
+      { deviceID, baseURL },
+      'Initial Full Sync Failed'
+    );
+    throw error;
+  }
+}
+
+async function getAllDocsForInitialSync(
+  fyo: Fyo,
+  baseURL: string,
+  token: string,
+  deviceID: string
+): Promise<DocValueMap[]> {
+  const fetchFromERPNextQueue = fyo.singles.ERPNextSyncSettings
+    ?.fetchFromERPNextQueue as string;
+
+  try {
+    const url = `${baseURL}/api/method/books_integration.api.${fetchFromERPNextQueue}?instance=${deviceID}&all_docs=true`;
+
+    const response = (await sendAPIRequest(url, {
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })) as unknown as ERPNSyncDocsResponse;
+
+    if (!response?.message?.success || !response.message.data) {
+      return [];
+    }
+
+    return response.message.data;
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -529,7 +735,6 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
   if (!isEnabled) {
     return;
   }
-
   const token = fyo.singles.ERPNextSyncSettings?.authToken as string;
   const baseURL = fyo.singles.ERPNextSyncSettings?.baseURL as string;
   const deviceID = fyo.singles.ERPNextSyncSettings?.deviceID as string;
@@ -571,7 +776,6 @@ export async function syncDocumentsToERPNext(fyo: Fyo) {
   try {
     const syncDataToERPNext =
       fyo.singles.ERPNextSyncSettings?.syncDataToERPNext;
-
     const res = (await sendAPIRequest(
       `${baseURL}/api/method/books_integration.api.${
         syncDataToERPNext as string
@@ -627,17 +831,16 @@ async function getDocsFromERPNext(
   const fetchFromERPNextQueue =
     fyo.singles.ERPNextSyncSettings?.fetchFromERPNextQueue;
 
-  return (await sendAPIRequest(
-    `${baseURL}/api/method/books_integration.api.${
-      fetchFromERPNextQueue as string
-    }?instance=${deviceID}`,
-    {
-      headers: {
-        Authorization: `token ${token}`,
-        'Content-Type': 'application/json',
-      },
-    }
-  )) as unknown as ERPNSyncDocsResponse;
+  const url = `${baseURL}/api/method/books_integration.api.${
+    fetchFromERPNextQueue as string
+  }?instance=${deviceID}`;
+
+  return (await sendAPIRequest(url, {
+    headers: {
+      Authorization: `token ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })) as unknown as ERPNSyncDocsResponse;
 }
 
 async function afterDocSync(
@@ -662,7 +865,7 @@ async function afterDocSync(
       doc: docData,
     };
 
-    return await sendAPIRequest(
+    const result = await sendAPIRequest(
       `${baseURL}/api/method/books_integration.api.${clearSyncedDocsFromErpNextSyncQueue}`,
       {
         method: 'POST',
@@ -676,6 +879,8 @@ async function afterDocSync(
         }),
       }
     );
+
+    return result;
   } catch (error) {
     await logIntegrationError(
       fyo,
@@ -699,11 +904,9 @@ export function getShouldDocSyncToERPNext(doc: Doc): boolean {
     ModelNameEnum.POSClosingShift,
   ] as string[];
 
-  if (syncableModels.includes(doc.schemaName)) {
-    return true;
-  }
+  const shouldSync = syncableModels.includes(doc.schemaName);
 
-  return false;
+  return shouldSync;
 }
 
 function changeDocDataType(
@@ -736,7 +939,6 @@ function checkDocDataTypes(
   switch (doc.doctype) {
     case ModelNameEnum.Item: {
       const fields = ['rate'];
-
       const updatedDoc = changeDocDataType(
         fyo,
         doc,
@@ -778,11 +980,8 @@ function isValidSyncableDocName(doctype: string): boolean {
     ModelNameEnum.PricingRule,
   ] as string[];
 
-  if (syncableDocNames.includes(doctype)) {
-    return true;
-  }
-
-  return false;
+  const isValid = syncableDocNames.includes(doctype);
+  return isValid;
 }
 
 function getDocTypeName(doc: DocValueMap | Doc): string {
@@ -870,8 +1069,9 @@ export interface ERPNextSyncSettingsAPIResponse {
 function parseSyncSettingsData(
   res: ERPNextSyncSettingsAPIResponse
 ): DocValueMap {
-  return {
+  const parsed = {
     integrationAppVersion: res.message.app_version,
     isEnabled: !!res.message.data.enable_sync,
   };
+  return parsed;
 }
