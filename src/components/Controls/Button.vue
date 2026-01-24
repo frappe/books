@@ -3,7 +3,6 @@
     :class="[containerClasses]"
     class="
       mt-6
-      p-2
       w-full
       text-gray-900
       dark:text-gray-100
@@ -11,16 +10,25 @@
       focus:outline-none
     "
   >
-    <label class="flex items-center justify-between w-full">
-      <div v-if="showLabel && !labelRight" :class="labelClasses">
-        {{ df.label }}
-      </div>
+    <label class="flex w-full">
       <button
-        :class="['flex items-center justify-center']"
+        type="button"
         @click="onClick"
         :disabled="isReadOnly"
-        type="button"
-      ></button>
+        class="
+          w-full
+          flex
+          items-center
+          justify-center
+          p-2
+          rounded-md
+          bg-blue-300
+          hover:bg-blue-400 hover:shadow-md hover:-translate-y-[1px]
+          transition
+        "
+      >
+        {{ df.label }}
+      </button>
     </label>
   </div>
 </template>

@@ -36,7 +36,7 @@
       }"
       size="small"
       :border="false"
-      :value="row.quantity"
+      :value="getDisplayTransferQuantity()"
       :read-only="true"
     />
     <div class="flex flex-col ml-1">
@@ -70,13 +70,13 @@
   <Link
     class="ml-5"
     :df="{
-      fieldname: 'unit',
+      fieldname: 'transferUnit',
       fieldtype: 'Data',
       label: 'Unit',
     }"
     size="small"
     :border="false"
-    :value="row.unit"
+    :value="row.transferUnit || row.unit"
     :read-only="true"
   />
 
@@ -133,18 +133,19 @@
     </div>
 
     <div class="px-4 pt-6 col-span-2">
-      <Link
-        v-if="isUOMConversionEnabled"
+      <AutoComplete
+        v-if="isUOMConversionEnabled && transferUnitOptions.length"
+        :key="row.item"
         :df="{
+          fieldtype: 'AutoComplete',
           fieldname: 'transferUnit',
-          fieldtype: 'Link',
-          target: 'UOM',
           label: t`Transfer Unit`,
+          options: transferUnitOptions,
         }"
         class="flex-1"
         :show-label="true"
         :border="true"
-        :value="row.transferUnit"
+        :value="row.transferUnit ?? ''"
         @change="(value:string) => row.set('transferUnit', value)"
         :read-only="isReadOnly"
       />
@@ -295,10 +296,11 @@ import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { showToast } from 'src/utils/interactive';
 import { ModelNameEnum } from 'models/types';
+import AutoComplete from 'src/components/Controls/AutoComplete.vue';
 
 export default defineComponent({
   name: 'SelectedItemRow',
-  components: { Currency, Data, Float, Int, Link, Text },
+  components: { Currency, Data, Float, Int, Link, Text, AutoComplete },
   props: {
     row: { type: SalesInvoiceItem, required: true },
     batchAdded: { type: Boolean, default: false },
@@ -321,6 +323,7 @@ export default defineComponent({
       defaultRate: this.row.rate as Money,
       profileDiscountSetting: null as boolean | null,
       profileRateSetting: null as boolean | null,
+      transferUnitOptions: [] as Array<{ label: string; value: string }>,
     };
   },
   watch: {
@@ -329,6 +332,16 @@ export default defineComponent({
         if (newBatch) {
           this.availableQtyInBatch = await this.getAvailableQtyInBatch();
           this.isExpanded = true;
+        }
+      },
+      immediate: true,
+    },
+    'row.item': {
+      async handler(newItem) {
+        if (newItem) {
+          await this.updateTransferUnitOptions();
+        } else {
+          this.transferUnitOptions = [];
         }
       },
       immediate: true,
@@ -397,6 +410,37 @@ export default defineComponent({
 
       this.setQuantity(newQuantity);
     },
+    async updateTransferUnitOptions() {
+      if (!this.row.item) {
+        this.transferUnitOptions = [];
+        return;
+      }
+
+      const itemDoc = await fyo.doc.getDoc('Item', this.row.item as string);
+
+      const conversions = (itemDoc?.uomConversions ?? []) as Array<{
+        uom: string;
+        conversionFactor: number;
+      }>;
+
+      const allowedUoms = new Set<string>();
+
+      if (typeof itemDoc?.unit === 'string') {
+        allowedUoms.add(itemDoc.unit);
+      }
+
+      for (const c of conversions) {
+        if (typeof c.uom === 'string') {
+          allowedUoms.add(c.uom);
+        }
+      }
+
+      this.transferUnitOptions = [...allowedUoms].map((uom) => ({
+        label: uom,
+        value: uom,
+      }));
+    },
+
     async getAvailableQtyInBatch(): Promise<number> {
       if (!this.row.batch) {
         return 0;

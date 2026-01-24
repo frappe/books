@@ -23,6 +23,9 @@
         @input="(e) => !isReadOnly && $emit('input', e)"
       />
     </div>
+    <div v-if="showLabel" :class="labelClasses">
+      {{ df?.sub_label }}
+    </div>
   </div>
 </template>
 <script lang="ts">

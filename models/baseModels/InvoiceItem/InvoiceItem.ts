@@ -36,6 +36,7 @@ export abstract class InvoiceItem extends Doc {
   transferUnit?: string;
   quantity?: number;
   transferQuantity?: number;
+  qty?: number;
   unitConversionFactor?: number;
   batch?: string;
 
@@ -231,13 +232,28 @@ export abstract class InvoiceItem extends Doc {
     },
     transferQuantity: {
       formula: (fieldname) => {
+        if (fieldname === 'qty') {
+          return this.qty;
+        }
         if (fieldname === 'quantity' || this.unit === this.transferUnit) {
           return this.quantity;
         }
 
         return this.transferQuantity;
       },
-      dependsOn: ['item', 'quantity'],
+      dependsOn: ['item', 'quantity', 'qty'],
+    },
+    qty: {
+      formula: (fieldname) => {
+        if (fieldname === 'transferQuantity') {
+          return this.transferQuantity;
+        }
+        if (fieldname === 'quantity' || this.unit === this.transferUnit) {
+          return this.quantity;
+        }
+        return this.transferQuantity;
+      },
+      dependsOn: ['transferQuantity', 'quantity'],
     },
     quantity: {
       formula: async (fieldname) => {
