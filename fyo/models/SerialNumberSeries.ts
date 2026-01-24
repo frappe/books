@@ -27,11 +27,6 @@ export default class SerialNumberSeries extends Doc {
   setCurrent() {
     let current = this.get('current') as number | null;
 
-    /**
-     * Increment current if it isn't the first entry. This
-     * is to prevent reassignment of NumberSeries document ids.
-     */
-
     if (!current) {
       current = this.get('start') as number;
     } else {

@@ -357,18 +357,14 @@ export class StockMovementItem extends TransferItem {
       return;
     }
 
-    try {
-      const serialNumbers = await generateSerialNumbersForItem(
-        this.fyo,
-        this.item,
-        Math.abs(this.quantity)
-      );
+    const serialNumbers = await generateSerialNumbersForItem(
+      this.fyo,
+      this.item,
+      Math.abs(this.quantity)
+    );
 
-      if (serialNumbers) {
-        await this.set('serialNumber', serialNumbers);
-      }
-    } catch (error) {
-      // Don't throw - allow the user to manually enter serial numbers if auto-generation fails
+    if (serialNumbers) {
+      await this.set('serialNumber', serialNumbers);
     }
   }
 }
