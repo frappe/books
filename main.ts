@@ -27,7 +27,7 @@ import registerIpcMainMessageListeners from './main/registerIpcMainMessageListen
 import registerProcessListeners from './main/registerProcessListeners';
 
 export class Main {
-  title = 'Frappe Books';
+  title = 'Rare Books';
   icon: string;
 
   winURL = '';
@@ -90,7 +90,16 @@ export class Main {
     if (process.env.ENABLE_LICENSING !== 'false') {
       try {
         const registerLicenseIpcListeners = require('./custom/licensing/ipc/registerLicenseIpcListeners').default;
+        const { initializeLicensing } = require('./custom/licensing');
+        
         registerLicenseIpcListeners(this);
+        
+        // Initialize licensing system on app ready
+        app.whenReady().then(() => {
+          initializeLicensing().catch((error: Error) => {
+            console.error('Failed to initialize licensing:', error);
+          });
+        });
       } catch (error) {
         console.warn('Licensing module not available:', error);
       }
