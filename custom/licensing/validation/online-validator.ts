@@ -35,6 +35,8 @@ export class OnlineValidator {
         hostId,
       });
 
+      console.log('Keymint activation response:', JSON.stringify(response, null, 2));
+
       if (response.code !== 0) {
         return {
           state: LicenseState.INVALID,

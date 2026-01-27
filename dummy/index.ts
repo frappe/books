@@ -34,11 +34,11 @@ export async function setupDummyInstance(
   const options = {
     logo: null,
     companyName: "Flo's Clothes",
-    country: 'India',
+    country: 'Tanzania',
     fullname: 'Lin Florentine',
     email: 'lin@flosclothes.com',
     bankName: 'Supreme Bank',
-    currency: 'INR',
+    currency: 'TZS',
     fiscalYearStart: getFiscalYear('04-01', true)!.toISOString(),
     fiscalYearEnd: getFiscalYear('04-01', false)!.toISOString(),
     chartOfAccounts: 'India - Chart of Accounts',

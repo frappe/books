@@ -21,10 +21,7 @@
       </FormHeader>
 
       <!-- Section Container -->
-      <div v-if="activeTab === 'License'" class="overflow-auto custom-scroll custom-scroll-thumb1">
-        <LicenseSettings />
-      </div>
-      <div v-else-if="doc" class="overflow-auto custom-scroll custom-scroll-thumb1">
+      <div v-if="doc" class="overflow-auto custom-scroll custom-scroll-thumb1">
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
           :key="name + idx"
@@ -50,22 +47,22 @@
         class="
           mt-auto
           px-4
-          pb-4
-          flex
-          gap-8
-          border-t
-          dark:border-gray-800
-          flex-shrink-0
-          sticky
-          bottom-0
-          bg-white
-          dark:bg-gray-890
-        "
-      >
-        <div
-          v-for="key of [...groupedFields.keys(), 'License']"
-          :key="key"
-          class="text-sm cursor-pointer"
+        pb-4
+        flex
+        gap-8
+        border-t
+        dark:border-gray-800
+        flex-shrink-0
+        sticky
+        bottom-0
+        bg-white
+        dark:bg-gray-890
+      "
+    >
+      <div
+        v-for="key of groupedFields.keys()"
+        :key="key"
+        class="text-sm cursor-pointer"
           :class="
             key === activeTab
               ? 'text-gray-900 dark:text-gray-25 font-semibold border-t-2 border-gray-800 dark:border-gray-100'
@@ -101,12 +98,11 @@ import { docsPathRef } from 'src/utils/refs';
 import { UIGroupedFields } from 'src/utils/types';
 import { computed, defineComponent, inject } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
-import LicenseSettings from './LicenseSettings.vue';
 
 const COMPONENT_NAME = 'Settings';
 
 export default defineComponent({
-  components: { FormContainer, Button, FormHeader, CommonFormSection, LicenseSettings },
+  components: { FormContainer, Button, FormHeader, CommonFormSection },
   provide() {
     return { doc: computed(() => this.doc) };
   },
@@ -155,7 +151,6 @@ export default defineComponent({
         [ModelNameEnum.POSSettings]: this.t`POS Settings`,
         [ModelNameEnum.ERPNextSyncSettings]: this.t`ERPNext Sync`,
         [ModelNameEnum.SystemSettings]: this.t`System`,
-        'License': this.t`License`,
       };
     },
     schemas(): Schema[] {
@@ -193,11 +188,6 @@ export default defineComponent({
     },
     activeGroup(): Map<string, Field[]> {
       if (!this.groupedFields) {
-        return new Map();
-      }
-
-      // License tab doesn't use groupedFields
-      if (this.activeTab === 'License') {
         return new Map();
       }
 
@@ -265,7 +255,7 @@ export default defineComponent({
 
       this.update();
       await showDialog({
-        title: this.t`Reload Frappe Books?`,
+        title: this.t`Reload Rare Books?`,
         detail: this.t`Changes made to settings will be visible on reload.`,
         type: 'info',
         buttons: [

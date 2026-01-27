@@ -306,9 +306,15 @@ function getCompleteSidebar(): SidebarConfig {
       ] as SidebarItem[],
     },
     getReportSidebar(),
-    getInventorySidebar(),
+    ...getInventorySidebar(),
     getPOSSidebar(),
-    getRegionalSidebar(),
+    ...getRegionalSidebar(),
+    {
+      label: t`License`,
+      name: 'license',
+      icon: 'general',
+      route: '/license',
+    },
     {
       label: t`Setup`,
       name: 'setup',

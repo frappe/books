@@ -7,6 +7,48 @@ import Store = require('electron-store');
 import { LicenseCacheData } from '../types';
 import { encrypt, decrypt, generateHmac, verifyHmac } from './encryption';
 
+/**
+ * Sort object keys recursively to ensure consistent JSON serialization
+ */
+function sortKeys(obj: any): any {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(sortKeys);
+  }
+  
+  const sorted: any = {};
+  Object.keys(obj).sort().forEach(key => {
+    sorted[key] = sortKeys(obj[key]);
+  });
+  return sorted;
+}
+
+/**
+ * Remove undefined values from object to ensure consistent JSON serialization
+ * (JSON.stringify omits undefined values)
+ */
+function removeUndefined(obj: any): any {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(removeUndefined).filter(v => v !== undefined);
+  }
+  
+  const result: any = {};
+  Object.keys(obj).forEach(key => {
+    const value = obj[key];
+    if (value !== undefined) {
+      result[key] = removeUndefined(value);
+    }
+  });
+  return result;
+}
+
 interface EncryptedCache {
   encrypted: string;
   iv: string;
@@ -23,11 +65,15 @@ const store = new Store<{ licenseCache?: EncryptedCache }>({
  */
 export function saveLicenseCache(data: LicenseCacheData): void {
   try {
-    const json = JSON.stringify(data);
+    // Remove apiResponseHash and undefined values before hashing
+    const { apiResponseHash: _, ...dataWithoutHash } = data as any;
+    const cleanedData = removeUndefined(dataWithoutHash);
+    const sortedData = sortKeys(cleanedData);
+    const json = JSON.stringify(sortedData);
     const hash = generateHmac(json);
     
     // Add hash to data for integrity check
-    const dataWithHash = { ...data, apiResponseHash: hash };
+    const dataWithHash = { ...sortedData, apiResponseHash: hash };
     
     // Encrypt the data
     const encrypted = encrypt(JSON.stringify(dataWithHash));
@@ -35,7 +81,7 @@ export function saveLicenseCache(data: LicenseCacheData): void {
     // Store encrypted data
     store.set('licenseCache', encrypted);
   } catch (error) {
-    console.error('Failed to save license cache:', error);
+    console.error('❌ Failed to save license cache:', error);
     throw new Error('Failed to cache license data');
   }
 }
@@ -48,11 +94,8 @@ export function loadLicenseCache(): LicenseCacheData | null {
     const cached = store.get('licenseCache');
     
     if (!cached) {
-      console.log('No license cache found');
       return null;
     }
-    
-    console.log('Loading license from cache...');
     
     // Decrypt the data
     const decrypted = decrypt(cached.encrypted, cached.iv, cached.authTag);
@@ -60,15 +103,16 @@ export function loadLicenseCache(): LicenseCacheData | null {
     
     // Verify integrity
     const { apiResponseHash, ...dataWithoutHash } = data as any;
-    const expectedHash = generateHmac(JSON.stringify(dataWithoutHash));
+    const cleanedData = removeUndefined(dataWithoutHash);
+    const sortedData = sortKeys(cleanedData);
+    const json = JSON.stringify(sortedData);
     
-    if (!verifyHmac(JSON.stringify(dataWithoutHash), apiResponseHash)) {
-      console.error('Cache integrity check failed');
+    if (!verifyHmac(json, apiResponseHash)) {
+      console.error('License cache integrity check failed');
       clearLicenseCache();
       return null;
     }
     
-    console.log('License cache loaded successfully, expires:', dataWithoutHash.expiresAt);
     return dataWithoutHash;
   } catch (error) {
     console.error('Failed to load license cache:', error);

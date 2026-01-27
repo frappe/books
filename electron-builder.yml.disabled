@@ -1,4 +1,4 @@
-productName: Frappe Books
+productName: Rare Books
 appId: io.frappe.books
 asarUnpack: '**/*.node'
 extraResources:
