@@ -176,7 +176,7 @@
     {
       "fieldname": "datafromErp",
       "fieldtype": "Check",
-      "hidden": false,
+      "hidden": true,
       "default": false,
       "section": "Default"
     }

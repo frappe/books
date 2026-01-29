@@ -97,13 +97,6 @@
       "section": "Barcode"
     },
     {
-      "fieldname": "itemWeightDigits",
-      "label": "item Weight Digits",
-      "fieldtype": "Int",
-      "default": 0,
-      "section": "Barcode"
-    },
-    {
       "fieldname": "itemVisibility",
       "label": "Item Visibility",
       "fieldtype": "Select",
@@ -118,7 +111,6 @@
         }
       ],
       "default": "Inventory Items",
-      "required": true,
       "section": "Default"
     },
     {
@@ -140,7 +132,6 @@
         }
       ],
       "default": "ERP Sync Items",
-      "required": true,
       "section": "Default"
     },
     {

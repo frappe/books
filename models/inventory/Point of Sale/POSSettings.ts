@@ -47,6 +47,7 @@ export class POSSettings extends Doc {
       !this.fyo.singles.InventorySettings?.enableBarcodes ||
       !this.weightEnabledBarcode,
     itemVisibility: () =>
+      !this.fyo.singles.AccountingSettings?.enablePointOfSaleWithOutInventory ||
       !!this.fyo.singles.AccountingSettings?.enableERPNextSync,
     itemVisibilityERP: () =>
       !this.fyo.singles.AccountingSettings?.enableERPNextSync,

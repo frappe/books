@@ -46,6 +46,7 @@ import {
 import { validateOptions, validateRequired } from './validationFunction';
 import { getShouldDocSyncToERPNext } from 'src/utils/erpnextSync';
 import { ModelNameEnum } from 'models/types';
+import { DocItem } from 'models/inventory/types';
 
 export class Doc extends Observable<DocValue | Doc[]> {
   /* eslint-disable @typescript-eslint/no-floating-promises */
@@ -925,29 +926,19 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (!isSalesInvoice) {
       return true;
     }
-
-    const items = (this.get('items') as Doc[]) ?? [];
-
-    for (const item of items) {
-      const itemName = item.get('item') as string;
-      if (!itemName) {
+    for (const item of this.items as DocItem[]) {
+      if (!item.item) {
         continue;
       }
-
-      try {
-        const itemDoc = await this.fyo.doc.getDoc('Item', itemName);
-        const isInventoryItem = !!itemDoc.get('trackItem');
-        const isFromERP = !!itemDoc.get('datafromErp');
-
-        if (!isInventoryItem && isFromERP) {
-          return true;
-        }
-      } catch (err) {
-        continue;
-      }
+      const isFromERP = await this.fyo.getValue(
+        ModelNameEnum.Item,
+        item.item,
+        'datafromErp'
+      );
+      if (isFromERP) continue;
+      else return false;
     }
-
-    return false;
+    return true;
   }
 
   async sync(): Promise<Doc> {
