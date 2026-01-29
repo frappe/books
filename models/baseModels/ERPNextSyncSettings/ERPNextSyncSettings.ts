@@ -21,6 +21,7 @@ export class ERPNextSyncSettings extends Doc {
   clearSyncedDocsFromErpNextSyncQueue?: string;
 
   hidden: HiddenMap = {
+    initialSyncData: () => true,
     syncPriceList: () => {
       return !this.fyo.singles.AccountingSettings?.enablePriceList;
     },
@@ -44,7 +45,7 @@ export class ERPNextSyncSettings extends Doc {
   async change(ch: ChangeArg) {
     if (ch.changed === 'syncDataFromServer') {
       await initERPNSync(this.fyo);
-      // ipc.reloadWindow();
+      ipc.reloadWindow();
     }
   }
 }

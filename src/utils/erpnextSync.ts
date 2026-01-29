@@ -155,7 +155,8 @@ async function getERPNSyncSettings(
 
 export async function initERPNSync(fyo: Fyo) {
   const isSyncEnabled = fyo.singles.ERPNextSyncSettings?.isEnabled;
-  const initialSyncData = fyo.singles.ERPNextSyncSettings?.initialSyncData;
+  const initialSyncData =
+    fyo.singles.ERPNextSyncSettings?.initialSyncData ?? true;
 
   if (!isSyncEnabled) {
     return;
@@ -165,7 +166,9 @@ export async function initERPNSync(fyo: Fyo) {
     if (!initialSyncData) {
       await performInitialFullSync(fyo);
     } else {
-      await syncDocumentsFromERPNext(fyo);
+      for (let i = 0; i < 3; i++) {
+        await syncDocumentsFromERPNext(fyo);
+      }
     }
   } catch (error) {
     await logIntegrationError(
@@ -282,7 +285,7 @@ async function updateExistingDocument(
 
   await existingDoc.setMultiple(doc);
   await performPreSync(fyo, doc);
-  await appendDocValues(existingDoc as DocValueMap, doc);
+  await appendDocValues(fyo, existingDoc as DocValueMap, doc);
   existingDoc._addDocToSyncQueue = false;
 
   await existingDoc.sync();
@@ -316,7 +319,7 @@ async function createNewDocument(
   const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
 
   await performPreSync(fyo, doc);
-  await appendDocValues(newDoc as DocValueMap, doc);
+  await appendDocValues(fyo, newDoc as DocValueMap, doc);
   newDoc._addDocToSyncQueue = false;
 
   await newDoc.sync();
@@ -340,7 +343,11 @@ async function createNewDocument(
   );
 }
 
-async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
+async function appendDocValues(
+  fyo: Fyo,
+  newDoc: DocValueMap,
+  doc: DocValueMap
+) {
   switch (doc.doctype) {
     case ModelNameEnum.Item:
       for (const uomDoc of doc.uomConversions as DocValueMap[]) {
@@ -383,7 +390,8 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
 }
 
 async function performPreSync(fyo: Fyo, doc: DocValueMap) {
-  const initialSyncData = fyo.singles.ERPNextSyncSettings?.initialSyncData;
+  const initialSyncData =
+    fyo.singles.ERPNextSyncSettings?.initialSyncData ?? true;
   const isInitialSync = !initialSyncData;
 
   switch (doc.doctype) {
@@ -525,7 +533,8 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
 
 export async function performInitialFullSync(fyo: Fyo) {
   const isEnabled = fyo.singles.ERPNextSyncSettings?.isEnabled;
-  const initialSyncData = fyo.singles.ERPNextSyncSettings?.initialSyncData;
+  const initialSyncData =
+    fyo.singles.ERPNextSyncSettings?.initialSyncData ?? true;
 
   if (!isEnabled || initialSyncData) {
     return;
@@ -557,13 +566,13 @@ export async function performInitialFullSync(fyo: Fyo) {
 
     const processOrder = [
       ModelNameEnum.UOM,
-      ModelNameEnum.PriceList,
       ModelNameEnum.ItemGroup,
       ModelNameEnum.Party,
       ModelNameEnum.Address,
       ModelNameEnum.Batch,
       ModelNameEnum.Item,
       ModelNameEnum.PricingRule,
+      ModelNameEnum.PriceList,
     ];
 
     const docsByType: Record<string, DocValueMap[]> = {};
@@ -978,6 +987,7 @@ function isValidSyncableDocName(doctype: string): boolean {
     ModelNameEnum.ItemGroup,
     ModelNameEnum.Batch,
     ModelNameEnum.PricingRule,
+    ModelNameEnum.PriceList,
   ] as string[];
 
   const isValid = syncableDocNames.includes(doctype);

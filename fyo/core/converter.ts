@@ -96,7 +96,6 @@ export class Converter {
       case FieldTypeEnum.Attachment:
         return toRawAttachment(value, field);
       case FieldTypeEnum.Button:
-        // Button fields are action triggers and shouldn't persist values
         return null;
       default:
         return toRawString(value, field);
