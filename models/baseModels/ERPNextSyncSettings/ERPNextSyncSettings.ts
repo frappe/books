@@ -40,6 +40,9 @@ export class ERPNextSyncSettings extends Doc {
     batchSyncType: () => {
       return !this.fyo.singles.InventorySettings?.enableBatches;
     },
+    // syncDataFromServer: () => {
+    //   return !this.deviceID;
+    // },
   };
 
   async change(ch: ChangeArg) {

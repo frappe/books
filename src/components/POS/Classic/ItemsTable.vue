@@ -81,13 +81,20 @@ export default defineComponent({
   props: {
     items: Array,
     itemQtyMap: Object,
+    isErpSync: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     ratio() {
+      if (this.isErpSync) {
+        return [1, 1.5, 0.8];
+      }
       return [1, 1, 1, 0.7];
     },
     tableFields() {
-      return [
+      const fields = [
         {
           fieldname: 'name',
           fieldtype: 'Data',
@@ -103,13 +110,6 @@ export default defineComponent({
           readOnly: true,
         },
         {
-          fieldname: 'availableQty',
-          label: 'Qty',
-          placeholder: 'Available Qty',
-          fieldtype: 'Float',
-          readOnly: true,
-        },
-        {
           fieldname: 'unit',
           label: 'Unit',
           placeholder: 'Unit',
@@ -118,6 +118,18 @@ export default defineComponent({
           readOnly: true,
         },
       ] as Field[];
+
+      if (!this.isErpSync) {
+        fields.splice(2, 0, {
+          fieldname: 'availableQty',
+          label: 'Qty',
+          placeholder: 'Available Qty',
+          fieldtype: 'Float',
+          readOnly: true,
+        });
+      }
+
+      return fields;
     },
   },
   methods: {

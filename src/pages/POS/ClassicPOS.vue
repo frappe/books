@@ -134,6 +134,7 @@
             v-if="tableView"
             :items="items"
             :item-qty-map="itemQuantityMap as ItemQtyMap"
+            :is-erp-sync="isErpSync"
             @add-item="(item) => emitEvent('addItem', item)"
           />
 
@@ -141,6 +142,7 @@
             v-else
             :items="items"
             :item-qty-map="itemQuantityMap as ItemQtyMap"
+            :is-erp-sync="isErpSync"
             @add-item="(item) => emitEvent('addItem', item)"
           />
 
@@ -482,6 +484,10 @@ export default defineComponent({
     items: {
       type: Array as PropType<POSItem[] | undefined>,
       default: () => [],
+    },
+    isErpSync: {
+      type: Boolean,
+      default: false,
     },
     profile: {
       type: Object as PropType<POSProfile>,

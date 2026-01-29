@@ -16,6 +16,7 @@ export class POSSettings extends Doc {
   itemWeightDigits?: number;
   defaultAccount?: string;
   itemVisibility?: string;
+  itemVisibilityERP?: 'ERP Sync Items';
   posUI?: 'Classic' | 'Modern';
   canChangeRate?: boolean;
   canEditDiscount?: boolean;
@@ -46,6 +47,8 @@ export class POSSettings extends Doc {
       !this.fyo.singles.InventorySettings?.enableBarcodes ||
       !this.weightEnabledBarcode,
     itemVisibility: () =>
-      !this.fyo.singles.AccountingSettings?.enablePointOfSaleWithOutInventory,
+      !!this.fyo.singles.AccountingSettings?.enableERPNextSync,
+    itemVisibilityERP: () =>
+      !this.fyo.singles.AccountingSettings?.enableERPNextSync,
   };
 }

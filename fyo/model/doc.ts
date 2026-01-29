@@ -920,6 +920,35 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     return this;
   }
+  async _hasERPSyncableItems(): Promise<boolean> {
+    const isSalesInvoice = this.schemaName === ModelNameEnum.SalesInvoice;
+    if (!isSalesInvoice) {
+      return true;
+    }
+
+    const items = (this.get('items') as Doc[]) ?? [];
+
+    for (const item of items) {
+      const itemName = item.get('item') as string;
+      if (!itemName) {
+        continue;
+      }
+
+      try {
+        const itemDoc = await this.fyo.doc.getDoc('Item', itemName);
+        const isInventoryItem = !!itemDoc.get('trackItem');
+        const isFromERP = !!itemDoc.get('datafromErp');
+
+        if (!isInventoryItem && isFromERP) {
+          return true;
+        }
+      } catch (err) {
+        continue;
+      }
+    }
+
+    return false;
+  }
 
   async sync(): Promise<Doc> {
     this._syncing = true;
@@ -936,10 +965,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     if (this._addDocToSyncQueue && !!this.shouldDocSyncToERPNext) {
       const isSalesInvoice = this.schemaName === ModelNameEnum.SalesInvoice;
+      const hasERPSyncableItems = await this._hasERPSyncableItems();
 
       if (
-        !(isSalesInvoice && this.isSyncedWithErp) ||
-        (isSalesInvoice && !!this.isReturn)
+        hasERPSyncableItems &&
+        (!(isSalesInvoice && this.isSyncedWithErp) ||
+          (isSalesInvoice && !!this.isReturn))
       ) {
         if (isSalesInvoice && !this.isReturn) {
           await this.setAndSync('isSyncedWithErp', true);

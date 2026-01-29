@@ -122,6 +122,28 @@
       "section": "Default"
     },
     {
+      "fieldname": "itemVisibilityERP",
+      "label": "Item Visibility",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "ERP Sync Items",
+          "label": "ERP Sync Items"
+        },
+        {
+          "value": "Inventory Items",
+          "label": "Inventory Items"
+        },
+        {
+          "value": "Non-Inventory Items",
+          "label": "Non-Inventory Items"
+        }
+      ],
+      "default": "ERP Sync Items",
+      "required": true,
+      "section": "Default"
+    },
+    {
       "fieldname": "canChangeRate",
       "label": "Can Change Rate",
       "fieldtype": "Check",

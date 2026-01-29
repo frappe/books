@@ -116,6 +116,12 @@ export async function getItemQtyMap(doc: SalesInvoice): Promise<ItemQtyMap> {
 
 export async function getItemVisibility(fyo: Fyo): Promise<ItemVisibility> {
   const posProfileName = fyo.singles.POSSettings?.posProfile as string;
+  const enableERPNextSync = fyo.singles.AccountingSettings?.enableERPNextSync;
+
+  if (enableERPNextSync) {
+    // When ERP sync is enabled, use itemVisibilityERP from POSSettings
+    return fyo.singles.POSSettings?.itemVisibilityERP as ItemVisibility;
+  }
 
   if (posProfileName) {
     const posProfile = await fyo.doc.getDoc(

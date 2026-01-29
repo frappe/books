@@ -172,6 +172,13 @@
       "fieldtype": "Table",
       "target": "UOMConversionItem",
       "section": "Inventory"
+    },
+    {
+      "fieldname": "datafromErp",
+      "fieldtype": "Check",
+      "hidden": false,
+      "default": false,
+      "section": "Default"
     }
   ],
   "quickEditFields": [

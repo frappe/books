@@ -27,6 +27,7 @@
       :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
+      :is-erp-sync="isErpSync"
       :sinv-doc="(sinvDoc as SalesInvoice)"
       :disable-pay-button="disablePayButton"
       :open-payment-modal="openPaymentModal"
@@ -83,6 +84,7 @@
       :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
+      :is-erp-sync="isErpSync"
       :sinv-doc="(sinvDoc as SalesInvoice)"
       :disable-pay-button="disablePayButton"
       :open-payment-modal="openPaymentModal"
@@ -262,6 +264,7 @@ export default defineComponent({
       quickQtyKeyUpHandler: null as ((e: KeyboardEvent) => void) | null,
       selectedItemForBatch: '' as string,
       pendingBatchItem: null as { item: POSItem; quantity: number } | null,
+      isErpSyncValue: false,
     };
   },
   computed: {
@@ -271,6 +274,9 @@ export default defineComponent({
       return !!fyo.singles.AccountingSettings?.enableDiscounting;
     },
     isPosShiftOpen: () => !!fyo.singles.POSSettings?.isShiftOpen,
+    isErpSync() {
+      return this.isErpSyncValue;
+    },
     disablePayButton(): boolean {
       if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
         return true;
@@ -295,6 +301,7 @@ export default defineComponent({
   async mounted() {
     await this.setItems();
     await this.loadPOSProfile();
+    this.isErpSyncValue = !!fyo.singles.AccountingSettings?.enableERPNextSync;
   },
   async activated() {
     toggleSidebar(false);
@@ -694,8 +701,11 @@ export default defineComponent({
 
       if (itemVisibility === 'Inventory Items') {
         filters.trackItem = true;
+      } else if (itemVisibility === 'ERP Sync Items') {
+        filters.datafromErp = true;
       } else {
         filters.trackItem = false;
+        filters.datafromErp = false;
       }
 
       if (this.selectedItemGroup) {

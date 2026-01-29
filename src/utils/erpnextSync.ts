@@ -150,6 +150,10 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
       continue;
     }
 
+    if (getDocTypeName(doc) === ModelNameEnum.Item) {
+      doc.datafromErp = true;
+    }
+
     try {
       if ((doc.fbooksDocName as string) || (doc.name as string)) {
         const isDocExists = await fyo.db.exists(
