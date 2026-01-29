@@ -26,6 +26,7 @@ export class Item extends Doc {
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatch?: boolean;
+  batchSeries?: string;
   itemGroup?: string;
   hsnCode?: number;
   hasSerialNumber?: boolean;
@@ -94,6 +95,27 @@ export class Item extends Doc {
     this.uomConversions = Array.from(latestByUom.values());
   }
 
+  async afterSync(): Promise<void> {
+    await super.afterSync();
+
+    if (this.hasBatch && this.batchSeries) {
+      const batchName = this.batchSeries.trim();
+
+      if (batchName) {
+        const batchExists = await this.fyo.db.exists('Batch', batchName);
+
+        if (!batchExists) {
+          try {
+            const batchDoc = this.fyo.doc.getNewDoc('Batch');
+            await batchDoc.set('name', batchName);
+            await batchDoc.set('item', this.name as string);
+            await batchDoc.sync();
+          } catch (error) {}
+        }
+      }
+    }
+  }
+
   static filters: FiltersMap = {
     incomeAccount: () => ({
       isGroup: false,
@@ -123,6 +145,13 @@ export class Item extends Doc {
     hsnCode: (value: DocValue) => {
       if (value && !(value as string).match(/^\d{4,8}$/)) {
         throw new ValidationError(this.fyo.t`Invalid HSN Code.`);
+      }
+    },
+    batchSeries: (value: DocValue) => {
+      if (this.hasBatch && value && !(value as string).trim()) {
+        throw new ValidationError(
+          this.fyo.t`Batch name cannot be empty when Has Batch is enabled.`
+        );
       }
     },
   };
@@ -173,6 +202,7 @@ export class Item extends Doc {
       (this.inserted && !this.trackItem),
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
     hasBatch: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    batchSeries: () => !this.hasBatch,
     hasSerialNumber: () =>
       !(
         this.fyo.singles.InventorySettings?.enableSerialNumber && this.trackItem

@@ -54,6 +54,17 @@ async function validateItemRowBatch(
   }
 }
 
+export async function createBatch(
+  itemName: string,
+  batchName: string,
+  fyo: Fyo
+): Promise<void> {
+  const batchDoc = fyo.doc.getNewDoc(ModelNameEnum.Batch);
+  await batchDoc.set('name', batchName);
+  await batchDoc.set('item', itemName);
+  await batchDoc.sync();
+}
+
 export async function validateSerialNumber(doc: StockMovement | StockTransfer) {
   if (doc.schemaName === ModelNameEnum.SalesQuote) {
     return;
