@@ -105,11 +105,19 @@ async function getERPNSyncSettings(
 
 export async function initERPNSync(fyo: Fyo) {
   const isSyncEnabled = fyo.singles.ERPNextSyncSettings?.isEnabled;
+  const initialSyncData =
+    fyo.singles.ERPNextSyncSettings?.initialSyncData ?? true;
   if (!isSyncEnabled) {
     return;
   }
 
-  await syncDocumentsFromERPNext(fyo);
+  if (!initialSyncData) {
+    await performInitialFullSync(fyo);
+  } else {
+    for (let i = 0; i < 3; i++) {
+      await syncDocumentsFromERPNext(fyo);
+    }
+  }
 }
 
 export async function syncDocumentsFromERPNext(fyo: Fyo) {
@@ -224,6 +232,37 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
   }
 }
 
+async function createNewDocument(
+  fyo: Fyo,
+  doc: DocValueMap,
+  baseURL: string,
+  token: string,
+  deviceID: string
+) {
+  const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
+  await performPreSync(fyo, doc);
+  await appendDocValues(newDoc as DocValueMap, doc);
+  newDoc._addDocToSyncQueue = false;
+  await newDoc.sync();
+
+  if (doc.submitted) {
+    await newDoc.submit();
+  }
+  if (doc.cancelled) {
+    await newDoc.cancel();
+  }
+
+  await afterDocSync(
+    fyo,
+    baseURL,
+    token,
+    deviceID,
+    doc,
+    (doc.erpnextDocName as string) || (doc.name as string),
+    newDoc.name as string
+  );
+}
+
 async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
   switch (doc.doctype) {
     case ModelNameEnum.Item:
@@ -233,6 +272,29 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
           conversionFactor: uomDoc.conversionFactor,
         });
       }
+      break;
+
+    case ModelNameEnum.PriceList:
+      (newDoc as Doc).priceListItem = [];
+      const uniqueKeys = new Set<string>();
+
+      if (doc.priceListItem && Array.isArray(doc.priceListItem)) {
+        for (const row of doc.priceListItem as DocValueMap[]) {
+          const itemValue = row.item;
+          const unitValue = row.unit;
+
+          if (itemValue == null || unitValue == null) {
+            continue;
+          }
+          const key = `${String(itemValue)}::${String(unitValue)}`;
+          if (uniqueKeys.has(key)) {
+            continue;
+          }
+          uniqueKeys.add(key);
+          await (newDoc as Doc).append('priceListItem', row);
+        }
+      }
+      break;
 
     case ModelNameEnum.PricingRule:
       const itemSet = new Set<string>();
@@ -267,6 +329,9 @@ async function appendDocValues(newDoc: DocValueMap, doc: DocValueMap) {
 }
 
 async function performPreSync(fyo: Fyo, doc: DocValueMap) {
+  const initialSyncData =
+    fyo.singles.ERPNextSyncSettings?.initialSyncData ?? true;
+  const isInitialSync = !initialSyncData;
   switch (doc.doctype) {
     case ModelNameEnum.Item:
       const isUnitExists = await fyo.db.exists(
@@ -288,6 +353,32 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
           referenceType: ModelNameEnum.UOM,
           documentName: doc.unit,
         });
+      }
+      if (doc.itemGroup) {
+        const isItemGroupExists = await fyo.db.exists(
+          ModelNameEnum.ItemGroup,
+          doc.itemGroup as string
+        );
+
+        if (!isItemGroupExists) {
+          if (isInitialSync) {
+            const itemGroupData = {
+              name: doc.itemGroup,
+            };
+
+            const itemGroupDoc = fyo.doc.getNewDoc(
+              ModelNameEnum.ItemGroup,
+              itemGroupData
+            );
+            itemGroupDoc._addDocToSyncQueue = false;
+            await itemGroupDoc.sync();
+          } else {
+            await addToFetchFromERPNextQueue(fyo, {
+              referenceType: ModelNameEnum.ItemGroup,
+              documentName: doc.itemGroup,
+            });
+          }
+        }
       }
 
       if (doc.uomConversions) {
@@ -346,6 +437,156 @@ async function performPreSync(fyo: Fyo, doc: DocValueMap) {
       return;
     default:
       return;
+  }
+}
+
+async function updateExistingDocument(
+  fyo: Fyo,
+  doc: DocValueMap,
+  baseURL: string,
+  token: string,
+  deviceID: string
+) {
+  const existingDoc = await fyo.doc.getDoc(
+    getDocTypeName(doc),
+    (doc.fbooksDocName as string) || (doc.name as string)
+  );
+
+  doc.name = doc.fbooksDocName ?? doc.name;
+  doc = checkDocDataTypes(fyo, doc) as DocValueMap;
+
+  await existingDoc.setMultiple(doc);
+  await performPreSync(fyo, doc);
+  await appendDocValues(existingDoc as DocValueMap, doc);
+  existingDoc._addDocToSyncQueue = false;
+
+  await existingDoc.sync();
+
+  if (doc.submitted) {
+    await existingDoc.submit();
+  }
+
+  if (doc.cancelled) {
+    await existingDoc.cancel();
+  }
+
+  await afterDocSync(
+    fyo,
+    baseURL,
+    token,
+    deviceID,
+    doc,
+    (doc.erpnextDocName as string) || (doc.name as string),
+    doc.name as string
+  );
+}
+
+export async function performInitialFullSync(fyo: Fyo) {
+  const isEnabled = fyo.singles.ERPNextSyncSettings?.isEnabled;
+  const initialSyncData =
+    fyo.singles.ERPNextSyncSettings?.initialSyncData ?? true;
+
+  if (!isEnabled || initialSyncData) {
+    return;
+  }
+
+  const token = fyo.singles.ERPNextSyncSettings?.authToken as string;
+  const baseURL = fyo.singles.ERPNextSyncSettings?.baseURL as string;
+  const deviceID = fyo.singles.ERPNextSyncSettings?.deviceID as string;
+
+  if (!token || !baseURL) {
+    return;
+  }
+
+  const allDocs = await getAllDocsForInitialSync(fyo, baseURL, token, deviceID);
+
+  if (!allDocs || allDocs.length === 0) {
+    const syncSettingsDoc = (await fyo.doc.getDoc(
+      ModelNameEnum.ERPNextSyncSettings
+    )) as ERPNextSyncSettings;
+    await syncSettingsDoc.setAndSync('initialSyncData', true);
+
+    return;
+  }
+
+  const processOrder = [
+    ModelNameEnum.UOM,
+    ModelNameEnum.ItemGroup,
+    ModelNameEnum.Party,
+    ModelNameEnum.Address,
+    ModelNameEnum.Batch,
+    ModelNameEnum.Item,
+    ModelNameEnum.PriceList,
+    ModelNameEnum.PricingRule,
+  ];
+
+  const docsByType: Record<string, DocValueMap[]> = {};
+  for (const doc of allDocs) {
+    const docType = getDocTypeName(doc);
+    if (!docsByType[docType]) {
+      docsByType[docType] = [];
+    }
+    docsByType[docType].push(doc);
+  }
+
+  for (const docType of processOrder) {
+    if (docsByType[docType] && docsByType[docType].length > 0) {
+      for (const doc of docsByType[docType]) {
+        try {
+          const isDocExists = await fyo.db.exists(
+            docType,
+            (doc.fbooksDocName as string) || (doc.name as string)
+          );
+
+          if (isDocExists) {
+            await updateExistingDocument(fyo, doc, baseURL, token, deviceID);
+          } else {
+            await createNewDocument(fyo, doc, baseURL, token, deviceID);
+          }
+        } catch (error) {
+          if (docType === ModelNameEnum.Item) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            if (errorMessage.includes('Item Group')) {
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const syncSettingsDoc = (await fyo.doc.getDoc(
+    ModelNameEnum.ERPNextSyncSettings
+  )) as ERPNextSyncSettings;
+
+  await syncSettingsDoc.setAndSync('initialSyncData', true);
+}
+
+async function getAllDocsForInitialSync(
+  fyo: Fyo,
+  baseURL: string,
+  token: string,
+  deviceID: string
+): Promise<DocValueMap[]> {
+  const fetchFromERPNextQueue = fyo.singles.ERPNextSyncSettings
+    ?.fetchFromERPNextQueue as string;
+
+  try {
+    const url = `${baseURL}/api/method/books_integration.api.${fetchFromERPNextQueue}?instance=${deviceID}&all_docs=true`;
+
+    const response = (await sendAPIRequest(url, {
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })) as unknown as ERPNSyncDocsResponse;
+
+    if (!response?.message?.success || !response.message.data) {
+      return [];
+    }
+    return response.message.data;
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -647,6 +888,7 @@ function isValidSyncableDocName(doctype: string): boolean {
     ModelNameEnum.ItemGroup,
     ModelNameEnum.Batch,
     ModelNameEnum.PricingRule,
+    ModelNameEnum.PriceList,
   ] as string[];
 
   if (syncableDocNames.includes(doctype)) {
