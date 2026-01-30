@@ -59,26 +59,6 @@ export class SalesInvoice extends Invoice {
         loyaltyProgramDoc.expenseAccount as string,
         loyaltyAmount
       );
-
-      await posting.credit(this.account!, loyaltyAmount);
-
-      const { debit, credit } = posting._getTotalDebitAndCredit();
-      const difference = debit.sub(credit);
-      const absoluteValue = difference.abs();
-
-      if (!absoluteValue.eq(0)) {
-        if (difference.gt(0)) {
-          await posting.credit(
-            loyaltyProgramDoc.expenseAccount as string,
-            absoluteValue
-          );
-        } else {
-          await posting.debit(
-            loyaltyProgramDoc.expenseAccount as string,
-            absoluteValue
-          );
-        }
-      }
     }
 
     if (this.taxes) {
