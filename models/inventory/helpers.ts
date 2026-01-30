@@ -479,55 +479,49 @@ export async function getExistingActiveSerialNumbersForItem(
     return '';
   }
 
-  const activeSerialNumbers = await fyo.db.getAll(ModelNameEnum.SerialNumber, {
-    fields: ['name'],
-    filters: { item: item, status: 'Active' },
-    orderBy: 'name',
-    order: 'asc',
-  });
+  const stockLedgerEntries = (await fyo.db.getAllRaw(
+    ModelNameEnum.StockLedgerEntry,
+    {
+      fields: ['serialNumber', 'date', 'quantity'],
+      filters: {
+        item: item,
+        serialNumber: ['!=', ''],
+      },
+      orderBy: ['date', 'created', 'name'],
+      order: 'asc',
+    }
+  )) as { serialNumber: string; date: string; quantity: number }[];
 
-  if (!activeSerialNumbers || activeSerialNumbers.length === 0) {
+  if (!stockLedgerEntries || stockLedgerEntries.length === 0) {
     return '';
   }
 
-  const usedInShipments = await fyo.db.getAll(ModelNameEnum.ShipmentItem, {
-    fields: ['serialNumber'],
-    filters: {
-      item: item,
-    },
-  });
+  const serialNumberStockMap: Record<string, number> = {};
 
-  const usedInPurchaseReceipts = await fyo.db.getAll(
-    ModelNameEnum.PurchaseReceiptItem,
-    {
-      fields: ['serialNumber'],
-      filters: {
-        item: item,
-      },
+  for (const entry of stockLedgerEntries) {
+    const sn = entry.serialNumber.trim();
+    if (!sn) continue;
+
+    serialNumberStockMap[sn] = (serialNumberStockMap[sn] || 0) + entry.quantity;
+  }
+
+  const availableSerialNumbers: string[] = [];
+  const seenSerialNumbers = new Set<string>();
+
+  for (const entry of stockLedgerEntries) {
+    const sn = entry.serialNumber.trim();
+    if (!sn) continue;
+    if (seenSerialNumbers.has(sn)) continue;
+
+    if ((serialNumberStockMap[sn] || 0) > 0) {
+      availableSerialNumbers.push(sn);
+      seenSerialNumbers.add(sn);
+
+      if (availableSerialNumbers.length >= quantity) {
+        break;
+      }
     }
-  );
-
-  const usedSerialNumbers = new Set<string>();
-
-  usedInShipments.forEach((shipmentItem) => {
-    if (shipmentItem.serialNumber) {
-      const serialNumArray = getSerialNumbers(
-        String(shipmentItem.serialNumber)
-      );
-      serialNumArray.forEach((sn) => usedSerialNumbers.add(sn));
-    }
-  });
-
-  usedInPurchaseReceipts.forEach((receiptItem) => {
-    if (receiptItem.serialNumber) {
-      const serialNumArray = getSerialNumbers(String(receiptItem.serialNumber));
-      serialNumArray.forEach((sn) => usedSerialNumbers.add(sn));
-    }
-  });
-
-  const availableSerialNumbers = activeSerialNumbers
-    .map((sn) => String(sn.name))
-    .filter((snName) => !usedSerialNumbers.has(snName));
+  }
 
   if (availableSerialNumbers.length === 0) {
     return '';

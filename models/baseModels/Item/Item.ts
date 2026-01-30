@@ -120,7 +120,7 @@ export class Item extends Doc {
             name: seriesName,
             start: 1001,
             padZeros: 4,
-            current: 1000,
+            current: 1001,
           })
           .sync();
       }
