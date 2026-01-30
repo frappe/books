@@ -178,7 +178,8 @@
       "fieldtype": "Check",
       "hidden": true,
       "default": false,
-      "section": "Default"
+      "section": "Default",
+      "readOnly": true
     }
   ],
   "quickEditFields": [
