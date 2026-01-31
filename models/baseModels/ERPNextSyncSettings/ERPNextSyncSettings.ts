@@ -47,7 +47,7 @@ export class ERPNextSyncSettings extends Doc {
       showToast({
         type: 'warning',
         message: 'Fetching data from server.',
-        duration: 'very_long'
+        duration: 'very_long',
       });
       await initERPNSync(this.fyo);
       ipc.reloadWindow();
