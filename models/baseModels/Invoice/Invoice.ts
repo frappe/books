@@ -30,6 +30,7 @@ import {
   getItemVisibility,
   validateLoyaltyProgram,
   getLoyaltyProgramTier,
+  isLoyaltyProgramMaxedOut,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -1086,7 +1087,18 @@ export abstract class Invoice extends Transactional {
           ModelNameEnum.Party,
           this.party
         );
-        return partyDoc?.loyaltyProgram as string;
+        const loyaltyProgramName = partyDoc?.loyaltyProgram as string;
+
+        if (!loyaltyProgramName) {
+          return '';
+        }
+
+        const maxedOut = await isLoyaltyProgramMaxedOut(
+          this.fyo,
+          loyaltyProgramName
+        );
+
+        return maxedOut ? '' : loyaltyProgramName;
       },
       dependsOn: ['party', 'name'],
     },

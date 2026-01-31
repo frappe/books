@@ -166,6 +166,7 @@ import {
   removeFreeItems,
   getItemRateFromPriceList,
   getItemVisibility,
+  isLoyaltyProgramMaxedOut,
 } from 'models/helpers';
 import {
   POSItem,
@@ -495,7 +496,21 @@ export default defineComponent({
         filters: { name: value },
       });
 
-      this.loyaltyProgram = party[0]?.loyaltyProgram as string;
+      const loyaltyProgramName = party[0]?.loyaltyProgram as string;
+
+      if (loyaltyProgramName) {
+        const isMaxedOut = await isLoyaltyProgramMaxedOut(
+          this.fyo,
+          loyaltyProgramName
+        );
+        if (isMaxedOut) {
+          this.loyaltyProgram = '';
+          this.loyaltyPoints = 0;
+          return;
+        }
+      }
+
+      this.loyaltyProgram = loyaltyProgramName;
       this.loyaltyPoints = party[0]?.loyaltyPoints as number;
     },
 
@@ -644,7 +659,8 @@ export default defineComponent({
           this.fyo.singles.AccountingSettings?.enablePriceList &&
           this.loyaltyPoints &&
           this.sinvDoc.party &&
-          this.sinvDoc.items?.length
+          this.sinvDoc.items?.length &&
+          this.loyaltyProgram
         ) {
           this.toggleModal('LoyaltyProgram', true);
         }

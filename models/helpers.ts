@@ -1654,6 +1654,37 @@ export async function validateLoyaltyProgram(
   }
 }
 
+export async function isLoyaltyProgramMaxedOut(
+  fyo: Fyo,
+  loyaltyProgramName: string
+): Promise<boolean> {
+  if (!loyaltyProgramName) {
+    return false;
+  }
+
+  const loyaltyProgram = await fyo.db.getAll(ModelNameEnum.LoyaltyProgram, {
+    fields: ['maximumUse', 'used', 'isEnabled'],
+    filters: { name: loyaltyProgramName },
+  });
+
+  if (!loyaltyProgram[0]) {
+    return false;
+  }
+
+  if (!loyaltyProgram[0]?.isEnabled) {
+    return true;
+  }
+
+  const maximumUse = loyaltyProgram[0]?.maximumUse as number;
+  const used = loyaltyProgram[0]?.used as number;
+
+  if (!maximumUse) {
+    return false;
+  }
+
+  return used >= maximumUse;
+}
+
 export function removeFreeItems(sinvDoc: SalesInvoice) {
   if (!sinvDoc || !sinvDoc.items) {
     return;
