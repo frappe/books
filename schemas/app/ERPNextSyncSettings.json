@@ -25,6 +25,14 @@
       "section": "Default"
     },
     {
+      "label": "Initial Sync Data",
+      "fieldname": "initialSyncData",
+      "fieldtype": "Check",
+      "section": "Default",
+      "hidden": true,
+      "default": false
+    },
+    {
       "label": "FBooks Integration Version",
       "fieldname": "integrationAppVersion",
       "fieldtype": "Data",
