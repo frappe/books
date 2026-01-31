@@ -28,6 +28,7 @@ export enum ModelNameEnum {
   JournalEntryAccount = 'JournalEntryAccount',
   Misc = 'Misc',
   NumberSeries = 'NumberSeries',
+  SerialNumberSeries = 'SerialNumberSeries',
   Lead = 'Lead',
   Party = 'Party',
   LoyaltyProgram = 'LoyaltyProgram',

@@ -6,7 +6,7 @@ import { ColumnField, ReportData } from 'reports/types';
 import { Field } from 'schemas/types';
 import { getStockBalanceEntries } from './helpers';
 import { StockLedger } from './StockLedger';
-import { ReferenceType } from './types';
+import { ReferenceType, SerialNumberStatus } from './types';
 
 export class StockBalance extends StockLedger {
   static title = t`Stock Balance`;
@@ -16,6 +16,9 @@ export class StockBalance extends StockLedger {
   override ascending = true;
   override referenceType: ReferenceType = 'All';
   override referenceName = '';
+
+  showSerialNumbers = false;
+  serialNumberFilter: SerialNumberStatus = 'All';
 
   override async _getReportData(force?: boolean): Promise<ReportData> {
     if (this.shouldRefresh || force || !this._rawData?.length) {
@@ -30,7 +33,12 @@ export class StockBalance extends StockLedger {
       toDate: this.toDate,
     };
 
-    const rawData = getStockBalanceEntries(this._rawData ?? [], filters);
+    const rawData = getStockBalanceEntries(
+      this._rawData ?? [],
+      filters,
+      this.showSerialNumbers,
+      this.serialNumberFilter
+    );
 
     return rawData.map((sbe, i) => {
       const row = { ...sbe, name: i + 1 } as RawValueMap;
@@ -81,12 +89,53 @@ export class StockBalance extends StockLedger {
         label: t`To Date`,
         fieldname: 'toDate',
       },
+      {
+        fieldtype: 'Check',
+        placeholder: t`Serial Number`,
+        label: t`Serial Number`,
+        fieldname: 'showSerialNumbers',
+      },
+      ...(this.showSerialNumbers
+        ? ([
+            {
+              fieldtype: 'Select',
+              options: [
+                { label: t`All`, value: 'All' },
+                { label: t`In stock`, value: 'In stock' },
+                { label: t`Out stock`, value: 'Out stock' },
+              ],
+              placeholder: t`Serial Number Status`,
+              label: t`Serial Number Status`,
+              fieldname: 'serialNumberFilter',
+              default: 'All',
+            },
+          ] as Field[])
+        : []),
     ] as Field[];
 
     return filters;
   }
 
   getColumns(): ColumnField[] {
+    const batch: ColumnField[] = [];
+    const serialNumber: ColumnField[] = [];
+
+    if (this.hasBatches) {
+      batch.push({
+        fieldname: 'batch',
+        label: 'Batch',
+        fieldtype: 'Link',
+      });
+    }
+
+    if (this.showSerialNumbers && this.hasSerialNumbers) {
+      serialNumber.push({
+        fieldname: 'serialNumber',
+        label: 'Serial Number',
+        fieldtype: 'Data',
+      });
+    }
+
     return [
       {
         fieldname: 'name',
@@ -104,11 +153,8 @@ export class StockBalance extends StockLedger {
         label: 'Location',
         fieldtype: 'Link',
       },
-      ...(this.hasBatches
-        ? ([
-            { fieldname: 'batch', label: 'Batch', fieldtype: 'Link' },
-          ] as ColumnField[])
-        : []),
+      ...batch,
+      ...serialNumber,
       {
         fieldname: 'balanceQuantity',
         label: 'Balance Qty.',

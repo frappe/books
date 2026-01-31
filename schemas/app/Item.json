@@ -161,6 +161,12 @@
       "section": "Inventory"
     },
     {
+      "fieldname": "serialNumberSeries",
+      "label": "Serial Number Series",
+      "fieldtype": "Data",
+      "section": "Inventory"
+    },
+    {
       "fieldname": "uomConversions",
       "label": "UOM Conversions",
       "fieldtype": "Table",

@@ -1,6 +1,7 @@
 import { t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import {
+  ChangeArg,
   FiltersMap,
   FormulaMap,
   HiddenMap,
@@ -12,6 +13,7 @@ import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
+import { generateSerialNumbersForItem } from './helpers';
 import { StockMovement } from './StockMovement';
 import { TransferItem } from './TransferItem';
 import { MovementTypeEnum } from './types';
@@ -323,4 +325,46 @@ export class StockMovementItem extends TransferItem {
   static createFilters: FiltersMap = {
     item: () => ({ trackItem: true, itemType: 'Product' }),
   };
+
+  override async change(ch: ChangeArg): Promise<void> {
+    await super.change(ch);
+
+    const shouldGenerateSerialNumbers =
+      this.parentdoc?.movementType === MovementTypeEnum.MaterialReceipt &&
+      this.item &&
+      this.quantity &&
+      this.quantity > 0;
+
+    if (ch.changed === 'item') {
+      await this.set('serialNumber', '');
+
+      if (shouldGenerateSerialNumbers) {
+        await this.generateAndSetSerialNumbers();
+      }
+    }
+
+    if (ch.changed === 'quantity') {
+      if (!this.quantity || this.quantity <= 0) {
+        await this.set('serialNumber', '');
+      } else if (shouldGenerateSerialNumbers) {
+        await this.generateAndSetSerialNumbers();
+      }
+    }
+  }
+
+  private async generateAndSetSerialNumbers(): Promise<void> {
+    if (!this.item || !this.quantity) {
+      return;
+    }
+
+    const serialNumbers = await generateSerialNumbersForItem(
+      this.fyo,
+      this.item,
+      Math.abs(this.quantity)
+    );
+
+    if (serialNumbers) {
+      await this.set('serialNumber', serialNumbers);
+    }
+  }
 }

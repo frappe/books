@@ -173,6 +173,7 @@ import {
   ItemSerialNumbers,
 } from 'src/components/POS/types';
 import { ValidationError } from 'fyo/utils/errors';
+import { getExistingActiveSerialNumbersForItem } from 'models/inventory/helpers';
 
 const COMPONENT_NAME = 'POS';
 
@@ -852,26 +853,27 @@ export default defineComponent({
           return;
         }
 
+        const itemName = item.name;
+
         if (item.hasBatch) {
-          this.selectedItemForBatch = item.name;
+          this.selectedItemForBatch = itemName;
           this.pendingBatchItem = { item, quantity: quantity ?? 1 };
 
           this.toggleModal('BatchSelection', true);
-
           return;
         }
 
         const isInventoryItem = await this.fyo.getValue(
           ModelNameEnum.Item,
-          item.name,
+          itemName,
           'trackItem'
         );
 
         if (isInventoryItem) {
-          const availableQty = this.itemQtyMap[item.name]?.availableQty ?? 0;
+          const availableQty = this.itemQtyMap[itemName]?.availableQty ?? 0;
           if (availableQty <= 0) {
             throw new ValidationError(
-              t`Item  is out of stock (quantity is zero)`
+              t`Item ${itemName} is out of stock (quantity is zero)`
             );
           }
         }
@@ -879,7 +881,7 @@ export default defineComponent({
         const existingItems =
           this.sinvDoc.items?.filter(
             (invoiceItem) =>
-              invoiceItem.item === item.name && !invoiceItem.isFreeItem
+              invoiceItem.item === itemName && !invoiceItem.isFreeItem
           ) ?? [];
 
         await validateQty(
@@ -890,7 +892,7 @@ export default defineComponent({
 
         const itemsHsncode = (await this.fyo.getValue(
           'Item',
-          item?.name,
+          itemName,
           'hsnCode'
         )) as number;
 
@@ -898,21 +900,38 @@ export default defineComponent({
           const addQty = quantity ?? 1;
 
           if (existingItems.length > 0) {
-            for (let item of existingItems) {
-              const availableQty = await fyo.db.getStockQuantity(
-                item.item as string,
+            for (let existingItem of existingItems) {
+              const availableQty = await this.fyo.db.getStockQuantity(
+                existingItem.item as string,
                 undefined,
                 undefined,
                 undefined,
-                item.batch
+                existingItem.batch
               );
               if (
-                item.batch != null &&
+                existingItem.batch != null &&
                 availableQty != null &&
-                availableQty > (item.quantity as number)
+                availableQty > (existingItem.quantity as number)
               ) {
-                const currentQty = item.quantity ?? 0;
-                await item.set('quantity', currentQty + addQty);
+                const currentQty = existingItem.quantity ?? 0;
+                await existingItem.set('quantity', currentQty + addQty);
+
+                if (item.hasSerialNumber) {
+                  const qty = currentQty + addQty;
+
+                  const serialNumbers =
+                    await getExistingActiveSerialNumbersForItem(
+                      this.fyo,
+                      itemName,
+                      qty
+                    );
+
+                  if (serialNumbers) {
+                    this.itemSerialNumbers[itemName] = serialNumbers;
+                    await existingItem.set('serialNumber', serialNumbers);
+                  }
+                }
+
                 await this.applyPricingRule();
                 await this.sinvDoc.runFormulas();
                 return;
@@ -922,10 +941,32 @@ export default defineComponent({
 
           await this.sinvDoc.append('items', {
             rate: item.rate,
-            item: item.name,
+            item: itemName,
             quantity: addQty,
             hsnCode: itemsHsncode,
           });
+
+          if (item.hasSerialNumber) {
+            const serialNumbers = await getExistingActiveSerialNumbersForItem(
+              this.fyo,
+              itemName,
+              addQty
+            );
+
+            if (serialNumbers) {
+              this.itemSerialNumbers[itemName] = serialNumbers;
+
+              const newItemRows = this.sinvDoc.items?.filter(
+                (row) => row.item === itemName && !row.isFreeItem
+              );
+
+              if (newItemRows && newItemRows.length > 0) {
+                const newRow = newItemRows[newItemRows.length - 1];
+                await newRow.set('serialNumber', serialNumbers);
+              }
+            }
+          }
+
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
           return;
@@ -939,15 +980,30 @@ export default defineComponent({
           const currentQty = existingItems[0].quantity ?? 0;
           const addQty = quantity ?? 1;
           if (isInventoryItem) {
-            const availableQty = this.itemQtyMap[item.name]?.availableQty ?? 0;
+            const availableQty = this.itemQtyMap[itemName]?.availableQty ?? 0;
             if (currentQty + addQty > availableQty) {
               throw new ValidationError(
-                'Cannot add more than the available quantity'
+                `Cannot add more than the available quantity for ${itemName}`
               );
             }
           }
 
           await existingItems[0].set('quantity', currentQty + addQty);
+          if (item.hasSerialNumber) {
+            const qty = currentQty + addQty;
+
+            const serialNumbers = await getExistingActiveSerialNumbersForItem(
+              this.fyo,
+              itemName,
+              qty
+            );
+
+            if (serialNumbers) {
+              this.itemSerialNumbers[itemName] = serialNumbers;
+              await existingItems[0].set('serialNumber', serialNumbers);
+            }
+          }
+
           await this.applyPricingRule();
           await this.sinvDoc.runFormulas();
           if (isInventoryItem) {
@@ -962,24 +1018,48 @@ export default defineComponent({
 
         await this.sinvDoc.append('items', {
           rate: item.rate,
-          item: item.name,
+          item: itemName,
           quantity: quantity ? quantity : 1,
           hsnCode: itemsHsncode,
         });
 
         if (this.sinvDoc.priceList) {
-          let itemData = this.sinvDoc.items?.filter(
-            (val) => val.item == item.name
+          const itemData = this.sinvDoc.items?.filter(
+            (val) => val.item == itemName
           ) as SalesInvoiceItem[];
 
-          itemData[0].rate = await getItemRateFromPriceList(
-            itemData[0],
-            this.sinvDoc.priceList
+          if (itemData.length > 0) {
+            itemData[0].rate = await getItemRateFromPriceList(
+              itemData[0],
+              this.sinvDoc.priceList
+            );
+          }
+        }
+
+        if (item.hasSerialNumber) {
+          const qty = quantity ?? 1;
+
+          const serialNumbers = await getExistingActiveSerialNumbersForItem(
+            this.fyo,
+            itemName,
+            qty
           );
+
+          if (serialNumbers) {
+            this.itemSerialNumbers[itemName] = serialNumbers;
+
+            const newItemRows = this.sinvDoc.items?.filter(
+              (row) => row.item === itemName && !row.isFreeItem
+            );
+
+            if (newItemRows && newItemRows.length > 0) {
+              const newRow = newItemRows[newItemRows.length - 1];
+              await newRow.set('serialNumber', serialNumbers);
+            }
+          }
         }
 
         await this.applyPricingRule();
-
         await this.sinvDoc.runFormulas();
       } catch (error) {
         return showToast({

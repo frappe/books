@@ -25,6 +25,7 @@ import {
   updateSerialNumbers,
   validateBatch,
   validateSerialNumber,
+  generateSerialNumbersForItem,
 } from './helpers';
 import { ReturnDocItem } from './types';
 import { getShipmentCOGSAmountFromSLEs } from 'reports/inventory/helpers';
@@ -468,6 +469,32 @@ export abstract class StockTransfer extends Transfer {
     await this.set('terms', stDoc.terms);
     await this.set('date', stDoc.date);
     await this.set('items', stDoc.items);
+
+    if (this.items) {
+      for (const item of this.items) {
+        if (!item.item || !item.quantity) {
+          continue;
+        }
+
+        const hasSerialNumber = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          item.item,
+          'hasSerialNumber'
+        );
+
+        if (hasSerialNumber) {
+          const serialNumbers = await generateSerialNumbersForItem(
+            this.fyo,
+            item.item,
+            Math.abs(item.quantity)
+          );
+
+          if (serialNumbers) {
+            await item.set('serialNumber', serialNumbers);
+          }
+        }
+      }
+    }
   }
 
   async getInvoice(): Promise<Invoice | null> {

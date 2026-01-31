@@ -14,6 +14,7 @@ import JournalEntry from './app/JournalEntry.json';
 import JournalEntryAccount from './app/JournalEntryAccount.json';
 import Misc from './app/Misc.json';
 import NumberSeries from './app/NumberSeries.json';
+import SerialNumberSeries from './app/SerialNumberSeries.json';
 import Party from './app/Party.json';
 import Lead from './app/Lead.json';
 import LoyaltyProgram from './app/LoyaltyProgram.json';
@@ -106,6 +107,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Currency as Schema,
   Defaults as Schema,
   NumberSeries as Schema,
+  SerialNumberSeries as Schema,
 
   PrintSettings as Schema,
 

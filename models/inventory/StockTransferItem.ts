@@ -14,6 +14,10 @@ import { StockTransfer } from './StockTransfer';
 import { TransferItem } from './TransferItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
+import {
+  generateSerialNumbersForItem,
+  getExistingActiveSerialNumbersForItem,
+} from './helpers';
 
 export class StockTransferItem extends TransferItem {
   item?: string;
@@ -242,6 +246,80 @@ export class StockTransferItem extends TransferItem {
           return defaultLocation;
         }
       },
+    },
+    serialNumber: {
+      formula: async () => {
+        if (this.serialNumber) {
+          return this.serialNumber;
+        }
+
+        if (!this.item || !this.parentdoc?.backReference) {
+          return undefined;
+        }
+
+        const hasSerialNumber = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          this.item,
+          'hasSerialNumber'
+        );
+
+        if (!hasSerialNumber) {
+          return undefined;
+        }
+
+        const quantity = Math.abs(this.quantity ?? 0);
+        if (quantity <= 0) {
+          return undefined;
+        }
+
+        try {
+          if (
+            !this.isSales &&
+            this.parentdoc?.schemaName === ModelNameEnum.PurchaseReceipt
+          ) {
+            const serialNumbers = await generateSerialNumbersForItem(
+              this.fyo,
+              this.item,
+              quantity
+            );
+
+            if (serialNumbers) {
+              return serialNumbers;
+            }
+          }
+
+          if (
+            this.isSales &&
+            this.parentdoc?.schemaName === ModelNameEnum.Shipment
+          ) {
+            const salesInvoice = (await this.fyo.doc.getDoc(
+              ModelNameEnum.SalesInvoice,
+              this.parentdoc.backReference
+            )) as SalesInvoice;
+
+            const invoiceItem = salesInvoice?.items?.find(
+              (val) => val.item === this.item
+            );
+
+            if (invoiceItem?.serialNumber) {
+              return invoiceItem.serialNumber as string;
+            }
+
+            const serialNumbers = await getExistingActiveSerialNumbersForItem(
+              this.fyo,
+              this.item,
+              quantity
+            );
+
+            if (serialNumbers) {
+              return serialNumbers;
+            }
+          }
+        } catch (error) {}
+
+        return undefined;
+      },
+      dependsOn: ['item', 'quantity'],
     },
   };
 

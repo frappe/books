@@ -48,6 +48,7 @@ import {
   getStockLedgerEntries,
 } from 'reports/inventory/helpers';
 import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEntry';
+import { generateSerialNumbersForItem } from './inventory/helpers';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -759,6 +760,16 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   }
 
   await item.set('item', name);
+
+  if (
+    doc instanceof StockTransfer &&
+    doc.schemaName === ModelNameEnum.PurchaseReceipt
+  ) {
+    const serialNumbers = await generateSerialNumbersForItem(doc.fyo, name, 1);
+    if (serialNumbers) {
+      await item.set('serialNumber', serialNumbers);
+    }
+  }
 }
 
 export async function getReturnLoyaltyPoints(doc: Invoice) {
