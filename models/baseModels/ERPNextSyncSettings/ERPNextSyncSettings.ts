@@ -43,6 +43,12 @@ export class ERPNextSyncSettings extends Doc {
 
   async change(ch: ChangeArg) {
     if (ch.changed === 'syncDataFromServer') {
+      const { showToast } = await import('src/utils/interactive');
+      showToast({
+        type: 'warning',
+        message: 'Fetching data from server.',
+        duration: 'very_long'
+      });
       await initERPNSync(this.fyo);
       ipc.reloadWindow();
     } else if (ch.changed === 'syncDataToServer') {
