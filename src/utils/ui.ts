@@ -37,7 +37,11 @@ import {
   UIGroupedFields,
 } from './types';
 
-export const toastDurationMap = { short: 2_500, long: 5_000 } as const;
+export const toastDurationMap = {
+  short: 2_500,
+  long: 5_000,
+  very_long: Infinity,
+} as const;
 
 export async function openQuickEdit({
   doc,

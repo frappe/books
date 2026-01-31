@@ -42,20 +42,44 @@
             {{ actionText }}
           </button>
         </div>
-        <feather-icon
-          name="x"
-          class="
-            w-4
-            h-4
-            ms-auto
-            text-gray-600
-            dark:text-gray-400
-            cursor-pointer
-            hover:text-gray-800
-            dark:hover:text-gray-200
-          "
-          @click="closeToast"
-        />
+        <div class="ms-auto flex items-center">
+          <svg
+            v-if="isPersistent"
+            class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-400"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+              fill="none"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+
+          <feather-icon
+            v-else
+            name="x"
+            class="
+              w-4
+              h-4
+              ms-auto
+              text-gray-600
+              dark:text-gray-400
+              cursor-pointer
+              hover:text-gray-800
+              dark:hover:text-gray-200
+            "
+            @click="closeToast"
+          />
+        </div>
       </div>
     </Transition>
   </Teleport>
@@ -87,11 +111,16 @@ export default defineComponent({
     config() {
       return getIconConfig(this.type);
     },
+    isPersistent() {
+      return this.duration === 'very_long';
+    },
   },
   async mounted() {
     const duration = toastDurationMap[this.duration];
     await nextTick(() => (this.open = true));
-    setTimeout(this.closeToast, duration);
+    if (duration !== Infinity) {
+      setTimeout(this.closeToast, duration);
+    }
   },
   methods: {
     actionClicked() {
