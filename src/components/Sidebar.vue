@@ -22,19 +22,22 @@
           platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'
         "
       >
-        <h6
-          data-testid="company-name"
-          class="
-            font-semibold
-            dark:text-gray-200
-            whitespace-nowrap
-            overflow-auto
-            no-scrollbar
-            select-none
-          "
-        >
-          {{ companyName }}
-        </h6>
+        <div>
+          <h6
+            data-testid="company-name"
+            class="
+              font-semibold
+              dark:text-gray-200
+              whitespace-nowrap
+              overflow-auto
+              no-scrollbar
+              select-none
+            "
+          >
+            {{ companyName }}
+          </h6>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ username }}</p>
+        </div>
       </div>
 
       <!-- Sidebar Items -->
@@ -144,6 +147,7 @@
       </button>
 
       <button
+        v-if="isSuperAdmin"
         data-testid="change-db"
         class="
           flex
@@ -161,6 +165,7 @@
       </button>
 
       <button
+        v-if="isSuperAdmin"
         class="
           flex
           text-sm text-gray-600
@@ -176,6 +181,22 @@
         <p>
           {{ t`Report Issue` }}
         </p>
+      </button>
+
+      <button
+        class="
+          flex
+          text-sm text-gray-600
+          dark:text-gray-500
+          hover:text-gray-800
+          dark:hover:text-gray-400
+          gap-1
+          items-center
+        "
+        @click="logout"
+      >
+        <feather-icon name="log-out" class="h-4 w-4 flex-shrink-0" />
+        <p>{{ t`Logout` }}</p>
       </button>
 
       <p
@@ -218,7 +239,7 @@ import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
 import { docsPathRef } from 'src/utils/refs';
-import { getSidebarConfig } from 'src/utils/sidebarConfig';
+import { getSidebarConfig } from '../../custom/src/utils/sidebarConfig';
 import { SidebarConfig, SidebarItem, SidebarRoot } from 'src/utils/types';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { defineComponent, inject } from 'vue';
@@ -248,12 +269,14 @@ export default defineComponent({
   data() {
     return {
       companyName: '',
+      username: '',
       groups: [],
       viewShortcuts: false,
       activeGroup: null,
       showDevMode: false,
     } as {
       companyName: string;
+      username: string;
       groups: SidebarConfig;
       viewShortcuts: boolean;
       activeGroup: null | SidebarRoot;
@@ -264,10 +287,15 @@ export default defineComponent({
     appVersion() {
       return fyo.store.appVersion;
     },
+    isSuperAdmin() {
+      const currentRole = localStorage.getItem('current_role') || '';
+      return currentRole === 'Super Admin';
+    },
   },
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
     this.companyName = companyName as string;
+    this.username = localStorage.getItem('username') || '';
     this.groups = await getSidebarConfig();
 
     this.setActiveGroup();
@@ -291,6 +319,11 @@ export default defineComponent({
     routeTo,
     reportIssue,
     toggleSidebar,
+    logout() {
+      localStorage.removeItem('session_token');
+      localStorage.removeItem('username');
+      this.$router.push('/login');
+    },
     openDocumentation() {
       ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
     },

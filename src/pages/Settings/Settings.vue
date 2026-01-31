@@ -47,22 +47,22 @@
         class="
           mt-auto
           px-4
-          pb-4
-          flex
-          gap-8
-          border-t
-          dark:border-gray-800
-          flex-shrink-0
-          sticky
-          bottom-0
-          bg-white
-          dark:bg-gray-890
-        "
-      >
-        <div
-          v-for="key of groupedFields.keys()"
-          :key="key"
-          class="text-sm cursor-pointer"
+        pb-4
+        flex
+        gap-8
+        border-t
+        dark:border-gray-800
+        flex-shrink-0
+        sticky
+        bottom-0
+        bg-white
+        dark:bg-gray-890
+      "
+    >
+      <div
+        v-for="key of groupedFields.keys()"
+        :key="key"
+        class="text-sm cursor-pointer"
           :class="
             key === activeTab
               ? 'text-gray-900 dark:text-gray-25 font-semibold border-t-2 border-gray-800 dark:border-gray-100'
@@ -255,7 +255,7 @@ export default defineComponent({
 
       this.update();
       await showDialog({
-        title: this.t`Reload Frappe Books?`,
+        title: this.t`Reload Rare Books?`,
         detail: this.t`Changes made to settings will be visible on reload.`,
         type: 'info',
         buttons: [

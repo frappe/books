@@ -229,6 +229,13 @@ function getCompleteSidebar(): SidebarConfig {
       ] as SidebarItem[],
     },
     {
+      label: t`Expenses`,
+      name: 'expenses',
+      icon: 'purchase',
+      route: '/list/Expense',
+      schemaName: 'Expense',
+    },
+    {
       label: t`Purchases`,
       name: 'purchases',
       icon: 'purchase',
@@ -299,9 +306,15 @@ function getCompleteSidebar(): SidebarConfig {
       ] as SidebarItem[],
     },
     getReportSidebar(),
-    getInventorySidebar(),
+    ...getInventorySidebar(),
     getPOSSidebar(),
-    getRegionalSidebar(),
+    ...getRegionalSidebar(),
+    {
+      label: t`License`,
+      name: 'license',
+      icon: 'general',
+      route: '/license',
+    },
     {
       label: t`Setup`,
       name: 'setup',

@@ -1045,7 +1045,7 @@ export async function deleteDb(filePath: string) {
   } else if (error?.code === 'EPERM') {
     await showDialog({
       title: t`Cannot Delete`,
-      detail: t`Close Frappe Books and try manually.`,
+      detail: t`Close Rare Books and try manually.`,
       type: 'error',
     });
   } else if (error) {

@@ -3,7 +3,11 @@ import esbuild from 'esbuild';
 import { $ } from 'execa';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { config as dotenvConfig } from 'dotenv';
 import { getMainProcessCommonConfig } from './helpers.mjs';
+
+// Load environment variables from .env file
+dotenvConfig();
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 process.env['NODE_ENV'] = 'development';
@@ -35,7 +39,7 @@ console.log(`running Frappe Books in dev mode\nroot: ${root}`);
 /**
  * @type {import('execa').ExecaChildProcess<string>}
  */
-const viteProcess = $$`yarn vite`;
+const viteProcess = $$`npx vite`;
 /**
  * Create esbuild context that is used
  * to [re]build the main process code
