@@ -765,6 +765,13 @@ export function getLoyaltyProgramStatus(doc?: RenderData | Doc): string {
     return '';
   }
 
+  const maximumUse = doc.maximumUse as number;
+  const used = doc.used as number;
+
+  if (maximumUse > 0 && used >= maximumUse) {
+    return 'Maxed';
+  }
+
   const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
@@ -781,6 +788,7 @@ export const loyaltyProgramStatusColor: Record<string, string | undefined> = {
   Active: 'green',
   Disabled: 'gray',
   Expired: 'red',
+  Maxed: 'orange',
 };
 
 export function getLoyaltyProgramStatusText(status: string): string {
@@ -791,6 +799,8 @@ export function getLoyaltyProgramStatusText(status: string): string {
       return t`Disabled`;
     case 'Expired':
       return t`Expired`;
+    case 'Maxed':
+      return t`Maxed`;
     default:
       return '';
   }
@@ -1658,10 +1668,6 @@ export async function isLoyaltyProgramMaxedOut(
   fyo: Fyo,
   loyaltyProgramName: string
 ): Promise<boolean> {
-  if (!loyaltyProgramName) {
-    return false;
-  }
-
   const loyaltyProgram = await fyo.db.getAll(ModelNameEnum.LoyaltyProgram, {
     fields: ['maximumUse', 'used', 'isEnabled'],
     filters: { name: loyaltyProgramName },

@@ -11,6 +11,7 @@ export class LoyaltyProgram extends Doc {
   expiryDuration?: number;
   maximumUse?: number;
   used?: number;
+  status?: 'Active' | 'Expired' | 'Maxed' | 'Disabled';
 
   validations: ValidationMap = {
     used: (value: DocValue) => {
@@ -33,6 +34,15 @@ export class LoyaltyProgram extends Doc {
       }
     },
   };
+
+  async afterSubmit() {
+    const maximumUse = (this.maximumUse as number) || 0;
+    const used = (this.used as number) || 0;
+
+    if (maximumUse > 0 && used >= maximumUse) {
+      await this.setAndSync({ status: 'Maxed', isEnabled: false });
+    }
+  }
 
   static filters: FiltersMap = {
     expenseAccount: () => ({

@@ -79,6 +79,8 @@ export default defineComponent({
         Unpaid: this.t`Unpaid`,
         PartlyPaid: this.t`Partly Paid`,
         Expired: this.t`Expired`,
+        Maxed: this.t`Maxed`,
+        Active: this.t`Active`,
       }[this.status];
     },
     color(): UIColors {
@@ -102,6 +104,8 @@ const statusColorMap: Record<Status, UIColors> = {
   Unpaid: 'red',
   PartlyPaid: 'yellow',
   Expired: 'red',
+  Maxed: 'orange',
+  Active: 'green',
 };
 
 function getStatus(doc: Doc) {
@@ -115,10 +119,23 @@ function getStatus(doc: Doc) {
 
   if (doc instanceof LoyaltyProgram) {
     const currentDate = new Date();
-    if (doc.toDate && doc.toDate instanceof Date && doc.toDate <= currentDate) {
-      return 'Expired';
+    currentDate.setHours(0, 0, 0, 0);
+
+    const maximumUse = doc.maximumUse as number;
+    const used = doc.used as number;
+
+    if (maximumUse > 0 && used >= maximumUse) {
+      return 'Maxed';
     }
-    return 'Saved';
+
+    if (doc.toDate && doc.toDate instanceof Date) {
+      const toDate = new Date(doc.toDate);
+      toDate.setHours(0, 0, 0, 0);
+      if (toDate <= currentDate) {
+        return 'Expired';
+      }
+    }
+    return 'Active';
   }
 
   if (doc instanceof Party && doc.outstandingAmount?.isZero() !== true) {

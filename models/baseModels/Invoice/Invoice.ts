@@ -886,7 +886,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async updateUsedCountOfLoyaltyProgram() {
-    if (!this.loyaltyProgram) {
+    if (!this.loyaltyProgram || !this.redeemLoyaltyPoints) {
       return;
     }
 
@@ -901,7 +901,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async reduceUsedCountOfLoyaltyProgram() {
-    if (!this.loyaltyProgram) {
+    if (!this.loyaltyProgram || !this.redeemLoyaltyPoints) {
       return;
     }
 
