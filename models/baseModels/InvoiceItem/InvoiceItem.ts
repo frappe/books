@@ -674,9 +674,6 @@ export abstract class InvoiceItem extends Doc {
         } else if (itemVisibility === 'Non-Inventory Items') {
           filters.trackItem = false;
           filters.datafromErp = false;
-        } else {
-          filters.trackItem = false;
-          filters.datafromErp = false;
         }
       }
 

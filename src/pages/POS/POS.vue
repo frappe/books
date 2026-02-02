@@ -706,9 +706,6 @@ export default defineComponent({
       } else if (itemVisibility === 'Non-Inventory Items') {
         filters.trackItem = false;
         filters.datafromErp = false;
-      } else {
-        filters.trackItem = false;
-        filters.datafromErp = false;
       }
 
       if (this.selectedItemGroup) {

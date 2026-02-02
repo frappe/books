@@ -457,9 +457,6 @@ async function updateExistingDocument(
 ) {
   const docType = getDocTypeName(doc);
 
-  if (docType === ModelNameEnum.Item) {
-  }
-
   const existingDoc = await fyo.doc.getDoc(
     docType,
     (doc.fbooksDocName as string) || (doc.name as string)
