@@ -11,18 +11,25 @@
       "required": true
     },
     {
+      "fieldname": "spacer",
+      "fieldtype": "Text",
+      "invisible": true
+    },
+    {
       "fieldname": "data",
       "label": "Data",
       "readonly": true,
       "fieldtype": "Text",
-      "section": "Default"
+      "section": "Default",
+      "rows": 20
     },
     {
       "fieldname": "error",
       "label": "Error",
       "readonly": true,
       "fieldtype": "Text",
-      "section": "Default"
+      "section": "Default",
+      "rows": 20
     }
   ],
   "keywordFields": ["name"]
