@@ -667,8 +667,16 @@ export abstract class InvoiceItem extends Doc {
       if (enableERPNextSync) {
         const itemVisibility = await getItemVisibility(doc.fyo);
 
-        if (itemVisibility === 'ERP Sync Items') {
+        if (itemVisibility === 'Inventory Items') {
+          filters.trackItem = true;
+        } else if (itemVisibility === 'ERP Sync Items') {
           filters.datafromErp = true;
+        } else if (itemVisibility === 'Non-Inventory Items') {
+          filters.trackItem = false;
+          filters.datafromErp = false;
+        } else {
+          filters.trackItem = false;
+          filters.datafromErp = false;
         }
       }
 
