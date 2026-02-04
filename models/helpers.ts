@@ -765,13 +765,6 @@ export function getLoyaltyProgramStatus(doc?: RenderData | Doc): string {
     return '';
   }
 
-  const maximumUse = doc.maximumUse as number;
-  const used = doc.used as number;
-
-  if (maximumUse > 0 && used >= maximumUse) {
-    return 'Maxed';
-  }
-
   const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
@@ -779,6 +772,13 @@ export function getLoyaltyProgramStatus(doc?: RenderData | Doc): string {
 
   if (toDate && toDate <= currentDate) {
     return 'Expired';
+  }
+
+  const maximumUse = doc.maximumUse as number;
+  const used = doc.used as number;
+
+  if (maximumUse > 0 && used >= maximumUse) {
+    return 'Maxed';
   }
 
   return 'Active';
@@ -1664,33 +1664,6 @@ export async function validateLoyaltyProgram(
   }
 }
 
-export async function isLoyaltyProgramMaxedOut(
-  fyo: Fyo,
-  loyaltyProgramName: string
-): Promise<boolean> {
-  const loyaltyProgram = await fyo.db.getAll(ModelNameEnum.LoyaltyProgram, {
-    fields: ['maximumUse', 'used', 'isEnabled'],
-    filters: { name: loyaltyProgramName },
-  });
-
-  if (!loyaltyProgram[0]) {
-    return false;
-  }
-
-  if (!loyaltyProgram[0]?.isEnabled) {
-    return true;
-  }
-
-  const maximumUse = loyaltyProgram[0]?.maximumUse as number;
-  const used = loyaltyProgram[0]?.used as number;
-
-  if (!maximumUse) {
-    return false;
-  }
-
-  return used >= maximumUse;
-}
-
 export function removeFreeItems(sinvDoc: SalesInvoice) {
   if (!sinvDoc || !sinvDoc.items) {
     return;
@@ -1764,4 +1737,37 @@ export function roundFreeItemQty(
   roundingMethod: 'round' | 'floor' | 'ceil'
 ): number {
   return Math[roundingMethod](quantity);
+}
+
+export async function isLoyaltyProgramExpiredAndMaxed(
+  fyo: Fyo,
+  loyaltyProgramName: string
+): Promise<boolean> {
+  if (!loyaltyProgramName) {
+    return false;
+  }
+
+  const loyaltyProgram = await fyo.db.getAll(ModelNameEnum.LoyaltyProgram, {
+    fields: ['toDate', 'maximumUse', 'used', 'isEnabled'],
+    filters: { name: loyaltyProgramName },
+  });
+
+  if (!loyaltyProgram.length) {
+    return false;
+  }
+
+  const program = loyaltyProgram[0];
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  const toDate = program.toDate as Date;
+  const isExpired =
+    toDate && new Date(toDate).getTime() < currentDate.getTime();
+
+  const maximumUse = (program.maximumUse as number) || 0;
+  const used = (program.used as number) || 0;
+  const isMaxed = maximumUse > 0 && used >= maximumUse;
+
+  const result = isExpired || isMaxed;
+  return result;
 }

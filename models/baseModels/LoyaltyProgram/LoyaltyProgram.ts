@@ -1,9 +1,8 @@
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap, ListViewSettings, ValidationMap } from 'fyo/model/types';
+import { ListViewSettings, ValidationMap } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { CollectionRulesItems } from '../CollectionRulesItems/CollectionRulesItems';
-import { AccountRootTypeEnum } from '../Account/types';
 import { getLoyaltyProgramStatusColumn } from '../../helpers';
 
 export class LoyaltyProgram extends Doc {
@@ -11,7 +10,7 @@ export class LoyaltyProgram extends Doc {
   expiryDuration?: number;
   maximumUse?: number;
   used?: number;
-  status?: 'Active' | 'Expired' | 'Maxed' | 'Disabled';
+  status?: 'Active' | 'Expired' | 'Disabled' | 'Maxed';
 
   validations: ValidationMap = {
     used: (value: DocValue) => {
@@ -33,22 +32,6 @@ export class LoyaltyProgram extends Doc {
         throw new ValidationError('Maximum use cannot be negative');
       }
     },
-  };
-
-  async afterSubmit() {
-    const maximumUse = (this.maximumUse as number) || 0;
-    const used = (this.used as number) || 0;
-
-    if (maximumUse > 0 && used >= maximumUse) {
-      await this.setAndSync({ status: 'Maxed', isEnabled: false });
-    }
-  }
-
-  static filters: FiltersMap = {
-    expenseAccount: () => ({
-      rootType: AccountRootTypeEnum.Expense,
-      isGroup: false,
-    }),
   };
 
   static getListViewSettings(): ListViewSettings {

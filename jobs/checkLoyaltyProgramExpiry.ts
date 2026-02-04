@@ -10,26 +10,13 @@ export async function checkLoyaltyProgramExpiry() {
     const loyaltyPrograms = await dm.db?.getAll(ModelNameEnum.LoyaltyProgram, {
       fields: ['name', 'toDate', 'status', 'isEnabled', 'maximumUse', 'used'],
       filters: {
-        status: ['not in', ['Expired', 'Maxed']],
+        status: ['not in', ['Expired']],
         isEnabled: true,
       },
     });
 
     if (loyaltyPrograms) {
       for (const program of loyaltyPrograms) {
-        const maximumUse = Number(program.maximumUse) || 0;
-        const used = Number(program.used) || 0;
-
-        if (maximumUse > 0 && used >= maximumUse) {
-          await dm.db?.knex!(ModelNameEnum.LoyaltyProgram)
-            .where({ name: program.name })
-            .update({
-              status: 'Maxed',
-              isEnabled: false,
-            });
-          continue;
-        }
-
         if (program.toDate && new Date(String(program.toDate)) <= currentDate) {
           await dm.db?.knex!(ModelNameEnum.LoyaltyProgram)
             .where({ name: program.name })

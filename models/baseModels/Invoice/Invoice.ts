@@ -30,7 +30,7 @@ import {
   getItemVisibility,
   validateLoyaltyProgram,
   getLoyaltyProgramTier,
-  isLoyaltyProgramMaxedOut,
+  isLoyaltyProgramExpiredAndMaxed,
 } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
@@ -886,7 +886,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async updateUsedCountOfLoyaltyProgram() {
-    if (!this.loyaltyProgram || !this.redeemLoyaltyPoints) {
+    if (!this.loyaltyProgram) {
       return;
     }
 
@@ -895,13 +895,27 @@ export abstract class Invoice extends Transactional {
       this.loyaltyProgram
     );
 
-    await loyaltyProgramDoc.setAndSync({
-      used: (loyaltyProgramDoc.used as number) + 1,
-    });
+    const maximumUse = loyaltyProgramDoc.maximumUse as number;
+    const used = (loyaltyProgramDoc.used as number) || 0;
+
+    if (this.redeemLoyaltyPoints) {
+      const newUsedCount = used + 1;
+
+      if (maximumUse > 0 && newUsedCount >= maximumUse) {
+        await loyaltyProgramDoc.setAndSync({
+          used: newUsedCount,
+          isEnabled: false,
+        });
+      } else {
+        await loyaltyProgramDoc.setAndSync({
+          used: newUsedCount,
+        });
+      }
+    }
   }
 
   async reduceUsedCountOfLoyaltyProgram() {
-    if (!this.loyaltyProgram || !this.redeemLoyaltyPoints) {
+    if (!this.loyaltyProgram) {
       return;
     }
 
@@ -910,9 +924,22 @@ export abstract class Invoice extends Transactional {
       this.loyaltyProgram
     );
 
-    await loyaltyProgramDoc.setAndSync({
-      used: (loyaltyProgramDoc.used as number) - 1,
-    });
+    const maximumUse = loyaltyProgramDoc.maximumUse as number;
+    const used = (loyaltyProgramDoc.used as number) || 0;
+    const newUsedCount = used - 1;
+
+    if (this.redeemLoyaltyPoints) {
+      if (newUsedCount < maximumUse) {
+        await loyaltyProgramDoc.setAndSync({
+          used: newUsedCount,
+          isEnabled: true,
+        });
+      } else {
+        await loyaltyProgramDoc.setAndSync({
+          used: newUsedCount,
+        });
+      }
+    }
   }
 
   async updateIsItemsFullyReturned(doc?: Invoice) {
@@ -974,11 +1001,6 @@ export abstract class Invoice extends Transactional {
       ModelNameEnum.LoyaltyProgram,
       this.loyaltyProgram
     )) as LoyaltyProgram;
-
-    // Check if loyalty program is enabled
-    if (!loyaltyProgramDoc.isEnabled) {
-      return;
-    }
 
     const invoiceDate = this.date as Date;
     const fromDate = loyaltyProgramDoc.fromDate as Date;
@@ -1093,12 +1115,7 @@ export abstract class Invoice extends Transactional {
           return '';
         }
 
-        const maxedOut = await isLoyaltyProgramMaxedOut(
-          this.fyo,
-          loyaltyProgramName
-        );
-
-        return maxedOut ? '' : loyaltyProgramName;
+        return loyaltyProgramName;
       },
       dependsOn: ['party', 'name'],
     },
@@ -1108,6 +1125,17 @@ export abstract class Invoice extends Transactional {
           return 0;
         }
 
+        const loyaltyProgramName = this.loyaltyProgram as string;
+        if (loyaltyProgramName) {
+          const isExpiredAndMaxed = await isLoyaltyProgramExpiredAndMaxed(
+            this.fyo,
+            loyaltyProgramName
+          );
+          if (isExpiredAndMaxed) {
+            return 0;
+          }
+        }
+
         const loyaltyPoints = await this.fyo.getValue(
           ModelNameEnum.Party,
           this.party,
@@ -1115,7 +1143,7 @@ export abstract class Invoice extends Transactional {
         );
         return loyaltyPoints || 0;
       },
-      dependsOn: ['party'],
+      dependsOn: ['party', 'loyaltyProgram'],
     },
     currency: {
       formula: async () => {
@@ -1308,7 +1336,13 @@ export abstract class Invoice extends Transactional {
     loyaltyProgram: () => !this.loyaltyProgram,
     availableLoyaltyPoints: () => !this.loyaltyProgram || this.isReturn,
     loyaltyPoints: () => !this.redeemLoyaltyPoints || this.isReturn,
-    redeemLoyaltyPoints: () => !this.loyaltyProgram || this.isReturn,
+    redeemLoyaltyPoints: () => {
+      if (!this.loyaltyProgram || this.isReturn) {
+        return true;
+      }
+
+      return (this.availableLoyaltyPoints ?? 0) <= 0;
+    },
     coupons: () => this.isSubmitted && !this.coupons?.length,
     priceList: () =>
       !this.fyo.singles.AccountingSettings?.enablePriceList ||

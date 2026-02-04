@@ -79,8 +79,8 @@ export default defineComponent({
         Unpaid: this.t`Unpaid`,
         PartlyPaid: this.t`Partly Paid`,
         Expired: this.t`Expired`,
-        Maxed: this.t`Maxed`,
         Active: this.t`Active`,
+        Maxed: this.t`Maxed`,
       }[this.status];
     },
     color(): UIColors {
@@ -104,8 +104,8 @@ const statusColorMap: Record<Status, UIColors> = {
   Unpaid: 'red',
   PartlyPaid: 'yellow',
   Expired: 'red',
-  Maxed: 'orange',
   Active: 'green',
+  Maxed: 'orange',
 };
 
 function getStatus(doc: Doc) {

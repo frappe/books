@@ -166,7 +166,7 @@ import {
   removeFreeItems,
   getItemRateFromPriceList,
   getItemVisibility,
-  isLoyaltyProgramMaxedOut,
+  isLoyaltyProgramExpiredAndMaxed,
 } from 'models/helpers';
 import {
   POSItem,
@@ -499,12 +499,12 @@ export default defineComponent({
       const loyaltyProgramName = party[0]?.loyaltyProgram as string;
 
       if (loyaltyProgramName) {
-        const isMaxedOut = await isLoyaltyProgramMaxedOut(
+        const isExpiredAndMaxed = await isLoyaltyProgramExpiredAndMaxed(
           this.fyo,
           loyaltyProgramName
         );
-        if (isMaxedOut) {
-          this.loyaltyProgram = '';
+        if (isExpiredAndMaxed) {
+          this.loyaltyProgram = loyaltyProgramName;
           this.loyaltyPoints = 0;
           return;
         }
