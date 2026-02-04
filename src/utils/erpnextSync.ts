@@ -150,6 +150,10 @@ export async function syncDocumentsFromERPNext(fyo: Fyo) {
       continue;
     }
 
+    if (getDocTypeName(doc) === ModelNameEnum.Item) {
+      doc.datafromErp = true;
+    }
+
     try {
       if ((doc.fbooksDocName as string) || (doc.name as string)) {
         const isDocExists = await fyo.db.exists(
@@ -239,6 +243,10 @@ async function createNewDocument(
   token: string,
   deviceID: string
 ) {
+  if (getDocTypeName(doc) === ModelNameEnum.Item) {
+    doc.datafromErp = true;
+  }
+
   const newDoc = fyo.doc.getNewDoc(getDocTypeName(doc), doc);
   await performPreSync(fyo, doc);
   await appendDocValues(newDoc as DocValueMap, doc);
@@ -447,8 +455,10 @@ async function updateExistingDocument(
   token: string,
   deviceID: string
 ) {
+  const docType = getDocTypeName(doc);
+
   const existingDoc = await fyo.doc.getDoc(
-    getDocTypeName(doc),
+    docType,
     (doc.fbooksDocName as string) || (doc.name as string)
   );
 
@@ -533,6 +543,10 @@ export async function performInitialFullSync(fyo: Fyo) {
     if (docsByType[docType] && docsByType[docType].length > 0) {
       for (const doc of docsByType[docType]) {
         try {
+          if (docType === ModelNameEnum.Item) {
+            doc.datafromErp = true;
+          }
+
           const isDocExists = await fyo.db.exists(
             docType,
             (doc.fbooksDocName as string) || (doc.name as string)
