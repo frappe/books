@@ -66,7 +66,7 @@
               </p>
             </div>
             <p
-              v-if="!isErpSync"
+              v-if="itemVisibility !== 'ERP Sync Items'"
               class="
                 w-6
                 h-6
@@ -115,9 +115,9 @@ export default defineComponent({
     itemQtyMap: {
       type: Object,
     },
-    isErpSync: {
-      type: Boolean,
-      default: false,
+    itemVisibility: {
+      type: String,
+      default: 'Inventory Items',
     },
   },
   methods: {

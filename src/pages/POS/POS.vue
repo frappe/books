@@ -27,7 +27,7 @@
       :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
-      :is-erp-sync="isErpSync"
+      :item-visibility="itemVisibility"
       :sinv-doc="(sinvDoc as SalesInvoice)"
       :disable-pay-button="disablePayButton"
       :open-payment-modal="openPaymentModal"
@@ -84,7 +84,7 @@
       :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
-      :is-erp-sync="isErpSync"
+      :item-visibility="itemVisibility"
       :sinv-doc="(sinvDoc as SalesInvoice)"
       :disable-pay-button="disablePayButton"
       :open-payment-modal="openPaymentModal"
@@ -169,6 +169,7 @@ import {
   getItemRateFromPriceList,
   getItemVisibility,
 } from 'models/helpers';
+import { ItemVisibility } from 'src/components/POS/types';
 import {
   POSItem,
   ItemQtyMap,
@@ -264,7 +265,7 @@ export default defineComponent({
       quickQtyKeyUpHandler: null as ((e: KeyboardEvent) => void) | null,
       selectedItemForBatch: '' as string,
       pendingBatchItem: null as { item: POSItem; quantity: number } | null,
-      isErpSyncValue: false,
+      itemVisibilityValue: 'Inventory Items' as ItemVisibility,
     };
   },
   computed: {
@@ -274,8 +275,8 @@ export default defineComponent({
       return !!fyo.singles.AccountingSettings?.enableDiscounting;
     },
     isPosShiftOpen: () => !!fyo.singles.POSSettings?.isShiftOpen,
-    isErpSync() {
-      return this.isErpSyncValue;
+    itemVisibility() {
+      return this.itemVisibilityValue;
     },
     disablePayButton(): boolean {
       if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
@@ -301,7 +302,7 @@ export default defineComponent({
   async mounted() {
     await this.setItems();
     await this.loadPOSProfile();
-    this.isErpSyncValue = !!fyo.singles.AccountingSettings?.enableERPNextSync;
+    this.itemVisibilityValue = await getItemVisibility(this.fyo);
   },
   async activated() {
     toggleSidebar(false);

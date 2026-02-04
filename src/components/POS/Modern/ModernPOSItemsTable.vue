@@ -54,7 +54,7 @@
           :key="df.fieldname"
           size="large"
           :df="df"
-          :value="row[df.fieldname]"
+          :value="(row as POSItem)[df.fieldname as keyof POSItem]"
           :readOnly="true"
         />
       </Row>
@@ -113,7 +113,7 @@
           :key="df.fieldname"
           size="large"
           :df="df"
-          :value="row[df.fieldname]"
+          :value="(row as POSItem)[df.fieldname as keyof POSItem]"
           :readOnly="true"
         />
       </Row>
@@ -137,14 +137,14 @@ export default defineComponent({
   props: {
     items: Array,
     itemQtyMap: Object,
-    isErpSync: {
-      type: Boolean,
-      default: false,
+    itemVisibility: {
+      type: String,
+      default: 'Inventory Items',
     },
   },
   computed: {
     ratio() {
-      if (this.isErpSync) {
+      if (this.itemVisibility === 'ERP Sync Items') {
         return [1, 1.5, 0.8];
       }
       return [1, 1, 1, 0.7];
@@ -175,7 +175,7 @@ export default defineComponent({
         },
       ] as Field[];
 
-      if (!this.isErpSync) {
+      if (this.itemVisibility !== 'ERP Sync Items') {
         fields.splice(2, 0, {
           fieldname: 'availableQty',
           label: t`Qty`,
