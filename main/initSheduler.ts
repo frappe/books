@@ -24,6 +24,15 @@ export async function initScheduler(interval: string) {
           },
         },
       },
+      {
+        name: 'checkLoyaltyProgramExpiry',
+        interval: '0 1 * * *',
+        worker: {
+          workerData: {
+            useTsNode: true,
+          },
+        },
+      },
     ],
     worker: {
       argv: ['--require', 'ts-node/register'],
