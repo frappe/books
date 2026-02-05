@@ -1,10 +1,10 @@
 {
-  "name": "frappe-books",
+  "name": "rare-books",
   "version": "0.36.0",
   "description": "Simple book-keeping app for everyone",
   "author": {
-    "name": "Frappe Technologies Pvt. Ltd.",
-    "email": "hello@frappe.io"
+    "name": "Rareco Company Ltd.",
+    "email": "hello@rare.co.tz"
   },
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
@@ -92,7 +92,15 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "homepage": "https://frappe.io/books",
+  "build": {
+    "extraResources": [
+      {
+        "from": ".env",
+        "to": ".env"
+      }
+    ]
+  },
+  "homepage": "https://rare.co.tz/books",
   "repository": {
     "url": "https://github.com/frappe/books"
   },

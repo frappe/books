@@ -75,6 +75,7 @@ export class OfflineValidator {
       // Determine state based on grace period
       const state = determineGracePeriodState(gracePeriodEndsAt, false);
       const daysRemaining = getRemainingDays(gracePeriodEndsAt);
+      const isExpiring = state === LicenseState.GRACE_EXPIRING;
 
       return {
         state,
@@ -87,6 +88,10 @@ export class OfflineValidator {
         daysRemaining,
         lastValidatedAt,
         validatedOnline: false,
+        gracePeriodInfo: {
+          daysRemaining,
+          isExpiring,
+        },
       };
     } catch (error) {
       console.error('Offline validation failed:', error);

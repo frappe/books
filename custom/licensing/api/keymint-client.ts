@@ -50,6 +50,11 @@ export class KeymintClient {
   ): Promise<KeymintApiResponse> {
     const url = `${this.apiUrl}${endpoint}`;
     
+    // Check for missing credentials
+    if (!this.accessToken) {
+      throw new Error('Keymint access token is not configured. Set KEYMINT_ACCESS_TOKEN environment variable.');
+    }
+    
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const controller = new AbortController();
@@ -67,10 +72,26 @@ export class KeymintClient {
 
         clearTimeout(timeoutId);
 
-        const result = await response.json();
+        // Check if response has content
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error(`Unexpected content type: ${contentType}. Status: ${response.status}`);
+        }
+
+        const text = await response.text();
+        if (!text || text.trim().length === 0) {
+          throw new Error(`Empty response from server. Status: ${response.status}`);
+        }
+
+        let result;
+        try {
+          result = JSON.parse(text);
+        } catch (e) {
+          throw new Error(`Invalid JSON response: ${text.substring(0, 100)}`);
+        }
 
         if (!response.ok) {
-          throw new Error(result.message || `HTTP ${response.status}`);
+          throw new Error(result.message || `HTTP ${response.status}: ${response.statusText}`);
         }
 
         return result as KeymintApiResponse;
@@ -79,9 +100,17 @@ export class KeymintClient {
         
         if (isLastAttempt) {
           if (error instanceof Error) {
-            throw new Error(`API request failed: ${error.message}`);
+            // Add more context to the error
+            const errorMessage = error.message;
+            if (error.name === 'AbortError') {
+              throw new Error(`Request timeout after ${this.timeout}ms`);
+            }
+            if (errorMessage.includes('fetch')) {
+              throw new Error(`Network error: Unable to reach ${url}. Check internet connection.`);
+            }
+            throw new Error(`API request failed: ${errorMessage}`);
           }
-          throw new Error('API request failed');
+          throw new Error('API request failed: Unknown error');
         }
 
         // Exponential backoff

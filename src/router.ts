@@ -14,6 +14,7 @@ import CustomizeForm from 'src/pages/CustomizeForm/CustomizeForm.vue';
 import POS from 'src/pages/POS/POS.vue';
 import Login from '../custom/src/pages/Login.vue';
 import License from 'src/pages/License.vue';
+import PaymentMethods from 'src/pages/PaymentMethods.vue';
 import type { HistoryState } from 'vue-router';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { historyState } from './utils/refs';
@@ -136,6 +137,11 @@ const routes: RouteRecordRaw[] = [
     path: '/license',
     name: 'License',
     component: License,
+  },
+  {
+    path: '/payment-methods',
+    name: 'Payment Methods',
+    component: PaymentMethods,
   },
   {
     path: '/pos',

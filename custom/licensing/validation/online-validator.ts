@@ -143,14 +143,9 @@ export class OnlineValidator {
         validatedOnline: true,
       };
     } catch (error) {
-      console.error('Online validation failed:', error);
-      return {
-        state: LicenseState.INVALID,
-        isValid: false,
-        error: error instanceof Error ? error.message : 'Validation failed',
-        lastValidatedAt: new Date(),
-        validatedOnline: false,
-      };
+      // Re-throw the error so LicenseManager can fallback to offline validation
+      console.error('Online validation failed (will fallback to offline):', error);
+      throw error;
     }
   }
 }

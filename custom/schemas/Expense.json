@@ -11,7 +11,8 @@
       "fieldtype": "Data",
       "required": true,
       "readOnly": true,
-      "section": "Default"
+      "section": "Default",
+      "hidden": true
     },
     {
       "fieldname": "numberSeries",
@@ -19,7 +20,7 @@
       "fieldtype": "Link",
       "target": "NumberSeries",
       "create": true,
-      "default": "EXP-",
+      "default": "Exp-",
       "section": "Default"
     },
     {
@@ -39,14 +40,16 @@
       "label": "Expense Account",
       "fieldtype": "Link",
       "target": "Account",
-      "required": true
+      "required": true,
+      "filter": true
     },
     {
       "fieldname": "payment_account",
       "label": "Payment Account",
       "fieldtype": "Link",
       "target": "Account",
-      "required": true
+      "required": true,
+      "filter": true
     },
     {
       "fieldname": "amount",
@@ -57,7 +60,8 @@
     {
       "fieldname": "description",
       "label": "Description",
-      "fieldtype": "Small Text"
+      "fieldtype": "Text",
+      "colspan": 2
     }
   ]
 }

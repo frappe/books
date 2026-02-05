@@ -3,7 +3,6 @@ import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import { Main } from '../main';
 import { rendererLog } from './helpers';
 import { emitMainProcessError } from 'backend/helpers';
-import { licenseManager } from 'custom/licensing';
 
 export default function registerAppLifecycleListeners(main: Main) {
   app.on('window-all-closed', () => {
@@ -42,6 +41,9 @@ async function installDevTools(main: Main) {
 
 async function performStartupLicenseCheck(main: Main) {
   try {
+    // Lazy-load licensing module to ensure env vars are loaded
+    const { licenseManager } = await import('custom/licensing');
+    
     // Perform background license validation on startup
     const result = await licenseManager.checkLicense();
     

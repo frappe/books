@@ -63,14 +63,22 @@ export default function registerLicenseIpcListeners(_main: Main) {
   );
 
   /**
-   * Get current license state (from memory, no API call)
+   * Get current license state (from memory if available, otherwise do a fresh check)
    */
   ipcMain.handle(
     LICENSE_IPC_ACTIONS.GET_LICENSE_STATE,
-    (): LicenseValidationResult | null => {
+    async (): Promise<LicenseValidationResult | null> => {
       try {
         const manager = getLicenseManager();
-        return manager.getCurrentState();
+        const currentState = manager.getCurrentState();
+        
+        // If we don't have a current state, do a fresh check
+        // This handles the case where the page loads before initialize() completes
+        if (!currentState) {
+          return await manager.checkLicense();
+        }
+        
+        return currentState;
       } catch (error) {
         console.error('Get license state error:', error);
         return null;
