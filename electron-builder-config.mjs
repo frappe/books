@@ -20,6 +20,7 @@ const frappeBooksConfig = {
   artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
   asarUnpack: '**/*.node',
   extraResources: [
+    { from: '.env', to: '.env' },
     { from: 'log_creds.txt', to: '../creds/log_creds.txt' },
     { from: 'translations', to: '../translations' },
     { from: 'templates', to: '../templates' },
@@ -46,7 +47,7 @@ const frappeBooksConfig = {
     publish: ['github'],
   },
   win: {
-    publisherName: 'Frappe Technologies Pvt. Ltd.',
+    publisherName: 'Rareco Company Ltd.',
     artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
     signDlls: true,
     icon: 'build/icon.ico',

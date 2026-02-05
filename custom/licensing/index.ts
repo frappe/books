@@ -28,6 +28,12 @@ console.log('Licensing config loaded:', {
   productIdLength: config.productId.length,
 });
 
+// Warn if credentials are missing
+if (!config.accessToken || !config.productId) {
+  console.warn('⚠️  License credentials not configured. Set KEYMINT_ACCESS_TOKEN and KEYMINT_PRODUCT_ID environment variables.');
+  console.warn('⚠️  Licensing features will be disabled.');
+}
+
 // Singleton instance
 let licenseManagerInstance: LicenseManager | null = null;
 

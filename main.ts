@@ -1,3 +1,27 @@
+import path from 'path';
+import dotenv from 'dotenv';
+import fs from 'fs';
+
+// Load env vars from multiple possible locations
+const envPaths = [
+  // Development - current working directory
+  path.join(process.cwd(), '.env'),
+  // Packaged app - resources directory
+  path.join(process.resourcesPath, '.env'),
+  // Windows portable/installed - app directory
+  path.join(path.dirname(process.execPath), '.env'),
+];
+
+for (const envPath of envPaths) {
+  if (fs.existsSync(envPath)) {
+    const result = dotenv.config({ path: envPath });
+    if (result.parsed) {
+      console.log(`[Main] Loaded environment from: ${envPath}`);
+      break;
+    }
+  }
+}
+
 // eslint-disable-next-line
 require('source-map-support').install({
   handleUncaughtException: false,
@@ -6,7 +30,7 @@ require('source-map-support').install({
 
 // Load environment variables from .env file
 // Must use require here as it runs before imports
-require('dotenv').config();
+// require('dotenv').config();
 
 import { emitMainProcessError } from 'backend/helpers';
 import {
@@ -19,7 +43,7 @@ import {
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
-import path from 'path';
+// import path from 'path';
 import registerAppLifecycleListeners from './main/registerAppLifecycleListeners';
 import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
@@ -88,21 +112,18 @@ export class Main {
     
     // Custom: License management (fork-safe, can be disabled with ENABLE_LICENSING=false)
     if (process.env.ENABLE_LICENSING !== 'false') {
-      try {
-        const registerLicenseIpcListeners = require('./custom/licensing/ipc/registerLicenseIpcListeners').default;
-        const { initializeLicensing } = require('./custom/licensing');
-        
-        registerLicenseIpcListeners(this);
-        
-        // Initialize licensing system on app ready
-        app.whenReady().then(() => {
-          initializeLicensing().catch((error: Error) => {
-            console.error('Failed to initialize licensing:', error);
-          });
-        });
-      } catch (error) {
-        console.warn('Licensing module not available:', error);
-      }
+      // Lazy-load licensing on app ready to ensure env vars are loaded
+      app.whenReady().then(async () => {
+        try {
+          const registerLicenseIpcListeners = require('./custom/licensing/ipc/registerLicenseIpcListeners').default;
+          const { initializeLicensing } = await import('./custom/licensing');
+          
+          registerLicenseIpcListeners(this);
+          await initializeLicensing();
+        } catch (error) {
+          console.warn('Licensing module not available:', error);
+        }
+      });
     }
   }
 

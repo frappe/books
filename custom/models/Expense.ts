@@ -1,7 +1,8 @@
 import { Doc } from 'fyo/model/doc';
-import { DefaultMap } from 'fyo/model/types';
+import { DefaultMap, FiltersMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 import { getNumberSeries } from 'models/helpers';
+import { QueryFilter } from 'utils/db/types';
 
 export class Expense extends Doc {
   date?: Date;
@@ -12,8 +13,19 @@ export class Expense extends Doc {
   description?: string;
 
   static defaults: DefaultMap = {
-    numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
+    numberSeries: () => 'Exp-',
     date: () => new Date(),
+  };
+
+  static filters: FiltersMap = {
+    expense_account: (): QueryFilter => ({
+      rootType: 'Expense',
+      isGroup: false,
+    }),
+    payment_account: (): QueryFilter => ({
+      accountType: ['in', ['Bank', 'Cash']],
+      isGroup: false,
+    }),
   };
 
   static getListViewSettings() {
