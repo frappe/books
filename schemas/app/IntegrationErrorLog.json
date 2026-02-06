@@ -2,6 +2,7 @@
   "name": "IntegrationErrorLog",
   "label": "Integration Error Log",
   "naming": "autoincrement",
+  "create": false,
 
   "fields": [
     {
