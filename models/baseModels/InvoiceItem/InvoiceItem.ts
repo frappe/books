@@ -21,6 +21,13 @@ import { isPesa } from 'fyo/utils';
 import { PricingRule } from '../PricingRule/PricingRule';
 import { getItemRateFromPriceList, getPricingRule } from 'models/helpers';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
+import { getSuggestedBatchName } from 'models/inventory/helpers';
+import { ValuationMethod } from 'models/inventory/types';
+import {
+  getRawStockLedgerEntries,
+  getStockLedgerEntries,
+  getStockBalanceEntries,
+} from 'reports/inventory/helpers';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -606,14 +613,121 @@ export abstract class InvoiceItem extends Doc {
         filters: { uom: value as string, parent: this.item },
       });
 
-      if (item.length < 1)
+      if (item.length < 1) {
         throw new ValidationError(
           t`Transfer Unit ${value as string} is not applicable for Item ${
             this.item
           }`
         );
+      }
+    },
+
+    qty: async (value: DocValue) => {
+      const requiredQuantity = Math.abs(value as number);
+
+      if (!this.item || requiredQuantity <= 0) {
+        return;
+      }
+
+      if (!this.isSales) {
+        return;
+      }
+
+      if (!this.fyo.singles.InventorySettings?.enableBatches) {
+        return;
+      }
+
+      if (!this.batch) {
+        return;
+      }
+
+      await this.validateBatchQuantity(this.batch, requiredQuantity);
+    },
+
+    batch: async (value: DocValue) => {
+      if (!value || !this.item) {
+        return;
+      }
+
+      if (!this.isSales) {
+        return;
+      }
+
+      if (!this.fyo.singles.InventorySettings?.enableBatches) {
+        return;
+      }
+
+      const requiredQuantity = this.quantity ?? 0;
+
+      if (requiredQuantity > 0) {
+        await this.validateBatchQuantity(value as string, requiredQuantity);
+      } else if (requiredQuantity < 0) {
+        await this.validateBatchQuantity(
+          value as string,
+          Math.abs(requiredQuantity)
+        );
+      }
     },
   };
+
+  async validateBatchQuantity(
+    batchName: string,
+    requiredQuantity: number
+  ): Promise<void> {
+    try {
+      let inventoryLocation: string | undefined;
+
+      if (this.location) {
+        inventoryLocation = this.location as string;
+      } else {
+        const posProfileName = this.fyo.singles.POSSettings?.posProfile;
+        if (posProfileName) {
+          const posProfile = await this.fyo.doc.getDoc(
+            ModelNameEnum.POSProfile,
+            posProfileName as string
+          );
+          inventoryLocation = posProfile?.inventory as string | undefined;
+        } else {
+          inventoryLocation = this.fyo.singles.POSSettings?.inventory;
+        }
+      }
+
+      const valuationMethod =
+        (this.fyo.singles.InventorySettings
+          ?.valuationMethod as ValuationMethod) ?? ValuationMethod.FIFO;
+
+      const rawSLEs = await getRawStockLedgerEntries(this.fyo);
+      const computedSLEs = getStockLedgerEntries(rawSLEs, valuationMethod);
+
+      const stockBalance = getStockBalanceEntries(computedSLEs, {
+        item: this.item!,
+        location: inventoryLocation,
+        batch: batchName,
+      });
+
+      const availableQuantity = stockBalance.reduce(
+        (sum, entry) => sum + (entry.balanceQuantity || 0),
+        0
+      );
+
+      if (requiredQuantity > availableQuantity) {
+        // ✅ dynamic import just like your example
+        const { showToast } = await import('src/utils/interactive');
+
+        showToast({
+          type: 'warning',
+          message: this.fyo.t`
+          Batch ${batchName} only has ${availableQuantity} quantity available
+          but ${requiredQuantity} is required
+        `,
+        });
+      }
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        throw error;
+      }
+    }
+  }
 
   hidden: HiddenMap = {
     itemDiscountedTotal: () => {
@@ -655,15 +769,93 @@ export abstract class InvoiceItem extends Doc {
       return { for: ['not in', [itemNotFor]] };
     },
     batch: async (doc: Doc) => {
-      const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
-        fields: ['name'],
-        filters: { item: doc.item as string },
-      });
-      const batchName = batches.map((b) => b.name) as string[];
+      const hasBatch = await doc.fyo.getValue(
+        ModelNameEnum.Item,
+        doc.item as string,
+        'hasBatch'
+      );
 
-      return {
-        name: ['in', batchName],
-      };
+      if (!hasBatch) {
+        return { name: ['in', []] };
+      }
+
+      if (!doc.isSales) {
+        const batchName = await getSuggestedBatchName(
+          doc.fyo,
+          doc.item as string
+        );
+
+        if (batchName) {
+          await doc.set('batch', batchName);
+
+          return {
+            name: ['in', [batchName]],
+          };
+        }
+      }
+
+      try {
+        let inventoryLocation: string | undefined;
+
+        if (doc.location) {
+          inventoryLocation = doc.location as string;
+        } else {
+          const posProfileName = doc.fyo.singles.POSSettings?.posProfile;
+          if (posProfileName) {
+            const posProfile = await doc.fyo.doc.getDoc(
+              ModelNameEnum.POSProfile,
+              posProfileName as string
+            );
+            inventoryLocation = posProfile?.inventory as string | undefined;
+          } else {
+            inventoryLocation = doc.fyo.singles.POSSettings?.inventory;
+          }
+        }
+
+        const rawSLEs = await getRawStockLedgerEntries(doc.fyo);
+
+        const valuationMethod =
+          (doc.fyo.singles.InventorySettings
+            ?.valuationMethod as ValuationMethod) ?? ValuationMethod.FIFO;
+
+        const computedSLEs = getStockLedgerEntries(rawSLEs, valuationMethod);
+
+        const stockBalance = getStockBalanceEntries(computedSLEs, {
+          item: doc.item as string,
+          location: inventoryLocation,
+        });
+
+        const batchesWithStock = stockBalance
+          .filter((entry) => entry.batch && entry.balanceQuantity > 0)
+          .map((entry) => entry.batch);
+
+        if (batchesWithStock.length === 0) {
+          const allBatchesWithStock = stockBalance
+            .filter((entry) => entry.batch && entry.balanceQuantity > 0)
+            .map((entry) => entry.batch);
+
+          if (allBatchesWithStock.length > 0) {
+            return {
+              name: ['in', allBatchesWithStock],
+            };
+          }
+        }
+
+        return {
+          name: ['in', batchesWithStock],
+        };
+      } catch (error) {
+        // Fallback to all batches for the item
+        const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
+          fields: ['name'],
+          filters: { item: doc.item as string },
+        });
+        const batchName = batches.map((b) => b.name) as string[];
+
+        return {
+          name: ['in', batchName],
+        };
+      }
     },
     transferUnit: async (doc: Doc) => {
       const conversionItems = await doc.fyo.db.getAll(

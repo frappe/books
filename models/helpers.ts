@@ -48,7 +48,10 @@ import {
   getStockLedgerEntries,
 } from 'reports/inventory/helpers';
 import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEntry';
-import { generateSerialNumbersForItem } from './inventory/helpers';
+import {
+  generateSerialNumbersForItem,
+  generateBatchForItem,
+} from './inventory/helpers';
 
 export function getQuoteActions(
   fyo: Fyo,
@@ -760,6 +763,13 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   }
 
   await item.set('item', name);
+
+  if (doc instanceof Invoice && !doc.isSales) {
+    const batchName = await generateBatchForItem(doc.fyo, name);
+    if (batchName) {
+      await item.set('batch', batchName);
+    }
+  }
 
   if (
     doc instanceof StockTransfer &&
