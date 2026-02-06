@@ -154,6 +154,12 @@
       "section": "Inventory"
     },
     {
+      "fieldname": "batchSeries",
+      "label": "Batch Series",
+      "fieldtype": "Data",
+      "section": "Inventory"
+    },
+    {
       "fieldname": "hasSerialNumber",
       "label": "Has Serial Number",
       "fieldtype": "Check",
