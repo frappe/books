@@ -14,10 +14,6 @@ import { ValidationError } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
-function getPaddedName(prefix: string, next: number, padZeros: number): string {
-  return prefix + next.toString().padStart(padZeros ?? 4, '0');
-}
-
 interface UOMConversionItem {
   name: string;
   uom: string;
@@ -163,7 +159,7 @@ export class Item extends Doc {
         );
         const start = (batchSeriesDoc?.start as number) ?? 1001;
         const padZeros = (batchSeriesDoc?.padZeros as number) ?? 4;
-        const batchName = getPaddedName(seriesName, start, padZeros);
+        const batchName = start.toString().padStart(padZeros, '0');
 
         const batchExists = await this.fyo.db.exists('Batch', batchName);
 

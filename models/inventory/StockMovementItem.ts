@@ -13,7 +13,7 @@ import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
-import { generateSerialNumbersForItem } from './helpers';
+import { generateSerialNumbersForItem, getSuggestedBatchName } from './helpers';
 import { StockMovement } from './StockMovement';
 import { TransferItem } from './TransferItem';
 import { MovementTypeEnum } from './types';
@@ -80,14 +80,43 @@ export class StockMovementItem extends TransferItem {
       };
     },
     batch: async (doc: Doc) => {
+      let suggestedBatch: string | undefined;
+      let hasBatch = false;
+
+      if (doc.parentdoc?.movementType === MovementTypeEnum.MaterialReceipt) {
+        hasBatch = !!(await doc.fyo.getValue(
+          ModelNameEnum.Item,
+          doc.item as string,
+          'hasBatch'
+        ));
+
+        if (hasBatch) {
+          suggestedBatch = await getSuggestedBatchName(
+            doc.fyo,
+            doc.item as string
+          );
+
+          if (suggestedBatch) {
+            await doc.set('batch', suggestedBatch);
+          }
+        }
+      }
+
       const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
         fields: ['name'],
         filters: { item: doc.item as string },
       });
-      const batchName = batches.map((b) => b.name) as string[];
+      const existingBatchNames = batches.map((b) => b.name) as string[];
+
+      const allBatches = new Set<string>(existingBatchNames);
+      if (suggestedBatch) {
+        allBatches.add(suggestedBatch);
+      }
+
+      const finalBatchList = Array.from(allBatches);
 
       return {
-        name: ['in', batchName],
+        name: ['in', finalBatchList],
       };
     },
   };
@@ -337,6 +366,24 @@ export class StockMovementItem extends TransferItem {
 
     if (ch.changed === 'item') {
       await this.set('serialNumber', '');
+
+      if (
+        this.parentdoc?.movementType === MovementTypeEnum.MaterialReceipt &&
+        this.item
+      ) {
+        const hasBatch = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          this.item,
+          'hasBatch'
+        );
+
+        if (hasBatch) {
+          const batchName = await getSuggestedBatchName(this.fyo, this.item);
+          if (batchName) {
+            await this.set('batch', batchName);
+          }
+        }
+      }
 
       if (shouldGenerateSerialNumbers) {
         await this.generateAndSetSerialNumbers();

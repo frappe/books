@@ -3,11 +3,11 @@
     <feather-icon
       :name="isExapanded ? 'chevron-up' : 'chevron-down'"
       class="w-4 h-4 inline-flex dark:text-white"
-      @click="isExapanded = !isExapanded"
+      @click="toggleExpand"
     />
   </div>
 
-  <div class="relative" @click="isExapanded = !isExapanded">
+  <div class="relative" @click="toggleExpand">
     <Link
       :df="{
         fieldname: 'item',
@@ -245,7 +245,7 @@ import Link from 'src/components/Controls/Link.vue';
 import Text from 'src/components/Controls/Text.vue';
 import { inject } from 'vue';
 import { fyo } from 'src/initFyo';
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { Money } from 'pesa';
 import { validateSerialNumberCount } from 'src/utils/pos';
@@ -256,8 +256,18 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
     batchAdded: { type: Boolean, default: false },
+    expandedBatchId: {
+      type: String as PropType<string | null | undefined>,
+      default: undefined,
+    },
   },
-  emits: ['toggleModal', 'runSinvFormulas', 'selectedRow', 'applyPricingRule'],
+  emits: [
+    'toggleModal',
+    'runSinvFormulas',
+    'selectedRow',
+    'applyPricingRule',
+    'setExpandedBatchId',
+  ],
 
   setup() {
     return {
@@ -278,11 +288,17 @@ export default defineComponent({
     };
   },
   watch: {
+    expandedBatchId(newVal) {
+      if (newVal !== this.row.name) {
+        this.isExapanded = false;
+      }
+    },
     'row.batch': {
       async handler(newBatch) {
         if (newBatch) {
           this.availableQtyInBatch = await this.getAvailableQtyInBatch();
           this.isExapanded = true;
+          this.$emit('setExpandedBatchId', this.row.name);
         }
       },
       immediate: true,
@@ -300,6 +316,15 @@ export default defineComponent({
     },
   },
   methods: {
+    toggleExpand() {
+      if (this.isExapanded) {
+        this.isExapanded = false;
+        this.$emit('setExpandedBatchId', undefined);
+      } else {
+        this.isExapanded = true;
+        this.$emit('setExpandedBatchId', this.row.name);
+      }
+    },
     handleOpenKeyboard(row: SalesInvoiceItem, field: string) {
       if (this.isReadOnly) {
         return;

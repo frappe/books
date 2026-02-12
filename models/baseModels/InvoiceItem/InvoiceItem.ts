@@ -3,6 +3,7 @@ import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
   CurrenciesMap,
+  ChangeArg,
   FiltersMap,
   FormulaMap,
   HiddenMap,
@@ -112,6 +113,27 @@ export abstract class InvoiceItem extends Doc {
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super(schema, data, fyo);
     this._setGetCurrencies();
+  }
+
+  override async change(ch: ChangeArg): Promise<void> {
+    await super.change(ch);
+
+    if (ch.changed === 'item') {
+      if (!this.isSales && this.item) {
+        const hasBatch = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          this.item,
+          'hasBatch'
+        );
+
+        if (hasBatch) {
+          const batchName = await getSuggestedBatchName(this.fyo, this.item);
+          if (batchName) {
+            await this.set('batch', batchName);
+          }
+        }
+      }
+    }
   }
 
   async getTotalTaxRate(): Promise<number> {
@@ -674,58 +696,51 @@ export abstract class InvoiceItem extends Doc {
     batchName: string,
     requiredQuantity: number
   ): Promise<void> {
-    try {
-      let inventoryLocation: string | undefined;
+    let inventoryLocation: string | undefined;
 
-      if (this.location) {
-        inventoryLocation = this.location as string;
+    if (this.location) {
+      inventoryLocation = this.location as string;
+    } else {
+      const posProfileName = this.fyo.singles.POSSettings?.posProfile;
+
+      if (posProfileName) {
+        const inventory = await this.fyo.getValue(
+          ModelNameEnum.POSProfile,
+          posProfileName as string,
+          'inventory'
+        );
+
+        inventoryLocation = inventory as string | undefined;
       } else {
-        const posProfileName = this.fyo.singles.POSSettings?.posProfile;
-        if (posProfileName) {
-          const posProfile = await this.fyo.doc.getDoc(
-            ModelNameEnum.POSProfile,
-            posProfileName as string
-          );
-          inventoryLocation = posProfile?.inventory as string | undefined;
-        } else {
-          inventoryLocation = this.fyo.singles.POSSettings?.inventory;
-        }
+        inventoryLocation = this.fyo.singles.POSSettings?.inventory;
       }
+    }
 
-      const valuationMethod =
-        (this.fyo.singles.InventorySettings
-          ?.valuationMethod as ValuationMethod) ?? ValuationMethod.FIFO;
+    const valuationMethod =
+      (this.fyo.singles.InventorySettings
+        ?.valuationMethod as ValuationMethod) ?? ValuationMethod.FIFO;
 
-      const rawSLEs = await getRawStockLedgerEntries(this.fyo);
-      const computedSLEs = getStockLedgerEntries(rawSLEs, valuationMethod);
+    const rawSLEs = await getRawStockLedgerEntries(this.fyo);
+    const computedSLEs = getStockLedgerEntries(rawSLEs, valuationMethod);
 
-      const stockBalance = getStockBalanceEntries(computedSLEs, {
-        item: this.item!,
-        location: inventoryLocation,
-        batch: batchName,
-      });
+    const stockBalance = getStockBalanceEntries(computedSLEs, {
+      item: this.item!,
+      location: inventoryLocation,
+      batch: batchName,
+    });
 
-      const availableQuantity = stockBalance.reduce(
-        (sum, entry) => sum + (entry.balanceQuantity || 0),
-        0
+    const availableQuantity = stockBalance.reduce(
+      (sum, entry) => sum + (entry.balanceQuantity || 0),
+      0
+    );
+
+    if (requiredQuantity > availableQuantity) {
+      throw new ValidationError(
+        this.fyo.t`
+        Batch ${batchName} only has ${availableQuantity} quantity available
+        but ${requiredQuantity} is required
+      `
       );
-
-      if (requiredQuantity > availableQuantity) {
-        // ✅ dynamic import just like your example
-        const { showToast } = await import('src/utils/interactive');
-
-        showToast({
-          type: 'warning',
-          message: this.fyo.t`
-          Batch ${batchName} only has ${availableQuantity} quantity available
-          but ${requiredQuantity} is required
-        `,
-        });
-      }
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        throw error;
-      }
     }
   }
 
@@ -769,28 +784,26 @@ export abstract class InvoiceItem extends Doc {
       return { for: ['not in', [itemNotFor]] };
     },
     batch: async (doc: Doc) => {
-      const hasBatch = await doc.fyo.getValue(
+      const hasBatch = !!(await doc.fyo.getValue(
         ModelNameEnum.Item,
         doc.item as string,
         'hasBatch'
-      );
+      ));
 
       if (!hasBatch) {
         return { name: ['in', []] };
       }
 
+      let suggestedBatch: string | undefined;
+
       if (!doc.isSales) {
-        const batchName = await getSuggestedBatchName(
+        suggestedBatch = await getSuggestedBatchName(
           doc.fyo,
           doc.item as string
         );
 
-        if (batchName) {
-          await doc.set('batch', batchName);
-
-          return {
-            name: ['in', [batchName]],
-          };
+        if (suggestedBatch) {
+          await doc.set('batch', suggestedBatch);
         }
       }
 
@@ -829,31 +842,32 @@ export abstract class InvoiceItem extends Doc {
           .filter((entry) => entry.batch && entry.balanceQuantity > 0)
           .map((entry) => entry.batch);
 
-        if (batchesWithStock.length === 0) {
-          const allBatchesWithStock = stockBalance
-            .filter((entry) => entry.batch && entry.balanceQuantity > 0)
-            .map((entry) => entry.batch);
-
-          if (allBatchesWithStock.length > 0) {
-            return {
-              name: ['in', allBatchesWithStock],
-            };
-          }
+        const allBatches = new Set<string>(batchesWithStock);
+        if (suggestedBatch) {
+          allBatches.add(suggestedBatch);
         }
 
+        const finalBatchList = Array.from(allBatches);
+
         return {
-          name: ['in', batchesWithStock],
+          name: ['in', finalBatchList],
         };
       } catch (error) {
-        // Fallback to all batches for the item
         const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
           fields: ['name'],
           filters: { item: doc.item as string },
         });
-        const batchName = batches.map((b) => b.name) as string[];
+        const batchNames = batches.map((b) => b.name) as string[];
+
+        const allBatches = new Set<string>(batchNames);
+        if (suggestedBatch) {
+          allBatches.add(suggestedBatch);
+        }
+
+        const finalBatchList = Array.from(allBatches);
 
         return {
-          name: ['in', batchName],
+          name: ['in', finalBatchList],
         };
       }
     },

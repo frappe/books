@@ -23,7 +23,9 @@ export async function validateBatch(
 
   if (
     doc.schemaName === ModelNameEnum.PurchaseInvoice ||
-    doc.schemaName === ModelNameEnum.PurchaseReceipt
+    doc.schemaName === ModelNameEnum.PurchaseReceipt ||
+    doc.schemaName === ModelNameEnum.StockMovement ||
+    doc.schemaName === ModelNameEnum.Shipment
   ) {
     for (const row of doc.items ?? []) {
       if (row.item && row.batch) {
@@ -576,6 +578,7 @@ export async function getSuggestedBatchName(
     }
 
     const seriesName = (batchSeries as string).trim();
+
     const seriesExists = await fyo.db.exists('BatchSeries', seriesName);
 
     if (!seriesExists) {
@@ -596,7 +599,6 @@ export async function getSuggestedBatchName(
 
     const padZeros = (batchSeriesDoc.padZeros as number) ?? 4;
 
-    const prefix = seriesName.endsWith('-') ? seriesName : seriesName + '-';
     const existingBatches = (await fyo.db.getAllRaw(ModelNameEnum.Batch, {
       fields: ['name'],
       filters: { item: itemName },
@@ -609,13 +611,12 @@ export async function getSuggestedBatchName(
 
       for (const batch of existingBatches) {
         const batchName = batch.name;
-        if (batchName.startsWith(prefix)) {
-          const numericPart = batchName.substring(prefix.length);
-          const num = parseInt(numericPart, 10);
+        // Extract numeric part from batch name (handles names like "com-1001")
+        const numericPart = batchName.replace(seriesName, '');
+        const num = parseInt(numericPart, 10);
 
-          if (!isNaN(num) && num > highestNumber) {
-            highestNumber = num;
-          }
+        if (!isNaN(num) && num > highestNumber) {
+          highestNumber = num;
         }
       }
 
@@ -628,7 +629,9 @@ export async function getSuggestedBatchName(
       nextNumber = (batchSeriesDoc.start as number) ?? 1001;
     }
 
-    const batchName = prefix + nextNumber.toString().padStart(padZeros, '0');
+    const batchName = `${seriesName}${nextNumber
+      .toString()
+      .padStart(padZeros, '0')}`;
 
     return batchName;
   } catch (error) {
@@ -667,14 +670,10 @@ export async function createBatch(
         seriesName
       )) as BatchSeries;
 
-      const prefix = seriesName.endsWith('-') ? seriesName : seriesName + '-';
-      if (batchName.startsWith(prefix)) {
-        const numericPart = batchName.substring(prefix.length);
-        const num = parseInt(numericPart, 10);
-        if (!isNaN(num)) {
-          await batchSeriesDoc.set('current', num);
-          await batchSeriesDoc.sync();
-        }
+      const num = parseInt(batchName, 10);
+      if (!isNaN(num)) {
+        await batchSeriesDoc.set('current', num);
+        await batchSeriesDoc.sync();
       }
     }
 
