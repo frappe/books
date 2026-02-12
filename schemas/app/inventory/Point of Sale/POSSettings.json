@@ -97,13 +97,6 @@
       "section": "Barcode"
     },
     {
-      "fieldname": "itemWeightDigits",
-      "label": "item Weight Digits",
-      "fieldtype": "Int",
-      "default": 0,
-      "section": "Barcode"
-    },
-    {
       "fieldname": "itemVisibility",
       "label": "Item Visibility",
       "fieldtype": "Select",
@@ -118,7 +111,27 @@
         }
       ],
       "default": "Inventory Items",
-      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "itemVisibilityERP",
+      "label": "Item Visibility",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "ERP Sync Items",
+          "label": "ERP Sync Items"
+        },
+        {
+          "value": "Inventory Items",
+          "label": "Inventory Items"
+        },
+        {
+          "value": "Non-Inventory Items",
+          "label": "Non-Inventory Items"
+        }
+      ],
+      "default": "ERP Sync Items",
       "section": "Default"
     },
     {
