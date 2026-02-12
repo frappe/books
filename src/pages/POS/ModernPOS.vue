@@ -119,6 +119,10 @@
             />
 
             <ModernPOSSelectedItemTable
+              :expanded-batch-id="expandedBatchId"
+              @set-expanded-batch-id="
+                (rowName) => $emit('setExpandedBatchId', rowName)
+              "
               @selected-row="selectedRow"
               @apply-pricing-rule="emitEvent('applyPricingRule')"
               @toggle-modal="emitEvent('toggleModal', 'Keyboard')"
@@ -508,8 +512,13 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    expandedBatchId: {
+      type: String as PropType<string | null | undefined>,
+      default: undefined,
+    },
   },
   emits: [
+    'setExpandedBatchId',
     'addItem',
     'toggleView',
     'toggleModal',

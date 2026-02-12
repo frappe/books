@@ -44,6 +44,8 @@
       :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       :open-batch-selection-modal="openBatchSelectionModal"
       :selected-item-for-batch="selectedItemForBatch"
+      :expanded-batch-id="expandedBatchId"
+      @set-expanded-batch-id="setExpandedBatchId"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -102,6 +104,8 @@
       :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       :open-batch-selection-modal="openBatchSelectionModal"
       :selected-item-for-batch="selectedItemForBatch"
+      :expanded-batch-id="expandedBatchId"
+      @set-expanded-batch-id="setExpandedBatchId"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -266,6 +270,7 @@ export default defineComponent({
       quickQtyKeyUpHandler: null as ((e: KeyboardEvent) => void) | null,
       selectedItemForBatch: '' as string,
       pendingBatchItem: null as { item: POSItem; quantity: number } | null,
+      expandedBatchId: undefined as string | null | undefined,
       itemVisibilityValue: 'Inventory Items' as ItemVisibility,
     };
   },
@@ -325,6 +330,9 @@ export default defineComponent({
   methods: {
     setQuickQtySelectedRow(row: SalesInvoiceItem) {
       this.quickQtyRow = row;
+    },
+    setExpandedBatchId(rowName: string | null) {
+      this.expandedBatchId = rowName;
     },
     addQuickQtyListeners() {
       this.quickQtyKeyDownHandler = (e: KeyboardEvent) =>

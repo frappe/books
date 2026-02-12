@@ -1,0 +1,38 @@
+{
+  "name": "BatchSeries",
+  "label": "Batch Series",
+  "naming": "manual",
+  "isSingle": false,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Prefix",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "start",
+      "label": "Start",
+      "fieldtype": "Int",
+      "default": 1001,
+      "required": true,
+      "minvalue": 0
+    },
+    {
+      "fieldname": "padZeros",
+      "label": "Pad Zeros",
+      "fieldtype": "Int",
+      "default": 4,
+      "required": true
+    },
+    {
+      "fieldname": "current",
+      "label": "Current",
+      "fieldtype": "Int",
+      "required": true,
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": ["start", "padZeros"]
+}

@@ -26,6 +26,7 @@ export class Item extends Doc {
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatch?: boolean;
+  batchSeries?: string;
   itemGroup?: string;
   hsnCode?: number;
   hasSerialNumber?: boolean;
@@ -101,6 +102,13 @@ export class Item extends Doc {
         this.serialNumberSeries = series + '-';
       }
     }
+
+    if (this.batchSeries && this.hasBatch) {
+      const series = this.batchSeries.trim();
+      if (series && !series.endsWith('-')) {
+        this.batchSeries = series + '-';
+      }
+    }
   }
 
   async afterSync(): Promise<void> {
@@ -124,6 +132,46 @@ export class Item extends Doc {
             current: 1001,
           })
           .sync();
+      }
+    }
+
+    if (this.hasBatch && this.batchSeries) {
+      const seriesName = this.batchSeries?.trim();
+
+      if (!seriesName) {
+        return;
+      }
+
+      const exists = await this.fyo.db.exists('BatchSeries', seriesName);
+
+      if (!exists) {
+        await this.fyo.doc
+          .getNewDoc('BatchSeries', {
+            name: seriesName,
+            start: 1001,
+            padZeros: 4,
+            current: 1001,
+          })
+          .sync();
+
+        const batchSeriesDoc = await this.fyo.doc.getDoc(
+          'BatchSeries',
+          seriesName
+        );
+        const start = (batchSeriesDoc?.start as number) ?? 1001;
+        const padZeros = (batchSeriesDoc?.padZeros as number) ?? 4;
+        const batchName = start.toString().padStart(padZeros, '0');
+
+        const batchExists = await this.fyo.db.exists('Batch', batchName);
+
+        if (!batchExists) {
+          await this.fyo.doc
+            .getNewDoc('Batch', {
+              name: batchName,
+              item: this.name as string,
+            })
+            .sync();
+        }
       }
     }
   }
@@ -171,6 +219,21 @@ export class Item extends Doc {
         throw new ValidationError(
           this.fyo
             .t`Serial Number Series cannot contain the following characters: /, ?, &, =, %`
+        );
+      }
+    },
+    batchSeries: (value: DocValue) => {
+      if (!value) {
+        return;
+      }
+
+      const series = (value as string).trim();
+      const invalidChars = /[/\=\?\&\%]/;
+
+      if (invalidChars.test(series)) {
+        throw new ValidationError(
+          this.fyo
+            .t`Batch Series cannot contain the following characters: /, ?, &, =, %`
         );
       }
     },
@@ -227,6 +290,7 @@ export class Item extends Doc {
         this.fyo.singles.InventorySettings?.enableSerialNumber && this.trackItem
       ),
     serialNumberSeries: () => !this.hasSerialNumber,
+    batchSeries: () => !this.hasBatch,
     uomConversions: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
     itemGroup: () => !this.fyo.singles.AccountingSettings?.enableitemGroup,

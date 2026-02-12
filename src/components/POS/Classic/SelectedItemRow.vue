@@ -2,10 +2,10 @@
   <feather-icon
     :name="isExapanded ? 'chevron-up' : 'chevron-down'"
     class="w-4 h-4 inline-flex cursor-pointer text-gray-700 dark:text-gray-200"
-    @click="isExapanded = !isExapanded"
+    @click="toggleExpand"
   />
 
-  <div class="relative" @click="emitSelectedRow">
+  <div class="relative" @click="toggleExpandAndEmit">
     <Link
       class="pt-2"
       :df="{
@@ -27,7 +27,7 @@
     </p>
   </div>
 
-  <div class="flex items-center" @click="emitSelectedRow">
+  <div class="flex items-center" @click="toggleExpandAndEmit">
     <Int
       :df="{
         fieldname: 'quantity',
@@ -115,7 +115,7 @@
   <div></div>
 
   <template v-if="isExapanded">
-    <div class="px-4 pt-6 col-span-1" @click="emitSelectedRow">
+    <div class="px-4 pt-6 col-span-1" @click="toggleExpandAndEmit">
       <Int
         v-if="isUOMConversionEnabled"
         :df="{
@@ -286,7 +286,7 @@ import Link from 'src/components/Controls/Link.vue';
 import Text from 'src/components/Controls/Text.vue';
 import { inject } from 'vue';
 import { fyo } from 'src/initFyo';
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { Money } from 'pesa';
 import { DiscountType } from '../types';
@@ -305,8 +305,17 @@ export default defineComponent({
   props: {
     row: { type: SalesInvoiceItem, required: true },
     batchAdded: { type: Boolean, default: false },
+    expandedBatchId: {
+      type: String as PropType<string | null | undefined>,
+      default: undefined,
+    },
   },
-  emits: ['runSinvFormulas', 'applyPricingRule', 'selectedRow'],
+  emits: [
+    'runSinvFormulas',
+    'applyPricingRule',
+    'selectedRow',
+    'setExpandedBatchId',
+  ],
   setup() {
     return {
       isDiscountingEnabled: inject('isDiscountingEnabled') as boolean,
@@ -331,11 +340,17 @@ export default defineComponent({
     };
   },
   watch: {
+    expandedBatchId(newVal) {
+      if (newVal !== this.row.name) {
+        this.isExapanded = false;
+      }
+    },
     'row.batch': {
       async handler(newBatch) {
         if (newBatch) {
           this.availableQtyInBatch = await this.getAvailableQtyInBatch();
           this.isExapanded = true;
+          this.$emit('setExpandedBatchId', this.row.name);
         }
       },
       immediate: true,
@@ -466,6 +481,19 @@ export default defineComponent({
   },
 
   methods: {
+    toggleExpand() {
+      if (this.isExapanded) {
+        this.isExapanded = false;
+        this.$emit('setExpandedBatchId', undefined);
+      } else {
+        this.isExapanded = true;
+        this.$emit('setExpandedBatchId', this.row.name);
+      }
+    },
+    toggleExpandAndEmit() {
+      this.toggleExpand();
+      this.$emit('selectedRow', this.row);
+    },
     emitSelectedRow() {
       this.$emit('selectedRow', this.row);
     },

@@ -11,6 +11,7 @@ import type { StockTransferItem } from './StockTransferItem';
 import { Transfer } from './Transfer';
 import { TransferItem } from './TransferItem';
 import type { SerialNumberStatus } from './types';
+import BatchSeries from 'fyo/models/BatchSeries';
 import SerialNumberSeries from 'fyo/models/SerialNumberSeries';
 
 export async function validateBatch(
@@ -19,6 +20,35 @@ export async function validateBatch(
   if (doc.schemaName === ModelNameEnum.SalesQuote) {
     return;
   }
+
+  if (
+    doc.schemaName === ModelNameEnum.PurchaseInvoice ||
+    doc.schemaName === ModelNameEnum.PurchaseReceipt ||
+    doc.schemaName === ModelNameEnum.StockMovement ||
+    doc.schemaName === ModelNameEnum.Shipment
+  ) {
+    for (const row of doc.items ?? []) {
+      if (row.item && row.batch) {
+        const hasBatch = await doc.fyo.getValue(
+          ModelNameEnum.Item,
+          row.item,
+          'hasBatch'
+        );
+
+        if (hasBatch) {
+          const batchExists = await doc.fyo.db.exists(
+            ModelNameEnum.Batch,
+            row.batch
+          );
+
+          if (!batchExists) {
+            await createBatch(doc.fyo, row.item, row.batch);
+          }
+        }
+      }
+    }
+  }
+
   for (const row of doc.items ?? []) {
     await validateItemRowBatch(row);
   }
@@ -530,4 +560,138 @@ export async function getExistingActiveSerialNumbersForItem(
   const selectedSerialNumbers = availableSerialNumbers.slice(0, quantity);
 
   return selectedSerialNumbers.join('\n');
+}
+
+export async function getSuggestedBatchName(
+  fyo: Fyo,
+  itemName: string
+): Promise<string | undefined> {
+  try {
+    const batchSeries = await fyo.getValue(
+      ModelNameEnum.Item,
+      itemName,
+      'batchSeries'
+    );
+
+    if (!batchSeries) {
+      return undefined;
+    }
+
+    const seriesName = (batchSeries as string).trim();
+
+    const seriesExists = await fyo.db.exists('BatchSeries', seriesName);
+
+    if (!seriesExists) {
+      await fyo.doc
+        .getNewDoc('BatchSeries', {
+          name: seriesName,
+          start: 1001,
+          padZeros: 4,
+          current: 1001,
+        })
+        .sync();
+    }
+
+    const batchSeriesDoc = (await fyo.doc.getDoc(
+      'BatchSeries',
+      seriesName
+    )) as BatchSeries;
+
+    const padZeros = (batchSeriesDoc.padZeros as number) ?? 4;
+
+    const existingBatches = (await fyo.db.getAllRaw(ModelNameEnum.Batch, {
+      fields: ['name'],
+      filters: { item: itemName },
+    })) as { name: string }[];
+
+    let nextNumber: number;
+
+    if (existingBatches && existingBatches.length > 0) {
+      let highestNumber = -1;
+
+      for (const batch of existingBatches) {
+        const batchName = batch.name;
+        // Extract numeric part from batch name (handles names like "com-1001")
+        const numericPart = batchName.replace(seriesName, '');
+        const num = parseInt(numericPart, 10);
+
+        if (!isNaN(num) && num > highestNumber) {
+          highestNumber = num;
+        }
+      }
+
+      if (highestNumber >= 0) {
+        nextNumber = highestNumber + 1;
+      } else {
+        nextNumber = (batchSeriesDoc.start as number) ?? 1001;
+      }
+    } else {
+      nextNumber = (batchSeriesDoc.start as number) ?? 1001;
+    }
+
+    const batchName = `${seriesName}${nextNumber
+      .toString()
+      .padStart(padZeros, '0')}`;
+
+    return batchName;
+  } catch (error) {
+    return undefined;
+  }
+}
+
+export async function createBatch(
+  fyo: Fyo,
+  itemName: string,
+  batchName: string
+): Promise<boolean> {
+  try {
+    const batchExists = await fyo.db.exists(ModelNameEnum.Batch, batchName);
+    if (batchExists) {
+      return true;
+    }
+
+    const batchDoc = fyo.doc.getNewDoc('Batch', {
+      name: batchName,
+      item: itemName,
+    });
+
+    await batchDoc.sync();
+
+    const batchSeries = await fyo.getValue(
+      ModelNameEnum.Item,
+      itemName,
+      'batchSeries'
+    );
+
+    if (batchSeries) {
+      const seriesName = (batchSeries as string).trim();
+      const batchSeriesDoc = (await fyo.doc.getDoc(
+        'BatchSeries',
+        seriesName
+      )) as BatchSeries;
+
+      const num = parseInt(batchName, 10);
+      if (!isNaN(num)) {
+        await batchSeriesDoc.set('current', num);
+        await batchSeriesDoc.sync();
+      }
+    }
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function generateBatchForItem(
+  fyo: Fyo,
+  itemName: string
+): Promise<string | undefined> {
+  const batchName = await getSuggestedBatchName(fyo, itemName);
+  if (!batchName) {
+    return undefined;
+  }
+
+  const success = await createBatch(fyo, itemName, batchName);
+  return success ? batchName : undefined;
 }
