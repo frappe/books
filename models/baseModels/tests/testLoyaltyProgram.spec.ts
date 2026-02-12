@@ -27,10 +27,17 @@ const partyData = {
   email: 'john@whoe.com',
 };
 
+const today = new Date();
+const fromDate = new Date(today);
+fromDate.setDate(today.getDate() - 10);
+
+const toDate = new Date(today);
+toDate.setDate(today.getDate() + 20);
+
 const loyaltyProgramData = {
   name: 'program',
-  fromDate: new Date('12/10/2024'),
-  toDate: new Date('12/30/2024'),
+  fromDate: fromDate,
+  toDate: toDate,
   email: 'sample@gmail.com',
   mobile: '1234567890',
   expenseAccount: accountData.name,
@@ -118,11 +125,11 @@ async function loyaltyPointEntryDoc(sinvName: string) {
   }
 }
 
-async function createSalesInvoice() {
+async function createSalesInvoice(invoiceDate?: Date) {
   const sinvDoc = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
     account: 'Debtors',
     party: partyData.name,
-    date: new Date('12/11/2024'),
+    date: invoiceDate || new Date(),
     items: [
       {
         item: itemData.name,
@@ -189,10 +196,10 @@ test('create Sales Invoice and verify loyalty points are created correctly', asy
 });
 
 test('create SINV with future date and verify loyalty points are not created', async (t) => {
-  const futureDate = new Date(new Date().setDate(new Date().getDate() + 20));
+  const futureDate = new Date();
+  futureDate.setDate(futureDate.getDate() + 30);
 
-  const sinvDoc = await createSalesInvoice();
-  sinvDoc.date = futureDate;
+  const sinvDoc = await createSalesInvoice(futureDate);
 
   await sinvDoc.sync();
   await sinvDoc.submit();

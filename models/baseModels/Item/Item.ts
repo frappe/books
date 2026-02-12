@@ -31,6 +31,7 @@ export class Item extends Doc {
   hsnCode?: number;
   hasSerialNumber?: boolean;
   serialNumberSeries?: string;
+  datafromErp?: boolean;
   uomConversions: UOMConversionItem[] = [];
 
   formulas: FormulaMap = {

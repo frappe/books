@@ -82,7 +82,7 @@
       "fieldtype": "Link",
       "target": "LoyaltyProgram",
       "label": "Loyalty Program",
-      "section": "References",
+      "section": "Loyalty Points Redemption",
       "readOnly": true
     },
     {
@@ -90,7 +90,7 @@
       "fieldtype": "Int",
       "label": "Available Loyalty Points",
       "readOnly": true,
-      "section": "References"
+      "section": "Loyalty Points Redemption"
     },
     {
       "fieldname": "redeemLoyaltyPoints",

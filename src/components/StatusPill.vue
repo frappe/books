@@ -8,6 +8,7 @@ import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/baseModels/Party/Party';
+import { LoyaltyProgram } from 'models/baseModels/LoyaltyProgram/LoyaltyProgram';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { getBgTextColorClass } from 'src/utils/colors';
@@ -77,6 +78,9 @@ export default defineComponent({
         ReturnIssued: this.t`Return Issued`,
         Unpaid: this.t`Unpaid`,
         PartlyPaid: this.t`Partly Paid`,
+        Expired: this.t`Expired`,
+        Active: this.t`Active`,
+        Maxed: this.t`Maxed`,
       }[this.status];
     },
     color(): UIColors {
@@ -99,6 +103,9 @@ const statusColorMap: Record<Status, UIColors> = {
   ReturnIssued: 'gray',
   Unpaid: 'red',
   PartlyPaid: 'yellow',
+  Expired: 'red',
+  Active: 'green',
+  Maxed: 'orange',
 };
 
 function getStatus(doc: Doc) {
@@ -108,6 +115,27 @@ function getStatus(doc: Doc) {
 
   if (doc.dirty) {
     return 'NotSaved';
+  }
+
+  if (doc instanceof LoyaltyProgram) {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    const maximumUse = doc.maximumUse as number;
+    const used = doc.used as number;
+
+    if (maximumUse > 0 && used >= maximumUse) {
+      return 'Maxed';
+    }
+
+    if (doc.toDate && doc.toDate instanceof Date) {
+      const toDate = new Date(doc.toDate);
+      toDate.setHours(0, 0, 0, 0);
+      if (toDate <= currentDate) {
+        return 'Expired';
+      }
+    }
+    return 'Active';
   }
 
   if (doc instanceof Party && doc.outstandingAmount?.isZero() !== true) {
