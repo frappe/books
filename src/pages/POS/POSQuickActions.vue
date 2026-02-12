@@ -76,7 +76,9 @@
   <div
     class="relative group"
     :class="{
-      hidden: !fyo.singles.AccountingSettings?.enableLoyaltyProgram,
+      hidden:
+        !fyo.singles.AccountingSettings?.enableLoyaltyProgram ||
+        !loyaltyProgram,
     }"
   >
     <div
