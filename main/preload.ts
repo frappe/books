@@ -4,12 +4,14 @@ import type {
   SaveDialogOptions,
   SaveDialogReturnValue,
 } from 'electron';
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import type { ConfigMap } from 'fyo/core/types';
 import config from 'utils/config';
 import type { DatabaseMethod } from 'utils/db/types';
 import type { BackendResponse } from 'utils/ipc/types';
 import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
+import type { UpdateCheckResult } from 'src/utils/types';
+
 import type {
   ConfigFilesWithModified,
   Creds,
@@ -45,6 +47,27 @@ const ipc = {
         }
       );
     });
+  },
+
+  on(channel: string, callback: (...args: unknown[]) => void) {
+    const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
+      callback(...args);
+    ipcRenderer.on(channel, subscription);
+
+    return () => {
+      ipcRenderer.removeListener(channel, subscription);
+    };
+  },
+
+  removeAllListeners(channel: string) {
+    ipcRenderer.removeAllListeners(channel);
+  },
+
+  async downloadUpdate(): Promise<unknown> {
+    const result: unknown = await ipcRenderer.invoke(
+      IPC_ACTIONS.DOWNLOAD_UPDATE
+    );
+    return result;
   },
 
   isFullscreen() {
@@ -114,8 +137,18 @@ const ipc = {
     )) as boolean;
   },
 
-  async checkForUpdates() {
-    await ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES);
+  async checkForUpdates(): Promise<UpdateCheckResult> {
+    const result: UpdateCheckResult = (await ipcRenderer.invoke(
+      IPC_ACTIONS.CHECK_FOR_UPDATES
+    )) as UpdateCheckResult;
+    return result;
+  },
+
+  async downloadUpdateManual(): Promise<{ path: string }> {
+    const result: { path: string } = (await ipcRenderer.invoke(
+      IPC_ACTIONS.DOWNLOAD_UPDATE_MANUAL
+    )) as { path: string };
+    return result;
   },
 
   openLink(link: string) {

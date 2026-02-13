@@ -65,6 +65,12 @@
       "section": "Default"
     },
     {
+      "fieldname": "updateButton",
+      "label": "Update",
+      "fieldtype": "Button",
+      "section": "Default"
+    },
+    {
       "fieldname": "allowFilterBypass",
       "label": "Allow to bypass filters",
       "fieldtype": "Check",

@@ -29,6 +29,7 @@ import {
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 import { sendAPIRequest } from './api';
 import { initScheduler } from './initSheduler';
+import { getAvailableUpdate } from './registerAutoUpdaterListeners';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -153,19 +154,32 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, async () => {
     if (main.isDevelopment || main.checkedForUpdate) {
-      return;
+      return { available: false };
     }
 
     try {
       await autoUpdater.checkForUpdates();
+
+      const availableUpdate = getAvailableUpdate();
+      if (availableUpdate) {
+        const currentVersion = app.getVersion();
+
+        return {
+          available: true,
+          currentVersion,
+          newVersion: availableUpdate.version,
+        };
+      }
+
+      return { available: false };
     } catch (error) {
       if (isNetworkError(error as Error)) {
-        return;
+        return { available: false, error: 'Network error' };
       }
 
       emitMainProcessError(error);
+      return { available: false, error: (error as Error).message };
     }
-    main.checkedForUpdate = true;
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_LANGUAGE_MAP, async (_, code: string) => {
@@ -178,6 +192,37 @@ export default function registerIpcMainActionListeners(main: Main) {
     }
 
     return obj;
+  });
+
+  ipcMain.handle(IPC_ACTIONS.DOWNLOAD_UPDATE_MANUAL, async () => {
+    const availableUpdate = getAvailableUpdate();
+    if (!availableUpdate) {
+      throw new Error('No update available to download');
+    }
+
+    const currentVersion = app.getVersion();
+    const isCurrentBeta = currentVersion.includes('beta');
+    const isNextBeta = availableUpdate.version.includes('beta');
+
+    let downloadUpdate = true;
+
+    if (!isCurrentBeta && isNextBeta) {
+      const option = await dialog.showMessageBox({
+        type: 'info',
+        title: 'Update Available',
+        message: `Download version ${availableUpdate.version}?`,
+        buttons: ['Yes', 'No'],
+      });
+
+      downloadUpdate = option.response === 0;
+    }
+
+    if (!downloadUpdate) {
+      return { downloaded: false };
+    }
+
+    await autoUpdater.downloadUpdate();
+    return { downloaded: true };
   });
 
   ipcMain.handle(
