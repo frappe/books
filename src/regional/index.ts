@@ -1,9 +1,14 @@
 import { Fyo } from 'fyo';
+import { createAustralianRecords } from './au/au';
 import { createCzechRecords } from './cz/cz';
 import { createIndianRecords } from './in/in';
 import { createSlovakRecords } from './sk/sk';
 
 export async function createRegionalRecords(country: string, fyo: Fyo) {
+  if (country === 'Australia') {
+    await createAustralianRecords(fyo);
+  }
+
   if (country === 'Czech Republic') {
     await createCzechRecords(fyo);
   }
