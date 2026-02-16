@@ -1,0 +1,21 @@
+{
+  "name": "AccountingSettings",
+  "fields": [
+    {
+      "fieldname": "taxId",
+      "label": "IČ DPH",
+      "fieldtype": "Data",
+      "placeholder": "SK2012345678",
+      "section": "Default"
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "fiscalYearStart",
+    "fiscalYearEnd",
+    "taxId"
+  ]
+}
