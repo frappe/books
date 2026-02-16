@@ -725,13 +725,16 @@ export class Payment extends Transactional {
       }
 
       if (!this.totalAmount) {
+        this.totalAmount = this.fyo.pesa(0);
         for (const row of this.for ?? []) {
           const referenceDoc = (await this.fyo.doc.getDoc(
             row.referenceType as string,
             row.referenceName as string
           )) as Invoice;
 
-          this.totalAmount = referenceDoc.outstandingAmount?.abs();
+          this.totalAmount = (this.totalAmount as Money).add(
+            referenceDoc.outstandingAmount?.abs() ?? this.fyo.pesa(0)
+          );
         }
       }
 
