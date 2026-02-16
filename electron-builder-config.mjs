@@ -31,6 +31,7 @@ const frappeBooksConfig = {
     app: buildDirPath,
   },
   mac: {
+    identity: process.env.CSC_NAME || null,
     type: 'distribution',
     artifactName: '${productName}-v${version}-mac-${arch}.${ext}',
     category: 'public.app-category.finance',
