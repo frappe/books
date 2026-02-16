@@ -37,6 +37,7 @@ export function getCOAList() {
     { countryCode: 'ni', name: 'Nicaragua - Catalogo de Cuentas' },
     { countryCode: 'nl', name: 'Netherlands - Grootboekschema' },
     { countryCode: 'sg', name: 'Singapore - Chart of Accounts' },
+    { countryCode: 'sk', name: 'Slovakia - Účtová osnova' },
     { countryCode: 'fr', name: 'France - Plan Comptable General' },
     /*  
     { countryCode: 'th', name: 'Thailand - Chart of Accounts' },
