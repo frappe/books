@@ -10,7 +10,7 @@
     <div v-show="hasData" class="flex relative">
       <!-- Chart Legend -->
       <div class="w-1/2 flex flex-col gap-4 justify-center dark:text-gray-25">
-        <!-- Ledgend Item -->
+        <!-- Legend Item -->
         <div
           v-for="(d, i) in expenses"
           :key="d.account"
@@ -18,7 +18,10 @@
           @mouseover="active = i"
           @mouseleave="active = null"
         >
-          <div class="w-3 h-3 rounded-sm flex-shrink-0" :class="d.class" />
+          <div
+            class="w-3 h-3 rounded-sm flex-shrink-0"
+            :class="darkMode ? d.class.darkClass : d.class.class"
+          />
           <p class="ms-2 overflow-x-auto whitespace-nowrap no-scrollbar w-28">
             {{ d.account }}
           </p>
@@ -42,10 +45,7 @@
     </div>
 
     <!-- Empty Message -->
-    <div
-      v-if="expenses.length === 0"
-      class="flex-1 w-full h-full flex-center my-20"
-    >
+    <div v-if="!hasData" class="flex-1 w-full h-full flex-center my-20">
       <span class="text-base text-gray-600 dark:text-gray-500">
         {{ t`No expenses in this period` }}
       </span>
@@ -57,19 +57,26 @@
 import { truncate } from 'lodash';
 import { fyo } from 'src/initFyo';
 import { uicolors } from 'src/utils/colors';
-import { getDatesAndPeriodList } from 'src/utils/misc';
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import DonutChart from '../../components/Charts/DonutChart.vue';
 import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
+import { getDashboardDates } from 'src/utils/dashboardDateUtils';
 
-// Linting broken in this file cause of `extends: ...`
-/*
-  eslint-disable @typescript-eslint/no-unsafe-argument,
-  @typescript-eslint/no-unsafe-return,
-  @typescript-eslint/restrict-plus-operands
-*/
+interface Expense {
+  account: string;
+  total: number;
+  color: { color: string; darkColor: string };
+  class: { class: string; darkClass: string };
+}
+
+interface Sector {
+  color: { color: string; darkColor: string };
+  label: string;
+  value: number;
+}
+
 export default defineComponent({
   name: 'Expenses',
   components: {
@@ -80,74 +87,123 @@ export default defineComponent({
   extends: DashboardChartBase,
   props: {
     darkMode: { type: Boolean, default: false },
+    fromDate: {
+      type: [String, Date] as PropType<string | Date>,
+      default: '',
+    },
+    toDate: {
+      type: [String, Date] as PropType<string | Date>,
+      default: '',
+    },
   },
-  data: () => ({
-    active: null as null | number,
-    expenses: [] as {
-      account: string;
-      total: number;
-      color: { color: string; darkColor: string };
-      class: { class: string; darkClass: string };
-    }[],
-  }),
+  data() {
+    return {
+      active: null as null | number,
+      expenses: [] as Expense[],
+    };
+  },
   computed: {
     totalExpense(): number {
-      return this.expenses.reduce((sum, expense) => sum + expense.total, 0);
+      const expenses = this.expenses as Expense[];
+      return expenses.reduce((sum, expense) => sum + expense.total, 0);
     },
     hasData(): boolean {
-      return this.expenses.length > 0;
+      return (this.expenses as Expense[]).length > 0 && this.totalExpense > 0;
     },
-    sectors(): {
-      color: { color: string; darkColor: string };
-      label: string;
-      value: number;
-    }[] {
-      return this.expenses.map(({ account, color, total }) => ({
-        color,
-        label: truncate(account, { length: 21 }),
-        value: total,
-      }));
+    sectors(): Sector[] {
+      return (this.expenses as Expense[]).map(
+        ({ account, color, total }): Sector => ({
+          color,
+          label: truncate(account, { length: 21 }),
+          value: total,
+        })
+      );
     },
+  },
+  watch: {
+    period: 'setData',
+    fromDate: 'setData',
+    toDate: 'setData',
   },
   activated() {
     this.setData();
   },
   methods: {
     async setData() {
-      const { fromDate, toDate } = getDatesAndPeriodList(this.period);
-      let topExpenses = await fyo.db.getTopExpenses(
-        fromDate.toISO(),
-        toDate.toISO()
-      );
-      const shades = [
-        { class: 'bg-pink-500', hex: uicolors.pink['500'] },
-        { class: 'bg-pink-400', hex: uicolors.pink['400'] },
-        { class: 'bg-pink-300', hex: uicolors.pink['300'] },
-        { class: 'bg-pink-200', hex: uicolors.pink['200'] },
-        { class: 'bg-pink-100', hex: uicolors.pink['100'] },
-      ];
+      try {
+        const { fromDate, toDate } = getDashboardDates(
+          this.period as string,
+          this.fromDate as string | Date,
+          this.toDate as string | Date
+        );
 
-      const darkshades = [
-        { class: 'bg-pink-600', hex: uicolors.pink['600'] },
-        { class: 'bg-pink-500', hex: uicolors.pink['500'] },
-        { class: 'bg-pink-400', hex: uicolors.pink['400'] },
-        { class: 'bg-pink-300', hex: uicolors.pink['300'] },
-        {
-          class: 'bg-pink-200 dark:bg-opacity-80',
-          hex: uicolors.pink['200'] + 'CC',
-        },
-      ];
+        if (!fromDate.isValid || !toDate.isValid) {
+          this.expenses = [];
+          return;
+        }
 
-      this.expenses = topExpenses
-        .filter((e) => e.total > 0)
-        .map((d, i) => {
-          return {
-            account: d.account,
-            total: d.total,
-            color: { color: shades[i].hex, darkColor: darkshades[i].hex },
-            class: { class: shades[i].class, darkClass: darkshades[i].class },
-          };
-        });
+        const topExpenses: { account?: string; total?: number }[] =
+          await fyo.db.getTopExpenses(fromDate.toISO(), toDate.toISO());
+
+        const shades = [
+          { class: 'bg-pink-500', hex: uicolors.pink['500'] },
+          { class: 'bg-pink-400', hex: uicolors.pink['400'] },
+          { class: 'bg-pink-300', hex: uicolors.pink['300'] },
+          { class: 'bg-pink-200', hex: uicolors.pink['200'] },
+          { class: 'bg-pink-100', hex: uicolors.pink['100'] },
+        ];
+
+        const darkShades = [
+          { class: 'bg-pink-600', hex: uicolors.pink['600'] },
+          { class: 'bg-pink-500', hex: uicolors.pink['500'] },
+          { class: 'bg-pink-400', hex: uicolors.pink['400'] },
+          { class: 'bg-pink-300', hex: uicolors.pink['300'] },
+          {
+            class: 'bg-pink-200 dark:bg-opacity-80',
+            hex: uicolors.pink['200'] + 'CC',
+          },
+        ];
+
+        let expenses: Expense[] = (topExpenses || [])
+          .map((d, i) => {
+            const shadeIndex = i % shades.length;
+            return {
+              account: d.account || 'Unknown',
+              total: typeof d.total === 'number' ? d.total : 0,
+              color: {
+                color: shades[shadeIndex].hex,
+                darkColor: darkShades[shadeIndex].hex,
+              },
+              class: {
+                class: shades[shadeIndex].class,
+                darkClass: darkShades[shadeIndex].class,
+              },
+            };
+          })
+          .filter((e) => e.total > 0);
+
+        if (expenses.length === 0) {
+          expenses = [
+            {
+              account: 'No Expenses',
+              total: 1,
+              color: { color: '#f4f4f6', darkColor: '#333' },
+              class: { class: 'bg-gray-200', darkClass: 'bg-gray-700' },
+            },
+          ];
+        }
+
+        this.expenses = expenses;
+      } catch {
+        this.expenses = [
+          {
+            account: 'No Expenses',
+            total: 1,
+            color: { color: '#f4f4f6', darkColor: '#333' },
+            class: { class: 'bg-gray-200', darkClass: 'bg-gray-700' },
+          },
+        ];
+      }
     },
   },
 });
