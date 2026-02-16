@@ -508,6 +508,11 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
     }
   }
 
+  /**
+   * SalesQuote extends Invoice but should never show payment-related
+   * statuses (Paid, Unpaid, etc.) since quotes cannot be paid.
+   * Return early with simple submitted/cancelled/saved statuses.
+   */
   if (!!doc.submitted && !doc.cancelled) {
     return 'Submitted';
   }
