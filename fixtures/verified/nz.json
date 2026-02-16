@@ -1,0 +1,238 @@
+{
+  "countryCode": "nz",
+  "name": "New Zealand - Chart of Accounts",
+  "tree": {
+    "Assets": {
+      "Current Assets": {
+        "Accounts Receivable": {
+          "Debtors": {
+            "accountType": "Receivable"
+          }
+        },
+        "Bank Accounts": {
+          "accountType": "Bank",
+          "isGroup": true
+        },
+        "Cash in Hand": {
+          "Petty Cash": {
+            "accountType": "Cash"
+          },
+          "accountType": "Cash"
+        },
+        "Loans and Advances (Assets)": {
+          "isGroup": true
+        },
+        "Prepayments": {},
+        "Securities and Deposits": {
+          "Bank Deposits": {},
+          "Rental Deposits": {}
+        },
+        "Stock Assets": {
+          "Stock in Hand": {
+            "accountType": "Stock"
+          },
+          "accountType": "Stock"
+        },
+        "Tax Assets": {
+          "GST-Input": {}
+        }
+      },
+      "Non-current Assets": {
+        "Fixed Assets": {
+          "Buildings": {
+            "accountType": "Fixed Asset"
+          },
+          "Computer Equipment": {
+            "accountType": "Fixed Asset"
+          },
+          "Furniture and Fixtures": {
+            "accountType": "Fixed Asset"
+          },
+          "Motor Vehicles": {
+            "accountType": "Fixed Asset"
+          },
+          "Office Equipment": {
+            "accountType": "Fixed Asset"
+          },
+          "Plant and Machinery": {
+            "accountType": "Fixed Asset"
+          },
+          "accountType": "Fixed Asset"
+        },
+        "Accumulated Depreciation": {
+          "AccDep - Buildings": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "AccDep - Computer Equipment": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "AccDep - Furniture and Fixtures": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "AccDep - Motor Vehicles": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "AccDep - Office Equipment": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "AccDep - Plant and Machinery": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "accountType": "Accumulated Depreciation"
+        },
+        "Investments": {
+          "isGroup": true
+        }
+      },
+      "Temporary Accounts": {
+        "Temporary Opening": {
+          "accountType": "Temporary"
+        }
+      },
+      "rootType": "Asset"
+    },
+    "Liabilities": {
+      "Current Liabilities": {
+        "Accounts Payable": {
+          "Creditors": {
+            "accountType": "Payable"
+          },
+          "Payroll Payable": {}
+        },
+        "Duties and Taxes": {
+          "GST": {
+            "accountType": "Tax"
+          },
+          "Income Tax Payable": {},
+          "PAYE Payable": {},
+          "accountType": "Tax",
+          "isGroup": true
+        },
+        "Employee Liabilities": {
+          "ACC Levies Payable": {},
+          "KiwiSaver Payable": {}
+        },
+        "Loans (Current)": {
+          "Bank Overdraft Account": {},
+          "Secured Loans": {},
+          "Unsecured Loans": {}
+        },
+        "Stock Liabilities": {
+          "Stock Received But Not Billed": {
+            "accountType": "Stock Received But Not Billed"
+          }
+        }
+      },
+      "Non-current Liabilities": {
+        "Loans (Non-current)": {
+          "isGroup": true
+        }
+      },
+      "rootType": "Liability"
+    },
+    "Equity": {
+      "Share Capital": {
+        "accountType": "Equity"
+      },
+      "Opening Balance Equity": {
+        "accountType": "Equity"
+      },
+      "Retained Earnings": {
+        "accountType": "Equity"
+      },
+      "Dividends Paid": {
+        "accountType": "Equity"
+      },
+      "rootType": "Equity"
+    },
+    "Income": {
+      "Direct Income": {
+        "Sales": {},
+        "Service": {}
+      },
+      "Indirect Income": {
+        "Discounts": {},
+        "Interest Income": {},
+        "Other Income": {},
+        "isGroup": true
+      },
+      "rootType": "Income"
+    },
+    "Expenses": {
+      "Direct Expenses": {
+        "Stock Expenses": {
+          "Cost of Goods Sold": {
+            "accountType": "Cost of Goods Sold"
+          },
+          "Expenses Included In Valuation": {
+            "accountType": "Expenses Included In Valuation"
+          },
+          "Stock Adjustment": {
+            "accountType": "Stock Adjustment"
+          }
+        }
+      },
+      "Indirect Expenses": {
+        "Accounting Fees": {},
+        "Advertising and Promotion": {},
+        "Bank Charges": {},
+        "Communication Costs": {
+          "Internet": {},
+          "Telephone": {}
+        },
+        "Depreciation": {
+          "Dep - Buildings": {
+            "accountType": "Depreciation"
+          },
+          "Dep - Computer Equipment": {
+            "accountType": "Depreciation"
+          },
+          "Dep - Furniture and Fixtures": {
+            "accountType": "Depreciation"
+          },
+          "Dep - Motor Vehicles": {
+            "accountType": "Depreciation"
+          },
+          "Dep - Office Equipment": {
+            "accountType": "Depreciation"
+          },
+          "Dep - Plant and Machinery": {
+            "accountType": "Depreciation"
+          },
+          "accountType": "Depreciation"
+        },
+        "Entertainment Expenses": {},
+        "Exchange Gain/Loss": {},
+        "Freight and Courier": {
+          "accountType": "Chargeable"
+        },
+        "Gain/Loss on Asset Disposal": {},
+        "Insurance": {},
+        "Legal and Professional Fees": {},
+        "Motor Vehicle Expenses": {},
+        "Office Supplies": {},
+        "Rent": {},
+        "Repairs and Maintenance": {},
+        "Round Off": {
+          "accountType": "Round Off"
+        },
+        "Staff Expenses": {
+          "ACC Levies": {},
+          "KiwiSaver Employer Contributions": {},
+          "Salaries and Wages": {},
+          "Staff Training": {},
+          "Staff Welfare": {}
+        },
+        "Subscriptions": {},
+        "Travel Expenses": {},
+        "Utilities": {
+          "Electricity": {},
+          "Gas": {},
+          "Water": {}
+        },
+        "Write Off": {}
+      },
+      "rootType": "Expense"
+    }
+  }
+}

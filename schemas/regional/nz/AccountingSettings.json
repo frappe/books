@@ -1,0 +1,21 @@
+{
+  "name": "AccountingSettings",
+  "fields": [
+    {
+      "fieldname": "taxId",
+      "label": "IRD Number",
+      "fieldtype": "Data",
+      "placeholder": "12-345-678",
+      "section": "Default"
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "fiscalYearStart",
+    "fiscalYearEnd",
+    "taxId"
+  ]
+}
