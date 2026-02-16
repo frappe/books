@@ -821,7 +821,7 @@ function getDiscountedTotalBeforeTaxation(
    */
 
   if (setDiscountAmount) {
-    return rate.sub(itemDiscountAmount).mul(quantity);
+    return rate.mul(quantity).sub(itemDiscountAmount);
   } else if (itemDiscountPercent > 0) {
     return rate.mul(quantity).percent(itemDiscountPercent);
   }
