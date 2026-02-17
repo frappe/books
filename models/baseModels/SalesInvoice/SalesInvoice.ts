@@ -29,12 +29,24 @@ export class SalesInvoice extends Invoice {
       await posting.debit(this.account!, this.baseGrandTotal!);
     }
 
+    const project = this.fyo.singles.AccountingSettings?.enableProjects
+      ? this.project
+      : undefined;
+
     for (const item of this.items!) {
       if (this.isReturn) {
-        await posting.debit(item.account!, item.amount!.mul(exchangeRate));
+        await posting.debit(
+          item.account!,
+          item.amount!.mul(exchangeRate),
+          project
+        );
         continue;
       }
-      await posting.credit(item.account!, item.amount!.mul(exchangeRate));
+      await posting.credit(
+        item.account!,
+        item.amount!.mul(exchangeRate),
+        project
+      );
     }
 
     if (this.redeemLoyaltyPoints) {

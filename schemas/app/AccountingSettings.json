@@ -163,6 +163,13 @@
       "default": false,
       "section": "Features"
     },
+	{
+      "fieldname": "enableProjects",
+      "label": "Enable Projects",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
     {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",

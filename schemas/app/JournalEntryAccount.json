@@ -21,8 +21,15 @@
       "fieldname": "credit",
       "label": "Credit",
       "fieldtype": "Currency"
+    },
+	{
+      "fieldname": "project",
+      "label": "Project",
+      "fieldtype": "Link",
+      "target": "Project",
+      "create": true
     }
   ],
-  "tableFields": ["account", "debit", "credit"],
+  "tableFields": ["account", "debit", "credit", "project"],
   "keywordFields": ["account"]
 }

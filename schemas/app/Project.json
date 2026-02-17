@@ -1,0 +1,43 @@
+{
+  "name": "Project",
+  "label": "Project",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Project Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": [
+        { "label": "Active", "value": "Active" },
+        { "label": "Completed", "value": "Completed" },
+        { "label": "Cancelled", "value": "Cancelled" }
+      ],
+      "default": "Active",
+      "required": true
+    }
+  ],
+  "keywordFields": ["name"],
+  "states": [
+    {
+      "label": "Active",
+      "color": "blue",
+      "filter": { "status": "Active" }
+    },
+    {
+      "label": "Completed",
+      "color": "green",
+      "filter": { "status": "Completed" }
+    },
+    {
+      "label": "Cancelled",
+      "color": "gray",
+      "filter": { "status": "Cancelled" }
+    }
+  ]
+}

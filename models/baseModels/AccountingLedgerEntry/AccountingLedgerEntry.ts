@@ -12,6 +12,7 @@ export class AccountingLedgerEntry extends Doc {
   referenceType?: string;
   referenceName?: string;
   reverted?: boolean;
+  project?: string;
 
   async revert() {
     if (this.reverted) {

@@ -30,7 +30,11 @@ export class GeneralLedger extends LedgerReport {
   ascending = false;
   reverted = false;
   referenceType: ReferenceType = 'All';
-  groupBy: 'none' | 'party' | 'account' | 'referenceName' = 'none';
+  project?: string;
+  account?: string;
+  party?: string;
+  referenceName?: string;
+  groupBy: 'none' | 'party' | 'account' | 'referenceName' | 'project' = 'none';
   _rawData: LedgerEntry[] = [];
 
   constructor(fyo: Fyo) {
@@ -241,15 +245,18 @@ export class GeneralLedger extends LedgerReport {
 
   _getQueryFilters(): QueryFilter {
     const filters: QueryFilter = {};
-    const stringFilters = ['account', 'party', 'referenceName'];
 
-    for (const sf of stringFilters) {
-      const value = this[sf];
-      if (value === undefined) {
-        continue;
-      }
-
-      filters[sf] = value as string;
+    if (this.account) {
+      filters.account = this.account;
+    }
+    if (this.party) {
+      filters.party = this.party;
+    }
+    if (this.referenceName) {
+      filters.referenceName = this.referenceName;
+    }
+    if (this.fyo.singles.AccountingSettings?.enableProjects && this.project) {
+      filters.project = this.project;
     }
 
     if (this.referenceType !== 'All') {
@@ -289,7 +296,7 @@ export class GeneralLedger extends LedgerReport {
       );
     }
 
-    return [
+    const filters = [
       {
         fieldtype: 'Select',
         options: refTypeOptions,
@@ -340,6 +347,7 @@ export class GeneralLedger extends LedgerReport {
           { label: t`Party`, value: 'party' },
           { label: t`Account`, value: 'account' },
           { label: t`Reference`, value: 'referenceName' },
+          { label: t`Project`, value: 'project' },
         ],
       },
       {
@@ -353,6 +361,18 @@ export class GeneralLedger extends LedgerReport {
         fieldname: 'ascending',
       },
     ] as Field[];
+
+    if (!!this.fyo.singles.AccountingSettings?.enableProjects) {
+      filters.splice(4, 0, {
+        fieldtype: 'Link',
+        target: 'Project',
+        label: t`Project`,
+        placeholder: t`Project`,
+        fieldname: 'project',
+      } as Field);
+    }
+
+    return filters;
   }
 
   getColumns(): ColumnField[] {

@@ -1,8 +1,13 @@
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap, FormulaMap } from 'fyo/model/types';
+import { FiltersMap, FormulaMap, HiddenMap } from 'fyo/model/types';
 import { Money } from 'pesa';
 
 export class JournalEntryAccount extends Doc {
+  account?: string;
+  debit?: Money;
+  credit?: Money;
+  project?: string;
+
   getAutoDebitCredit(type: 'debit' | 'credit') {
     const currentValue = this.get(type) as Money;
     if (!currentValue.isZero()) {
@@ -36,7 +41,12 @@ export class JournalEntryAccount extends Doc {
     },
   };
 
+  hidden: HiddenMap = {
+    project: () => !this.fyo.singles.AccountingSettings?.enableProjects,
+  };
+
   static filters: FiltersMap = {
     account: () => ({ isGroup: false }),
+    project: () => ({ status: 'Active' }),
   };
 }
