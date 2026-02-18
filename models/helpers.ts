@@ -1632,20 +1632,18 @@ export async function validateLoyaltyProgram(
     filters: { name: loyaltyProgramName },
   });
 
-  if (!loyaltyProgram[0]?.isEnabled) {
-    throw new ValidationError(
-      'Loyalty program cannot be applied as it is not enabled'
-    );
-  }
-
   if (
     (loyaltyProgram[0]?.maximumUse as number) > 0 &&
     (loyaltyProgram[0]?.used as number) >=
       (loyaltyProgram[0]?.maximumUse as number)
   ) {
-    throw new ValidationError(
-      'Loyalty program has reached maximum usage limit'
-    );
+    const { showToast } = await import('src/utils/interactive');
+    showToast({
+      type: 'warning',
+      message: t`Loyalty program has reached maximum usage`,
+      duration: 'short',
+    });
+    return;
   }
 
   if (
@@ -1662,9 +1660,14 @@ export async function validateLoyaltyProgram(
     const normalizedToDate = new Date(toDate);
     normalizedToDate.setHours(0, 0, 0, 0);
 
-    // Only throw error if toDate is clearly in the past
     if (normalizedToDate.getTime() < today.getTime()) {
-      throw new ValidationError('Loyalty program has expired');
+      const { showToast } = await import('src/utils/interactive');
+      showToast({
+        type: 'warning',
+        message: t`Loyalty program has expired`,
+        duration: 'short',
+      });
+      return;
     }
   }
 }

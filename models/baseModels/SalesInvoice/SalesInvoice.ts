@@ -118,9 +118,13 @@ export class SalesInvoice extends Invoice {
       today.setHours(0, 0, 0, 0);
 
       if (toDate && new Date(toDate).getTime() < today.getTime()) {
-        throw new ValidationError(
-          t`Loyalty program has expired and cannot be applied`
-        );
+        const { showToast } = await import('src/utils/interactive');
+        showToast({
+          type: 'warning',
+          message: t`Loyalty program has expired and cannot be applied`,
+          duration: 'short',
+        });
+        return;
       }
 
       if (!this?.grandTotal) {

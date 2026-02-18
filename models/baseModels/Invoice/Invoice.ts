@@ -770,6 +770,9 @@ export abstract class Invoice extends Transactional {
             ...docItem,
             name: undefined,
             quantity: -(totalQtyOfReturnedItems[docItem.item as string] || 0),
+            qty:
+              -(totalQtyOfReturnedItems[docItem.item as string] as number) /
+              (item.unitConversionFactor as number),
             transferQuantity: -(
               (totalQtyOfReturnedItems[docItem.item as string] as number) /
               (item.unitConversionFactor as number)
@@ -835,6 +838,7 @@ export abstract class Invoice extends Transactional {
         serialNumber,
         name: undefined,
         quantity: quantity,
+        qty: transferQuantity,
         transferQuantity,
       });
     }
@@ -1611,6 +1615,20 @@ export abstract class Invoice extends Transactional {
 
   async beforeSync(): Promise<void> {
     await super.beforeSync();
+    if (this.loyaltyProgram) {
+      const isExpiredOrMaxed = await isLoyaltyProgramExpiredAndMaxed(
+        this.fyo,
+        this.loyaltyProgram
+      );
+      if (isExpiredOrMaxed) {
+        const { showToast } = await import('src/utils/interactive');
+        showToast({
+          type: 'warning',
+          message: t`Loyalty program has expired or reached maximum usage`,
+          duration: 'short',
+        });
+      }
+    }
 
     if (this.pricingRuleDetail?.length) {
       await this.applyProductDiscount();
