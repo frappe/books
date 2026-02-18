@@ -27,7 +27,7 @@
     </p>
   </div>
 
-  <div class="flex items-center" @click="toggleExpandAndEmit">
+  <div class="flex items-center">
     <Int
       :df="{
         fieldname: 'quantity',
@@ -115,7 +115,7 @@
   <div></div>
 
   <template v-if="isExapanded">
-    <div class="px-4 pt-6 col-span-1" @click="toggleExpandAndEmit">
+    <div class="px-4 pt-6 col-span-1">
       <Int
         v-if="isUOMConversionEnabled"
         :df="{

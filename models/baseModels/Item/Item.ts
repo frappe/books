@@ -152,25 +152,6 @@ export class Item extends Doc {
             current: 1001,
           })
           .sync();
-
-        const batchSeriesDoc = await this.fyo.doc.getDoc(
-          'BatchSeries',
-          seriesName
-        );
-        const start = (batchSeriesDoc?.start as number) ?? 1001;
-        const padZeros = (batchSeriesDoc?.padZeros as number) ?? 4;
-        const batchName = start.toString().padStart(padZeros, '0');
-
-        const batchExists = await this.fyo.db.exists('Batch', batchName);
-
-        if (!batchExists) {
-          await this.fyo.doc
-            .getNewDoc('Batch', {
-              name: batchName,
-              item: this.name as string,
-            })
-            .sync();
-        }
       }
     }
   }
