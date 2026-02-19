@@ -534,7 +534,7 @@ export abstract class Invoice extends Transactional {
           return a.abs().add(b.abs()).neg();
         }
 
-        return a.add(b.abs());
+        return a.add(b);
       }, (this.netTotal as Money).abs())
       .sub(totalDiscount);
 
