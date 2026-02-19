@@ -7,6 +7,7 @@ import { systemLanguageRef } from './refs';
 export const languageCodeMap: Record<string, string> = {
   Arabic: 'ar',
   Catalan: 'ca-ES',
+  Czech: 'cs',
   Danish: 'da',
   Dutch: 'nl',
   English: 'en',
@@ -19,6 +20,7 @@ export const languageCodeMap: Record<string, string> = {
   Nepali: 'np',
   Persian: 'fa',
   Portuguese: 'pt',
+  Slovak: 'sk',
   'Simplified Chinese': 'zh-CN',
   'Traditional Chinese': 'zh-Hant',
   Spanish: 'es',

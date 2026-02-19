@@ -28,6 +28,7 @@ export function getCOAList() {
       countryCode: 'ca',
       name: 'Canada - Plan comptable pour les provinces francophones',
     },
+    { countryCode: 'cz', name: 'Czech Republic - Účtová osnova' },
     { countryCode: 'gt', name: 'Guatemala - Cuentas' },
     { countryCode: 'hu', name: 'Hungary - Chart of Accounts' },
     { countryCode: 'id', name: 'Indonesia - Chart of Accounts' },
@@ -36,6 +37,7 @@ export function getCOAList() {
     { countryCode: 'ni', name: 'Nicaragua - Catalogo de Cuentas' },
     { countryCode: 'nl', name: 'Netherlands - Grootboekschema' },
     { countryCode: 'sg', name: 'Singapore - Chart of Accounts' },
+    { countryCode: 'sk', name: 'Slovakia - Účtová osnova' },
     { countryCode: 'fr', name: 'France - Plan Comptable General' },
     /*  
     { countryCode: 'th', name: 'Thailand - Chart of Accounts' },
