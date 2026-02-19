@@ -145,6 +145,19 @@ export abstract class InvoiceItem extends Doc {
     },
     rate: {
       formula: async (fieldname) => {
+        // Preserve user-entered rate if it exists and the change wasn't triggered by
+        // fields that should recalculate the rate (item, priceList, batch, pricingRuleDetail)
+        const shouldPreserveRate =
+          this.rate?.float &&
+          fieldname !== 'item' &&
+          fieldname !== 'priceList' &&
+          fieldname !== 'batch' &&
+          fieldname !== 'pricingRuleDetail';
+
+        if (shouldPreserveRate) {
+          return this.rate;
+        }
+
         const rate = await getItemRate(this);
         if (!rate?.float && this.rate?.float) {
           return this.rate;
