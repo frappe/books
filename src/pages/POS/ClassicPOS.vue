@@ -186,6 +186,10 @@
             />
 
             <SelectedItemTable
+              :expanded-batch-id="expandedBatchId"
+              @set-expanded-batch-id="
+                (rowName) => $emit('setExpandedBatchId', rowName)
+              "
               @apply-pricing-rule="emitEvent('applyPricingRule')"
               @selected-row="(row) => $emit('selectedRow', row)"
             />
@@ -502,8 +506,13 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    expandedBatchId: {
+      type: String as PropType<string | null | undefined>,
+      default: undefined,
+    },
   },
   emits: [
+    'setExpandedBatchId',
     'addItem',
     'toggleView',
     'toggleModal',
