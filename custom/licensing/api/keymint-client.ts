@@ -23,59 +23,119 @@ export class KeymintClient {
    * Activate a license key with device binding
    */
   async activate(request: ActivationRequest): Promise<KeymintApiResponse> {
-    return this.makeRequest('/key/activate', request);
+    return this.makePostRequest('/key/activate', request);
   }
 
   /**
-   * Validate an existing license
+   * Validate an existing license - uses GET /key endpoint
    */
   async validate(request: ValidationRequest): Promise<KeymintApiResponse> {
-    return this.makeRequest('/key/validate', request);
+    return this.makeGetRequest('/key', {
+      productId: request.productId,
+      licenseKey: request.licenseKey,
+    });
   }
 
   /**
    * Deactivate a license on this device (optional)
    */
   async deactivate(licenseKey: string, hostId: string): Promise<KeymintApiResponse> {
-    return this.makeRequest('/key/deactivate', { licenseKey, hostId });
+    return this.makePostRequest('/key/deactivate', { licenseKey, hostId });
   }
 
   /**
-   * Make HTTP request to keymint.dev API with retry logic
+   * Make HTTP GET request with query parameters (for validation)
    */
-  private async makeRequest(
+  private async makeGetRequest(
     endpoint: string,
-    data: unknown,
+    params: Record<string, string>,
     retries: number = 2
   ): Promise<KeymintApiResponse> {
-    const url = `${this.apiUrl}${endpoint}`;
+    // Build query string
+    const queryString = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+    const url = `${this.apiUrl}${endpoint}?${queryString}`;
+    
+    console.log(`\n=== Keymint API GET Request ===`);
+    console.log(`URL: ${url}`);
+    console.log(`Endpoint: ${endpoint}`);
+    console.log(`Params:`, JSON.stringify(params, null, 2));
     
     // Check for missing credentials
     if (!this.accessToken) {
       throw new Error('Keymint access token is not configured. Set KEYMINT_ACCESS_TOKEN environment variable.');
     }
     
+    return this.executeRequest(url, 'GET', null, retries);
+  }
+
+  /**
+   * Make HTTP POST request with JSON body (for activation)
+   */
+  private async makePostRequest(
+    endpoint: string,
+    data: unknown,
+    retries: number = 2
+  ): Promise<KeymintApiResponse> {
+    const url = `${this.apiUrl}${endpoint}`;
+    
+    console.log(`\n=== Keymint API POST Request ===`);
+    console.log(`URL: ${url}`);
+    console.log(`Endpoint: ${endpoint}`);
+    console.log(`Data:`, JSON.stringify(data, null, 2));
+    
+    // Check for missing credentials
+    if (!this.accessToken) {
+      throw new Error('Keymint access token is not configured. Set KEYMINT_ACCESS_TOKEN environment variable.');
+    }
+    
+    return this.executeRequest(url, 'POST', data, retries);
+  }
+
+  /**
+   * Execute HTTP request with retry logic
+   */
+  private async executeRequest(
+    url: string,
+    method: 'GET' | 'POST',
+    data: unknown | null,
+    retries: number
+  ): Promise<KeymintApiResponse> {
+    
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-        const response = await fetch(url, {
-          method: 'POST',
+        const fetchOptions: any = {
+          method,
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
-            'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data),
           signal: controller.signal,
-        });
+        };
+
+        // Add body and content-type for POST requests
+        if (method === 'POST' && data) {
+          fetchOptions.headers['Content-Type'] = 'application/json';
+          fetchOptions.body = JSON.stringify(data);
+        }
+
+        const response = await fetch(url, fetchOptions);
 
         clearTimeout(timeoutId);
 
         // Check if response has content
         const contentType = response.headers.get('content-type');
+        console.log(`Response Status: ${response.status}`);
+        console.log(`Response Content-Type: ${contentType}`);
+        
         if (!contentType || !contentType.includes('application/json')) {
-          throw new Error(`Unexpected content type: ${contentType}. Status: ${response.status}`);
+          // Log the HTML response for debugging
+          const htmlText = await response.text();
+          console.log(`HTML Response (first 500 chars):`, htmlText.substring(0, 500));
+          throw new Error(`Unexpected content type: ${contentType}. Status: ${response.status}. This might indicate the endpoint doesn't exist or requires different authentication.`);
         }
 
         const text = await response.text();
