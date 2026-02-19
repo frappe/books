@@ -102,6 +102,22 @@ export class OnlineValidator {
         hostId,
       });
 
+      console.log('Keymint validation response:', JSON.stringify(response, null, 2));
+      
+      // Extract data from nested structure
+      // GET /key returns: { data: { license: { expirationDate }, customer: { name, email } }, code: 0 }
+      const responseData = (response as any).data;
+      const customerData = responseData?.customer;
+      const licenseData = responseData?.license;
+      
+      const licenseeName = customerData?.name || response.licensee_name;
+      const licenseeEmail = customerData?.email || response.licensee_email;
+      const expirationDate = licenseData?.expirationDate || response.expires_at;
+      
+      console.log('Extracted licensee_name:', licenseeName);
+      console.log('Extracted licensee_email:', licenseeEmail);
+      console.log('Extracted expirationDate:', expirationDate);
+
       if (response.code !== 0) {
         return {
           state: LicenseState.INVALID,
@@ -120,9 +136,9 @@ export class OnlineValidator {
         licenseKey,
         productId: this.config.productId,
         hostId,
-        licenseeEmail: response.licensee_email,
-        licenseeName: response.licensee_name,
-        expiresAt: response.expires_at,
+        licenseeEmail,
+        licenseeName,
+        expiresAt: expirationDate,
         activatedAt: now.toISOString(), // Keep original if exists
         lastValidatedAt: now.toISOString(),
         gracePeriodEndsAt: gracePeriodEndsAt.toISOString(),
@@ -135,9 +151,9 @@ export class OnlineValidator {
         state: LicenseState.ACTIVE_ONLINE,
         isValid: true,
         licenseKey,
-        licenseeEmail: response.licensee_email,
-        licenseeName: response.licensee_name,
-        expiresAt: response.expires_at ? new Date(response.expires_at) : undefined,
+        licenseeEmail,
+        licenseeName,
+        expiresAt: expirationDate ? new Date(expirationDate) : undefined,
         gracePeriodEndsAt,
         lastValidatedAt: now,
         validatedOnline: true,

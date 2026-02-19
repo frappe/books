@@ -16,7 +16,7 @@ const packageDirPath = path.join(root, 'dist_electron', 'bundled');
 
 const frappeBooksConfig = {
   productName: 'Rare Books',
-  appId: 'io.frappe.books',
+  appId: 'com.rareco.rarebooks',
   artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
   asarUnpack: '**/*.node',
   extraResources: [
@@ -60,6 +60,10 @@ const frappeBooksConfig = {
       {
         target: 'portable',
         arch: ['x64', 'ia32'],
+      },
+      {
+        target: 'msix',
+        arch: ['x64'],
       },
     ],
   },

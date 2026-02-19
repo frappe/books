@@ -48,7 +48,12 @@ export default function registerLicenseIpcListeners(_main: Main) {
     async (): Promise<LicenseValidationResult> => {
       try {
         const manager = getLicenseManager();
-        return await manager.checkLicense();
+        const result = await manager.checkLicense();
+        console.log('\n=== IPC CHECK_LICENSE Result ===');
+        console.log('licenseeEmail:', result.licenseeEmail);
+        console.log('licenseeName:', result.licenseeName);
+        console.log('Full result:', JSON.stringify(result, null, 2));
+        return result;
       } catch (error) {
         console.error('License check error:', error);
         return {
