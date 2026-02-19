@@ -5,7 +5,31 @@ const colors = JSON.parse(
 
 module.exports = {
   darkMode: 'class',
-  purge: false,
+  purge: {
+    content: [
+      './src/**/*.vue',
+      './src/**/*.ts',
+      './templates/**/*.html',
+      './src/index.html',
+    ],
+    safelist: [
+      // Dynamic color classes constructed at runtime in src/utils/colors.ts
+      // (getBgColorClass, getColorClass, getTextColorClass, getBgTextColorClass)
+      ...[
+        'gray', 'orange', 'green', 'red', 'yellow',
+        'blue', 'indigo', 'pink', 'purple', 'teal',
+      ].flatMap((c) =>
+        [100, 200, 300, 400, 500, 600, 700, 800, 900].flatMap((v) => [
+          `bg-${c}-${v}`,
+          `text-${c}-${v}`,
+          `border-${c}-${v}`,
+          `dark:bg-${c}-${v}`,
+          `dark:text-${c}-${v}`,
+          `dark:border-${c}-${v}`,
+        ])
+      ),
+    ],
+  },
   theme: {
     fontFamily: {
       sans: ['Inter', 'sans-serif'],
