@@ -776,9 +776,11 @@
   },
   "Georgia": {
     "code": "ge",
+    "currency": "GEL",
     "currency_fraction": "Tetri",
     "currency_fraction_units": 100,
-    "currency_symbol": "ლ",
+    "currency_name": "Georgian Lari",
+    "currency_symbol": "₾",
     "timezones": ["Asia/Tbilisi"],
     "locale": "ka-GE"
   },
