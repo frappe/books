@@ -35,7 +35,7 @@
     <!-- Party Details -->
     <section class="w-1/2">
       <h3 class="uppercase text-sm font-semibold tracking-widest text-gray-800">
-        {{ doc.entryType === 'SalesInvoice' ? 'To' : 'From' }}
+        {{ doc.entryType.startsWith('Sales') ? 'To' : 'From' }}
       </h3>
       <p class="mt-4 text-black leading-relaxed text-lg">{{ doc.party }}</p>
       <p
@@ -64,7 +64,7 @@
           ml-8
         "
       >
-        {{ doc.entryType === 'SalesInvoice' ? 'From' : 'To' }}
+        {{ doc.entryType.startsWith('Sales') ? 'From' : 'To' }}
       </h3>
       <p class="mt-4 ml-8 text-black leading-relaxed text-lg">
         {{ print.companyName }}
