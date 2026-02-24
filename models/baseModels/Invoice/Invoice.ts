@@ -199,6 +199,23 @@ export abstract class Invoice extends Transactional {
     if (this.isQuote) {
       return;
     }
+    if (!this.submitted && this.loyaltyProgram) {
+      const isExpiredOrMaxed = await isLoyaltyProgramExpiredAndMaxed(
+        this.fyo,
+        this.loyaltyProgram
+      );
+
+      if (isExpiredOrMaxed) {
+        const { showToast } = await import('src/utils/interactive');
+
+        showToast({
+          type: 'warning',
+          message: t`Loyalty program has expired or reached maximum usage`,
+          duration: 'short',
+        });
+      }
+    }
+
     if (
       this.enableDiscounting &&
       !this.fyo.singles?.AccountingSettings?.discountAccount
@@ -759,14 +776,20 @@ export abstract class Invoice extends Transactional {
         if (item.batch) {
           const returnData = totalQtyOfReturnedItems[item.item as string];
           if (typeof returnData === 'object' && returnData?.batches) {
-            returnDocItems = docItems.map((docItem) => ({
-              ...docItem,
-              name: undefined,
-              quantity: -returnData?.batches![docItem.batch as string] || 0,
-            }));
+            returnDocItems = docItems.map((docItem: DocValueMap) => {
+              const qty = -returnData?.batches![docItem.batch as string] || 0;
+              const transferQty =
+                qty / ((docItem.unitConversionFactor as number) || 1);
+              return {
+                ...docItem,
+                name: undefined,
+                quantity: qty,
+                transferQuantity: transferQty,
+              };
+            });
           }
         } else {
-          returnDocItems = docItems.map((docItem) => ({
+          returnDocItems = docItems.map((docItem: DocValueMap) => ({
             ...docItem,
             name: undefined,
             quantity: -(totalQtyOfReturnedItems[docItem.item as string] || 0),
@@ -1615,20 +1638,6 @@ export abstract class Invoice extends Transactional {
 
   async beforeSync(): Promise<void> {
     await super.beforeSync();
-    if (this.loyaltyProgram) {
-      const isExpiredOrMaxed = await isLoyaltyProgramExpiredAndMaxed(
-        this.fyo,
-        this.loyaltyProgram
-      );
-      if (isExpiredOrMaxed) {
-        const { showToast } = await import('src/utils/interactive');
-        showToast({
-          type: 'warning',
-          message: t`Loyalty program has expired or reached maximum usage`,
-          duration: 'short',
-        });
-      }
-    }
 
     if (this.pricingRuleDetail?.length) {
       await this.applyProductDiscount();

@@ -1637,12 +1637,6 @@ export async function validateLoyaltyProgram(
     (loyaltyProgram[0]?.used as number) >=
       (loyaltyProgram[0]?.maximumUse as number)
   ) {
-    const { showToast } = await import('src/utils/interactive');
-    showToast({
-      type: 'warning',
-      message: t`Loyalty program has reached maximum usage`,
-      duration: 'short',
-    });
     return;
   }
 
@@ -1661,12 +1655,7 @@ export async function validateLoyaltyProgram(
     normalizedToDate.setHours(0, 0, 0, 0);
 
     if (normalizedToDate.getTime() < today.getTime()) {
-      const { showToast } = await import('src/utils/interactive');
-      showToast({
-        type: 'warning',
-        message: t`Loyalty program has expired`,
-        duration: 'short',
-      });
+      // Toast is already shown in beforeSync(), no need to duplicate
       return;
     }
   }
