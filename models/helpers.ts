@@ -1655,7 +1655,6 @@ export async function validateLoyaltyProgram(
     normalizedToDate.setHours(0, 0, 0, 0);
 
     if (normalizedToDate.getTime() < today.getTime()) {
-      // Toast is already shown in beforeSync(), no need to duplicate
       return;
     }
   }
