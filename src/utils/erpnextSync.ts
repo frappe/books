@@ -595,11 +595,6 @@ export async function performInitialFullSync(fyo: Fyo) {
     docsByType[docType].push(doc);
   }
 
-  for (const docType of processOrder) {
-    if (docsByType[docType]) {
-    }
-  }
-
   const failedDocs: string[] = [];
 
   for (const docType of processOrder) {
