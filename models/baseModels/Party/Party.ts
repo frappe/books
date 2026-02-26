@@ -14,6 +14,7 @@ import {
 import { Money } from 'pesa';
 import { PartyRole } from './types';
 import { ModelNameEnum } from 'models/types';
+import { isLoyaltyProgramExpiredAndMaxed } from 'models/helpers';
 
 export class Party extends Doc {
   role?: PartyRole;
@@ -66,6 +67,17 @@ export class Party extends Doc {
   }
 
   async _getTotalLoyaltyPoints() {
+    const loyaltyProgramName = this.loyaltyProgram as string;
+    if (loyaltyProgramName) {
+      const isExpiredAndMaxed = await isLoyaltyProgramExpiredAndMaxed(
+        this.fyo,
+        loyaltyProgramName
+      );
+      if (isExpiredAndMaxed) {
+        return 0;
+      }
+    }
+
     const data = (await this.fyo.db.getAll(ModelNameEnum.LoyaltyPointEntry, {
       fields: ['name', 'loyaltyPoints', 'expiryDate', 'postingDate'],
       filters: {

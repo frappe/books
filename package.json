@@ -30,7 +30,7 @@
     "electron-store": "^8.0.1",
     "feather-icons": "^4.28.0",
     "knex": "^2.4.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "luxon": "^2.5.2",
     "node-fetch": "2",
     "pesa": "^1.1.12",

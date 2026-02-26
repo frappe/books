@@ -134,6 +134,7 @@
             v-if="tableView"
             :items="items"
             :item-qty-map="itemQuantityMap as ItemQtyMap"
+            :item-visibility="itemVisibility"
             @add-item="(item) => emitEvent('addItem', item)"
           />
 
@@ -141,6 +142,7 @@
             v-else
             :items="items"
             :item-qty-map="itemQuantityMap as ItemQtyMap"
+            :item-visibility="itemVisibility"
             @add-item="(item) => emitEvent('addItem', item)"
           />
 
@@ -184,6 +186,10 @@
             />
 
             <SelectedItemTable
+              :expanded-batch-id="expandedBatchId"
+              @set-expanded-batch-id="
+                (rowName) => $emit('setExpandedBatchId', rowName)
+              "
               @apply-pricing-rule="emitEvent('applyPricingRule')"
               @selected-row="(row) => $emit('selectedRow', row)"
             />
@@ -483,6 +489,10 @@ export default defineComponent({
       type: Array as PropType<POSItem[] | undefined>,
       default: () => [],
     },
+    itemVisibility: {
+      type: String,
+      default: 'Inventory Items',
+    },
     profile: {
       type: Object as PropType<POSProfile>,
       required: false,
@@ -496,8 +506,13 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    expandedBatchId: {
+      type: String as PropType<string | null | undefined>,
+      default: undefined,
+    },
   },
   emits: [
+    'setExpandedBatchId',
     'addItem',
     'toggleView',
     'toggleModal',

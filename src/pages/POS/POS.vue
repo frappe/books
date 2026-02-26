@@ -27,6 +27,7 @@
       :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
+      :item-visibility="itemVisibility"
       :sinv-doc="(sinvDoc as SalesInvoice)"
       :disable-pay-button="disablePayButton"
       :open-payment-modal="openPaymentModal"
@@ -43,6 +44,8 @@
       :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       :open-batch-selection-modal="openBatchSelectionModal"
       :selected-item-for-batch="selectedItemForBatch"
+      :expanded-batch-id="expandedBatchId"
+      @set-expanded-batch-id="setExpandedBatchId"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -83,6 +86,7 @@
       :selected-item-group="selectedItemGroup"
       :is-pos-shift-open="isPosShiftOpen"
       :items="(items as [] as POSItem[])"
+      :item-visibility="itemVisibility"
       :sinv-doc="(sinvDoc as SalesInvoice)"
       :disable-pay-button="disablePayButton"
       :open-payment-modal="openPaymentModal"
@@ -100,6 +104,8 @@
       :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       :open-batch-selection-modal="openBatchSelectionModal"
       :selected-item-for-batch="selectedItemForBatch"
+      :expanded-batch-id="expandedBatchId"
+      @set-expanded-batch-id="setExpandedBatchId"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -166,7 +172,9 @@ import {
   removeFreeItems,
   getItemRateFromPriceList,
   getItemVisibility,
+  isLoyaltyProgramExpiredAndMaxed,
 } from 'models/helpers';
+import { ItemVisibility } from 'src/components/POS/types';
 import {
   POSItem,
   ItemQtyMap,
@@ -262,6 +270,8 @@ export default defineComponent({
       quickQtyKeyUpHandler: null as ((e: KeyboardEvent) => void) | null,
       selectedItemForBatch: '' as string,
       pendingBatchItem: null as { item: POSItem; quantity: number } | null,
+      expandedBatchId: undefined as string | null | undefined,
+      itemVisibilityValue: 'Inventory Items' as ItemVisibility,
     };
   },
   computed: {
@@ -271,6 +281,9 @@ export default defineComponent({
       return !!fyo.singles.AccountingSettings?.enableDiscounting;
     },
     isPosShiftOpen: () => !!fyo.singles.POSSettings?.isShiftOpen,
+    itemVisibility() {
+      return this.itemVisibilityValue;
+    },
     disablePayButton(): boolean {
       if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
         return true;
@@ -295,6 +308,7 @@ export default defineComponent({
   async mounted() {
     await this.setItems();
     await this.loadPOSProfile();
+    this.itemVisibilityValue = await getItemVisibility(this.fyo);
   },
   async activated() {
     toggleSidebar(false);
@@ -316,6 +330,9 @@ export default defineComponent({
   methods: {
     setQuickQtySelectedRow(row: SalesInvoiceItem) {
       this.quickQtyRow = row;
+    },
+    setExpandedBatchId(rowName: string | null) {
+      this.expandedBatchId = rowName;
     },
     addQuickQtyListeners() {
       this.quickQtyKeyDownHandler = (e: KeyboardEvent) =>
@@ -495,7 +512,21 @@ export default defineComponent({
         filters: { name: value },
       });
 
-      this.loyaltyProgram = party[0]?.loyaltyProgram as string;
+      const loyaltyProgramName = party[0]?.loyaltyProgram as string;
+
+      if (loyaltyProgramName) {
+        const isExpiredAndMaxed = await isLoyaltyProgramExpiredAndMaxed(
+          this.fyo,
+          loyaltyProgramName
+        );
+        if (isExpiredAndMaxed) {
+          this.loyaltyProgram = loyaltyProgramName;
+          this.loyaltyPoints = 0;
+          return;
+        }
+      }
+
+      this.loyaltyProgram = loyaltyProgramName;
       this.loyaltyPoints = party[0]?.loyaltyPoints as number;
     },
 
@@ -644,7 +675,8 @@ export default defineComponent({
           this.fyo.singles.AccountingSettings?.enablePriceList &&
           this.loyaltyPoints &&
           this.sinvDoc.party &&
-          this.sinvDoc.items?.length
+          this.sinvDoc.items?.length &&
+          this.loyaltyProgram
         ) {
           this.toggleModal('LoyaltyProgram', true);
         }
@@ -694,8 +726,11 @@ export default defineComponent({
 
       if (itemVisibility === 'Inventory Items') {
         filters.trackItem = true;
-      } else {
+      } else if (itemVisibility === 'ERP Sync Items') {
+        filters.datafromErp = true;
+      } else if (itemVisibility === 'Non-Inventory Items') {
         filters.trackItem = false;
+        filters.datafromErp = false;
       }
 
       if (this.selectedItemGroup) {

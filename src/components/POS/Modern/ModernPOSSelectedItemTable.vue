@@ -41,6 +41,10 @@
     >
       <ModernPOSSelectedItemRow
         :row="(row as SalesInvoiceItem)"
+        :expanded-batch-id="expandedBatchId"
+        @set-expanded-batch-id="
+          (rowName) => $emit('setExpandedBatchId', rowName)
+        "
         @selected-row="selectedItemRow"
         @run-sinv-formulas="runSinvFormulas"
         @apply-pricing-rule="$emit('applyPricingRule')"
@@ -59,7 +63,7 @@ import RowEditForm from 'src/pages/CommonForm/RowEditForm.vue';
 import ModernPOSSelectedItemRow from './ModernPOSSelectedItemRow.vue';
 import { isNumeric } from 'src/utils';
 import { t } from 'fyo';
-import { inject, defineComponent } from 'vue';
+import { inject, defineComponent, PropType } from 'vue';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { Field } from 'schemas/types';
@@ -79,12 +83,18 @@ export default defineComponent({
       sinvDoc: inject('sinvDoc') as SalesInvoice,
     };
   },
-  data() {
-    return {
-      isExapanded: false,
-    };
+  props: {
+    expandedBatchId: {
+      type: String as PropType<string | null | undefined>,
+      default: undefined,
+    },
   },
-  emits: ['toggleModal', 'selectedRow', 'applyPricingRule'],
+  emits: [
+    'toggleModal',
+    'selectedRow',
+    'applyPricingRule',
+    'setExpandedBatchId',
+  ],
   computed: {
     ratio() {
       return [0.1, 0.8, 0.4, 0.8, 0.8, 0.3];
