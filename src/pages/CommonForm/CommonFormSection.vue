@@ -24,7 +24,9 @@
           field.fieldtype === 'AttachImage' ? 'row-span-2' : '',
           field.fieldtype === 'Check' ? 'mt-auto' : 'mb-auto',
           field.fieldname === 'termsAndConditions' ? 'col-span-2' : '',
+          field.invisible ? 'invisible' : '',
         ]"
+        :style="field.invisible ? 'visibility: hidden;' : ''"
       >
         <Table
           v-if="field.fieldtype === 'Table'"
