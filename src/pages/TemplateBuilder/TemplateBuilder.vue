@@ -536,12 +536,11 @@ export default defineComponent({
         ['KeyH'],
         this.toggleShowHints.bind(this)
       );
-      this.shortcuts.ctrl.set(this.context, ['Equal'], () =>
-        this.setScale(this.scale + 0.1)
-      );
-      this.shortcuts.ctrl.set(this.context, ['Minus'], () =>
-        this.setScale(this.scale - 0.1)
-      );
+      const zoomIn = () => this.setScale(this.scale + 0.1);
+      const zoomOut = () => this.setScale(this.scale - 0.1);
+
+      this.shortcuts.ctrl.set(this.context, ['NumpadAdd'], zoomIn);
+      this.shortcuts.ctrl.set(this.context, ['NumpadSubtract'], zoomOut);
     },
     async initialize() {
       await this.setDoc();
