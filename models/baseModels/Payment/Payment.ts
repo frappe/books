@@ -462,9 +462,17 @@ export class Payment extends Transactional {
 
       const previousOutstandingAmount = referenceDoc.outstandingAmount as Money;
       const isReturnInvoice = (referenceDoc as Invoice).isReturn;
-      const outstandingAmount = isReturnInvoice
-        ? previousOutstandingAmount.add(row.amount!)
-        : previousOutstandingAmount.sub(row.amount!);
+
+      let outstandingAmount: Money;
+
+      if (isReturnInvoice) {
+        const paymentAmount = row.amount!.abs();
+        const previous = previousOutstandingAmount.abs();
+
+        outstandingAmount = previous.sub(paymentAmount);
+      } else {
+        outstandingAmount = previousOutstandingAmount.sub(row.amount!);
+      }
       await referenceDoc.setAndSync({ outstandingAmount });
     }
   }
