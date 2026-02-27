@@ -43,35 +43,66 @@ export default {
     },
     async getOptions() {
       this.results = [];
-      const schemaName = this.getTargetSchemaName();
-      if (!schemaName) {
-        return [];
-      }
-
       if (this.results?.length) {
         return this.results;
       }
 
-      const schema = fyo.schemaMap[schemaName];
-      const filters = await this.getFilters();
+      const schemaNames = this.getTargetSchemas();
+      if (schemaNames.length === 0) {
+        return [];
+      }
 
-      const fields = [
-        ...new Set(['name', schema.titleField, this.df.groupBy]),
-      ].filter(Boolean);
+      const promises = schemaNames.map(async (schema) => {
+        const schemaDef = fyo.schemaMap[schema];
+        const filters = await this.getFilters();
 
-      const results = await fyo.db.getAll(schemaName, {
-        filters,
-        fields,
+        const fields = [
+          ...new Set(['name', schemaDef.titleField, this.df.groupBy]),
+        ].filter(Boolean);
+
+        return fyo.db.getAll(schema, { filters, fields }).then((res) => {
+          return res.map((r) => {
+            const option = { label: r[schemaDef.titleField], value: r.name };
+            if (this.df.groupBy) {
+              option.group = r[this.df.groupBy];
+            }
+            if (schemaNames.length > 1) {
+              option.label = `${option.label} (${schemaDef.label || schema})`;
+            }
+            return option;
+          });
+        });
       });
-      return (this.results = results
-        .map((r) => {
-          const option = { label: r[schema.titleField], value: r.name };
-          if (this.df.groupBy) {
-            option.group = r[this.df.groupBy];
-          }
-          return option;
-        })
-        .filter(Boolean));
+
+      const results = (await Promise.all(promises)).flat();
+      return (this.results = results.filter(Boolean));
+    },
+    getTargetSchemas() {
+      const singleSchema = this.getTargetSchemaName();
+      if (singleSchema) {
+        return [singleSchema];
+      }
+
+      const references = this.df.references;
+      const refValue = this.doc?.[references] || this.report?.[references];
+
+      if (refValue === 'All' && references) {
+        let options = [];
+        if (this.report?.filters) {
+          const field = this.report.filters.find(
+            (f) => f.fieldname === references
+          );
+          if (field?.options) options = field.options;
+        }
+
+        if (options.length) {
+          return options
+            .map((o) => o.value)
+            .filter((val) => val !== 'All' && fyo.schemaMap[val]);
+        }
+      }
+
+      return [];
     },
     async openNewDoc() {
       const schemaName = this.getTargetSchemaName();
