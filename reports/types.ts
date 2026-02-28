@@ -52,6 +52,7 @@ export interface RawLedgerEntry {
   party: string;
   reverted: number;
   reverts: string;
+  userRemark: string;
   [key: string]: RawValue;
 }
 
@@ -68,6 +69,7 @@ export interface LedgerEntry {
   party: string;
   reverted: boolean;
   reverts: string;
+  userRemark: string;
 }
 
 export type GroupedMap = Map<string, LedgerEntry[]>;
