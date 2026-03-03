@@ -3,6 +3,7 @@ export enum IPC_MESSAGES {
   OPEN_MENU = 'open-menu',
   OPEN_SETTINGS = 'open-settings',
   OPEN_EXTERNAL = 'open-external',
+  OPEN_DATA_URL = 'open-data-url',
   SHOW_ITEM_IN_FOLDER = 'show-item-in-folder',
   RELOAD_MAIN_WINDOW = 'reload-main-window',
   MINIMIZE_MAIN_WINDOW = 'minimize-main-window',
