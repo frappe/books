@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col w-full h-full">
     <PageHeader :title="title">
+      <div v-if="report?.acceptSingleTimePeriod">
+        <DatePeriod @change="periodChanged"></DatePeriod>
+      </div>
       <DropdownWithActions
         v-for="group of groupedActions"
         :key="group.label"
@@ -27,7 +30,7 @@
       class="grid grid-cols-5 gap-4 p-4 border-b dark:border-gray-800"
     >
       <FormControl
-        v-for="field in report.filters"
+        v-for="field in reportFilters()"
         :key="field.fieldname + '-filter'"
         :border="true"
         size="small"
@@ -51,6 +54,7 @@ import { reports } from 'reports';
 import { Report } from 'reports/Report';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import DatePeriod from 'src/components/Controls/DatePeriod.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import ListReport from 'src/components/Report/ListReport.vue';
@@ -65,6 +69,7 @@ import { PropType, computed, defineComponent, inject } from 'vue';
 export default defineComponent({
   components: {
     PageHeader,
+    DatePeriod,
     FormControl,
     ListReport,
     DropdownWithActions,
@@ -167,11 +172,39 @@ export default defineComponent({
         this.report = await getReport(this.reportClassName);
       }
 
+      if (this.report.acceptSingleTimePeriod && this.report?.basedOn != null)
+        await this.report.set('basedOn', 'Period');
+      if (this.startDate)
+        await this.report.set(
+          'fromDate',
+          this.startDate.toISODate() as DocValue
+        );
+      if (this.lastDate)
+        await this.report.set('toDate', this.lastDate.toISODate() as DocValue);
+
       if (!this.report.reportData.length) {
         await this.report.setReportData();
       } else if (this.report.shouldRefresh) {
         await this.report.setReportData(undefined, true);
       }
+    },
+    reportFilters() {
+      let filters = this.report.filters;
+      if (this.report.acceptSingleTimePeriod) {
+        filters = filters.filter(
+          (field) =>
+            !['fromDate', 'toDate', 'basedOn'].includes(field.fieldname)
+        );
+      }
+      return filters;
+    },
+    async periodChanged({ start, stop, last }) {
+      this.startDate = start;
+      this.lastDate = last;
+      await this.report?.set('fromDate', start.toISODate() as DocValue);
+      await this.report?.set('toDate', last.toISODate() as DocValue);
+      if (this.report?.basedOn != null)
+        await this.report?.set('basedOn', 'Period');
     },
   },
 });
