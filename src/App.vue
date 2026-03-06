@@ -75,6 +75,7 @@ import {
   updateERPNSyncSettings,
 } from './utils/erpnextSync';
 import { ERPNextSyncSettings } from 'models/baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
+import { ErrorLogEnum } from 'fyo/telemetry/types';
 
 enum Screen {
   Desk = 'Desk',
@@ -247,6 +248,36 @@ export default defineComponent({
             `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
           );
         } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+
+          try {
+            const existing = await fyo.db.getAll(
+              ErrorLogEnum.IntegrationErrorLog,
+              {
+                filters: {
+                  error: errorMessage,
+                },
+                limit: 1,
+              }
+            );
+
+            if (!existing.length) {
+              await fyo.doc
+                .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
+                  error: errorMessage,
+                  data: JSON.stringify({
+                    instance: fyo.singles.ERPNextSyncSettings?.deviceID,
+                    operation: 'register_instance',
+                    trigger: 'showSetupWizardOrDesk',
+                    baseURL: baseURL,
+                  }),
+                })
+                .sync();
+            }
+          } catch (logError) {
+            throw logError;
+          }
           showToast({ message: 'Connection Failed', type: 'error' });
         }
       }

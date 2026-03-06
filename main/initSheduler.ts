@@ -26,7 +26,7 @@ export async function initScheduler(interval: string) {
       },
       {
         name: 'checkLoyaltyProgramExpiry',
-        interval: '0 1 * * *',
+        interval: '24 hours',
         worker: {
           workerData: {
             useTsNode: true,
