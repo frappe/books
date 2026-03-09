@@ -1,5 +1,5 @@
 {
-  "name": "rare-books",
+  "name": "rarebooks",
   "version": "0.36.0",
   "description": "Simple book-keeping app for everyone",
   "author": {
@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
     "build": "node build/scripts/build.mjs",
-    "build:appx": "electron-builder --win appx",
+    "build:msix": "electron-builder --win msix --x64",
     "release": "scripts/publish-mac-arm.sh",
     "postinstall": "electron-rebuild",
     "postuninstall": "electron-rebuild",

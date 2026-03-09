@@ -54,18 +54,23 @@ const frappeBooksConfig = {
     publish: ['github'],
     target: [
       {
-        target: 'nsis',
-        arch: ['x64', 'ia32'],
-      },
-      {
-        target: 'portable',
-        arch: ['x64', 'ia32'],
-      },
-      {
-        target: 'msix',
+        target: 'appx',
         arch: ['x64'],
       },
     ],
+  },
+  appx: {
+    applicationId: 'io.rare.books',
+    backgroundColor: '#464646',
+    displayName: 'RareLedger',
+    identityName: 'CharlesNkonoki.RareLedger',
+    publisher: 'CN=2E2F9384-BEA3-4F48-B563-BCCA0871A1DF',
+    publisherDisplayName: 'Charles Nkonoki',
+    languages: ['en-US'],
+    setBuildNumber: false,
+    showNameOnTiles: true,
+    addAutoLaunchExtension: false,
+    electronUpdaterAware: false,
   },
   nsis: {
     oneClick: false,
