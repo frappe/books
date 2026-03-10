@@ -2,7 +2,7 @@ import { Fyo } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import { Action, FiltersMap, ListViewSettings } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
-import { getQuoteActions, getTransactionStatusColumn } from '../../helpers';
+import { getDocStatusListColumn, getQuoteActions } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
 import { SalesQuoteItem } from '../SalesQuoteItem/SalesQuoteItem';
 import { Defaults } from '../Defaults/Defaults';
@@ -75,11 +75,10 @@ export class SalesQuote extends Invoice {
     return {
       columns: [
         'name',
-        getTransactionStatusColumn(),
+        getDocStatusListColumn(),
         'party',
         'date',
         'baseGrandTotal',
-        'outstandingAmount',
       ],
     };
   }
