@@ -262,13 +262,15 @@ export default defineComponent({
 
       let statusFilter: [string, string] | undefined;
 
-      if ('status' in filters) {
-        statusFilter = filters['status'] as [string, string];
-      }
+      // Strip the status filter from the DB query when the schema has no
+      // real "status" column.  Many schemas (JournalEntry, Payment,
+      // SalesInvoice, PurchaseInvoice, etc.) use a computed status that
+      // is rendered client-side — sending it to SQLite causes
+      // "no such column: status".  (#1446)
+      const hasStatusColumn = !!fyo.db.fieldMap[this.schemaName]?.['status'];
 
-      const isStatusFilter =
-        Array.isArray(statusFilter) && statusFilter[0] === 'like';
-      if (isStatusFilter) {
+      if ('status' in filters && !hasStatusColumn) {
+        statusFilter = filters['status'] as [string, string];
         delete filters['status'];
       }
 
@@ -285,16 +287,30 @@ export default defineComponent({
 
       let filteredData = tableData;
 
-      if (isStatusFilter && statusFilter?.[1]) {
-        const lowercaseStatus = String(statusFilter[1]).toLowerCase();
+      if (statusFilter) {
+        const operator = statusFilter[0];
+        const value = statusFilter[1];
 
-        const matchedNames = Object.entries(this.statusMap)
-          .filter((entry) => entry[1].toLowerCase() === lowercaseStatus)
-          .map((entry) => entry[0]);
+        if (value != null && value !== '') {
+          const lowercaseValue = String(value).toLowerCase();
 
-        filteredData = tableData.filter((row) =>
-          matchedNames.includes(String(row.name))
-        );
+          filteredData = tableData.filter((row) => {
+            const rowStatus = (
+              this.statusMap[String(row.name)] ?? ''
+            ).toLowerCase();
+
+            switch (operator) {
+              case 'like':
+              case '=':
+                return rowStatus === lowercaseValue;
+              case 'not like':
+              case '!=':
+                return rowStatus !== lowercaseValue;
+              default:
+                return true;
+            }
+          });
+        }
       }
 
       this.data = filteredData.map((d) => ({
