@@ -2101,9 +2101,9 @@
     "currency_fraction": "Fils",
     "currency_fraction_units": 100,
     "currency_name": "UAE Dirham",
-    "currency_symbol": "د.إ",
+    "currency_symbol": "AED",
     "timezones": ["Asia/Dubai"],
-    "locale": "ar-AE"
+    "locale": "en-AE"
   },
   "United Kingdom": {
     "code": "gb",
