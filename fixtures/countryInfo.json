@@ -1060,8 +1060,9 @@
   "Japan": {
     "code": "jp",
     "currency": "JPY",
-    "currency_fraction": "Sen[G]",
-    "currency_fraction_units": 100,
+    "currency_fraction": "",
+    "currency_fraction_units": 1,
+    "smallest_currency_fraction_value": 1,
     "currency_name": "Yen",
     "currency_symbol": "¥",
     "timezones": ["Asia/Tokyo"],
