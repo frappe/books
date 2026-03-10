@@ -1,0 +1,420 @@
+{
+  "countryCode": "sk",
+  "name": "Slovakia - Účtová osnova",
+  "tree": {
+    "Dlhodobý majetok": {
+      "rootType": "Asset",
+      "Nehmotný dlhodobý majetok": {
+        "012 Aktivované náklady na vývoj": {},
+        "013 Softvér": {
+          "accountType": "Fixed Asset"
+        },
+        "014 Oceniteľné práva": {
+          "accountType": "Fixed Asset"
+        },
+        "015 Goodwill": {},
+        "019 Ostatný dlhodobý nehmotný majetok": {
+          "accountType": "Fixed Asset"
+        },
+        "07x Oprávky k nehmotnému DM": {
+          "072 Oprávky k aktivovaným nákladom na vývoj": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "073 Oprávky k softvéru": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "074 Oprávky k oceniteľným právam": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "075 Oprávky ku goodwillu": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "079 Oprávky k ostatnému dlhodobému nehmotnému majetku": {
+            "accountType": "Accumulated Depreciation"
+          }
+        }
+      },
+      "Hmotný dlhodobý majetok": {
+        "021 Stavby": {
+          "accountType": "Fixed Asset"
+        },
+        "022 Samostatné hnuteľné veci a súbory hnuteľných vecí": {
+          "accountType": "Fixed Asset"
+        },
+        "025 Pestovateľské celky trvalých porastov": {
+          "accountType": "Fixed Asset"
+        },
+        "026 Základné stádo a ťažné zvieratá": {
+          "accountType": "Fixed Asset"
+        },
+        "029 Ostatný dlhodobý hmotný majetok": {
+          "accountType": "Fixed Asset"
+        },
+        "031 Pozemky": {
+          "accountType": "Fixed Asset"
+        },
+        "032 Umelecké diela a zbierky": {
+          "accountType": "Fixed Asset"
+        },
+        "04x Obstaranie dlhodobého majetku": {
+          "041 Obstaranie dlhodobého nehmotného majetku": {},
+          "042 Obstaranie dlhodobého hmotného majetku": {},
+          "043 Obstaranie dlhodobého finančného majetku": {}
+        },
+        "05x Poskytnuté preddavky na dlhodobý majetok": {
+          "051 Poskytnuté preddavky na dlhodobý nehmotný majetok": {},
+          "052 Poskytnuté preddavky na dlhodobý hmotný majetok": {},
+          "053 Poskytnuté preddavky na dlhodobý finančný majetok": {}
+        },
+        "08x Oprávky k hmotnému DM": {
+          "081 Oprávky k stavbám": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "082 Oprávky k samostatným hnuteľným veciam a súborom hnuteľných vecí": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "085 Oprávky k pestovateľským celkom trvalých porastov": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "086 Oprávky k základnému stádu a ťažným zvieratám": {
+            "accountType": "Accumulated Depreciation"
+          },
+          "089 Oprávky k ostatnému dlhodobému hmotnému majetku": {
+            "accountType": "Accumulated Depreciation"
+          }
+        }
+      },
+      "Dlhodobý finančný majetok": {
+        "061 Podielové cenné papiere a podiely v dcérskej účtovnej jednotke": {},
+        "062 Podielové cenné papiere a podiely v spoločnosti s podstatným vplyvom": {},
+        "063 Realizovateľné cenné papiere a podiely": {},
+        "065 Dlhové cenné papiere držané do splatnosti": {},
+        "066 Pôžičky účtovnej jednotke v konsolidovanom celku": {},
+        "067 Ostatné pôžičky": {},
+        "069 Ostatný dlhodobý finančný majetok": {}
+      },
+      "09x Opravné položky k dlhodobému majetku": {
+        "091 Opravná položka k dlhodobému nehmotnému majetku": {},
+        "092 Opravná položka k dlhodobému hmotnému majetku": {},
+        "093 Opravná položka k nedokončenému dlhodobému nehmotnému majetku": {},
+        "094 Opravná položka k nedokončenému dlhodobému hmotnému majetku": {},
+        "095 Opravná položka k poskytnutým preddavkom na dlhodobý majetok": {},
+        "096 Opravná položka k dlhodobému finančnému majetku": {}
+      }
+    },
+    "Zásoby": {
+      "rootType": "Asset",
+      "Materiál": {
+        "111 Obstaranie materiálu": {},
+        "112 Materiál na sklade": {
+          "accountType": "Stock"
+        },
+        "119 Materiál na ceste": {}
+      },
+      "Zásoby vlastnej výroby": {
+        "121 Nedokončená výroba": {
+          "accountType": "Stock"
+        },
+        "122 Polotovary vlastnej výroby": {
+          "accountType": "Stock"
+        },
+        "123 Výrobky": {
+          "accountType": "Stock"
+        },
+        "124 Zvieratá": {}
+      },
+      "Tovar": {
+        "131 Obstaranie tovaru": {},
+        "132 Tovar na sklade a v predajniach": {
+          "accountType": "Stock"
+        },
+        "139 Tovar na ceste": {}
+      },
+      "19x Opravné položky k zásobám": {
+        "191 Opravná položka k materiálu": {},
+        "192 Opravná položka k nedokončenej výrobe": {},
+        "193 Opravná položka k polotovarom vlastnej výroby": {},
+        "194 Opravná položka k výrobkom": {},
+        "195 Opravná položka k zvieratám": {},
+        "196 Opravná položka k tovaru": {}
+      }
+    },
+    "Finančné účty": {
+      "rootType": "Asset",
+      "Pokladničné a bankové účty": {
+        "211 Pokladnica": {
+          "accountType": "Cash",
+          "isGroup": true
+        },
+        "213 Ceniny": {},
+        "221 Bankové účty": {
+          "accountType": "Bank",
+          "isGroup": true
+        }
+      },
+      "Krátkodobý finančný majetok": {
+        "251 Majetkové cenné papiere na obchodovanie": {},
+        "252 Vlastné akcie a vlastné obchodné podiely": {},
+        "253 Dlhové cenné papiere na obchodovanie": {},
+        "255 Vlastné dlhopisy": {},
+        "256 Dlhové cenné papiere so splatnosťou do jedného roka držané do splatnosti": {},
+        "259 Obstaranie krátkodobého finančného majetku": {}
+      },
+      "29x Opravné položky ku krátkodobému finančnému majetku": {
+        "291 Opravná položka ku krátkodobému finančnému majetku": {}
+      }
+    },
+    "Zúčtovacie vzťahy": {
+      "rootType": "Asset",
+      "Pohľadávky": {
+        "311 Odberatelia": {
+          "accountType": "Receivable"
+        },
+        "312 Zmenky na inkaso": {},
+        "313 Pohľadávky za eskontované cenné papiere": {},
+        "314 Poskytnuté preddavky": {},
+        "315 Ostatné pohľadávky": {}
+      },
+      "Pohľadávky voči spoločníkom a združeniu": {
+        "351 Pohľadávky voči dcérskej účtovnej jednotke": {},
+        "352 Pohľadávky voči spoločnosti s podstatným vplyvom": {},
+        "353 Pohľadávky za upísané vlastné imanie": {},
+        "354 Pohľadávky voči spoločníkom pri úhrade straty": {},
+        "355 Ostatné pohľadávky voči spoločníkom": {},
+        "358 Pohľadávky voči účastníkom združenia": {}
+      },
+      "Zúčtovanie so zamestnancami a inštitúciami": {
+        "335 Pohľadávky voči zamestnancom": {},
+        "336 Zúčtovanie s orgánmi sociálneho a zdravotného poistenia": {}
+      },
+      "Daňové pohľadávky": {
+        "341 Daň z príjmov": {},
+        "342 Ostatné priame dane": {},
+        "343 Daň z pridanej hodnoty": {
+          "DPH": {
+            "accountType": "Tax"
+          }
+        },
+        "345 Ostatné dane a poplatky": {}
+      },
+      "Pohľadávky z dotácií": {
+        "346 Dotácie zo štátneho rozpočtu": {},
+        "347 Ostatné dotácie": {}
+      },
+      "Iné pohľadávky": {
+        "371 Pohľadávky z predaja podniku": {},
+        "372 Pohľadávky z emitovaných dlhopisov": {},
+        "373 Pohľadávky a záväzky z pevných termínových operácií": {},
+        "374 Pohľadávky z nájmu": {},
+        "375 Pohľadávky z vydaných dlhopisov": {},
+        "378 Iné pohľadávky": {}
+      },
+      "39x Opravné položky k pohľadávkam": {
+        "391 Opravná položka k pohľadávkam": {}
+      }
+    },
+    "Záväzky": {
+      "rootType": "Liability",
+      "Krátkodobé záväzky": {
+        "321 Dodávatelia": {
+          "accountType": "Payable"
+        },
+        "322 Zmenky na úhradu": {},
+        "324 Prijaté preddavky": {},
+        "325 Ostatné záväzky": {}
+      },
+      "Záväzky voči spoločníkom a združeniu": {
+        "361 Záväzky voči dcérskej účtovnej jednotke": {},
+        "362 Záväzky voči spoločnosti s podstatným vplyvom": {},
+        "364 Záväzky voči spoločníkom pri rozdeľovaní zisku": {},
+        "365 Ostatné záväzky voči spoločníkom": {},
+        "366 Záväzky voči účastníkom združenia": {}
+      },
+      "Záväzky voči zamestnancom": {
+        "331 Zamestnanci": {},
+        "333 Ostatné záväzky voči zamestnancom": {}
+      },
+      "Daňové záväzky": {
+        "341 Daň z príjmov (záväzky)": {},
+        "342 Ostatné priame dane (záväzky)": {},
+        "343 DPH (záväzky)": {},
+        "345 Ostatné dane a poplatky (záväzky)": {}
+      },
+      "Iné záväzky": {
+        "379 Iné záväzky": {},
+        "389 Dohadné účty pasívne": {}
+      },
+      "Bankové úvery": {
+        "231 Krátkodobé bankové úvery": {},
+        "232 Eskontné úvery": {},
+        "241 Vydané krátkodobé dlhopisy": {},
+        "249 Ostatné krátkodobé finančné výpomoci": {}
+      },
+      "Dlhodobé záväzky": {
+        "451 Rezervy zákonné": {},
+        "453 Rezerva na daň z príjmov": {},
+        "459 Ostatné rezervy": {},
+        "461 Dlhodobé bankové úvery": {},
+        "471 Dlhodobé záväzky voči dcérskej účtovnej jednotke": {},
+        "472 Dlhodobé záväzky voči spoločnosti s podstatným vplyvom": {},
+        "473 Vydané dlhopisy": {},
+        "474 Záväzky z nájmu": {},
+        "475 Dlhodobé prijaté preddavky": {},
+        "478 Dlhodobé zmenky na úhradu": {},
+        "479 Ostatné dlhodobé záväzky": {}
+      }
+    },
+    "Vlastné imanie": {
+      "rootType": "Equity",
+      "Základné imanie a kapitálové fondy": {
+        "411 Základné imanie": {
+          "accountType": "Equity"
+        },
+        "412 Emisné ážio": {},
+        "413 Ostatné kapitálové fondy": {},
+        "414 Oceňovacie rozdiely z precenenia majetku a záväzkov": {},
+        "418 Oceňovacie rozdiely z precenenia pri zlúčení, splynutí a rozdelení": {},
+        "419 Zmeny základného imania": {}
+      },
+      "Fondy zo zisku a prevedené výsledky hospodárenia": {
+        "421 Zákonný rezervný fond": {},
+        "422 Nedeliteľný fond": {},
+        "423 Štatutárne fondy": {},
+        "427 Ostatné fondy": {},
+        "428 Nerozdelený zisk minulých rokov": {},
+        "429 Neuhradená strata minulých rokov": {}
+      },
+      "Výsledok hospodárenia": {
+        "431 Výsledok hospodárenia v schvaľovacom konaní": {},
+        "Otváracie a uzávierkové účty": {
+          "701 Začiatočný účet súvahový": {},
+          "702 Konečný účet súvahový": {},
+          "710 Účet ziskov a strát": {}
+        }
+      }
+    },
+    "Náklady": {
+      "rootType": "Expense",
+      "Spotrebované nákupy": {
+        "501 Spotreba materiálu": {
+          "accountType": "Cost of Goods Sold"
+        },
+        "502 Spotreba energie": {},
+        "503 Spotreba ostatných neskladovateľných dodávok": {},
+        "504 Predaný tovar": {
+          "accountType": "Cost of Goods Sold"
+        }
+      },
+      "Služby": {
+        "511 Opravy a udržiavanie": {},
+        "512 Cestovné": {},
+        "513 Náklady na reprezentáciu": {},
+        "518 Ostatné služby": {}
+      },
+      "Osobné náklady": {
+        "521 Mzdové náklady": {},
+        "522 Príjmy spoločníkov a členov zo závislej činnosti": {},
+        "523 Odmeny členom orgánov spoločnosti a družstva": {},
+        "524 Zákonné sociálne poistenie": {},
+        "525 Ostatné sociálne poistenie": {},
+        "526 Sociálne náklady individuálneho podnikateľa": {},
+        "527 Zákonné sociálne náklady": {},
+        "528 Ostatné sociálne náklady": {}
+      },
+      "Dane a poplatky": {
+        "531 Daň z motorových vozidiel": {},
+        "532 Daň z nehnuteľností": {},
+        "538 Ostatné dane a poplatky": {}
+      },
+      "Iné prevádzkové náklady": {
+        "541 Zostatková cena predaného dlhodobého NM a HM": {},
+        "542 Predaný materiál": {},
+        "543 Dary": {},
+        "544 Zmluvné pokuty a úroky z omeškania": {},
+        "545 Ostatné pokuty a penále": {},
+        "546 Odpis pohľadávky": {},
+        "548 Ostatné prevádzkové náklady": {},
+        "549 Manká a škody": {}
+      },
+      "Odpisy, rezervy a opravné položky": {
+        "551 Odpisy dlhodobého nehmotného a hmotného majetku": {
+          "accountType": "Depreciation"
+        },
+        "552 Tvorba a zúčtovanie zákonných rezerv z prevádzkovej činnosti": {},
+        "554 Tvorba a zúčtovanie ostatných rezerv z prevádzkovej činnosti": {},
+        "557 Zúčtovanie oprávky k opravnej položke k nadobudnutému majetku": {},
+        "558 Tvorba a zúčtovanie zákonných opravných položiek z prevádzkovej činnosti": {},
+        "559 Tvorba a zúčtovanie opravných položiek z prevádzkovej činnosti": {}
+      },
+      "Finančné náklady": {
+        "561 Predané cenné papiere a podiely": {},
+        "562 Úroky": {},
+        "563 Kurzové straty": {},
+        "564 Náklady z precenenia cenných papierov": {},
+        "566 Náklady z finančného majetku": {},
+        "567 Náklady z derivátových operácií": {},
+        "568 Ostatné finančné náklady": {},
+        "569 Manká a škody na finančnom majetku": {}
+      },
+      "Daň z príjmov": {
+        "591 Splatná daň z príjmov z bežnej činnosti": {},
+        "592 Odložená daň z príjmov z bežnej činnosti": {},
+        "593 Splatná daň z príjmov z mimoriadnej činnosti": {},
+        "594 Odložená daň z príjmov z mimoriadnej činnosti": {},
+        "595 Dodatočné odvody dane z príjmov": {}
+      },
+      "Prevodové účty (N)": {
+        "596 Prevod podielov na výsledku hospodárenia spoločníkom": {},
+        "597 Prevod prevádzkových nákladov": {},
+        "598 Prevod finančných nákladov": {}
+      }
+    },
+    "Výnosy": {
+      "rootType": "Income",
+      "Tržby za vlastné výkony a tovar": {
+        "601 Tržby za vlastné výrobky": {},
+        "602 Tržby z predaja služieb": {},
+        "604 Tržby za tovar": {}
+      },
+      "Zmeny stavu vnútroorganizačných zásob": {
+        "611 Zmena stavu nedokončenej výroby": {},
+        "612 Zmena stavu polotovarov vlastnej výroby": {},
+        "613 Zmena stavu výrobkov": {},
+        "614 Zmena stavu zvierat": {}
+      },
+      "Aktivácia": {
+        "621 Aktivácia materiálu a tovaru": {},
+        "622 Aktivácia vnútroorganizačných služieb": {},
+        "623 Aktivácia dlhodobého nehmotného majetku": {},
+        "624 Aktivácia dlhodobého hmotného majetku": {}
+      },
+      "Iné prevádzkové výnosy": {
+        "641 Tržby z predaja dlhodobého NM a HM": {},
+        "642 Tržby z predaja materiálu": {},
+        "644 Zmluvné pokuty a úroky z omeškania": {},
+        "646 Výnosy z odpísaných pohľadávok": {},
+        "648 Ostatné prevádzkové výnosy": {}
+      },
+      "Zúčtovanie rezerv a opravných položiek (V)": {
+        "652 Zúčtovanie zákonných rezerv": {},
+        "654 Zúčtovanie ostatných rezerv": {},
+        "658 Zúčtovanie zákonných opravných položiek": {},
+        "659 Zúčtovanie opravných položiek z prevádzkovej činnosti": {}
+      },
+      "Finančné výnosy": {
+        "661 Tržby z predaja cenných papierov a podielov": {},
+        "662 Úroky": {},
+        "663 Kurzové zisky": {},
+        "664 Výnosy z precenenia cenných papierov": {},
+        "665 Výnosy z dlhodobého finančného majetku": {},
+        "666 Výnosy z krátkodobého finančného majetku": {},
+        "667 Výnosy z derivátových operácií": {},
+        "668 Ostatné finančné výnosy": {}
+      },
+      "Prevodové účty (V)": {
+        "697 Prevod prevádzkových výnosov": {},
+        "698 Prevod finančných výnosov": {}
+      }
+    }
+  }
+}

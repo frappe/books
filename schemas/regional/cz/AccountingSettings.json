@@ -1,0 +1,21 @@
+{
+  "name": "AccountingSettings",
+  "fields": [
+    {
+      "fieldname": "taxId",
+      "label": "DIČ",
+      "fieldtype": "Data",
+      "placeholder": "CZ12345678",
+      "section": "Default"
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "fiscalYearStart",
+    "fiscalYearEnd",
+    "taxId"
+  ]
+}
