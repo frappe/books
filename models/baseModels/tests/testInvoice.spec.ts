@@ -279,4 +279,68 @@ test('creating PINV return when invoice is not paid', async (t) => {
   }
 });
 
+const withholdingTaxData = {
+  name: 'Withholding-3',
+  details: [{ account: 'TDS', rate: -3 }],
+};
+
+test('create withholding tax template with negative rate', async (t) => {
+  await fyo.doc.getNewDoc(ModelNameEnum.Tax, withholdingTaxData).sync();
+
+  t.ok(
+    await fyo.db.exists(ModelNameEnum.Tax, withholdingTaxData.name),
+    `tax template ${withholdingTaxData.name} exists`
+  );
+});
+
+const nonBatchItemData = {
+  name: 'Service',
+  rate: 1000,
+  unit: 'Unit',
+  for: 'Both',
+  trackItem: false,
+};
+
+test('create non-batch item for tax test', async (t) => {
+  await fyo.doc.getNewDoc(ModelNameEnum.Item, nonBatchItemData).sync();
+
+  t.ok(
+    await fyo.db.exists(ModelNameEnum.Item, nonBatchItemData.name),
+    `item ${nonBatchItemData.name} exists`
+  );
+});
+
+test('negative tax rate reduces grand total', async (t) => {
+  const sinvDoc = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
+    account: 'Debtors',
+    party: partyData.name,
+    items: [
+      {
+        item: nonBatchItemData.name,
+        rate: nonBatchItemData.rate,
+        quantity: 1,
+        tax: withholdingTaxData.name,
+      },
+    ],
+  }) as SalesInvoice;
+
+  await sinvDoc.runFormulas();
+
+  t.equals(sinvDoc.netTotal?.float, 1000, 'net total is 1000');
+
+  const taxes = sinvDoc.taxes ?? [];
+  t.equals(taxes.length, 1, 'one tax summary row');
+  t.equals(
+    (taxes[0] as any).amount?.float,
+    -30,
+    'tax amount is -30 (negative 3% of 1000)'
+  );
+
+  t.equals(
+    sinvDoc.grandTotal?.float,
+    970,
+    'grand total is 970 (1000 - 30), not 1030'
+  );
+});
+
 closeTestFyo(fyo, __filename);
