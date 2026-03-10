@@ -68,6 +68,13 @@
       "section": "Reference"
     },
     {
+      "fieldname": "userRemark",
+      "label": "User Remark",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "Reference"
+    },
+    {
       "fieldname": "reverted",
       "label": "Reverted",
       "fieldtype": "Check",
