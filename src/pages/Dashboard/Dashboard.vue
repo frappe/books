@@ -14,10 +14,31 @@
           items-center
         "
       >
+        <template v-if="period === 'Custom'">
+          <FormControl
+            class="ml-1 w-32"
+            :df="fromDateDF"
+            :value="fromDate"
+            @change="(value) => handleDateChange('fromDate', value)"
+          />
+          <span class="mx-2 dark:text-gray-300 text-sm font-thin">to</span>
+          <FormControl
+            class="w-32"
+            :df="toDateDF"
+            :value="toDate"
+            @change="(value) => handleDateChange('toDate', value)"
+          />
+        </template>
         <PeriodSelector
           class="px-3"
           :value="period"
-          :options="['This Year', 'This Quarter', 'This Month', 'YTD']"
+          :options="[
+            'This Year',
+            'This Quarter',
+            'This Month',
+            'YTD',
+            'Custom',
+          ]"
           @change="(value) => (period = value)"
         />
       </div>
@@ -32,6 +53,8 @@
           class="p-4"
           :common-period="period"
           :dark-mode="darkMode"
+          :from-date="fromDate"
+          :to-date="toDate"
           @period-change="handlePeriodChange"
         />
         <hr class="dark:border-gray-800" />
@@ -40,6 +63,8 @@
             :schema-name="'SalesInvoice'"
             :common-period="period"
             :dark-mode="darkMode"
+            :from-date="fromDate"
+            :to-date="toDate"
             class="border-e dark:border-gray-800"
             @period-change="handlePeriodChange"
           />
@@ -47,6 +72,8 @@
             :schema-name="'PurchaseInvoice'"
             :common-period="period"
             :dark-mode="darkMode"
+            :from-date="fromDate"
+            :to-date="toDate"
             @period-change="handlePeriodChange"
           />
         </div>
@@ -56,12 +83,16 @@
             class="w-full p-4 border-e dark:border-gray-800"
             :common-period="period"
             :dark-mode="darkMode"
+            :from-date="fromDate"
+            :to-date="toDate"
             @period-change="handlePeriodChange"
           />
           <Expenses
             class="w-full p-4"
             :common-period="period"
             :dark-mode="darkMode"
+            :from-date="fromDate"
+            :to-date="toDate"
             @period-change="handlePeriodChange"
           />
         </div>
@@ -72,6 +103,7 @@
 </template>
 
 <script>
+import { DateTime } from 'luxon';
 import PageHeader from 'src/components/PageHeader.vue';
 import UnpaidInvoices from './UnpaidInvoices.vue';
 import Cashflow from './Cashflow.vue';
@@ -79,6 +111,7 @@ import Expenses from './Expenses.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import ProfitAndLoss from './ProfitAndLoss.vue';
 import { docsPathRef } from 'src/utils/refs';
+import FormControl from 'src/components/Controls/FormControl.vue';
 
 export default {
   name: 'Dashboard',
@@ -89,12 +122,28 @@ export default {
     Expenses,
     PeriodSelector,
     UnpaidInvoices,
+    FormControl,
   },
   props: {
     darkMode: { type: Boolean, default: false },
   },
   data() {
-    return { period: 'This Year' };
+    return {
+      period: 'This Year',
+      fromDate: DateTime.now().minus({ years: 1 }).toISODate(),
+      toDate: DateTime.now().plus({ days: 1 }).toISODate(),
+
+      fromDateDF: {
+        fieldtype: 'Date',
+        label: 'From Date',
+        required: true,
+      },
+      toDateDF: {
+        fieldtype: 'Date',
+        label: 'To Date',
+        required: true,
+      },
+    };
   },
   activated() {
     docsPathRef.value = 'books/dashboard';
@@ -109,6 +158,16 @@ export default {
       }
 
       this.period = '';
+    },
+    handleDateChange(type, value) {
+      if (type === 'fromDate') {
+        if (this.fromDate > this.toDate) {
+          return;
+        }
+        this.fromDate = value;
+      } else if (type === 'toDate') {
+        this.toDate = value;
+      }
     },
   },
 };
