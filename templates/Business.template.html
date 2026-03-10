@@ -26,9 +26,7 @@
     <div class="mt-8 text-lg">
       <!-- Doc Details -->
       <section class="flex">
-        <h3 class="w-1/3 font-semibold">
-          {{ doc.entryType === 'SalesInvoice' ? 'Invoice' : 'Bill' }}
-        </h3>
+        <h3 class="w-1/3 font-semibold">{{ doc.entryLabel }}</h3>
         <div class="w-2/3 text-gray-800">
           <p class="font-semibold">{{ doc.name }}</p>
 
@@ -42,7 +40,7 @@
       <!-- Party Details -->
       <section class="mt-4 flex">
         <h3 class="w-1/3 font-semibold">
-          {{ doc.entryType === 'SalesInvoice' ? 'Customer' : 'Supplier' }}
+          {{ doc.entryType.startsWith('Sales') ? 'Customer' : 'Supplier' }}
         </h3>
 
         <div class="w-2/3 text-gray-800" v-if="doc.party">
