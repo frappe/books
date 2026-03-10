@@ -22,6 +22,12 @@ export interface MessageDialogOptions {
   buttons?: MessageDialogButton[];
 }
 
+export interface UpdateCheckResult {
+  available: boolean;
+  releaseDate?: string;
+  error?: string;
+}
+
 export interface ToastOptions {
   message: string;
   type?: ToastType;
