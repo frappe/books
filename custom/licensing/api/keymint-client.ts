@@ -50,7 +50,8 @@ export class KeymintClient {
   async createLicense(
     productId: string,
     customerId?: string,
-    maxActivations: string = '3'
+    maxActivations: string = '3',
+    expiresAt?: string
   ): Promise<KeymintApiResponse> {
     const payload: any = {
       productId,
@@ -59,6 +60,10 @@ export class KeymintClient {
 
     if (customerId) {
       payload.customerId = customerId;
+    }
+
+    if (expiresAt) {
+      payload.expiresAt = expiresAt;
     }
 
     return this.makePostRequest('/key', payload);
