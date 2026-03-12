@@ -81,8 +81,6 @@ export enum ModelNameEnum {
   FetchFromERPNextQueue = 'FetchFromERPNextQueue',
 
   // Custom models
-  User = 'User',
-  SystemUser = 'SystemUser',
   Expense = 'Expense',
   License = 'License',
 }

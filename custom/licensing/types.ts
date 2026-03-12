@@ -47,6 +47,7 @@ export interface LicenseCacheData {
   licenseKey: string;
   productId: string;
   hostId: string;
+  customerId?: string;
   licenseeEmail?: string;
   licenseeName?: string;
   expiresAt?: string;

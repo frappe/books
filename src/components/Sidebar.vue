@@ -113,6 +113,7 @@
     <!-- Report Issue and DB Switcher -->
     <div class="window-no-drag flex flex-col gap-2 py-2 px-4">
       <button
+        v-if="false"
         class="
           flex
           text-sm text-gray-600
@@ -165,7 +166,7 @@
       </button>
 
       <button
-        v-if="isSuperAdmin"
+        v-if="false"
         class="
           flex
           text-sm text-gray-600
@@ -183,21 +184,6 @@
         </p>
       </button>
 
-      <button
-        class="
-          flex
-          text-sm text-gray-600
-          dark:text-gray-500
-          hover:text-gray-800
-          dark:hover:text-gray-400
-          gap-1
-          items-center
-        "
-        @click="logout"
-      >
-        <feather-icon name="log-out" class="h-4 w-4 flex-shrink-0" />
-        <p>{{ t`Logout` }}</p>
-      </button>
 
       <p
         v-if="showDevMode"
@@ -288,14 +274,13 @@ export default defineComponent({
       return fyo.store.appVersion;
     },
     isSuperAdmin() {
-      const currentRole = localStorage.getItem('current_role') || '';
-      return currentRole === 'Super Admin';
+      return true;
     },
   },
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
     this.companyName = companyName as string;
-    this.username = localStorage.getItem('username') || '';
+    this.username = '';
     this.groups = await getSidebarConfig();
 
     this.setActiveGroup();
@@ -319,11 +304,6 @@ export default defineComponent({
     routeTo,
     reportIssue,
     toggleSidebar,
-    logout() {
-      localStorage.removeItem('session_token');
-      localStorage.removeItem('username');
-      this.$router.push('/login');
-    },
     openDocumentation() {
       ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
     },

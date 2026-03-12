@@ -12,19 +12,14 @@ import Settings from 'src/pages/Settings/Settings.vue';
 import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
 import CustomizeForm from 'src/pages/CustomizeForm/CustomizeForm.vue';
 import POS from 'src/pages/POS/POS.vue';
-import Login from '../custom/src/pages/Login.vue';
 import License from 'src/pages/License.vue';
 import PaymentMethods from 'src/pages/PaymentMethods.vue';
 import type { HistoryState } from 'vue-router';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { historyState } from './utils/refs';
+import { fyo } from './initFyo';
 
 const routes: RouteRecordRaw[] = [
-  {
-    path: '/login',
-    name: 'Login',
-    component: Login,
-  },
   {
     path: '/',
     component: Dashboard,
@@ -160,20 +155,9 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({ routes, history: createWebHistory() });
 
 router.beforeEach(async (to, from, next) => {
-  const sessionToken = localStorage.getItem('session_token');
-  
-  // Check authentication first
-  if (to.path !== '/login' && !sessionToken) {
-    next('/login');
-    return;
-  } else if (to.path === '/login' && sessionToken) {
-    next('/');
-    return;
-  }
-  
-  // Check license for authenticated users
-  // Allow access to /login and /license without license check
-  if (to.path !== '/login' && to.path !== '/license') {
+  // Check license
+  // Allow access to /license without license check
+  if (to.path !== '/license') {
     try {
       // Check license validity via IPC
       const licenseState = await (window as any).ipc.invoke('get-license-state');

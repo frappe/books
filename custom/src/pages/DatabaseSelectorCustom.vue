@@ -100,7 +100,7 @@
 
       <!-- Create Demo (Pink Icon) -->
       <div
-        v-if="!files?.length"
+        v-if="false"
         class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
         :class="
           creatingDemo
@@ -230,7 +230,7 @@
       >
         <LanguageSelector v-show="!creatingDemo" class="text-sm w-28" />
         <button
-          v-if="files?.length"
+          v-if="false"
           class="
             text-sm
             bg-gray-100
@@ -336,23 +336,7 @@ export default defineComponent({
   emits: ['file-selected', 'new-database'],
   computed: {
     canCreateOrganization(): boolean {
-      // Check if current user is Super Admin
-      try {
-        const sessionToken = localStorage.getItem('session_token');
-        const currentUser = localStorage.getItem('current_user');
-        
-        // If no session, allow creation (first time setup)
-        if (!sessionToken || !currentUser) {
-          return true;
-        }
-        
-        // Check SystemUser singleton for role
-        const currentRole = localStorage.getItem('current_role') || '';
-        return currentRole === 'Super Admin';
-      } catch (error) {
-        // On error, allow creation
-        return true;
-      }
+      return true;
     },
   },
   data() {
