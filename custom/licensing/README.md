@@ -252,7 +252,6 @@ LICENSE_IPC_ACTIONS = {
 - [ ] License transfer between devices
 - [ ] Floating licenses (concurrent users)
 - [ ] License analytics dashboard
-- [ ] Trial period implementation
 - [ ] Multi-product support
 
 ## Support
