@@ -31,7 +31,6 @@ export async function initializeInstance(
 
   await checkSingleLinks(fyo);
   await setSingles(fyo);
-  await setCreds(fyo);
   await setVersion(fyo);
   setDeviceId(fyo);
   await setInstanceId(fyo);
@@ -105,15 +104,6 @@ async function checkSingleLinks(fyo: Fyo) {
 
     await fyo.db.delete('SingleValue', name);
   }
-}
-
-async function setCreds(fyo: Fyo) {
-  const email = (await fyo.getValue(
-    ModelNameEnum.AccountingSettings,
-    'email'
-  )) as string | undefined;
-  const user = fyo.auth.user;
-  fyo.auth.user = email ?? user;
 }
 
 async function setVersion(fyo: Fyo) {

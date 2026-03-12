@@ -320,11 +320,6 @@ function getCompleteSidebar(): SidebarConfig {
       name: 'setup',
       icon: 'settings',
       route: '/chart-of-accounts',
-      hidden: () => {
-        // Only show for Super Admin
-        const currentRole = localStorage.getItem('current_role') || '';
-        return currentRole !== 'Super Admin';
-      },
       items: [
         {
           label: t`Chart of Accounts`,
@@ -341,17 +336,6 @@ function getCompleteSidebar(): SidebarConfig {
           label: t`Import Wizard`,
           name: 'import-wizard',
           route: '/import-wizard',
-        },
-        {
-          label: t`Users`,
-          name: 'users',
-          route: '/list/User',
-          schemaName: 'User',
-          hidden: () => {
-            // Only show for Admin and Super Admin
-            const currentRole = localStorage.getItem('current_role') || '';
-            return !['Admin', 'Super Admin'].includes(currentRole);
-          },
         },
         {
           label: t`Print Templates`,

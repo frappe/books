@@ -55,6 +55,7 @@ export class OnlineValidator {
         licenseKey,
         productId: this.config.productId,
         hostId,
+        customerId: response.customerId || response.customer_id,
         licenseeEmail: response.licensee_email,
         licenseeName: response.licensee_name,
         expiresAt: response.expires_at,
@@ -105,15 +106,17 @@ export class OnlineValidator {
       console.log('Keymint validation response:', JSON.stringify(response, null, 2));
       
       // Extract data from nested structure
-      // GET /key returns: { data: { license: { expirationDate }, customer: { name, email } }, code: 0 }
+      // GET /key returns: { data: { license: { expirationDate }, customer: { id, name, email } }, code: 0 }
       const responseData = (response as any).data;
       const customerData = responseData?.customer;
       const licenseData = responseData?.license;
       
+      const customerId = customerData?.id;
       const licenseeName = customerData?.name || response.licensee_name;
       const licenseeEmail = customerData?.email || response.licensee_email;
       const expirationDate = licenseData?.expirationDate || response.expires_at;
       
+      console.log('Extracted customer_id:', customerId);
       console.log('Extracted licensee_name:', licenseeName);
       console.log('Extracted licensee_email:', licenseeEmail);
       console.log('Extracted expirationDate:', expirationDate);
@@ -128,14 +131,36 @@ export class OnlineValidator {
         };
       }
 
-      // Update cache with fresh validation
+      // Check if license has expired (for subscription-based licenses)
       const now = new Date();
+      if (expirationDate) {
+        const expiresAt = new Date(expirationDate);
+        // Use >= to catch exact expiration moment
+        // If expiresAt is "2026-03-08T23:59:59.999Z", it expires at the END of that day
+        if (now >= expiresAt) {
+          console.log('License has expired. Expiration date:', expiresAt);
+          console.log('Current time:', now);
+          return {
+            state: LicenseState.EXPIRED,
+            isValid: false,
+            error: 'License subscription has expired',
+            expiresAt,
+            lastValidatedAt: now,
+            validatedOnline: true,
+            licenseeEmail,
+            licenseeName,
+          };
+        }
+      }
+
+      // Update cache with fresh validation
       const gracePeriodEndsAt = calculateGracePeriodEnd(now, this.config.gracePeriodDays);
 
       const cacheData: LicenseCacheData = {
         licenseKey,
         productId: this.config.productId,
         hostId,
+        customerId,
         licenseeEmail,
         licenseeName,
         expiresAt: expirationDate,

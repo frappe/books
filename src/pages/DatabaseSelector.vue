@@ -99,7 +99,7 @@
 
       <!-- Create Demo (Pink Icon) -->
       <div
-        v-if="!files?.length"
+        v-if="false"
         class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
         :class="
           creatingDemo
@@ -229,7 +229,7 @@
       >
         <LanguageSelector v-show="!creatingDemo" class="text-sm w-28" />
         <button
-          v-if="files?.length"
+          v-if="false"
           class="
             text-sm
             bg-gray-100

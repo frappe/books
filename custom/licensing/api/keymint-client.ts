@@ -44,6 +44,35 @@ export class KeymintClient {
   }
 
   /**
+   * Create a new license key
+   * Ref: https://docs.keymint.dev/api-reference/license-keys/create
+   */
+  async createLicense(
+    productId: string,
+    customerId?: string,
+    maxActivations: string = '3'
+  ): Promise<KeymintApiResponse> {
+    const payload: any = {
+      productId,
+      maxActivations,
+    };
+
+    if (customerId) {
+      payload.customerId = customerId;
+    }
+
+    return this.makePostRequest('/key', payload);
+  }
+
+  /**
+   * Delete/revoke a license key
+   * Note: This endpoint may vary based on Keymint's actual API
+   */
+  async deleteLicense(licenseKey: string): Promise<KeymintApiResponse> {
+    return this.makePostRequest('/key/delete', { licenseKey });
+  }
+
+  /**
    * Make HTTP GET request with query parameters (for validation)
    */
   private async makeGetRequest(

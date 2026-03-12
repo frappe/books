@@ -5,10 +5,14 @@
 
 import { LicenseManager } from './LicenseManager';
 import { LicenseConfig } from './types';
+import { SubscriptionManager } from './subscription/subscription-manager';
+import { SubscriptionConfig } from './subscription/types';
 
 // Export types and classes
 export * from './types';
 export { LicenseManager } from './LicenseManager';
+export * from './subscription/types';
+export { SubscriptionManager } from './subscription/subscription-manager';
 
 // Configuration from environment variables
 const config: LicenseConfig = {
@@ -18,6 +22,16 @@ const config: LicenseConfig = {
   gracePeriodDays: 7,
   validationTimeout: 10000,
   backgroundCheckInterval: 3600000, // 1 hour
+};
+
+// Subscription configuration
+const subscriptionConfig: SubscriptionConfig = {
+  clickpesaApiUrl: process.env.CLICKPESA_API_URL || 'https://api.clickpesa.com',
+  clickpesaClientId: process.env.CLICKPESA_CLIENT_ID || '',
+  clickpesaApiKey: process.env.CLICKPESA_API_KEY || '',
+  clickpesaChecksumKey: process.env.CLICKPESA_CHECKSUM_KEY || '',
+  yearlyLicensePrice: parseFloat(process.env.YEARLY_LICENSE_PRICE || '500000'), // 500,000 TZS default
+  paymentTimeout: 30000, // 30 seconds
 };
 
 // Debug: Log config (with sensitive data masked)
@@ -34,8 +48,9 @@ if (!config.accessToken || !config.productId) {
   console.warn('⚠️  Licensing features will be disabled.');
 }
 
-// Singleton instance
+// Singleton instances
 let licenseManagerInstance: LicenseManager | null = null;
+let subscriptionManagerInstance: SubscriptionManager | null = null;
 
 /**
  * Get or create LicenseManager singleton instance
@@ -45,6 +60,16 @@ export function getLicenseManager(): LicenseManager {
     licenseManagerInstance = new LicenseManager(config);
   }
   return licenseManagerInstance;
+}
+
+/**
+ * Get or create SubscriptionManager singleton instance
+ */
+export function getSubscriptionManager(): SubscriptionManager {
+  if (!subscriptionManagerInstance) {
+    subscriptionManagerInstance = new SubscriptionManager(config, subscriptionConfig);
+  }
+  return subscriptionManagerInstance;
 }
 
 /**

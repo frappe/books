@@ -47,7 +47,12 @@ export class OfflineValidator {
       // Check if subscription expired (if applicable)
       if (cached.expiresAt) {
         const expiresAt = new Date(cached.expiresAt);
-        if (new Date() > expiresAt) {
+        const now = new Date();
+        // Use >= to catch exact expiration moment
+        // If expiresAt is "2026-03-08T23:59:59.999Z", it expires at the END of that day
+        if (now >= expiresAt) {
+          console.log('License has expired (offline). Expiration date:', expiresAt);
+          console.log('Current time:', now);
           return {
             state: LicenseState.EXPIRED,
             isValid: false,
