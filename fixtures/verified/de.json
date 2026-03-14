@@ -2,80 +2,80 @@
   "countryCode": "de",
   "name": "Germany - HGB Chart of Accounts",
   "tree": {
-    "Aktiva": {
-      "Anlagevermögen": {
-        "Immaterielle Vermögensgegenstände": {},
-        "Sachanlagen": {},
-        "Finanzanlagen": {}
+    "Aktiva (Assets)": {
+      "Anlagevermögen (Fixed Assets)": {
+        "Immaterielle Vermögensgegenstände (Intangible Assets)": {},
+        "Sachanlagen (Property, Plant, and Equipment)": {},
+        "Finanzanlagen (Financial Assets)": {}
       },
-      "Umlaufvermögen": {
-        "Vorräte": {},
-        "Forderungen und sonstige Vermögensgegenstände": {
-          "Forderungen aus Lieferungen und Leistungen": {
+      "Umlaufvermögen (Current Assets)": {
+        "Vorräte (Inventories)": {},
+        "Forderungen und sonstige Vermögensgegenstände (Receivables and Other Assets)": {
+          "Forderungen aus Lieferungen und Leistungen (Trade Receivables)": {
             "accountType": "Receivable"
           }
         },
-        "Wertpapiere": {},
-        "Kassenbestand, Bundesbankguthaben, Guthaben bei Kreditinstituten": {
-          "Kasse": {
+        "Wertpapiere (Securities)": {},
+        "Kassenbestand, Bundesbankguthaben, Guthaben bei Kreditinstituten (Cash and Cash Equivalents)": {
+          "Kasse (Cash)": {
             "accountType": "Cash"
           },
-          "Bank": {
+          "Bank (Bank)": {
             "accountType": "Bank",
             "isGroup": true
           }
         }
       },
-      "Rechnungsabgrenzungsposten": {},
+      "Rechnungsabgrenzungsposten (Prepaid Expenses)": {},
       "rootType": "Asset"
     },
-    "Passiva": {
-      "Rückstellungen": {},
-      "Verbindlichkeiten": {
-        "Verbindlichkeiten aus Lieferungen und Leistungen": {
+    "Passiva (Liabilities)": {
+      "Rückstellungen (Provisions)": {},
+      "Verbindlichkeiten (Liabilities)": {
+        "Verbindlichkeiten aus Lieferungen und Leistungen (Trade Payables)": {
           "accountType": "Payable"
         },
-        "Verbindlichkeiten gegenüber Kreditinstituten": {}
+        "Verbindlichkeiten gegenüber Kreditinstituten (Liabilities to Banks)": {}
       },
-      "Passive Rechnungsabgrenzungsposten": {},
+      "Passive Rechnungsabgrenzungsposten (Deferred Income)": {},
       "rootType": "Liability"
     },
-    "Eigenkapital": {
-      "Gezeichnetes Kapital": {
+    "Eigenkapital (Equity)": {
+      "Gezeichnetes Kapital (Subscribed Capital)": {
         "accountType": "Equity"
       },
-      "Kapitalrücklage": {
+      "Kapitalrücklage (Capital Reserves)": {
         "accountType": "Equity"
       },
-      "Gewinnrücklagen": {
+      "Gewinnrücklagen (Revenue Reserves)": {
         "accountType": "Equity"
       },
-      "Gewinnvortrag/Verlustvortrag": {
+      "Gewinnvortrag/Verlustvortrag (Retained Earnings/Accumulated Losses)": {
         "accountType": "Equity"
       },
-      "Jahresüberschuss/Jahresfehlbetrag": {
+      "Jahresüberschuss/Jahresfehlbetrag (Net Income/Net Loss)": {
         "accountType": "Equity"
       },
       "rootType": "Equity"
     },
-    "Erträge": {
-      "Umsatzerlöse": {
+    "Erträge (Income)": {
+      "Umsatzerlöse (Revenues)": {
         "accountType": "Income Account"
       },
-      "Sonstige betriebliche Erträge": {
+      "Sonstige betriebliche Erträge (Other Operating Income)": {
         "accountType": "Income Account"
       },
       "rootType": "Income"
     },
-    "Aufwendungen": {
-      "Materialaufwand": {
+    "Aufwendungen (Expenses)": {
+      "Materialaufwand (Cost of Materials)": {
         "accountType": "Cost of Goods Sold"
       },
-      "Personalaufwand": {},
-      "Abschreibungen": {},
-      "Sonstige betriebliche Aufwendungen": {},
-      "Zinsen und ähnliche Aufwendungen": {},
-      "Steuern vom Einkommen und vom Ertrag": {
+      "Personalaufwand (Personnel Expenses)": {},
+      "Abschreibungen (Depreciation and Amortization)": {},
+      "Sonstige betriebliche Aufwendungen (Other Operating Expenses)": {},
+      "Zinsen und ähnliche Aufwendungen (Interest and Similar Expenses)": {},
+      "Steuern vom Einkommen und vom Ertrag (Taxes on Income and Earnings)": {
         "accountType": "Tax"
       },
       "rootType": "Expense"
