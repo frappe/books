@@ -1,0 +1,84 @@
+{
+  "countryCode": "de",
+  "name": "Germany - HGB Chart of Accounts",
+  "tree": {
+    "Aktiva": {
+      "Anlagevermögen": {
+        "Immaterielle Vermögensgegenstände": {},
+        "Sachanlagen": {},
+        "Finanzanlagen": {}
+      },
+      "Umlaufvermögen": {
+        "Vorräte": {},
+        "Forderungen und sonstige Vermögensgegenstände": {
+          "Forderungen aus Lieferungen und Leistungen": {
+            "accountType": "Receivable"
+          }
+        },
+        "Wertpapiere": {},
+        "Kassenbestand, Bundesbankguthaben, Guthaben bei Kreditinstituten": {
+          "Kasse": {
+            "accountType": "Cash"
+          },
+          "Bank": {
+            "accountType": "Bank",
+            "isGroup": true
+          }
+        }
+      },
+      "Rechnungsabgrenzungsposten": {},
+      "rootType": "Asset"
+    },
+    "Passiva": {
+      "Rückstellungen": {},
+      "Verbindlichkeiten": {
+        "Verbindlichkeiten aus Lieferungen und Leistungen": {
+          "accountType": "Payable"
+        },
+        "Verbindlichkeiten gegenüber Kreditinstituten": {}
+      },
+      "Passive Rechnungsabgrenzungsposten": {},
+      "rootType": "Liability"
+    },
+    "Eigenkapital": {
+      "Gezeichnetes Kapital": {
+        "accountType": "Equity"
+      },
+      "Kapitalrücklage": {
+        "accountType": "Equity"
+      },
+      "Gewinnrücklagen": {
+        "accountType": "Equity"
+      },
+      "Gewinnvortrag/Verlustvortrag": {
+        "accountType": "Equity"
+      },
+      "Jahresüberschuss/Jahresfehlbetrag": {
+        "accountType": "Equity"
+      },
+      "rootType": "Equity"
+    },
+    "Erträge": {
+      "Umsatzerlöse": {
+        "accountType": "Income Account"
+      },
+      "Sonstige betriebliche Erträge": {
+        "accountType": "Income Account"
+      },
+      "rootType": "Income"
+    },
+    "Aufwendungen": {
+      "Materialaufwand": {
+        "accountType": "Cost of Goods Sold"
+      },
+      "Personalaufwand": {},
+      "Abschreibungen": {},
+      "Sonstige betriebliche Aufwendungen": {},
+      "Zinsen und ähnliche Aufwendungen": {},
+      "Steuern vom Einkommen und vom Ertrag": {
+        "accountType": "Tax"
+      },
+      "rootType": "Expense"
+    }
+  }
+}
