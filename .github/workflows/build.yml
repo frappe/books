@@ -1,31 +1,55 @@
 name: Build
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     paths-ignore:
       - '**.md'
   workflow_dispatch:
 
 jobs:
-  setup_and_build:
-    runs-on: macos-15-intel
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
-      - name: Setup node
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.18.1'
-
-      - name: Set yarn version
-        run: yarn set version 1.22.18
-
-      - name: Checkout Books
-        uses: actions/checkout@v4
+          cache: 'yarn'
 
       - name: Install Dependencies
-        run: yarn
+        run: yarn install --frozen-lockfile
 
-      - name: Run build
+      - name: Build for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: yarn build --linux deb --publish never
+
+      - name: Build for Windows
+        if: matrix.os == 'windows-latest'
+        run: yarn build --win --x64 --publish never
+
+      - name: Build for macOS
+        if: matrix.os == 'macos-latest'
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          APPLE_NOTARIZE: 0
-        run: yarn build -mw --publish never
+        run: yarn build --mac --publish never
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-build
+          path: |
+            dist_electron/bundled/*.deb
+            dist_electron/bundled/*.exe
+            dist_electron/bundled/*.dmg
+            dist_electron/bundled/*.zip
