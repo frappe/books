@@ -1,0 +1,157 @@
+{
+  "countryCode": "de",
+  "name": "Germany - Chart of Accounts",
+  "tree": {
+    "Aktiva (Assets)": {
+      "Anlagevermögen (Fixed Assets)": {
+        "Immaterielle Vermögensgegenstände (Intangible Assets)": {
+          "Software (Software)": {},
+          "Lizenzen (Licenses)": {}
+        },
+        "Sachanlagen (Tangible Assets)": {
+          "Maschinen (Machinery)": {},
+          "Büroausstattung (Office Equipment)": {},
+          "Mobiliar (Furniture)": {}
+        }
+      },
+      "Umlaufvermögen (Current Assets)": {
+        "Kasse und Bank (Cash and Bank)": {
+          "Kasse (Cash)": {
+            "accountType": "Cash"
+          },
+          "Bankkonto (Bank Account)": {
+            "accountType": "Bank",
+            "isGroup": true
+          }
+        },
+        "Forderungen (Receivables)": {
+          "Forderungen aus Lieferungen und Leistungen (Accounts Receivable)": {
+            "accountType": "Receivable"
+          },
+          "Sonstige Forderungen (Other Receivables)": {}
+        },
+        "Steuerforderungen (Tax Receivables)": {
+          "Vorsteuer 19% (Vorsteuer 19%)": {},
+          "Vorsteuer 7% (Vorsteuer 7%)": {},
+          "Umsatzsteuerforderung (VAT Receivable)": {
+            "accountType": "Tax"
+          }
+        },
+        "Vorräte (Inventory)": {
+          "Rohstoffe (Raw Materials)": {},
+          "Fertigerzeugnisse (Finished Goods)": {}
+        }
+      },
+      "rootType": "Asset"
+    },
+    "Eigenkapital (Equity)": {
+      "Stammkapital (Share Capital)": {
+        "accountType": "Equity"
+      },
+      "Kapitalrücklage (Capital Reserve)": {
+        "accountType": "Equity"
+      },
+      "Gewinnrücklagen (Retained Earnings)": {
+        "accountType": "Equity"
+      },
+      "Jahresüberschuss/-fehlbetrag (Current Year Profit/Loss)": {
+        "accountType": "Equity"
+      },
+      "rootType": "Equity"
+    },
+    "Passiva (Liabilities)": {
+      "Rückstellungen (Provisions)": {
+        "Steuerrückstellungen (Tax Provisions)": {},
+        "Sonstige Rückstellungen (Other Provisions)": {}
+      },
+      "Finanzverbindlichkeiten (Financial Liabilities)": {
+        "Bankdarlehen (Bank Loans)": {},
+        "Sonstige Darlehen (Other Loans)": {}
+      },
+      "Verbindlichkeiten aus Lieferungen und Leistungen (Trade Payables)": {
+        "Verbindlichkeiten aus Lieferungen und Leistungen (Accounts Payable)": {
+          "accountType": "Payable"
+        }
+      },
+      "Steuerverbindlichkeiten (Tax Liabilities)": {
+        "Umsatzsteuer 19% (Umsatzsteuer 19%)": {},
+        "Umsatzsteuer 7% (Umsatzsteuer 7%)": {},
+        "Umsatzsteuerverbindlichkeit (VAT Payable)": {
+          "accountType": "Tax"
+        },
+        "Lohnsteuerverbindlichkeit (Payroll Tax Payable)": {},
+        "Körperschaftsteuerverbindlichkeit (Corporate Tax Payable)": {}
+      },
+      "rootType": "Liability"
+    },
+    "Erträge (Income)": {
+      "Umsatzerlöse (Revenue)": {
+        "Umsatz 19% USt (Sales 19% VAT)": {
+          "accountType": "Income Account"
+        },
+        "Umsatz 7% USt (Sales 7% VAT)": {
+          "accountType": "Income Account"
+        },
+        "Umsatz EU / Reverse Charge (Sales EU / Reverse Charge)": {
+          "accountType": "Income Account"
+        }
+      },
+      "Sonstige betriebliche Erträge (Other Operating Income)": {
+        "Zuschüsse (Grants)": {
+          "accountType": "Income Account"
+        },
+        "Sonstige Erträge (Misc Income)": {
+          "accountType": "Income Account"
+        }
+      },
+      "Finanzerträge (Financial Income)": {
+        "Zinserträge (Interest Income)": {
+          "accountType": "Income Account"
+        }
+      },
+      "rootType": "Income"
+    },
+    "Aufwendungen (Expenses)": {
+      "Materialaufwand (Cost of Goods Sold)": {
+        "Materialkosten (Material Costs)": {
+          "accountType": "Cost of Goods Sold"
+        },
+        "Wareneinkauf (Purchase of Goods)": {
+          "accountType": "Cost of Goods Sold"
+        }
+      },
+      "Personalaufwand (Personnel Expenses)": {
+        "Gehälter (Salaries)": {},
+        "Sozialabgaben (Social Security)": {},
+        "Lohnsteuern (Payroll Taxes)": {}
+      },
+      "Betriebliche Aufwendungen (Operating Expenses)": {
+        "Miete (Rent)": {},
+        "Versicherungen (Insurance)": {},
+        "Büromaterial (Office Supplies)": {},
+        "Software-Abonnements (Software Subscriptions)": {},
+        "Reisekosten (Travel Expenses)": {},
+        "Marketing (Marketing)": {}
+      },
+      "Abschreibungen (Depreciation)": {
+        "Abschreibung Maschinen (Depreciation Machinery)": {},
+        "Abschreibung Ausstattung (Depreciation Equipment)": {}
+      },
+      "Finanzaufwendungen (Financial Expenses)": {
+        "Zinsaufwand (Interest Expense)": {}
+      },
+      "Steuern (Taxes)": {
+        "Gewerbesteueraufwand (Trade Tax Expense)": {
+          "accountType": "Tax"
+        },
+        "Körperschaftsteueraufwand (Corporate Tax Expense)": {
+          "accountType": "Tax"
+        },
+        "Nicht abziehbare Vorsteuer (Non-deductible VAT)": {
+          "accountType": "Tax"
+        }
+      },
+      "rootType": "Expense"
+    }
+  }
+}
