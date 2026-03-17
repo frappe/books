@@ -62,8 +62,8 @@ const frappeBooksConfig = {
   appx: {
     applicationId: 'io.rare.books',
     backgroundColor: '#464646',
-    displayName: 'RareLedger',
-    identityName: 'CharlesNkonoki.RareLedger',
+    displayName: 'RareBooks',
+    identityName: 'CharlesNkonoki.RareBooks',
     publisher: 'CN=2E2F9384-BEA3-4F48-B563-BCCA0871A1DF',
     publisherDisplayName: 'Charles Nkonoki',
     languages: ['en-US'],
