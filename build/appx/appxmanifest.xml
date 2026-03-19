@@ -12,7 +12,7 @@
     <DisplayName>${displayName}</DisplayName>
     <PublisherDisplayName>${publisherDisplayName}</PublisherDisplayName>
     <Description>${description}</Description>
-    <Logo>assets\StoreLogo.png</Logo>
+    <Logo>assets\StoreLogo.scale-100.png</Logo>
   </Properties>
   <Resources>
     <Resource Language="en-US" />
@@ -28,10 +28,10 @@
       <uap:VisualElements
        BackgroundColor="${backgroundColor}"
        DisplayName="${displayName}"
-       Square150x150Logo="assets\Square150x150Logo.png"
-       Square44x44Logo="assets\Square44x44Logo.png"
+       Square150x150Logo="assets\Square150x150Logo.scale-100.png"
+       Square44x44Logo="assets\Square44x44Logo.scale-100.png"
        Description="${description}">
-        <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png">
+        <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.scale-100.png">
           <uap:ShowNameOnTiles>
             <uap:ShowOn Tile="wide310x150Logo" />
             <uap:ShowOn Tile="square150x150Logo" />
