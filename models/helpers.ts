@@ -311,6 +311,8 @@ export function getLedgerLink(
     name: 'Report',
     params: {
       reportClassName,
+    },
+    query: {
       defaultFilters: JSON.stringify({
         referenceType: doc.schemaName,
         referenceName: doc.name,
