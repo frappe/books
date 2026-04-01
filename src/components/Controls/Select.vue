@@ -58,10 +58,10 @@
         </div>
         <div
           v-if="dropdownVisible"
+          :style="dropdownStyle"
           class="
-            absolute
-            z-10
-            mt-4
+            fixed
+            z-50
             w-60
             bg-white
             dark:bg-gray-850
@@ -120,7 +120,7 @@
 <script lang="ts">
 import Base from './Base.vue';
 
-import { defineComponent } from 'vue';
+import { defineComponent, nextTick } from 'vue';
 import { SelectOption } from 'schemas/types';
 export default defineComponent({
   name: 'Select',
@@ -130,6 +130,7 @@ export default defineComponent({
     return {
       dropdownVisible: false,
       selectValue: this.value,
+      dropdownStyle: {} as Record<string, string>,
     };
   },
   props: {
@@ -148,11 +149,21 @@ export default defineComponent({
     },
   },
   methods: {
+    updateDropdownPosition() {
+      const rect = this.$el.getBoundingClientRect();
+      this.dropdownStyle = {
+        top: `${rect.bottom + 4}px`,
+        left: `${rect.left}px`,
+      };
+    },
     toggleDropdown() {
       if (!this.closeDropDown) {
         this.dropdownVisible = true;
       } else if (!this.isReadOnly) {
         this.dropdownVisible = !this.dropdownVisible;
+      }
+      if (this.dropdownVisible) {
+        nextTick(() => this.updateDropdownPosition());
       }
     },
     selectOption(option: SelectOption) {
