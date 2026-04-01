@@ -17,6 +17,7 @@ export const languageCodeMap: Record<string, string> = {
   Indonesian: 'id',
   Korean: 'ko',
   Nepali: 'np',
+  Odia: 'od',
   Persian: 'fa',
   Portuguese: 'pt',
   'Simplified Chinese': 'zh-CN',
