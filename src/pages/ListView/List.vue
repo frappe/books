@@ -40,28 +40,37 @@
             h-row
             items-center
             flex
-            cursor-pointer
-            select-none
             gap-1
-            group
           "
           :class="{
             'ms-auto': isNumeric(column.fieldtype),
             'pe-4': i === columns.length - 1,
+            'cursor-pointer select-none group': sortableFieldnames.has(
+              column.fieldname
+            ),
           }"
           @click="handleColumnHeaderClick(column.fieldname)"
         >
           {{ column.label }}
-          <feather-icon
-            v-if="sortField === column.fieldname"
-            :name="sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'"
-            class="w-3 h-3 flex-shrink-0"
-          />
-          <feather-icon
-            v-else
-            name="chevron-up"
-            class="w-3 h-3 flex-shrink-0 opacity-0 group-hover:opacity-40 transition-opacity"
-          />
+          <template v-if="sortableFieldnames.has(column.fieldname)">
+            <feather-icon
+              v-if="sortField === column.fieldname"
+              :name="sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'"
+              class="w-3 h-3 flex-shrink-0"
+            />
+            <feather-icon
+              v-else
+              name="chevron-up"
+              class="
+                w-3
+                h-3
+                flex-shrink-0
+                opacity-0
+                group-hover:opacity-40
+                transition-opacity
+              "
+            />
+          </template>
         </div>
       </Row>
     </div>
@@ -214,6 +223,14 @@ export default defineComponent({
         this.data.length > 0 && this.selectedItems.length === this.data.length
       );
     },
+    sortableFieldnames(): Set<string> {
+      const schemaFieldMap = fyo.db.fieldMap[this.schemaName] ?? {};
+      return new Set(
+        Object.values(schemaFieldMap)
+          .filter((field) => !field.computed && field.fieldtype !== 'Table')
+          .map((field) => field.fieldname)
+      );
+    },
     columns() {
       let columns = this.listConfig?.columns ?? [];
 
@@ -331,13 +348,16 @@ export default defineComponent({
       this.$emit('updatedData', filters);
     },
     handleColumnHeaderClick(fieldname: string) {
+      if (!this.sortableFieldnames.has(fieldname)) {
+        return;
+      }
       if (this.sortField === fieldname) {
         this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
       } else {
         this.sortField = fieldname;
         this.sortOrder = 'asc';
       }
-      this.updateData();
+      void this.updateData();
     },
     toggleItemSelection(itemName: string) {
       const index = this.selectedItems.indexOf(itemName);
