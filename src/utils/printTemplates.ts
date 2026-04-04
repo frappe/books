@@ -12,12 +12,21 @@ import {
   getSavePath,
   showExportInFolder,
 } from './ui';
+import { Money } from 'pesa';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { Payment } from 'models/baseModels/Payment/Payment';
 
 export type PrintTemplateHint = {
   [key: string]: string | PrintTemplateHint | PrintTemplateHint[];
 };
 type PrintTemplateData = Record<string, unknown>;
-type TemplateUpdateItem = { name: string; template: string; type: string };
+type TemplateUpdateItem = {
+  name: string;
+  template: string;
+  type: string;
+  width: number;
+  height: number;
+};
 
 const printSettingsFields = [
   'logo',
@@ -28,17 +37,62 @@ const printSettingsFields = [
   'phone',
   'address',
   'companyName',
+  'amountInWords',
+  'displaytermsandconditions',
+  'termsAndConditions',
 ];
-const accountingSettingsFields = ['gstin'];
+const accountingSettingsFields = ['gstin', 'taxId'];
 
 export async function getPrintTemplatePropValues(
   doc: Doc
 ): Promise<PrintValues> {
   const fyo = doc.fyo;
+  let paymentId;
+  let sinvDoc;
+
   const values: PrintValues = { doc: {}, print: {} };
   values.doc = await getPrintTemplateDocValues(doc);
-  (values.doc as PrintTemplateData).entryType = doc.schema.name;
-  (values.doc as PrintTemplateData).entryLabel = doc.schema.label;
+
+  if (
+    values.doc.entryType === ModelNameEnum.SalesInvoice ||
+    values.doc.entryType === ModelNameEnum.PurchaseInvoice
+  ) {
+    paymentId = await (doc as SalesInvoice).getPaymentIds();
+
+    if (paymentId && paymentId.length) {
+      const paymentDetails = await getPaymentDetails(doc, paymentId);
+      (values.doc as PrintTemplateData).paymentDetails = paymentDetails;
+    }
+  }
+
+  if (doc.referenceType == ModelNameEnum.SalesInvoice) {
+    const referenceName = (doc as Payment)?.for![0]?.referenceName;
+
+    if (referenceName) {
+      sinvDoc = await fyo.doc.getDoc(ModelNameEnum.SalesInvoice, referenceName);
+
+      if (sinvDoc.taxes) {
+        (values.doc as PrintTemplateData).taxes = sinvDoc.taxes;
+      }
+    }
+  }
+
+  let totalTax;
+
+  if (values.doc.entryType !== ModelNameEnum.Shipment) {
+    totalTax = await ((sinvDoc as Invoice) ?? (doc as Payment))?.getTotalTax();
+  }
+
+  if (doc.schema.name == ModelNameEnum.Payment) {
+    (values.doc as PrintTemplateData).amountPaidInWords = getGrandTotalInWords(
+      (doc.amountPaid as Money)?.float
+    );
+  }
+
+  (values.doc as PrintTemplateData).subTotal = doc.fyo.format(
+    ((doc.grandTotal as Money) ?? (doc.amount as Money)).sub(totalTax || 0),
+    ModelNameEnum.Currency
+  );
 
   const printSettings = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
   const printValues = await getPrintTemplateDocValues(
@@ -58,22 +112,71 @@ export async function getPrintTemplatePropValues(
     ...printValues,
     ...accountingValues,
   };
-
-  if (doc.schemaName?.endsWith('Invoice')) {
+  const discountSchema = ['Invoice', 'Quote'];
+  if (discountSchema.some((value) => doc.schemaName?.endsWith(value))) {
     (values.doc as PrintTemplateData).totalDiscount =
       formattedTotalDiscount(doc);
-    (values.doc as PrintTemplateData).showHSN = showHSN(doc);
+  }
+  (values.doc as PrintTemplateData).showHSN = showHSN(doc);
+
+  (values.doc as PrintTemplateData).grandTotalInWords = getGrandTotalInWords(
+    ((doc.grandTotal as Money) ?? (doc.amount as Money)).float
+  );
+
+  (values.doc as PrintTemplateData).date = getDate(doc.date as string);
+
+  if (printSettings.displayTime) {
+    (values.doc as PrintTemplateData).time = getTime(doc.date as string);
+  }
+
+  if (printSettings.displayDescription) {
+    (values.doc as PrintTemplateData).description = showDescription(doc);
   }
 
   return values;
+}
+async function getPaymentDetails(doc: Doc, paymentId: string[]) {
+  const paymentIds = paymentId.sort();
+  const paymentDetails = [];
+  let outstandingAmount = doc.grandTotal as Money;
+
+  for (const payment of paymentIds) {
+    const paymentDoc = await doc.fyo.doc.getDoc(ModelNameEnum.Payment, payment);
+    outstandingAmount = outstandingAmount.sub(paymentDoc.amount as Money);
+
+    paymentDetails.push({
+      amount: doc.fyo.format(paymentDoc.amount, ModelNameEnum.Currency),
+      amountPaid: doc.fyo.format(paymentDoc.amountPaid, ModelNameEnum.Currency),
+      paymentMethod: paymentDoc.paymentMethod as string,
+      outstandingAmount: doc.fyo.format(
+        outstandingAmount,
+        ModelNameEnum.Currency
+      ),
+    });
+  }
+
+  return paymentDetails;
+}
+
+function getDate(dateString: string): string {
+  const date = new Date(dateString);
+  date.setMonth(date.getMonth());
+
+  return `${date.toLocaleString('default', {
+    month: 'short',
+  })} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
+function getTime(dateString: string): string {
+  const date = new Date(dateString);
+
+  return date.toTimeString().split(' ')[0];
 }
 
 export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
   const hints: PrintTemplateHint = {};
   const schema = fyo.schemaMap[schemaName]!;
   hints.doc = getPrintTemplateDocHints(schema, fyo);
-  hints.doc.entryType = fyo.t`Entry Type`;
-  hints.doc.entryLabel = fyo.t`Entry Label`;
 
   const printSettingsHints = getPrintTemplateDocHints(
     fyo.schemaMap[ModelNameEnum.PrintSettings]!,
@@ -99,6 +202,112 @@ export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
   return hints;
 }
 
+function getGrandTotalInWords(total: number) {
+  const formattedTotal = total.toFixed(2);
+
+  const [integerPart, decimalPart] = formattedTotal.split('.');
+
+  const ones = [
+    '',
+    t`One`,
+    t`Two`,
+    t`Three`,
+    t`Four`,
+    t`Five`,
+    t`Six`,
+    t`Seven`,
+    t`Eight`,
+    t`Nine`,
+  ];
+
+  const teens = [
+    t`Ten`,
+    t`Eleven`,
+    t`Twelve`,
+    t`Thirteen`,
+    t`Fourteen`,
+    t`Fifteen`,
+    t`Sixteen`,
+    t`Seventeen`,
+    t`Eighteen`,
+    t`Nineteen`,
+  ];
+
+  const tens = [
+    '',
+    '',
+    t`Twenty`,
+    t`Thirty`,
+    t`Forty`,
+    t`Fifty`,
+    t`Sixty`,
+    t`Seventy`,
+    t`Eighty`,
+    t`Ninety`,
+  ];
+
+  const scales = ['', t`Thousand`, t`Million`, t`Billion`];
+
+  function convertThreeDigitNumber(num: number) {
+    let result = '';
+
+    const hundredDigit = Math.floor(num / 100);
+    const remainder = num % 100;
+
+    if (hundredDigit > 0) {
+      result += ones[hundredDigit] + ` ${t`Hundred`}`;
+    }
+
+    if (remainder > 0) {
+      if (hundredDigit > 0) {
+        result += ` ${t`And`} `;
+      }
+
+      if (remainder < 10) {
+        result += ones[remainder];
+      } else if (remainder < 20) {
+        result += teens[remainder - 10];
+      } else {
+        const tensDigit = Math.floor(remainder / 10);
+        const onesDigit = remainder % 10;
+        result += tens[tensDigit];
+        if (onesDigit > 0) {
+          result += ' ' + ones[onesDigit];
+        }
+      }
+    }
+
+    return result;
+  }
+
+  let spelledOutInteger = '';
+  const integerGroups = integerPart.match(/(\d{1,3})(?=(\d{3})*$)/g) || [];
+  const groupCount = integerGroups.length;
+
+  integerGroups.forEach((group, index) => {
+    const groupValue = parseInt(group);
+
+    if (groupValue > 0) {
+      const groupText = convertThreeDigitNumber(groupValue);
+      const groupSuffix = scales[groupCount - index - 1];
+      spelledOutInteger +=
+        groupText + (groupSuffix ? ' ' + groupSuffix : '') + ' ';
+    }
+  });
+
+  spelledOutInteger = spelledOutInteger.trim() || t`Zero`;
+
+  let spelledOutDecimal = '';
+  const decimalCents = parseInt(decimalPart);
+
+  if (decimalCents !== 0) {
+    spelledOutDecimal =
+      ` ${t`and`} ` + convertThreeDigitNumber(decimalCents) + ` ${t`Paisa`}`;
+  }
+
+  return `${spelledOutInteger}${spelledOutDecimal} ${t`only`}`;
+}
+
 function showHSN(doc: Doc): boolean {
   const items = doc.items;
   if (!Array.isArray(items)) {
@@ -106,6 +315,13 @@ function showHSN(doc: Doc): boolean {
   }
 
   return items.map((i: Doc) => i.hsnCode).every(Boolean);
+}
+
+function showDescription(doc: Doc): boolean {
+  const description = Array.isArray(doc.items)
+    ? doc.items.map((item: Doc) => item.description).filter(Boolean)
+    : [];
+  return description.length > 0;
 }
 
 function formattedTotalDiscount(doc: Doc): string {
@@ -159,6 +375,10 @@ function getPrintTemplateDocHints(
     }
   }
 
+  hints.submitted = fyo.t`Submitted`;
+  hints.entryType = fyo.t`Entry Type`;
+  hints.entryLabel = fyo.t`Entry Label`;
+
   if (Object.keys(links).length) {
     hints.links = links;
   }
@@ -204,6 +424,10 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
     values[fieldname] = table;
   }
 
+  values.submitted = doc.submitted;
+  values.entryType = doc.schema.name;
+  values.entryLabel = doc.schema.label;
+
   // Set Formatted Doc Link Data
   await doc.loadLinks();
   const links: PrintTemplateData = {};
@@ -225,19 +449,30 @@ export async function getPathAndMakePDF(
   name: string,
   innerHTML: string,
   width: number,
-  height: number
+  height: number,
+  shouldPrint?: boolean
 ) {
-  const { filePath: savePath } = await getSavePath(name, 'pdf');
-  if (!savePath) {
-    return;
-  }
+  if (!shouldPrint) {
+    const { filePath: savePath } = await getSavePath(name, 'pdf');
+    if (!savePath) {
+      return;
+    }
 
-  const html = constructPrintDocument(innerHTML);
-  const success = await ipc.makePDF(html, savePath, width, height);
-  if (success) {
-    showExportInFolder(t`Save as PDF Successful`, savePath);
+    const html = constructPrintDocument(innerHTML);
+    const success = await ipc.makePDF(html, savePath, width, height);
+    if (success) {
+      showExportInFolder(t`Save as PDF Successful`, savePath);
+    } else {
+      showToast({ message: t`Export Failed`, type: 'error' });
+    }
   } else {
-    showToast({ message: t`Export Failed`, type: 'error' });
+    const html = constructPrintDocument(innerHTML);
+    const success = await ipc.printDocument(html, width, height);
+    if (success) {
+      showToast({ message: t`Print Successful`, type: 'success' });
+    } else {
+      showToast({ message: t`Print Failed`, type: 'error' });
+    }
   }
 }
 
@@ -247,11 +482,33 @@ function constructPrintDocument(innerHTML: string) {
   const body = document.createElement('body');
   const style = getAllCSSAsStyleElem();
 
+  const printCSS = document.createElement('style');
+  printCSS.innerHTML = `
+    @media print {
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white;
+      }
+
+      @page {
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  `;
+
   head.innerHTML = [
     '<meta charset="UTF-8">',
     '<title>Print Window</title>',
   ].join('\n');
-  head.append(style);
+
+  head.append(style, printCSS);
 
   body.innerHTML = innerHTML;
   html.append(head, body);
@@ -276,7 +533,9 @@ function getAllCSSAsStyleElem() {
 }
 
 export async function updatePrintTemplates(fyo: Fyo) {
-  const templateFiles = await ipc.getTemplates();
+  const templateFiles = await ipc.getTemplates(
+    fyo.singles.PrintSettings?.posPrintWidth as number
+  );
   const existingTemplates = (await fyo.db.getAll(ModelNameEnum.PrintTemplate, {
     fields: ['name', 'modified'],
     filters: { isCustom: false },
@@ -301,20 +560,29 @@ export async function updatePrintTemplates(fyo: Fyo) {
 
   const isLogging = fyo.store.skipTelemetryLogging;
   fyo.store.skipTelemetryLogging = true;
-  for (const { name, type, template } of updateList) {
+  for (const { name, type, template, width, height } of updateList) {
     const doc = await getDocFromNameIfExistsElseNew(
       ModelNameEnum.PrintTemplate,
       name
     );
 
-    await doc.set({ name, type, template, isCustom: false });
+    const updateData = {
+      name,
+      type,
+      template,
+      isCustom: false,
+      ...(width ? { width } : {}),
+      ...(height ? { height } : {}),
+    };
+
+    await doc.set(updateData);
     await doc.sync();
   }
   fyo.store.skipTelemetryLogging = isLogging;
 }
 
 function getPrintTemplateUpdateList(
-  { file, template, modified: modifiedString }: TemplateFile,
+  { file, template, modified: modifiedString, width, height }: TemplateFile,
   nameModifiedMap: Record<string, Date>,
   fyo: Fyo
 ): TemplateUpdateItem[] {
@@ -323,11 +591,13 @@ function getPrintTemplateUpdateList(
 
   for (const { name, type } of getNameAndTypeFromTemplateFile(file, fyo)) {
     const fileModified = nameModifiedMap[name];
-    if (fileModified && dbModified.valueOf() >= fileModified.valueOf()) {
+    if (fileModified && dbModified.valueOf() <= fileModified.valueOf()) {
       continue;
     }
 
     templateList.push({
+      height,
+      width,
       name,
       type,
       template,
@@ -347,6 +617,7 @@ function getNameAndTypeFromTemplateFile(
    * If the SchemaName is absent then it is assumed
    * that the SchemaName is:
    * - SalesInvoice
+   * - SalesQuote
    * - PurchaseInvoice
    */
 
@@ -359,12 +630,14 @@ function getNameAndTypeFromTemplateFile(
     return [{ name: `${name} - ${label}`, type: schemaName }];
   }
 
-  return [ModelNameEnum.SalesInvoice, ModelNameEnum.PurchaseInvoice].map(
-    (schemaName) => {
-      const label = fyo.schemaMap[schemaName]?.label ?? schemaName;
-      return { name: `${name} - ${label}`, type: schemaName };
-    }
-  );
+  return [
+    ModelNameEnum.SalesInvoice,
+    ModelNameEnum.SalesQuote,
+    ModelNameEnum.PurchaseInvoice,
+  ].map((schemaName) => {
+    const label = fyo.schemaMap[schemaName]?.label ?? schemaName;
+    return { name: `${name} - ${label}`, type: schemaName };
+  });
 }
 
 export const baseTemplate = `<main class="h-full w-full bg-white">

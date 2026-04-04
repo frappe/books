@@ -44,6 +44,9 @@ import {
   ValidationMap,
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
+import { getShouldDocSyncToERPNext } from 'src/utils/erpnextSync';
+import { ModelNameEnum } from 'models/types';
+import { DocItem } from 'models/inventory/types';
 
 export class Doc extends Observable<DocValue | Doc[]> {
   /* eslint-disable @typescript-eslint/no-floating-promises */
@@ -66,6 +69,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
   _notInserted = true;
 
   _syncing = false;
+  _addDocToSyncQueue = true;
+
   constructor(
     schema: Schema,
     data: DocValueMap,
@@ -245,6 +250,23 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     return true;
+  }
+
+  get shouldDocSyncToERPNext(): boolean {
+    const syncEnabled = !!this.fyo.singles.ERPNextSyncSettings?.isEnabled;
+    if (!syncEnabled) {
+      return false;
+    }
+
+    if (!this.schemaName || !this.fyo.singles.ERPNextSyncSettings) {
+      return false;
+    }
+
+    if (!!this.schema.isSubmittable && !this.isSubmitted) {
+      return false;
+    }
+
+    return getShouldDocSyncToERPNext(this);
   }
 
   _setValuesWithoutChecks(data: DocValueMap, convertToDocValue: boolean) {
@@ -751,7 +773,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (dbValues && docModified !== dbModified) {
       throw new ConflictError(
         this.fyo
-          .t`${this.schema.label} ${this.name} has been modified after loading` +
+          .t`${this.schema.label} ${this.name} has been modified after loading please reload entry.` +
           ` ${dbModified}, ${docModified}`
       );
     }
@@ -899,6 +921,25 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     return this;
   }
+  async _hasERPSyncableItems(): Promise<boolean> {
+    const isSalesInvoice = this.schemaName === ModelNameEnum.SalesInvoice;
+    if (!isSalesInvoice) {
+      return true;
+    }
+    for (const item of this.items as DocItem[]) {
+      if (!item.item) {
+        continue;
+      }
+      const isFromERP = await this.fyo.getValue(
+        ModelNameEnum.Item,
+        item.item,
+        'datafromErp'
+      );
+      if (isFromERP) continue;
+      else return false;
+    }
+    return true;
+  }
 
   async sync(): Promise<Doc> {
     this._syncing = true;
@@ -912,6 +953,41 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this._notInserted = false;
     await this.trigger('afterSync');
     this.fyo.doc.observer.trigger(`sync:${this.schemaName}`, this.name);
+
+    if (this._addDocToSyncQueue && !!this.shouldDocSyncToERPNext) {
+      const isSalesInvoice = this.schemaName === ModelNameEnum.SalesInvoice;
+      const hasERPSyncableItems = await this._hasERPSyncableItems();
+
+      if (
+        hasERPSyncableItems &&
+        (!(isSalesInvoice && this.isSyncedWithErp) ||
+          (isSalesInvoice && !!this.isReturn))
+      ) {
+        if (isSalesInvoice && !this.isReturn) {
+          await this.setAndSync('isSyncedWithErp', true);
+        }
+
+        const isDocExistsInQueue = await this.fyo.db.getAll(
+          ModelNameEnum.ERPNextSyncQueue,
+          {
+            filters: {
+              referenceType: this.schemaName,
+              documentName: this.name as string,
+            },
+          }
+        );
+
+        if (!isDocExistsInQueue.length) {
+          await this.fyo.doc
+            .getNewDoc(ModelNameEnum.ERPNextSyncQueue, {
+              referenceType: this.schemaName,
+              documentName: this.name,
+            })
+            .sync();
+        }
+      }
+    }
+
     this._syncing = false;
     return doc;
   }
@@ -951,7 +1027,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
       return;
     }
 
-    await this.trigger('beforeCancel');
     await this.trigger('beforeCancel');
     await this.setAndSync('cancelled', true);
     await this.trigger('afterCancel');

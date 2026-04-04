@@ -5,24 +5,6 @@
   "isChild": false,
   "fields": [
     {
-      "fieldname": "valuationMethod",
-      "label": "Valuation Method",
-      "fieldtype": "Select",
-      "options": [
-        {
-          "value": "FIFO",
-          "label": "FIFO"
-        },
-        {
-          "value": "MovingAverage",
-          "label": "Moving Average"
-        }
-      ],
-      "default": "FIFO",
-      "required": true,
-      "section": "Default"
-    },
-    {
       "fieldname": "defaultLocation",
       "label": "Default Location",
       "fieldtype": "Link",
@@ -73,6 +55,13 @@
       "fieldname": "enableUomConversions",
       "label": "Enable UOM Conversion",
       "fieldtype": "Check",
+      "section": "Features"
+    },
+    {
+      "fieldname": "enablePointOfSale",
+      "label": "Enable Point of Sale",
+      "fieldtype": "Check",
+      "default": false,
       "section": "Features"
     }
   ]

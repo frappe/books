@@ -9,7 +9,7 @@ import {
   AccountReport,
   ACC_BAL_WIDTH,
   ACC_NAME_WIDTH,
-  convertAccountRootNodeToAccountList,
+  convertAccountRootNodesToAccountList,
   getFiscalEndpoints,
 } from 'reports/AccountReport';
 import {
@@ -65,15 +65,15 @@ export class TrialBalance extends AccountReport {
 
     const rootTypeRows: RootTypeRow[] = this.rootTypes
       .map((rootType) => {
-        const rootNode = this.getRootNode(rootType, accountTree)!;
-        const rootList = convertAccountRootNodeToAccountList(rootNode);
+        const rootNodes = this.getRootNodes(rootType, accountTree)!;
+        const rootList = convertAccountRootNodesToAccountList(rootNodes);
         return {
           rootType,
-          rootNode,
+          rootNodes,
           rows: this.getReportRowsFromAccountList(rootList),
         };
       })
-      .filter((row) => !!row.rootNode);
+      .filter((row) => !!(row.rootNodes && row.rootNodes.length));
 
     this.reportData = await this.getReportDataFromRows(rootTypeRows);
     this.loading = false;

@@ -29,7 +29,7 @@ export function getDatesAndPeriodList(period: PeriodKey): {
   } else if (period === 'This Quarter') {
     fromDate = toDate.minus({ months: 3 });
   } else if (period === 'This Month') {
-    fromDate = toDate.minus({ months: 1 });
+    fromDate = toDate.startOf('month');
   } else {
     fromDate = toDate.minus({ days: 1 });
   }
@@ -103,40 +103,40 @@ export function updateConfigFiles(fyo: Fyo): ConfigFile {
 
 export const docsPathMap: Record<string, string | undefined> = {
   // Analytics
-  Dashboard: 'analytics/dashboard',
-  Reports: 'analytics/reports',
-  GeneralLedger: 'analytics/general-ledger',
-  ProfitAndLoss: 'analytics/profit-and-loss',
-  BalanceSheet: 'analytics/balance-sheet',
-  TrialBalance: 'analytics/trial-balance',
+  Dashboard: 'books/dashboard',
+  Reports: 'books/reports',
+  GeneralLedger: 'books/general-ledger',
+  ProfitAndLoss: 'books/profit-and-loss',
+  BalanceSheet: 'books/balance-sheet',
+  TrialBalance: 'books/trial-balance',
 
   // Transactions
-  [ModelNameEnum.SalesInvoice]: 'transactions/sales-invoices',
-  [ModelNameEnum.PurchaseInvoice]: 'transactions/purchase-invoices',
-  [ModelNameEnum.Payment]: 'transactions/payments',
-  [ModelNameEnum.JournalEntry]: 'transactions/journal-entries',
+  [ModelNameEnum.SalesInvoice]: 'books/sales-invoices',
+  [ModelNameEnum.PurchaseInvoice]: 'books/purchase-invoices',
+  [ModelNameEnum.Payment]: 'books/payments',
+  [ModelNameEnum.JournalEntry]: 'books/journal-entries',
 
   // Inventory
-  [ModelNameEnum.StockMovement]: 'inventory/stock-movement',
-  [ModelNameEnum.Shipment]: 'inventory/shipment',
-  [ModelNameEnum.PurchaseReceipt]: 'inventory/purchase-receipt',
-  StockLedger: 'inventory/stock-ledger',
-  StockBalance: 'inventory/stock-balance',
-  [ModelNameEnum.Batch]: 'inventory/batches',
+  [ModelNameEnum.StockMovement]: 'books/stock-movement',
+  [ModelNameEnum.Shipment]: 'books/shipment',
+  [ModelNameEnum.PurchaseReceipt]: 'books/purchase-receipt',
+  StockLedger: 'books/stock-ledger',
+  StockBalance: 'books/stock-balance',
+  [ModelNameEnum.Batch]: 'books/batches',
 
   // Entries
-  Entries: 'entries/entries',
-  [ModelNameEnum.Party]: 'entries/party',
-  [ModelNameEnum.Item]: 'entries/items',
-  [ModelNameEnum.Tax]: 'entries/taxes',
-  [ModelNameEnum.PrintTemplate]: 'miscellaneous/print-templates',
+  Entries: 'books/books',
+  [ModelNameEnum.Party]: 'books/party',
+  [ModelNameEnum.Item]: 'books/items',
+  [ModelNameEnum.Tax]: 'books/taxes',
+  [ModelNameEnum.PrintTemplate]: 'books/print-templates',
 
   // Miscellaneous
-  Search: 'miscellaneous/search',
-  NumberSeries: 'miscellaneous/number-series',
-  ImportWizard: 'miscellaneous/import-wizard',
-  Settings: 'miscellaneous/settings',
-  ChartOfAccounts: 'miscellaneous/chart-of-accounts',
+  Search: 'books/quick-search',
+  NumberSeries: 'books/number-series',
+  ImportWizard: 'books/import-wizard',
+  Settings: 'books/settings',
+  ChartOfAccounts: 'books/chart-of-accounts',
 };
 
 export async function getDataURL(type: string, data: Uint8Array) {

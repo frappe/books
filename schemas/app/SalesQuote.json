@@ -1,0 +1,71 @@
+{
+  "name": "SalesQuote",
+  "label": "Quote",
+  "extends": "Invoice",
+  "naming": "numberSeries",
+  "showTitle": true,
+  "fields": [
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "SQUOT-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "default": "Party",
+      "options": [
+        {
+          "value": "Party",
+          "label": "Party"
+        },
+        {
+          "value": "Lead",
+          "label": "Lead"
+        }
+      ],
+      "required": true
+    },
+    {
+      "fieldname": "party",
+      "label": "Customer",
+      "fieldtype": "DynamicLink",
+      "references": "referenceType",
+      "create": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add quote terms",
+      "fieldtype": "Text",
+      "section": "References"
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "SalesQuoteItem",
+      "required": true,
+      "edit": true,
+      "section": "Items"
+    }
+  ],
+  "keywordFields": ["name", "party"],
+  "removeFields": [
+    "account",
+    "stockNotTransferred",
+    "backReference",
+    "makeAutoStockTransfer",
+    "returnAgainst",
+    "isReturned"
+  ]
+}

@@ -12,18 +12,18 @@ on:
 
 jobs:
   setup_and_test:
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.14.0'
+          node-version: '20.18.1'
 
       - name: Set yarn version
         run: yarn set version 1.22.18
 
       - name: Checkout Books
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Dependencies
         run: yarn
@@ -32,18 +32,18 @@ jobs:
         run: yarn test
 
   setup_and_uitest:
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.14.0'
+          node-version: '20.18.1'
 
       - name: Set yarn version
         run: yarn set version 1.22.18
 
       - name: Checkout Books
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Dependencies
         run: yarn

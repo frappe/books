@@ -93,7 +93,7 @@ We know documentation and tests are boring, but they're important and we need
 you to add them for large changes.
 
 - **Documentation**: If the feature being added requires an explanation then
-  [documentation](https://docs.frappebooks.com/) should be updated in the
+  [documentation](https://docs.frappe.io/books/) should be updated in the
   [frappe/books_docs](https://github.com/frappe/books_docs) repository.
   _Add a link to the documentation PR in your feature PR._
 - **Tests**: If your features alters business logic then tests should be added.

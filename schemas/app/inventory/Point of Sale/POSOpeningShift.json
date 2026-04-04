@@ -1,0 +1,24 @@
+{
+  "name": "POSOpeningShift",
+  "label": "POS Opening Shift",
+  "naming": "random",
+  "fields": [
+    {
+      "fieldname": "openingDate",
+      "label": "Opening Date",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "openingCash",
+      "fieldtype": "Table",
+      "label": "Opening Cash",
+      "target": "OpeningCash"
+    },
+    {
+      "fieldname": "openingAmounts",
+      "fieldtype": "Table",
+      "label": "Opening Amounts",
+      "target": "OpeningAmounts"
+    }
+  ]
+}

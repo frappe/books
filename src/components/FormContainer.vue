@@ -1,11 +1,19 @@
 <template>
-  <div class="flex bg-gray-25 overflow-x-auto">
+  <div
+    class="
+      flex
+      bg-gray-25
+      dark:bg-gray-875
+      overflow-x-auto
+      custom-scroll custom-scroll-thumb1
+    "
+  >
     <div class="flex flex-1 flex-col">
       <!-- Page Header (Title, Buttons, etc) -->
       <PageHeader
         v-if="showHeader"
         :title="title"
-        :border="useFullWidth"
+        :border="false"
         :searchborder="searchborder"
       >
         <template #left>
@@ -16,11 +24,18 @@
 
       <!-- Common Form -->
       <div
-        class="flex flex-col self-center h-full overflow-auto bg-white"
+        class="
+          flex flex-col
+          self-center
+          h-full
+          overflow-auto
+          bg-white
+          dark:bg-gray-890
+        "
         :class="
           useFullWidth
-            ? 'w-full'
-            : 'w-form border rounded-lg shadow-lg mb-4 mx-4'
+            ? 'w-full border-t dark:border-gray-800'
+            : 'w-form border dark:border-gray-800 rounded-lg shadow-lg mb-4 mx-4'
         "
       >
         <slot name="body" />

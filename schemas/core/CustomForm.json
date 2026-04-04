@@ -1,0 +1,22 @@
+{
+  "name": "CustomForm",
+  "label": "Custom Form",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "fieldtype": "AutoComplete",
+      "label": "Form Type",
+      "options": [],
+      "required": true
+    },
+    {
+      "fieldname": "customFields",
+      "label": "Custom Fields",
+      "fieldtype": "Table",
+      "target": "CustomField",
+      "required": true,
+      "edit": true
+    }
+  ]
+}

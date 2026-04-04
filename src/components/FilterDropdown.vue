@@ -1,13 +1,20 @@
 <template>
   <Popover
+    ref="filterPopover"
     v-if="fields.length"
     placement="bottom-end"
     @close="emitFilterChange"
+    :close-on-click-outside="true"
+    :close-on-click-content="false"
   >
     <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
-          <Icon name="filter" size="12" class="stroke-current text-gray-700" />
+          <Icon
+            name="filter"
+            size="12"
+            class="stroke-current text-gray-700 dark:text-gray-400"
+          />
           <span class="ms-1">
             <template v-if="activeFilterCount > 0">
               {{ filterAppliedMessage }}
@@ -38,7 +45,9 @@
                     items-center
                     justify-center
                     text-gray-600
+                    dark:text-gray-400
                     hover:text-gray-800
+                    dark:hover:text-gray-300
                     rounded-md
                     group
                   "
@@ -48,7 +57,7 @@
                       name="x"
                       class="w-4 h-4 cursor-pointer"
                       :button="true"
-                      @click="removeFilter(filter)"
+                      @click="removeFilter(i)"
                     />
                   </span>
                   <span class="group-hover:hidden">
@@ -61,14 +70,18 @@
                   class="w-24"
                   :df="{
                     label: t`Field`,
-                    placeholder: t`Field`,
+                    placeholder: t`field`,
                     fieldname: 'fieldname',
                     fieldtype: 'Select',
                     options: fieldOptions,
                   }"
                   :value="filter.fieldname"
-                  @change="(value) => (filter.fieldname = value)"
+                  @mousedown.stop
+                  @click.stop
+                  @change="(value) => updateNewFilters(i, 'fieldname', value)"
+                  @keydown.enter="applyFilters"
                 />
+
                 <Select
                   :border="true"
                   size="small"
@@ -78,11 +91,16 @@
                     placeholder: t`Condition`,
                     fieldname: 'condition',
                     fieldtype: 'Select',
-                    options: conditions,
+                    options: conditionsForDropdown,
                   }"
                   :value="filter.condition"
-                  @change="(value) => (filter.condition = value)"
+                  :close-drop-down="false"
+                  @mousedown.stop
+                  @click.stop
+                  @change="(value) => updateNewFilters(i, 'condition', value)"
+                  @keydown.enter="applyFilters"
                 />
+
                 <Data
                   :border="true"
                   size="small"
@@ -94,39 +112,89 @@
                     fieldtype: 'Data',
                   }"
                   :value="String(filter.value)"
-                  @change="(value) => (filter.value = value)"
+                  :close-drop-down="false"
+                  @mousedown.stop
+                  @click.stop
+                  @change="(value) => updateNewFilters(i, 'value', value)"
+                  @keydown.enter="applyFilters"
                 />
               </div>
             </div>
           </template>
           <template v-else>
-            <span class="text-base text-gray-600">{{
+            <span class="text-base text-gray-600 dark:text-gray-500">{{
               t`No filters selected`
             }}</span>
           </template>
         </div>
-        <div
-          class="
-            text-base
-            border-t
-            p-2
-            flex
-            items-center
-            text-gray-600
-            cursor-pointer
-            hover:bg-gray-100
-          "
-          @click="addNewFilter"
-        >
-          <feather-icon name="plus" class="w-4 h-4" />
-          <span class="ms-2">{{ t`Add a filter` }}</span>
+        <div class="flex justify-between border-t dark:border-gray-800">
+          <div
+            class="
+              text-base
+              border-t
+              dark:border-gray-800
+              p-2
+              flex
+              items-center
+              text-gray-600
+              dark:text-gray-500
+              cursor-pointer
+              hover:bg-gray-100
+              dark:hover:bg-gray-875
+            "
+            @click.stop="addNewFilter"
+          >
+            <feather-icon name="plus" class="w-4 h-4" />
+            <span class="ms-2">{{ t`Add a filter` }}</span>
+          </div>
+
+          <div class="flex">
+            <div
+              v-if="filters.length"
+              class="
+                text-base
+                p-2
+                flex
+                items-center
+                text-gray-600
+                dark:text-gray-500
+                cursor-pointer
+                hover:bg-gray-100
+                dark:hover:bg-gray-875
+              "
+              @click="clearAllFilters"
+            >
+              <feather-icon name="trash-2" class="w-4 h-4" />
+              <span class="ms-2">{{ t`Clear` }}</span>
+            </div>
+
+            <div
+              v-if="filters.length"
+              @click="applyFilters"
+              class="
+                text-base
+                border-t
+                dark:border-gray-800
+                p-2
+                flex
+                items-center
+                text-gray-600
+                dark:text-gray-500
+                cursor-pointer
+                hover:bg-gray-100
+                dark:hover:bg-gray-875
+              "
+            >
+              <feather-icon name="search" class="w-4 h-4" />
+              <span class="ml-2 text-sm">{{ t`Apply` }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </template>
   </Popover>
 </template>
 <script lang="ts">
-import { t } from 'fyo';
 import { Field, FieldTypeEnum } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
@@ -137,6 +205,7 @@ import Select from './Controls/Select.vue';
 import Icon from './Icon.vue';
 import Popover from './Popover.vue';
 import { QueryFilter } from 'utils/db/types';
+import { t } from 'fyo';
 
 const conditions = [
   { label: t`Is`, value: '=' },
@@ -149,7 +218,7 @@ const conditions = [
   { label: t`Is Not Empty`, value: 'is not null' },
 ] as const;
 
-type Condition = typeof conditions[number]['value'];
+type Condition = typeof conditions[number]['label'];
 
 type Filter = {
   fieldname: string;
@@ -171,8 +240,9 @@ export default defineComponent({
   emits: ['change'],
   data() {
     return {
-      filters: [],
-    } as { filters: Filter[] };
+      filters: [] as Filter[],
+      newFilters: [] as Filter[],
+    };
   },
   computed: {
     fields(): Field[] {
@@ -181,8 +251,13 @@ export default defineComponent({
         FieldTypeEnum.Attachment,
         FieldTypeEnum.AttachImage,
       ];
+
+      const listViewSettings =
+        fyo.models[this.schemaName]?.getListViewSettings?.(fyo);
+      const statusField = listViewSettings?.columns?.[1] as any;
+
       const fields = fyo.schemaMap[this.schemaName]?.fields ?? [];
-      return fields.filter((f) => {
+      const filteredFields = fields.filter((f) => {
         if (f.filter) {
           return true;
         }
@@ -197,15 +272,40 @@ export default defineComponent({
 
         return true;
       });
+
+      if (statusField && statusField.fieldname) {
+        const statusFieldExists = filteredFields.some(
+          (field) => field.fieldname === statusField.fieldname
+        );
+
+        if (!statusFieldExists) {
+          const originalStatusField = fields.find(
+            (field) => field.fieldname === statusField.fieldname
+          );
+          if (originalStatusField) {
+            filteredFields.unshift(originalStatusField);
+          } else {
+            filteredFields.unshift(statusField);
+          }
+        }
+      }
+
+      return filteredFields;
     },
     fieldOptions(): { label: string; value: string }[] {
       return this.fields.map((df) => ({
-        label: df.label,
+        label: df.fieldname,
         value: df.fieldname,
       }));
     },
     conditions(): { label: string; value: string }[] {
       return [...conditions];
+    },
+    conditionsForDropdown(): { label: string; value: string }[] {
+      return conditions.map((c) => ({
+        label: c.label,
+        value: c.label,
+      }));
     },
     explicitFilters(): Filter[] {
       return this.filters.filter((f) => !f.implicit);
@@ -221,11 +321,19 @@ export default defineComponent({
       return this.t`${this.activeFilterCount} filters applied`;
     },
   },
-  created() {
-    this.addNewFilter();
-  },
+
   methods: {
     getRandomString,
+    getConditionLabel(value: string): string {
+      const condition = conditions.find((c) => c.value === value);
+      return condition ? condition.label : value;
+    },
+
+    getConditionValue(label: string): string {
+      const condition = conditions.find((c) => c.label === label);
+      return condition ? condition.value : label;
+    },
+
     addNewFilter(): void {
       const df = this.fields[0];
       if (!df) {
@@ -236,17 +344,55 @@ export default defineComponent({
     },
     addFilter(
       fieldname: string,
-      condition: Condition,
+      condition: string,
       value: Filter['value'],
       implicit?: boolean
     ): void {
-      this.filters.push({ fieldname, condition, value, implicit: !!implicit });
+      const displayCondition = this.getConditionLabel(condition);
+      const newFilter = {
+        fieldname,
+        condition: displayCondition,
+        value,
+        implicit: !!implicit,
+      };
+      this.filters.push(newFilter);
+      this.newFilters.push(newFilter);
     },
-    removeFilter(filter: Filter): void {
-      this.filters = this.filters.filter((f) => f !== filter);
+
+    applyFilters() {
+      this.emitFilterChange();
     },
+
+    removeFilter(index: number): void {
+      this.filters.splice(index, 1);
+      this.newFilters.splice(index, 1);
+    },
+
+    clearAllFilters(): void {
+      this.filters = [];
+      this.newFilters = [];
+
+      this.$emit('change', {});
+    },
+
+    updateNewFilters<K extends keyof Filter>(
+      index: number,
+      key: K,
+      value: Filter[K]
+    ) {
+      if (key === 'condition') {
+        const displayCondition = this.getConditionLabel(value as string);
+        this.newFilters![index][key] = displayCondition as Filter[K];
+        this.filters[index][key] = displayCondition as Filter[K];
+      } else {
+        this.newFilters![index][key] = value;
+        this.filters[index][key] = value;
+      }
+    },
+
     setFilter(filters: QueryFilter, implicit?: boolean): void {
       this.filters = [];
+      this.newFilters = [];
 
       Object.keys(filters).map((fieldname) => {
         let parts = filters[fieldname];
@@ -266,17 +412,42 @@ export default defineComponent({
 
       this.emitFilterChange();
     },
+
     emitFilterChange(): void {
       const filters: Record<string, [Condition, Filter['value']]> = {};
-      for (const { condition, value, fieldname } of this.filters) {
-        if (value === '' && condition) {
+
+      for (const { condition, value, fieldname } of this.newFilters) {
+        if (value === '' || value === null || value === undefined) {
           continue;
         }
 
-        filters[fieldname] = [condition, value];
+        const sqlCondition = this.getConditionValue(condition);
+
+        if (fieldname === 'numberSeries') {
+          filters['name'] = [sqlCondition, value];
+        } else {
+          filters[fieldname] = [sqlCondition, value];
+        }
       }
 
       this.$emit('change', filters);
+      this.filters = [...this.newFilters];
+
+      if (this.newFilters.length) {
+        this.filters = this.filters.filter(
+          (filter) => filter.condition && filter.value && filter.fieldname
+        );
+        this.filters.push(this.newFilters[this.newFilters.length - 1]);
+      }
+
+      this.filters = Array.from(
+        new Map(
+          this.filters.map((filter) => [
+            `${filter.condition}-${filter.value}-${filter.fieldname}`,
+            filter,
+          ])
+        ).values()
+      );
     },
   },
 });

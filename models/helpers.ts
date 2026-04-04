@@ -1,19 +1,68 @@
-import { Fyo, t } from 'fyo';
-import { Doc } from 'fyo/model/doc';
-import { Action, ColumnConfig, DocStatus, RenderData } from 'fyo/model/types';
-import { DateTime } from 'luxon';
-import { Money } from 'pesa';
-import { safeParseFloat } from 'utils/index';
-import { Router } from 'vue-router';
 import {
   AccountRootType,
   AccountRootTypeEnum,
 } from './baseModels/Account/types';
-import { numberSeriesDefaultsMap } from './baseModels/Defaults/Defaults';
+import {
+  Action,
+  ColumnConfig,
+  DocStatus,
+  LeadStatus,
+  RenderData,
+} from 'fyo/model/types';
+import { Fyo, t } from 'fyo';
+import { InvoiceStatus, ModelNameEnum } from './types';
+
+import {
+  ApplicableCouponCodes,
+  ApplicablePricingRules,
+} from './baseModels/Invoice/types';
+import { AppliedCouponCodes } from './baseModels/AppliedCouponCodes/AppliedCouponCodes';
+import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
+import { CouponCode } from './baseModels/CouponCode/CouponCode';
+import { DateTime } from 'luxon';
+import { Doc } from 'fyo/model/doc';
 import { Invoice } from './baseModels/Invoice/Invoice';
+import { Lead } from './baseModels/Lead/Lead';
+import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
+import { Money } from 'pesa';
+import { Party } from './baseModels/Party/Party';
+import { PricingRule } from './baseModels/PricingRule/PricingRule';
+import { Router } from 'vue-router';
+import { Item } from 'models/baseModels/Item/Item';
+import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
+import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
-import { InvoiceStatus, ModelNameEnum } from './types';
+import { ValidationError } from 'fyo/utils/errors';
+import { isPesa } from 'fyo/utils';
+import { numberSeriesDefaultsMap } from './baseModels/Defaults/Defaults';
+import { safeParseFloat } from 'utils/index';
+import { PriceList } from './baseModels/PriceList/PriceList';
+import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
+import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { ItemQtyMap, ItemVisibility, POSItem } from 'src/components/POS/types';
+import { ValuationMethod } from './inventory/types';
+import {
+  getRawStockLedgerEntries,
+  getStockBalanceEntries,
+  getStockLedgerEntries,
+} from 'reports/inventory/helpers';
+import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEntry';
+import {
+  generateSerialNumbersForItem,
+  generateBatchForItem,
+} from './inventory/helpers';
+
+export function getQuoteActions(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.SalesQuote
+): Action[] {
+  return [getMakeInvoiceAction(fyo, schemaName)];
+}
+
+export function getLeadActions(fyo: Fyo): Action[] {
+  return [getCreateCustomerAction(fyo), getSalesQuoteAction(fyo)];
+}
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -23,7 +72,68 @@ export function getInvoiceActions(
     getMakePaymentAction(fyo),
     getMakeStockTransferAction(fyo, schemaName),
     getLedgerLinkAction(fyo),
+    getMakeReturnDocAction(fyo),
   ];
+}
+
+export async function getItemQtyMap(doc: SalesInvoice): Promise<ItemQtyMap> {
+  const itemQtyMap: ItemQtyMap = {};
+  const valuationMethod =
+    (doc.fyo.singles.InventorySettings?.valuationMethod as ValuationMethod) ??
+    ValuationMethod.FIFO;
+
+  const rawSLEs = await getRawStockLedgerEntries(doc.fyo);
+  const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
+
+  const posProfileName = doc.fyo.singles.POSSettings?.posProfile;
+  let inventoryLocation: string | undefined;
+
+  if (posProfileName) {
+    const posProfile = await doc.fyo.doc.getDoc(
+      ModelNameEnum.POSProfile,
+      posProfileName as string
+    );
+
+    inventoryLocation = posProfile?.inventory as string | undefined;
+  } else {
+    inventoryLocation = doc.fyo.singles.POSSettings?.inventory;
+  }
+
+  const stockBalance = getStockBalanceEntries(rawData, {
+    location: inventoryLocation,
+  });
+
+  for (const row of stockBalance) {
+    if (!itemQtyMap[row.item]) {
+      itemQtyMap[row.item] = { availableQty: 0 };
+    }
+
+    if (row.batch) {
+      itemQtyMap[row.item][row.batch] = row.balanceQuantity;
+    }
+
+    itemQtyMap[row.item]!.availableQty += row.balanceQuantity;
+  }
+  return itemQtyMap;
+}
+
+export async function getItemVisibility(fyo: Fyo): Promise<ItemVisibility> {
+  const posProfileName = fyo.singles.POSSettings?.posProfile as string;
+  const enableERPNextSync = fyo.singles.AccountingSettings?.enableERPNextSync;
+
+  if (enableERPNextSync) {
+    return fyo.singles.POSSettings?.itemVisibilityERP as ItemVisibility;
+  }
+
+  if (posProfileName) {
+    const posProfile = await fyo.doc.getDoc(
+      ModelNameEnum.POSProfile,
+      posProfileName
+    );
+    return posProfile?.itemVisibility as ItemVisibility;
+  }
+
+  return fyo.singles.POSSettings?.itemVisibility as ItemVisibility;
 }
 
 export function getStockTransferActions(
@@ -34,6 +144,7 @@ export function getStockTransferActions(
     getMakeInvoiceAction(fyo, schemaName),
     getLedgerLinkAction(fyo, false),
     getLedgerLinkAction(fyo, true),
+    getMakeReturnDocAction(fyo),
   ];
 }
 
@@ -65,7 +176,10 @@ export function getMakeStockTransferAction(
 
 export function getMakeInvoiceAction(
   fyo: Fyo,
-  schemaName: ModelNameEnum.Shipment | ModelNameEnum.PurchaseReceipt
+  schemaName:
+    | ModelNameEnum.Shipment
+    | ModelNameEnum.PurchaseReceipt
+    | ModelNameEnum.SalesQuote
 ): Action {
   let label = fyo.t`Sales Invoice`;
   if (schemaName === ModelNameEnum.PurchaseReceipt) {
@@ -75,9 +189,15 @@ export function getMakeInvoiceAction(
   return {
     label,
     group: fyo.t`Create`,
-    condition: (doc: Doc) => doc.isSubmitted && !doc.backReference,
+    condition: (doc: Doc) => {
+      if (schemaName === ModelNameEnum.SalesQuote) {
+        return doc.isSubmitted;
+      } else {
+        return doc.isSubmitted && !doc.backReference;
+      }
+    },
     action: async (doc: Doc) => {
-      const invoice = await (doc as StockTransfer).getInvoice();
+      const invoice = await (doc as SalesQuote | StockTransfer).getInvoice();
       if (!invoice || !invoice.name) {
         return;
       }
@@ -89,6 +209,37 @@ export function getMakeInvoiceAction(
   };
 }
 
+export function getCreateCustomerAction(fyo: Fyo): Action {
+  return {
+    group: fyo.t`Create`,
+    label: fyo.t`Customer`,
+    condition: (doc: Doc) => !doc.notInserted,
+    action: async (doc: Doc, router) => {
+      const customerData = (doc as Lead).createCustomer();
+
+      if (!customerData.name) {
+        return;
+      }
+      await router.push(`/edit/Party/${customerData.name}`);
+    },
+  };
+}
+
+export function getSalesQuoteAction(fyo: Fyo): Action {
+  return {
+    group: fyo.t`Create`,
+    label: fyo.t`Sales Quote`,
+    condition: (doc: Doc) => !doc.notInserted,
+    action: async (doc, router) => {
+      const salesQuoteData = (doc as Lead).createSalesQuote();
+      if (!salesQuoteData.name) {
+        return;
+      }
+      await router.push(`/edit/SalesQuote/${salesQuoteData.name}`);
+    },
+  };
+}
+
 export function getMakePaymentAction(fyo: Fyo): Action {
   return {
     label: fyo.t`Payment`,
@@ -96,11 +247,13 @@ export function getMakePaymentAction(fyo: Fyo): Action {
     condition: (doc: Doc) =>
       doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
     action: async (doc, router) => {
+      const schemaName = doc.schema.name;
       const payment = (doc as Invoice).getPayment();
       if (!payment) {
         return;
       }
 
+      await payment?.set('referenceType', schemaName);
       const currentRoute = router.currentRoute.value.fullPath;
       payment.once('afterSync', async () => {
         await payment.submit();
@@ -108,7 +261,12 @@ export function getMakePaymentAction(fyo: Fyo): Action {
         await router.push(currentRoute);
       });
 
-      const hideFields = ['party', 'paymentType', 'for'];
+      const hideFields = ['party', 'for'];
+
+      if (!fyo.singles.AccountingSettings?.enableInvoiceReturns) {
+        hideFields.push('paymentType');
+      }
+
       if (doc.schemaName === ModelNameEnum.SalesInvoice) {
         hideFields.push('account');
       } else {
@@ -160,6 +318,32 @@ export function getLedgerLink(
     },
   };
 }
+export function getMakeReturnDocAction(fyo: Fyo): Action {
+  return {
+    label: fyo.t`Return`,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) =>
+      (!!fyo.singles.AccountingSettings?.enableInvoiceReturns ||
+        !!fyo.singles.InventorySettings?.enableStockReturns) &&
+      doc.isSubmitted &&
+      !doc.isReturn,
+    action: async (doc: Doc) => {
+      let returnDoc: Invoice | StockTransfer | undefined;
+
+      if (doc instanceof Invoice || doc instanceof StockTransfer) {
+        returnDoc = await doc.getReturnDoc();
+      }
+
+      if (!returnDoc || !returnDoc.name) {
+        return;
+      }
+
+      const { routeTo } = await import('src/utils/ui');
+      const path = `/edit/${doc.schemaName}/${returnDoc.name}`;
+      await routeTo(path);
+    },
+  };
+}
 
 export function getTransactionStatusColumn(): ColumnConfig {
   return {
@@ -173,23 +357,55 @@ export function getTransactionStatusColumn(): ColumnConfig {
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
+      };
+    },
+  };
+}
+
+export function getLeadStatusColumn(): ColumnConfig {
+  return {
+    label: t`Status`,
+    fieldname: 'status',
+    fieldtype: 'Select',
+    render(doc) {
+      const status = getLeadStatus(doc) as LeadStatus;
+      const color = statusColor[status] ?? 'gray';
+      const label = getStatusTextOfLead(status);
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
       };
     },
   };
 }
 
 export const statusColor: Record<
-  DocStatus | InvoiceStatus,
+  DocStatus | InvoiceStatus | LeadStatus,
   string | undefined
 > = {
   '': 'gray',
   Draft: 'gray',
+  Open: 'gray',
+  Replied: 'yellow',
+  Opportunity: 'yellow',
   Unpaid: 'orange',
   Paid: 'green',
-  Saved: 'gray',
+  PartlyPaid: 'yellow',
+  Interested: 'yellow',
+  Converted: 'green',
+  Quotation: 'green',
+  Saved: 'blue',
   NotSaved: 'gray',
   Submitted: 'green',
   Cancelled: 'red',
+  DonotContact: 'red',
+  Return: 'lime',
+  ReturnIssued: 'lime',
 };
 
 export function getStatusText(status: DocStatus | InvoiceStatus): string {
@@ -208,9 +424,46 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
       return t`Paid`;
     case 'Unpaid':
       return t`Unpaid`;
+    case 'PartlyPaid':
+      return t`Partly Paid`;
+    case 'Return':
+      return t`Return`;
+    case 'ReturnIssued':
+      return t`Return Issued`;
     default:
       return '';
   }
+}
+
+export function getStatusTextOfLead(status: LeadStatus): string {
+  switch (status) {
+    case 'Open':
+      return t`Open`;
+    case 'Replied':
+      return t`Replied`;
+    case 'Opportunity':
+      return t`Opportunity`;
+    case 'Interested':
+      return t`Interested`;
+    case 'Converted':
+      return t`Converted`;
+    case 'Quotation':
+      return t`Quotation`;
+    case 'DonotContact':
+      return t`Do not Contact`;
+    default:
+      return '';
+  }
+}
+
+export function getLeadStatus(
+  doc?: Lead | Doc | RenderData
+): LeadStatus | DocStatus {
+  if (!doc) {
+    return '';
+  }
+
+  return doc.status as LeadStatus;
 }
 
 export function getDocStatus(
@@ -244,6 +497,20 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
     return getInvoiceStatus(doc);
   }
 
+  if (
+    [ModelNameEnum.Shipment, ModelNameEnum.PurchaseReceipt].includes(
+      doc.schema.name as ModelNameEnum
+    )
+  ) {
+    if (!!doc.returnAgainst && doc.submitted && !doc.cancelled) {
+      return 'Return';
+    }
+
+    if (doc.isReturned && doc.submitted && !doc.cancelled) {
+      return 'ReturnIssued';
+    }
+  }
+
   if (!!doc.submitted && !doc.cancelled) {
     return 'Submitted';
   }
@@ -256,6 +523,14 @@ function getSubmittableDocStatus(doc: RenderData | Doc) {
 }
 
 export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
+  if (doc.submitted && !doc.cancelled && doc.returnAgainst) {
+    return 'Return';
+  }
+
+  if (doc.submitted && !doc.cancelled && doc.isReturned) {
+    return 'ReturnIssued';
+  }
+
   if (
     doc.submitted &&
     !doc.cancelled &&
@@ -267,13 +542,22 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   if (
     doc.submitted &&
     !doc.cancelled &&
-    (doc.outstandingAmount as Money).isPositive()
+    (doc.outstandingAmount as Money).eq(doc.grandTotal as Money)
   ) {
     return 'Unpaid';
   }
 
   if (doc.cancelled) {
     return 'Cancelled';
+  }
+
+  if (
+    doc.submitted &&
+    !doc.isCancelled &&
+    (doc.outstandingAmount as Money).isPositive() &&
+    (doc.outstandingAmount as Money).neq(doc.grandTotal as Money)
+  ) {
+    return 'PartlyPaid';
   }
 
   return 'Saved';
@@ -342,7 +626,7 @@ export function getPriceListStatusColumn(): ColumnConfig {
   };
 }
 
-export function getPriceListEnabledColumn(): ColumnConfig {
+export function getIsDocEnabledColumn(): ColumnConfig {
   return {
     label: t`Enabled`,
     fieldname: 'enabled',
@@ -401,8 +685,6 @@ export async function getExchangeRate({
     };
     exchangeRate = data.rates[toCurrency];
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
     exchangeRate ??= 1;
   }
 
@@ -454,9 +736,82 @@ export function getDocStatusListColumn(): ColumnConfig {
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
       };
     },
   };
+}
+
+export function getLoyaltyProgramStatusColumn(): ColumnConfig {
+  return {
+    label: t`Status`,
+    fieldname: 'status',
+    fieldtype: 'Select',
+    render(doc) {
+      const status = getLoyaltyProgramStatus(doc);
+      const color = loyaltyProgramStatusColor[status] ?? 'gray';
+      const label = getLoyaltyProgramStatusText(status);
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
+      };
+    },
+  };
+}
+
+export function getLoyaltyProgramStatus(doc?: RenderData | Doc): string {
+  if (!doc) {
+    return '';
+  }
+
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  const toDate = doc.toDate as Date;
+
+  if (toDate && toDate <= currentDate) {
+    return 'Expired';
+  }
+
+  const maximumUse = doc.maximumUse as number;
+  const used = doc.used as number;
+
+  if (maximumUse > 0 && used >= maximumUse) {
+    return 'Maxed';
+  }
+
+  return 'Active';
+}
+
+export const loyaltyProgramStatusColor: Record<string, string | undefined> = {
+  Active: 'green',
+  Disabled: 'gray',
+  Expired: 'red',
+  Maxed: 'orange',
+};
+
+export function getLoyaltyProgramStatusText(status: string): string {
+  switch (status) {
+    case 'Active':
+      return t`Active`;
+    case 'Disabled':
+      return t`Disabled`;
+    case 'Expired':
+      return t`Expired`;
+    case 'Maxed':
+      return t`Maxed`;
+    default:
+      return '';
+  }
 }
 
 type ModelsWithItems = Invoice | StockTransfer | StockMovement;
@@ -481,4 +836,944 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   }
 
   await item.set('item', name);
+
+  if (doc instanceof Invoice && !doc.isSales) {
+    const batchName = await generateBatchForItem(doc.fyo, name);
+    if (batchName) {
+      await item.set('batch', batchName);
+    }
+  }
+
+  if (
+    doc instanceof StockTransfer &&
+    doc.schemaName === ModelNameEnum.PurchaseReceipt
+  ) {
+    const serialNumbers = await generateSerialNumbersForItem(doc.fyo, name, 1);
+    if (serialNumbers) {
+      await item.set('serialNumber', serialNumbers);
+    }
+  }
+}
+
+export async function getReturnLoyaltyPoints(doc: Invoice) {
+  const returnDocs = await doc.fyo.db.getAll(doc.schemaName, {
+    fields: ['name', 'loyaltyPoints'],
+    filters: {
+      returnAgainst: doc.returnAgainst as string,
+      submitted: true,
+    },
+  });
+
+  const sunvDocs = returnDocs.filter((sinvDoc) => sinvDoc.name !== doc.name);
+
+  const totalLoyaltyPoints = sunvDocs.reduce(
+    (sum, doc) => sum + Math.abs(doc.loyaltyPoints as number),
+    0
+  );
+
+  const loyaltyPoints = await doc.fyo.getValue(
+    ModelNameEnum.SalesInvoice,
+    doc.returnAgainst as string,
+    'loyaltyPoints'
+  );
+
+  return Math.abs((loyaltyPoints as number) - Math.abs(totalLoyaltyPoints));
+}
+
+export async function getReturnQtyTotal(
+  doc: Invoice
+): Promise<
+  Record<
+    string,
+    number | { quantity: number; batches?: Record<string, number> }
+  >
+> {
+  const returnDocs = await doc.fyo.db.getAll(doc.schemaName, {
+    fields: ['*'],
+    filters: {
+      returnAgainst: doc.name as string,
+    },
+  });
+
+  const returnedDocs = await Promise.all(
+    returnDocs.map((d) => doc.fyo.doc.getDoc(doc.schemaName, d.name as string))
+  );
+
+  const quantitySum: Record<
+    string,
+    number | { quantity: number; batches?: Record<string, number> }
+  > = {};
+
+  for (const item of doc.items || []) {
+    const itemName = item.item;
+    const batch = item.batch;
+    const qty = item.quantity as number;
+
+    if (!itemName) {
+      continue;
+    }
+
+    if (batch) {
+      if (!quantitySum[itemName]) {
+        quantitySum[itemName] = { quantity: qty, batches: { [batch]: qty } };
+      } else {
+        const entry = quantitySum[itemName] as {
+          quantity: number;
+          batches?: Record<string, number>;
+        };
+        entry.quantity += qty;
+        entry.batches![batch] = (entry.batches![batch] || 0) + qty;
+      }
+    } else {
+      quantitySum[itemName] = ((quantitySum[itemName] as number) || 0) + qty;
+    }
+  }
+
+  for (const returnedDoc of returnedDocs) {
+    for (const item of (returnedDoc?.items as InvoiceItem[]) || []) {
+      const itemName = item.item;
+      const batch = item.batch;
+      const qty = Math.abs(item.quantity!);
+
+      if (!itemName || !quantitySum[itemName]) {
+        continue;
+      }
+
+      if (batch && quantitySum[itemName]) {
+        const entry = quantitySum[itemName] as {
+          quantity: number;
+          batches?: Record<string, number>;
+        };
+        entry.quantity -= qty;
+        if (entry.batches?.[batch]) {
+          entry.batches[batch] -= qty;
+        }
+      } else {
+        quantitySum[itemName] = (quantitySum[itemName] as number) - qty;
+      }
+    }
+  }
+
+  return quantitySum;
+}
+
+export async function createLoyaltyPointEntry(doc: Invoice) {
+  const loyaltyProgramDoc = (await doc.fyo.doc.getDoc(
+    ModelNameEnum.LoyaltyProgram,
+    doc?.loyaltyProgram
+  )) as LoyaltyProgram;
+
+  if (!loyaltyProgramDoc.isEnabled) {
+    return;
+  }
+
+  const toDate = loyaltyProgramDoc.toDate as Date;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (toDate && new Date(toDate).getTime() < today.getTime()) {
+    return;
+  }
+
+  const expiryDate = new Date(Date.now());
+
+  expiryDate.setDate(
+    expiryDate.getDate() + (loyaltyProgramDoc.expiryDuration || 0)
+  );
+
+  let loyaltyProgramTier;
+  let loyaltyPoint: number;
+
+  if (doc.redeemLoyaltyPoints) {
+    loyaltyPoint = -(doc.loyaltyPoints || 0);
+  } else {
+    loyaltyProgramTier = getLoyaltyProgramTier(
+      loyaltyProgramDoc,
+      doc?.grandTotal as Money
+    ) as CollectionRulesItems;
+
+    if (!loyaltyProgramTier) {
+      return;
+    }
+
+    const collectionFactor = loyaltyProgramTier.collectionFactor as number;
+    loyaltyPoint = Math.round(doc?.grandTotal?.float || 0) * collectionFactor;
+  }
+
+  const newLoyaltyPointEntry = doc.fyo.doc.getNewDoc(
+    ModelNameEnum.LoyaltyPointEntry,
+    {
+      loyaltyProgram: doc.loyaltyProgram,
+      customer: doc.party,
+      invoice: doc.name,
+      postingDate: doc.date,
+      purchaseAmount: doc.grandTotal,
+      expiryDate: expiryDate,
+      loyaltyProgramTier: loyaltyProgramTier?.tierName,
+      loyaltyPoints: loyaltyPoint,
+    }
+  );
+
+  return await newLoyaltyPointEntry.sync();
+}
+
+export async function getAddedLPWithGrandTotal(
+  fyo: Fyo,
+  loyaltyProgram: string,
+  loyaltyPoints: number
+) {
+  const loyaltyProgramDoc = (await fyo.doc.getDoc(
+    ModelNameEnum.LoyaltyProgram,
+    loyaltyProgram
+  )) as LoyaltyProgram;
+
+  const conversionFactor = loyaltyProgramDoc.conversionFactor as number;
+
+  return fyo.pesa((loyaltyPoints || 0) * conversionFactor);
+}
+
+export function getLoyaltyProgramTier(
+  loyaltyProgramData: LoyaltyProgram,
+  grandTotal: Money
+): CollectionRulesItems | undefined {
+  if (!loyaltyProgramData.collectionRules) {
+    return;
+  }
+
+  let loyaltyProgramTier: CollectionRulesItems | undefined;
+
+  for (const row of loyaltyProgramData.collectionRules) {
+    if (row.minimumTotalSpent !== undefined && row.minimumTotalSpent !== null) {
+      let minimumSpent: Money;
+
+      if (isPesa(row.minimumTotalSpent)) {
+        minimumSpent = row.minimumTotalSpent;
+      } else {
+        minimumSpent = new Money(row.minimumTotalSpent as number);
+      }
+
+      if (minimumSpent.lte(grandTotal)) {
+        if (
+          !loyaltyProgramTier ||
+          minimumSpent.gt(loyaltyProgramTier.minimumTotalSpent as Money)
+        ) {
+          loyaltyProgramTier = row;
+        }
+      }
+    }
+  }
+  return loyaltyProgramTier;
+}
+
+export async function removeLoyaltyPoint(doc: Doc) {
+  if (!doc.loyaltyProgram) {
+    return;
+  }
+
+  const data = (await doc.fyo.db.getAll(ModelNameEnum.LoyaltyPointEntry, {
+    fields: ['name', 'loyaltyPoints', 'expiryDate'],
+    filters: {
+      loyaltyProgram: doc.loyaltyProgram as string,
+      invoice: doc.isReturn
+        ? (doc.returnAgainst as string)
+        : (doc.name as string),
+    },
+  })) as { name: string; loyaltyPoints: number; expiryDate: Date }[];
+
+  if (!data.length) {
+    return;
+  }
+
+  const lPEntryDoc = (await doc.fyo.doc.getDoc(
+    ModelNameEnum.LoyaltyPointEntry,
+    data[0].name
+  )) as LoyaltyPointEntry;
+
+  const newLoyaltyPoint =
+    (lPEntryDoc?.loyaltyPoints as number) +
+    Math.abs(doc.loyaltyPoints as number);
+
+  if (newLoyaltyPoint !== 0) {
+    const newLoyaltyPointEntry = doc.fyo.doc.getNewDoc(
+      ModelNameEnum.LoyaltyPointEntry,
+      {
+        loyaltyProgram: lPEntryDoc.loyaltyProgram,
+        customer: lPEntryDoc.customer,
+        invoice: lPEntryDoc.invoice,
+        postingDate: lPEntryDoc.date as Date,
+        purchaseAmount: lPEntryDoc.purchaseAmount,
+        expiryDate: lPEntryDoc.expiryDate,
+        loyaltyProgramTier: lPEntryDoc.loyaltyProgramTier,
+        loyaltyPoints: newLoyaltyPoint,
+      }
+    );
+    await newLoyaltyPointEntry.sync();
+  }
+
+  const party = (await doc.fyo.doc.getDoc(
+    ModelNameEnum.Party,
+    doc.party as string
+  )) as Party;
+
+  await lPEntryDoc.delete();
+  await party.updateLoyaltyPoints();
+}
+
+export async function validateQty(
+  sinvDoc: SalesInvoice,
+  item: Item | SalesInvoiceItem | POSItem | undefined,
+  existingItems: InvoiceItem[]
+) {
+  if (!item) {
+    return;
+  }
+
+  let itemName = item.name as string;
+  const itemhasBatch = await sinvDoc.fyo.getValue(
+    ModelNameEnum.Item,
+    item.item as string,
+    'hasBatch'
+  );
+
+  const itemQtyMap: ItemQtyMap = await getItemQtyMap(sinvDoc);
+
+  if (item instanceof SalesInvoiceItem) {
+    itemName = item.item as string;
+  }
+
+  if (itemhasBatch) {
+    if (!item.batch) {
+      throw new ValidationError(t`Please select a batch first`);
+    }
+  }
+
+  const trackItem = await sinvDoc.fyo.getValue(
+    ModelNameEnum.Item,
+    item.item as string,
+    'trackItem'
+  );
+
+  if (!trackItem) {
+    return;
+  }
+
+  if (!itemQtyMap[itemName] || itemQtyMap[itemName].availableQty === 0) {
+    throw new ValidationError(t`Item ${itemName} has Zero Quantity`);
+  }
+
+  if (item.batch) {
+    if (
+      (existingItems && !itemQtyMap[itemName]) ||
+      itemQtyMap[itemName][item.batch as string] <
+        (existingItems[0]?.quantity as number)
+    ) {
+      throw new ValidationError(
+        t`Item ${itemName} only has ${
+          itemQtyMap[itemName][item.batch as string]
+        } Quantity in batch ${item.batch as string}`
+      );
+    }
+  } else {
+    if (
+      (existingItems && !itemQtyMap[itemName]) ||
+      itemQtyMap[itemName].availableQty < (existingItems[0]?.quantity as number)
+    ) {
+      throw new ValidationError(
+        t`Item ${itemName} only has ${itemQtyMap[itemName].availableQty} Quantity`
+      );
+    }
+  }
+
+  return;
+}
+
+export async function getPricingRulesOfCoupons(
+  doc: SalesInvoice,
+  couponName?: string,
+  pricingRuleDocNames?: string[]
+): Promise<PricingRule[] | undefined> {
+  if (!doc?.coupons?.length && !couponName) {
+    return;
+  }
+
+  let appliedCoupons: CouponCode[] = [];
+
+  const couponsToFetch = couponName
+    ? [couponName]
+    : (doc?.coupons?.map((coupon) => coupon.coupons) as string[] | []);
+
+  if (couponsToFetch?.length) {
+    appliedCoupons = (await doc.fyo.db.getAll(ModelNameEnum.CouponCode, {
+      fields: ['*'],
+      filters: { name: ['in', couponsToFetch] },
+    })) as CouponCode[];
+  }
+
+  const filteredPricingRuleNames = appliedCoupons.filter(
+    (val) => val.pricingRule === pricingRuleDocNames![0]
+  );
+
+  if (!filteredPricingRuleNames.length) {
+    return;
+  }
+
+  const pricingRuleDocsForItem = (await doc.fyo.db.getAll(
+    ModelNameEnum.PricingRule,
+    {
+      fields: ['*'],
+      filters: {
+        name: ['in', pricingRuleDocNames as string[]],
+        isEnabled: true,
+        isCouponCodeBased: true,
+      },
+      orderBy: 'priority',
+      order: 'desc',
+    }
+  )) as PricingRule[];
+
+  return pricingRuleDocsForItem;
+}
+
+export async function getPricingRule(
+  doc: Invoice,
+  couponName?: string
+): Promise<ApplicablePricingRules[] | undefined> {
+  if (
+    !doc.fyo.singles.AccountingSettings?.enablePricingRule ||
+    !doc.isSales ||
+    !doc.items
+  ) {
+    return;
+  }
+
+  const pricingRules: ApplicablePricingRules[] = [];
+
+  for (const item of doc.items) {
+    if (item.isFreeItem) {
+      continue;
+    }
+
+    const pricingRuleDocNames = (
+      await doc.fyo.db.getAll(ModelNameEnum.PricingRuleItem, {
+        fields: ['parent'],
+        filters: {
+          item: item.item as string,
+          unit: item.unit as string,
+        },
+      })
+    ).map((doc) => doc.parent) as string[];
+
+    let pricingRuleDocsForItem;
+
+    const pricingRuleDocs = (await doc.fyo.db.getAll(
+      ModelNameEnum.PricingRule,
+      {
+        fields: ['*'],
+        filters: {
+          name: ['in', pricingRuleDocNames],
+          isEnabled: true,
+          isCouponCodeBased: false,
+        },
+        orderBy: 'priority',
+        order: 'desc',
+      }
+    )) as PricingRule[];
+
+    if (pricingRuleDocs.length) {
+      pricingRuleDocsForItem = pricingRuleDocs;
+    }
+
+    if (!pricingRuleDocs.length || couponName) {
+      const couponPricingRules: PricingRule[] | undefined =
+        await getPricingRulesOfCoupons(
+          doc as SalesInvoice,
+          couponName,
+          pricingRuleDocNames
+        );
+
+      pricingRuleDocsForItem = couponPricingRules as PricingRule[];
+    }
+
+    if (!pricingRuleDocsForItem) {
+      continue;
+    }
+
+    const itemQuantity: Record<string, number> = {};
+
+    for (const item of doc.items) {
+      if (!item?.item) continue;
+
+      if (!itemQuantity[item.item]) {
+        itemQuantity[item.item] = item.quantity ?? 0;
+      } else {
+        itemQuantity[item.item] += item.quantity ?? 0;
+      }
+    }
+
+    const filtered = filterPricingRules(
+      doc as SalesInvoice,
+      pricingRuleDocsForItem,
+      itemQuantity[item.item as string],
+      item.amount as Money
+    );
+
+    if (!filtered.length) {
+      continue;
+    }
+
+    const isPricingRuleHasConflicts = getPricingRulesConflicts(filtered);
+
+    if (isPricingRuleHasConflicts) {
+      continue;
+    }
+
+    pricingRules.push({
+      applyOnItem: item.item as string,
+      pricingRule: filtered[0],
+    });
+  }
+
+  return pricingRules;
+}
+
+export async function getItemRateFromPriceList(
+  doc: InvoiceItem | SalesInvoiceItem,
+  priceListName: string
+): Promise<Money | undefined> {
+  const item = doc.item;
+  if (!priceListName || !item) {
+    return;
+  }
+
+  const priceList = await doc.fyo.doc.getDoc(
+    ModelNameEnum.PriceList,
+    priceListName
+  );
+
+  if (!(priceList instanceof PriceList)) {
+    return;
+  }
+
+  const unit = doc.unit;
+  const transferUnit = doc.transferUnit;
+  const plItem = priceList.priceListItem?.find((pli) => {
+    if (pli.item !== item) {
+      return false;
+    }
+
+    if (transferUnit && pli.unit !== transferUnit) {
+      return false;
+    } else if (unit && pli.unit !== unit) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return plItem?.rate;
+}
+
+export function filterPricingRules(
+  doc: SalesInvoice,
+  pricingRuleDocsForItem: PricingRule[],
+  quantity: number,
+  amount: Money
+): PricingRule[] | [] {
+  const filteredPricingRules: PricingRule[] = [];
+
+  for (const pricingRuleDoc of pricingRuleDocsForItem) {
+    if (
+      canApplyPricingRule(pricingRuleDoc, doc.date as Date, quantity, amount)
+    ) {
+      filteredPricingRules.push(pricingRuleDoc);
+    }
+  }
+  return filteredPricingRules;
+}
+
+export function canApplyPricingRule(
+  pricingRuleDoc: PricingRule,
+  sinvDate: Date,
+  quantity: number,
+  amount: Money
+): boolean {
+  if (
+    (pricingRuleDoc.minQuantity as number) > 0 &&
+    quantity < (pricingRuleDoc.minQuantity as number)
+  ) {
+    return false;
+  }
+
+  if (
+    (pricingRuleDoc.maxQuantity as number) > 0 &&
+    quantity > (pricingRuleDoc.maxQuantity as number)
+  ) {
+    return false;
+  }
+
+  // Filter by Amount
+  if (
+    !pricingRuleDoc.minAmount?.isZero() &&
+    amount.lte(pricingRuleDoc.minAmount as Money)
+  ) {
+    return false;
+  }
+
+  if (
+    !pricingRuleDoc.maxAmount?.isZero() &&
+    amount.gte(pricingRuleDoc.maxAmount as Money)
+  ) {
+    return false;
+  }
+
+  // Filter by Validity
+  if (sinvDate) {
+    if (
+      pricingRuleDoc.validFrom &&
+      new Date(sinvDate).toISOString() < pricingRuleDoc.validFrom.toISOString()
+    ) {
+      return false;
+    }
+
+    if (
+      pricingRuleDoc.validTo &&
+      new Date(sinvDate).toISOString() > pricingRuleDoc.validTo.toISOString()
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function canApplyCouponCode(
+  couponCodeData: CouponCode,
+  amount: Money,
+  sinvDate: Date
+): boolean {
+  // Filter by Amount
+  if (
+    !couponCodeData.minAmount?.isZero() &&
+    amount.lte(couponCodeData.minAmount as Money)
+  ) {
+    return false;
+  }
+
+  if (
+    !couponCodeData.maxAmount?.isZero() &&
+    amount.gte(couponCodeData.maxAmount as Money)
+  ) {
+    return false;
+  }
+
+  // Filter by Validity
+  if (
+    couponCodeData.validFrom &&
+    new Date(sinvDate).toISOString() < couponCodeData.validFrom.toISOString()
+  ) {
+    return false;
+  }
+
+  if (
+    couponCodeData.validTo &&
+    new Date(sinvDate).toISOString() > couponCodeData.validTo.toISOString()
+  ) {
+    return false;
+  }
+  return true;
+}
+export async function removeUnusedCoupons(sinvDoc: SalesInvoice) {
+  if (!sinvDoc.coupons?.length) {
+    return;
+  }
+
+  const applicableCouponCodes = await Promise.all(
+    sinvDoc.coupons?.map(async (coupon) => {
+      return await getApplicableCouponCodesName(
+        coupon.coupons as string,
+        sinvDoc
+      );
+    })
+  );
+
+  const flattedApplicableCouponCodes = applicableCouponCodes?.flat();
+
+  const couponCodeDoc = (await sinvDoc.fyo.doc.getDoc(
+    ModelNameEnum.CouponCode,
+    sinvDoc.coupons[0].coupons
+  )) as CouponCode;
+
+  couponCodeDoc.removeUnusedCoupons(
+    flattedApplicableCouponCodes as ApplicableCouponCodes[],
+    sinvDoc
+  );
+}
+
+export async function getApplicableCouponCodesName(
+  couponName: string,
+  sinvDoc: SalesInvoice
+) {
+  const couponCodeDatas = (await sinvDoc.fyo.db.getAll(
+    ModelNameEnum.CouponCode,
+    {
+      fields: ['*'],
+      filters: {
+        name: couponName,
+        isEnabled: true,
+      },
+    }
+  )) as CouponCode[];
+
+  if (!couponCodeDatas || !couponCodeDatas.length) {
+    return [];
+  }
+
+  const applicablePricingRules = await getPricingRule(sinvDoc, couponName);
+
+  if (!applicablePricingRules?.length) {
+    return [];
+  }
+
+  return applicablePricingRules
+    ?.filter(
+      (rule) => rule?.pricingRule?.name === couponCodeDatas[0].pricingRule
+    )
+    .map((rule) => ({
+      pricingRule: rule.pricingRule.name,
+      coupon: couponCodeDatas[0].name,
+    }));
+}
+
+export async function validateCouponCode(
+  doc: AppliedCouponCodes,
+  value: string,
+  sinvDoc?: SalesInvoice
+) {
+  const coupon = await doc.fyo.db.getAll(ModelNameEnum.CouponCode, {
+    fields: [
+      'minAmount',
+      'maxAmount',
+      'pricingRule',
+      'validFrom',
+      'validTo',
+      'maximumUse',
+      'used',
+      'isEnabled',
+    ],
+    filters: { name: value },
+  });
+
+  if (!coupon[0]?.isEnabled) {
+    throw new ValidationError(
+      'Coupon code cannot be applied as it is not enabled'
+    );
+  }
+
+  if ((coupon[0]?.maximumUse as number) <= (coupon[0]?.used as number)) {
+    throw new ValidationError(
+      'Coupon code has been used maximum number of times'
+    );
+  }
+
+  if (!doc.parentdoc) {
+    doc.parentdoc = sinvDoc;
+  }
+
+  const applicableCouponCodesNames = await getApplicableCouponCodesName(
+    value,
+    doc.parentdoc as SalesInvoice
+  );
+
+  if (!applicableCouponCodesNames?.length) {
+    throw new ValidationError(
+      t`Coupon ${value} is not applicable for applied items.`
+    );
+  }
+
+  const couponExist = doc.parentdoc?.coupons?.some(
+    (coupon) => coupon?.coupons === value
+  );
+
+  if (couponExist) {
+    throw new ValidationError(t`${value} already applied.`);
+  }
+
+  if (
+    (coupon[0].minAmount as Money).gte(doc.parentdoc?.grandTotal as Money) &&
+    !(coupon[0].minAmount as Money).isZero()
+  ) {
+    throw new ValidationError(
+      t`The Grand Total must exceed ${
+        (coupon[0].minAmount as Money).float
+      } to apply the coupon ${value}.`
+    );
+  }
+
+  if (
+    (coupon[0].maxAmount as Money).lte(doc.parentdoc?.grandTotal as Money) &&
+    !(coupon[0].maxAmount as Money).isZero()
+  ) {
+    throw new ValidationError(
+      t`The Grand Total must be less than ${
+        (coupon[0].maxAmount as Money).float
+      } to apply this coupon.`
+    );
+  }
+
+  if ((coupon[0].validFrom as Date) > (doc.parentdoc?.date as Date)) {
+    throw new ValidationError(
+      t`Valid From Date should be less than Valid To Date.`
+    );
+  }
+
+  if ((coupon[0].validTo as Date) < (doc.parentdoc?.date as Date)) {
+    throw new ValidationError(
+      t`Valid To Date should be greater than Valid From Date.`
+    );
+  }
+}
+
+export async function validateLoyaltyProgram(
+  doc: Invoice,
+  loyaltyProgramName: string
+) {
+  const loyaltyProgram = await doc.fyo.db.getAll(ModelNameEnum.LoyaltyProgram, {
+    fields: ['fromDate', 'toDate', 'maximumUse', 'used', 'isEnabled'],
+    filters: { name: loyaltyProgramName },
+  });
+
+  if (
+    (loyaltyProgram[0]?.maximumUse as number) > 0 &&
+    (loyaltyProgram[0]?.used as number) >=
+      (loyaltyProgram[0]?.maximumUse as number)
+  ) {
+    return;
+  }
+
+  if (
+    loyaltyProgram[0].fromDate &&
+    (doc.date as Date) < (loyaltyProgram[0].fromDate as Date)
+  ) {
+    throw new ValidationError('Loyalty program is not yet active');
+  }
+
+  const toDate = loyaltyProgram[0].toDate as Date;
+  if (toDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const normalizedToDate = new Date(toDate);
+    normalizedToDate.setHours(0, 0, 0, 0);
+
+    if (normalizedToDate.getTime() < today.getTime()) {
+      return;
+    }
+  }
+}
+
+export function removeFreeItems(sinvDoc: SalesInvoice) {
+  if (!sinvDoc || !sinvDoc.items) {
+    return;
+  }
+
+  if (!!sinvDoc.isPricingRuleApplied) {
+    return;
+  }
+
+  for (const item of sinvDoc.items) {
+    if (item.isFreeItem) {
+      sinvDoc.items = sinvDoc.items?.filter(
+        (invoiceItem) => invoiceItem.name !== item.name
+      );
+    }
+  }
+}
+
+export async function updatePricingRule(sinvDoc: SalesInvoice) {
+  const applicablePricingRuleNames = await getPricingRule(sinvDoc);
+
+  if (!applicablePricingRuleNames || !applicablePricingRuleNames.length) {
+    sinvDoc.pricingRuleDetail = undefined;
+    sinvDoc.isPricingRuleApplied = false;
+    removeFreeItems(sinvDoc);
+    return;
+  }
+
+  const appliedPricingRuleCount = sinvDoc?.items?.filter(
+    (val) => val.isFreeItem
+  ).length;
+
+  setTimeout(() => {
+    void (async () => {
+      if (appliedPricingRuleCount !== applicablePricingRuleNames?.length) {
+        await sinvDoc.appendPricingRuleDetail(applicablePricingRuleNames);
+        await sinvDoc.applyProductDiscount();
+      }
+    })();
+  }, 1);
+}
+
+export function getPricingRulesConflicts(
+  pricingRules: PricingRule[]
+): undefined | boolean {
+  const pricingRuleDocs = Array.from(pricingRules);
+
+  const firstPricingRule = pricingRuleDocs.shift();
+  if (!firstPricingRule) {
+    return;
+  }
+
+  const conflictingPricingRuleNames: string[] = [];
+  for (const pricingRuleDoc of pricingRuleDocs.slice(0)) {
+    if (pricingRuleDoc.priority !== firstPricingRule?.priority) {
+      continue;
+    }
+
+    conflictingPricingRuleNames.push(pricingRuleDoc.name as string);
+  }
+
+  if (!conflictingPricingRuleNames.length) {
+    return;
+  }
+
+  return true;
+}
+
+export function roundFreeItemQty(
+  quantity: number,
+  roundingMethod: 'round' | 'floor' | 'ceil'
+): number {
+  return Math[roundingMethod](quantity);
+}
+
+export async function isLoyaltyProgramExpiredAndMaxed(
+  fyo: Fyo,
+  loyaltyProgramName: string
+): Promise<boolean> {
+  if (!loyaltyProgramName) {
+    return false;
+  }
+
+  const loyaltyProgram = await fyo.db.getAll(ModelNameEnum.LoyaltyProgram, {
+    fields: ['toDate', 'maximumUse', 'used', 'isEnabled'],
+    filters: { name: loyaltyProgramName },
+  });
+
+  if (!loyaltyProgram.length) {
+    return false;
+  }
+
+  const program = loyaltyProgram[0];
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  const toDate = program.toDate as Date;
+  const isExpired =
+    toDate && new Date(toDate).getTime() < currentDate.getTime();
+
+  const maximumUse = (program.maximumUse as number) || 0;
+  const used = (program.used as number) || 0;
+  const isMaxed = maximumUse > 0 && used >= maximumUse;
+
+  const result = isExpired || isMaxed;
+  return result;
 }

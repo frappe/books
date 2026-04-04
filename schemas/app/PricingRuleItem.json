@@ -1,0 +1,25 @@
+{
+  "name": "PricingRuleItem",
+  "label": "Pricing Rule Item",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "required": true
+    },
+    {
+      "fieldname": "unit",
+      "label": "Unit Type",
+      "placeholder": "Unit Type",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "create": true,
+      "section": "Default"
+    }
+  ],
+  "tableFields": ["item", "unit"],
+  "quickEditFields": ["item", "unit"]
+}

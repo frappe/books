@@ -1,18 +1,18 @@
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, ReadOnlyMap } from 'fyo/model/types';
 import { AccountTypeEnum } from 'models/baseModels/Account/types';
-import { ValuationMethod } from './types';
 
 export class InventorySettings extends Doc {
   defaultLocation?: string;
   stockInHand?: string;
-  valuationMethod?: ValuationMethod;
   stockReceivedButNotBilled?: string;
   costOfGoodsSold?: string;
   enableBarcodes?: boolean;
   enableBatches?: boolean;
   enableSerialNumber?: boolean;
   enableUomConversions?: boolean;
+  enableStockReturns?: boolean;
+  enablePointOfSale?: boolean;
 
   static filters: FiltersMap = {
     stockInHand: () => ({
@@ -41,6 +41,12 @@ export class InventorySettings extends Doc {
     },
     enableUomConversions: () => {
       return !!this.enableUomConversions;
+    },
+    enableStockReturns: () => {
+      return !!this.enableStockReturns;
+    },
+    enablePointOfSale: () => {
+      return !!this.fyo.singles.POSSettings?.isShiftOpen;
     },
   };
 }

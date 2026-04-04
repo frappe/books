@@ -1,6 +1,7 @@
 import { t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import {
+  ChangeArg,
   FiltersMap,
   FormulaMap,
   HiddenMap,
@@ -12,9 +13,11 @@ import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { safeParseFloat } from 'utils/index';
+import { generateSerialNumbersForItem, getSuggestedBatchName } from './helpers';
 import { StockMovement } from './StockMovement';
 import { TransferItem } from './TransferItem';
 import { MovementTypeEnum } from './types';
+import { Doc } from 'fyo/model/doc';
 
 export class StockMovementItem extends TransferItem {
   name?: string;
@@ -54,7 +57,91 @@ export class StockMovementItem extends TransferItem {
 
   static filters: FiltersMap = {
     item: () => ({ trackItem: true }),
+    transferUnit: async (doc: Doc) => {
+      const conversionItems = await doc.fyo.db.getAll(
+        ModelNameEnum.UOMConversionItem,
+        {
+          fields: ['uom'],
+          filters: { parent: doc.item as string },
+        }
+      );
+      const conversionUoms = conversionItems.map((i) => i.uom) as string[];
+
+      const baseUnit = await doc.fyo.getValue(
+        ModelNameEnum.Item,
+        doc.item as string,
+        'unit'
+      );
+      const validUoms = [...conversionUoms, baseUnit].filter(
+        Boolean
+      ) as string[];
+      return {
+        name: ['in', validUoms],
+      };
+    },
+    batch: async (doc: Doc) => {
+      let suggestedBatch: string | undefined;
+      let hasBatch = false;
+
+      if (doc.parentdoc?.movementType === MovementTypeEnum.MaterialReceipt) {
+        hasBatch = !!(await doc.fyo.getValue(
+          ModelNameEnum.Item,
+          doc.item as string,
+          'hasBatch'
+        ));
+
+        if (hasBatch) {
+          suggestedBatch = await getSuggestedBatchName(
+            doc.fyo,
+            doc.item as string
+          );
+
+          if (suggestedBatch) {
+            await doc.set('batch', suggestedBatch);
+          }
+        }
+      }
+
+      const batches = await doc.fyo.db.getAll(ModelNameEnum.Batch, {
+        fields: ['name'],
+        filters: { item: doc.item as string },
+      });
+      const existingBatchNames = batches.map((b) => b.name) as string[];
+
+      const allBatches = new Set<string>(existingBatchNames);
+      if (suggestedBatch) {
+        allBatches.add(suggestedBatch);
+      }
+
+      const finalBatchList = Array.from(allBatches);
+
+      return {
+        name: ['in', finalBatchList],
+      };
+    },
   };
+
+  async validate() {
+    await super.validate();
+    await this.validateBatchAndItemConsistency();
+  }
+
+  async validateBatchAndItemConsistency() {
+    if (!this.batch || !this.item) {
+      return;
+    }
+
+    const batchDoc = await this.fyo.doc.getDoc(ModelNameEnum.Batch, this.batch);
+    if (!batchDoc) {
+      return;
+    }
+
+    if (batchDoc.item !== this.item) {
+      throw new ValidationError(
+        t`Batch ${this.batch} does not belong to Item ${this.item}`
+      );
+    }
+  }
 
   formulas: FormulaMap = {
     rate: {
@@ -209,6 +296,21 @@ export class StockMovementItem extends TransferItem {
         );
       }
     },
+    batch: async () => {
+      if (!this.item || !this.batch) return;
+
+      const batchDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.Batch,
+        this.batch
+      );
+      if (!batchDoc) return;
+
+      if (batchDoc.item !== this.item) {
+        throw new ValidationError(
+          t`Batch ${this.batch} does not belong to Item ${this.item}`
+        );
+      }
+    },
     transferUnit: async (value: DocValue) => {
       if (!this.item) {
         return;
@@ -252,4 +354,64 @@ export class StockMovementItem extends TransferItem {
   static createFilters: FiltersMap = {
     item: () => ({ trackItem: true, itemType: 'Product' }),
   };
+
+  override async change(ch: ChangeArg): Promise<void> {
+    await super.change(ch);
+
+    const shouldGenerateSerialNumbers =
+      this.parentdoc?.movementType === MovementTypeEnum.MaterialReceipt &&
+      this.item &&
+      this.quantity &&
+      this.quantity > 0;
+
+    if (ch.changed === 'item') {
+      await this.set('serialNumber', '');
+
+      if (
+        this.parentdoc?.movementType === MovementTypeEnum.MaterialReceipt &&
+        this.item
+      ) {
+        const hasBatch = await this.fyo.getValue(
+          ModelNameEnum.Item,
+          this.item,
+          'hasBatch'
+        );
+
+        if (hasBatch) {
+          const batchName = await getSuggestedBatchName(this.fyo, this.item);
+          if (batchName) {
+            await this.set('batch', batchName);
+          }
+        }
+      }
+
+      if (shouldGenerateSerialNumbers) {
+        await this.generateAndSetSerialNumbers();
+      }
+    }
+
+    if (ch.changed === 'quantity') {
+      if (!this.quantity || this.quantity <= 0) {
+        await this.set('serialNumber', '');
+      } else if (shouldGenerateSerialNumbers) {
+        await this.generateAndSetSerialNumbers();
+      }
+    }
+  }
+
+  private async generateAndSetSerialNumbers(): Promise<void> {
+    if (!this.item || !this.quantity) {
+      return;
+    }
+
+    const serialNumbers = await generateSerialNumbersForItem(
+      this.fyo,
+      this.item,
+      Math.abs(this.quantity)
+    );
+
+    if (serialNumbers) {
+      await this.set('serialNumber', serialNumbers);
+    }
+  }
 }

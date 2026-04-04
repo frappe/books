@@ -19,8 +19,23 @@
       "required": true
     },
     {
+      "fieldname": "itemCode",
+      "label": "Item Code",
+      "fieldtype": "Data",
+      "placeholder": "Item Code",
+      "section": "Default"
+    },
+    {
+      "fieldname": "itemGroup",
+      "label": "Item Group",
+      "fieldtype": "Link",
+      "target": "ItemGroup",
+      "create": true,
+      "placeholder": "Item Group"
+    },
+    {
       "fieldname": "for",
-      "label": "For",
+      "label": "Purpose",
       "fieldtype": "Select",
       "options": [
         {
@@ -113,7 +128,7 @@
     {
       "fieldname": "hsnCode",
       "label": "HSN/SAC",
-      "fieldtype": "Int",
+      "fieldtype": "Data",
       "placeholder": "HSN/SAC Code",
       "section": "Inventory"
     },
@@ -126,7 +141,7 @@
     },
     {
       "fieldname": "trackItem",
-      "label": "Track Item",
+      "label": "Track Inventory",
       "fieldtype": "Check",
       "section": "Inventory",
       "default": false
@@ -139,10 +154,22 @@
       "section": "Inventory"
     },
     {
+      "fieldname": "batchSeries",
+      "label": "Batch Series",
+      "fieldtype": "Data",
+      "section": "Inventory"
+    },
+    {
       "fieldname": "hasSerialNumber",
       "label": "Has Serial Number",
       "fieldtype": "Check",
       "default": false,
+      "section": "Inventory"
+    },
+    {
+      "fieldname": "serialNumberSeries",
+      "label": "Serial Number Series",
+      "fieldtype": "Data",
       "section": "Inventory"
     },
     {
@@ -151,6 +178,14 @@
       "fieldtype": "Table",
       "target": "UOMConversionItem",
       "section": "Inventory"
+    },
+    {
+      "fieldname": "datafromErp",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false,
+      "section": "Default",
+      "readOnly": true
     }
   ],
   "quickEditFields": [

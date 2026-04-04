@@ -20,12 +20,8 @@
       "section": "Default"
     },
     {
+      "abstract": true,
       "fieldname": "party",
-      "label": "Party",
-      "fieldtype": "Link",
-      "target": "Party",
-      "create": true,
-      "required": true,
       "section": "Default"
     },
     {
@@ -39,7 +35,7 @@
     {
       "fieldname": "date",
       "label": "Date",
-      "fieldtype": "Date",
+      "fieldtype": "Datetime",
       "required": true,
       "section": "Default"
     },
@@ -167,10 +163,8 @@
       "section": "Outstanding"
     },
     {
+      "abstract": true,
       "fieldname": "stockNotTransferred",
-      "label": "Stock Not Transferred",
-      "fieldtype": "Float",
-      "readOnly": true,
       "section": "Outstanding"
     },
     {
@@ -188,8 +182,31 @@
       "section": "References"
     },
     {
+      "fieldname": "isReturned",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
+      "fieldname": "isFullyReturned",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
+      "fieldname": "isSyncedWithErp",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
       "abstract": true,
       "fieldname": "backReference",
+      "section": "References"
+    },
+    {
+      "abstract": true,
+      "fieldname": "returnAgainst",
       "section": "References"
     }
   ],

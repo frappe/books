@@ -1,0 +1,70 @@
+{
+  "name": "LoyaltyPointEntry",
+  "label": "Loyalty Point Entry",
+  "create": false,
+  "naming": "random",
+  "fields": [
+    {
+      "label": "Entry No.",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "loyaltyProgram",
+      "readOnly": true,
+      "label": "Loyalty Program",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "loyaltyProgramTier",
+      "readOnly": true,
+      "label": "Loyalty Program Tier",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "customer",
+      "readOnly": true,
+      "label": "Customer",
+      "fieldtype": "Link",
+      "target": "Party",
+      "required": true
+    },
+    {
+      "fieldname": "invoice",
+      "readOnly": true,
+      "label": "Invoice",
+      "fieldtype": "Link",
+      "target": "SalesInvoice",
+      "required": true
+    },
+    {
+      "fieldname": "loyaltyPoints",
+      "readOnly": true,
+      "label": "Loyalty Points",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "purchaseAmount",
+      "readOnly": true,
+      "label": "Purchase Amount",
+      "fieldtype": "Currency",
+      "required": true
+    },
+    {
+      "fieldname": "expiryDate",
+      "readOnly": true,
+      "label": "Expiry Date",
+      "fieldtype": "Date"
+    },
+    {
+      "fieldname": "postingDate",
+      "readOnly": true,
+      "label": "Posting Date",
+      "fieldtype": "Date"
+    }
+  ]
+}

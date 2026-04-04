@@ -8,11 +8,7 @@ import {
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
-import {
-  addItem,
-  getDocStatusListColumn,
-  getLedgerLinkAction,
-} from 'models/helpers';
+import { getDocStatusListColumn, getLedgerLinkAction } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { SerialNumber } from './SerialNumber';
@@ -20,6 +16,8 @@ import { StockMovementItem } from './StockMovementItem';
 import { Transfer } from './Transfer';
 import {
   canValidateSerialNumber,
+  createBatch,
+  generateBatchForItem,
   getSerialNumberFromDoc,
   updateSerialNumbers,
   validateBatch,
@@ -67,6 +65,42 @@ export class StockMovement extends Transfer {
   async afterSubmit(): Promise<void> {
     await super.afterSubmit();
     await updateSerialNumbers(this, false);
+  }
+
+  async beforeSubmit(): Promise<void> {
+    await super.beforeSubmit();
+
+    const batchesToCreate: { item: string; batch: string }[] = [];
+
+    for (const item of this.items ?? []) {
+      if (!item.item || !item.batch) {
+        continue;
+      }
+
+      const hasBatch = await this.fyo.getValue(
+        ModelNameEnum.Item,
+        item.item,
+        'hasBatch'
+      );
+
+      if (hasBatch) {
+        const batchExists = await this.fyo.db.exists(
+          ModelNameEnum.Batch,
+          item.batch
+        );
+
+        if (!batchExists) {
+          batchesToCreate.push({
+            item: item.item,
+            batch: item.batch,
+          });
+        }
+      }
+    }
+
+    for (const { item, batch } of batchesToCreate) {
+      await createBatch(this.fyo, item, batch);
+    }
   }
 
   async afterCancel(): Promise<void> {
@@ -129,10 +163,10 @@ export class StockMovement extends Transfer {
       item: row.item!,
       rate: row.rate!,
       quantity: row.quantity!,
-      batch: row.batch!,
-      serialNumber: row.serialNumber!,
-      fromLocation: row.fromLocation,
-      toLocation: row.toLocation,
+      batch: row.batch ?? undefined,
+      serialNumber: row.serialNumber ?? undefined,
+      fromLocation: row.fromLocation ?? undefined,
+      toLocation: row.toLocation ?? undefined,
     }));
   }
 
@@ -141,7 +175,40 @@ export class StockMovement extends Transfer {
   }
 
   async addItem(name: string) {
-    return await addItem(name, this);
+    const itemDoc = await this.fyo.doc.getDoc(ModelNameEnum.Item, name);
+    if (!itemDoc) {
+      throw new ValidationError(t`Item ${name} not found`);
+    }
+
+    let batch: string | null | undefined =
+      (itemDoc.defaultBatch as string | null | undefined) ?? null;
+
+    if (
+      this.movementType === MovementTypeEnum.MaterialReceipt &&
+      itemDoc.hasBatch &&
+      !batch
+    ) {
+      batch = await generateBatchForItem(this.fyo, name);
+    }
+
+    const item = {
+      name: itemDoc.name,
+      batch,
+    };
+
+    if (item.batch) {
+      const batchDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.Batch,
+        item.batch
+      );
+      if (batchDoc && batchDoc.item !== name) {
+        throw new ValidationError(
+          t`Batch ${item.batch} does not belong to Item ${name}`
+        );
+      }
+    }
+
+    return item;
   }
 }
 

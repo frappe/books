@@ -101,6 +101,16 @@ function getInventorySidebar(): SidebarRoot[] {
   ];
 }
 
+function getPOSSidebar() {
+  return {
+    label: t`POS`,
+    name: 'pos',
+    route: '/pos',
+    icon: 'pos',
+    hidden: () => !fyo.singles.InventorySettings?.enablePointOfSale,
+  };
+}
+
 function getReportSidebar() {
   return {
     label: t`Reports`,
@@ -156,6 +166,12 @@ function getCompleteSidebar(): SidebarConfig {
       route: '/list/SalesInvoice',
       items: [
         {
+          label: t`Sales Quotes`,
+          name: 'sales-quotes',
+          route: '/list/SalesQuote',
+          schemaName: 'SalesQuote',
+        },
+        {
           label: t`Sales Invoices`,
           name: 'sales-invoices',
           route: '/list/SalesInvoice',
@@ -181,6 +197,34 @@ function getCompleteSidebar(): SidebarConfig {
           route: `/list/Item/${t`Sales Items`}`,
           schemaName: 'Item',
           filters: routeFilters.SalesItems,
+        },
+        {
+          label: t`Loyalty Program`,
+          name: 'loyalty-program',
+          route: '/list/LoyaltyProgram',
+          schemaName: 'LoyaltyProgram',
+          hidden: () => !fyo.singles.AccountingSettings?.enableLoyaltyProgram,
+        },
+        {
+          label: t`Lead`,
+          name: 'lead',
+          route: '/list/Lead',
+          schemaName: 'Lead',
+          hidden: () => !fyo.singles.AccountingSettings?.enableLead,
+        },
+        {
+          label: t`Pricing Rule`,
+          name: 'pricing-rule',
+          route: '/list/PricingRule',
+          schemaName: 'PricingRule',
+          hidden: () => !fyo.singles.AccountingSettings?.enablePricingRule,
+        },
+        {
+          label: t`Coupon Code`,
+          name: 'coupon-code',
+          route: `/list/CouponCode`,
+          schemaName: 'CouponCode',
+          hidden: () => !fyo.singles.AccountingSettings?.enableCouponCode,
         },
       ] as SidebarItem[],
     },
@@ -236,7 +280,7 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'party',
           route: '/list/Party',
           schemaName: 'Party',
-          filters: { role: 'Both' },
+          filters: { role: ['in', ['Customer', 'Supplier', 'Both']] },
         },
         {
           label: t`Items`,
@@ -256,6 +300,7 @@ function getCompleteSidebar(): SidebarConfig {
     },
     getReportSidebar(),
     getInventorySidebar(),
+    getPOSSidebar(),
     getRegionalSidebar(),
     {
       label: t`Setup`,
@@ -269,7 +314,7 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/chart-of-accounts',
         },
         {
-          label: t`Taxes`,
+          label: t`Tax Templates`,
           name: 'taxes',
           route: '/list/Tax',
           schemaName: 'Tax',
@@ -283,6 +328,14 @@ function getCompleteSidebar(): SidebarConfig {
           label: t`Print Templates`,
           name: 'print-template',
           route: `/list/PrintTemplate/${t`Print Templates`}`,
+        },
+        {
+          label: t`Customize Form`,
+          name: 'customize-form',
+          // route: `/customize-form`,
+          route: `/list/CustomForm/${t`Customize Form`}`,
+          hidden: () =>
+            !fyo.singles.AccountingSettings?.enableFormCustomization,
         },
         {
           label: t`Settings`,

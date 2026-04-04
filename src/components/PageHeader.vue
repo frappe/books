@@ -1,12 +1,20 @@
 <template>
   <div
-    class="px-4 flex justify-between items-center h-row-largest flex-shrink-0"
+    class="
+      px-4
+      flex
+      justify-between
+      items-center
+      h-row-largest
+      flex-shrink-0
+      dark:bg-gray-875
+    "
     :class="[
-      border ? 'border-b' : '',
+      border ? 'border-b dark:border-gray-800' : '',
       platform !== 'Windows' ? 'window-drag' : '',
     ]"
   >
-    <Transition name="spacer">
+    <Transition name="spacer" class="border-none">
       <div
         v-if="!showSidebar && platform === 'Mac' && languageDirection !== 'rtl'"
         class="h-full"
@@ -22,7 +30,13 @@
       <PageHeaderNavGroup />
       <h1
         v-if="title"
-        class="text-xl font-semibold select-none whitespace-nowrap"
+        class="
+          text-xl
+          font-semibold
+          select-none
+          whitespace-nowrap
+          dark:text-white
+        "
       >
         {{ title }}
       </h1>

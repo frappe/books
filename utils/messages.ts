@@ -5,6 +5,13 @@ export enum IPC_MESSAGES {
   OPEN_EXTERNAL = 'open-external',
   SHOW_ITEM_IN_FOLDER = 'show-item-in-folder',
   RELOAD_MAIN_WINDOW = 'reload-main-window',
+  MINIMIZE_MAIN_WINDOW = 'minimize-main-window',
+  MAXIMIZE_MAIN_WINDOW = 'maximize-main-window',
+  ISMAXIMIZED_MAIN_WINDOW = 'ismaximized-main-window',
+  ISMAXIMIZED_RESULT = 'ismaximized-result',
+  ISFULLSCREEN_MAIN_WINDOW = 'isfullscreen-main-window',
+  ISFULLSCREEN_RESULT = 'isfullscreen-result',
+  CLOSE_MAIN_WINDOW = 'close-main-window',
 }
 
 // ipcRenderer.invoke(...)
@@ -14,6 +21,7 @@ export enum IPC_ACTIONS {
   GET_DIALOG_RESPONSE = 'show-message-box',
   GET_ENV = 'get-env',
   SAVE_HTML_AS_PDF = 'save-html-as-pdf',
+  PRINT_HTML_DOCUMENT = 'print-html-document',
   SAVE_DATA = 'save-data',
   SHOW_ERROR = 'show-error',
   SEND_ERROR = 'send-error',
@@ -24,8 +32,10 @@ export enum IPC_ACTIONS {
   GET_CREDS = 'get-creds',
   GET_DB_LIST = 'get-db-list',
   GET_TEMPLATES = 'get-templates',
+  INIT_SHEDULER = 'init-scheduler',
   DELETE_FILE = 'delete-file',
   GET_DB_DEFAULT_PATH = 'get-db-default-path',
+  SEND_API_REQUEST = 'send-api-request',
   // Database messages
   DB_CREATE = 'db-create',
   DB_CONNECT = 'db-connect',
@@ -36,6 +46,7 @@ export enum IPC_ACTIONS {
 
 // ipcMain.send(...)
 export enum IPC_CHANNELS {
+  TRIGGER_ERPNEXT_SYNC = 'trigger-erpnext-sync',
   LOG_MAIN_PROCESS_ERROR = 'main-process-error',
   CONSOLE_LOG = 'console-log',
 }

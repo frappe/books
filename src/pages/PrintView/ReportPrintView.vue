@@ -1,15 +1,28 @@
 <template>
   <div class="flex flex-col w-full h-full">
     <PageHeader :title="t`Print ${title}`">
-      <Button class="text-xs" type="primary" @click="savePDF">
+      <Button class="text-xs" type="primary" @click="savePDF()">
         {{ t`Save as PDF` }}
+      </Button>
+      <Button class="text-xs" type="primary" @click="savePDF(true)">
+        {{ t`Print` }}
       </Button>
     </PageHeader>
 
-    <div class="outer-container">
+    <div
+      class="outer-container overflow-y-auto custom-scroll custom-scroll-thumb1"
+    >
       <!-- Report Print Display Area -->
       <div
-        class="p-4 bg-gray-25 overflow-auto flex justify-center custom-scroll"
+        class="
+          p-4
+          bg-gray-25
+          dark:bg-gray-890
+          overflow-auto
+          flex
+          justify-center
+          custom-scroll custom-scroll-thumb1
+        "
       >
         <!-- Report Print Display Container -->
         <ScaledContainer
@@ -57,8 +70,8 @@
       </div>
 
       <!-- Report Print Settings -->
-      <div v-if="report" class="border-l flex flex-col">
-        <p class="p-4 text-sm text-gray-600">
+      <div v-if="report" class="border-l dark:border-gray-800 flex flex-col">
+        <p class="p-4 text-sm text-gray-600 dark:text-gray-400">
           {{
             [
               t`Hidden values will be visible on Print on.`,
@@ -67,7 +80,7 @@
           }}
         </p>
         <!-- Row Selection -->
-        <div class="p-4 border-t">
+        <div class="p-4 border-t dark:border-gray-800">
           <Int
             :show-label="true"
             :border="true"
@@ -98,7 +111,7 @@
         </div>
 
         <!-- Size Selection -->
-        <div class="border-t p-4">
+        <div class="border-t dark:border-gray-800 p-4">
           <Select
             :show-label="true"
             :border="true"
@@ -121,11 +134,13 @@
         </div>
 
         <!-- Pick Columns -->
-        <div class="border-t p-4">
-          <h2 class="text-sm text-gray-600">
+        <div class="border-t dark:border-gray-800 p-4">
+          <h2 class="text-sm text-gray-600 dark:text-gray-400">
             {{ t`Pick Columns` }}
           </h2>
-          <div class="border rounded grid grid-cols-2 mt-1">
+          <div
+            class="border dark:border-gray-800 rounded grid grid-cols-2 mt-1"
+          >
             <Check
               v-for="(col, i) of report?.columns"
               :key="col.fieldname"
@@ -266,7 +281,7 @@ export default defineComponent({
 
       this.scale = Math.min(containerWidth / width, 1);
     },
-    async savePDF(): Promise<void> {
+    async savePDF(shouldPrint?: boolean): Promise<void> {
       // @ts-ignore
       const innerHTML = this.$refs.scaledContainer.$el.children[0].innerHTML;
       if (typeof innerHTML !== 'string') {
@@ -278,7 +293,8 @@ export default defineComponent({
         name,
         innerHTML,
         this.size.width,
-        this.size.height
+        this.size.height,
+        shouldPrint
       );
 
       this.fyo.telemetry.log(Verb.Printed, this.report!.reportName);

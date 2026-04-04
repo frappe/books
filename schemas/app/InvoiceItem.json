@@ -13,6 +13,12 @@
       "required": true
     },
     {
+      "fieldname": "itemCode",
+      "label": "ItemCode",
+      "fieldtype": "Data",
+      "hidden": true
+    },
+    {
       "fieldname": "description",
       "label": "Description",
       "fieldtype": "Text"
@@ -37,6 +43,13 @@
       "fieldtype": "Float",
       "default": 1,
       "required": true
+    },
+    {
+      "fieldname": "qty",
+      "label": "Qty",
+      "fieldtype": "Float",
+      "default": 1,
+      "computed": true
     },
     {
       "fieldname": "unit",
@@ -134,7 +147,7 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "tax", "quantity", "rate", "amount"],
+  "tableFields": ["item", "tax", "qty", "rate", "amount"],
   "keywordFields": ["item", "tax"],
   "quickEditFields": [
     "item",

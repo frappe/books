@@ -1,0 +1,24 @@
+{
+  "name": "CollectionRulesItems",
+  "label": "Collection Rules",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "tierName",
+      "label": "Tier Name",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "collectionFactor",
+      "label": "Collection Factor",
+      "fieldtype": "Float",
+      "sub_label": "Sale 100→ 100 (1), 50 (0.5)"
+    },
+    {
+      "fieldname": "minimumTotalSpent",
+      "label": "Minimum Total Spent",
+      "fieldtype": "Currency"
+    }
+  ],
+  "tableFields": ["tierName", "collectionFactor", "minimumTotalSpent"]
+}

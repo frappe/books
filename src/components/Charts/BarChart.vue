@@ -118,7 +118,17 @@
       ref="tooltip"
       :offset="15"
       placement="top"
-      class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-s-4"
+      class="
+        text-sm
+        shadow-md
+        px-2
+        py-1
+        bg-white
+        dark:bg-gray-900
+        text-gray-900
+        dark:text-gray-200
+        border-s-4
+      "
       :style="{ borderColor: activeColor }"
     >
       <div class="flex flex-col justify-center items-center">
@@ -196,7 +206,7 @@ export default {
             this.padding +
             this.left +
             (i * (this.viewBoxWidth - this.left - 2 * this.padding)) /
-              (this.count - 1)
+              (this.count - 1 || 1) // The "or" one (1) prevents accidentally dividing by 0
         );
     },
     z() {

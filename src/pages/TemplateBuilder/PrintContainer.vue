@@ -4,6 +4,7 @@
     :scale="Math.max(scale, 0.1)"
     :width="width"
     :height="height"
+    :show-overflow="true"
     class="mx-auto shadow-lg border"
   >
     <ErrorBoundary
@@ -26,19 +27,33 @@
       class="
         h-full
         bg-red-100
+        dark:bg-red-900 dark:bg-opacity-50
         w-full
         text-2xl text-gray-900
+        dark:text-gray-25
         flex flex-col
         gap-4
       "
     >
-      <h1 class="text-4xl font-bold text-red-500 p-4 border-b border-red-200">
+      <h1
+        class="
+          text-4xl
+          font-bold
+          text-red-500
+          dark:text-red-200
+          p-4
+          border-b border-red-200
+          dark:border-red-900
+        "
+      >
         {{ error.name }}
       </h1>
       <p class="px-4 font-semibold">{{ error.message }}</p>
-      <pre v-if="error.detail" class="px-4 text-xl text-gray-700">{{
-        error.detail
-      }}</pre>
+      <pre
+        v-if="error.detail"
+        class="px-4 text-xl text-gray-700 dark:text-gray-400"
+        >{{ error.detail }}</pre
+      >
     </div>
   </ScaledContainer>
 </template>
@@ -162,7 +177,7 @@ export default defineComponent({
     getCodeFrame(loc: SourceLocation) {
       return generateCodeFrame(this.template, loc.start.offset, loc.end.offset);
     },
-    async savePDF(name?: string) {
+    async savePDF(name?: string, shouldPrint?: boolean) {
       /* eslint-disable */
 
       /**
@@ -179,7 +194,8 @@ export default defineComponent({
         name ?? this.t`Entry`,
         innerHTML,
         this.width,
-        this.height
+        this.height,
+        shouldPrint
       );
 
       this.fyo.telemetry.log(Verb.Printed, this.printSchemaName);

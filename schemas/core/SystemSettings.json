@@ -65,6 +65,22 @@
       "section": "Default"
     },
     {
+      "fieldname": "allowFilterBypass",
+      "label": "Allow to bypass filters",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "When linking documents, if no match is found and filtering is in effect, allow to disable filters.",
+      "section": "Default"
+    },
+    {
+      "fieldname": "removeFilter",
+      "label": "Remove Filter",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "When enabled, removes all default filters applied across the system, showing all available options instead of filtered ones.",
+      "section": "Default"
+    },
+    {
       "fieldname": "locale",
       "label": "Locale",
       "fieldtype": "AutoComplete",
@@ -117,6 +133,21 @@
       "fieldtype": "Data",
       "readOnly": true,
       "hidden": true
+    },
+    {
+      "fieldname": "darkMode",
+      "label": "Dark mode",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "Sets the theme of the app.",
+      "section": "Theme"
+    },
+    {
+      "fieldname": "displayTermsAndConditions",
+      "label": "Display Terms and Conditions",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Customizations"
     }
   ],
   "quickEditFields": [

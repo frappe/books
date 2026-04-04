@@ -1,0 +1,99 @@
+name: '🐛 Bug Report'
+description: Create a new ticket for a bug.
+title: '🐛 [Bug] - <title>'
+labels: ['bug']
+
+body:
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: 'Expected Behavior'
+      description: What was the expected behavior?
+      placeholder: "..."
+    validations:
+      required: false
+      
+  - type: textarea
+    id: current_behavior
+    attributes:
+      label: 'Current Behavior'
+      description: What is the current behavior?
+      placeholder: "..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: 'Steps to Reproduce'
+      description: Please try to describe the issue as best as possible
+      placeholder: |
+              1. Go to '...'
+              2. Click on '....'
+              3. Scroll down to '....'
+              4. See error
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: 'FrappeBooks Version'
+      # description: Please enter your GitHub URL to provide a reproduction of the issue
+      placeholder: ex. 0.20.0
+    validations:
+      required: true
+
+  - type: input
+    id: path_feature_name
+    attributes:
+      label: 'Path or Feature name'
+      description: Please enter the path (i.e. /import-wizard) or Feature name where the bug was seen
+      placeholder: ex. Import-Wizard
+    validations:
+      required: true
+
+  - type: input
+    id: country_code
+    attributes:
+      label: 'Country'
+      description: Please enter the two digit country code for your country (i.e. BR, CH, IN, US)
+      placeholder: ex. IN
+    validations:
+      required: true
+
+  - type: input
+    id: language
+    attributes:
+      label: 'Language'
+      description: Please enter the two digit language code or full lanaguage used in the application
+      placeholder: ex. EN or english
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: 'OS'
+      description: What is the impacted environment ?
+      multiple: true
+      options:
+        - Windows 8
+        - Windows 8.1
+        - Windows 10
+        - Windows 11
+        - Linux x86_64
+        - Linux Arm64 (i.e. Raspberry Pi)
+        - Macos (Intel)
+        - Macos (Apple Silicon)
+    validations:
+      required: true
+
+  - type: input
+    id: additional_os_info
+    attributes:
+      label: 'Additional OS Info'
+      description: Please enter any additional information regarding your OS that may aid in troubleshooting (i.e. Macos 10.14, Ubuntu 20.04, etc)
+      placeholder: ex. Macos 10.14 / Ubuntu 20.04
+    validations:
+      required: false

@@ -15,14 +15,34 @@
       </div>
     </template>
     <template #content>
-      <div class="bg-white rounded w-full min-w-40 overflow-hidden">
-        <div class="p-1 max-h-64 overflow-auto custom-scroll text-sm">
-          <div v-if="isLoading" class="p-2 text-gray-600 italic">
+      <div
+        class="
+          bg-white
+          dark:bg-gray-850 dark:text-white
+          rounded
+          w-full
+          min-w-40
+          overflow-hidden
+        "
+      >
+        <div
+          class="
+            p-1
+            max-h-64
+            overflow-auto
+            custom-scroll custom-scroll-thumb2
+            text-sm
+          "
+        >
+          <div
+            v-if="isLoading"
+            class="p-2 text-gray-600 dark:text-gray-400 italic"
+          >
             {{ t`Loading...` }}
           </div>
           <div
             v-else-if="dropdownItems.length === 0"
-            class="p-2 text-gray-600 italic"
+            class="p-2 text-gray-600 dark:text-gray-400 italic"
           >
             {{ getEmptyMessage() }}
           </div>
@@ -41,6 +61,7 @@
                   text-xs
                   uppercase
                   text-gray-700
+                  dark:text-gray-400
                   font-semibold
                   tracking-wider
                 "
@@ -58,7 +79,11 @@
                   cursor-pointer
                   truncate
                 "
-                :class="index === highlightedIndex ? 'bg-gray-100' : ''"
+                :class="
+                  index === highlightedIndex
+                    ? 'bg-gray-100 dark:bg-gray-875'
+                    : ''
+                "
                 @mouseenter="highlightedIndex = index"
                 @mousedown.prevent
                 @click="selectItem(d)"
@@ -165,10 +190,12 @@ export default defineComponent({
       }
 
       if (this.doc) {
-        return await d.action(this.doc, this.$router);
+        await d.action(this.doc, this.$router);
+      } else {
+        await d.action();
       }
 
-      await d.action();
+      this.toggleDropdown(false);
     },
     toggleDropdown(flag?: boolean): void {
       if (typeof flag !== 'boolean') {
@@ -178,9 +205,17 @@ export default defineComponent({
       this.isShown = flag;
     },
     async selectHighlightedItem(): Promise<void> {
-      let item = this.items[this.highlightedIndex];
-      if (!item && this.dropdownItems.length === 1) {
-        item = this.dropdownItems[0];
+      let item = this.dropdownItems[this.highlightedIndex];
+      if (!item) {
+        if (this.dropdownItems.length === 1) {
+          item = this.dropdownItems[0];
+        } else {
+          return;
+        }
+      }
+
+      if (item.isGroup) {
+        return;
       }
 
       return await this.selectItem(item);

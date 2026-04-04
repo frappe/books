@@ -1,0 +1,89 @@
+{
+  "name": "LoyaltyProgram",
+  "label": "Loyalty Program",
+  "naming": "manual",
+
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true,
+      "placeholder": "Name",
+      "section": "Default"
+    },
+    {
+      "fieldname": "fromDate",
+      "label": "From Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "toDate",
+      "label": "To Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "isEnabled",
+      "label": "Is Enabled",
+      "fieldtype": "Check",
+      "default": true,
+      "required": true
+    },
+    {
+      "fieldname": "collectionRules",
+      "label": "Collection Rules",
+      "fieldtype": "Table",
+      "target": "CollectionRulesItems",
+      "required": false
+    },
+    {
+      "fieldname": "conversionFactor",
+      "label": "Conversion Factor",
+      "fieldtype": "Float",
+      "default": 1,
+      "required": true,
+      "sub_label": "100 Points → 100 (Factor 1), 50 (Factor 0.5)"
+    },
+    {
+      "fieldname": "expiryDuration",
+      "label": "Expiry Duration",
+      "fieldtype": "Int",
+      "default": 1,
+      "hidden": true
+    },
+    {
+      "fieldname": "expenseAccount",
+      "label": "Expense Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true
+    },
+    {
+      "fieldname": "maximumUse",
+      "label": "Maximum Use",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Validity and Usage"
+    },
+    {
+      "fieldname": "used",
+      "label": "Used",
+      "fieldtype": "Int",
+      "default": 0,
+      "readOnly": true,
+      "section": "Validity and Usage"
+    }
+  ],
+  "quickEditFields": [
+    "name",
+    "fromDate",
+    "toDate",
+    "conversionFactor",
+    "expenseAccount",
+    "maximumUse",
+    "used"
+  ],
+  "keywordFields": ["name"]
+}

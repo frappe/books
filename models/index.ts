@@ -9,17 +9,29 @@ import { JournalEntry } from './baseModels/JournalEntry/JournalEntry';
 import { JournalEntryAccount } from './baseModels/JournalEntryAccount/JournalEntryAccount';
 import { Misc } from './baseModels/Misc';
 import { Party } from './baseModels/Party/Party';
+import { LoyaltyProgram } from './baseModels/LoyaltyProgram/LoyaltyProgram';
+import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEntry';
+import { CollectionRulesItems } from './baseModels/CollectionRulesItems/CollectionRulesItems';
+import { Lead } from './baseModels/Lead/Lead';
+import { AppliedCouponCodes } from './baseModels/AppliedCouponCodes/AppliedCouponCodes';
+import { CouponCode } from './baseModels/CouponCode/CouponCode';
 import { Payment } from './baseModels/Payment/Payment';
+import { PaymentMethod } from './baseModels/PaymentMethod/PaymentMethod';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { PriceListItem } from './baseModels/PriceList/PriceListItem';
+import { PricingRule } from './baseModels/PricingRule/PricingRule';
+import { PricingRuleItem } from './baseModels/PricingRuleItem/PricingRuleItem';
 import { PrintSettings } from './baseModels/PrintSettings/PrintSettings';
 import { PrintTemplate } from './baseModels/PrintTemplate';
 import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
 import { PurchaseInvoiceItem } from './baseModels/PurchaseInvoiceItem/PurchaseInvoiceItem';
 import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { SalesQuote } from './baseModels/SalesQuote/SalesQuote';
+import { SalesQuoteItem } from './baseModels/SalesQuoteItem/SalesQuoteItem';
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
+import { ItemGroup } from './baseModels/ItemGroup/ItemGroup';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
 import { Batch } from './inventory/Batch';
@@ -33,6 +45,19 @@ import { ShipmentItem } from './inventory/ShipmentItem';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
+import { ClosingAmounts } from './inventory/Point of Sale/ClosingAmounts';
+import { ClosingCash } from './inventory/Point of Sale/ClosingCash';
+import { OpeningAmounts } from './inventory/Point of Sale/OpeningAmounts';
+import { OpeningCash } from './inventory/Point of Sale/OpeningCash';
+import { POSSettings } from './inventory/Point of Sale/POSSettings';
+import { POSProfile } from './baseModels/POSProfile/PosProfile';
+import { POSOpeningShift } from './inventory/Point of Sale/POSOpeningShift';
+import { POSClosingShift } from './inventory/Point of Sale/POSClosingShift';
+import { ERPNextSyncSettings } from './baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
+import { ERPNextSyncQueue } from './baseModels/ERPNextSyncQueue/ERPNextSyncQueue';
+import { FetchFromERPNextQueue } from './baseModels/FetchFromERPNextQueue/FetchFromERPNextQueue';
+import { IntegrationErrorLog } from './baseModels/IntegrationErrorLog/IntegrationErrorLog';
+import { ItemEnquiry } from './baseModels/ItemEnquiry/ItemEnquiry';
 
 export const models = {
   Account,
@@ -42,19 +67,32 @@ export const models = {
   Batch,
   Defaults,
   Item,
+  ItemGroup,
+  ItemEnquiry,
   JournalEntry,
   JournalEntryAccount,
   Misc,
+  Lead,
   Party,
+  LoyaltyProgram,
+  LoyaltyPointEntry,
+  CollectionRulesItems,
+  CouponCode,
   Payment,
+  PaymentMethod,
   PaymentFor,
   PrintSettings,
   PriceList,
   PriceListItem,
+  PricingRule,
+  PricingRuleItem,
   PurchaseInvoice,
   PurchaseInvoiceItem,
   SalesInvoice,
   SalesInvoiceItem,
+  AppliedCouponCodes,
+  SalesQuote,
+  SalesQuoteItem,
   SerialNumber,
   SetupWizard,
   PrintTemplate,
@@ -70,6 +108,21 @@ export const models = {
   ShipmentItem,
   PurchaseReceipt,
   PurchaseReceiptItem,
+  // POS Models
+  ClosingAmounts,
+  ClosingCash,
+  OpeningAmounts,
+  OpeningCash,
+  POSSettings,
+  POSProfile,
+  POSOpeningShift,
+  POSClosingShift,
+  // ERPNext Sync
+  ERPNextSyncSettings,
+  ERPNextSyncQueue,
+  FetchFromERPNextQueue,
+  // Error Log
+  IntegrationErrorLog,
 } as ModelMap;
 
 export async function getRegionalModels(

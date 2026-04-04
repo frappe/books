@@ -1,6 +1,15 @@
 <template>
   <div
-    class="relative bg-white border flex-center overflow-hidden group"
+    class="
+      relative
+      bg-white
+      dark:bg-gray-900
+      border
+      dark:border-gray-800
+      flex-center
+      overflow-hidden
+      group
+    "
     :class="{
       rounded: size === 'form',
       'w-20 h-20 rounded-full': size !== 'small' && size !== 'form',
@@ -19,6 +28,7 @@
           items-center
           justify-center
           text-gray-400
+          dark:text-gray-600
           font-semibold
           w-full
           text-4xl
@@ -29,7 +39,7 @@
       </div>
       <svg
         v-else
-        class="w-6 h-6 text-gray-300"
+        class="w-6 h-6 text-gray-300 dark:text-gray-600"
         viewBox="0 0 24 21"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -45,10 +55,13 @@
       :class="[!isReadOnly ? 'group-hover:flex' : '']"
       style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(2px)"
     >
-      <button class="bg-gray-100 p-0.5 rounded mb-1" @click="handleClick">
+      <button
+        class="bg-gray-100 dark:bg-gray-800 p-0.5 rounded mb-1"
+        @click="handleClick"
+      >
         <FeatherIcon
           :name="shouldClear ? 'x' : 'upload'"
-          class="w-4 h-4 text-gray-600"
+          class="w-4 h-4 text-gray-600 dark:text-gray-400"
         />
       </button>
     </div>
@@ -61,6 +74,14 @@ import { getDataURL } from 'src/utils/misc';
 import { defineComponent, PropType } from 'vue';
 import FeatherIcon from '../FeatherIcon.vue';
 import Base from './Base.vue';
+
+const mime_types: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+};
 
 export default defineComponent({
   name: 'AttachImage',
@@ -99,9 +120,7 @@ export default defineComponent({
       }
       const options = {
         title: fyo.t`Select Image`,
-        filters: [
-          { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] },
-        ],
+        filters: [{ name: 'Image', extensions: Object.keys(mime_types) }],
       };
 
       const { name, success, data } = await ipc.selectFile(options);
@@ -110,7 +129,7 @@ export default defineComponent({
         return;
       }
       const extension = name.split('.').at(-1);
-      const type = 'image/' + extension;
+      const type = mime_types[extension];
       const dataURL = await getDataURL(type, data);
 
       // @ts-ignore

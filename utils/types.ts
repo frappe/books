@@ -1,4 +1,4 @@
-import type { ConfigFile } from 'fyo/core/types';
+import type { ConfigFile, RawValueMap } from 'fyo/core/types';
 
 export type UnknownMap = Record<string, unknown>;
 export type Translation = { translation: string; context?: string };
@@ -56,7 +56,13 @@ export type PropertyEnum<T extends Record<string, any>> = {
   [key in keyof Required<T>]: key;
 };
 
-export type TemplateFile = { file: string; template: string; modified: string };
+export type TemplateFile = {
+  file: string;
+  template: string;
+  modified: string;
+  width: number;
+  height: number;
+};
 
 export interface Keys extends ModMap {
   pressed: Set<string>;
@@ -72,4 +78,24 @@ interface ModMap {
 
 export interface ConfigFilesWithModified extends ConfigFile {
   modified: string;
+}
+
+export const searchGroups = [
+  'Docs',
+  'List',
+  'Create',
+  'Report',
+  'Page',
+  'Recent',
+] as const;
+
+export type SearchGroup = typeof searchGroups[number];
+
+export interface SearchItem {
+  label: string;
+  group: Exclude<SearchGroup, 'Docs' | 'Recent'>;
+  route?: string;
+  action?: () => void | Promise<void>;
+  schemaName?: string;
+  initData?: RawValueMap;
 }

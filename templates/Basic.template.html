@@ -31,7 +31,11 @@
     <!-- Invoice Details -->
     <section class="w-1/3">
       <h2 class="text-2xl font-semibold">{{ doc.name }}</h2>
-      <p class="py-2 text-base">{{ doc.date }}</p>
+
+      <div class="flex gap-2">
+        <p class="py-2 text-base">{{ doc.date }}</p>
+        <p class="py-2 text-base">{{ doc?.time }}</p>
+      </div>
     </section>
 
     <!-- Party Details -->
@@ -56,11 +60,12 @@
   <section class="mt-8 text-base">
     <!-- Heading Row -->
     <section class="text-gray-600 w-full flex border-b">
-      <div class="py-4 w-5/12">{{ t`Item` }}</div>
-      <div class="py-4 text-right w-2/12" v-if="doc.showHSN">
+      <div class="py-4 w-4/12">{{ t`Item` }}</div>
+      <div class="py-4 w-4/12" v-if="doc.description">{{ t`Description` }}</div>
+      <div class="py-4 text-right w-3/12" v-if="doc.showHSN">
         {{ t`HSN/SAC` }}
       </div>
-      <div class="py-4 text-right w-1/12">{{ t`Quantity` }}</div>
+      <div class="py-4 text-right w-3/12">{{ t`Qty` }}</div>
       <div class="py-4 text-right w-3/12">{{ t`Rate` }}</div>
       <div class="py-4 text-right w-3/12">{{ t`Amount` }}</div>
     </section>
@@ -71,11 +76,17 @@
       v-for="row in doc.items"
       :key="row.name"
     >
-      <div class="w-5/12 py-4">{{ row.item }}</div>
-      <div class="w-2/12 text-right py-4" v-if="doc.showHSN">
+      <div class="w-4/12 py-4">{{ row.item }}</div>
+      <div class="w-4/12 py-4" v-if="doc.description">
+        {{ row.description }}
+      </div>
+      <div class="w-3/12 text-right py-4" v-if="doc.showHSN">
         {{ row.hsnCode }}
       </div>
-      <div class="w-1/12 text-right py-4">{{ row.quantity }}</div>
+      <div class="w-3/12 text-right py-4">
+        <div v-if="row.transferUnit">{{ row.transferUnit }} {{ row.qty }}</div>
+        <div v-else>{{ row.qty }}</div>
+      </div>
       <div class="w-3/12 text-right py-4">{{ row.rate }}</div>
       <div class="w-3/12 text-right py-4">{{ row.amount }}</div>
     </section>
@@ -145,4 +156,15 @@
       </div>
     </section>
   </footer>
+
+  <!-- Terms and Conditions -->
+  <section
+    class="mt-8 px-6"
+    v-if="print.displaytermsandconditions && print.termsAndConditions"
+  >
+    <h3 class="text-lg font-semibold">{{ t`Terms and Conditions` }}</h3>
+    <p class="mt-4 text-lg whitespace-pre-line">
+      {{ print.termsAndConditions }}
+    </p>
+  </section>
 </main>

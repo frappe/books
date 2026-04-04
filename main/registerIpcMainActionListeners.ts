@@ -19,6 +19,7 @@ import { IPC_ACTIONS } from '../utils/messages';
 import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
 import { getTemplates } from './getPrintTemplates';
+import { printHtmlDocument } from './printHtmlDocument';
 import {
   getConfigFilesWithModified,
   getErrorHandledReponse,
@@ -26,6 +27,8 @@ import {
   setAndGetCleanedConfigFiles,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
+import { sendAPIRequest } from './api';
+import { initScheduler } from './initSheduler';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -41,7 +44,13 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.GET_DB_DEFAULT_PATH,
     async (_, companyName: string) => {
-      let root = app.getPath('documents');
+      let root: string;
+      try {
+        root = app.getPath('documents');
+      } catch {
+        root = app.getPath('userData');
+      }
+
       if (main.isDevelopment) {
         root = 'dbs';
       }
@@ -50,7 +59,32 @@ export default function registerIpcMainActionListeners(main: Main) {
       const backupPath = path.join(dbsPath, 'backups');
       await fs.ensureDir(backupPath);
 
-      return path.join(dbsPath, `${companyName}.books.db`);
+      let dbFilePath = path.join(dbsPath, `${companyName}.books.db`);
+
+      if (await fs.pathExists(dbFilePath)) {
+        const option = await dialog.showMessageBox({
+          type: 'question',
+          title: 'File Exists',
+          message: `Filename already exists. Do you want to overwrite the existing file or create a new one?`,
+          buttons: ['Overwrite', 'New'],
+        });
+
+        if (option.response === 1) {
+          const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, '');
+
+          dbFilePath = path.join(
+            dbsPath,
+            `${companyName}_${timestamp}.books.db`
+          );
+
+          await dialog.showMessageBox({
+            type: 'info',
+            message: `New file: ${path.basename(dbFilePath)}`,
+          });
+        }
+      }
+
+      return dbFilePath;
     }
   );
 
@@ -96,6 +130,13 @@ export default function registerIpcMainActionListeners(main: Main) {
       height: number
     ) => {
       return await saveHtmlAsPdf(html, savePath, app, width, height);
+    }
+  );
+
+  ipcMain.handle(
+    IPC_ACTIONS.PRINT_HTML_DOCUMENT,
+    async (_, html: string, width: number, height: number) => {
+      return await printHtmlDocument(html, app, width, height);
     }
   );
 
@@ -199,9 +240,23 @@ export default function registerIpcMainActionListeners(main: Main) {
     };
   });
 
-  ipcMain.handle(IPC_ACTIONS.GET_TEMPLATES, async () => {
-    return getTemplates();
+  ipcMain.handle(
+    IPC_ACTIONS.GET_TEMPLATES,
+    async (_, posPrintWidth?: number) => {
+      return getTemplates(posPrintWidth);
+    }
+  );
+
+  ipcMain.handle(IPC_ACTIONS.INIT_SHEDULER, async (_, interval: string) => {
+    return initScheduler(interval);
   });
+
+  ipcMain.handle(
+    IPC_ACTIONS.SEND_API_REQUEST,
+    async (e, endpoint: string, options: RequestInit | undefined) => {
+      return sendAPIRequest(endpoint, options);
+    }
+  );
 
   /**
    * Database Related Actions

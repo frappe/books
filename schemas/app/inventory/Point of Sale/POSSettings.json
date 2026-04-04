@@ -1,0 +1,166 @@
+{
+  "name": "POSSettings",
+  "label": "POS Settings",
+  "isSingle": true,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "inventory",
+      "label": "Inventory",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true,
+      "default": "Stores",
+      "section": "Default"
+    },
+    {
+      "fieldname": "posProfile",
+      "label": "POS Profile",
+      "fieldtype": "Link",
+      "target": "POSProfile",
+      "create": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "cashAccount",
+      "label": "Counter Cash Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "default": "Cash In Hand",
+      "required": true,
+      "create": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "writeOffAccount",
+      "label": "Write Off Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "default": "Write Off",
+      "section": "Default"
+    },
+    {
+      "fieldname": "posUI",
+      "label": "POS UI",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Classic",
+          "label": "Classic"
+        },
+        {
+          "value": "Modern",
+          "label": "Modern"
+        }
+      ],
+      "default": "Classic",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "isShiftOpen",
+      "label": "Is POS Shift Open",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "defaultAccount",
+      "label": "Default Account",
+      "fieldtype": "Link",
+      "create": true,
+      "required": true,
+      "target": "Account",
+      "default": "Debtors",
+      "section": "Default"
+    },
+    {
+      "fieldname": "weightEnabledBarcode",
+      "label": "Weight Enabled Barcode",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "checkDigits",
+      "label": "Check Digits",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "itemCodeDigits",
+      "label": "Item Code Digits",
+      "fieldtype": "Int",
+      "default": 0,
+      "section": "Barcode"
+    },
+    {
+      "fieldname": "itemVisibility",
+      "label": "Item Visibility",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Inventory Items",
+          "label": "Inventory Items"
+        },
+        {
+          "value": "Non-Inventory Items",
+          "label": "Non-Inventory Items"
+        }
+      ],
+      "default": "Inventory Items",
+      "section": "Default"
+    },
+    {
+      "fieldname": "itemVisibilityERP",
+      "label": "Item Visibility",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "ERP Sync Items",
+          "label": "ERP Sync Items"
+        },
+        {
+          "value": "Inventory Items",
+          "label": "Inventory Items"
+        },
+        {
+          "value": "Non-Inventory Items",
+          "label": "Non-Inventory Items"
+        }
+      ],
+      "default": "ERP Sync Items",
+      "section": "Default"
+    },
+    {
+      "fieldname": "canChangeRate",
+      "label": "Can Change Rate",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "hideUnavailableItems",
+      "label": "Hide Unavailable Items",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "canEditDiscount",
+      "label": "Can Change Discount",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Default"
+    },
+    {
+      "fieldname": "ignorePricingRule",
+      "label": "Ignore Pricing Rule",
+      "fieldtype": "Check",
+      "section": "Default",
+      "default": false
+    }
+  ]
+}

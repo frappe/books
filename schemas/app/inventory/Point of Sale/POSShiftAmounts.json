@@ -1,0 +1,29 @@
+{
+  "name": "POSShiftAmounts",
+  "label": "POS Shift Amount",
+  "isChild": true,
+  "isAbstract": true,
+  "fields": [
+    {
+      "fieldname": "paymentMethod",
+      "label": "Payment Method",
+      "placeholder": "Payment Method",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Cash",
+          "label": "Cash"
+        },
+        {
+          "value": "Transfer",
+          "label": "Transfer"
+        },
+        {
+          "value": "Bank",
+          "label": "Bank"
+        }
+      ],
+      "required": true
+    }
+  ]
+}

@@ -1,15 +1,20 @@
-import { Fyo } from 'fyo';
-import { DocValue, DocValueMap } from 'fyo/core/types';
+import type { Fyo } from 'fyo';
+import type { DocValue, DocValueMap } from 'fyo/core/types';
 import type SystemSettings from 'fyo/models/SystemSettings';
-import { FieldType, Schema, SelectOption } from 'schemas/types';
-import { QueryFilter } from 'utils/db/types';
-import { RouteLocationRaw, Router } from 'vue-router';
-import { Doc } from './doc';
+import type { FieldType, Schema, SelectOption } from 'schemas/types';
+import type { QueryFilter } from 'utils/db/types';
+import type { RouteLocationRaw, Router } from 'vue-router';
+import type { Doc } from './doc';
 import type { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
 import type { Defaults } from 'models/baseModels/Defaults/Defaults';
 import type { PrintSettings } from 'models/baseModels/PrintSettings/PrintSettings';
 import type { InventorySettings } from 'models/inventory/InventorySettings';
-import { Misc } from 'models/baseModels/Misc';
+import type { Misc } from 'models/baseModels/Misc';
+import type { POSSettings } from 'models/inventory/Point of Sale/POSSettings';
+import type { POSOpeningShift } from 'models/inventory/Point of Sale/POSOpeningShift';
+import type { POSClosingShift } from 'models/inventory/Point of Sale/POSClosingShift';
+import { ERPNextSyncSettings } from 'models/baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
+import { POSProfile } from 'models/baseModels/POSProfile/PosProfile';
 
 /**
  * The functions below are used for dynamic evaluation
@@ -24,7 +29,9 @@ import { Misc } from 'models/baseModels/Misc';
  * - `Required`: Regular function used to decide if a value is mandatory (there are !notnul in the db).
  */
 export type FormulaReturn = DocValue | DocValueMap[] | undefined | Doc[];
-export type Formula = (fieldname?: string) => Promise<FormulaReturn> | FormulaReturn;
+export type Formula = (
+  fieldname?: string
+) => Promise<FormulaReturn> | FormulaReturn;
 export type FormulaConfig = { dependsOn?: string[]; formula: Formula };
 export type Default = (doc: Doc) => DocValue;
 export type Validation = (value: DocValue) => Promise<void> | void;
@@ -54,6 +61,11 @@ export interface SinglesMap {
   SystemSettings?: SystemSettings;
   AccountingSettings?: AccountingSettings;
   InventorySettings?: InventorySettings;
+  POSSettings?: POSSettings;
+  POSProfile?: POSProfile;
+  POSOpeningShift?: POSOpeningShift;
+  ERPNextSyncSettings?: ERPNextSyncSettings;
+  POSClosingShift?: POSClosingShift;
   PrintSettings?: PrintSettings;
   Defaults?: Defaults;
   Misc?: Misc;
@@ -83,8 +95,8 @@ export interface Action {
 }
 
 export interface RenderData {
-  schema: Schema,
-  [key: string]: DocValue | Schema
+  schema: Schema;
+  [key: string]: DocValue | Schema;
 }
 
 export type ColumnConfig = {
@@ -93,7 +105,7 @@ export type ColumnConfig = {
   fieldname: string;
   render?: (doc: RenderData) => { template: string };
   display?: (value: unknown, fyo: Fyo) => string;
-}
+};
 
 export type ListViewColumn = string | ColumnConfig;
 export interface ListViewSettings {
@@ -113,3 +125,13 @@ export type DocStatus =
   | 'NotSaved'
   | 'Submitted'
   | 'Cancelled';
+
+export type LeadStatus =
+  | ''
+  | 'Open'
+  | 'Replied'
+  | 'Interested'
+  | 'Opportunity'
+  | 'Converted'
+  | 'Quotation'
+  | 'DonotContact';

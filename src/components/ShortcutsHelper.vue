@@ -1,8 +1,16 @@
 <template>
   <div>
     <FormHeader :form-title="t`Shortcuts`" />
-    <hr />
-    <div class="h-96 overflow-y-auto text-gray-900">
+    <hr class="dark:border-gray-800" />
+    <div
+      class="
+        h-96
+        overflow-y-auto
+        custom-scroll custom-scroll-thumb2
+        text-gray-900
+        dark:text-gray-100
+      "
+    >
       <template v-for="g in groups" :key="g.label">
         <div class="p-4 w-full">
           <!-- Shortcut Group Header -->
@@ -27,13 +35,13 @@
             </div>
           </div>
           <!-- Shortcut count if collapsed -->
-          <div v-else class="text-base text-gray-600">
+          <div v-else class="text-base text-gray-600 dark:text-gray-400">
             {{ t`${g.shortcuts.length} shortcuts` }}
           </div>
         </div>
-        <hr />
+        <hr class="dark:border-gray-800" />
       </template>
-      <div class="p-4 text-base text-gray-600">
+      <div class="p-4 text-base text-gray-600 dark:text-gray-400">
         {{ t`More shortcuts will be added soon.` }}
       </div>
     </div>
@@ -180,6 +188,53 @@ export default defineComponent({
           {
             shortcut: [ShortcutKey.ctrl, '-'],
             description: t`Decrease print template display scale`,
+          },
+        ],
+      },
+      {
+        label: t`Point of Sale`,
+        description: t`Applicable when POS is open`,
+        collapsed: false,
+        shortcuts: [
+          {
+            shortcut: [ShortcutKey.shift, 'V'],
+            description: t`Toggle between Grid and List view`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'S'],
+            description: t`Open Sales Invoice List`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'L'],
+            description: t`Set Loyalty Program`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'C'],
+            description: t`Set Coupon Code`,
+          },
+          {
+            shortcut: [ShortcutKey.shift, 'P'],
+            description: t`Set Price List`,
+          },
+          {
+            shortcut: ['Q', '0-9'],
+            description: t`Hold Q and type digits to set selected item quantity`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'H'],
+            description: t`Open Saved or Submitted Invoice List.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'S'],
+            description: t`If any entry form is open, save the details. Otherwise, save the invoice.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, 'P'],
+            description: t`Create Payment.`,
+          },
+          {
+            shortcut: [ShortcutKey.pmod, ShortcutKey.shift, ShortcutKey.delete],
+            description: t`If any entry form is open, your entry will be canceled. Otherwise the selected items will be removed.`,
           },
         ],
       },

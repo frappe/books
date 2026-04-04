@@ -7,9 +7,26 @@
         paddingRight: dataSlice.length > 13 ? 'var(--w-scrollbar)' : '',
       }"
     >
-      <p class="w-8 text-end me-4 text-gray-700">#</p>
+      <div
+        v-if="!isSelectionMode"
+        class="w-8 text-end me-2 text-gray-700 dark:text-gray-400"
+      >
+        #
+      </div>
+      <div v-else class="w-8 flex justify-end me-2">
+        <Check
+          :df="{
+            fieldtype: 'Check',
+            fieldname: 'selectAll',
+            label: '',
+          }"
+          :show-label="false"
+          :value="isAllSelected"
+          @change="toggleSelectAll"
+        />
+      </div>
       <Row
-        class="flex-1 text-gray-700 h-row-mid"
+        class="flex-1 text-gray-700 dark:text-gray-400 h-row-mid"
         :column-count="columns.length"
         gap="1rem"
       >
@@ -33,21 +50,50 @@
         </div>
       </Row>
     </div>
-    <hr />
+    <hr class="dark:border-gray-800" />
 
     <!-- Data Rows -->
-    <div v-if="dataSlice.length !== 0" class="overflow-y-auto custom-scroll">
+    <div
+      v-if="dataSlice.length !== 0"
+      class="
+        overflow-y-auto
+        dark:dark-scroll
+        custom-scroll custom-scroll-thumb1
+      "
+    >
       <div v-for="(row, i) in dataSlice" :key="(row.name as string)">
         <!-- Row Content -->
-        <div class="flex hover:bg-gray-50 items-center">
-          <p class="w-8 text-end me-4 text-gray-900">
+        <div class="flex hover:bg-gray-50 dark:hover:bg-gray-850 items-center">
+          <div
+            v-if="!isSelectionMode"
+            class="w-8 text-end me-2 text-gray-700 dark:text-gray-400"
+          >
             {{ i + pageStart + 1 }}
-          </p>
+          </div>
+          <div v-else class="w-8 flex justify-end me-2">
+            <Check
+              :df="{
+                fieldtype: 'Check',
+                fieldname: 'selectItem',
+                label: '',
+              }"
+              :show-label="false"
+              :value="selectedItems.includes(row.name as string)"
+              @change="toggleItemSelection(row.name as string)"
+            />
+          </div>
+
           <Row
             gap="1rem"
-            class="cursor-pointer text-gray-900 flex-1 h-row-mid"
+            class="
+              cursor-pointer
+              text-gray-900
+              dark:text-gray-300
+              flex-1
+              h-row-mid
+            "
             :column-count="columns.length"
-            @click="$emit('openDoc', row.name)"
+            @click="isSelectionMode ? null : $emit('openDoc', row.name)"
           >
             <ListCell
               v-for="(column, c) in columns"
@@ -58,16 +104,20 @@
               }"
               :row="(row as RenderData)"
               :column="column"
+              @status-found="handleStatusFound"
             />
           </Row>
         </div>
-        <hr v-if="!(i === dataSlice.length - 1 && i > 13)" />
+        <hr
+          v-if="!(i === dataSlice.length - 1 && i > 13)"
+          class="dark:border-gray-800"
+        />
       </div>
     </div>
 
     <!-- Pagination Footer -->
     <div v-if="data?.length" class="mt-auto">
-      <hr />
+      <hr class="dark:border-gray-800" />
       <Paginator
         :item-count="data.length"
         class="px-4"
@@ -81,13 +131,10 @@
       class="flex flex-col items-center justify-center my-auto"
     >
       <img src="../../assets/img/list-empty-state.svg" alt="" class="w-24" />
-      <p class="my-3 text-gray-800">{{ t`No entries found` }}</p>
-      <Button
-        v-if="canCreate"
-        type="primary"
-        class="text-white"
-        @click="$emit('makeNewDoc')"
-      >
+      <p class="my-3 text-gray-800 dark:text-gray-200">
+        {{ t`No entries found` }}
+      </p>
+      <Button v-if="canCreate" type="primary" @click="$emit('makeNewDoc')">
         {{ t`Make Entry` }}
       </Button>
     </div>
@@ -97,12 +144,13 @@
 import { ListViewSettings, RenderData } from 'fyo/model/types';
 import { cloneDeep } from 'lodash';
 import Button from 'src/components/Button.vue';
+import Check from 'src/components/Controls/Check.vue';
 import Paginator from 'src/components/Paginator.vue';
 import Row from 'src/components/Row.vue';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
 import { QueryFilter } from 'utils/db/types';
-import { PropType, defineComponent } from 'vue';
+import { PropType, defineComponent, toRaw } from 'vue';
 import ListCell from './ListCell.vue';
 
 export default defineComponent({
@@ -111,6 +159,7 @@ export default defineComponent({
     Row,
     ListCell,
     Button,
+    Check,
     Paginator,
   },
   props: {
@@ -124,13 +173,16 @@ export default defineComponent({
     },
     schemaName: { type: String, required: true },
     canCreate: Boolean,
+    isSelectionMode: Boolean,
   },
-  emits: ['openDoc', 'makeNewDoc', 'updatedData'],
+  emits: ['openDoc', 'makeNewDoc', 'updatedData', 'selected-items-changed'],
   data() {
     return {
       data: [] as RenderData[],
       pageStart: 0,
       pageEnd: 0,
+      statusMap: {} as Record<string, string>,
+      selectedItems: [] as string[],
     };
   },
   computed: {
@@ -139,6 +191,11 @@ export default defineComponent({
     },
     count() {
       return this.pageEnd - this.pageStart + 1;
+    },
+    isAllSelected(): boolean {
+      return (
+        this.data.length > 0 && this.selectedItems.length === this.data.length
+      );
     },
     columns() {
       let columns = this.listConfig?.columns ?? [];
@@ -173,6 +230,9 @@ export default defineComponent({
     this.setUpdateListeners();
   },
   methods: {
+    handleStatusFound({ rowId, status }: { rowId: string; status: string }) {
+      this.statusMap[rowId] = status;
+    },
     isNumeric,
     setPageIndices({ start, end }: { start: number; end: number }) {
       this.pageStart = start;
@@ -197,12 +257,20 @@ export default defineComponent({
       fyo.doc.observer.on(`rename:${this.schemaName}`, listener);
     },
     async updateData(filters?: Record<string, unknown>) {
-      if (!filters) {
-        filters = { ...this.filters };
+      const baseFilters = cloneDeep(toRaw(this.filters));
+      filters = cloneDeep({ ...baseFilters, ...filters });
+
+      let statusFilter: [string, string] | undefined;
+
+      if ('status' in filters) {
+        statusFilter = filters['status'] as [string, string];
       }
 
-      // Unproxy the filters
-      filters = cloneDeep(filters);
+      const isStatusFilter =
+        Array.isArray(statusFilter) && statusFilter[0] === 'like';
+      if (isStatusFilter) {
+        delete filters['status'];
+      }
 
       const orderBy = ['created'];
       if (fyo.db.fieldMap[this.schemaName]['date']) {
@@ -215,11 +283,40 @@ export default defineComponent({
         orderBy,
       });
 
-      this.data = tableData.map((d) => ({
+      let filteredData = tableData;
+
+      if (isStatusFilter && statusFilter?.[1]) {
+        const lowercaseStatus = String(statusFilter[1]).toLowerCase();
+
+        const matchedNames = Object.entries(this.statusMap)
+          .filter((entry) => entry[1].toLowerCase() === lowercaseStatus)
+          .map((entry) => entry[0]);
+
+        filteredData = tableData.filter((row) =>
+          matchedNames.includes(String(row.name))
+        );
+      }
+
+      this.data = filteredData.map((d) => ({
         ...d,
         schema: fyo.schemaMap[this.schemaName],
       })) as RenderData[];
       this.$emit('updatedData', filters);
+    },
+    toggleItemSelection(itemName: string) {
+      const index = this.selectedItems.indexOf(itemName);
+      if (index > -1) {
+        this.selectedItems.splice(index, 1);
+      } else {
+        this.selectedItems.push(itemName);
+      }
+      this.$emit('selected-items-changed', this.selectedItems);
+    },
+    toggleSelectAll(checked: boolean) {
+      this.selectedItems = checked
+        ? this.data.map((row) => row.name as string)
+        : [];
+      this.$emit('selected-items-changed', this.selectedItems);
     },
   },
 });

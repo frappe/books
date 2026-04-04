@@ -1,12 +1,21 @@
 <template>
   <div
-    class="py-2 h-full flex justify-between flex-col bg-gray-25 relative"
+    class="
+      py-2
+      h-full
+      flex
+      justify-between
+      flex-col
+      bg-gray-25
+      dark:bg-gray-900
+      relative
+    "
     :class="{
       'window-drag': platform !== 'Windows',
     }"
   >
     <div>
-      <!-- Company name and DB Switcher -->
+      <!-- Company name -->
       <div
         class="px-4 flex flex-row items-center justify-between mb-4"
         :class="
@@ -17,6 +26,7 @@
           data-testid="company-name"
           class="
             font-semibold
+            dark:text-gray-200
             whitespace-nowrap
             overflow-auto
             no-scrollbar
@@ -30,10 +40,18 @@
       <!-- Sidebar Items -->
       <div v-for="group in groups" :key="group.label">
         <div
-          class="px-4 flex items-center cursor-pointer hover:bg-gray-100 h-10"
+          class="
+            px-4
+            flex
+            items-center
+            cursor-pointer
+            hover:bg-gray-100
+            dark:hover:bg-gray-875
+            h-10
+          "
           :class="
             isGroupActive(group) && !group.items
-              ? 'bg-gray-100 border-s-4 border-blue-500'
+              ? 'bg-gray-100 dark:bg-gray-875 border-s-4 border-gray-800 dark:border-gray-100'
               : ''
           "
           @click="routeToSidebarItem(group)"
@@ -44,11 +62,16 @@
             :size="group.iconSize || '18'"
             :height="group.iconHeight ?? 0"
             :active="!!isGroupActive(group)"
+            :darkMode="darkMode"
             :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"
           />
           <div
-            class="ms-2 text-lg text-gray-900"
-            :class="isGroupActive(group) && !group.items && 'text-blue-600'"
+            class="ms-2 text-lg text-gray-700"
+            :class="
+              isGroupActive(group) && !group.items
+                ? 'text-gray-900 dark:text-gray-25'
+                : 'dark:text-gray-300'
+            "
           >
             {{ group.label }}
           </div>
@@ -60,18 +83,19 @@
             v-for="item in group.items"
             :key="item.label"
             class="
-              text-base text-gray-800
+              text-base
               h-10
               ps-10
               cursor-pointer
               flex
               items-center
               hover:bg-gray-100
+              dark:hover:bg-gray-875
             "
             :class="
               isItemActive(item)
-                ? 'bg-gray-100 text-blue-600 border-s-4 border-blue-500'
-                : ''
+                ? 'bg-gray-100 dark:bg-gray-875 text-gray-900 dark:text-gray-100 border-s-4 border-gray-800 dark:border-gray-100'
+                : 'text-gray-700 dark:text-gray-400'
             "
             @click="routeToSidebarItem(item)"
           >
@@ -83,13 +107,15 @@
       </div>
     </div>
 
-    <!-- Report Issue and App Version -->
+    <!-- Report Issue and DB Switcher -->
     <div class="window-no-drag flex flex-col gap-2 py-2 px-4">
       <button
         class="
           flex
           text-sm text-gray-600
+          dark:text-gray-500
           hover:text-gray-800
+          dark:hover:text-gray-400
           gap-1
           items-center
         "
@@ -105,7 +131,9 @@
         class="
           flex
           text-sm text-gray-600
+          dark:text-gray-500
           hover:text-gray-800
+          dark:hover:text-gray-400
           gap-1
           items-center
         "
@@ -120,7 +148,9 @@
         class="
           flex
           text-sm text-gray-600
+          dark:text-gray-500
           hover:text-gray-800
+          dark:hover:text-gray-400
           gap-1
           items-center
         "
@@ -134,7 +164,9 @@
         class="
           flex
           text-sm text-gray-600
+          dark:text-gray-500
           hover:text-gray-800
+          dark:hover:text-gray-400
           gap-1
           items-center
         "
@@ -150,6 +182,7 @@
         v-if="showDevMode"
         class="text-xs text-gray-500 select-none cursor-pointer"
         @click="showDevMode = false"
+        title="Open dev tools with Ctrl+Shift+I"
       >
         dev mode
       </p>
@@ -162,7 +195,9 @@
         bottom-0
         end-0
         text-gray-600
+        dark:text-gray-500
         hover:bg-gray-100
+        dark:hover:bg-gray-875
         rounded
         p-1
         m-4
@@ -200,7 +235,10 @@ export default defineComponent({
     Modal,
     ShortcutsHelper,
   },
-  emits: ['change-db-file'],
+  props: {
+    darkMode: { type: Boolean, default: false },
+  },
+  emits: ['change-db-file', 'toggle-darkmode'],
   setup() {
     return {
       languageDirection: inject(languageDirectionKey),
@@ -254,7 +292,7 @@ export default defineComponent({
     reportIssue,
     toggleSidebar,
     openDocumentation() {
-      ipc.openLink('https://docs.frappebooks.com/' + docsPathRef.value);
+      ipc.openLink('https://docs.frappe.io/' + docsPathRef.value);
     },
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;

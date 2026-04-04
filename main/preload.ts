@@ -27,6 +27,42 @@ const ipc = {
     return ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
   },
 
+  minimizeWindow() {
+    return ipcRenderer.send(IPC_MESSAGES.MINIMIZE_MAIN_WINDOW);
+  },
+
+  toggleMaximize() {
+    return ipcRenderer.send(IPC_MESSAGES.MAXIMIZE_MAIN_WINDOW);
+  },
+
+  isMaximized() {
+    return new Promise((resolve) => {
+      ipcRenderer.send(IPC_MESSAGES.ISMAXIMIZED_MAIN_WINDOW);
+      ipcRenderer.once(
+        IPC_MESSAGES.ISMAXIMIZED_RESULT,
+        (_event, isMaximized) => {
+          resolve(isMaximized);
+        }
+      );
+    });
+  },
+
+  isFullscreen() {
+    return new Promise((resolve) => {
+      ipcRenderer.send(IPC_MESSAGES.ISFULLSCREEN_MAIN_WINDOW);
+      ipcRenderer.once(
+        IPC_MESSAGES.ISFULLSCREEN_RESULT,
+        (_event, isFullscreen) => {
+          resolve(isFullscreen);
+        }
+      );
+    });
+  },
+
+  closeWindow() {
+    return ipcRenderer.send(IPC_MESSAGES.CLOSE_MAIN_WINDOW);
+  },
+
   async getCreds() {
     return (await ipcRenderer.invoke(IPC_ACTIONS.GET_CREDS)) as Creds;
   },
@@ -39,10 +75,15 @@ const ipc = {
     };
   },
 
-  async getTemplates(): Promise<TemplateFile[]> {
+  async getTemplates(posTemplateWidth?: number): Promise<TemplateFile[]> {
     return (await ipcRenderer.invoke(
-      IPC_ACTIONS.GET_TEMPLATES
+      IPC_ACTIONS.GET_TEMPLATES,
+      posTemplateWidth
     )) as TemplateFile[];
+  },
+
+  async initScheduler(time: string) {
+    await ipcRenderer.invoke(IPC_ACTIONS.INIT_SHEDULER, time);
   },
 
   async selectFile(options: SelectFileOptions): Promise<SelectFileReturn> {
@@ -111,6 +152,19 @@ const ipc = {
     )) as boolean;
   },
 
+  async printDocument(
+    html: string,
+    width: number,
+    height: number
+  ): Promise<boolean> {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.PRINT_HTML_DOCUMENT,
+      html,
+      width,
+      height
+    )) as boolean;
+  },
+
   async getDbList() {
     return (await ipcRenderer.invoke(
       IPC_ACTIONS.GET_DB_LIST
@@ -144,8 +198,24 @@ const ipc = {
     await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, body);
   },
 
+  async sendAPIRequest(endpoint: string, options: RequestInit | undefined) {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.SEND_API_REQUEST,
+      endpoint,
+      options
+    )) as Promise<
+      {
+        [key: string]: string | number | boolean | Date | object | object[];
+      }[]
+    >;
+  },
+
   registerMainProcessErrorListener(listener: IPCRendererListener) {
     ipcRenderer.on(IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR, listener);
+  },
+
+  registerTriggerFrontendActionListener(listener: IPCRendererListener) {
+    ipcRenderer.on(IPC_CHANNELS.TRIGGER_ERPNEXT_SYNC, listener);
   },
 
   registerConsoleLogListener(listener: IPCRendererListener) {

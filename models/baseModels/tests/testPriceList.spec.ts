@@ -1,11 +1,8 @@
 import test from 'tape';
-import { getDefaultMetaFieldValueMap } from 'backend/helpers';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { ModelNameEnum } from 'models/types';
 import { getItem } from 'models/inventory/tests/helpers';
-import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 import { SalesInvoice } from '../SalesInvoice/SalesInvoice';
-import { PurchaseInvoiceItem } from '../PurchaseInvoiceItem/PurchaseInvoiceItem';
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
