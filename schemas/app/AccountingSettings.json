@@ -16,7 +16,6 @@
       "label": "Company Name",
       "fieldname": "companyName",
       "fieldtype": "Data",
-      "readOnly": false,
       "required": true,
       "section": "Default"
     },
