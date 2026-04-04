@@ -6,13 +6,13 @@
       :class="[collapsed ? '' : 'mb-4', collapsible ? 'cursor-pointer' : '']"
       @click="toggleCollapsed"
     >
-      <h2 class="text-base text-gray-900 dark:text-gray-25 font-semibold">
+      <h2 class="text-base text-gray-900 font-semibold">
         {{ title }}
       </h2>
       <feather-icon
         v-if="collapsible"
         :name="collapsed ? 'chevron-up' : 'chevron-down'"
-        class="w-4 h-4 text-gray-600 dark:text-gray-400"
+        class="w-4 h-4 text-gray-600"
       />
     </div>
     <div v-if="!collapsed" class="grid gap-4 gap-x-8 grid-cols-2">
@@ -23,10 +23,7 @@
           field.fieldtype === 'Table' ? 'col-span-2 text-base' : '',
           field.fieldtype === 'AttachImage' ? 'row-span-2' : '',
           field.fieldtype === 'Check' ? 'mt-auto' : 'mb-auto',
-          field.fieldname === 'termsAndConditions' ? 'col-span-2' : '',
-          field.invisible ? 'invisible' : '',
         ]"
-        :style="field.invisible ? 'visibility: hidden;' : ''"
       >
         <Table
           v-if="field.fieldtype === 'Table'"

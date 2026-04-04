@@ -19,7 +19,7 @@
             <span v-if="value">
               {{ selectedColorLabel }}
             </span>
-            <span v-else class="text-gray-400 dark:text-gray-600">
+            <span v-else class="text-gray-400">
               {{ inputPlaceholder }}
             </span>
           </div>
@@ -71,7 +71,6 @@ export default {
       return this.df.options;
     },
     selectedColorLabel() {
-      if (!this.colors) return this.value;
       const color = this.colors.find((c) => this.value === c.value);
       return color ? color.label : this.value;
     },

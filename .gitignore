@@ -23,7 +23,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
-*.code-workspace
 
 #Electron-builder output
 /dist_electron

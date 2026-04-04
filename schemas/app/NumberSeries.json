@@ -36,10 +36,6 @@
           "label": "Sales Invoice"
         },
         {
-          "value": "SalesQuote",
-          "label": "Sales Quote"
-        },
-        {
           "value": "PurchaseInvoice",
           "label": "Purchase Invoice"
         },
@@ -62,10 +58,6 @@
         {
           "value": "PurchaseReceipt",
           "label": "Purchase Receipt"
-        },
-        {
-          "value": "PricingRule",
-          "label": "Pricing Rule"
         }
       ],
       "default": "-",

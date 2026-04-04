@@ -9,7 +9,6 @@ import { Invoice } from '../Invoice/Invoice';
 
 export class TaxSummary extends Doc {
   account?: string;
-  from_account?: string;
   rate?: number;
   amount?: Money;
   parentdoc?: Invoice;

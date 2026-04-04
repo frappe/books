@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col flex-1 bg-gray-25 dark:bg-gray-875">
-    <PageHeader :border="true" :title="t`Print View`">
+  <div class="flex flex-col flex-1 bg-gray-25">
+    <PageHeader :border="true" :title="t`Print View`" class="bg-white">
       <AutoComplete
         v-if="templateList.length"
         :df="{
@@ -16,21 +16,15 @@
         @change="onTemplateNameChange"
       />
       <DropdownWithActions :actions="actions" :title="t`More`" />
-      <Button class="text-xs" type="primary" @click="savePDF()">
+      <Button class="text-xs" type="primary" @click="savePDF">
         {{ t`Save as PDF` }}
-      </Button>
-      <Button class="text-xs" type="primary" @click="savePDF(true)">
-        {{ t`Print` }}
       </Button>
     </PageHeader>
 
     <!-- Template Display Area -->
-    <div class="overflow-auto custom-scroll custom-scroll-thumb1 p-4">
+    <div class="overflow-auto custom-scroll p-4">
       <!-- Display Hints -->
-      <div
-        v-if="helperMessage"
-        class="text-sm text-gray-700 dark:text-gray-300"
-      >
+      <div v-if="helperMessage" class="text-sm text-gray-700">
         {{ helperMessage }}
       </div>
 
@@ -249,53 +243,28 @@ export default defineComponent({
 
       this.templateList = list.map(({ name }) => name);
     },
-    async savePDF(shouldPrint?: boolean) {
+    async savePDF() {
       const printContainer = this.$refs.printContainer as {
-        savePDF: (name?: string, shouldPrint?: boolean) => Promise<void>;
+        savePDF: (name?: string) => Promise<void>;
       };
 
       if (!printContainer?.savePDF) {
         return;
       }
 
-      await printContainer.savePDF(this.doc?.name, shouldPrint);
+      await printContainer.savePDF(this.doc?.name);
     },
     async setTemplateFromDefault() {
       const defaultName =
         this.schemaName[0].toLowerCase() +
         this.schemaName.slice(1) +
         ModelNameEnum.PrintTemplate;
-
-      let templateName;
-
-      if (
-        this.schemaName == ModelNameEnum.SalesInvoice &&
-        (this.doc as Doc).isPOS
-      ) {
-        templateName = this.fyo.singles.Defaults?.posPrintTemplate;
-
-        const posProfileName = this.fyo.singles.POSSettings
-          ?.posProfile as string;
-
-        if (posProfileName) {
-          const posProfile = await this.fyo.doc.getDoc(
-            ModelNameEnum.POSProfile,
-            posProfileName
-          );
-
-          if (posProfile.posPrintTemplate) {
-            templateName = posProfile.posPrintTemplate;
-          }
-        }
-      } else {
-        templateName = this.fyo.singles.Defaults?.get(defaultName);
-      }
-
-      if (typeof templateName !== 'string') {
+      const name = this.fyo.singles.Defaults?.get(defaultName);
+      if (typeof name !== 'string') {
         return;
       }
 
-      await this.onTemplateNameChange(templateName);
+      await this.onTemplateNameChange(name);
     },
   },
 });

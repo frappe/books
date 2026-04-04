@@ -10,20 +10,21 @@ import { safeParseFloat } from 'utils/index';
 import { RouteLocationRaw } from 'vue-router';
 import { fuzzyMatch } from '.';
 import { getFormRoute, routeTo } from './ui';
-import { searchGroups } from '../../utils/types';
-import type { SearchGroup, SearchItem } from '../../utils/types';
 
-export { searchGroups };
-export type { SearchGroup, SearchItem };
+export const searchGroups = [
+  'Docs',
+  'List',
+  'Create',
+  'Report',
+  'Page',
+] as const;
 
-interface StoredRecentItem {
+export type SearchGroup = typeof searchGroups[number];
+interface SearchItem {
   label: string;
-  group: string;
+  group: Exclude<SearchGroup, 'Docs'>;
   route?: string;
-  schemaName?: string;
-  reportName?: string;
-  initData?: RawValueMap;
-  timestamp: number;
+  action?: () => void | Promise<void>;
 }
 
 interface DocSearchItem extends Omit<SearchItem, 'group'> {
@@ -32,11 +33,7 @@ interface DocSearchItem extends Omit<SearchItem, 'group'> {
   more: string[];
 }
 
-interface RecentSearchItem extends Omit<SearchItem, 'group'> {
-  group: 'Recent';
-}
-
-export type SearchItems = (DocSearchItem | SearchItem | RecentSearchItem)[];
+export type SearchItems = (DocSearchItem | SearchItem)[];
 
 interface Searchable {
   needsUpdate: boolean;
@@ -72,7 +69,6 @@ export function getGroupLabelMap() {
     Report: t`Report`,
     Docs: t`Docs`,
     Page: t`Page`,
-    Recent: t`Recent`,
   };
 }
 
@@ -103,7 +99,6 @@ function getCreateList(fyo: Fyo): SearchItem[] {
         label: fyo.schemaMap[schemaName]?.label,
         group: 'Create',
         action: getCreateAction(fyo, schemaName),
-        schemaName,
       } as SearchItem)
   );
 
@@ -153,8 +148,6 @@ function getCreateList(fyo: Fyo): SearchItem[] {
       label,
       group: 'Create',
       action: getCreateAction(fyo, schemaName, create),
-      schemaName,
-      initData: create,
     } as SearchItem;
   });
 
@@ -224,11 +217,9 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     schemaNames.push(ModelNameEnum.SerialNumber);
   }
 
-  if (fyo.doc.singles.AccountingSettings?.enableFormCustomization) {
-    schemaNames.push(ModelNameEnum.CustomForm);
+  if (fyo.store.isDevelopment) {
+    schemaNames = Object.keys(fyo.schemaMap) as ModelNameEnum[];
   }
-
-  schemaNames = Object.keys(fyo.schemaMap) as ModelNameEnum[];
 
   const standardLists = schemaNames
     .map((s) => fyo.schemaMap[s])
@@ -357,7 +348,6 @@ export class Search {
 
   _obsSet = false;
   numSearches = 0;
-  recentKey = 'searchRecents';
   searchables: Record<string, Searchable>;
   keywords: Record<string, Keyword[]>;
   priorityMap: Record<string, number> = {
@@ -379,7 +369,6 @@ export class Search {
       Create: true,
       Page: true,
       Docs: true,
-      Recent: true,
     },
     schemaFilters: {},
     skipTables: false,
@@ -393,9 +382,6 @@ export class Search {
   _nonDocSearchList: SearchItem[];
   _groupLabelMap?: Record<SearchGroup, string>;
 
-  maxRecentItems = 10;
-  recentExpiryDays = 30;
-
   constructor(fyo: Fyo) {
     this.fyo = fyo;
     this.keywords = {};
@@ -407,95 +393,6 @@ export class Search {
    * these getters are used for hacky two way binding between the
    * `skipT*` filters and the `schemaFilters`.
    */
-
-  private _loadAndCleanRecentItems(): StoredRecentItem[] {
-    try {
-      const raw = localStorage.getItem(this.recentKey);
-      return raw ? (JSON.parse(raw) as StoredRecentItem[]) : [];
-    } catch (error) {
-      return [];
-    }
-  }
-
-  private _saveRecentItems(items: StoredRecentItem[]) {
-    localStorage.setItem(this.recentKey, JSON.stringify(items));
-  }
-
-  addToRecent(item: SearchItems[number]) {
-    const recents = this._loadAndCleanRecentItems();
-
-    const recentItem: StoredRecentItem = {
-      label: item.label,
-      group: item.group,
-      timestamp: Date.now(),
-    };
-
-    if ('route' in item && item.route) {
-      recentItem.route = item.route;
-    } else if (item.group === 'Docs') {
-      recentItem.schemaName = item.schemaLabel;
-    } else if (item.group === 'Create') {
-      recentItem.schemaName = item.schemaName;
-      recentItem.initData = item.initData;
-    }
-
-    const updatedRecents = [
-      recentItem,
-      ...recents.filter((r) => r.label !== recentItem.label),
-    ].slice(0, this.maxRecentItems);
-
-    this._saveRecentItems(updatedRecents);
-  }
-
-  getRecentItems(searchTerm?: string): RecentSearchItem[] {
-    try {
-      const recents = this._loadAndCleanRecentItems();
-
-      let filtered = recents;
-      if (searchTerm) {
-        const lower = searchTerm.toLowerCase();
-        filtered = recents.filter(
-          (item) =>
-            item.label.toLowerCase().includes(lower) ||
-            item.group.toLowerCase().includes(lower)
-        );
-      }
-
-      const result = filtered.map((item) => ({
-        label: item.label,
-        group: 'Recent' as const,
-        action: () => this._executeRecentAction(item),
-        route: item.route,
-      }));
-
-      return result;
-    } catch (error) {
-      return [];
-    }
-  }
-
-  private _executeRecentAction(item: StoredRecentItem) {
-    if (item.route) {
-      void routeTo(item.route);
-    } else if (item.schemaName && item.group === 'Create') {
-      const action = getCreateAction(this.fyo, item.schemaName, item.initData);
-      void action();
-    } else if (item.schemaName) {
-      this._openDocList(item.schemaName);
-    } else if (item.reportName) {
-      this._openReport(item.reportName);
-    }
-  }
-
-  private _openDocList(schemaName: string) {
-    const route = `/list/${schemaName}`;
-    void routeTo(route);
-  }
-
-  private _openReport(reportName: string) {
-    const route = `/report/${reportName}`;
-    void routeTo(route);
-  }
 
   get skipTables() {
     let value = true;
@@ -601,7 +498,7 @@ export class Search {
   }
 
   _searchSuggestions(input: string): SearchItems {
-    const matches: { si: SearchItems[number]; distance: number }[] = [];
+    const matches: { si: SearchItem | DocSearchItem; distance: number }[] = [];
 
     for (const si of this._intermediate.suggestions) {
       const label = si.label;
@@ -672,21 +569,9 @@ export class Search {
 
     keys.sort((a, b) => safeParseFloat(b) - safeParseFloat(a));
     const array: SearchItems = [];
-
-    const showRecent =
-      !input ||
-      input.startsWith('#') ||
-      input.toLowerCase().startsWith('recent');
-    if (showRecent && this.filters.groupFilters.Recent) {
-      const recentSearchTerm = input?.replace(/^#|recent/gi, '').trim();
-      const recentItems = this.getRecentItems(recentSearchTerm);
-      if (recentItems.length > 0) {
-        array.push(...recentItems);
-      }
-    }
-
     for (const key of keys) {
       const keywords = groupedKeywords[key] ?? [];
+
       this._pushDocSearchItems(keywords, array, input);
       if (key === '0') {
         this._pushNonDocSearchItems(array, input);
@@ -722,7 +607,8 @@ export class Search {
     items: (SearchItem | Keyword)[],
     input?: string
   ): SearchItems {
-    const subArray: { item: SearchItems[number]; distance: number }[] = [];
+    const subArray: { item: SearchItem | DocSearchItem; distance: number }[] =
+      [];
 
     for (const item of items) {
       const subArrayItem = this._getSubArrayItem(item, input);
@@ -737,10 +623,7 @@ export class Search {
     return subArray.map(({ item }) => item);
   }
 
-  _getSubArrayItem(
-    item: SearchItem | Keyword,
-    input?: string
-  ): { item: SearchItems[number]; distance: number } | null {
+  _getSubArrayItem(item: SearchItem | Keyword, input?: string) {
     if (isSearchItem(item)) {
       return this._getSubArrayItemFromSearchItem(item, input);
     }

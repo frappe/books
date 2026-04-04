@@ -11,14 +11,6 @@
       "required": true
     },
     {
-      "fieldname": "from_account",
-      "label": "Tax Invoice Account",
-      "fieldtype": "Link",
-      "target": "Account",
-      "required": false,
-      "hidden": true
-    },
-    {
       "fieldname": "rate",
       "label": "Tax Rate",
       "fieldtype": "Float",

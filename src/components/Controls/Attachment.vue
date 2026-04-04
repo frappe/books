@@ -7,10 +7,7 @@
       <label
         for="attachment"
         class="block whitespace-nowrap overflow-auto no-scrollbar"
-        :class="[
-          inputClasses,
-          !value ? 'text-gray-600 dark:text-gray-400' : 'cursor-default',
-        ]"
+        :class="[inputClasses, !value ? 'text-gray-600' : 'cursor-default']"
         >{{ label }}</label
       >
       <input
@@ -27,18 +24,12 @@
       <div class="me-2 flex gap-1">
         <!-- Upload Button -->
         <button v-if="!value" class="p-0.5 rounded" @click="upload">
-          <FeatherIcon
-            name="upload"
-            class="h-4 w-4 text-gray-600 dark:text-gray-400"
-          />
+          <FeatherIcon name="upload" class="h-4 w-4 text-gray-600" />
         </button>
 
         <!-- Download Button -->
         <button v-if="value" class="p-0.5 rounded" @click="download">
-          <FeatherIcon
-            name="download"
-            class="h-4 w-4 text-gray-600 dark:text-gray-400"
-          />
+          <FeatherIcon name="download" class="h-4 w-4 text-gray-600" />
         </button>
 
         <!-- Clear Button -->
@@ -47,10 +38,7 @@
           class="p-0.5 rounded"
           @click="clear"
         >
-          <FeatherIcon
-            name="x"
-            class="h-4 w-4 text-gray-600 dark:text-gray-400"
-          />
+          <FeatherIcon name="x" class="h-4 w-4 text-gray-600" />
         </button>
       </div>
     </div>

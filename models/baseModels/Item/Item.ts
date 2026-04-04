@@ -14,25 +14,12 @@ import { ValidationError } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
-interface UOMConversionItem {
-  name: string;
-  uom: string;
-  conversionFactor: number;
-}
-
 export class Item extends Doc {
-  itemCode?: string;
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatch?: boolean;
-  batchSeries?: string;
-  itemGroup?: string;
-  hsnCode?: number;
   hasSerialNumber?: boolean;
-  serialNumberSeries?: string;
-  datafromErp?: boolean;
-  uomConversions: UOMConversionItem[] = [];
 
   formulas: FormulaMap = {
     incomeAccount: {
@@ -68,94 +55,7 @@ export class Item extends Doc {
       },
       dependsOn: ['itemType', 'trackItem'],
     },
-    hsnCode: {
-      formula: async () => {
-        if (!this.itemGroup) {
-          return '';
-        }
-
-        const itemGroupDoc = await this.fyo.doc.getDoc(
-          'ItemGroup',
-          this.itemGroup
-        );
-        return itemGroupDoc?.hsnCode as string;
-      },
-      dependsOn: ['itemGroup'],
-    },
   };
-
-  async beforeSync(): Promise<void> {
-    await super.beforeSync();
-    const latestByUom = new Map<string, UOMConversionItem>();
-
-    this.uomConversions.forEach((item) => {
-      if (item.conversionFactor > 0) {
-        latestByUom.set(item.uom, item);
-      }
-    });
-
-    this.uomConversions = Array.from(latestByUom.values());
-
-    if (this.serialNumberSeries && this.hasSerialNumber) {
-      const series = this.serialNumberSeries.trim();
-      if (series && !series.endsWith('-')) {
-        this.serialNumberSeries = series + '-';
-      }
-    }
-
-    if (this.batchSeries && this.hasBatch) {
-      const series = this.batchSeries.trim();
-      if (series && !series.endsWith('-')) {
-        this.batchSeries = series + '-';
-      }
-    }
-  }
-
-  async afterSync(): Promise<void> {
-    await super.afterSync();
-
-    if (this.hasSerialNumber && this.serialNumberSeries) {
-      const seriesName = this.serialNumberSeries?.trim();
-
-      if (!seriesName) {
-        return;
-      }
-
-      const exists = await this.fyo.db.exists('SerialNumberSeries', seriesName);
-
-      if (!exists) {
-        await this.fyo.doc
-          .getNewDoc('SerialNumberSeries', {
-            name: seriesName,
-            start: 1001,
-            padZeros: 4,
-            current: 1001,
-          })
-          .sync();
-      }
-    }
-
-    if (this.hasBatch && this.batchSeries) {
-      const seriesName = this.batchSeries?.trim();
-
-      if (!seriesName) {
-        return;
-      }
-
-      const exists = await this.fyo.db.exists('BatchSeries', seriesName);
-
-      if (!exists) {
-        await this.fyo.doc
-          .getNewDoc('BatchSeries', {
-            name: seriesName,
-            start: 1001,
-            padZeros: 4,
-            current: 1001,
-          })
-          .sync();
-      }
-    }
-  }
 
   static filters: FiltersMap = {
     incomeAccount: () => ({
@@ -171,51 +71,9 @@ export class Item extends Doc {
   };
 
   validations: ValidationMap = {
-    barcode: (value: DocValue) => {
-      if (value && !(value as string).match(/^\d{12}$/)) {
-        throw new ValidationError(
-          this.fyo.t`Barcode must be exactly 12 digits.`
-        );
-      }
-    },
     rate: (value: DocValue) => {
       if ((value as Money).isNegative()) {
         throw new ValidationError(this.fyo.t`Rate can't be negative.`);
-      }
-    },
-    hsnCode: (value: DocValue) => {
-      if (value && !(value as string).match(/^\d{4,8}$/)) {
-        throw new ValidationError(this.fyo.t`Invalid HSN Code.`);
-      }
-    },
-    serialNumberSeries: (value: DocValue) => {
-      if (!value) {
-        return;
-      }
-
-      const series = (value as string).trim();
-      const invalidChars = /[/\=\?\&\%]/;
-
-      if (invalidChars.test(series)) {
-        throw new ValidationError(
-          this.fyo
-            .t`Serial Number Series cannot contain the following characters: /, ?, &, =, %`
-        );
-      }
-    },
-    batchSeries: (value: DocValue) => {
-      if (!value) {
-        return;
-      }
-
-      const series = (value as string).trim();
-      const invalidChars = /[/\=\?\&\%]/;
-
-      if (invalidChars.test(series)) {
-        throw new ValidationError(
-          this.fyo
-            .t`Batch Series cannot contain the following characters: /, ?, &, =, %`
-        );
       }
     },
   };
@@ -265,16 +123,14 @@ export class Item extends Doc {
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    hasBatch: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    hasBatch: () =>
+      !(this.fyo.singles.InventorySettings?.enableBatches && this.trackItem),
     hasSerialNumber: () =>
       !(
         this.fyo.singles.InventorySettings?.enableSerialNumber && this.trackItem
       ),
-    serialNumberSeries: () => !this.hasSerialNumber,
-    batchSeries: () => !this.hasBatch,
     uomConversions: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
-    itemGroup: () => !this.fyo.singles.AccountingSettings?.enableitemGroup,
   };
 
   readOnly: ReadOnlyMap = {

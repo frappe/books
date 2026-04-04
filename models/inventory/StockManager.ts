@@ -5,7 +5,6 @@ import { Money } from 'pesa';
 import { StockLedgerEntry } from './StockLedgerEntry';
 import { SMDetails, SMIDetails, SMTransferDetails } from './types';
 import { getSerialNumbers } from './helpers';
-import { getItemVisibility } from 'models/helpers';
 
 export class StockManager {
   /**
@@ -57,13 +56,12 @@ export class StockManager {
 
   async validateCancel(transferDetails: SMTransferDetails[]) {
     const reverseTransferDetails = transferDetails.map(
-      ({ item, rate, quantity, fromLocation, toLocation, isReturn }) => ({
+      ({ item, rate, quantity, fromLocation, toLocation }) => ({
         item,
         rate,
         quantity,
         fromLocation: toLocation,
         toLocation: fromLocation,
-        isReturn,
       })
     );
     await this.validateTransfers(reverseTransferDetails);
@@ -87,21 +85,17 @@ export class StockManager {
 
   async #validate(details: SMIDetails) {
     this.#validateRate(details);
-    await this.#validateQuantity(details);
+    this.#validateQuantity(details);
     this.#validateLocation(details);
     await this.#validateStockAvailability(details);
   }
 
-  async #validateQuantity(details: SMIDetails) {
-    const itemVisibility = await getItemVisibility(this.fyo);
-    if (itemVisibility !== 'Inventory Items') {
-      return;
-    }
-
+  #validateQuantity(details: SMIDetails) {
     if (!details.quantity) {
       throw new ValidationError(t`Quantity needs to be set`);
     }
-    if (!details.isReturn && details.quantity <= 0) {
+
+    if (details.quantity <= 0) {
       throw new ValidationError(
         t`Quantity (${details.quantity}) has to be greater than zero`
       );
@@ -113,7 +107,7 @@ export class StockManager {
       throw new ValidationError(t`Rate needs to be set`);
     }
 
-    if (details.rate.lt(0)) {
+    if (details.rate.lte(0)) {
       throw new ValidationError(
         t`Rate (${details.rate.float}) has to be greater than zero`
       );
@@ -133,13 +127,7 @@ export class StockManager {
   }
 
   async #validateStockAvailability(details: SMIDetails) {
-    const trackItem = await this.fyo.getValue(
-      ModelNameEnum.Item,
-      details.item,
-      'trackItem'
-    );
-
-    if (!details.fromLocation || !trackItem) {
+    if (!details.fromLocation) {
       return;
     }
 
@@ -164,7 +152,7 @@ export class StockManager {
 
     const batchMessage = !!batch ? t` in Batch ${batch}` : '';
 
-    if (!details.isReturn && quantityBefore < details.quantity) {
+    if (quantityBefore < details.quantity) {
       throw new ValidationError(
         [
           t`Insufficient Quantity.`,
@@ -286,8 +274,7 @@ class StockManagerItem {
       const snStockLedgerEntries = this.#getSerialNumberedStockLedgerEntries(
         location,
         isOutward,
-        serialNumbers,
-        quantity
+        serialNumbers
       );
 
       this.stockLedgerEntries?.push(...snStockLedgerEntries);
@@ -305,15 +292,10 @@ class StockManagerItem {
   #getSerialNumberedStockLedgerEntries(
     location: string,
     isOutward: boolean,
-    serialNumbers: string[],
-    quantity: number
+    serialNumbers: string[]
   ): StockLedgerEntry[] {
-    if (quantity > 0) {
-      quantity = 1;
-    }
-    if (quantity < 0) {
-      quantity = 1;
-    } else if (isOutward) {
+    let quantity = 1;
+    if (isOutward) {
       quantity = -1;
     }
 

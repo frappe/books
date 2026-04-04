@@ -36,7 +36,7 @@
     {
       "fieldname": "date",
       "label": "Posting Date",
-      "fieldtype": "Datetime",
+      "fieldtype": "Date",
       "required": true,
       "section": "Default"
     },
@@ -81,11 +81,23 @@
       "fieldname": "paymentMethod",
       "label": "Payment Method",
       "placeholder": "Payment Method",
-      "fieldtype": "Link",
-      "target": "PaymentMethod",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Cash",
+          "label": "Cash"
+        },
+        {
+          "value": "Cheque",
+          "label": "Cheque"
+        },
+        {
+          "value": "Transfer",
+          "label": "Transfer"
+        }
+      ],
       "default": "Cash",
       "required": true,
-      "create": true,
       "section": "Details"
     },
     {
@@ -130,14 +142,6 @@
       "section": "Amounts"
     },
     {
-      "fieldname": "taxes",
-      "label": "Taxes",
-      "fieldtype": "Table",
-      "target": "TaxSummary",
-      "readOnly": true,
-      "section": "Amounts"
-    },
-    {
       "fieldname": "for",
       "label": "Payment Reference",
       "fieldtype": "Table",
@@ -151,23 +155,6 @@
       "label": "Attachment",
       "fieldtype": "Attachment",
       "section": "References"
-    },
-    {
-      "fieldname": "referenceType",
-      "label": "Type",
-      "placeholder": "Type",
-      "fieldtype": "Select",
-      "options": [
-        {
-          "value": "SalesInvoice",
-          "label": "Sales"
-        },
-        {
-          "value": "PurchaseInvoice",
-          "label": "Purchase"
-        }
-      ],
-      "hidden": true
     }
   ],
   "quickEditFields": [

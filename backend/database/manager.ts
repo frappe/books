@@ -11,11 +11,10 @@ import patches from '../patches';
 import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
 import { runPatches } from './runPatch';
-import { BespokeFunction, Patch, RawCustomField } from './types';
+import { BespokeFunction, Patch } from './types';
 
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
-  rawCustomFields: RawCustomField[] = [];
 
   get #isInitialized(): boolean {
     return this.db !== undefined && this.db.knex !== undefined;
@@ -23,10 +22,10 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
   getSchemaMap() {
     if (this.#isInitialized) {
-      return this.db?.schemaMap ?? getSchemas('-', this.rawCustomFields);
+      return this.db?.schemaMap ?? getSchemas();
     }
 
-    return getSchemas('-', this.rawCustomFields);
+    return getSchemas();
   }
 
   async createNewDatabase(dbPath: string, countryCode: string) {
@@ -44,18 +43,9 @@ export class DatabaseManager extends DatabaseDemuxBase {
     countryCode ??= await DatabaseCore.getCountryCode(dbPath);
     this.db = new DatabaseCore(dbPath);
     await this.db.connect();
-    await this.setRawCustomFields();
-    const schemaMap = getSchemas(countryCode, this.rawCustomFields);
+    const schemaMap = getSchemas(countryCode);
     this.db.setSchemaMap(schemaMap);
     return countryCode;
-  }
-
-  async setRawCustomFields() {
-    try {
-      this.rawCustomFields = (await this.db?.knex?.(
-        'CustomField'
-      )) as RawCustomField[];
-    } catch {}
   }
 
   async #migrate(): Promise<void> {

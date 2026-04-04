@@ -9,7 +9,7 @@
 
     <div v-show="hasData" class="flex relative">
       <!-- Chart Legend -->
-      <div class="w-1/2 flex flex-col gap-4 justify-center dark:text-gray-25">
+      <div class="w-1/2 flex flex-col gap-4 justify-center">
         <!-- Ledgend Item -->
         <div
           v-for="(d, i) in expenses"
@@ -36,7 +36,6 @@
         :text-offset-x="6.5"
         :value-formatter="(value: number) => fyo.format(value, 'Currency')"
         :total-label="t`Total Spending`"
-        :dark-mode="darkMode"
         @change="(value: number) => (active = value)"
       />
     </div>
@@ -46,7 +45,7 @@
       v-if="expenses.length === 0"
       class="flex-1 w-full h-full flex-center my-20"
     >
-      <span class="text-base text-gray-600 dark:text-gray-500">
+      <span class="text-base text-gray-600">
         {{ t`No expenses in this period` }}
       </span>
     </div>
@@ -65,8 +64,8 @@ import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 
 // Linting broken in this file cause of `extends: ...`
-/*
-  eslint-disable @typescript-eslint/no-unsafe-argument,
+/* 
+  eslint-disable @typescript-eslint/no-unsafe-argument, 
   @typescript-eslint/no-unsafe-return,
   @typescript-eslint/restrict-plus-operands
 */
@@ -78,16 +77,13 @@ export default defineComponent({
     SectionHeader,
   },
   extends: DashboardChartBase,
-  props: {
-    darkMode: { type: Boolean, default: false },
-  },
   data: () => ({
     active: null as null | number,
     expenses: [] as {
       account: string;
       total: number;
-      color: { color: string; darkColor: string };
-      class: { class: string; darkClass: string };
+      color: string;
+      class: string;
     }[],
   }),
   computed: {
@@ -97,11 +93,7 @@ export default defineComponent({
     hasData(): boolean {
       return this.expenses.length > 0;
     },
-    sectors(): {
-      color: { color: string; darkColor: string };
-      label: string;
-      value: number;
-    }[] {
+    sectors(): { color: string; label: string; value: number }[] {
       return this.expenses.map(({ account, color, total }) => ({
         color,
         label: truncate(account, { length: 21 }),
@@ -119,6 +111,7 @@ export default defineComponent({
         fromDate.toISO(),
         toDate.toISO()
       );
+
       const shades = [
         { class: 'bg-pink-500', hex: uicolors.pink['500'] },
         { class: 'bg-pink-400', hex: uicolors.pink['400'] },
@@ -127,25 +120,13 @@ export default defineComponent({
         { class: 'bg-pink-100', hex: uicolors.pink['100'] },
       ];
 
-      const darkshades = [
-        { class: 'bg-pink-600', hex: uicolors.pink['600'] },
-        { class: 'bg-pink-500', hex: uicolors.pink['500'] },
-        { class: 'bg-pink-400', hex: uicolors.pink['400'] },
-        { class: 'bg-pink-300', hex: uicolors.pink['300'] },
-        {
-          class: 'bg-pink-200 dark:bg-opacity-80',
-          hex: uicolors.pink['200'] + 'CC',
-        },
-      ];
-
       this.expenses = topExpenses
         .filter((e) => e.total > 0)
         .map((d, i) => {
           return {
-            account: d.account,
-            total: d.total,
-            color: { color: shades[i].hex, darkColor: darkshades[i].hex },
-            class: { class: shades[i].class, darkClass: darkshades[i].class },
+            ...d,
+            color: shades[i].hex,
+            class: shades[i].class,
           };
         });
     },

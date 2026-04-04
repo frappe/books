@@ -15,7 +15,6 @@
         items-center
         justify-center
         text-white
-        dark:text-gray-900
         w-full
         text-base
         uppercase

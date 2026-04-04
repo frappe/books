@@ -1127,16 +1127,6 @@
     "currency_name": "Won",
     "locale": "ko-KR"
   },
-  "Kosovo": {
-    "code": "xk",
-    "currency": "EUR",
-    "currency_fraction": "Cent",
-    "currency_fraction_units": 100,
-    "currency_name": "Euro",
-    "currency_symbol": "€",
-    "timezones": ["Europe/Skopje"],
-    "locale": "sq-XK"
-  },
   "Kuwait": {
     "code": "kw",
     "currency": "KWD",
@@ -1767,7 +1757,7 @@
     "currency_fraction": "Halala",
     "currency_fraction_units": 100,
     "currency_name": "Saudi Riyal",
-    "currency_symbol": "﷼",
+    "currency_symbol": "ر.س",
     "timezones": ["Asia/Riyadh"],
     "locale": "ar-SA"
   },
@@ -1915,13 +1905,10 @@
   },
   "Suriname": {
     "code": "sr",
-    "currency": "SRD",
     "currency_fraction": "Cent",
     "currency_fraction_units": 100,
-    "currency_name": "Surinamese Dollar",
     "currency_symbol": "$",
-    "timezones": ["America/Paramaribo"],
-    "locale": "nl-SR"
+    "timezones": ["America/Paramaribo"]
   },
   "Svalbard and Jan Mayen": {
     "code": "sj"

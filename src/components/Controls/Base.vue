@@ -23,9 +23,6 @@
         @input="(e) => !isReadOnly && $emit('input', e)"
       />
     </div>
-    <div v-if="showLabel" :class="labelClasses">
-      {{ df?.sub_label }}
-    </div>
   </div>
 </template>
 <script lang="ts">
@@ -83,7 +80,7 @@ export default defineComponent({
       return 'text';
     },
     labelClasses(): string {
-      return 'text-gray-600 dark:text-gray-500 text-sm mb-1';
+      return 'text-gray-600 text-sm mb-1';
     },
     inputClasses(): string[] {
       /**
@@ -118,10 +115,10 @@ export default defineComponent({
     },
     inputReadOnlyClasses(): string {
       if (this.isReadOnly) {
-        return 'text-gray-800 dark:text-gray-300 cursor-default';
+        return 'text-gray-800 cursor-default';
       }
 
-      return 'text-gray-900 dark:text-gray-100';
+      return 'text-gray-900';
     },
     containerClasses(): string[] {
       /**
@@ -139,7 +136,7 @@ export default defineComponent({
     },
     containerReadOnlyClasses(): string {
       if (!this.isReadOnly) {
-        return 'focus-within:bg-gray-100 dark:focus-within:bg-gray-850';
+        return 'focus-within:bg-gray-100';
       }
 
       return '';
@@ -149,10 +146,10 @@ export default defineComponent({
         return '';
       }
 
-      const border = 'border border-gray-200 dark:border-gray-800';
-      let background = 'bg-gray-25 dark:bg-gray-875';
+      const border = 'border border-gray-200';
+      let background = 'bg-gray-25';
       if (this.isReadOnly) {
-        background = 'bg-gray-50 dark:bg-gray-850';
+        background = 'bg-gray-50';
       }
 
       return border + ' ' + background;

@@ -16,7 +16,6 @@ export type FieldType =
   | 'Currency'
   | 'Text'
   | 'Color'
-  | 'Button'
   | 'Attachment';
 
 export const FieldTypeEnum: PropertyEnum<Record<FieldType, FieldType>> = {
@@ -35,7 +34,6 @@ export const FieldTypeEnum: PropertyEnum<Record<FieldType, FieldType>> = {
   Currency: 'Currency',
   Text: 'Text',
   Color: 'Color',
-  Button: 'Button',
   Attachment: 'Attachment',
 };
 
@@ -51,30 +49,23 @@ type BaseFieldType = Exclude<
 export type RawValue = string | number | boolean | null;
 
 export interface BaseField {
-  fieldname: string;             // Column name in the db
-  fieldtype: BaseFieldType;      // UI Descriptive field types that map to column types
+  fieldname: string;              // Column name in the db
+  fieldtype: BaseFieldType;       // UI Descriptive field types that map to column types
   label: string;                 // Translateable UI facing name
   schemaName?: string;           // Convenient access to schemaName incase just the field is passed
   required?: boolean;            // Implies Not Null
   hidden?: boolean;              // UI Facing config, whether field is shown in a form
-  invisible?: boolean;           // UI Facing config, whether field is invisible but occupies space
   readOnly?: boolean;            // UI Facing config, whether field is editable
   description?: string;          // UI Facing, translateable, used for inline documentation
   default?: RawValue;            // Default value of a field, should match the db type
   placeholder?: string;          // UI Facing config, form field placeholder
   groupBy?: string;              // UI Facing used in dropdowns fields
   meta?: boolean;                // Field is a meta field, i.e. only for the db, not UI
-  filter?: boolean;              // UI Facing config, whether to be used to filter the List.
+  filter?: boolean;               // UI Facing config, whether to be used to filter the List.
   computed?: boolean;            // Computed values are not stored in the database.
   section?: string;              // UI Facing config, for grouping by sections
   tab?: string;                  // UI Facing config, for grouping by tabs
-  abstract?: string;             // Used to mark the location of a field in an Abstract schema
-  isCustom?: boolean;            // Whether the field is a custom field
-  bold?: boolean;                // UI Facing config, whether to make the label bold
-  sub_label?: string;
-  filters?: Record<string, string>;
-  getOptions?: () => Promise<{ label: string; value: string }[]>;
-  rows?: number;                 // UI Facing config, number of rows for Text field (default 3)
+  abstract?: string;             // Uused to mark the location of a field in an Abstract schema 
 }
 
 export type SelectOption = { value: string; label: string };

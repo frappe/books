@@ -1,17 +1,13 @@
 <template>
   <div
     class="
-      px-2
-      w-36
       flex
       items-center
       border
+      w-36
       rounded
+      px-2
       bg-gray-50
-      dark:text-gray-200
-      dark:border-gray-800
-      dark:bg-gray-890
-      dark:focus-within:bg-gray-900
       focus-within:bg-gray-100
     "
   >
@@ -24,7 +20,7 @@
     />
     <feather-icon
       name="maximize"
-      class="w-3 h-3 text-gray-600 dark:text-gray-400 cursor-text"
+      class="w-3 h-3 text-gray-600 cursor-text"
       @click="() => ($refs.scanner as HTMLInputElement).focus()"
     />
   </div>
@@ -66,7 +62,7 @@ export default defineComponent({
     },
     async selectItem(code: string) {
       const barcode = code.trim();
-      if (!/^[A-Za-z0-9]{12,}$/.test(barcode)) {
+      if (!/\d{12,}/.test(barcode)) {
         return this.error(this.t`Invalid barcode value ${barcode}.`);
       }
 
@@ -87,7 +83,6 @@ export default defineComponent({
       })) as { name: string }[];
 
       const name = items?.[0]?.name;
-
       if (!name) {
         return this.error(this.t`Item with barcode ${barcode} not found.`);
       }

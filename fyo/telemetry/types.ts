@@ -17,10 +17,6 @@ export enum Verb {
   Resumed = 'resumed',
 }
 
-export enum ErrorLogEnum {
-  IntegrationErrorLog = 'IntegrationErrorLog',
-}
-
 export type Noun = string;
 
 export interface Telemetry {

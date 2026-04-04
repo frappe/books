@@ -29,10 +29,6 @@ export function evaluateHidden(field: Field, doc?: Doc) {
   return evaluateFieldMeta(field, doc, 'hidden');
 }
 
-export function evaluateInvisible(field: Field, doc?: Doc) {
-  return evaluateFieldMeta(field, doc, 'invisible');
-}
-
 export function evaluateRequired(field: Field, doc?: Doc) {
   return evaluateFieldMeta(field, doc, 'required');
 }
@@ -40,7 +36,7 @@ export function evaluateRequired(field: Field, doc?: Doc) {
 function evaluateFieldMeta(
   field: Field,
   doc?: Doc,
-  meta?: 'required' | 'hidden' | 'invisible' | 'readOnly',
+  meta?: 'required' | 'hidden' | 'readOnly',
   defaultValue = false
 ) {
   if (meta === undefined) {
@@ -52,13 +48,8 @@ function evaluateFieldMeta(
     return value;
   }
 
-  const docRecord = doc as Record<string, unknown> | undefined;
-  const metaKey = meta as string;
-  const metaObj = docRecord?.[metaKey] as
-    | Record<string, (() => boolean) | undefined>
-    | undefined;
-  const evalFunction = metaObj?.[field.fieldname];
-  if (typeof evalFunction === 'function') {
+  const evalFunction = doc?.[meta]?.[field.fieldname];
+  if (evalFunction !== undefined) {
     return evalFunction();
   }
 

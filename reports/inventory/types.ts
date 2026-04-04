@@ -44,17 +44,16 @@ export interface StockBalanceEntry{
   item: string;
   location:string;
   batch: string;
-  serialNumber: string;
 
   balanceQuantity: number;
   balanceValue: number;
-
+  
   openingQuantity: number;
   openingValue:number;
-
+  
   incomingQuantity:number;
   incomingValue:number;
-
+  
   outgoingQuantity:number;
   outgoingValue:number;
 
@@ -66,6 +65,3 @@ export type ReferenceType =
   | ModelNameEnum.Shipment
   | ModelNameEnum.PurchaseReceipt
   | 'All';
-
-export type SerialNumberStatus = 'All' | 'In stock' | 'Out stock';
-

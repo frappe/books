@@ -1,14 +1,7 @@
 <template>
   <div
     id="app"
-    class="
-      dark:bg-gray-900
-      h-screen
-      flex flex-col
-      font-sans
-      overflow-hidden
-      antialiased
-    "
+    class="h-screen flex flex-col font-sans overflow-hidden antialiased"
     :dir="languageDirection"
     :language="language"
   >
@@ -21,7 +14,6 @@
     <Desk
       v-if="activeScreen === 'Desk'"
       class="flex-1"
-      :dark-mode="darkMode"
       @change-db-file="showDbSelector"
     />
     <DatabaseSelector
@@ -61,7 +53,7 @@ import './styles/index.css';
 import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
 import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
-import { showDialog, showToast } from './utils/interactive';
+import { showDialog } from './utils/interactive';
 import { setLanguageMap } from './utils/language';
 import { updateConfigFiles } from './utils/misc';
 import { updatePrintTemplates } from './utils/printTemplates';
@@ -69,13 +61,6 @@ import { Search } from './utils/search';
 import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { useKeys } from './utils/vueUtils';
-import { setDarkMode } from 'src/utils/theme';
-import {
-  registerInstanceToERPNext,
-  updateERPNSyncSettings,
-} from './utils/erpnextSync';
-import { ERPNextSyncSettings } from 'models/baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
-import { ErrorLogEnum } from 'fyo/telemetry/types';
 
 enum Screen {
   Desk = 'Desk',
@@ -121,12 +106,10 @@ export default defineComponent({
       activeScreen: null,
       dbPath: '',
       companyName: '',
-      darkMode: false,
     } as {
       activeScreen: null | Screen;
       dbPath: string;
       companyName: string;
-      darkMode: boolean | undefined;
     };
   },
   computed: {
@@ -141,9 +124,6 @@ export default defineComponent({
   },
   async mounted() {
     await this.setInitialScreen();
-    const darkMode = !!fyo.singles.SystemSettings?.darkMode;
-    setDarkMode(darkMode);
-    this.darkMode = darkMode;
   },
   methods: {
     async setInitialScreen(): Promise<void> {
@@ -230,58 +210,6 @@ export default defineComponent({
 
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
-
-      const syncSettingsDoc = (await fyo.doc.getDoc(
-        ModelNameEnum.ERPNextSyncSettings
-      )) as ERPNextSyncSettings;
-
-      const baseURL = syncSettingsDoc.baseURL;
-      const token = syncSettingsDoc.authToken;
-      const enableERPNextSync =
-        fyo.singles.AccountingSettings?.enableERPNextSync;
-
-      if (enableERPNextSync && baseURL && token) {
-        try {
-          await registerInstanceToERPNext(fyo);
-          await updateERPNSyncSettings(fyo);
-          await ipc.initScheduler(
-            `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
-          );
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-
-          try {
-            const existing = await fyo.db.getAll(
-              ErrorLogEnum.IntegrationErrorLog,
-              {
-                filters: {
-                  error: errorMessage,
-                },
-                limit: 1,
-              }
-            );
-
-            if (!existing.length) {
-              await fyo.doc
-                .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
-                  error: errorMessage,
-                  data: JSON.stringify({
-                    instance: fyo.singles.ERPNextSyncSettings?.deviceID,
-                    operation: 'register_instance',
-                    trigger: 'showSetupWizardOrDesk',
-                    baseURL: baseURL,
-                  }),
-                })
-                .sync();
-            }
-          } catch (logError) {
-            throw logError;
-          }
-          showToast({ message: 'Connection Failed', type: 'error' });
-        }
-      }
-
       await this.setDesk(filePath);
     },
     async handleConnectionFailed(error: Error, actionSymbol: symbol) {

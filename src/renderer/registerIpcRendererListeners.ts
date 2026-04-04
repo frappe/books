@@ -1,6 +1,5 @@
 import { handleError } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
-import { syncDocumentsToERPNext } from 'src/utils/erpnextSync';
 
 export default function registerIpcRendererListeners() {
   ipc.registerMainProcessErrorListener(
@@ -24,11 +23,6 @@ export default function registerIpcRendererListeners() {
       handleError(true, error, more, !!more.notifyUser);
     }
   );
-
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  ipc.registerTriggerFrontendActionListener(async () => {
-    await syncDocumentsToERPNext(fyo);
-  });
 
   ipc.registerConsoleLogListener((_, ...stuff: unknown[]) => {
     if (!fyo.store.isDevelopment) {

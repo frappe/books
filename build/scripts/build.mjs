@@ -8,7 +8,6 @@ import * as vite from 'vite';
 import { getMainProcessCommonConfig } from './helpers.mjs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import frappeBooksConfig from '../../electron-builder-config.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(dirname, '..', '..');
@@ -154,8 +153,12 @@ async function packageApp() {
     delete builderArgs[opt];
   }
 
-  let buildOptions = {
-    config: frappeBooksConfig,
+  const buildOptions = {
+    config: {
+      directories: { output: packageDirPath, app: buildDirPath },
+      files: ['**'],
+      extends: null,
+    },
     ...builderArgs,
   };
 

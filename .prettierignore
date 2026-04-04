@@ -1,5 +1,3 @@
 **/types.ts
 **/dist_electron
 **/dummy/*.json
-**/.github/ISSUE_TEMPLATE/*.yml
-**/patches/v0_21_0/*

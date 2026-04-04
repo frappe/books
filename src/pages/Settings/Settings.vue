@@ -9,29 +9,18 @@
       <FormHeader
         :form-title="tabLabels[activeTab] ?? ''"
         :form-sub-title="t`Settings`"
-        class="
-          sticky
-          top-0
-          bg-white
-          dark:bg-gray-890
-          border-b
-          dark:border-gray-800
-        "
+        class="sticky top-0 bg-white border-b"
       >
       </FormHeader>
 
       <!-- Section Container -->
-      <div v-if="doc" class="overflow-auto custom-scroll custom-scroll-thumb1">
+      <div v-if="doc" class="overflow-auto custom-scroll">
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
           :key="name + idx"
           ref="section"
           class="p-4"
-          :class="
-            idx !== 0 && activeGroup.size > 1
-              ? 'border-t dark:border-gray-800'
-              : ''
-          "
+          :class="idx !== 0 && activeGroup.size > 1 ? 'border-t' : ''"
           :show-title="activeGroup.size > 1 && name !== t`Default`"
           :title="name"
           :fields="fields"
@@ -51,12 +40,10 @@
           flex
           gap-8
           border-t
-          dark:border-gray-800
           flex-shrink-0
           sticky
           bottom-0
           bg-white
-          dark:bg-gray-890
         "
       >
         <div
@@ -65,8 +52,8 @@
           class="text-sm cursor-pointer"
           :class="
             key === activeTab
-              ? 'text-gray-900 dark:text-gray-25 font-semibold border-t-2 border-gray-800 dark:border-gray-100'
-              : 'text-gray-700 dark:text-gray-200 '
+              ? 'text-blue-500 font-semibold border-t-2 border-blue-500'
+              : ''
           "
           :style="{
             paddingTop: key === activeTab ? 'calc(1rem - 2px)' : '1rem',
@@ -128,8 +115,6 @@ export default defineComponent({
         ModelNameEnum.AccountingSettings,
         ModelNameEnum.InventorySettings,
         ModelNameEnum.Defaults,
-        ModelNameEnum.POSSettings,
-        ModelNameEnum.ERPNextSyncSettings,
         ModelNameEnum.PrintSettings,
         ModelNameEnum.SystemSettings,
       ].some((s) => this.fyo.singles[s]?.canSave);
@@ -148,42 +133,23 @@ export default defineComponent({
         [ModelNameEnum.PrintSettings]: this.t`Print`,
         [ModelNameEnum.InventorySettings]: this.t`Inventory`,
         [ModelNameEnum.Defaults]: this.t`Defaults`,
-        [ModelNameEnum.POSSettings]: this.t`POS Settings`,
-        [ModelNameEnum.ERPNextSyncSettings]: this.t`ERPNext Sync`,
         [ModelNameEnum.SystemSettings]: this.t`System`,
       };
     },
     schemas(): Schema[] {
       const enableInventory =
         !!this.fyo.singles.AccountingSettings?.enableInventory;
-      const enablePOS = !!this.fyo.singles.InventorySettings?.enablePointOfSale;
-      const enableERPNextSync =
-        !!this.fyo.singles.AccountingSettings?.enableERPNextSync;
 
       return [
         ModelNameEnum.AccountingSettings,
         ModelNameEnum.InventorySettings,
         ModelNameEnum.Defaults,
-        ModelNameEnum.POSSettings,
-        ModelNameEnum.ERPNextSyncSettings,
         ModelNameEnum.PrintSettings,
         ModelNameEnum.SystemSettings,
       ]
-        .filter((s) => {
-          if (s === ModelNameEnum.InventorySettings && !enableInventory) {
-            return false;
-          }
-
-          if (s === ModelNameEnum.POSSettings && !enablePOS) {
-            return false;
-          }
-
-          if (s === ModelNameEnum.ERPNextSyncSettings && !enableERPNextSync) {
-            return false;
-          }
-
-          return true;
-        })
+        .filter((s) =>
+          s === ModelNameEnum.InventorySettings ? enableInventory : true
+        )
         .map((s) => this.fyo.schemaMap[s]!);
     },
     activeGroup(): Map<string, Field[]> {
@@ -285,7 +251,7 @@ export default defineComponent({
       delete this.errors[fieldname];
 
       try {
-        await this.doc?.set(fieldname, value ?? '');
+        await this.doc?.set(fieldname, value);
       } catch (err) {
         if (!(err instanceof Error)) {
           return;

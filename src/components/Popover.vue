@@ -14,10 +14,8 @@
         :class="popoverClass"
         class="
           bg-white
-          dark:bg-gray-850
           rounded-md
           border
-          dark:border-gray-875
           shadow-lg
           popover-container
           relative

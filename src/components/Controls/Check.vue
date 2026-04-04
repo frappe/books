@@ -8,7 +8,7 @@
         {{ df.label }}
       </div>
       <div
-        style="width: 14px; height: 14px"
+        style="width: 14px; height: 14px; overflow: hidden"
         :class="isReadOnly ? 'cursor-default' : 'cursor-pointer'"
       >
         <svg
@@ -52,9 +52,8 @@
             y="0.5"
             width="13"
             height="13"
-            rx="3"
-            :stroke="color"
-            stroke-width="1.5"
+            rx="3.5"
+            :stroke="offBorderColor"
           />
         </svg>
 
@@ -95,7 +94,8 @@ export default defineComponent({
   emits: ['focus'],
   data() {
     return {
-      offColor: '#0000',
+      offBorderColor: 'rgba(17, 43, 66, 0.201322)',
+      offColor: '#FFFFFF',
       color: '#A1ABB4',
     };
   },

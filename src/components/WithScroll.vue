@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-scroll custom-scroll-thumb1">
+  <div class="custom-scroll">
     <slot></slot>
   </div>
 </template>

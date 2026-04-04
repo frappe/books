@@ -45,7 +45,7 @@
           :key="i"
           clip-path="url(#donut-hole)"
           :d="getArcPath(cx, cy, radius, start_, theta)"
-          :stroke="getSectorColor(i)"
+          :stroke="sectors[i].color"
           :stroke-width="thickness + (active === i ? 4 : 0)"
           :style="{ transformOrigin: `${cx}px ${cy}px` }"
           class="sector"
@@ -57,11 +57,7 @@
         :x="cx"
         :y="cy"
         text-anchor="middle"
-        :style="{
-          fontSize: '6px',
-          fontWeight: 'bold',
-          fill: darkMode ? '#FFFFFF' : '#415668',
-        }"
+        style="font-size: 6px; font-weight: bold; fill: #415668"
       >
         {{
           valueFormatter(
@@ -105,7 +101,6 @@ export default {
     offsetY: { default: 0, type: Number },
     textOffsetX: { default: 0, type: Number },
     textOffsetY: { default: 0, type: Number },
-    darkMode: { type: Boolean, default: false },
   },
   emits: ['change'],
   computed: {
@@ -154,13 +149,6 @@ export default {
       const sweepFlag = 1;
 
       return `M ${startX} ${startY} A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${endX} ${endY}`;
-    },
-    getSectorColor(index) {
-      if (this.darkMode) {
-        return this.sectors[index].color.darkColor;
-      } else {
-        return this.sectors[index].color.color;
-      }
     },
   },
 };

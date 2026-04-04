@@ -1,6 +1,6 @@
-import type { Field, FieldType, RawValue } from '../../schemas/types';
-import type DatabaseCore from './core';
-import type { DatabaseManager } from './manager';
+import { Field, RawValue } from '../../schemas/types';
+import DatabaseCore from './core';
+import { DatabaseManager } from './manager';
 
 export interface GetQueryBuilderOptions {
   offset?: number;
@@ -80,17 +80,3 @@ export type SingleValue<T> = {
   parent: string;
   value: T;
 }[];
-
-export type RawCustomField = {
-  parent: string;
-  label: string;
-  fieldname: string;
-  fieldtype: FieldType;
-  isRequired?: boolean;
-  section?: string;
-  tab?: string;
-  options?: string;
-  target?: string;
-  references?: string;
-  default?: string;
-};

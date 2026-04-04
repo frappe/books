@@ -5,7 +5,7 @@ import {
 } from 'models/baseModels/Account/types';
 import {
   AccountReport,
-  convertAccountRootNodesToAccountList,
+  convertAccountRootNodeToAccountList,
 } from 'reports/AccountReport';
 import { ReportData, RootTypeRow } from 'reports/types';
 import { getMapFromList } from 'utils';
@@ -44,15 +44,15 @@ export class BalanceSheet extends AccountReport {
 
     const rootTypeRows: RootTypeRow[] = this.rootTypes
       .map((rootType) => {
-        const rootNodes = this.getRootNodes(rootType, accountTree)!;
-        const rootList = convertAccountRootNodesToAccountList(rootNodes);
+        const rootNode = this.getRootNode(rootType, accountTree)!;
+        const rootList = convertAccountRootNodeToAccountList(rootNode);
         return {
           rootType,
-          rootNodes,
+          rootNode,
           rows: this.getReportRowsFromAccountList(rootList),
         };
       })
-      .filter((row) => !!row.rootNodes.length);
+      .filter((row) => !!row.rootNode);
 
     this.reportData = this.getReportDataFromRows(
       getMapFromList(rootTypeRows, 'rootType')
@@ -88,8 +88,8 @@ export class BalanceSheet extends AccountReport {
 
       reportData.push(...row.rows);
 
-      if (row.rootNodes.length) {
-        const totalNode = this.getTotalNode(row.rootNodes, totalName);
+      if (row.rootNode) {
+        const totalNode = this.getTotalNode(row.rootNode, totalName);
         const totalRow = this.getRowFromAccountListNode(totalNode);
         reportData.push(totalRow);
       }

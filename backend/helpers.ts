@@ -17,7 +17,6 @@ export const sqliteTypeMap: Record<string, KnexColumnType> = {
   Time: 'time',
   Text: 'text',
   Data: 'text',
-  Secret: 'text',
   Link: 'text',
   DynamicLink: 'text',
   Password: 'text',

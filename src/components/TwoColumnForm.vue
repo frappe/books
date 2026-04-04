@@ -16,13 +16,13 @@
       <div
         v-else
         :key="`${df.fieldname}-regular`"
-        class="grid items-center border-b dark:border-gray-800"
+        class="grid items-center border-b"
         :style="{
           ...style,
           height: getFieldHeight(df),
         }"
       >
-        <div class="ps-4 flex text-gray-600 dark:text-gray-400">
+        <div class="ps-4 flex text-gray-600">
           {{ df.label }}
         </div>
 

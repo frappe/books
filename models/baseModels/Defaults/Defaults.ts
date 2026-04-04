@@ -1,8 +1,6 @@
-import { DefaultCashDenominations } from 'models/inventory/Point of Sale/DefaultCashDenominations';
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
-import { PartyRoleEnum } from '../Party/types';
 
 export class Defaults extends Doc {
   // Auto Payments
@@ -14,7 +12,6 @@ export class Defaults extends Doc {
   purchaseReceiptLocation?: string;
 
   // Number Series
-  salesQuoteNumberSeries?: string;
   salesInvoiceNumberSeries?: string;
   purchaseInvoiceNumberSeries?: string;
   journalEntryNumberSeries?: string;
@@ -30,9 +27,7 @@ export class Defaults extends Doc {
   purchaseReceiptTerms?: string;
 
   // Print Templates
-  salesQuotePrintTemplate?: string;
   salesInvoicePrintTemplate?: string;
-  posPrintTemplate?: string;
   purchaseInvoicePrintTemplate?: string;
   journalEntryPrintTemplate?: string;
   paymentPrintTemplate?: string;
@@ -40,27 +35,11 @@ export class Defaults extends Doc {
   purchaseReceiptPrintTemplate?: string;
   stockMovementPrintTemplate?: string;
 
-  // Point of Sale
-  posCashDenominations?: DefaultCashDenominations[];
-  posCustomer?: string;
-
-  //Buttons
-  saveButtonColour?: string;
-  submitButtonColour?: string;
-  cancelButtonColour?: string;
-  heldButtonColour?: string;
-  returnButtonColour?: string;
-  payButtonColour?: string;
-  payAndPrintButtonColour?: string;
-
   static commonFilters = {
     // Auto Payments
     salesPaymentAccount: () => ({ isGroup: false, accountType: 'Cash' }),
     purchasePaymentAccount: () => ({ isGroup: false, accountType: 'Cash' }),
     // Number Series
-    salesQuoteNumberSeries: () => ({
-      referenceType: ModelNameEnum.SalesQuote,
-    }),
     salesInvoiceNumberSeries: () => ({
       referenceType: ModelNameEnum.SalesInvoice,
     }),
@@ -83,9 +62,7 @@ export class Defaults extends Doc {
       referenceType: ModelNameEnum.PurchaseReceipt,
     }),
     // Print Templates
-    salesQuotePrintTemplate: () => ({ type: ModelNameEnum.SalesQuote }),
     salesInvoicePrintTemplate: () => ({ type: ModelNameEnum.SalesInvoice }),
-    posPrintTemplate: () => ({ type: ModelNameEnum.SalesInvoice }),
     purchaseInvoicePrintTemplate: () => ({
       type: ModelNameEnum.PurchaseInvoice,
     }),
@@ -96,7 +73,6 @@ export class Defaults extends Doc {
       type: ModelNameEnum.PurchaseReceipt,
     }),
     stockMovementPrintTemplate: () => ({ type: ModelNameEnum.StockMovement }),
-    posCustomer: () => ({ role: PartyRoleEnum.Customer }),
   };
 
   static filters: FiltersMap = this.commonFilters;
@@ -104,10 +80,6 @@ export class Defaults extends Doc {
 
   getInventoryHidden() {
     return () => !this.fyo.singles.AccountingSettings?.enableInventory;
-  }
-
-  getPointOfSaleHidden() {
-    return () => !this.fyo.singles.InventorySettings?.enablePointOfSale;
   }
 
   hidden: HiddenMap = {
@@ -119,15 +91,6 @@ export class Defaults extends Doc {
     shipmentPrintTemplate: this.getInventoryHidden(),
     purchaseReceiptPrintTemplate: this.getInventoryHidden(),
     stockMovementPrintTemplate: this.getInventoryHidden(),
-    posCashDenominations: this.getPointOfSaleHidden(),
-    posCustomer: this.getPointOfSaleHidden(),
-    saveButtonColour: this.getPointOfSaleHidden(),
-    cancelButtonColour: this.getPointOfSaleHidden(),
-    submitButtonColour: this.getPointOfSaleHidden(),
-    heldButtonColour: this.getPointOfSaleHidden(),
-    returnButtonColour: this.getPointOfSaleHidden(),
-    payButtonColour: this.getPointOfSaleHidden(),
-    payAndPrintButtonColour: this.getPointOfSaleHidden(),
   };
 }
 
@@ -142,5 +105,4 @@ export const numberSeriesDefaultsMap: Record<
   [ModelNameEnum.StockMovement]: 'stockMovementNumberSeries',
   [ModelNameEnum.Shipment]: 'shipmentNumberSeries',
   [ModelNameEnum.PurchaseReceipt]: 'purchaseReceiptNumberSeries',
-  [ModelNameEnum.SalesQuote]: 'salesQuoteNumberSeries',
 };

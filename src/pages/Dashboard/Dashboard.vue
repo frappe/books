@@ -4,12 +4,9 @@
       <div
         class="
           border
-          dark:border-gray-900
           rounded
           bg-gray-50
-          dark:bg-gray-890
           focus-within:bg-gray-100
-          dark:focus-within:bg-gray-900
           flex
           items-center
         "
@@ -24,48 +21,43 @@
     </PageHeader>
 
     <div
-      class="no-scrollbar overflow-auto dark:bg-gray-875"
+      class="no-scrollbar overflow-auto"
       style="height: calc(100vh - var(--h-row-largest) - 1px)"
     >
       <div style="min-width: var(--w-desk-fixed)" class="overflow-auto">
         <Cashflow
           class="p-4"
           :common-period="period"
-          :dark-mode="darkMode"
           @period-change="handlePeriodChange"
         />
-        <hr class="dark:border-gray-800" />
+        <hr />
         <div class="flex w-full">
           <UnpaidInvoices
             :schema-name="'SalesInvoice'"
             :common-period="period"
-            :dark-mode="darkMode"
-            class="border-e dark:border-gray-800"
+            class="border-e"
             @period-change="handlePeriodChange"
           />
           <UnpaidInvoices
             :schema-name="'PurchaseInvoice'"
             :common-period="period"
-            :dark-mode="darkMode"
             @period-change="handlePeriodChange"
           />
         </div>
-        <hr class="dark:border-gray-800" />
+        <hr />
         <div class="flex">
           <ProfitAndLoss
-            class="w-full p-4 border-e dark:border-gray-800"
+            class="w-full p-4 border-e"
             :common-period="period"
-            :dark-mode="darkMode"
             @period-change="handlePeriodChange"
           />
           <Expenses
             class="w-full p-4"
             :common-period="period"
-            :dark-mode="darkMode"
             @period-change="handlePeriodChange"
           />
         </div>
-        <hr class="dark:border-gray-800" />
+        <hr />
       </div>
     </div>
   </div>
@@ -90,14 +82,11 @@ export default {
     PeriodSelector,
     UnpaidInvoices,
   },
-  props: {
-    darkMode: { type: Boolean, default: false },
-  },
   data() {
     return { period: 'This Year' };
   },
   activated() {
-    docsPathRef.value = 'books/dashboard';
+    docsPathRef.value = 'analytics/dashboard';
   },
   deactivated() {
     docsPathRef.value = '';

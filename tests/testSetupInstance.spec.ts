@@ -1,5 +1,4 @@
 import { assertDoesNotThrow } from 'backend/database/tests/helpers';
-import { DateTime } from 'luxon';
 import setupInstance from 'src/setup/setupInstance';
 import { SetupWizardOptions } from 'src/setup/types';
 import test from 'tape';
@@ -40,7 +39,7 @@ test('check setup Singles', async (t) => {
     const optionsValue = setupOptions[field as keyof SetupWizardOptions];
 
     if (dbValue instanceof Date) {
-      dbValue = DateTime.fromJSDate(dbValue).toISODate();
+      dbValue = dbValue.toISOString().split('T')[0];
     }
 
     t.equal(

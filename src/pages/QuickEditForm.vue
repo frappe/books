@@ -1,15 +1,5 @@
 <template>
-  <div
-    class="
-      border-s
-      dark:border-gray-800
-      h-full
-      overflow-auto
-      w-quick-edit
-      bg-white
-      dark:bg-gray-850
-    "
-  >
+  <div class="border-s h-full overflow-auto w-quick-edit bg-white">
     <!-- Quick edit Tool bar -->
     <div
       class="
@@ -20,8 +10,8 @@
         h-row-largest
         sticky
         top-0
+        border-b
         bg-white
-        dark:bg-gray-850
       "
       style="z-index: 1"
     >
@@ -31,13 +21,20 @@
       </Button>
 
       <!-- Save & Submit Buttons -->
-      <Button v-if="doc?.canSave" :icon="true" type="primary" @click="sync">
+      <Button
+        v-if="doc?.canSave"
+        :icon="true"
+        type="primary"
+        class="text-white text-xs"
+        @click="sync"
+      >
         {{ t`Save` }}
       </Button>
       <Button
         v-else-if="doc?.canSubmit"
         :icon="true"
         type="primary"
+        class="text-white text-xs"
         @click="submit"
       >
         {{ t`Submit` }}
@@ -47,7 +44,7 @@
     <!-- Name and image -->
     <div
       v-if="doc && (titleField || imageField)"
-      class="items-center border-b border-t dark:border-gray-800"
+      class="items-center border-b"
       :class="imageField ? 'grid' : 'flex justify-center'"
       :style="{
         height: `calc(var(--h-row-mid) * ${!!imageField ? '2 + 1px' : '1'})`,

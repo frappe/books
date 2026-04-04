@@ -37,11 +37,7 @@ import {
   UIGroupedFields,
 } from './types';
 
-export const toastDurationMap = {
-  short: 2_500,
-  long: 5_000,
-  very_long: Infinity,
-} as const;
+export const toastDurationMap = { short: 2_500, long: 5_000 } as const;
 
 export async function openQuickEdit({
   doc,
@@ -196,15 +192,9 @@ export function getActionsForDoc(doc?: Doc): Action[] {
   const actions: Action[] = [
     ...getActions(doc),
     getDuplicateAction(doc),
-    getNewAction(doc),
     getDeleteAction(doc),
     getCancelAction(doc),
   ];
-
-  if (doc?.schemaName === 'Party') {
-    const viewActions = getViewActions(doc);
-    actions.push(...viewActions);
-  }
 
   return actions
     .filter((d) => d.condition?.(doc) ?? true)
@@ -242,27 +232,6 @@ export function getGroupedActionsForDoc(doc?: Doc): ActionGroup[] {
     .map((k) => actionsMap[k]);
 
   return [grouped, actionsMap['']].flat().filter(Boolean);
-}
-
-function getViewActions(doc: Doc): Action[] {
-  const actions: Action[] = [
-    {
-      label: t`General Ledger`,
-      group: t`View`,
-      condition: (doc: Doc) => doc.schemaName === 'Party',
-      action: async () => {
-        await router.push({
-          path: '/report/GeneralLedger',
-          query: {
-            defaultFilters: JSON.stringify({
-              party: doc.name,
-            }),
-          },
-        });
-      },
-    },
-  ];
-  return actions;
 }
 
 function getCancelAction(doc: Doc): Action {
@@ -314,21 +283,6 @@ function getDuplicateAction(doc: Doc): Action {
       try {
         const dupe = doc.duplicate();
         await openEdit(dupe);
-      } catch (err) {
-        await handleErrorWithDialog(err as Error, doc);
-      }
-    },
-  };
-}
-
-function getNewAction(doc: Doc): Action {
-  return {
-    label: t`New Entry`,
-    group: t`Create`,
-    async action() {
-      try {
-        const newDoc = fyo.doc.getNewDoc(doc.schemaName);
-        await openEdit(newDoc);
       } catch (err) {
         await handleErrorWithDialog(err as Error, doc);
       }
@@ -544,19 +498,14 @@ export function getShortcutKeyMap(
   };
 }
 
-export async function commongDocDelete(
-  doc: Doc,
-  routeBack = true
-): Promise<boolean> {
+export async function commongDocDelete(doc: Doc): Promise<boolean> {
   const res = await deleteDocWithPrompt(doc);
   if (!res) {
     return false;
   }
 
   showActionToast(doc, 'delete');
-  if (routeBack) {
-    router.back();
-  }
+  router.back();
   return true;
 }
 
@@ -873,7 +822,6 @@ export const printSizes = [
   'B7',
   'B8',
   'B9',
-  'POS',
   'Letter',
   'Legal',
   'Executive',
@@ -969,10 +917,6 @@ export const paperSizeMap: Record<
   B9: {
     width: 4.4,
     height: 6.2,
-  },
-  POS: {
-    width: 8,
-    height: 22,
   },
   Letter: {
     width: 21.59,

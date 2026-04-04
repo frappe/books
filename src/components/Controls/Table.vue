@@ -1,55 +1,42 @@
 <template>
   <div v-if="tableFields?.length">
-    <div v-if="showLabel" class="text-gray-600 dark:text-gray-400 text-sm mb-1">
+    <div v-if="showLabel" class="text-gray-600 text-sm mb-1">
       {{ df.label }}
     </div>
 
-    <div :class="border ? 'border dark:border-gray-800 rounded-md' : ''">
+    <div :class="border ? 'border rounded-md' : ''">
       <!-- Title Row -->
       <Row
         :ratio="ratio"
-        class="
-          border-b
-          dark:border-gray-800
-          px-2
-          text-gray-600
-          dark:text-gray-400
-          w-full
-          flex
-          items-center
-        "
+        class="border-b px-2 text-gray-600 w-full flex items-center"
       >
         <div class="flex items-center ps-2">#</div>
         <div
           v-for="df in tableFields"
           :key="df.fieldname"
-          class="flex px-2 h-row-mid"
-          :class="[
-            df.sub_label
-              ? 'flex-col items-center text-center'
-              : isNumeric(df)
-              ? 'ms-auto items-center'
-              : 'items-center',
-          ]"
+          class="items-center flex px-2 h-row-mid"
+          :class="{
+            'ms-auto': isNumeric(df),
+          }"
+          :style="{
+            height: ``,
+          }"
         >
-          <span>{{ df.label }}</span>
-          <p v-if="df.sub_label" class="text-xs">
-            {{ df.sub_label }}
-          </p>
+          {{ df.label }}
         </div>
       </Row>
 
       <!-- Data Rows -->
       <div
         v-if="value"
-        class="overflow-auto custom-scroll custom-scroll-thumb1"
+        class="overflow-auto custom-scroll"
         :style="{ 'max-height': maxHeight }"
       >
         <TableRow
           v-for="(row, idx) of value"
           ref="table-row"
           :key="row.name"
-          :class="idx < value.length - 1 ? 'border-b dark:border-gray-800' : ''"
+          :class="idx < value.length - 1 ? 'border-b' : ''"
           v-bind="{ row, tableFields, size, ratio, isNumeric }"
           :read-only="isReadOnly"
           :can-edit-row="canEditRow"
@@ -70,12 +57,9 @@
           h-row-mid
           flex
           items-center
-          focus:outline-none focus:ring-1 focus:ring-blue-500
         "
-        :class="value.length > 0 ? 'border-t dark:border-gray-800' : ''"
-        tabindex="0"
+        :class="value.length > 0 ? 'border-t' : ''"
         @click="addRow"
-        @keydown.enter="addRow"
       >
         <div class="flex items-center ps-1">
           <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
@@ -169,7 +153,6 @@ export default {
       window.tab = this;
     }
   },
-
   methods: {
     focus() {},
     async addRow() {
@@ -177,30 +160,20 @@ export default {
       await nextTick();
       this.scrollToRow(this.value.length - 1);
       this.triggerChange(this.value);
-      this.$nextTick(() => {
-        const rows = this.$refs['table-row'];
-        if (rows && rows.length > 0) {
-          const lastRow = rows[rows.length - 1];
-          if (lastRow.focusFirstInput) {
-            lastRow.focusFirstInput();
-          }
-        }
-      });
     },
     removeRow(row) {
       this.doc.remove(this.df.fieldname, row.idx).then((s) => {
         if (!s) {
           return;
         }
+
         this.triggerChange(this.value);
       });
     },
-
     scrollToRow(index) {
       const row = this.$refs['table-row'][index];
       row && row.$el.scrollIntoView({ block: 'nearest' });
     },
-
     setMaxHeight() {
       if (this.maxRowsBeforeOverflow === 0) {
         return (this.maxHeight = '');

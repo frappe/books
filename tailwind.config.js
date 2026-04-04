@@ -4,7 +4,6 @@ const colors = JSON.parse(
 );
 
 module.exports = {
-  darkMode: 'class',
   purge: false,
   theme: {
     fontFamily: {
@@ -67,17 +66,8 @@ module.exports = {
   },
   variants: {
     margin: ['responsive', 'first', 'last', 'hover', 'focus'],
-    backgroundColor: [
-      'responsive',
-      'first',
-      'hover',
-      'focus',
-      'focus-within',
-      'dark',
-    ],
+    backgroundColor: ['responsive', 'first', 'hover', 'focus', 'focus-within'],
     display: ['group-hover'],
-    borderWidth: ['last'],
-    fontWeight: ['dark'],
   },
   plugins: [require('tailwindcss-rtl')],
 };

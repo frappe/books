@@ -1,29 +1,19 @@
 <template>
-  <p v-if="showStatus" class="pill font-medium" :class="styleClass">
-    {{ text }}
-  </p>
+  <p class="pill font-medium" :class="styleClass">{{ text }}</p>
 </template>
 <script lang="ts">
 import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/baseModels/Party/Party';
-import { LoyaltyProgram } from 'models/baseModels/LoyaltyProgram/LoyaltyProgram';
-import { ModelNameEnum } from 'models/types';
-import { Money } from 'pesa';
 import { getBgTextColorClass } from 'src/utils/colors';
 import { defineComponent } from 'vue';
 
 type Status = ReturnType<typeof getStatus>;
-type UIColors = 'gray' | 'orange' | 'red' | 'green' | 'blue' | 'yellow';
+type UIColors = 'gray' | 'orange' | 'red' | 'green' | 'blue';
 
 export default defineComponent({
   props: { doc: { type: Doc, required: true } },
-  data() {
-    return {
-      showStatus: true,
-    };
-  },
   computed: {
     styleClass(): string {
       return getBgTextColorClass(this.color);
@@ -32,36 +22,15 @@ export default defineComponent({
       return getStatus(this.doc);
     },
     text() {
-      if (
-        this.doc.schemaName === ModelNameEnum.SalesQuote &&
-        this.doc.isSubmitted
-      ) {
-        this.showStatus = false;
-      }
-
       const hasOutstanding = isPesa(this.doc.outstandingAmount);
-
-      if (hasOutstanding && this.status === 'Unpaid') {
+      if (hasOutstanding && this.status === 'Outstanding') {
         const amt = this.fyo.format(this.doc.outstandingAmount, 'Currency');
         return this.t`Unpaid ${amt}`;
       }
 
-      if (hasOutstanding && this.status === 'PartlyPaid') {
-        const outstandingPayment = this.fyo.format(
-          (this.doc.grandTotal as Money).sub(
-            this.doc.outstandingAmount as Money
-          ),
-          'Currency'
-        );
-        return this.t`Partly Paid ${outstandingPayment}`;
-      }
-
-      if (this.status === 'Outstanding') {
-        const outstandingPayment = this.fyo.format(
-          this.doc.outstandingAmount as Money,
-          'Currency'
-        );
-        return this.t`Unpaid ${outstandingPayment}`;
+      if (this.doc instanceof Invoice && this.status === 'NotTransferred') {
+        const amt = this.fyo.format(this.doc.stockNotTransferred, 'Float');
+        return this.t`Pending Qty. ${amt}`;
       }
 
       return {
@@ -74,13 +43,6 @@ export default defineComponent({
         Paid: this.t`Paid`,
         Saved: this.t`Saved`,
         Submitted: this.t`Submitted`,
-        Return: this.t`Return`,
-        ReturnIssued: this.t`Return Issued`,
-        Unpaid: this.t`Unpaid`,
-        PartlyPaid: this.t`Partly Paid`,
-        Expired: this.t`Expired`,
-        Active: this.t`Active`,
-        Maxed: this.t`Maxed`,
       }[this.status];
     },
     color(): UIColors {
@@ -99,13 +61,6 @@ const statusColorMap: Record<Status, UIColors> = {
   Paid: 'green',
   Saved: 'blue',
   Submitted: 'blue',
-  Return: 'gray',
-  ReturnIssued: 'gray',
-  Unpaid: 'red',
-  PartlyPaid: 'yellow',
-  Expired: 'red',
-  Active: 'green',
-  Maxed: 'orange',
 };
 
 function getStatus(doc: Doc) {
@@ -115,27 +70,6 @@ function getStatus(doc: Doc) {
 
   if (doc.dirty) {
     return 'NotSaved';
-  }
-
-  if (doc instanceof LoyaltyProgram) {
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-
-    const maximumUse = doc.maximumUse as number;
-    const used = doc.used as number;
-
-    if (maximumUse > 0 && used >= maximumUse) {
-      return 'Maxed';
-    }
-
-    if (doc.toDate && doc.toDate instanceof Date) {
-      const toDate = new Date(doc.toDate);
-      toDate.setHours(0, 0, 0, 0);
-      if (toDate <= currentDate) {
-        return 'Expired';
-      }
-    }
-    return 'Active';
   }
 
   if (doc instanceof Party && doc.outstandingAmount?.isZero() !== true) {
@@ -154,15 +88,14 @@ function getSubmittableStatus(doc: Doc) {
     return 'Cancelled';
   }
 
-  if (doc.returnAgainst && doc.isSubmitted) {
-    return 'Return';
-  }
-
-  if (doc.isReturned && doc.isSubmitted) {
-    return 'ReturnIssued';
-  }
-
   const isInvoice = doc instanceof Invoice;
+  if (
+    doc.isSubmitted &&
+    isInvoice &&
+    doc.outstandingAmount?.isZero() !== true
+  ) {
+    return 'Outstanding';
+  }
 
   if (doc.isSubmitted && isInvoice && (doc.stockNotTransferred ?? 0) > 0) {
     return 'NotTransferred';
@@ -174,33 +107,6 @@ function getSubmittableStatus(doc: Doc) {
     doc.outstandingAmount?.isZero() === true
   ) {
     return 'Paid';
-  }
-
-  if (
-    doc.isSubmitted &&
-    isInvoice &&
-    !doc.isCancelled &&
-    (doc.outstandingAmount as Money)?.isPositive() &&
-    (doc.outstandingAmount as Money)?.neq(doc.grandTotal as Money)
-  ) {
-    return 'PartlyPaid';
-  }
-
-  if (
-    doc.isSubmitted &&
-    isInvoice &&
-    !doc.isCancelled &&
-    (doc.outstandingAmount as Money)?.eq(doc.grandTotal as Money)
-  ) {
-    return 'Unpaid';
-  }
-
-  if (
-    doc.isSubmitted &&
-    isInvoice &&
-    doc.outstandingAmount?.isZero() !== true
-  ) {
-    return 'Outstanding';
   }
 
   if (doc.isSubmitted) {

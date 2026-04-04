@@ -6,8 +6,8 @@
     <div :class="showMandatory ? 'show-mandatory' : ''">
       <textarea
         ref="input"
-        :rows="df.rows ?? rows"
-        :class="['resize-none bg-transparent', inputClasses, containerClasses]"
+        :rows="rows"
+        :class="['resize-none', inputClasses, containerClasses]"
         :value="value"
         :placeholder="inputPlaceholder"
         style="vertical-align: top"

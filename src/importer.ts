@@ -570,16 +570,6 @@ function getTemplateFields(
   ];
   const fields: TemplateField[] = [];
 
-  const targetSchemaFieldMap =
-    fyo.schemaMap[importer.schemaName]?.fields.reduce((acc, f) => {
-      if (!(f as TargetField).target) {
-        return acc;
-      }
-
-      acc[f.fieldname] = f;
-      return acc;
-    }, {} as Record<string, Field>) ?? {};
-
   while (schemas.length) {
     const { schema, parentSchemaChildField } = schemas.pop() ?? {};
     if (!schema) {
@@ -587,7 +577,12 @@ function getTemplateFields(
     }
 
     for (const field of schema.fields) {
-      if (shouldSkipField(field, schema)) {
+      if (
+        field.computed ||
+        field.meta ||
+        field.hidden ||
+        (field.readOnly && !field.required)
+      ) {
         continue;
       }
 
@@ -610,14 +605,6 @@ function getTemplateFields(
       }
 
       if (schema.isChild && tf.fieldname === 'name') {
-        tf.required = false;
-      }
-
-      if (
-        schema.isChild &&
-        tf.required &&
-        !targetSchemaFieldMap[tf.schemaName ?? '']?.required
-      ) {
         tf.required = false;
       }
 
@@ -644,24 +631,4 @@ export function getColumnLabel(field: TemplateField): string {
   }
 
   return field.label;
-}
-
-function shouldSkipField(field: Field, schema: Schema): boolean {
-  if (field.computed || field.meta) {
-    return true;
-  }
-
-  if (schema.naming === 'numberSeries' && field.fieldname === 'name') {
-    return false;
-  }
-
-  if (field.hidden) {
-    return true;
-  }
-
-  if (field.readOnly && !field.required) {
-    return true;
-  }
-
-  return false;
 }

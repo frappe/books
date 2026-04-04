@@ -24,17 +24,6 @@ html {
   color: theme('colors.black');
 }
 
-html.dark {
-  color: theme('colors.black');
-  background-color: theme('colors.gray.900');
-  color-scheme: dark;
-}
-
-html.dark input[type='date']::-webkit-calendar-picker-indicator {
-  background-color: transparent;
-  color-scheme: dark;
-}
-
 input[type='number']::-webkit-inner-spin-button {
   appearance: none;
 }
@@ -72,7 +61,7 @@ input[type='number']::-webkit-inner-spin-button {
 :root {
   --w-form: 600px;
   --w-app: 1200px;
-  --w-sidebar: 14rem;
+  --w-sidebar: 12rem;
   --w-desk: calc(100vw - var(--w-sidebar));
   --w-desk-fixed: calc(var(--w-app) - var(--w-sidebar));
   --w-quick-edit: 22rem;
@@ -178,41 +167,7 @@ input[type='number']::-webkit-inner-spin-button {
   background: theme('colors.gray.200');
 }
 
-.custom-scroll::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-.dark.custom-scroll::-webkit-scrollbar-track:vertical,
-.dark .custom-scroll::-webkit-scrollbar-track:vertical {
-  border-left-color: theme('colors.gray.800');
-}
-
-.dark.custom-scroll::-webkit-scrollbar-track:horizontal,
-.dark .custom-scroll::-webkit-scrollbar-track:horizontal {
-  border-top-color: theme('colors.gray.800');
-}
-
-.dark.custom-scroll-thumb1::-webkit-scrollbar-thumb,
-.dark .custom-scroll-thumb1::-webkit-scrollbar-thumb {
-  background: theme('colors.gray.850');
-}
-
-.dark.custom-scroll-thumb1::-webkit-scrollbar-thumb:hover,
-.dark .custom-scroll-thumb1::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.gray.800');
-}
-
-.dark.custom-scroll-thumb2::-webkit-scrollbar-thumb,
-.dark .custom-scroll-thumb2::-webkit-scrollbar-thumb {
-  background: theme('colors.gray.800');
-}
-
-.dark.custom-scroll-thumb2::-webkit-scrollbar-thumb:hover,
-.dark .custom-scroll-thumb2::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.gray.875');
-}
-
-/*
+/* 
   Transitions
  */
 
@@ -235,7 +190,7 @@ input[type='number']::-webkit-inner-spin-button {
   transition: all 150ms ease-out;
 }
 
-/*
+/* 
   RTL
  */
 
@@ -245,11 +200,6 @@ input[type='number']::-webkit-inner-spin-button {
 
 [dir='rtl'] .custom-scroll::-webkit-scrollbar-track:vertical {
   border-right: solid 1px theme('colors.gray.200');
-}
-
-[dir='rtl'].dark.custom-scroll::-webkit-scrollbar-track:vertical,
-[dir='rtl'].dark .custom-scroll::-webkit-scrollbar-track:vertical {
-  border-right: solid 1px theme('colors.gray.850');
 }
 
 .pill {

@@ -13,8 +13,8 @@
     "addressLine1",
     "addressLine2",
     "city",
-    "country",
     "state",
+    "country",
     "postalCode",
     "pos"
   ]

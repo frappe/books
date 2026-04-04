@@ -18,7 +18,7 @@ export function getMainProcessCommonConfig(root) {
     sourcemap: true,
     sourcesContent: false,
     platform: 'node',
-    target: 'node20',
+    target: 'node16',
     external: ['knex', 'electron', 'better-sqlite3', 'electron-store'],
     plugins: [excludeVendorFromSourceMap],
     write: true,

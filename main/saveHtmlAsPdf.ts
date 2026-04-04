@@ -20,12 +20,14 @@ export async function saveHtmlAsPdf(
 
   const printWindow = await getInitializedPrintWindow(htmlPath, width, height);
   const printOptions = {
-    margins: { top: 0, bottom: 0, left: 0, right: 0 }, // equivalent to previous 'marginType: 1'
+    marginsType: 1, // no margin
     pageSize: {
-      height: height / 2.54, // Convert from centimeters to inches
-      width: width / 2.54, // Convert from centimeters to inches
+      height: height * 10_000, // micrometers
+      width: width * 10_000, // micrometers
     },
     printBackground: true,
+    printBackgrounds: true,
+    printSelectionOnly: false,
   };
 
   const data = await printWindow.webContents.printToPDF(printOptions);
@@ -35,7 +37,7 @@ export async function saveHtmlAsPdf(
   return true;
 }
 
-export async function getInitializedPrintWindow(
+async function getInitializedPrintWindow(
   printFilePath: string,
   width: number,
   height: number

@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="container"
-    class="bg-white dark:bg-gray-875 text-gray-900 dark:text-gray-100"
-  ></div>
+  <div ref="container" class="bg-white text-gray-900"></div>
 </template>
 <script lang="ts">
 import { autocompletion, CompletionContext } from '@codemirror/autocomplete';
@@ -66,12 +63,13 @@ export default defineComponent({
       const highlightStyle = HighlightStyle.define([
         { tag: tags.typeName, color: uicolors.pink[600] },
         { tag: tags.angleBracket, color: uicolors.pink[600] },
-        { tag: tags.attributeName, color: uicolors.gray[500] },
-        { tag: tags.attributeValue, color: uicolors.blue[500] },
+        { tag: tags.attributeName, color: uicolors.gray[600] },
+        { tag: tags.attributeValue, color: uicolors.blue[600] },
         { tag: tags.comment, color: uicolors.gray[500], fontStyle: 'italic' },
-        { tag: tags.keyword, color: uicolors.orange[600] },
-        { tag: tags.variableName, color: uicolors.teal[600] },
-        { tag: tags.string, color: uicolors.blue[700] },
+        { tag: tags.keyword, color: uicolors.pink[500] },
+        { tag: tags.variableName, color: uicolors.blue[700] },
+        { tag: tags.string, color: uicolors.pink[600] },
+        { tag: tags.content, color: uicolors.gray[700] },
       ]);
       const completions = getCompletionsFromHints(this.hints ?? {});
 
@@ -209,7 +207,7 @@ function getCompletionOption(
 }
 
 .cm-gutter {
-  @apply bg-gray-50 dark:bg-gray-850;
+  @apply bg-gray-50;
 }
 
 .cm-gutters {
@@ -217,14 +215,9 @@ function getCompletionOption(
   border-right: 1px solid theme('colors.gray.200') !important;
 }
 
-.dark .cm-gutters {
-  border: none white !important;
-  border-right: 1px solid theme('colors.gray.800') !important;
-}
-
 .cm-activeLine,
 .cm-activeLineGutter {
-  background-color: #72839216 !important;
+  background-color: #e5f3ff67 !important;
 }
 
 .cm-tooltip-autocomplete {
@@ -233,10 +226,9 @@ function getCompletionOption(
   @apply rounded shadow-lg overflow-hidden text-gray-900;
 }
 
-.dark .cm-tooltip-autocomplete {
-  background-color: black !important;
-  border: 1px solid theme('colors.gray.800') !important;
-  @apply rounded shadow-lg overflow-hidden text-gray-100;
+.cm-tooltip-autocomplete [aria-selected] {
+  color: #334155 !important;
+  background-color: theme('colors.blue.100') !important;
 }
 
 .cm-panels {

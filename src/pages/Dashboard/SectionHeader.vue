@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-baseline justify-between dark:text-white">
+  <div class="flex items-baseline justify-between">
     <span class="font-semibold text-base"><slot name="title"></slot></span>
     <slot name="action"></slot>
   </div>

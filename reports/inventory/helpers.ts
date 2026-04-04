@@ -3,23 +3,17 @@ import { StockQueue } from 'models/inventory/stockQueue';
 import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import { safeParseFloat, safeParseInt } from 'utils/index';
-import type {
+import {
   ComputedStockLedgerEntry,
   RawStockLedgerEntry,
-  SerialNumberStatus,
   StockBalanceEntry,
 } from './types';
-import type { QueryFilter } from 'utils/db/types';
-import type { StockTransfer } from 'models/inventory/StockTransfer';
 
 type Item = string;
 type Location = string;
 type Batch = string;
 
-export async function getRawStockLedgerEntries(
-  fyo: Fyo,
-  filters: QueryFilter = {}
-) {
+export async function getRawStockLedgerEntries(fyo: Fyo) {
   const fieldnames = [
     'name',
     'date',
@@ -35,77 +29,9 @@ export async function getRawStockLedgerEntries(
 
   return (await fyo.db.getAllRaw(ModelNameEnum.StockLedgerEntry, {
     fields: fieldnames,
-    filters,
     orderBy: ['date', 'created', 'name'],
     order: 'asc',
   })) as RawStockLedgerEntry[];
-}
-
-export async function getShipmentCOGSAmountFromSLEs(
-  stockTransfer: StockTransfer
-) {
-  const fyo = stockTransfer.fyo;
-  const date = stockTransfer.date ?? new Date();
-  const items = (stockTransfer.items ?? []).filter((i) => i.item);
-  const itemNames = Array.from(new Set(items.map((i) => i.item))) as string[];
-
-  type Item = string;
-  type Batch = string;
-  type Location = string;
-  type Queues = Record<Item, Record<Location, Record<Batch, StockQueue>>>;
-
-  const rawSles = await getRawStockLedgerEntries(fyo, {
-    item: ['in', itemNames],
-    date: ['<=', date.toISOString()],
-  });
-
-  const q: Queues = {};
-  for (const sle of rawSles) {
-    const i = sle.item;
-    const l = sle.location;
-    const b = sle.batch ?? '-';
-
-    q[i] ??= {};
-    q[i][l] ??= {};
-    q[i][l][b] ??= new StockQueue();
-
-    const sq = q[i][l][b];
-    if (sle.quantity > 0) {
-      const rate = fyo.pesa(sle.rate);
-      sq.inward(rate.float, sle.quantity);
-    } else {
-      sq.outward(-sle.quantity);
-    }
-  }
-
-  let total = fyo.pesa(0);
-  for (const item of items) {
-    const i = item.item ?? '-';
-    const l = item.location ?? '-';
-    const b = item.batch ?? '-';
-    const stAmount = item.amount ?? 0;
-
-    if (Object.keys(q).length === 0) {
-      total = total.add(stAmount);
-      continue;
-    }
-
-    const sq = q[i][l][b];
-
-    if (!sq) {
-      total = total.add(stAmount);
-    }
-
-    const stRate = item.rate?.float ?? 0;
-    const stQuantity = item.quantity ?? 0;
-
-    const rate = sq.outward(stQuantity) ?? stRate;
-    const amount = rate * stQuantity;
-
-    total = total.add(amount);
-  }
-
-  return total;
 }
 
 export function getStockLedgerEntries(
@@ -193,13 +119,11 @@ export function getStockBalanceEntries(
     fromDate?: string;
     toDate?: string;
     batch?: string;
-  },
-  showSerialNumbers = false,
-  serialNumberFilter: SerialNumberStatus = 'All'
+  }
 ): StockBalanceEntry[] {
   const sbeMap: Record<
     Item,
-    Record<Location, Record<Batch, Record<string, StockBalanceEntry>>>
+    Record<Location, Record<Batch, StockBalanceEntry>>
   > = {};
 
   const fromDate = filters.fromDate ? Date.parse(filters.fromDate) : null;
@@ -218,29 +142,19 @@ export function getStockBalanceEntries(
       continue;
     }
 
-    if (
-      showSerialNumbers &&
-      (!sle.serialNumber || sle.serialNumber.trim() === '')
-    ) {
-      continue;
-    }
-
     const batch = sle.batch || '';
-    const serialNumber = showSerialNumbers ? sle.serialNumber : '';
 
     sbeMap[sle.item] ??= {};
     sbeMap[sle.item][sle.location] ??= {};
-    sbeMap[sle.item][sle.location][batch] ??= {};
-    sbeMap[sle.item][sle.location][batch][serialNumber] ??= getSBE(
+    sbeMap[sle.item][sle.location][batch] ??= getSBE(
       sle.item,
       sle.location,
-      batch,
-      serialNumber
+      batch
     );
     const date = sle.date.valueOf();
 
     if (fromDate && date < fromDate) {
-      const sbe = sbeMap[sle.item][sle.location][batch][serialNumber];
+      const sbe = sbeMap[sle.item][sle.location][batch];
       updateOpeningBalances(sbe, sle);
       continue;
     }
@@ -249,33 +163,21 @@ export function getStockBalanceEntries(
       continue;
     }
 
-    const sbe = sbeMap[sle.item][sle.location][batch][serialNumber];
+    const sbe = sbeMap[sle.item][sle.location][batch];
     updateCurrentBalances(sbe, sle);
   }
 
-  let entries = Object.values(sbeMap)
+  return Object.values(sbeMap)
     .map((sbeBatched) =>
-      Object.values(sbeBatched).map((sbes) =>
-        Object.values(sbes).map((sbeWithSN) => Object.values(sbeWithSN))
-      )
+      Object.values(sbeBatched).map((sbes) => Object.values(sbes))
     )
-    .flat(3);
-
-  // Filter by serial number status
-  if (serialNumberFilter === 'In stock') {
-    entries = entries.filter((entry) => entry.balanceQuantity > 0);
-  } else if (serialNumberFilter === 'Out stock') {
-    entries = entries.filter((entry) => entry.balanceQuantity <= 0);
-  }
-
-  return entries;
+    .flat(2);
 }
 
 function getSBE(
   item: string,
   location: string,
-  batch: string,
-  serialNumber: string
+  batch: string
 ): StockBalanceEntry {
   return {
     name: 0,
@@ -283,7 +185,6 @@ function getSBE(
     item,
     location,
     batch,
-    serialNumber,
 
     balanceQuantity: 0,
     balanceValue: 0,

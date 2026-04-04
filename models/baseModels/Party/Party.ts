@@ -13,15 +13,10 @@ import {
 } from 'fyo/model/validationFunction';
 import { Money } from 'pesa';
 import { PartyRole } from './types';
-import { ModelNameEnum } from 'models/types';
-import { isLoyaltyProgramExpiredAndMaxed } from 'models/helpers';
 
 export class Party extends Doc {
   role?: PartyRole;
-  party?: string;
-  fromLead?: string;
   defaultAccount?: string;
-  loyaltyPoints?: number;
   outstandingAmount?: Money;
   async updateOutstandingAmount() {
     /**
@@ -54,51 +49,6 @@ export class Party extends Doc {
     }
 
     await this.setAndSync({ outstandingAmount });
-  }
-
-  async updateLoyaltyPoints() {
-    let loyaltyPoints = 0;
-
-    if (this.role === 'Customer' || this.role === 'Both') {
-      loyaltyPoints = await this._getTotalLoyaltyPoints();
-    }
-
-    await this.setAndSync({ loyaltyPoints });
-  }
-
-  async _getTotalLoyaltyPoints() {
-    const loyaltyProgramName = this.loyaltyProgram as string;
-    if (loyaltyProgramName) {
-      const isExpiredAndMaxed = await isLoyaltyProgramExpiredAndMaxed(
-        this.fyo,
-        loyaltyProgramName
-      );
-      if (isExpiredAndMaxed) {
-        return 0;
-      }
-    }
-
-    const data = (await this.fyo.db.getAll(ModelNameEnum.LoyaltyPointEntry, {
-      fields: ['name', 'loyaltyPoints', 'expiryDate', 'postingDate'],
-      filters: {
-        customer: this.name as string,
-      },
-    })) as {
-      name: string;
-      loyaltyPoints: number;
-      expiryDate: Date;
-      postingDate: Date;
-    }[];
-
-    const totalLoyaltyPoints = data.reduce((total, entry) => {
-      if (entry.expiryDate > entry.postingDate) {
-        return total + entry.loyaltyPoints;
-      }
-
-      return total;
-    }, 0);
-
-    return totalLoyaltyPoints;
   }
 
   async _getTotalOutstandingAmount(
@@ -173,25 +123,6 @@ export class Party extends Doc {
     return {
       columns: ['name', 'email', 'phone', 'outstandingAmount'],
     };
-  }
-
-  async afterDelete() {
-    await super.afterDelete();
-    if (!this.fromLead) {
-      return;
-    }
-    const leadData = await this.fyo.doc.getDoc(ModelNameEnum.Lead, this.name);
-    await leadData.setAndSync('status', 'Interested');
-  }
-
-  async afterSync() {
-    await super.afterSync();
-    if (!this.fromLead) {
-      return;
-    }
-
-    const leadData = await this.fyo.doc.getDoc(ModelNameEnum.Lead, this.name);
-    await leadData.setAndSync('status', 'Converted');
   }
 
   static getActions(fyo: Fyo): Action[] {

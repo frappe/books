@@ -31,24 +31,15 @@ const getValidColor = (color: string) => {
 
 export function getBgColorClass(color: string) {
   const vcolor = getValidColor(color);
-  return `bg-${vcolor}-200 dark:bg-${vcolor}-800`;
+  return `bg-${vcolor}-200`;
 }
 
-export function getColorClass(
-  color: string,
-  type: 'bg' | 'text' | 'border',
-  value = 300,
-  darkvalue = 600
-) {
-  return `${type}-${getValidColor(color)}-${value} dark:${type}-${getValidColor(
-    color
-  )}-${darkvalue}`;
+export function getColorClass(color: string, type: 'bg' | 'text', value = 300) {
+  return `${type}-${getValidColor(color)}-${value}`;
 }
 
 export function getTextColorClass(color: string) {
-  return `text-${getValidColor(color)}-700 dark:text-${getValidColor(
-    color
-  )}-200`;
+  return `text-${getValidColor(color)}-700`;
 }
 
 export function getBgTextColorClass(color: string) {

@@ -95,8 +95,6 @@ export class Converter {
         return toRawLink(value, field);
       case FieldTypeEnum.Attachment:
         return toRawAttachment(value, field);
-      case FieldTypeEnum.Button:
-        return null;
       default:
         return toRawString(value, field);
     }
