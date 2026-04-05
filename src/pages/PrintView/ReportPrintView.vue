@@ -33,7 +33,7 @@
           :height="size.height"
           :show-overflow="true"
         >
-          <div class="bg-white mx-auto">
+          <div class="bg-white mx-auto" :style="contentPaddingStyle">
             <div class="p-2">
               <div class="font-semibold text-xl w-full flex justify-between">
                 <h1>
@@ -133,6 +133,85 @@
           />
         </div>
 
+        <!-- Margin Settings -->
+        <div class="border-t dark:border-gray-800 p-4">
+          <div class="flex items-center justify-between mb-1">
+            <h2 class="text-sm text-gray-600 dark:text-gray-400">
+              {{ t`Page Margins (cm)` }}
+            </h2>
+            <button
+              class="
+                text-xs text-blue-500
+                hover:text-blue-600
+                dark:text-blue-400
+                hover:underline
+              "
+              @click="setRecommendedMargins"
+            >
+              {{ t`Use Recommended` }}
+            </button>
+          </div>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">
+            {{
+              t`1.5 cm (~0.6 in) per side is a safe default for most printers.`
+            }}
+          </p>
+          <div class="grid grid-cols-2 gap-x-3 gap-y-3">
+            <Float
+              :show-label="true"
+              :border="true"
+              :df="{
+                label: t`Top`,
+                fieldtype: 'Float',
+                fieldname: 'marginTop',
+                minvalue: 0,
+                maxvalue: 5,
+              }"
+              :value="margins.top"
+              @change="(v) => (margins.top = v)"
+            />
+            <Float
+              :show-label="true"
+              :border="true"
+              :df="{
+                label: t`Bottom`,
+                fieldtype: 'Float',
+                fieldname: 'marginBottom',
+                minvalue: 0,
+                maxvalue: 5,
+              }"
+              :value="margins.bottom"
+              @change="(v) => (margins.bottom = v)"
+            />
+            <Float
+              :show-label="true"
+              :border="true"
+              :df="{
+                label: t`Left`,
+                fieldtype: 'Float',
+                fieldname: 'marginLeft',
+                minvalue: 0,
+                maxvalue: 5,
+              }"
+              :value="margins.left"
+              @change="(v) => (margins.left = v)"
+            />
+            <Float
+              :show-label="true"
+              :border="true"
+              :df="{
+                label: t`Right`,
+                fieldtype: 'Float',
+                fieldname: 'marginRight',
+                minvalue: 0,
+                maxvalue: 5,
+              }"
+              :value="margins.right"
+              @change="(v) => (margins.right = v)"
+            />
+          </div>
+        </div>
+
         <!-- Pick Columns -->
         <div class="border-t dark:border-gray-800 p-4">
           <h2 class="text-sm text-gray-600 dark:text-gray-400">
@@ -166,6 +245,7 @@ import { reports } from 'reports/index';
 import { OptionField } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import Check from 'src/components/Controls/Check.vue';
+import Float from 'src/components/Controls/Float.vue';
 import Int from 'src/components/Controls/Int.vue';
 import Select from 'src/components/Controls/Select.vue';
 import PageHeader from 'src/components/PageHeader.vue';
@@ -177,7 +257,15 @@ import { PropType, defineComponent } from 'vue';
 import ScaledContainer from '../TemplateBuilder/ScaledContainer.vue';
 
 export default defineComponent({
-  components: { PageHeader, Button, Check, Int, ScaledContainer, Select },
+  components: {
+    PageHeader,
+    Button,
+    Check,
+    Float,
+    Int,
+    ScaledContainer,
+    Select,
+  },
   props: {
     reportName: {
       type: String as PropType<keyof typeof reports>,
@@ -193,6 +281,12 @@ export default defineComponent({
       scale: 0.65,
       report: null as null | Report,
       columnSelection: [] as boolean[],
+      margins: {
+        top: 1.5,
+        right: 1.5,
+        bottom: 1.5,
+        left: 1.5,
+      } as { top: number; right: number; bottom: number; left: number },
     };
   },
   computed: {
@@ -244,6 +338,15 @@ export default defineComponent({
       const numColumns = this.columnSelection.filter(Boolean).length;
       style['grid-template-columns'] = `repeat(${numColumns}, minmax(0, auto))`;
       return style;
+    },
+    contentPaddingStyle(): Record<string, string> {
+      const { top, right, bottom, left } = this.margins;
+      return {
+        paddingTop: `${top}cm`,
+        paddingRight: `${right}cm`,
+        paddingBottom: `${bottom}cm`,
+        paddingLeft: `${left}cm`,
+      };
     },
     size(): { width: number; height: number } {
       const size = paperSizeMap[this.printSize];
@@ -298,6 +401,9 @@ export default defineComponent({
       );
 
       this.fyo.telemetry.log(Verb.Printed, this.report!.reportName);
+    },
+    setRecommendedMargins() {
+      this.margins = { top: 1.5, right: 1.5, bottom: 1.5, left: 1.5 };
     },
     cellClasses(cIdx: number, rIdx: number): string[] {
       const classes: string[] = [];
