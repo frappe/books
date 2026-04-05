@@ -48,6 +48,14 @@ export class Main {
 
     // https://github.com/electron-userland/electron-builder/issues/4987
     app.commandLine.appendSwitch('disable-http2');
+
+    if (this.isLinux) {
+      app.commandLine.appendSwitch('ozone-platform-hint', 'auto');
+      app.commandLine.appendSwitch(
+        'enable-features',
+        'WaylandWindowDecorations'
+      );
+    }
     autoUpdater.requestHeaders = {
       'Cache-Control':
         'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',

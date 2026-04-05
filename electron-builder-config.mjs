@@ -75,6 +75,10 @@ const frappeBooksConfig = {
     artifactName: '${productName}-v${version}-linux-${arch}.${ext}',
     category: 'Finance',
     publish: ['github'],
+    desktop: {
+      Exec: 'frappe-books --ozone-platform-hint=auto %U',
+      StartupWMClass: 'frappe-books',
+    },
     target: [
       {
         target: 'deb',
