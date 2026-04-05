@@ -168,7 +168,7 @@ export default defineComponent({
       this.activeScreen = Screen.Desk;
       await this.setDeskRoute();
       await fyo.telemetry.start(true);
-      await ipc.checkForUpdates();
+      void ipc.checkForUpdates();
       this.dbPath = filePath;
       this.companyName = (await fyo.getValue(
         ModelNameEnum.AccountingSettings,
@@ -202,11 +202,16 @@ export default defineComponent({
       }
     },
     async setupComplete(setupWizardOptions: SetupWizardOptions): Promise<void> {
-      const companyName = setupWizardOptions.companyName;
-      const filePath = await ipc.getDbDefaultPath(companyName);
-      await setupInstance(filePath, setupWizardOptions, fyo);
-      fyo.config.set('lastSelectedFilePath', filePath);
-      await this.setDesk(filePath);
+      try {
+        const companyName = setupWizardOptions.companyName;
+        const filePath = await ipc.getDbDefaultPath(companyName);
+        await setupInstance(filePath, setupWizardOptions, fyo);
+        fyo.config.set('lastSelectedFilePath', filePath);
+        await this.setDesk(filePath);
+      } catch (error) {
+        await handleErrorWithDialog(error, undefined, true, true);
+        await this.showDbSelector();
+      }
     },
     async showSetupWizardOrDesk(filePath: string): Promise<void> {
       const { countryCode, error, actionSymbol } = await connectToDatabase(
