@@ -181,7 +181,7 @@ function getSubmittableStatus(doc: Doc) {
     isInvoice &&
     !doc.isCancelled &&
     (doc.outstandingAmount as Money)?.isPositive() &&
-    (doc.outstandingAmount as Money)?.neq(doc.grandTotal as Money)
+    (doc.outstandingAmount as Money)?.neq(doc.baseGrandTotal as Money)
   ) {
     return 'PartlyPaid';
   }
@@ -190,7 +190,7 @@ function getSubmittableStatus(doc: Doc) {
     doc.isSubmitted &&
     isInvoice &&
     !doc.isCancelled &&
-    (doc.outstandingAmount as Money)?.eq(doc.grandTotal as Money)
+    (doc.outstandingAmount as Money)?.eq(doc.baseGrandTotal as Money)
   ) {
     return 'Unpaid';
   }
