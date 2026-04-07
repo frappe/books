@@ -7,6 +7,7 @@ import {
   ipcMain,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import type { RequestInit } from 'node-fetch';
 import { constants } from 'fs';
 import fs from 'fs-extra';
 import path from 'path';

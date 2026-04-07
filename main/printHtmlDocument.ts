@@ -15,12 +15,11 @@ export async function printHtmlDocument(
 
   const printWindow = await getInitializedPrintWindow(tempFile, width, height);
 
-  const success = await new Promise<boolean>((resolve) => {
-    printWindow.webContents.print(
-      { silent: false, printBackground: true },
-      (success) => resolve(success)
-    );
-  });
+  const success = await Promise.resolve(
+    printWindow.webContents.print({ silent: false, printBackground: true })
+  )
+    .then(() => true)
+    .catch(() => false);
 
   printWindow.close();
   await fs.unlink(tempFile);
