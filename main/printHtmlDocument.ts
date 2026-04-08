@@ -40,11 +40,14 @@ export async function printHtmlDocument(
     return true;
   }
 
-  const success = await Promise.resolve(
-    printWindow.webContents.print({ silent: false, printBackground: true })
-  )
-    .then(() => true)
-    .catch(() => false);
+  const success = await new Promise<boolean>((resolve) => {
+    printWindow.webContents.print(
+      { silent: false, printBackground: true },
+      (success, _failureReason) => {
+        resolve(success);
+      }
+    );
+  });
 
   printWindow.close();
   await fs.unlink(tempFile);
