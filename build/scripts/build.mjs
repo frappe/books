@@ -171,10 +171,28 @@ async function packageApp() {
  * @param {string} base
  */
 function removeBaseLeadingSlash(dir, base) {
+  const TEXT_EXTENSIONS = new Set([
+    '.js',
+    '.mjs',
+    '.cjs',
+    '.css',
+    '.html',
+    '.svg',
+    '.json',
+    '.map',
+    '.txt',
+    '.ts',
+  ]);
+
   for (const file of fs.readdirSync(dir)) {
     const filePath = path.join(dir, file);
     if (fs.lstatSync(filePath).isDirectory()) {
       removeBaseLeadingSlash(filePath, base);
+      continue;
+    }
+
+    const ext = path.extname(file).toLowerCase();
+    if (!TEXT_EXTENSIONS.has(ext)) {
       continue;
     }
 
