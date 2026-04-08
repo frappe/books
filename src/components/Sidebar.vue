@@ -14,7 +14,7 @@
       'window-drag': platform !== 'Windows',
     }"
   >
-    <div>
+    <div class="window-no-drag">
       <!-- Company name -->
       <div
         class="px-4 flex flex-row items-center justify-between mb-4"
@@ -202,6 +202,7 @@
         p-1
         m-4
         rtl-rotate-180
+        window-no-drag
       "
       @click="() => toggleSidebar()"
     >
