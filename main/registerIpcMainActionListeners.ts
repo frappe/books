@@ -140,6 +140,7 @@ export default function registerIpcMainActionListeners(main: Main) {
       try {
         return await printHtmlDocument(html, app, width, height);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('printHtmlDocument failed:', err);
         return false;
       }
