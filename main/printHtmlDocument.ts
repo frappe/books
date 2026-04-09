@@ -1,4 +1,4 @@
-import { App, shell } from 'electron';
+import { App, BrowserWindow, shell } from 'electron';
 import path from 'path';
 import fs from 'fs-extra';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
@@ -29,6 +29,7 @@ export async function printHtmlDocument(
         ),
       ]);
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('[print] saveHtmlAsPdf failed or timed out:', err);
       return false;
     }
@@ -42,8 +43,9 @@ export async function printHtmlDocument(
     // PDF viewer opens asynchronously.
     // Intentionally not deleting pdfPath — the viewer needs it to remain
     // on disk. Temp-dir cleanup is left to the OS.
-    shell.openPath(pdfPath).then((openErr) => {
+    void shell.openPath(pdfPath).then((openErr) => {
       if (openErr) {
+        // eslint-disable-next-line no-console
         console.error('[print] shell.openPath failed:', openErr);
       }
     });
@@ -56,20 +58,29 @@ export async function printHtmlDocument(
   const tempFile = path.join(tempRoot, 'temp-print.html');
   await fs.writeFile(tempFile, html, { encoding: 'utf-8' });
 
-  let printWindow;
+  let printWindow: BrowserWindow | undefined;
   try {
     printWindow = await getInitializedPrintWindow(tempFile, width, height);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('[print] getInitializedPrintWindow failed:', err);
     await fs.unlink(tempFile).catch(() => null);
     return false;
   }
 
+  if (!printWindow) {
+    await fs.unlink(tempFile).catch(() => null);
+    return false;
+  }
+
+  // Capture as a const so TypeScript can safely narrow the type inside
+  // the Promise callback closure without worrying about reassignment.
+  const pw = printWindow;
   const success = await new Promise<boolean>((resolve) => {
-    printWindow.webContents.print(
+    pw.webContents.print(
       { silent: false, printBackground: true },
-      (success, _failureReason) => {
-        resolve(success);
+      (succeeded: boolean) => {
+        resolve(succeeded);
       }
     );
   });
