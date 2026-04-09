@@ -137,7 +137,12 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.PRINT_HTML_DOCUMENT,
     async (_, html: string, width: number, height: number) => {
-      return await printHtmlDocument(html, app, width, height);
+      try {
+        return await printHtmlDocument(html, app, width, height);
+      } catch (err) {
+        console.error('printHtmlDocument failed:', err);
+        return false;
+      }
     }
   );
 

@@ -3,12 +3,17 @@ import esbuild from 'esbuild';
 import { $ } from 'execa';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 import { getMainProcessCommonConfig } from './helpers.mjs';
+
+const require = createRequire(import.meta.url);
+const electronBin = require('electron');
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 process.env['NODE_ENV'] = 'development';
 process.env['VITE_HOST'] = '127.0.0.1';
 process.env['VITE_PORT'] = 6969;
+process.env['ELECTRON_OZONE_PLATFORM_HINT'] = 'x11';
 
 /**
  * This script does several things:
@@ -123,7 +128,7 @@ async function handleResult(result) {
 }
 
 function runElectron() {
-  const electronProcess = $$`npx electron --inspect=5858 ${path.join(
+  const electronProcess = $$`${electronBin} --inspect=5858 --ozone-platform=x11 ${path.join(
     root,
     'dist_electron',
     'dev',
