@@ -105,8 +105,6 @@ export class LedgerPosting {
       return map[account];
     }
 
-    // end ugly timezone fix code
-
     const ledgerEntry = this.fyo.doc.getNewDoc(
       ModelNameEnum.AccountingLedgerEntry,
       {
