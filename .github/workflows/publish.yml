@@ -103,7 +103,7 @@ jobs:
           name: dist-macOS-arm
           path: dist-macOS-arm.tar
 
-  build-linux:
+  build-linux-x64:
     runs-on: ubuntu-latest
     steps:
       - name: Setup node
@@ -136,16 +136,60 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           yarn set version 1.22.18
-          yarn build --linux --publish always
+          yarn build --linux --x64 --publish always
 
       - name: Tar files
-        run: tar -cvf dist-linux.tar dist_electron
+        run: tar -cvf dist-linux-x64.tar dist_electron
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist-linux
-          path: dist-linux.tar
+          name: dist-linux-x64
+          path: dist-linux-x64.tar
+
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Checkout Books
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          yarn set version 1.22.18
+          yarn
+
+      - name: Set Error Log Creds
+        env:
+          ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
+          ERR_LOG_URL: ${{ secrets.ERR_LOG_URL }}
+          ERR_LOG_SECRET: ${{ secrets.ERR_LOG_SECRET }}
+          TELEMETRY_URL: ${{ secrets.TELEMETRY_URL }}
+        run: |
+          echo $ERR_LOG_KEY > log_creds.txt
+          echo $ERR_LOG_SECRET >> log_creds.txt
+          echo $ERR_LOG_URL >> log_creds.txt
+          echo $TELEMETRY_URL >> log_creds.txt
+
+      - name: Run build
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          yarn set version 1.22.18
+          yarn build --linux --arm64 --publish always
+
+      - name: Tar files
+        run: tar -cvf dist-linux-arm64.tar dist_electron
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-linux-arm64
+          path: dist-linux-arm64.tar
 
   build-windows:
     runs-on: windows-2022

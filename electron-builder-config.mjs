@@ -82,7 +82,7 @@ const frappeBooksConfig = {
       },
       {
         target: 'AppImage',
-        arch: ['x64'],
+        arch: ['x64', 'arm64'],
       },
       {
         target: 'rpm',
