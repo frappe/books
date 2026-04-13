@@ -138,6 +138,13 @@ jobs:
           yarn set version 1.22.18
           yarn build --linux --x64 --publish always
 
+      - name: Verify better-sqlite3 is x64
+        run: |
+          NODE=$(find dist_electron/bundled -name '*.node' | head -1)
+          ARCH=$(file "$NODE")
+          echo "Node binary: $ARCH"
+          echo "$ARCH" | grep -q 'x86-64' || (echo "ERROR: expected x86-64 node binary, got: $ARCH" && exit 1)
+
       - name: Tar files
         run: tar -cvf dist-linux-x64.tar dist_electron
 
@@ -181,6 +188,13 @@ jobs:
         run: |
           yarn set version 1.22.18
           yarn build --linux --arm64 --publish always
+
+      - name: Verify better-sqlite3 is arm64
+        run: |
+          NODE=$(find dist_electron/bundled -name '*.node' | head -1)
+          ARCH=$(file "$NODE")
+          echo "Node binary: $ARCH"
+          echo "$ARCH" | grep -q 'aarch64' || (echo "ERROR: expected aarch64 node binary, got: $ARCH" && exit 1)
 
       - name: Tar files
         run: tar -cvf dist-linux-arm64.tar dist_electron

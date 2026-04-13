@@ -1,0 +1,102 @@
+name: Test Build Linux
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-build-linux-x64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Checkout Books
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          yarn set version 1.22.18
+          yarn
+
+      - name: Create placeholder creds file
+        run: touch log_creds.txt
+
+      - name: Run build
+        run: |
+          yarn set version 1.22.18
+          yarn build --linux --x64 --publish never
+
+      - name: Upload x64 AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-AppImage
+          path: dist_electron/bundled/*.AppImage
+          if-no-files-found: error
+
+      - name: Upload x64 deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-deb
+          path: dist_electron/bundled/*.deb
+          if-no-files-found: error
+
+      - name: Upload x64 rpm
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-rpm
+          path: dist_electron/bundled/*.rpm
+          if-no-files-found: error
+
+  test-build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Checkout Books
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          yarn set version 1.22.18
+          yarn
+
+      - name: Create placeholder creds file
+        run: touch log_creds.txt
+
+      - name: Run build
+        run: |
+          yarn set version 1.22.18
+          yarn build --linux --arm64 --publish never
+
+      - name: Verify better-sqlite3 is arm64
+        run: |
+          NODE=$(find dist_electron/bundled -name '*.node' | head -1)
+          ARCH=$(file "$NODE")
+          echo "Node binary: $ARCH"
+          echo "$ARCH" | grep -q 'aarch64' || (echo "ERROR: expected aarch64 node binary, got: $ARCH" && exit 1)
+
+      - name: Upload arm64 AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-AppImage
+          path: dist_electron/bundled/*.AppImage
+          if-no-files-found: error
+
+      - name: Upload arm64 deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-deb
+          path: dist_electron/bundled/*.deb
+          if-no-files-found: error
+
+      - name: Upload arm64 rpm
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-rpm
+          path: dist_electron/bundled/*.rpm
+          if-no-files-found: error
