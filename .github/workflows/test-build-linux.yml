@@ -1,7 +1,9 @@
 name: Test Build Linux
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - aarch64-build-native-dependencies
 
 jobs:
   test-build-linux-x64:
