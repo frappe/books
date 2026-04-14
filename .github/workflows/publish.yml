@@ -134,9 +134,10 @@ jobs:
       - name: Run build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          TARGET_ARCH: x64
         run: |
           yarn set version 1.22.18
-          yarn build --linux --x64 --publish always
+          yarn build --linux --publish always
 
       - name: Verify better-sqlite3 is x64
         run: |
@@ -182,12 +183,19 @@ jobs:
           echo $ERR_LOG_URL >> log_creds.txt
           echo $TELEMETRY_URL >> log_creds.txt
 
+      - name: Install fpm for arm64 packaging
+        run: |
+          sudo apt-get install -y ruby ruby-dev rpm build-essential
+          sudo gem install fpm
+
       - name: Run build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          USE_SYSTEM_FPM: 'true'
+          TARGET_ARCH: arm64
         run: |
           yarn set version 1.22.18
-          yarn build --linux --arm64 --publish always
+          yarn build --linux --publish always
 
       - name: Verify better-sqlite3 is arm64
         run: |
