@@ -70,7 +70,14 @@ jobs:
       - name: Create placeholder creds file
         run: touch log_creds.txt
 
+      - name: Install fpm for arm64 packaging
+        run: |
+          sudo apt-get install -y ruby ruby-dev rpm build-essential
+          sudo gem install fpm
+
       - name: Run build
+        env:
+          USE_SYSTEM_FPM: 'true'
         run: |
           yarn set version 1.22.18
           yarn build --linux --arm64 --publish never
