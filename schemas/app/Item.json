@@ -161,6 +161,12 @@
       "section": "Inventory"
     },
     {
+      "fieldname": "restockQuantity",
+      "label": "Restock Quantity",
+      "fieldtype": "Float",
+      "section": "Inventory"
+    },
+    {
       "fieldname": "uomConversions",
       "label": "UOM Conversions",
       "fieldtype": "Table",
@@ -180,6 +186,7 @@
     "barcode",
     "hsnCode",
     "trackItem",
+    "restockQuantity",
     "uom"
   ],
   "keywordFields": ["name", "itemType", "for"]

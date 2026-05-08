@@ -1,6 +1,7 @@
 {
   "name": "POSOpeningShift",
   "label": "POS Opening Shift",
+  "isSubmittable": true,
   "naming": "random",
   "fields": [
     {

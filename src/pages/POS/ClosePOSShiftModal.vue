@@ -225,7 +225,7 @@ export default defineComponent({
           'openingShift',
           this.posOpeningShiftDoc?.name
         );
-        await this.posClosingShiftDoc?.sync();
+        await this.posClosingShiftDoc?.submit();
         await transferPOSCashAndWriteOff(
           fyo,
           this.posClosingShiftDoc as POSClosingShift

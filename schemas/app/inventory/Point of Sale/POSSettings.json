@@ -104,6 +104,19 @@
       "section": "Barcode"
     },
     {
+      "fieldname": "enableMobileNotifications",
+      "label": "Enable Mobile Notifications",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Notifications"
+    },
+    {
+      "fieldname": "messageChannel",
+      "label": "Message Channel",
+      "fieldtype": "Data",
+      "section": "Notifications"
+    },
+    {
       "fieldname": "itemVisibility",
       "label": "Item Visibility",
       "fieldtype": "Select",
