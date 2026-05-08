@@ -8,6 +8,12 @@ import {
   getReturnLoyaltyPoints,
   getTransactionStatusColumn,
 } from '../../helpers';
+import {
+  getRawStockLedgerEntries,
+  getStockBalanceEntries,
+  getStockLedgerEntries,
+} from 'reports/inventory/helpers';
+import { ValuationMethod } from 'models/inventory/types';
 import { Invoice } from '../Invoice/Invoice';
 import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 import { LoyaltyProgram } from '../LoyaltyProgram/LoyaltyProgram';
@@ -16,6 +22,9 @@ import { Party } from '../Party/Party';
 import { ValidationError } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { Doc } from 'fyo/model/doc';
+import { sendNtfyNotification } from 'src/utils/ntfy';
+import { Item } from 'models/baseModels/Item/Item';
+import { DateTime } from 'luxon';
 
 export class SalesInvoice extends Invoice {
   items?: SalesInvoiceItem[];
@@ -100,14 +109,12 @@ export class SalesInvoice extends Invoice {
       )) as Party;
 
       if ((value as number) <= 0) {
-        throw new ValidationError(t`Points must be greather than 0`);
+        throw new ValidationError(this.fyo.t('Points must be greather than 0'));
       }
 
       if ((value as number) > (partyDoc?.loyaltyPoints || 0)) {
         throw new ValidationError(
-          t`${this.party as string} only has ${
-            partyDoc.loyaltyPoints as number
-          } points`
+          this.fyo.t('{party} only has {points} points', { party: this.party as string, points: partyDoc.loyaltyPoints as number } as any)
         );
       }
 
@@ -144,12 +151,88 @@ export class SalesInvoice extends Invoice {
 
         if (baseGrandTotal?.lt(loyaltyPoint)) {
           throw new ValidationError(
-            t`no need ${value as number} points to purchase this item`
+            this.fyo.t('no need {points} points to purchase this item', { points: value as number } as any)
           );
         }
       }
     },
   };
+
+  async afterSubmit() {
+    await super.afterSubmit();
+
+    if (this.isPOS) {
+      let payments = this.payments as any[];
+      if (!payments || payments.length === 0) {
+        payments = await this.getLinkedPayments();
+      }
+      const paymentMethods = (payments ?? []).map((p: any) => p.paymentMethod).join(', ') || 'N/A';
+
+      const formatNumber = (num: number | string) => {
+        return Number(num).toLocaleString('en-US');
+      };
+
+      let productList = (this.items ?? []).map((item, index) => {
+          const itemName = item.item as string;
+          const qty = item.quantity || 0;
+          const amountValue = item.amount ? item.amount.toString() : '0';
+          const amount = formatNumber(amountValue);
+
+          return index + 1 + '. ' + itemName + ' (x' + qty + ') - ' + amount;
+        })
+        .join('\n');
+
+      const message = '\n\nFollowing products have just been sold:\n\n' + productList + '\n\n**Total:** ' + formatNumber(this.grandTotal!.toString());
+
+      await sendNtfyNotification(this.fyo, message, 'New Sale!', 'fire');
+    }
+
+    // Low Stock Notification
+    const itemsToRestock: string[] = [];
+    const valuationMethod =
+      (this.fyo.singles.InventorySettings?.valuationMethod as ValuationMethod) ??
+      ValuationMethod.FIFO;
+    const rawSLEs = await getRawStockLedgerEntries(this.fyo);
+    const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
+    const stockBalance = getStockBalanceEntries(rawData, {});
+    const balanceMap: Record<string, number> = {};
+    for (const row of stockBalance) {
+      balanceMap[row.item] ??= 0;
+      balanceMap[row.item] += row.balanceQuantity;
+    }
+
+    for (const invItem of this.items ?? []) {
+      const itemName = invItem.item as string;
+      const itemDoc = (await this.fyo.doc.getDoc(
+        ModelNameEnum.Item,
+        itemName
+      )) as Item;
+
+      if (!itemDoc || !itemDoc.trackItem || itemDoc.restockQuantity === undefined) {
+        continue;
+      }
+
+      const balance = balanceMap[itemName] || 0;
+      if (balance < itemDoc.restockQuantity) {
+        itemsToRestock.push(`${itemName} - ${balance} remaining`);
+      }
+    }
+
+    if (itemsToRestock.length > 0) {
+      const restockMessage =
+        "You're about to run out of the following items in your stock;\n\n" +
+        itemsToRestock.join('\n') +
+        '\n\nPlease refill your inventory';
+
+      await sendNtfyNotification(
+        this.fyo,
+        restockMessage,
+        'Inventory Restock Required',
+        'rotating_light',
+        'high'
+      );
+    }
+  }
 
   static getListViewSettings(): ListViewSettings {
     return {

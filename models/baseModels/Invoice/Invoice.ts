@@ -1523,13 +1523,14 @@ export abstract class Invoice extends Transactional {
     })) as { parent: string; amount: string }[];
 
     const payments = (await this.fyo.db.getAllRaw('Payment', {
-      fields: ['name', 'date', 'submitted', 'cancelled'],
+      fields: ['name', 'date', 'submitted', 'cancelled', 'paymentMethod'],
       filters: { name: ['in', paymentFors.map((p) => p.parent)] },
     })) as {
       name: string;
       date: string;
       submitted: number;
       cancelled: number;
+      paymentMethod: string;
     }[];
 
     return joinMapLists(payments, paymentFors, 'name', 'parent')
@@ -1538,6 +1539,7 @@ export abstract class Invoice extends Transactional {
         date: new Date(j.date),
         submitted: !!j.submitted,
         cancelled: !!j.cancelled,
+        paymentMethod: j.paymentMethod,
         amount: this.fyo.pesa(j.amount),
       }))
       .sort((a, b) => a.date.valueOf() - b.date.valueOf());

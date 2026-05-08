@@ -42,4 +42,8 @@ export class POSOpeningShift extends Doc {
       columns: ['name', 'openingDate'],
     };
   }
+
+  get isSubmittable() {
+    return true;
+  }
 }

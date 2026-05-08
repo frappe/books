@@ -29,6 +29,7 @@ export class Item extends Doc {
   itemGroup?: string;
   hsnCode?: number;
   hasSerialNumber?: boolean;
+  restockQuantity?: number;
   uomConversions: UOMConversionItem[] = [];
 
   formulas: FormulaMap = {
@@ -179,6 +180,7 @@ export class Item extends Doc {
       ),
     uomConversions: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
+    restockQuantity: () => !this.trackItem,
     itemGroup: () => !this.fyo.singles.AccountingSettings?.enableitemGroup,
   };
 

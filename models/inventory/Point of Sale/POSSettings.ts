@@ -20,6 +20,8 @@ export class POSSettings extends Doc {
   canChangeRate?: boolean;
   canEditDiscount?: boolean;
   ignorePricingRule?: boolean;
+  enableMobileNotifications?: boolean;
+  messageChannel?: string;
 
   static filters: FiltersMap = {
     cashAccount: () => ({
