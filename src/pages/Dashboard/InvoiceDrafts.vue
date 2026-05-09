@@ -59,7 +59,6 @@
 </template>
 
 <script lang="ts">
-import { t } from 'fyo';
 import { ModelNameEnum } from 'models/types';
 import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils/ui';

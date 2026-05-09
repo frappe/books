@@ -61,7 +61,6 @@
 </template>
 
 <script lang="ts">
-import { t } from 'fyo';
 import { fyo } from 'src/initFyo';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { defineComponent } from 'vue';

@@ -389,7 +389,7 @@ test('DashboardSettings: getDoc returns a doc with correct defaults', async (t) 
     'Custom',
     'activeProfile defaults to Custom'
   );
-  t.equal(doc.widgetLayout, undefined, 'widgetLayout starts as undefined');
+  t.equal(doc.widgetLayout, null, 'widgetLayout starts as null');
   t.end();
 });
 

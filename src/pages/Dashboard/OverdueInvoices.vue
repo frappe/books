@@ -67,7 +67,6 @@
 </template>
 
 <script lang="ts">
-import { t } from 'fyo';
 import { DateTime } from 'luxon';
 import { ModelNameEnum } from 'models/types';
 import { fyo } from 'src/initFyo';

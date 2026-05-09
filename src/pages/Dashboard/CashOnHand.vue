@@ -25,7 +25,6 @@
 </template>
 
 <script lang="ts">
-import { t } from 'fyo';
 import { fyo } from 'src/initFyo';
 import { defineComponent } from 'vue';
 import BaseDashboardChart from './BaseDashboardChart.vue';
