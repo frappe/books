@@ -121,12 +121,12 @@ export default {
     docsPathRef.value = '';
   },
   methods: {
-    handlePeriodChange(period) {
-      if (period === this.period) {
+    handlePeriodChange(newPeriod) {
+      if (newPeriod === this.period) {
         return;
       }
 
-      this.period = '';
+      this.period = newPeriod;
     },
   },
 };

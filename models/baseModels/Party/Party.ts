@@ -8,13 +8,17 @@ import {
   ListViewSettings,
   ValidationMap,
 } from 'fyo/model/types';
+import { DocValue } from 'fyo/core/types';
 import {
   validateEmail,
   validatePhoneNumber,
 } from 'fyo/model/validationFunction';
+import { ValidationError } from 'fyo/utils/errors';
+import { t } from 'fyo/utils/translation';
 import { Money } from 'pesa';
 import { PartyRole } from './types';
 import { ModelNameEnum } from 'models/types';
+import { DateTime } from 'luxon';
 
 export class Party extends Doc {
   role?: PartyRole;
@@ -140,6 +144,23 @@ export class Party extends Doc {
   validations: ValidationMap = {
     email: validateEmail,
     phone: validatePhoneNumber,
+    birthDate: (value: DocValue) => {
+      if (!value) {
+        return;
+      }
+
+      const date = DateTime.fromJSDate(value as Date);
+      const today = DateTime.now().startOf('day');
+      const minDate = DateTime.fromISO('1900-01-01');
+
+      if (date > today) {
+        throw new ValidationError(t`Birth date cannot be in the future`);
+      }
+
+      if (date < minDate) {
+        throw new ValidationError(t`Birth date cannot be before 1900-01-01`);
+      }
+    },
   };
 
   override hidden: HiddenMap = {

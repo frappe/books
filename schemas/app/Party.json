@@ -65,7 +65,8 @@
       "fieldname": "birthDate",
       "label": "Birth Date",
       "fieldtype": "Date",
-      "section": "Contacts"
+      "section": "Contacts",
+      "description": "Must be between 1900-01-01 and today"
     },
     {
       "fieldname": "defaultAccount",

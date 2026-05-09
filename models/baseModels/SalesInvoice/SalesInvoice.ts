@@ -206,12 +206,16 @@ export class SalesInvoice extends Invoice {
         const itemName = invItem.item as string;
         const itemQty = invItem.quantity || 0;
         
-        // If the SLEs we fetched don't include this invoice, we need to subtract the quantities
+        // If the SLEs we fetched don't include this invoice, we need to subtract/add the quantities
         // to show the REAL remaining balance after this sale.
         const hasSLE = rawSLEs.some(sle => sle.referenceName === this.name && sle.item === itemName);
-        if (!hasSLE && itemQty > 0) {
+        if (!hasSLE && itemQty !== 0) {
             balanceMap[itemName] ??= 0;
-            balanceMap[itemName] -= itemQty;
+            if (this.isReturn) {
+                balanceMap[itemName] += Math.abs(itemQty);
+            } else {
+                balanceMap[itemName] -= itemQty;
+            }
         }
     }
 
