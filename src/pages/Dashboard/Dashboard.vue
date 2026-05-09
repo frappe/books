@@ -4,8 +4,17 @@
       <div class="flex items-center gap-2">
         <!-- Period selector -->
         <div
-          class="border dark:border-gray-900 rounded bg-gray-50 dark:bg-gray-890
-                 focus-within:bg-gray-100 dark:focus-within:bg-gray-900 flex items-center"
+          class="
+            border
+            dark:border-gray-900
+            rounded
+            bg-gray-50
+            dark:bg-gray-890
+            focus-within:bg-gray-100
+            dark:focus-within:bg-gray-900
+            flex
+            items-center
+          "
         >
           <PeriodSelector
             class="px-3"
@@ -17,8 +26,14 @@
 
         <!-- Customize button -->
         <button
-          class="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800
-                 text-gray-500 dark:text-gray-400"
+          class="
+            p-1.5
+            rounded
+            hover:bg-gray-100
+            dark:hover:bg-gray-800
+            text-gray-500
+            dark:text-gray-400
+          "
           :title="t`Customize Dashboard`"
           @click="showCustomize = true"
         >
@@ -34,8 +49,15 @@
       <!-- Empty state: all widgets hidden -->
       <div
         v-if="visibleRows.length === 0"
-        class="h-full flex flex-col items-center justify-center gap-3
-               text-gray-500 dark:text-gray-400"
+        class="
+          h-full
+          flex flex-col
+          items-center
+          justify-center
+          gap-3
+          text-gray-500
+          dark:text-gray-400
+        "
       >
         <FeatherIcon name="layout" class="w-10 h-10 opacity-30" />
         <p class="text-sm">{{ t`No widgets are visible.` }}</p>
@@ -51,7 +73,10 @@
       <div v-else style="min-width: var(--w-desk-fixed)">
         <template v-for="(row, idx) in visibleRows" :key="idx">
           <!-- Full-width widget -->
-          <div v-if="row.type === 'full'" :class="WIDGET_META[row.widget.id].wrapClass">
+          <div
+            v-if="row.type === 'full'"
+            :class="WIDGET_META[row.widget.id].wrapClass"
+          >
             <component
               :is="widgetComponent(row.widget.id)"
               :common-period="period"

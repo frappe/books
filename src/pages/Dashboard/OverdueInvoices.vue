@@ -5,7 +5,12 @@
       <template #action>
         <button
           v-if="overdueList.length"
-          class="text-xs text-blue-500 dark:text-blue-400 hover:underline font-medium"
+          class="
+            text-xs text-blue-500
+            dark:text-blue-400
+            hover:underline
+            font-medium
+          "
           @click="openInvoiceList"
         >
           {{ t`View All` }}
@@ -17,12 +22,27 @@
       <div
         v-for="inv in overdueList"
         :key="inv.name"
-        class="flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded px-1 -mx-1"
+        class="
+          flex
+          items-center
+          justify-between
+          py-2
+          cursor-pointer
+          hover:bg-gray-50
+          dark:hover:bg-gray-800
+          rounded
+          px-1
+          -mx-1
+        "
         @click="openInvoice(inv.name)"
       >
         <div class="min-w-0">
-          <p class="text-sm font-medium dark:text-white truncate">{{ inv.name }}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ inv.party }}</p>
+          <p class="text-sm font-medium dark:text-white truncate">
+            {{ inv.name }}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            {{ inv.party }}
+          </p>
         </div>
         <div class="text-right shrink-0 ms-3">
           <p class="text-sm font-semibold text-pink-500 dark:text-pink-400">
@@ -100,7 +120,9 @@ export default defineComponent({
           outstandingAmount: safeParseFloat(r.outstandingAmount),
           daysOverdue: Math.max(
             0,
-            Math.floor(now.diff(DateTime.fromISO(r.date as string), 'days').days)
+            Math.floor(
+              now.diff(DateTime.fromISO(r.date as string), 'days').days
+            )
           ),
         }))
         .filter((r) => r.outstandingAmount > 0);

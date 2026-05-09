@@ -42,7 +42,9 @@
           </p>
         </div>
         <div class="text-right">
-          <p class="text-gray-500 dark:text-gray-400">{{ t`Cost of Goods Sold` }}</p>
+          <p class="text-gray-500 dark:text-gray-400">
+            {{ t`Cost of Goods Sold` }}
+          </p>
           <p class="font-semibold dark:text-white mt-0.5">
             {{ fyo.format(cogs, 'Currency') }}
           </p>
@@ -50,10 +52,7 @@
       </div>
     </div>
 
-    <div
-      v-else
-      class="flex-1 flex items-center justify-center py-10"
-    >
+    <div v-else class="flex-1 flex items-center justify-center py-10">
       <span class="text-sm text-gray-500 dark:text-gray-400">
         {{ t`No transactions yet` }}
       </span>
@@ -70,6 +69,7 @@ import BaseDashboardChart from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 export default defineComponent({
   name: 'GrossMargin',
   components: { SectionHeader, PeriodSelector },

@@ -4,10 +4,16 @@
       <template #title>{{ t`Cash on Hand` }}</template>
     </SectionHeader>
 
-    <div class="mt-4 flex flex-col items-center justify-center flex-1 gap-1 py-6">
+    <div
+      class="mt-4 flex flex-col items-center justify-center flex-1 gap-1 py-6"
+    >
       <p
         class="text-4xl font-bold tabular-nums"
-        :class="total >= 0 ? 'text-gray-900 dark:text-white' : 'text-pink-500 dark:text-pink-400'"
+        :class="
+          total >= 0
+            ? 'text-gray-900 dark:text-white'
+            : 'text-pink-500 dark:text-pink-400'
+        "
       >
         {{ fyo.format(total, 'Currency') }}
       </p>

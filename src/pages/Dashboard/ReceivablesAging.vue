@@ -41,7 +41,18 @@
             :style="tooltipStyle"
           >
             <div
-              class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-3 py-2 text-xs whitespace-nowrap"
+              class="
+                bg-white
+                dark:bg-gray-900
+                border border-gray-200
+                dark:border-gray-700
+                rounded-lg
+                shadow-lg
+                px-3
+                py-2
+                text-xs
+                whitespace-nowrap
+              "
             >
               <p :class="[hoveredBucket.labelClass, 'font-semibold mb-1']">
                 {{ hoveredBucket.label }}
@@ -108,7 +119,11 @@ type AgingBucket = {
   cardBgClass: string;
 };
 
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/*
+  eslint-disable @typescript-eslint/no-unsafe-argument,
+  @typescript-eslint/no-unsafe-return,
+  @typescript-eslint/restrict-plus-operands
+*/
 export default defineComponent({
   name: 'ReceivablesAging',
   components: { SectionHeader },
@@ -185,12 +200,14 @@ export default defineComponent({
     },
     onBarHover(bucket: AgingBucket, event: MouseEvent) {
       this.hoveredBucket = bucket;
-      const bar = (event.currentTarget as HTMLElement).closest(
+      const bar = (event.currentTarget as HTMLElement).closest<HTMLElement>(
         '.relative'
-      ) as HTMLElement | null;
+      );
       if (!bar) return;
       const barRect = bar.getBoundingClientRect();
-      const segRect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const segRect = (
+        event.currentTarget as HTMLElement
+      ).getBoundingClientRect();
       // Center the tooltip over the hovered segment, clamped within the bar
       const segMidX = segRect.left + segRect.width / 2 - barRect.left;
       this.tooltipStyle = {
@@ -226,8 +243,7 @@ export default defineComponent({
 
         const bucket = this.buckets.find(
           (b) =>
-            daysOld >= b.minDays &&
-            (b.maxDays === null || daysOld <= b.maxDays)
+            daysOld >= b.minDays && (b.maxDays === null || daysOld <= b.maxDays)
         );
 
         if (bucket) {

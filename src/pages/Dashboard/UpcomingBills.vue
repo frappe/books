@@ -5,7 +5,12 @@
       <template #action>
         <button
           v-if="billList.length"
-          class="text-xs text-blue-500 dark:text-blue-400 hover:underline font-medium"
+          class="
+            text-xs text-blue-500
+            dark:text-blue-400
+            hover:underline
+            font-medium
+          "
           @click="openBillList"
         >
           {{ t`View All` }}
@@ -17,12 +22,27 @@
       <div
         v-for="bill in billList"
         :key="bill.name"
-        class="flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded px-1 -mx-1"
+        class="
+          flex
+          items-center
+          justify-between
+          py-2
+          cursor-pointer
+          hover:bg-gray-50
+          dark:hover:bg-gray-800
+          rounded
+          px-1
+          -mx-1
+        "
         @click="openBill(bill.name)"
       >
         <div class="min-w-0">
-          <p class="text-sm font-medium dark:text-white truncate">{{ bill.name }}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ bill.party }}</p>
+          <p class="text-sm font-medium dark:text-white truncate">
+            {{ bill.name }}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            {{ bill.party }}
+          </p>
         </div>
         <div class="text-right shrink-0 ms-3">
           <p class="text-sm font-semibold text-orange-500 dark:text-orange-400">
@@ -100,7 +120,9 @@ export default defineComponent({
           outstandingAmount: safeParseFloat(r.outstandingAmount),
           daysAgo: Math.max(
             0,
-            Math.floor(now.diff(DateTime.fromISO(r.date as string), 'days').days)
+            Math.floor(
+              now.diff(DateTime.fromISO(r.date as string), 'days').days
+            )
           ),
         }))
         .filter((r) => r.outstandingAmount > 0);

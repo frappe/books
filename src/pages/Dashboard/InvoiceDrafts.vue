@@ -5,7 +5,12 @@
       <template #action>
         <button
           v-if="count > 0"
-          class="text-xs text-blue-500 dark:text-blue-400 hover:underline font-medium"
+          class="
+            text-xs text-blue-500
+            dark:text-blue-400
+            hover:underline
+            font-medium
+          "
           @click="openDraftList"
         >
           {{ t`View All` }}
@@ -13,10 +18,15 @@
       </template>
     </SectionHeader>
 
-    <div v-if="count > 0" class="mt-4 flex flex-1 items-center justify-center gap-0">
+    <div
+      v-if="count > 0"
+      class="mt-4 flex flex-1 items-center justify-center gap-0"
+    >
       <!-- Count stat -->
       <div class="flex flex-col items-center flex-1 py-3">
-        <p class="text-4xl font-bold tabular-nums text-gray-900 dark:text-white">
+        <p
+          class="text-4xl font-bold tabular-nums text-gray-900 dark:text-white"
+        >
           {{ count }}
         </p>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -29,7 +39,9 @@
 
       <!-- Total value stat -->
       <div class="flex flex-col items-center flex-1 py-3">
-        <p class="text-4xl font-bold tabular-nums text-gray-900 dark:text-white">
+        <p
+          class="text-4xl font-bold tabular-nums text-gray-900 dark:text-white"
+        >
           {{ fyo.format(totalValue, 'Currency') }}
         </p>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -38,10 +50,7 @@
       </div>
     </div>
 
-    <div
-      v-else
-      class="flex-1 flex items-center justify-center py-10"
-    >
+    <div v-else class="flex-1 flex items-center justify-center py-10">
       <span class="text-sm text-gray-500 dark:text-gray-400">
         {{ t`No draft invoices` }} ✓
       </span>
