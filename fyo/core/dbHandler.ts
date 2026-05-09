@@ -14,6 +14,7 @@ import {
   IncomeExpense,
   QueryFilter,
   TopExpenses,
+  BestSellers,
   TotalCreditAndDebit,
   TotalOutstanding,
 } from 'utils/db/types';
@@ -273,6 +274,14 @@ export class DatabaseHandler extends DatabaseBase {
       fromDate,
       toDate
     )) as TopExpenses;
+  }
+
+  async getBestSellers(fromDate: string, toDate: string): Promise<BestSellers> {
+    return (await this.#demux.callBespoke(
+      'getBestSellers',
+      fromDate,
+      toDate
+    )) as BestSellers;
   }
 
   async getTotalOutstanding(
