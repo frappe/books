@@ -24,6 +24,8 @@ export interface WidgetMeta {
    * Components with their own internal padding (UnpaidInvoices) leave this empty.
    */
   wrapClass: string;
+  /** Feather icon name shown in the customize panel. */
+  icon: string;
 }
 
 export const WIDGET_META: Record<WidgetKey, WidgetMeta> = {
@@ -33,6 +35,7 @@ export const WIDGET_META: Record<WidgetKey, WidgetMeta> = {
     description: 'Monthly inflow and outflow',
     width: 'full',
     wrapClass: 'p-4',
+    icon: 'trending-up',
   },
   salesInvoices: {
     id: 'salesInvoices',
@@ -40,6 +43,7 @@ export const WIDGET_META: Record<WidgetKey, WidgetMeta> = {
     description: 'Paid and unpaid sales invoices',
     width: 'half',
     wrapClass: '', // UnpaidInvoices applies its own p-4
+    icon: 'file-text',
   },
   purchaseInvoices: {
     id: 'purchaseInvoices',
@@ -47,6 +51,7 @@ export const WIDGET_META: Record<WidgetKey, WidgetMeta> = {
     description: 'Paid and unpaid purchase invoices',
     width: 'half',
     wrapClass: '', // UnpaidInvoices applies its own p-4
+    icon: 'shopping-cart',
   },
   profitAndLoss: {
     id: 'profitAndLoss',
@@ -54,6 +59,7 @@ export const WIDGET_META: Record<WidgetKey, WidgetMeta> = {
     description: 'Net income by period',
     width: 'half',
     wrapClass: 'p-4',
+    icon: 'bar-chart-2',
   },
   expenses: {
     id: 'expenses',
@@ -61,6 +67,7 @@ export const WIDGET_META: Record<WidgetKey, WidgetMeta> = {
     description: 'Top expense categories',
     width: 'half',
     wrapClass: 'p-4',
+    icon: 'pie-chart',
   },
 };
 
@@ -138,6 +145,69 @@ export function parseWidgetLayout(raw: string | undefined): WidgetConfig[] {
   } catch {
     return DEFAULT_LAYOUT.map((c) => ({ ...c }));
   }
+}
+
+// ── Customizer helpers ───────────────────────────────────────────────────────
+
+/**
+ * The discriminated row shape used by the drag-and-drop customiser preview.
+ * `endIdx` is the insertion index (into the visible-order array) that the
+ * drop zone placed *after* this row should target.
+ */
+export type PreviewRow =
+  | { type: 'full'; ids: [WidgetKey]; endIdx: number }
+  | { type: 'half-pair'; ids: [WidgetKey, WidgetKey]; endIdx: number }
+  | { type: 'half-solo'; ids: [WidgetKey]; endIdx: number };
+
+/**
+ * Converts an ordered list of visible widget keys into preview rows,
+ * pairing adjacent half-width widgets exactly as the dashboard renderer
+ * does, and attaching the drop-zone insertion index for each row.
+ */
+export function buildPreviewRows(visibleOrder: WidgetKey[]): PreviewRow[] {
+  const result: PreviewRow[] = [];
+  let i = 0;
+  while (i < visibleOrder.length) {
+    const id = visibleOrder[i];
+    if (WIDGET_META[id].width === 'full') {
+      result.push({ type: 'full', ids: [id], endIdx: i + 1 });
+      i += 1;
+    } else {
+      const nextId = visibleOrder[i + 1];
+      if (nextId !== undefined && WIDGET_META[nextId].width === 'half') {
+        result.push({ type: 'half-pair', ids: [id, nextId], endIdx: i + 2 });
+        i += 2;
+      } else {
+        result.push({ type: 'half-solo', ids: [id], endIdx: i + 1 });
+        i += 1;
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Pure logic behind the customiser's commitDrop operation.
+ *
+ * Inserts `draggedId` at `targetIdx` in `visibleOrder`.  If the widget was
+ * already visible, it is first removed from its current position, and
+ * `targetIdx` is adjusted so the final position matches the user's intent.
+ * If it was hidden (not present in `visibleOrder`), it is simply inserted.
+ */
+export function applyWidgetDrop(
+  visibleOrder: WidgetKey[],
+  draggedId: WidgetKey,
+  targetIdx: number
+): WidgetKey[] {
+  const order = [...visibleOrder];
+  const currentIdx = order.indexOf(draggedId);
+  if (currentIdx !== -1) {
+    order.splice(currentIdx, 1);
+    // Removal shifts every subsequent index left by 1.
+    if (currentIdx < targetIdx) targetIdx--;
+  }
+  order.splice(targetIdx, 0, draggedId);
+  return order;
 }
 
 // ── Layout engine ────────────────────────────────────────────────────────────

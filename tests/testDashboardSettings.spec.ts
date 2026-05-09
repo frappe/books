@@ -9,6 +9,8 @@
 import { ModelNameEnum } from 'models/types';
 import {
   ALL_WIDGET_KEYS,
+  applyWidgetDrop,
+  buildPreviewRows,
   buildWidgetRows,
   DEFAULT_LAYOUT,
   parseWidgetLayout,
@@ -17,6 +19,7 @@ import {
   profileToLayout,
   WIDGET_META,
   WidgetConfig,
+  WidgetKey,
 } from 'src/pages/Dashboard/types';
 import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from './helpers';
@@ -192,11 +195,171 @@ test('WIDGET_META: every WidgetKey has a complete entry', (t) => {
     t.ok(meta.description, `${key}: has description`);
     t.ok(meta.width === 'full' || meta.width === 'half', `${key}: valid width`);
     t.equal(typeof meta.wrapClass, 'string', `${key}: wrapClass is a string`);
+    t.ok(meta.icon, `${key}: has icon`);
+    t.equal(typeof meta.icon, 'string', `${key}: icon is a string`);
   }
   t.end();
 });
 
-// ── 5. Integration: DashboardSettings singleton in an in-memory DB ──────────
+// ── 5. buildPreviewRows ──────────────────────────────────────────────────────
+
+test('buildPreviewRows: empty list → no rows', (t) => {
+  t.deepEqual(buildPreviewRows([]), [], 'empty input gives empty output');
+  t.end();
+});
+
+test('buildPreviewRows: single full widget → endIdx=1', (t) => {
+  const rows = buildPreviewRows(['cashflow']);
+  t.equal(rows.length, 1);
+  t.equal(rows[0].type, 'full');
+  t.equal(rows[0].endIdx, 1, 'full row endIdx is 1');
+  t.deepEqual(rows[0].ids, ['cashflow']);
+  t.end();
+});
+
+test('buildPreviewRows: half-pair → endIdx=2', (t) => {
+  const rows = buildPreviewRows(['salesInvoices', 'purchaseInvoices']);
+  t.equal(rows.length, 1);
+  t.equal(rows[0].type, 'half-pair');
+  t.equal(rows[0].endIdx, 2, 'half-pair row consumes 2 widgets');
+  t.deepEqual(rows[0].ids, ['salesInvoices', 'purchaseInvoices']);
+  t.end();
+});
+
+test('buildPreviewRows: half-solo → endIdx=1', (t) => {
+  const rows = buildPreviewRows(['profitAndLoss']);
+  t.equal(rows.length, 1);
+  t.equal(rows[0].type, 'half-solo');
+  t.equal(rows[0].endIdx, 1);
+  t.end();
+});
+
+test('buildPreviewRows: mixed sequence has correct cumulative endIdx values', (t) => {
+  // cashflow(full) | salesInvoices+purchaseInvoices(pair) | profitAndLoss(solo)
+  // indices:  0          1              2                       3
+  // endIdx:   1                         3                       4
+  const rows = buildPreviewRows([
+    'cashflow',
+    'salesInvoices',
+    'purchaseInvoices',
+    'profitAndLoss',
+  ]);
+  t.equal(rows.length, 3);
+  t.equal(rows[0].type, 'full');
+  t.equal(rows[0].endIdx, 1, 'full endIdx=1');
+  t.equal(rows[1].type, 'half-pair');
+  t.equal(rows[1].endIdx, 3, 'pair endIdx=3 (consumed 2 slots)');
+  t.equal(rows[2].type, 'half-solo');
+  t.equal(rows[2].endIdx, 4, 'solo endIdx=4');
+  t.end();
+});
+
+test('buildPreviewRows: drop at half-solo endIdx pairs the widgets', (t) => {
+  // profitAndLoss is alone; dropping expenses at endIdx=1 should make them pair
+  const before: WidgetKey[] = ['profitAndLoss'];
+  const soloRows = buildPreviewRows(before);
+  t.equal(soloRows[0].type, 'half-solo');
+  const pairTarget = soloRows[0].endIdx; // = 1
+
+  // Simulate dropping expenses (currently hidden) at that index
+  const after = applyWidgetDrop(before, 'expenses', pairTarget);
+  t.deepEqual(
+    after,
+    ['profitAndLoss', 'expenses'],
+    'expenses inserted after solo'
+  );
+
+  const afterRows = buildPreviewRows(after);
+  t.equal(afterRows.length, 1, 'now a single row');
+  t.equal(afterRows[0].type, 'half-pair', 'they now form a half-pair');
+  t.end();
+});
+
+// ── 6. applyWidgetDrop ───────────────────────────────────────────────────────
+
+test('applyWidgetDrop: inserting a hidden widget at the start', (t) => {
+  const result = applyWidgetDrop(
+    ['salesInvoices', 'profitAndLoss'],
+    'cashflow',
+    0
+  );
+  t.deepEqual(result, ['cashflow', 'salesInvoices', 'profitAndLoss']);
+  t.end();
+});
+
+test('applyWidgetDrop: inserting a hidden widget in the middle', (t) => {
+  const result = applyWidgetDrop(
+    ['cashflow', 'profitAndLoss'],
+    'salesInvoices',
+    1
+  );
+  t.deepEqual(result, ['cashflow', 'salesInvoices', 'profitAndLoss']);
+  t.end();
+});
+
+test('applyWidgetDrop: inserting a hidden widget at the end', (t) => {
+  const result = applyWidgetDrop(
+    ['cashflow', 'salesInvoices'],
+    'profitAndLoss',
+    2
+  );
+  t.deepEqual(result, ['cashflow', 'salesInvoices', 'profitAndLoss']);
+  t.end();
+});
+
+test('applyWidgetDrop: moving a widget earlier (from index 2 to 0)', (t) => {
+  const order: WidgetKey[] = ['salesInvoices', 'profitAndLoss', 'cashflow'];
+  const result = applyWidgetDrop(order, 'cashflow', 0);
+  t.deepEqual(result, ['cashflow', 'salesInvoices', 'profitAndLoss']);
+  t.end();
+});
+
+test('applyWidgetDrop: moving a widget later (from index 0 to last)', (t) => {
+  const order: WidgetKey[] = ['cashflow', 'salesInvoices', 'profitAndLoss'];
+  // targetIdx=3 means "after all three"; after removal of cashflow at 0,
+  // the array has length 2 and targetIdx adjusts to 2.
+  const result = applyWidgetDrop(order, 'cashflow', 3);
+  t.deepEqual(result, ['salesInvoices', 'profitAndLoss', 'cashflow']);
+  t.end();
+});
+
+test('applyWidgetDrop: dropping at the same position is a no-op', (t) => {
+  const order: WidgetKey[] = ['cashflow', 'salesInvoices', 'profitAndLoss'];
+  // Dropping cashflow at idx=0 (before itself): currentIdx=0, targetIdx=0.
+  // After splice(0,1): order=['salesInvoices','profitAndLoss'], currentIdx(0) is NOT < targetIdx(0),
+  // so no adjustment; splice(0,0,'cashflow') → ['cashflow','salesInvoices','profitAndLoss']
+  const result = applyWidgetDrop(order, 'cashflow', 0);
+  t.deepEqual(
+    result,
+    ['cashflow', 'salesInvoices', 'profitAndLoss'],
+    'order unchanged'
+  );
+  t.end();
+});
+
+test('applyWidgetDrop: dropping widget at its own endIdx is also a no-op', (t) => {
+  // cashflow is at index 0, endIdx of its row = 1.
+  // Dropping at 1: currentIdx=0, after removal targetIdx adjusts to 0 (0 < 1 → 1-1=0),
+  // then splice(0,0,'cashflow') → same order.
+  const order: WidgetKey[] = ['cashflow', 'salesInvoices'];
+  const result = applyWidgetDrop(order, 'cashflow', 1);
+  t.deepEqual(
+    result,
+    ['cashflow', 'salesInvoices'],
+    'same order when dropped just after self'
+  );
+  t.end();
+});
+
+test('applyWidgetDrop: does not mutate the original array', (t) => {
+  const original: WidgetKey[] = ['cashflow', 'salesInvoices', 'profitAndLoss'];
+  const copy = [...original];
+  applyWidgetDrop(original, 'cashflow', 2);
+  t.deepEqual(original, copy, 'original array is unchanged');
+  t.end();
+});
+
+// ── 7. Integration: DashboardSettings singleton in an in-memory DB ──────────
 
 const fyo = getTestFyo();
 setupTestFyo(fyo, __filename);
