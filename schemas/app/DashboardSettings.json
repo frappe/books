@@ -16,8 +16,8 @@
       "fieldtype": "Select",
       "options": [
         { "value": "Freelancer", "label": "Freelancer" },
-        { "value": "Retailer", "label": "Retailer" },
-        { "value": "Service Business", "label": "Service Business" },
+        { "value": "Shop / Trader", "label": "Shop / Trader" },
+        { "value": "Small Business", "label": "Small Business" },
         { "value": "Custom", "label": "Custom" }
       ],
       "default": "Custom"

@@ -13,8 +13,8 @@ export type WidgetKey =
 
 export type DashboardProfile =
   | 'Freelancer'
-  | 'Retailer'
-  | 'Service Business'
+  | 'Shop / Trader'
+  | 'Small Business'
   | 'Custom';
 
 // ── Per-widget metadata ──────────────────────────────────────────────────────
@@ -157,24 +157,44 @@ export const PROFILE_LAYOUTS: Record<
   Exclude<DashboardProfile, 'Custom'>,
   WidgetKey[]
 > = {
-  // Freelancers care about outstanding invoices and overall P&L; cashflow
-  // chart is rarely meaningful without regular bank reconciliation.
-  Freelancer: ['salesInvoices', 'overdueInvoices', 'profitAndLoss', 'grossMargin'],
-  // Retailers need tight cashflow visibility alongside both invoice streams.
-  Retailer: ['cashflow', 'cashOnHand', 'salesInvoices', 'purchaseInvoices', 'upcomingBills', 'expenses'],
-  // Service businesses lead with cashflow and profitability.
-  'Service Business': [
-    'cashflow',
+  // Freelancers are AR-anxious: solo income earners whose #1 concern is
+  // getting paid and knowing they can cover upcoming bills. grossMargin is
+  // omitted — pure service providers have no COGS, so it reads 100% or empty.
+  Freelancer: [
     'cashOnHand',
     'salesInvoices',
     'overdueInvoices',
-    'topCustomers',
+    'upcomingBills',
+    'profitAndLoss',
+  ],
+  // Shop / Trader: anyone who buys things to sell things (retailer, wholesaler,
+  // small manufacturer, trader). The buy-sell cycle makes gross margin and
+  // purchase tracking the core need, alongside cashflow for stock funding.
+  'Shop / Trader': [
+    'cashflow',
+    'cashOnHand',
     'grossMargin',
+    'salesInvoices',
+    'purchaseInvoices',
+    'upcomingBills',
+    'expenses',
+  ],
+  // Small Business: any multi-person operation that needs the full financial
+  // picture — agency, firm, growing shop, contractor company. Prioritises the
+  // executive overview: cashflow shape, P&L health, collections, and key clients.
+  'Small Business': [
+    'cashflow',
+    'cashOnHand',
+    'profitAndLoss',
+    'salesInvoices',
+    'overdueInvoices',
+    'topCustomers',
+    'expenses',
   ],
 };
 
 export const PRESET_PROFILES: ReadonlyArray<Exclude<DashboardProfile, 'Custom'>> =
-  ['Freelancer', 'Retailer', 'Service Business'];
+  ['Freelancer', 'Shop / Trader', 'Small Business'];
 
 export function profileToLayout(
   profile: Exclude<DashboardProfile, 'Custom'>
