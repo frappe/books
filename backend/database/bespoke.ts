@@ -2,6 +2,7 @@ import {
   Cashflow,
   IncomeExpense,
   TopExpenses,
+  BestSellers,
   TotalCreditAndDebit,
   TotalOutstanding,
 } from 'utils/db/types';
@@ -53,6 +54,27 @@ export class BespokeQueries {
       .orderBy('total', 'desc')
       .limit(5);
     return topExpenses as TopExpenses;
+  }
+
+  static async getBestSellers(
+    db: DatabaseCore,
+    fromDate: string,
+    toDate: string
+  ) {
+    const bestSellers = await db
+      .knex!.select({
+        total: db.knex!.raw('sum(cast(amount as real))'),
+      })
+      .select('item')
+      .from('SalesInvoiceItem')
+      .join('SalesInvoice', 'SalesInvoiceItem.parent', '=', 'SalesInvoice.name')
+      .where('SalesInvoice.submitted', true)
+      .where('SalesInvoice.cancelled', false)
+      .whereBetween('SalesInvoice.date', [fromDate, toDate])
+      .groupBy('item')
+      .orderBy('total', 'desc')
+      .limit(5);
+    return bestSellers as BestSellers;
   }
 
   static async getTotalOutstanding(

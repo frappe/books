@@ -42,6 +42,7 @@
       :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       :open-batch-selection-modal="openBatchSelectionModal"
       :selected-item-for-batch="selectedItemForBatch"
+      :processing-action="processingAction"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -98,6 +99,7 @@
       :open-return-sales-invoice-modal="openReturnSalesInvoiceModal"
       :open-batch-selection-modal="openBatchSelectionModal"
       :selected-item-for-batch="selectedItemForBatch"
+      :processing-action="processingAction"
       @add-item="addItem"
       @toggle-view="toggleView"
       @set-sinv-doc="setSinvDoc"
@@ -259,6 +261,11 @@ export default defineComponent({
       quickQtyKeyUpHandler: null as ((e: KeyboardEvent) => void) | null,
       selectedItemForBatch: '' as string,
       pendingBatchItem: null as { item: POSItem; quantity: number } | null,
+      barcodeBuffer: '',
+      lastKeyPressTime: 0,
+      barcodeKeyDownHandler: null as ((e: KeyboardEvent) => void) | null,
+      lastPriceList: '',
+      processingAction: null as string | null,
     };
   },
   computed: {
@@ -283,6 +290,10 @@ export default defineComponent({
           this.setCouponsCount(this.sinvDoc.coupons?.length);
         }
 
+        if (this.sinvDoc.priceList) {
+          this.lastPriceList = this.sinvDoc.priceList;
+        }
+
         this.updateValues();
       },
       deep: true,
@@ -298,9 +309,11 @@ export default defineComponent({
     validateIsPosSettingsSet(fyo);
     this.setCouponCodeDoc();
     this.setSinvDoc();
+    await this.setDefaultPriceList();
     this.setDefaultCustomer();
     this.setShortcuts();
     this.addQuickQtyListeners();
+    this.addBarcodeScannerListeners();
 
     await this.setItemQtyMap();
     await this.setItems();
@@ -309,6 +322,7 @@ export default defineComponent({
     this.shortcuts?.delete(COMPONENT_NAME);
     toggleSidebar(true);
     this.removeQuickQtyListeners();
+    this.removeBarcodeScannerListeners();
   },
   methods: {
     setQuickQtySelectedRow(row: SalesInvoiceItem) {
@@ -341,6 +355,55 @@ export default defineComponent({
           this.quickQtyKeyUpHandler as EventListener
         );
         this.quickQtyKeyUpHandler = null;
+      }
+    },
+    addBarcodeScannerListeners() {
+      this.barcodeKeyDownHandler = (e: KeyboardEvent) =>
+        this.onBarcodeKeyDown(e);
+      window.addEventListener(
+        'keydown',
+        this.barcodeKeyDownHandler as EventListener
+      );
+    },
+    removeBarcodeScannerListeners() {
+      if (this.barcodeKeyDownHandler) {
+        window.removeEventListener(
+          'keydown',
+          this.barcodeKeyDownHandler as EventListener
+        );
+        this.barcodeKeyDownHandler = null;
+      }
+    },
+    async onBarcodeKeyDown(e: KeyboardEvent) {
+      if (this.hasAnyOpenModal()) {
+        return;
+      }
+
+      const SCANNER_TIMEOUT = 50;
+      const currentTime = Date.now();
+
+      if (e.key === 'Enter') {
+        if (this.barcodeBuffer.length > 0) {
+          const barcode = this.barcodeBuffer;
+          this.barcodeBuffer = '';
+          await this.handleItemSearch(barcode, true);
+          e.preventDefault();
+          return;
+        }
+      }
+
+      if (
+        this.lastKeyPressTime &&
+        currentTime - this.lastKeyPressTime > SCANNER_TIMEOUT
+      ) {
+        if (!['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) {
+          this.barcodeBuffer = '';
+        }
+      }
+
+      if (e.key.length === 1) {
+        this.barcodeBuffer += e.key;
+        this.lastKeyPressTime = currentTime;
       }
     },
     hasAnyOpenModal(): boolean {
@@ -656,6 +719,28 @@ export default defineComponent({
           this.toggleModal('CouponCode');
         }
       });
+    },
+    async setDefaultPriceList() {
+      if (!this.fyo.singles.AccountingSettings?.enablePriceList) {
+        return;
+      }
+
+      if (this.lastPriceList) {
+        await this.sinvDoc.set('priceList', this.lastPriceList);
+        return;
+      }
+
+      if (!this.sinvDoc.priceList) {
+        const priceLists = await fyo.db.getAll(ModelNameEnum.PriceList, {
+          fields: ['name'],
+        });
+
+        if (priceLists.length > 0) {
+          const lastPriceListName = priceLists[priceLists.length - 1].name;
+          await this.sinvDoc.set('priceList', lastPriceListName);
+          this.lastPriceList = lastPriceListName;
+        }
+      }
     },
     async saveOrder() {
       try {
@@ -1056,8 +1141,13 @@ export default defineComponent({
       }
     },
 
-    async createTransaction(shouldPrint = false, isPay = false) {
+    async createTransaction(
+      shouldPrint = false,
+      isPay = false,
+      action: string | null = null
+    ) {
       try {
+        this.processingAction = action;
         this.sinvDoc.date = new Date();
         await this.validate();
         await this.submitSinvDoc();
@@ -1085,10 +1175,13 @@ export default defineComponent({
         await this.afterTransaction();
         await this.setItems();
       } catch (error) {
+        this.openPaymentModal = true;
         showToast({
           type: 'error',
           message: t`${error as string}`,
         });
+      } finally {
+        this.processingAction = null;
       }
     },
     async makePayment(shouldPrint: boolean) {
@@ -1107,7 +1200,7 @@ export default defineComponent({
         'paymentMethod'
       );
 
-      if (paymentMethodDoc?.type !== 'Cash') {
+      if (paymentMethodDoc?.type !== 'Cash' || paymentMethodDoc?.type !== 'Transfer') {
         await this.paymentDoc.setMultiple({
           referenceId: this.transferRefNo,
           clearanceDate: this.transferClearanceDate,
@@ -1117,6 +1210,10 @@ export default defineComponent({
       if (paymentMethodDoc?.type === 'Cash') {
         await this.paymentDoc.setMultiple({
           paymentAccount: this.defaultPOSCashAccount,
+        });
+      } else if (paymentMethodDoc?.account) {
+        await this.paymentDoc.setMultiple({
+          paymentAccount: paymentMethodDoc.account,
         });
       }
 
@@ -1139,6 +1236,7 @@ export default defineComponent({
           );
         }
       } catch (error) {
+        this.openPaymentModal = true;
         return showToast({
           type: 'error',
           message: t`${error as string}`,
@@ -1184,6 +1282,7 @@ export default defineComponent({
         await shipmentDoc.sync();
         await shipmentDoc.submit();
       } catch (error) {
+        this.openPaymentModal = true;
         return showToast({
           type: 'error',
           message: t`${error as string}`,
@@ -1205,6 +1304,7 @@ export default defineComponent({
         await this.sinvDoc.sync();
         await this.sinvDoc.submit();
       } catch (error) {
+        this.openPaymentModal = true;
         return showToast({
           type: 'error',
           message: t`${error as string}`,
@@ -1213,18 +1313,17 @@ export default defineComponent({
     },
     async afterSync() {
       await this.clearValues();
-      this.setSinvDoc();
     },
     async afterTransaction() {
       await this.setItemQtyMap();
       if (this.sinvDoc.isSubmitted) {
         await this.clearValues();
-        this.setSinvDoc();
       }
       this.toggleModal('Payment', false);
     },
     async clearValues() {
       this.setSinvDoc();
+      await this.setDefaultPriceList();
       this.itemSerialNumbers = {};
 
       this.paidAmount = fyo.pesa(0);
