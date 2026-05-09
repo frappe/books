@@ -130,11 +130,78 @@ export class BespokeQueries {
     return { income, expense };
   }
 
+  static async getCashOnHand(db: DatabaseCore): Promise<{ total: number }> {
+    const cashAndBankAccounts = db.knex!('Account')
+      .select('name')
+      .where('accountType', 'in', ['Cash', 'Bank'])
+      .andWhere('isGroup', false);
+
+    const result = (await db.knex!('AccountingLedgerEntry')
+      .where('reverted', false)
+      .where('account', 'in', cashAndBankAccounts)
+      .sum({ debit: db.knex!.raw('cast(debit as real)') })
+      .sum({ credit: db.knex!.raw('cast(credit as real)') })
+      .first()) as { debit: number; credit: number } | undefined;
+
+    return { total: (result?.debit ?? 0) - (result?.credit ?? 0) };
+  }
+
+  static async getTopCustomers(
+    db: DatabaseCore,
+    fromDate: string,
+    toDate: string
+  ): Promise<{ party: string; total: number }[]> {
+    return (await db.knex!('SalesInvoice')
+      .select('party')
+      .sum({ total: db.knex!.raw('cast(baseGrandTotal as real)') })
+      .where('submitted', true)
+      .where('cancelled', false)
+      .whereBetween('date', [fromDate, toDate])
+      .groupBy('party')
+      .orderBy('total', 'desc')
+      .limit(5)) as { party: string; total: number }[];
+  }
+
+  static async getGrossMargin(
+    db: DatabaseCore,
+    fromDate: string,
+    toDate: string
+  ): Promise<{ income: number; cogs: number }> {
+    const incomeAccounts = db.knex!('Account')
+      .select('name')
+      .where('rootType', 'Income');
+
+    const cogsAccounts = db.knex!('Account')
+      .select('name')
+      .where('accountType', 'Cost of Goods Sold');
+
+    const incomeResult = (await db.knex!('AccountingLedgerEntry')
+      .where('reverted', false)
+      .where('account', 'in', incomeAccounts)
+      .whereBetween('date', [fromDate, toDate])
+      .sum({ credit: db.knex!.raw('cast(credit as real)') })
+      .sum({ debit: db.knex!.raw('cast(debit as real)') })
+      .first()) as { credit: number; debit: number } | undefined;
+
+    const cogsResult = (await db.knex!('AccountingLedgerEntry')
+      .where('reverted', false)
+      .where('account', 'in', cogsAccounts)
+      .whereBetween('date', [fromDate, toDate])
+      .sum({ debit: db.knex!.raw('cast(debit as real)') })
+      .sum({ credit: db.knex!.raw('cast(credit as real)') })
+      .first()) as { debit: number; credit: number } | undefined;
+
+    return {
+      income: (incomeResult?.credit ?? 0) - (incomeResult?.debit ?? 0),
+      cogs: (cogsResult?.debit ?? 0) - (cogsResult?.credit ?? 0),
+    };
+  }
+
   static async getTotalCreditAndDebit(db: DatabaseCore) {
     return (await db.knex!.raw(`
-    select 
-	    account, 
-      sum(cast(credit as real)) as totalCredit, 
+    select
+	    account,
+      sum(cast(credit as real)) as totalCredit,
       sum(cast(debit as real)) as totalDebit
     from AccountingLedgerEntry
     group by account

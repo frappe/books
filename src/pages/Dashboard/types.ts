@@ -4,7 +4,12 @@ export type WidgetKey =
   | 'salesInvoices'
   | 'purchaseInvoices'
   | 'profitAndLoss'
-  | 'expenses';
+  | 'expenses'
+  | 'overdueInvoices'
+  | 'upcomingBills'
+  | 'cashOnHand'
+  | 'topCustomers'
+  | 'grossMargin';
 
 export type DashboardProfile =
   | 'Freelancer'
@@ -69,6 +74,46 @@ export const WIDGET_META: Record<WidgetKey, WidgetMeta> = {
     wrapClass: 'p-4',
     icon: 'pie-chart',
   },
+  overdueInvoices: {
+    id: 'overdueInvoices',
+    label: 'Overdue Invoices',
+    description: 'Sales invoices overdue by 30+ days',
+    width: 'half',
+    wrapClass: '',
+    icon: 'alert-circle',
+  },
+  upcomingBills: {
+    id: 'upcomingBills',
+    label: 'Upcoming Bills',
+    description: 'Unpaid purchase invoices from last 30 days',
+    width: 'half',
+    wrapClass: '',
+    icon: 'clock',
+  },
+  cashOnHand: {
+    id: 'cashOnHand',
+    label: 'Cash on Hand',
+    description: 'Total balance across cash & bank accounts',
+    width: 'half',
+    wrapClass: 'p-4',
+    icon: 'dollar-sign',
+  },
+  topCustomers: {
+    id: 'topCustomers',
+    label: 'Top Customers',
+    description: 'Top 5 customers by revenue this period',
+    width: 'half',
+    wrapClass: '',
+    icon: 'users',
+  },
+  grossMargin: {
+    id: 'grossMargin',
+    label: 'Gross Margin',
+    description: 'Revenue minus cost of goods sold (%)',
+    width: 'half',
+    wrapClass: 'p-4',
+    icon: 'percent',
+  },
 };
 
 export const ALL_WIDGET_KEYS: WidgetKey[] = [
@@ -77,6 +122,11 @@ export const ALL_WIDGET_KEYS: WidgetKey[] = [
   'purchaseInvoices',
   'profitAndLoss',
   'expenses',
+  'overdueInvoices',
+  'upcomingBills',
+  'cashOnHand',
+  'topCustomers',
+  'grossMargin',
 ];
 
 // ── Stored config shape ──────────────────────────────────────────────────────
@@ -85,9 +135,17 @@ export interface WidgetConfig {
   visible: boolean;
 }
 
+const ORIGINAL_WIDGET_KEYS = new Set<WidgetKey>([
+  'cashflow',
+  'salesInvoices',
+  'purchaseInvoices',
+  'profitAndLoss',
+  'expenses',
+]);
+
 export const DEFAULT_LAYOUT: WidgetConfig[] = ALL_WIDGET_KEYS.map((id) => ({
   id,
-  visible: true,
+  visible: ORIGINAL_WIDGET_KEYS.has(id),
 }));
 
 // ── Profile presets ──────────────────────────────────────────────────────────
@@ -101,15 +159,17 @@ export const PROFILE_LAYOUTS: Record<
 > = {
   // Freelancers care about outstanding invoices and overall P&L; cashflow
   // chart is rarely meaningful without regular bank reconciliation.
-  Freelancer: ['salesInvoices', 'purchaseInvoices', 'profitAndLoss'],
+  Freelancer: ['salesInvoices', 'overdueInvoices', 'profitAndLoss', 'grossMargin'],
   // Retailers need tight cashflow visibility alongside both invoice streams.
-  Retailer: ['cashflow', 'salesInvoices', 'purchaseInvoices', 'expenses'],
+  Retailer: ['cashflow', 'cashOnHand', 'salesInvoices', 'purchaseInvoices', 'upcomingBills', 'expenses'],
   // Service businesses lead with cashflow and profitability.
   'Service Business': [
     'cashflow',
+    'cashOnHand',
     'salesInvoices',
-    'profitAndLoss',
-    'expenses',
+    'overdueInvoices',
+    'topCustomers',
+    'grossMargin',
   ],
 };
 

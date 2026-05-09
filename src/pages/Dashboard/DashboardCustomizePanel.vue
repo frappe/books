@@ -1,9 +1,11 @@
 <template>
   <Modal :open-modal="true" @closemodal="$emit('close')">
     <div
-      class="p-6 flex flex-col gap-5 overflow-y-auto"
+      class="flex flex-col"
       style="width: 580px; max-height: 88vh"
     >
+      <!-- ── Top band (never scrolls) ───────────────────────────────────── -->
+      <div class="px-6 pt-6 pb-0 flex flex-col gap-5 shrink-0">
       <!-- ── 1. Header ───────────────────────────────────────────────────── -->
       <div>
         <h2 class="text-base font-semibold dark:text-white">
@@ -41,13 +43,16 @@
         </div>
       </div>
 
-      <!-- ── 3. Active Widgets canvas ───────────────────────────────────── -->
-      <div>
+      <!-- ── 3. Active Widgets label (pinned, not scrolled) ───────────────── -->
         <p
-          class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+          class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
         >
           {{ t`Active Widgets` }}
         </p>
+      </div><!-- end top band -->
+
+      <!-- ── 3. Active Widgets canvas (this section scrolls independently) ── -->
+      <div class="overflow-y-auto flex-1 min-h-0 px-6 py-3">
 
         <!-- Canvas drop target (fallback) -->
         <div
@@ -337,8 +342,10 @@
             </template>
           </template>
         </div>
-      </div>
+      </div><!-- end canvas scroll area -->
 
+      <!-- ── Bottom band (never scrolls) ──────────────────────────────────── -->
+      <div class="px-6 pb-6 pt-4 flex flex-col gap-5 shrink-0 border-t dark:border-gray-800">
       <!-- ── 4. Hidden Widgets tray ─────────────────────────────────────── -->
       <div>
         <p
@@ -398,7 +405,7 @@
 
       <!-- ── 5. Footer ──────────────────────────────────────────────────── -->
       <div
-        class="flex justify-between items-center pt-2 border-t dark:border-gray-700"
+        class="flex justify-between items-center"
       >
         <button
           class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -413,6 +420,7 @@
           </Button>
         </div>
       </div>
+      </div><!-- end bottom band -->
     </div>
   </Modal>
 </template>

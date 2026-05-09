@@ -122,11 +122,16 @@ import { docsPathRef } from 'src/utils/refs';
 import { PeriodKey } from 'src/utils/types';
 import { defineComponent } from 'vue';
 import Cashflow from './Cashflow.vue';
+import CashOnHand from './CashOnHand.vue';
 import DashboardCustomizePanel from './DashboardCustomizePanel.vue';
 import Expenses from './Expenses.vue';
+import GrossMargin from './GrossMargin.vue';
+import OverdueInvoices from './OverdueInvoices.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import ProfitAndLoss from './ProfitAndLoss.vue';
+import TopCustomers from './TopCustomers.vue';
 import UnpaidInvoices from './UnpaidInvoices.vue';
+import UpcomingBills from './UpcomingBills.vue';
 import {
   buildWidgetRows,
   DashboardProfile,
@@ -145,6 +150,11 @@ const WIDGET_COMPONENTS: Record<WidgetKey, unknown> = {
   purchaseInvoices: UnpaidInvoices,
   profitAndLoss: ProfitAndLoss,
   expenses: Expenses,
+  overdueInvoices: OverdueInvoices,
+  upcomingBills: UpcomingBills,
+  cashOnHand: CashOnHand,
+  topCustomers: TopCustomers,
+  grossMargin: GrossMargin,
 };
 
 /** Extra props passed to specific widgets beyond commonPeriod / darkMode. */
@@ -166,6 +176,11 @@ export default defineComponent({
     Expenses,
     PeriodSelector,
     UnpaidInvoices,
+    OverdueInvoices,
+    UpcomingBills,
+    CashOnHand,
+    TopCustomers,
+    GrossMargin,
   },
 
   props: {
