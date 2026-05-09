@@ -375,6 +375,16 @@ export default defineComponent({
       }
     },
     async onBarcodeKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
       if (this.hasAnyOpenModal()) {
         return;
       }
