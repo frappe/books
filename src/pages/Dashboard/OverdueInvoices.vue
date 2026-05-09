@@ -3,12 +3,13 @@
     <SectionHeader>
       <template #title>{{ t`Overdue Invoices` }}</template>
       <template #action>
-        <span
+        <button
           v-if="overdueList.length"
-          class="text-xs font-semibold px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-300"
+          class="text-xs text-blue-500 dark:text-blue-400 hover:underline font-medium"
+          @click="openInvoiceList"
         >
-          {{ overdueList.length }}
-        </span>
+          {{ t`View All` }}
+        </button>
       </template>
     </SectionHeader>
 
@@ -77,7 +78,7 @@ export default defineComponent({
   },
   methods: {
     async setData() {
-      const cutoff = DateTime.now().minus({ days: 30 });
+      const cutoff = DateTime.utc().minus({ days: 30 });
       const raw = await fyo.db.getAllRaw(ModelNameEnum.SalesInvoice, {
         fields: ['name', 'party', 'date', 'outstandingAmount'],
         filters: {
@@ -86,11 +87,11 @@ export default defineComponent({
           date: ['<', cutoff.toISO()],
         },
         orderBy: 'date',
-        order: 'asc',
-        limit: 100,
+        order: 'desc',
+        limit: 5,
       });
 
-      const now = DateTime.now();
+      const now = DateTime.utc();
       this.overdueList = raw
         .map((r) => ({
           name: r.name as string,
@@ -106,6 +107,17 @@ export default defineComponent({
     },
     async openInvoice(name: string) {
       await routeTo(`/edit/${ModelNameEnum.SalesInvoice}/${name}`);
+    },
+    async openInvoiceList() {
+      const filters = JSON.stringify({
+        submitted: 1,
+        cancelled: 0,
+        outstandingAmount: ['>', 0],
+      });
+      await routeTo({
+        path: `/list/${ModelNameEnum.SalesInvoice}/Overdue Invoices`,
+        query: { filters },
+      });
     },
   },
 });

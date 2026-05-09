@@ -36,6 +36,11 @@ export default defineComponent({
     // Calling setData() here guarantees data loads on every first mount.
     await this.setData();
   },
+  async activated() {
+    // Fires when the user navigates back to the Dashboard (keep-alive).
+    // Re-fetch so widgets always reflect the latest data.
+    await this.setData();
+  },
   methods: {
     async periodChange() {
       this.$emit('period-change', this.period);

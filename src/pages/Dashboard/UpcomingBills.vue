@@ -3,12 +3,13 @@
     <SectionHeader>
       <template #title>{{ t`Upcoming Bills` }}</template>
       <template #action>
-        <span
+        <button
           v-if="billList.length"
-          class="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300"
+          class="text-xs text-blue-500 dark:text-blue-400 hover:underline font-medium"
+          @click="openBillList"
         >
-          {{ billList.length }}
-        </span>
+          {{ t`View All` }}
+        </button>
       </template>
     </SectionHeader>
 
@@ -77,7 +78,7 @@ export default defineComponent({
   },
   methods: {
     async setData() {
-      const now = DateTime.now();
+      const now = DateTime.utc();
       const fromDate = now.minus({ days: 30 });
       const raw = await fyo.db.getAllRaw(ModelNameEnum.PurchaseInvoice, {
         fields: ['name', 'party', 'date', 'outstandingAmount'],
@@ -88,7 +89,7 @@ export default defineComponent({
         },
         orderBy: 'date',
         order: 'asc',
-        limit: 100,
+        limit: 5,
       });
 
       this.billList = raw
@@ -106,6 +107,17 @@ export default defineComponent({
     },
     async openBill(name: string) {
       await routeTo(`/edit/${ModelNameEnum.PurchaseInvoice}/${name}`);
+    },
+    async openBillList() {
+      const filters = JSON.stringify({
+        submitted: 1,
+        cancelled: 0,
+        outstandingAmount: ['>', 0],
+      });
+      await routeTo({
+        path: `/list/${ModelNameEnum.PurchaseInvoice}/Upcoming Bills`,
+        query: { filters },
+      });
     },
   },
 });
