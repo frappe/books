@@ -15,7 +15,7 @@
 
     <div v-if="count > 0" class="mt-4 flex flex-1 items-center justify-center gap-0">
       <!-- Count stat -->
-      <div class="flex flex-col items-center flex-1 py-6">
+      <div class="flex flex-col items-center flex-1 py-3">
         <p class="text-4xl font-bold tabular-nums text-gray-900 dark:text-white">
           {{ count }}
         </p>
@@ -25,10 +25,10 @@
       </div>
 
       <!-- Vertical divider -->
-      <div class="w-px self-stretch bg-gray-200 dark:bg-gray-700 my-6" />
+      <div class="w-px self-stretch bg-gray-200 dark:bg-gray-700 my-3" />
 
       <!-- Total value stat -->
-      <div class="flex flex-col items-center flex-1 py-6">
+      <div class="flex flex-col items-center flex-1 py-3">
         <p class="text-4xl font-bold tabular-nums text-gray-900 dark:text-white">
           {{ fyo.format(totalValue, 'Currency') }}
         </p>
