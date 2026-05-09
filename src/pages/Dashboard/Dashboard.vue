@@ -62,27 +62,31 @@
           </div>
 
           <!-- Side-by-side half pair -->
+          <!-- Each column is a strict w-1/2. The border lives on the bare
+               layout wrapper so its position never varies with wrapClass.
+               A child div carries the per-widget padding (wrapClass). -->
           <div v-else-if="row.type === 'half-pair'" class="flex w-full">
-            <div
-              class="w-full border-e dark:border-gray-800"
-              :class="WIDGET_META[row.left.id].wrapClass"
-            >
-              <component
-                :is="widgetComponent(row.left.id)"
-                :common-period="period"
-                :dark-mode="darkMode"
-                v-bind="widgetExtraProps(row.left.id)"
-                @period-change="handlePeriodChange"
-              />
+            <div class="w-1/2 border-e dark:border-gray-800">
+              <div class="h-full" :class="WIDGET_META[row.left.id].wrapClass">
+                <component
+                  :is="widgetComponent(row.left.id)"
+                  :common-period="period"
+                  :dark-mode="darkMode"
+                  v-bind="widgetExtraProps(row.left.id)"
+                  @period-change="handlePeriodChange"
+                />
+              </div>
             </div>
-            <div class="w-full" :class="WIDGET_META[row.right.id].wrapClass">
-              <component
-                :is="widgetComponent(row.right.id)"
-                :common-period="period"
-                :dark-mode="darkMode"
-                v-bind="widgetExtraProps(row.right.id)"
-                @period-change="handlePeriodChange"
-              />
+            <div class="w-1/2">
+              <div class="h-full" :class="WIDGET_META[row.right.id].wrapClass">
+                <component
+                  :is="widgetComponent(row.right.id)"
+                  :common-period="period"
+                  :dark-mode="darkMode"
+                  v-bind="widgetExtraProps(row.right.id)"
+                  @period-change="handlePeriodChange"
+                />
+              </div>
             </div>
           </div>
 
@@ -130,7 +134,10 @@ import OverdueInvoices from './OverdueInvoices.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import ProfitAndLoss from './ProfitAndLoss.vue';
 import TopCustomers from './TopCustomers.vue';
+import TopSuppliers from './TopSuppliers.vue';
 import UnpaidInvoices from './UnpaidInvoices.vue';
+import InvoiceDrafts from './InvoiceDrafts.vue';
+import ReceivablesAging from './ReceivablesAging.vue';
 import UpcomingBills from './UpcomingBills.vue';
 import {
   buildWidgetRows,
@@ -155,6 +162,9 @@ const WIDGET_COMPONENTS: Record<WidgetKey, unknown> = {
   cashOnHand: CashOnHand,
   topCustomers: TopCustomers,
   grossMargin: GrossMargin,
+  topSuppliers: TopSuppliers,
+  invoiceDrafts: InvoiceDrafts,
+  receivablesAging: ReceivablesAging,
 };
 
 /** Extra props passed to specific widgets beyond commonPeriod / darkMode. */
@@ -181,6 +191,9 @@ export default defineComponent({
     CashOnHand,
     TopCustomers,
     GrossMargin,
+    InvoiceDrafts,
+    ReceivablesAging,
+    TopSuppliers,
   },
 
   props: {

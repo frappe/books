@@ -16,6 +16,7 @@ import {
   IncomeExpense,
   QueryFilter,
   TopCustomers,
+  TopSuppliers,
   TopExpenses,
   TotalCreditAndDebit,
   TotalOutstanding,
@@ -323,6 +324,17 @@ export class DatabaseHandler extends DatabaseBase {
       fromDate,
       toDate
     )) as TopCustomers;
+  }
+
+  async getTopSuppliers(
+    fromDate: string,
+    toDate: string
+  ): Promise<TopSuppliers> {
+    return (await this.#demux.callBespoke(
+      'getTopSuppliers',
+      fromDate,
+      toDate
+    )) as TopSuppliers;
   }
 
   async getGrossMargin(fromDate: string, toDate: string): Promise<GrossMargin> {

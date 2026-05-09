@@ -9,7 +9,10 @@ export type WidgetKey =
   | 'upcomingBills'
   | 'cashOnHand'
   | 'topCustomers'
-  | 'grossMargin';
+  | 'grossMargin'
+  | 'topSuppliers'
+  | 'invoiceDrafts'
+  | 'receivablesAging';
 
 export type DashboardProfile =
   | 'Freelancer'
@@ -114,6 +117,30 @@ export const WIDGET_META: Record<WidgetKey, WidgetMeta> = {
     wrapClass: 'p-4',
     icon: 'percent',
   },
+  topSuppliers: {
+    id: 'topSuppliers',
+    label: 'Top Suppliers',
+    description: 'Top 5 suppliers by purchase spend this period',
+    width: 'half',
+    wrapClass: '',
+    icon: 'truck',
+  },
+  invoiceDrafts: {
+    id: 'invoiceDrafts',
+    label: 'Draft Invoices',
+    description: 'Unsubmitted invoices not yet sent to clients',
+    width: 'half',
+    wrapClass: 'p-4',
+    icon: 'edit-3',
+  },
+  receivablesAging: {
+    id: 'receivablesAging',
+    label: 'Receivables Aging',
+    description: 'Outstanding invoices bucketed by age',
+    width: 'half',
+    wrapClass: '',
+    icon: 'layers',
+  },
 };
 
 export const ALL_WIDGET_KEYS: WidgetKey[] = [
@@ -127,6 +154,9 @@ export const ALL_WIDGET_KEYS: WidgetKey[] = [
   'cashOnHand',
   'topCustomers',
   'grossMargin',
+  'topSuppliers',
+  'invoiceDrafts',
+  'receivablesAging',
 ];
 
 // ── Stored config shape ──────────────────────────────────────────────────────
@@ -162,6 +192,7 @@ export const PROFILE_LAYOUTS: Record<
   // omitted — pure service providers have no COGS, so it reads 100% or empty.
   Freelancer: [
     'cashOnHand',
+    'invoiceDrafts',
     'salesInvoices',
     'overdueInvoices',
     'upcomingBills',
@@ -176,6 +207,7 @@ export const PROFILE_LAYOUTS: Record<
     'grossMargin',
     'salesInvoices',
     'purchaseInvoices',
+    'topSuppliers',
     'upcomingBills',
     'expenses',
   ],
@@ -188,6 +220,7 @@ export const PROFILE_LAYOUTS: Record<
     'profitAndLoss',
     'salesInvoices',
     'overdueInvoices',
+    'receivablesAging',
     'topCustomers',
     'expenses',
   ],

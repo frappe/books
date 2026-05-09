@@ -108,3 +108,4 @@ export type TotalCreditAndDebit = {
 export type CashOnHand = { total: number };
 export type TopCustomers = { party: string; total: number }[];
 export type GrossMargin = { income: number; cogs: number };
+export type TopSuppliers = { party: string; total: number }[];

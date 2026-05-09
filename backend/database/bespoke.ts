@@ -162,6 +162,22 @@ export class BespokeQueries {
       .limit(5)) as { party: string; total: number }[];
   }
 
+  static async getTopSuppliers(
+    db: DatabaseCore,
+    fromDate: string,
+    toDate: string
+  ): Promise<{ party: string; total: number }[]> {
+    return (await db.knex!('PurchaseInvoice')
+      .select('party')
+      .sum({ total: db.knex!.raw('cast(baseGrandTotal as real)') })
+      .where('submitted', true)
+      .where('cancelled', false)
+      .whereBetween('date', [fromDate, toDate])
+      .groupBy('party')
+      .orderBy('total', 'desc')
+      .limit(5)) as { party: string; total: number }[];
+  }
+
   static async getGrossMargin(
     db: DatabaseCore,
     fromDate: string,
