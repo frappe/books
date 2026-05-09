@@ -26,7 +26,7 @@
 
       <div class="mt-8 grid grid-cols-2 gap-6">
         <Data
-          v-show="!isPaymentMethodIsCash"
+          v-show="isPaymentMethodBank"
           :df="fyo.fieldMap.Payment.referenceId"
           :show-label="true"
           :border="true"
@@ -37,7 +37,7 @@
         />
 
         <Date
-          v-show="!isPaymentMethodIsCash"
+          v-show="isPaymentMethodBank"
           :df="fyo.fieldMap.Payment.clearanceDate"
           :show-label="true"
           :border="true"
@@ -149,6 +149,8 @@
               backgroundColor: fyo.singles.Defaults?.submitButtonColour,
             }"
             style="padding: 1.35rem"
+            :loading="processingAction === 'submit'"
+            :disabled="!!processingAction"
             @click="submitTransaction"
           >
             <slot>
@@ -166,6 +168,7 @@
               backgroundColor: fyo.singles.Defaults?.cancelButtonColour,
             }"
             style="padding: 1.35rem"
+            :disabled="!!processingAction"
             @click="cancelTransaction"
           >
             <slot>
@@ -181,6 +184,8 @@
             class="w-full"
             :style="{ backgroundColor: fyo.singles.Defaults?.payButtonColour }"
             style="padding: 1.35rem"
+            :loading="processingAction === 'pay'"
+            :disabled="!!processingAction"
             @click="payTransaction"
           >
             <slot>
@@ -198,6 +203,8 @@
               backgroundColor: fyo.singles.Defaults?.payAndPrintButtonColour,
             }"
             style="padding: 1.35rem"
+            :loading="processingAction === 'payAndPrint'"
+            :disabled="!!processingAction"
             @click="payAndPrintTransaction"
           >
             <slot>
@@ -220,7 +227,7 @@ import Date from 'src/components/Controls/Date.vue';
 import Modal from 'src/components/Modal.vue';
 import { Money } from 'pesa';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
-import { defineComponent, inject } from 'vue';
+import { defineComponent, inject, PropType } from 'vue';
 import { fyo } from 'src/initFyo';
 import { isPesa } from 'fyo/utils';
 import { ModelNameEnum } from 'models/types';
@@ -243,6 +250,12 @@ export default defineComponent({
     'setTransferRefNo',
     'toggleModal',
   ],
+  props: {
+    processingAction: {
+      type: String as PropType<string | null>,
+      default: null,
+    },
+  },
   setup() {
     return {
       paidAmount: inject('paidAmount') as Money,
@@ -262,8 +275,8 @@ export default defineComponent({
     };
   },
   computed: {
-    isPaymentMethodIsCash(): boolean {
-      return this.paymentMethod === 'Cash';
+    isPaymentMethodBank(): boolean {
+      return this.paymentMethod === 'Bank';
     },
     balanceAmount(): Money {
       const grandTotal = this.sinvDoc?.grandTotal ?? fyo.pesa(0);
@@ -329,6 +342,7 @@ export default defineComponent({
       return false;
     },
   },
+  watch: {},
   async mounted() {
     await this.setPaymentMethods();
   },
@@ -356,9 +370,8 @@ export default defineComponent({
           message: this.fyo
             .t`Please select a payment method before submitting.`,
         });
-        return;
       }
-      this.$emit('createTransaction');
+      this.$emit('createTransaction', false, false, 'submit');
     },
     payTransaction() {
       if (!this.paymentMethod) {
@@ -367,9 +380,8 @@ export default defineComponent({
           message: this.fyo
             .t`Please select a payment method before proceeding with payment.`,
         });
-        return;
       }
-      this.$emit('createTransaction', false, true);
+      this.$emit('createTransaction', false, true, 'pay');
     },
     payAndPrintTransaction() {
       if (!this.paymentMethod) {
@@ -378,10 +390,9 @@ export default defineComponent({
           message: this.fyo
             .t`Please select a payment method before proceeding with payment.`,
         });
-        return;
       }
 
-      this.$emit('createTransaction', true, true);
+      this.$emit('createTransaction', true, true, 'payAndPrint');
     },
     cancelTransaction() {
       this.$emit('setPaidAmount', fyo.pesa(0));

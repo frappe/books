@@ -68,13 +68,16 @@
         <hr class="dark:border-gray-800" />
         <div class="flex">
           <AccountBalances
-            class="w-full p-4"
+            class="w-full p-4 border-e dark:border-gray-800"
             :common-period="period"
             :dark-mode="darkMode"
           />
-          <div class="w-full p-4">
-            <!-- Reserved for future component -->
-          </div>
+          <BestSellers
+            class="w-full p-4"
+            :common-period="period"
+            :dark-mode="darkMode"
+            @period-change="handlePeriodChange"
+          />
         </div>
         <hr class="dark:border-gray-800" />
       </div>
@@ -90,6 +93,7 @@ import Expenses from './Expenses.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import ProfitAndLoss from './ProfitAndLoss.vue';
 import AccountBalances from './AccountBalances.vue';
+import BestSellers from './BestSellers.vue';
 import { docsPathRef } from 'src/utils/refs';
 
 export default {
@@ -102,6 +106,7 @@ export default {
     PeriodSelector,
     UnpaidInvoices,
     AccountBalances,
+    BestSellers,
   },
   props: {
     darkMode: { type: Boolean, default: false },

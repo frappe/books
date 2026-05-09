@@ -78,7 +78,7 @@ export class POSClosingShift extends Doc {
         }
 
         productLines = Object.entries(aggregatedProducts)
-            .map(([name, data], index) => (index + 1) + '. ' + name + ' (' + data.quantity + ' items) ' + formatNumber(data.amount.toString()))
+            .map(([name, data], index) => (index + 1) + '. ' + name + ' (x' + data.quantity + ') - ' + formatNumber(data.amount.toString()))
             .join('\n');
     }
 
@@ -87,19 +87,71 @@ export class POSClosingShift extends Doc {
     
     const totalSales = formatNumber(totalSalesMoney.toString());
 
-    const paymentBreakdown = (this.closingAmounts ?? [])
+    // 3. Fetch Actual Account Balances (Dashboard Logic)
+    const allAccounts = await this.fyo.db.getAll(ModelNameEnum.Account, {
+      fields: ['name', 'rootType', 'accountType', 'isGroup'],
+      filters: {
+        rootType: 'Asset',
+        isGroup: false,
+      },
+    });
+
+    const bankAndCashAccounts = allAccounts.filter(
+      (acc: any) => 
+        acc.accountType === 'Bank' || 
+        acc.accountType === 'Cash'
+    );
+
+    const totals = await this.fyo.db.getTotalCreditAndDebit();
+    const totalsMap: Record<string, { totalCredit: number; totalDebit: number }> = {};
+    
+    const toNumber = (value: any): number => {
+      if (value === null || value === undefined) return 0;
+      if (typeof value === 'bigint') return Number(value);
+      if (typeof value === 'number') return value;
+      if (typeof value === 'string') {
+        const parsed = parseFloat(value);
+        return isNaN(parsed) ? 0 : parsed;
+      }
+      return 0;
+    };
+
+    totals.forEach((total: any) => {
+      totalsMap[total.account] = {
+        totalCredit: toNumber(total.totalCredit),
+        totalDebit: toNumber(total.totalDebit),
+      };
+    });
+
+    const accountBalances = bankAndCashAccounts.map((account: any) => {
+      const total = totalsMap[account.name];
+      let balance = 0;
+      if (total) {
+        balance = total.totalDebit - total.totalCredit;
+      }
+      return {
+        name: account.name as string,
+        balance,
+      };
+    });
+
+    accountBalances.sort((a, b) => a.name.localeCompare(b.name));
+
+    const accountBalancesTotal = accountBalances.reduce((sum, acc) => sum + acc.balance, 0);
+
+    const accountBalancesBreakdown = accountBalances
       .map(
-        (row, index) =>
+        (acc, index) =>
           index +
           1 +
           '. ' +
-          row.paymentMethod +
+          acc.name +
           ': ' +
-          formatNumber(row.closingAmount?.toString() || '0')
+          formatNumber(acc.balance)
       )
       .join('\n');
 
-    const message = '\n\nFollowing products were sold today:\n\n' + (productLines || 'No products sold.') + (productLines ? '\n\n**Total Amount: ' + formatNumber(productLinesTotal.toString()) + '**' : '') + '\n\n**Account Balances:**\n' + paymentBreakdown + '\n\n**Total Balance:** ' + totalSales;
+    const message = '\n\nFollowing products were sold today:\n\n' + (productLines || 'No products sold.') + (productLines ? '\n\n**Total Amount: ' + formatNumber(productLinesTotal.toString()) + '**' : '') + '\n\n**Account Balances:**\n' + accountBalancesBreakdown + '\n\n**Total Balance:** ' + formatNumber(accountBalancesTotal);
 
     await sendNtfyNotification(this.fyo, message, title);
   }

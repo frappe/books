@@ -28,5 +28,6 @@ export class Party extends BaseParty {
       return this.role === 'Supplier';
     },
     loyaltyPoints: () => !this.loyaltyProgram || this.role === 'Supplier',
+    birthDate: () => this.role === 'Supplier',
   };
 }

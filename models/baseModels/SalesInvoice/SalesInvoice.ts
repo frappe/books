@@ -201,6 +201,20 @@ export class SalesInvoice extends Invoice {
       balanceMap[row.item] += row.balanceQuantity;
     }
 
+    // Adjust balanceMap for current sale if it hasn't been reflected in SLEs yet
+    for (const invItem of this.items ?? []) {
+        const itemName = invItem.item as string;
+        const itemQty = invItem.quantity || 0;
+        
+        // If the SLEs we fetched don't include this invoice, we need to subtract the quantities
+        // to show the REAL remaining balance after this sale.
+        const hasSLE = rawSLEs.some(sle => sle.referenceName === this.name && sle.item === itemName);
+        if (!hasSLE && itemQty > 0) {
+            balanceMap[itemName] ??= 0;
+            balanceMap[itemName] -= itemQty;
+        }
+    }
+
     for (const invItem of this.items ?? []) {
       const itemName = invItem.item as string;
       const itemDoc = (await this.fyo.doc.getDoc(
@@ -208,13 +222,17 @@ export class SalesInvoice extends Invoice {
         itemName
       )) as Item;
 
-      if (!itemDoc || !itemDoc.trackItem || itemDoc.restockQuantity === undefined) {
+      if (!itemDoc) {
+        continue;
+      }
+
+      if (!itemDoc.trackItem || itemDoc.restockQuantity === undefined) {
         continue;
       }
 
       const balance = balanceMap[itemName] || 0;
       if (balance < itemDoc.restockQuantity) {
-        itemsToRestock.push(`${itemName} - ${balance} remaining`);
+        itemsToRestock.push(`* ${itemName} - ${balance} remaining`);
       }
     }
 

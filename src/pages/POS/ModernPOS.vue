@@ -54,8 +54,9 @@
 
     <PaymentModal
       :open-modal="openPaymentModal"
+      :processing-action="processingAction"
       @toggle-modal="emitEvent('toggleModal', 'Payment')"
-      @set-paid-amount="(amount) => emitEvent('setPaidAmount', amount)"
+      @set-paid-amount="(amount: Money) => emitEvent('setPaidAmount', amount)"
       @set-payment-method="
         (paymentMethod) => emitEvent('setPaymentMethod', paymentMethod)
       "
@@ -64,7 +65,7 @@
         (date) => emitEvent('setTransferClearanceDate', date)
       "
       @create-transaction="
-        (print, status) => emitEvent('createTransaction', print, status)
+        (print, status, action) => emitEvent('createTransaction', print, status, action)
       "
     />
 
@@ -449,6 +450,10 @@ export default defineComponent({
     openAppliedCouponsModal: Boolean,
     openReturnSalesInvoiceModal: Boolean,
     openBatchSelectionModal: Boolean,
+    processingAction: {
+      type: String as PropType<string | null>,
+      default: null,
+    },
     totalQuantity: {
       type: Number,
       default: 0,
