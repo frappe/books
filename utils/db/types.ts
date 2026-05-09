@@ -96,6 +96,7 @@ export abstract class DatabaseDemuxBase {
 
 // Return types of Bespoke Queries
 export type TopExpenses = { account: string; total: number }[];
+export type BestSellers = { item: string; total: number }[];
 export type TotalOutstanding = { total: number; outstanding: number };
 export type Cashflow = { inflow: number; outflow: number; yearmonth: string }[];
 export type Balance = { balance: number; yearmonth: string }[];

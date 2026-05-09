@@ -62,6 +62,12 @@
       "section": "Contacts"
     },
     {
+      "fieldname": "birthDate",
+      "label": "Birth Date",
+      "fieldtype": "Date",
+      "section": "Contacts"
+    },
+    {
       "fieldname": "defaultAccount",
       "label": "Default Account",
       "fieldtype": "Link",
@@ -120,6 +126,7 @@
     "email",
     "phone",
     "address",
+    "birthDate",
     "defaultAccount",
     "loyaltyProgram",
     "currency",
