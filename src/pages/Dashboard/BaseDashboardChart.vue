@@ -29,6 +29,13 @@ export default defineComponent({
       this.period = val;
     },
   },
+  async mounted() {
+    // `activated()` fires when the Dashboard page is re-navigated to (keep-alive),
+    // but NOT when a widget first mounts while the dashboard is already active
+    // (e.g. after a layout save makes a previously-hidden widget visible).
+    // Calling setData() here guarantees data loads on every first mount.
+    await this.setData();
+  },
   methods: {
     async periodChange() {
       this.$emit('period-change', this.period);
