@@ -21,6 +21,7 @@ interface UOMConversionItem {
 }
 
 export class Item extends Doc {
+  image?: string;
   itemCode?: string;
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
@@ -81,6 +82,57 @@ export class Item extends Doc {
       dependsOn: ['itemGroup'],
     },
   };
+
+  async afterSync() {
+    await super.afterSync();
+    if (this.image && this.image.startsWith("data:")) {
+      const bucket = this.fyo.singles.SystemSettings?.imageStorageBucket;
+      if (bucket) {
+        let response;
+        const base64Data = this.image.split(",")[1];
+        
+        if (typeof window !== 'undefined' && typeof FormData !== 'undefined') {
+          // Browser environment
+          const byteString = atob(base64Data);
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          const blob = new Blob([ab], { type: 'image/jpeg' });
+          
+          const formData = new FormData();
+          formData.append("folder", bucket);
+          formData.append("image", blob, "image.jpg");
+          
+          response = await fetch("https://rarebooks-product-images.nkonoki-charles.workers.dev/upload", {
+            method: "POST",
+            body: formData,
+          });
+        } else if (typeof require !== 'undefined') {
+          // Node environment
+          const FormDataNode = require("form-data");
+          const formData = new FormDataNode();
+          formData.append("folder", bucket);
+          const buffer = Buffer.from(base64Data, "base64");
+          formData.append("image", buffer, { filename: "image.jpg" });
+          
+          const nodeFetch = require("node-fetch");
+          response = await nodeFetch("https://rarebooks-product-images.nkonoki-charles.workers.dev/upload", { 
+            method: "POST", 
+            body: formData 
+          });
+        }
+
+        if (response && response.ok) {
+          const result = (await response.json());
+          if (result.url) {
+            await this.setAndSync("image", result.url);
+          }
+        }
+      }
+    }
+  }
 
   async beforeSync(): Promise<void> {
     await super.beforeSync();
