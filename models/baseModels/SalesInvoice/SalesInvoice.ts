@@ -172,15 +172,30 @@ export class SalesInvoice extends Invoice {
         return Number(num).toLocaleString('en-US');
       };
 
-      let productList = (this.items ?? []).map((item, index) => {
-          const itemName = item.item as string;
-          const qty = item.quantity || 0;
-          const amountValue = item.amount ? item.amount.toString() : '0';
-          const amount = formatNumber(amountValue);
+      const itemNames = (this.items ?? []).map(item => item.item as string);
+      const itemDocs = await Promise.all(
+        itemNames.map(name =>
+          this.fyo.doc.getDoc(ModelNameEnum.Item, name).catch(() => null)
+        )
+      );
 
-          return index + 1 + '. ' + itemName + ' (x' + qty + ') - ' + amount;
-        })
-        .join('\n');
+      let productListItems = [];
+      for (let index = 0; index < (this.items ?? []).length; index++) {
+        const item = this.items![index];
+        const itemName = item.item as string;
+        const qty = item.quantity || 0;
+        const amountValue = item.amount ? item.amount.toString() : '0';
+        const amount = formatNumber(amountValue);
+
+        const itemDoc = itemDocs[index] as Item | null;
+
+        let line = index + 1 + '. ' + itemName + ' (x' + qty + ') - ' + amount;
+        if (itemDoc?.image && /^https?:\/\//i.test(itemDoc.image)) {
+          line += '\n' + `![${itemName}](${itemDoc.image})`;
+        }
+        productListItems.push(line);
+      }
+      const productList = productListItems.join('\n');
 
       const message = '\n\nFollowing products have just been sold:\n\n' + productList + '\n\n**Total:** ' + formatNumber(this.grandTotal!.toString());
 
@@ -236,7 +251,11 @@ export class SalesInvoice extends Invoice {
 
       const balance = balanceMap[itemName] || 0;
       if (balance < itemDoc.restockQuantity) {
-        itemsToRestock.push(`* ${itemName} - ${balance} remaining`);
+        let line = `* ${itemName} - ${balance} remaining`;
+        if (itemDoc.image && /^https?:\/\//i.test(itemDoc.image)) {
+          line += '\n' + `![${itemName}](${itemDoc.image})`;
+        }
+        itemsToRestock.push(line);
       }
     }
 

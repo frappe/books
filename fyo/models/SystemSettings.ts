@@ -18,6 +18,7 @@ export default class SystemSettings extends Doc {
   instanceId?: string;
   darkMode?: boolean;
   displayTermsAndConditions?: boolean;
+  imageStorageBucket?: string;
 
   validations: ValidationMap = {
     displayPrecision(value: DocValue) {
