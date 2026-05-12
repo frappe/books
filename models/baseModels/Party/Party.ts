@@ -139,6 +139,49 @@ export class Party extends Doc {
         }
       },
     },
+    amountSpent: {
+      formula: async () => {
+        const precision =
+          this.fyo.singles.SystemSettings?.internalPrecision ?? 11;
+        const zero = '0.' + '0'.repeat(precision);
+
+        const invoices = await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {
+          filters: {
+            party: this.name!,
+            submitted: true,
+            cancelled: false,
+            outstandingAmount: zero,
+          },
+        });
+
+        return invoices
+          .map((i) => this.fyo.pesa(i.grandTotal as number))
+          .reduce((a, b) => a.add(b), this.fyo.pesa(0)).float;
+      },
+    },
+    lastPurchaseOn: {
+      formula: async () => {
+        const precision =
+          this.fyo.singles.SystemSettings?.internalPrecision ?? 11;
+        const zero = '0.' + '0'.repeat(precision);
+
+        const invoices = await this.fyo.db.getAll(ModelNameEnum.SalesInvoice, {
+          filters: {
+            party: this.name!,
+            submitted: true,
+            cancelled: false,
+            outstandingAmount: zero,
+          },
+        });
+
+        if (invoices.length === 0) {
+          return null;
+        }
+
+        const dates = invoices.map((i) => i.date as string);
+        return dates.sort().reverse()[0];
+      },
+    },
   };
 
   validations: ValidationMap = {
@@ -186,7 +229,13 @@ export class Party extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: ['name', 'email', 'phone', 'outstandingAmount'],
+      columns: [
+        'name',
+        'phone',
+        'lastPurchaseOn',
+        'amountSpent',
+        'outstandingAmount',
+      ],
     };
   }
 
