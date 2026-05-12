@@ -172,6 +172,13 @@ export class SalesInvoice extends Invoice {
         return Number(num).toLocaleString('en-US');
       };
 
+      const itemNames = (this.items ?? []).map(item => item.item as string);
+      const itemDocs = await Promise.all(
+        itemNames.map(name =>
+          this.fyo.doc.getDoc(ModelNameEnum.Item, name).catch(() => null)
+        )
+      );
+
       let productListItems = [];
       for (let index = 0; index < (this.items ?? []).length; index++) {
         const item = this.items![index];
@@ -180,10 +187,7 @@ export class SalesInvoice extends Invoice {
         const amountValue = item.amount ? item.amount.toString() : '0';
         const amount = formatNumber(amountValue);
 
-        const itemDoc = (await this.fyo.doc.getDoc(
-          ModelNameEnum.Item,
-          itemName
-        )) as Item;
+        const itemDoc = itemDocs[index] as Item | null;
 
         let line = index + 1 + '. ' + itemName + ' (x' + qty + ') - ' + amount;
         if (itemDoc?.image && /^https?:\/\//i.test(itemDoc.image)) {
