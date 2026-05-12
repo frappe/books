@@ -77,9 +77,27 @@ export class POSClosingShift extends Doc {
             }
         }
 
-        productLines = Object.entries(aggregatedProducts)
-            .map(([name, data], index) => (index + 1) + '. ' + name + ' (x' + data.quantity + ') - ' + formatNumber(data.amount.toString()))
-            .join('\n');
+        let productLinesList = [];
+        let index = 0;
+        for (const [name, data] of Object.entries(aggregatedProducts)) {
+            let itemDoc: any = null;
+            try {
+                itemDoc = (await this.fyo.doc.getDoc(
+                    ModelNameEnum.Item,
+                    name
+                )) as any;
+            } catch (error) {
+                console.warn(`Failed to fetch item doc for "${name}":`, error);
+            }
+
+            let line = (index + 1) + '. ' + name + ' (x' + data.quantity + ') - ' + formatNumber(data.amount.toString());
+            if (itemDoc?.image && /^https?:\/\//i.test(itemDoc.image)) {
+                line += '\n' + `![${name}](${itemDoc.image})`;
+            }
+            productLinesList.push(line);
+            index++;
+        }
+        productLines = productLinesList.join('\n');
     }
 
     const totalSalesMoney = (this.closingAmounts ?? [])

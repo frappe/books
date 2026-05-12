@@ -148,6 +148,12 @@
       "fieldtype": "Check",
       "default": false,
       "section": "Customizations"
+    },
+    {
+      "fieldname": "imageStorageBucket",
+      "label": "Image Storage Bucket",
+      "fieldtype": "Data",
+      "section": "Image Storage"
     }
   ],
   "quickEditFields": [

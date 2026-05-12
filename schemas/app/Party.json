@@ -117,6 +117,18 @@
       "section": "Billing"
     },
     {
+      "fieldname": "amountSpent",
+      "label": "Amount Spent",
+      "fieldtype": "Currency",
+      "hidden": true
+    },
+    {
+      "fieldname": "lastPurchaseOn",
+      "label": "Last Purchase On",
+      "fieldtype": "Date",
+      "hidden": true
+    },
+    {
       "fieldname": "outstandingAmount",
       "label": "Outstanding Amount",
       "fieldtype": "Currency",
