@@ -167,7 +167,7 @@ export class POSClosingShift extends Doc {
           ': ' +
           formatNumber(acc.balance)
       )
-      .join('\n');
+      .join('<br><br>');
 
     const message = '\n\nFollowing products were sold today:\n\n' + (productLines || 'No products sold.') + (productLines ? '\n\n**Total Amount: ' + formatNumber(productLinesTotal.toString()) + '**' : '') + '\n\n**Account Balances:**\n' + accountBalancesBreakdown + '\n\n**Total Balance:** ' + formatNumber(accountBalancesTotal);
 

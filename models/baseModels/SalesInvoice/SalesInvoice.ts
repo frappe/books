@@ -162,44 +162,9 @@ export class SalesInvoice extends Invoice {
     await super.afterSubmit();
 
     if (this.isPOS) {
-      let payments = this.payments as any[];
-      if (!payments || payments.length === 0) {
-        payments = await this.getLinkedPayments();
-      }
-      const paymentMethods = (payments ?? []).map((p: any) => p.paymentMethod).join(', ') || 'N/A';
-
-      const formatNumber = (num: number | string) => {
-        return Number(num).toLocaleString('en-US');
-      };
-
-      const itemNames = (this.items ?? []).map(item => item.item as string);
-      const itemDocs = await Promise.all(
-        itemNames.map(name =>
-          this.fyo.doc.getDoc(ModelNameEnum.Item, name).catch(() => null)
-        )
-      );
-
-      const productListItems = [];
-      for (let index = 0; index < (this.items ?? []).length; index++) {
-        const item = this.items![index];
-        const itemName = item.item as string;
-        const qty = item.quantity || 0;
-        const amountValue = item.amount ? item.amount.toString() : '0';
-        const amount = formatNumber(amountValue);
-
-        const itemDoc = itemDocs[index] as Item | null;
-
-        let line = index + 1 + '. ' + itemName + ' (x' + qty + ') - ' + amount;
-        if (itemDoc?.image && /^https?:\/\//i.test(itemDoc.image)) {
-          line += '\n' + `![${itemName}](${itemDoc.image})`;
-        }
-        productListItems.push(line);
-      }
-      const productList = productListItems.join('\n');
-
-      const message = '\n\nFollowing products have just been sold:\n\n' + productList + '\n\n**Total:** ' + formatNumber(this.grandTotal!.toString());
-
-      await sendNtfyNotification(this.fyo, message, 'New Sale!', 'fire');
+      this.sendPOSNotification().catch((err) => {
+        console.error('Failed to send POS notification:', err);
+      });
     }
 
     // Low Stock Notification
@@ -262,7 +227,7 @@ export class SalesInvoice extends Invoice {
     if (itemsToRestock.length > 0) {
       const restockMessage =
         "You're about to run out of the following items in your stock;\n\n" +
-        itemsToRestock.join('\n') +
+        itemsToRestock.join('<br><br>') +
         '\n\nPlease refill your inventory';
 
       await sendNtfyNotification(
@@ -273,6 +238,73 @@ export class SalesInvoice extends Invoice {
         'high'
       );
     }
+  }
+
+  async sendPOSNotification() {
+    let paymentFors = [];
+    let retries = 50; // Try for 5 seconds
+    while (retries > 0) {
+      paymentFors = (await this.fyo.db.getAllRaw('PaymentFor', {
+        fields: ['parent'],
+        filters: { referenceName: this.name!, referenceType: this.schemaName },
+      })) as { parent: string }[];
+
+      if (paymentFors.length > 0) break;
+
+      // Wait 100ms before retrying
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      retries--;
+    }
+
+    const payments = (await this.fyo.db.getAllRaw('Payment', {
+      fields: ['paymentAccount'],
+      filters: { name: ['in', paymentFors.map((p) => p.parent)] },
+    })) as { paymentAccount: string }[];
+
+    const paymentMethodNames = Array.from(
+      new Set(payments.map((p) => p.paymentAccount).filter(Boolean))
+    );
+
+    const formatNumber = (num: number | string) => {
+      return Number(num).toLocaleString('en-US');
+    };
+
+    const itemNames = (this.items ?? []).map((item) => item.item as string);
+    const itemDocs = await Promise.all(
+      itemNames.map((name) =>
+        this.fyo.doc.getDoc(ModelNameEnum.Item, name).catch(() => null)
+      )
+    );
+
+    const productListItems = [];
+    for (let index = 0; index < (this.items ?? []).length; index++) {
+      const item = this.items![index];
+      const itemName = item.item as string;
+      const qty = item.quantity || 0;
+      const amountValue = item.amount ? item.amount.toString() : '0';
+      const amount = formatNumber(amountValue);
+
+      const itemDoc = itemDocs[index] as Item | null;
+
+      let line =
+        index + 1 + '. ' + itemName + ' (x' + qty + ') - ' + amount;
+      if (itemDoc?.image && /^https?:\/\//i.test(itemDoc.image)) {
+        line += '\n' + `![${itemName}](${itemDoc.image})\n\n`;
+      }
+      productListItems.push(line);
+    }
+    const productList = productListItems.join('<br><br>');
+
+    let message =
+      '\n\nFollowing products have just been sold:\n\n' +
+      productList +
+      '\n\n**Total:** ' +
+      formatNumber(this.grandTotal!.toString());
+    if (paymentMethodNames.length > 0) {
+      message += '\n**Paid Via:** ' + paymentMethodNames.join(', ');
+    }
+
+    await sendNtfyNotification(this.fyo, message, 'New Sale!', 'fire');
   }
 
   static getListViewSettings(): ListViewSettings {
