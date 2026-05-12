@@ -178,8 +178,10 @@ export class Party extends Doc {
           return null;
         }
 
-        const dates = invoices.map((i) => i.date as string);
-        return dates.sort().reverse()[0];
+        const dates = invoices.map((i) => new Date(i.date as string));
+        dates.sort((a, b) => +a - +b);
+        const mostRecentDate = dates[dates.length - 1];
+        return mostRecentDate.toISOString().split('T')[0];
       },
     },
   };

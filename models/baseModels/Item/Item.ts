@@ -88,47 +88,77 @@ export class Item extends Doc {
     if (this.image && this.image.startsWith("data:")) {
       const bucket = this.fyo.singles.SystemSettings?.imageStorageBucket;
       if (bucket) {
-        let response;
-        const base64Data = this.image.split(",")[1];
-        
-        if (typeof window !== 'undefined' && typeof FormData !== 'undefined') {
-          // Browser environment
-          const byteString = atob(base64Data);
-          const ab = new ArrayBuffer(byteString.length);
-          const ia = new Uint8Array(ab);
-          for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-          }
-          const blob = new Blob([ab], { type: 'image/jpeg' });
-          
-          const formData = new FormData();
-          formData.append("folder", bucket);
-          formData.append("image", blob, "image.jpg");
-          
-          response = await fetch("https://rarebooks-product-images.nkonoki-charles.workers.dev/upload", {
-            method: "POST",
-            body: formData,
-          });
-        } else if (typeof require !== 'undefined') {
-          // Node environment
-          const FormDataNode = require("form-data");
-          const formData = new FormDataNode();
-          formData.append("folder", bucket);
-          const buffer = Buffer.from(base64Data, "base64");
-          formData.append("image", buffer, { filename: "image.jpg" });
-          
-          const nodeFetch = require("node-fetch");
-          response = await nodeFetch("https://rarebooks-product-images.nkonoki-charles.workers.dev/upload", { 
-            method: "POST", 
-            body: formData 
-          });
+        // Validate image format before processing
+        if (typeof this.image !== 'string' || !this.image.includes(',')) {
+          console.error('Invalid data URI format: missing comma separator');
+          return;
         }
 
-        if (response && response.ok) {
-          const result = (await response.json());
-          if (result.url) {
-            await this.setAndSync("image", result.url);
-          }
+        const base64Data = this.image.split(",")[1];
+        if (!base64Data) {
+          console.error('Invalid data URI format: missing base64 data after comma');
+          return;
+        }
+
+        // Wrap upload logic in try-catch with timeout
+        const uploadTimeout = 30000; // 30 seconds timeout
+        try {
+          const uploadPromise = (async () => {
+            let response;
+
+            if (typeof window !== 'undefined' && typeof FormData !== 'undefined') {
+              // Browser environment
+              const byteString = atob(base64Data);
+              const ab = new ArrayBuffer(byteString.length);
+              const ia = new Uint8Array(ab);
+              for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+              }
+              const blob = new Blob([ab], { type: 'image/jpeg' });
+
+              const formData = new FormData();
+              formData.append("folder", bucket);
+              formData.append("image", blob, "image.jpg");
+
+              response = await fetch("https://rarebooks-product-images.nkonoki-charles.workers.dev/upload", {
+                method: "POST",
+                body: formData,
+              });
+            } else if (typeof require !== 'undefined') {
+              // Node environment
+              const FormDataNode = require("form-data");
+              const formData = new FormDataNode();
+              formData.append("folder", bucket);
+              const buffer = Buffer.from(base64Data, "base64");
+              formData.append("image", buffer, { filename: "image.jpg" });
+
+              const nodeFetch = require("node-fetch");
+              response = await nodeFetch("https://rarebooks-product-images.nkonoki-charles.workers.dev/upload", {
+                method: "POST",
+                body: formData
+              });
+            }
+
+            if (response && response.ok) {
+              const result = await response.json();
+              if (result.url) {
+                await this.setAndSync("image", result.url);
+              }
+            } else {
+              console.error('Image upload failed with status:', response?.status);
+            }
+          })();
+
+          // Race between upload and timeout
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Upload timeout')), uploadTimeout)
+          );
+
+          await Promise.race([uploadPromise, timeoutPromise]);
+        } catch (error) {
+          // Log error and skip rewriting image, leaving original data URI intact
+          console.error('Image upload error:', error instanceof Error ? error.message : error);
+          // Do not throw - allow lifecycle to continue
         }
       }
     }

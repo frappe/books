@@ -186,7 +186,7 @@ export class SalesInvoice extends Invoice {
         )) as Item;
 
         let line = index + 1 + '. ' + itemName + ' (x' + qty + ') - ' + amount;
-        if (itemDoc?.image) {
+        if (itemDoc?.image && /^https?:\/\//i.test(itemDoc.image)) {
           line += '\n' + `![${itemName}](${itemDoc.image})`;
         }
         productListItems.push(line);
@@ -248,7 +248,7 @@ export class SalesInvoice extends Invoice {
       const balance = balanceMap[itemName] || 0;
       if (balance < itemDoc.restockQuantity) {
         let line = `* ${itemName} - ${balance} remaining`;
-        if (itemDoc.image) {
+        if (itemDoc.image && /^https?:\/\//i.test(itemDoc.image)) {
           line += '\n' + `![${itemName}](${itemDoc.image})`;
         }
         itemsToRestock.push(line);

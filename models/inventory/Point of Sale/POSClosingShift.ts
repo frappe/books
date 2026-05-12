@@ -86,7 +86,7 @@ export class POSClosingShift extends Doc {
             )) as any;
 
             let line = (index + 1) + '. ' + name + ' (x' + data.quantity + ') - ' + formatNumber(data.amount.toString());
-            if (itemDoc?.image) {
+            if (itemDoc?.image && /^https?:\/\//i.test(itemDoc.image)) {
                 line += '\n' + `![${name}](${itemDoc.image})`;
             }
             productLinesList.push(line);
