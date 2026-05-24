@@ -1,0 +1,57 @@
+{
+  "name": "Party",
+  "fields": [
+    {
+      "fieldname": "partyVatType",
+      "label": "VAT Status",
+      "placeholder": "VAT Status",
+      "fieldtype": "Select",
+      "default": "EE_REGISTERED",
+      "options": [
+        {
+          "value": "EE_REGISTERED",
+          "label": "Estonian VAT Registered"
+        },
+        {
+          "value": "EE_UNREGISTERED",
+          "label": "Estonian Non-Registered"
+        },
+        {
+          "value": "EU_B2B",
+          "label": "EU Business"
+        },
+        {
+          "value": "EU_B2C",
+          "label": "EU Consumer"
+        },
+        {
+          "value": "NON_EU",
+          "label": "Non-EU"
+        },
+        {
+          "value": "EXEMPT",
+          "label": "VAT Exempt"
+        }
+      ],
+      "section": "Billing"
+    },
+    {
+      "fieldname": "vatNumber",
+      "label": "VAT Number",
+      "fieldtype": "Data",
+      "placeholder": "EE123456789",
+      "section": "Billing"
+    }
+  ],
+  "quickEditFields": [
+    "email",
+    "phone",
+    "address",
+    "defaultAccount",
+    "currency",
+    "role",
+    "partyVatType",
+    "vatNumber"
+  ],
+  "removeFields": ["taxId"]
+}

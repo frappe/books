@@ -82,6 +82,8 @@ export class AccountingSettings extends Doc {
   override hidden: HiddenMap = {
     discountAccount: () => !this.enableDiscounting,
     gstin: () => this.fyo.singles.SystemSettings?.countryCode !== 'in',
+    vatNumber: () => this.fyo.singles.SystemSettings?.countryCode !== 'ee',
+    registryCode: () => this.fyo.singles.SystemSettings?.countryCode !== 'ee',
     enablePricingRule: () =>
       !this.fyo.singles.AccountingSettings?.enableDiscounting,
     enableCouponCode: () =>

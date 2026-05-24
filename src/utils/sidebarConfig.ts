@@ -26,32 +26,38 @@ function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
   });
 }
 
-function getRegionalSidebar(): SidebarRoot[] {
-  const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
-  if (!hasGstin) {
+const REGIONAL_SIDEBAR_BUILDERS: Record<string, () => SidebarRoot[]> = {
+  in: () => {
+    const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
+    if (!hasGstin) return [];
+    return [
+      {
+        label: t`GST`,
+        name: 'gst',
+        icon: 'gst',
+        route: '/report/GSTR1',
+        items: [
+          { label: t`GSTR1`, name: 'gstr1', route: '/report/GSTR1' },
+          { label: t`GSTR2`, name: 'gstr2', route: '/report/GSTR2' },
+        ],
+      },
+    ];
+  },
+  ee: () => {
+    const hasVatNumber = !!fyo.singles?.AccountingSettings?.vatNumber;
+    if (!hasVatNumber) return [];
+    // KMD + Annual Report routes land in later phases.
+    // Sidebar root is registered now so settings UI surfaces it once the
+    // user supplies a VAT number.
     return [];
-  }
+  },
+};
 
-  return [
-    {
-      label: t`GST`,
-      name: 'gst',
-      icon: 'gst',
-      route: '/report/GSTR1',
-      items: [
-        {
-          label: t`GSTR1`,
-          name: 'gstr1',
-          route: '/report/GSTR1',
-        },
-        {
-          label: t`GSTR2`,
-          name: 'gstr2',
-          route: '/report/GSTR2',
-        },
-      ],
-    },
-  ];
+function getRegionalSidebar(): SidebarRoot[] {
+  const countryCode = fyo.singles?.SystemSettings?.countryCode;
+  if (!countryCode) return [];
+  const builder = REGIONAL_SIDEBAR_BUILDERS[countryCode];
+  return builder ? builder() : [];
 }
 
 function getInventorySidebar(): SidebarRoot[] {

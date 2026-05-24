@@ -1,0 +1,30 @@
+{
+  "name": "AccountingSettings",
+  "fields": [
+    {
+      "fieldname": "vatNumber",
+      "label": "VAT Number",
+      "fieldtype": "Data",
+      "placeholder": "EE123456789",
+      "section": "Default"
+    },
+    {
+      "fieldname": "registryCode",
+      "label": "Registry Code",
+      "fieldtype": "Data",
+      "placeholder": "12345678",
+      "section": "Default"
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "currency",
+    "fiscalYearStart",
+    "fiscalYearEnd",
+    "vatNumber",
+    "registryCode"
+  ]
+}

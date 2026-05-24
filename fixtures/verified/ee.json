@@ -1,0 +1,130 @@
+{
+  "countryCode": "ee",
+  "name": "Estonia - Chart of Accounts",
+  "tree": {
+    "Application of Funds (Assets)": {
+      "Current Assets": {
+        "Accounts Receivable": {
+          "Debtors": {
+            "accountType": "Receivable"
+          }
+        },
+        "Bank Accounts": {
+          "Bank - LHV": {
+            "accountType": "Bank"
+          },
+          "accountType": "Bank",
+          "isGroup": true
+        },
+        "Cash In Hand": {
+          "Cash": {
+            "accountType": "Cash"
+          },
+          "accountType": "Cash"
+        },
+        "Tax Assets": {
+          "VAT Receivable": {
+            "accountType": "Tax"
+          },
+          "Reverse Charge VAT Receivable": {
+            "accountType": "Tax"
+          },
+          "isGroup": true
+        }
+      },
+      "Fixed Assets": {
+        "Office Equipment": {
+          "accountType": "Fixed Asset"
+        },
+        "Software": {
+          "accountType": "Fixed Asset"
+        },
+        "Accumulated Depreciation": {
+          "accountType": "Accumulated Depreciation"
+        }
+      },
+      "Temporary Accounts": {
+        "Temporary Opening": {
+          "accountType": "Temporary"
+        }
+      },
+      "rootType": "Asset"
+    },
+    "Expenses": {
+      "Indirect Expenses": {
+        "Cloud Infrastructure": {
+          "accountType": "Chargeable"
+        },
+        "Bank Fees": {},
+        "Software Subscriptions": {},
+        "Marketing Expenses": {
+          "accountType": "Chargeable"
+        },
+        "Office Expenses": {},
+        "Legal and Professional": {},
+        "Travel Expenses": {},
+        "Depreciation": {
+          "accountType": "Depreciation"
+        },
+        "Exchange Gain/Loss": {},
+        "Miscellaneous Expenses": {
+          "accountType": "Chargeable"
+        }
+      },
+      "rootType": "Expense"
+    },
+    "Income": {
+      "Direct Income": {
+        "SaaS Revenue": {},
+        "Mobile App Revenue": {},
+        "Other Services": {}
+      },
+      "Indirect Income": {
+        "Interest Income": {},
+        "isGroup": true
+      },
+      "rootType": "Income"
+    },
+    "Source of Funds (Liabilities)": {
+      "Current Liabilities": {
+        "Accounts Payable": {
+          "Creditors": {
+            "accountType": "Payable"
+          }
+        },
+        "Duties and Taxes": {
+          "VAT Payable": {
+            "accountType": "Tax"
+          },
+          "Reverse Charge VAT Payable": {
+            "accountType": "Tax"
+          },
+          "Income Tax Payable": {
+            "accountType": "Tax"
+          },
+          "accountType": "Tax",
+          "isGroup": true
+        },
+        "Loans (Liabilities)": {
+          "isGroup": true
+        }
+      },
+      "rootType": "Liability"
+    },
+    "Equity": {
+      "Share Capital": {
+        "accountType": "Equity"
+      },
+      "Retained Earnings": {
+        "accountType": "Equity"
+      },
+      "Opening Balance Equity": {
+        "accountType": "Equity"
+      },
+      "Current Year Earnings": {
+        "accountType": "Equity"
+      },
+      "rootType": "Equity"
+    }
+  }
+}

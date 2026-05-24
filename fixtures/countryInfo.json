@@ -686,12 +686,15 @@
   },
   "Estonia": {
     "code": "ee",
-    "currency": "EEK",
+    "currency": "EUR",
     "currency_fraction": "Cent",
     "currency_fraction_units": 100,
-    "currency_name": "Kroon",
+    "currency_name": "Euro",
     "currency_symbol": "€",
+    "date_format": "dd.MM.yyyy",
     "timezones": ["Europe/Tallinn"],
+    "fiscal_year_start": "01-01",
+    "fiscal_year_end": "12-31",
     "locale": "et-EE"
   },
   "Ethiopia": {
