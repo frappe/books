@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="vatDeclaration" type="VatDeclaration">
+    <xs:annotation>
+      <xs:documentation>KMD ja KMD INF
+        KMD and KMD INF
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="VatDeclaration">
+    <xs:sequence>
+      <xs:element name="taxPayerRegCode" type="PersonRegCode">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Maksukohustuslase registri- või isikukood või mitteresidendi kood.
+            Mandatory. Tax payer's registration code or personal identification number or non-resident's code.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="submitterPersonCode" type="PersonRegCode" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik kui esitada üle masin-masin liidese. Esitaja isikukood.
+            Mandatory when machine-machine interface is used. Submitter's personal identification number
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="year" type="Year">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Aasta.
+            Mandatory. Year.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="month" type="Month">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Kuu (maksustamisperiood). Väärtused 1-12.
+            Mandatory. Month (period of taxation). Values 1-12.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="declarationType" type="DeclarationType">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. KMD ja KMD INF’i esitamine tava või pankrotiperioodi kohta. Väärtused 1-2. 1 -
+            Tavaperiood, 2 - Pankrotiperiood.
+            Mandatory. Submitting VAT and VAT INF for normal or bankruptcy period. Values 1-2. 1 - Normal period, 2 -
+            Bankruptcy period
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="version" type="Version">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Versiooni number. Kehtiv alates maksustamisperioodist 01.2024. Väärtus peab 01.2024-12.2024 olema KMD4, 01.2025-06.2025 KMD5 ja al. 07.2025 KMD6.
+            Mandatory. Version number.Valid from the taxation period of 01.2024. Value must be from 01.2024 until 12.2024 KMD4, from 01.2025 until 06.2025 KMD5 and started from 07.2025 KMD6.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="declarationBody" type="DeclarationBody" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Käibemaksudeklaratsiooni põhivorm
+            Main part of value-added tax (VAT) return
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="salesAnnex" type="SalesAnnex" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>KMD INF A osa, käibemaksukohustuslasel [0..1], käibemaksugruppidel [0..n]
+            Part A of VAT INF return, taxable person [0..1], value added tax group [0..n]
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="purchasesAnnex" type="PurchasesAnnex" minOccurs="0"
+                  maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>KMD INF B osa, käibemaksukohustuslasel [0..1], käibemaksugruppidel [0..n]
+            Part B of VAT INF return, taxable person [0..1], value added tax group [0..n]
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DeclarationBody">
+    <xs:annotation>
+      <xs:documentation>Käibemaksudeklaratsiooni põhivorm
+        Main part of value-added tax (VAT) return
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="noSales" type="Flag">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Müügitehingud puuduvad. Välja väärtused on TRUE või FALSE. Väärtustatakse TRUE,
+            kui piirmäära ületavad müügitehingud
+            perioodis puuduvad - sel juhul salesLine osa täita ei saa. Kui on deklareeritavaid tehinguid, siis tuleb
+            märkida FALSE.
+            Väli täidetakse maksukohustuslase või käibemaksugrupi esindusisiku kohta. Piiratud KMK peab märkima
+            väärtuseks alati TRUE
+            Mandatory. No sales transactions. Values TRUE or FALSE. When there are no sales transactions that exceed the
+            limit during given period,
+            value is set to TRUE – salesLine part cannot be filled in. If one has transactions that must be declared,
+            value must be set to FALSE.
+            Field will be filled in with the data about taxable person or VAT group representative. A person liable to
+            VAT with limited liability must
+            always set the value to TRUE.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="noPurchases" type="Flag">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Ostutehingud puuduvad. Välja väärtused on TRUE või FALSE. Väärtustatakse TRUE,
+            kui piirmäära ületavad ostutehingud
+            perioodis puuduvad - sel juhul purchaseLine osa täita ei saa. Kui on deklareeritavaid tehinguid, siis tuleb
+            märkida FALSE.
+            Väli täidetakse maksukohustuslase või käibemaksugrupi esindusisiku kohta. Piiratud KMK peab märkima väärtuseks alati TRUE.
+            Mandatory. No purchase transactions. Values TRUE or FALSE. When there are no purchase transactions that
+            exceed the limit during given period,
+            value is set to TRUE - purchaseLine part cannot be filled in. If one has transactions that must be declared,
+            value must be set to FALSE.
+            Field will be filled in with the data about taxable person or VAT group representative. A person liable to
+            VAT with limited liability must always set the value to TRUE.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="sumPerPartnerSales" type="Flag">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. KMD INF A osas andmete esitamine summeeritult tehingupartnerite lõikes. Välja
+            väärtused on TRUE või FALSE.
+            Kui välja väärtus on TRUE, siis A osas arve numbri ja kuupäeva märkimine ei ole kohustuslik. Kui andmed
+            esitatakse mitte summeeritult ehk arvete lõikes,
+            siis tuleb väärtuseks märkida FALSE. Väli täidetakse maksukohustuslase või käibemaksugrupi esindusisiku
+            kohta.
+            Mandatory. Part A of VAT INF return - submitting sums in total by transaction partner. Values TRUE or FALSE.
+            If field value is set to TRUE,
+            the invoice number and date are not mandatory fields in part A. When sums are not given in total (meaning
+            that invoices are submitted separately),
+            field value must be set to FALSE. Field will be filled in with the data about taxable person or VAT group
+            representative.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="sumPerPartnerPurchases" type="Flag">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. KMD INF B osas andmete esitamine summeeritult tehingupartnerite lõikes. Välja
+            väärtused on TRUE või FALSE.
+            Kui välja väärtus on TRUE, siis B osas arve numbri ja kuupäeva märkimine ei ole kohustuslik. Kui andmed
+            esitatakse mitte summeeritult ehk arvete lõikes,
+            siis tuleb väärtuseks märkida FALSE. Väli täidetakse maksukohustuslase või käibemaksugrupi esindusisiku
+            kohta.
+            Mandatory. Part B of VAT INF return - submitting sums in total by transaction partner. Values TRUE or FALSE.
+            If field value is set to TRUE,
+            the invoice number and date are not mandatory fields in part B. When sums are not given in total (meaning
+            that invoices are submitted separately),
+            field value must be set to FALSE. Field will be filled in with the data about taxable person or VAT group
+            representative.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="transactions24" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>24% määraga maksustatavad toimingud ja tehingud (KMD rida 1). Kehtiv alates
+            maksustamisperioodist 07.2025.
+            Acts and transactions subject to tax at a rate of 24% (line 1 of VAT return). Valid from the taxation period
+            of 07.2025.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="transactions22" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>22% määraga maksustatavad toimingud ja tehingud (KMD rida 1 maksustamiseperioodidel 01.2024-06.2025, KMD rida 1² al. maksustamisperioodist 07.2025).
+            Acts and transactions subject to tax at a rate of 22% (line 1 of VAT return from 01.2024 until 06.2025, line 1² started from the taxation period of 07.2025). 
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="transactions20" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>20% määraga maksustatavad toimingud ja tehingud (KMD rida 1 kuni maksustamisperioodini
+            12.2023. KMD rida 1¹ alates maksustamisperioodist 01.2024).
+            Acts and transactions subject to tax at a rate of 20% (line 1 of VAT return until the taxation period of
+            12.2023.
+            Line 1¹ of VAT return from the taxation period of 01.2024).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="selfSupply20" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>20% määraga maksustatav kauba või teenuse omatarve (KMD rida 1.1). Kehtiv kuni
+            maksustamisperioodini 11.2014.
+            Self-supply of goods or services taxable at 20% (line 1.1 of VAT return). Valid until the taxation period of
+            11.2014
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="transactions9" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>9% määraga maksustatavad toimingud ja tehingud (KMD rida 2)
+            Acts and transactions subject to tax at a rate of 9% (line 2 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="selfSupply9" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>9% määraga maksustatav kauba või teenuse omatarve (KMD rida 2.1). Kehtiv kuni
+            maksustamisperioodini 11.2014.
+            Self-supply of goods or services taxable at 9% (line 2.1 of VAT return). Valid until the taxation period of
+            11.2014
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="transactions5" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>5% määraga maksustatavad toimingud ja tehingud (KMD rida 2¹). Kehtiv alates
+            maksustamisperioodist 08.2022.
+            Acts and transactions subject to tax at a rate of 5% (line 2¹ of VAT return). Valid from the taxation period
+            of 08.2022.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+            <xs:element name="transactions13" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>13% määraga maksustatavad toimingud ja tehingud (KMD rida 2²). Kehtiv alates
+            maksustamisperioodist 01.2025.
+            Acts and transactions subject to tax at a rate of 13% (line 2² of VAT return). Valid from the taxation period
+            of 01.2025.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="transactionsZeroVat" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>0% määraga maksustatavad toimingud ja tehingud (KMD rida 3)
+            Acts and transactions subject to tax at a rate of 0%, incl. (line 3 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="euSupplyInclGoodsAndServicesZeroVat" type="MonetaryValue"
+                  minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Kauba ühendusesisene käive ja teise liikmesriigi maksukohustuslasele/piiratud
+            maksukohustuslasele osutatud teenuste käive kokku (KMD rida 3.1)
+            Intra-Community supply of goods and services provided to a taxable person of another Member State/ taxable
+            person with limited liability, total, incl (line 3.1 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="euSupplyGoodsZeroVat" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Kauba ühendusesisene käive (KMD rida 3.1.1)
+            Intra-Community supply of goods (line 3.1.1 pf VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="exportZeroVat" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Kauba eksport (KMD rida 3.2)
+            Exportation of goods, incl. (line 3.2 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="salePassengersWithReturnVat" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Käibemaksutagastusega müük reisijale (KMD rida 3.2.1)
+            Sale to passengers with return of value added tax (line 3.2.1 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="inputVatTotal" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Kokku sisendkäibemaksusumma, mis on seadusega lubatud maha arvata (KMD rida 5)
+            Total amount of input VAT subject to deduction pursuant to law, incl (line 5 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="importVat" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Impordilt tasutud või tasumisele kuuluv käibemaks (KMD rida 5.1)
+            VAT paid or payable on import (line 5.1 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="fixedAssetsVat" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Põhivara soetamiselt tasutud või tasumisele kuuluv käibemaks (KMD rida 5.2)
+            VAT paid or payable on acquisition of fixed assets (line of 5.2 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="carsVat" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Ettevõtluses (100%) kasutatava sõiduauto soetamiselt ja sellise sõiduauto
+            tarbeks kaupade soetamiselt ja teenuste saamiselt tasutud või tasumisele kuuluv käibemaks.
+            Kehtiv alates maksustamisperioodist 12.2014. (KMD rida 5.3)
+            VAT paid or payable on acquisition of a car used for business purposes (100%), and on
+            acquisition of goods and receipt of services for such car. Valid from the taxatiod period of 12.2014 (line
+            5.3 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="numberOfCars" type="NumberOfCars" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Ettevõtluses (100%) kasutatavate sõiduautode arv. Kehtiv alates maksustamisperioodist
+            12.2014. (KMD rida 5.3)
+            Number of cars used for business purposes (100%). Valid from the taxation period of 12.2014 (line 5.3 of VAT
+            return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="carsPartialVat" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Osaliselt ettevõtluses kasutatava sõiduauto soetamiselt ja sellise sõiduauto tarbeks
+            kaupade soetamiselt ja teenuste saamiselt tasutud või tasumisele kuuluv käibemaks.
+            Kehtiv alates maksustamisperioodist 12.2014. (KMD rida 5.4)
+            VAT paid or payable on acquisition of a car used partially for business purposes, and on
+            acquisition of goods and receipt of services for such car. Valid from the taxation period of 12.2014 (line
+            5.4 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="numberOfCarsPartial" type="NumberOfCars" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Osaliselt ettevõtluses kasutatavate sõiduautode arv. Kehtiv alates maksustamisperioodist
+            12.2014. (KMD rida 5.4)
+            Number of cars used partially for business purposes. Valid from the taxation period of 12.2014 (line 5.4 of
+            VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="euAcquisitionsGoodsAndServicesTotal" type="MonetaryValue"
+                  minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Kauba ühendusesisene soetamine ja teise liikmesriigi maksukohustuslaselt saadud teenused
+            kokku (KMD rida 6)
+            Intra-Community acquisitions of goods and services received from a taxable person of another Member State,
+            total, incl (line 6 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="euAcquisitionsGoods" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Kauba ühendusesisene soetamine (KMD rida 6.1)
+            Intra-Community acquisitions of goods (line 6.1 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="acquisitionOtherGoodsAndServicesTotal" type="MonetaryValue"
+                  minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Muu kauba soetamine ja teenuse saamine (KMD rida 7)
+            Acquisition of other goods and services subject to VAT incl. (line 7 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="acquisitionImmovablesAndScrapMetalAndGold" type="MonetaryValue"
+                  minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Erikorra alusel maksustatava kinnisasja, metallijäätmete ja väärismetalli soetamine(KMS §
+            41^1) (KMD rida 7.1)
+            Acquisition of immovables and metal waste taxable by special arrangements for imposition of value added tax
+            on immovables, metal waste and precious metals
+            (VAT Act § 41^1) (line 7.1 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="supplyExemptFromTax" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Maksuvaba käive (KMD rida 8)
+            Supply exempt from tax (line 8 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="supplySpecialArrangements" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Erikorra alusel maksustatava kinnisasja, metallijäätmete ja väärismetalli käive (KMS § 41^1)
+            ning teises liikmesriigis
+            paigaldatava või kokkupandava kauba maksustatav väärtus (KMD rida 9)
+            Supply of goods taxable by special arrangements for imposition of value added tax on immovables and metal
+            waste and precious metals (VAT Act § 41^1)
+            and taxable value of goods to be installed or assembled in another Member State (line 9 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="adjustmentsPlus" type="NonNegativeMonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Täpsustused (+) (KMD rida 10)
+            Adjustments (+) (line 10 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="adjustmentsMinus" type="NonNegativeMonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Täpsustused (-) (KMD rida 11)
+            Adjustments (-) (line 11 of VAT return)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SalesAnnex">
+    <xs:annotation>
+      <xs:documentation>KMD INF A osa, käibemaksukohustuslasel [0..1], käibemaksugruppidel [0..n]
+        Part A of VAT INF return, taxable person [0..1], value added tax group [0..n]
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="groupMemberRegCode" type="PersonRegCode" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Käibemaksugrupi liikme registrikood. Kohustuslik käibemaksugruppide puhul ja kui edastatakse
+            grupi liikme andmed. Andmeid ei täideta esindusisiku kohta.
+            (Esindusisiku andmed näidatakse elemendi elemendis taxPayerRegCode).
+            VAT group member's registration code. Mandatory for value added tax group and when group member's data is
+            submitted. Representative's data is not filled in.
+            (Representative's data is shown in element taxPayerRegCode)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="noSales" type="Flag" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Müügitehingud puuduvad. Välja väärtused on TRUE või FALSE.
+            Väärtustatakse TRUE, kui piirmäära ületavad müügitehingud perioodis puuduvad - sel juhul salesLine osa täita
+            ei saa. Kui on deklareeritavaid tehinguid,
+            siis tuleb märkida FALSE. Kohustuslik täita, kui täidetud on groupMemberRegCode ning andmed täidetakse
+            groupMemberRegCode’s näidatud isiku kohta. Values TRUE or FALSE.
+            No sales transactions. Values TRUE or FALSE. When there are no sales transactions that exceed the limit
+            during given period, value is set to TRUE - salesLine part
+            cannot be filled in. If one has transactions that must be declared, value must be set to FALSE.. Mandatory,
+            when groupMemberRegCode is filled in and data is submitted
+            about the person who is shown in groupMemberRegCode.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="sumPerPartnerSales" type="Flag" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>KMD INF A osas andmete esitamine summeeritult tehingupartnerite lõikes. Välja väärtused on
+            TRUE või FALSE. Kui välja väärtus on TRUE,
+            siis A osas arve numbri ja kuupäeva märkimine ei ole kohustuslik. Kohustuslik täita, kui täidetud on
+            groupMemberRegCode ning andmed täidetakse
+            groupMemberRegCode’s näidatud isiku kohta.
+            Part A of VAT INF return - submitting sums in total by transaction partner. Values TRUE or FALSE. If field
+            value is set to TRUE, the invoice number
+            and date are not mandatory fields in part A. Mandatory, when groupMemberRegCode is filled in and data is
+            submitted about the person who is shown in groupMemberRegCode.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="saleLine" type="SaleLine" maxOccurs="unbounded" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>KMD INF A osa - müügiarve rida [0..n]
+            Part A of VAT INF return - Line of sales invoice [0..n]
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PurchasesAnnex">
+    <xs:annotation>
+      <xs:documentation>KMD INF B osa, käibemaksukohustuslasel [0..1], käibemaksugruppidel [0..n]
+        Part B of VAT INF return, taxable person [0..1], value added tax group [0..n]
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="groupMemberRegCode" type="PersonRegCode" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Käibemaksugrupi liikme registrikood. Kohustuslik käibemaksugruppide puhul ja kui edastatakse
+            liikme andmed.
+            Andmeid ei täideta esindusisiku kohta. (Esindusisiku andmed näidatakse elemendi elemendis taxPayerRegCode)
+            Group member's registration code. Mandatory for value added tax group and when member's data is submitted.
+            Representative's data is not submitted.
+            (Representative's data is shown in element taxPayerRegCode)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="noPurchases" type="Flag" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Ostutehingud puuduvad. Välja väärtused on TRUE või FALSE. Väärtustatakse TRUE, kui piirmäära
+            ületavad ostutehingud
+            perioodis puuduvad - sel juhul purchaseLine osa täitma ei pea. Vastasel korral väärtustatakse FALSE.
+            Kohustuslik täita, kui täidetud on groupMemberRegCode
+            ning andmed täidetakse groupMemberRegCode’s näidatud isiku kohta.
+            No purchase transactions. Values TRUE or FALSE. When there are no purchase transactions that exceed the
+            limit during given period,
+            value is set to TRUE - purchaseLine part does not have to be filled in. Otherwise value must be set to
+            FALSE. Mandatory, when groupMemberRegCode is filled in
+            and data is submitted about the person who is shown in groupMemberRegCode.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="sumPerPartnerPurchases" type="Flag" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>KMD INF B osas andmete esitamine summeeritult tehingupartnerite lõikes. Välja väärtused on
+            TRUE või FALSE. Kui välja väärtus on TRUE, siis B osas
+            arve numbri ja kuupäeva märkimine ei ole kohustuslik. Kohustuslik täita, kui täidetud on groupMemberRegCode
+            ning andmed täidetakse groupMemberRegCode’s näidatud isiku kohta.
+            Filling part B of VAT INF return summarized per partner. Values TRUE or FALSE. If field value is set to
+            TRUE, the invoice number and date are not mandatory fields in part B.
+            Mandatory, when groupMemberRegCode filled in and data is submitted about the person who is shown in
+            groupMemberRegCode.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="purchaseLine" type="PurchaseLine" maxOccurs="unbounded" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>KMD INF B osa - ostuarve rida [0..n]
+            Part B of VAT INF return - Line of purchases invoice [0..n]
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SaleLine">
+    <xs:annotation>
+      <xs:documentation>KMD INF A osa - müügiarve rida [0..n]
+        Part A of VAT INF return - Line of sales invoice [0..n]
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="buyerRegCode" type="PersonRegCode" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tehingupartneri registri- või isikukood (KMD INF A osa veerg 2).
+            Transaction partner's registration code or personal identification number (cell 2 of part A of VAT INF
+            return).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="buyerName" type="Name" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tehingupartneri nimi (KMD INF A osa veerg 3). Peab olema täidetud, kui on täitmata
+            tehingupartneri registri- või isikukood.
+            Transaction partner's name (cell 3 of part A of VAT return). Mandatory field if transaction partner's
+            registration code or personal identification number is not filled in.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="invoiceNumber" type="InvoiceNumber" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Arve number (KMD INF A osa veerg 4).
+            Invoice number (cell 4 of part A of VAT return).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="invoiceDate" type="Date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Arve kuupäev pp.kk.aaaa (KMD INF A osa veerg 5). aaaa-kk-pp
+            Invoice date dd.mm.yyyy (cell 5 of part A of VAT INF return). yyyy-mm-dd
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="invoiceSum" type="MonetaryValue">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Arve kogusumma ilma käibemaksuta (KMD INF A osa veerg 6).
+            Mandatory. Invoice sum excluding VAT (cell 6 of part A of VAT INF return).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="taxRate" type="TaxRate">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Maksumäär (KMD INF A osa veerg 7). Klassifikaator TAX_RATE_SALES.
+            Mandatory. Tax rate (cell 7 of part A of VAT INF return). Classificator TAX_RATE_SALES.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="invoiceSumForRate" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Arvel märgitud kauba ja teenuse maksustatav väärtus (KMD INF A osa veerg 8). Täidab ainult
+            kassapõhine käibemaksukohustuslane.
+            Taxable value of the goods and services, set out on the invoice (cell 8 of part A of VAT INF return). Filled
+            only by cash accounting taxable person.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="sumForRateInPeriod" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Maksustamisperioodil KMD lahtris 1, 1¹, 1², 2, 2¹ või 2² kajastatud maksustatav käive (KMD INF A osa
+            veerg 9)
+            Sum declared on lines 1, 1¹, 1², 2, 2¹ or 2² of VAT return during this period of taxation. (cell 9 of part A of VAT
+            INF return).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="comments" type="Comments" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Erisuse kood (KMD INF A osa veerg 10). Klassifikaator COMMENT_SALES.
+            Exception code (cell 10 of part A of VAT INF return). Classificator COMMENT_SALES.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PurchaseLine">
+    <xs:annotation>
+      <xs:documentation>KMD INF B osa - ostuarve rida [0..n]
+        Part B of VAT INF return - Line of purchases invoice [0..n]
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="sellerRegCode" type="PersonRegCode" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tehingupartneri registri- või isikukood (KMD INF B osa veerg 2).
+            Transaction partner's registration code or personal identification number (cell 2 of part B of VAT INF
+            return).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="sellerName" type="Name" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tehingupartneri nimi (KMD INF B osa veerg 3). Peab olema täidetud, kui on täitmata
+            tehingupartneri registri- või isikukood.
+            Transaction partner's name (cell 3 of part B of VAT return). Mandatory field if transaction partner's
+            registration code or personal identification number is not filled in.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="invoiceNumber" type="InvoiceNumber" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Arve number (KMD INF B osa veerg 4).
+            Invoice number (cell 4 of part B of VAT return).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="invoiceDate" type="Date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Arve kuupäev pp.kk.aaaa (KMD INF B osa veerg 5). aaaa-kk-pp
+            Invoice date dd.mm.yyyy (cell 5 of part B of VAT INF return). yyyy-mm-dd
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="invoiceSumVat" type="MonetaryValue">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Arve kogusumma koos käibemaksuga (KMD INF B osa veerg 6).
+            Mandatory. Invoice sum including VAT (cell 6 of part B of VAT INF return).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="vatSum" type="MonetaryValue" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Arvel märgitud käibemaksusumma (KMD INF B osa veerg 7). Täidab ainult kassapõhine
+            käibemaksukohustuslane.
+            Invoice VAT sum (cell 7 of part B of VAT INF return). Filled only by cash accounting taxable person.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="vatInPeriod" type="MonetaryValue">
+        <xs:annotation>
+          <xs:documentation>Kohustuslik. Maksustamisperioodil KMD lahtris 5 kajastatud sisendkäibemaksusumma (KMD INF B
+            osa veerg 8).
+            Mandatory. Input VAT declared on line 5 of VAT return during this period of taxation. (cell 8 of part B of
+            VAT INF return).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="comments" type="Comments" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Erisuse kood (KMD INF B osa veerg 9). Klassifikaator COMMENT_PURCHASES.
+            Exception code (cell 9 of part B of VAT INF return). Classificator COMMENT_PURCHASES.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="Name">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="182"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PersonRegCode">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="20"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Year">
+    <xs:restriction base="xs:integer">
+      <xs:totalDigits value="4"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Month">
+    <xs:restriction base="xs:integer">
+      <xs:totalDigits value="2"/>
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="12"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DeclarationType">
+    <xs:restriction base="xs:integer">
+      <xs:totalDigits value="1"/>
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="InvoiceNumber">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="200"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Comments">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="TaxRate">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="25"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="MonetaryValue">
+    <xs:restriction base="xs:decimal">
+      <xs:fractionDigits value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="NonNegativeMonetaryValue">
+    <xs:restriction base="xs:decimal">
+      <xs:fractionDigits value="2"/>
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="NumberOfCars">
+    <xs:restriction base="xs:integer">
+      <xs:totalDigits value="6"/>
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Flag">
+    <xs:restriction base="xs:boolean"/>
+  </xs:simpleType>
+  <xs:simpleType name="Date">
+    <xs:restriction base="xs:date"/>
+  </xs:simpleType>
+  <xs:simpleType name="Version">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="5"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

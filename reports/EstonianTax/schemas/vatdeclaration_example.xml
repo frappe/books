@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vatDeclaration>
+    <taxPayerRegCode>11234567</taxPayerRegCode>
+    <!-- Kohustuslik. Maksukohustuslase registri- või isikukood või mitteresidendi kood.
+        Mandatory. Tax payer's registration code or personal identification number or non-resident's code.  -->
+    <submitterPersonCode>12345678912</submitterPersonCode>
+    <!-- Kohustuslik kui esitada üle masin-masin liidese. Esitaja isikukood.
+        Mandatory when machine-machine interface is used. Submitter's personal identification number  -->
+    <year>2025</year>
+    <!-- Kohustuslik. Aasta
+        Mandatory. Year  -->
+    <month>07</month>
+    <!-- Kohustuslik. Kuu (maksustamisperiood). Väärtused 1-12.
+        Mandatory. Month (period of taxation). Values 1-12.  -->
+    <declarationType>1</declarationType>
+    <!-- Kohustuslik. KMD ja KMD INF’i esitamine tava või pankrotiperioodi kohta. Väärtused 1-2. 1 - Tavaperiood, 2 - Pankrotiperiood.
+        Mandatory. Submitting VAT and VAT INF for normal or bankruptcy period. Values 1-2. 1 - Normal period, 2 - Bankruptcy period  -->
+    <version>KMD6</version>
+    <!-- Kohustuslik. Versiooni number. Kehtiv alates maksustamisperioodist 01.2024. Väärtus peab 01.2024-12.2024 olema KMD4, 01.2025-06.2025 KMD5 ja al. 07.2025 KMD6.
+        Mandatory. Version number.Valid from the taxation period of 01.2024. Value must be from 01.2024 until 12.2024 KMD4, from 01.2025 until 06.2025 KMD5 and started from 07.2025 KMD6.  -->
+    <declarationBody>
+    <!-- Käibemaksudeklaratsiooni põhivorm
+        Main part of value-added tax (VAT) return  -->
+        <noSales>false</noSales>
+        <!-- Kohustuslik. Müügitehingud puuduvad. Välja väärtused on TRUE või FALSE. Väärtustatakse TRUE, kui piirmäära ületavad müügitehingud 
+             perioodis puuduvad - sel juhul salesLine osa täita ei saa.  Kui on deklareeritavaid tehinguid, siis tuleb märkida FALSE. 
+             Väli täidetakse maksukohustuslase või käibemaksugrupi esindusisiku kohta. Piiratud KMK peab märkima väärtuseks alati TRUE
+             Mandatory. No sales transactions. Values TRUE or FALSE. When there are no sales transactions that exceed the limit during given period, 
+             value is set to TRUE – salesLine part cannot be filled in. If one has transactions that must be declared, value must be set to FALSE. 
+             Field will be filled in with the data about taxable person or VAT group representative. A person liable to VAT with limited liability 
+             must always set the value to TRUE. -->
+        <noPurchases>false</noPurchases>
+        <!-- Kohustuslik. Ostutehingud puuduvad. Välja väärtused on TRUE või FALSE. Väärtustatakse TRUE, kui piirmäära ületavad ostutehingud 
+             perioodis puuduvad - sel juhul purchaseLine osa täita ei saa. Kui on deklareeritavaid tehinguid, siis tuleb märkida FALSE. 
+             Väli täidetakse maksukohustuslase või käibemaksugrupi esindusisiku kohta. Piiratud KMK peab märkima väärtuseks alati TRUE.
+             Mandatory. No purchase transactions. Values TRUE or FALSE. When there are no purchase transactions that exceed the limit during given period, 
+             value is set to TRUE - purchaseLine part cannot be filled in. If one has transactions that must be declared, value must be set to FALSE. 
+             Field will be filled in with the data about taxable person or VAT group representative. A person liable to VAT with limited liability 
+             must always set the value to TRUE.  -->
+        <sumPerPartnerSales>false</sumPerPartnerSales>
+        <!-- Kohustuslik. KMD INF A osas andmete esitamine summeeritult tehingupartnerite lõikes. Välja väärtused on TRUE või FALSE.
+             Kui välja väärtus on TRUE, siis A osas arve numbri ja kuupäeva märkimine ei ole kohustuslik. Kui andmed esitatakse  mitte summeeritult ehk arvete lõikes, 
+             siis tuleb väärtuseks märkida FALSE. Väli täidetakse maksukohustuslase või käibemaksugrupi esindusisiku kohta.
+             Mandatory. Part A of VAT INF return - submitting sums in total by transaction partner. Values TRUE or FALSE. If field value is set to TRUE, 
+             the invoice number and date are not mandatory fields in part A. When sums are not given in total (meaning that invoices are submitted separately), 
+             field value must be set to FALSE. Field will be filled in with the data about taxable person or VAT group representative.  -->
+        <sumPerPartnerPurchases>false</sumPerPartnerPurchases>
+        <!-- Kohustuslik. KMD INF B osas andmete esitamine summeeritult tehingupartnerite lõikes. Välja väärtused on TRUE või FALSE.
+             Kui välja väärtus on TRUE, siis B osas arve numbri ja kuupäeva märkimine ei ole kohustuslik. Kui andmed esitatakse mitte summeeritult ehk arvete lõikes, 
+             siis tuleb väärtuseks märkida FALSE. Väli täidetakse maksukohustuslase või käibemaksugrupi esindusisiku kohta.
+             Mandatory. Part B of VAT INF return - submitting sums in total by transaction partner. Values TRUE or FALSE. If field value is set to TRUE, 
+             the invoice number and date are not mandatory fields in part B. When sums are not given in total (meaning that invoices are submitted separately), 
+             field value must be set to FALSE. Field will be filled in with the data about taxable person or VAT group representative.  -->
+       <transactions24>80000.00</transactions24>
+        <!-- 24% määraga maksustatavad toimingud ja tehingud (KMD rida 1). Kehtiv alates maksustamisperioodist 07.2025.
+                Acts and transactions subject to tax at a rate of 24% (line 1 of VAT return).Valid from the taxation period of 07.2025.  -->
+        <transactions22>90000.00</transactions22>
+        <!-- 22% määraga maksustatavad toimingud ja tehingud (KMD rida 1 maksustamiseperioodidel 01.2024-06.2025, KMD rida 1² al. maksustamisperioodist 07.2025).
+            Acts and transactions subject to tax at a rate of 22% (line 1 of VAT return from 01.2024 until 06.2025, line 1² started from the taxation period of 07.2025). -->
+        <transactions20>90000.00</transactions20>
+        <!-- 20% määraga maksustatavad toimingud ja tehingud (KMD rida 1 kuni maksustamisperioodini 12.2023. KMD rida 1¹ alates maksustamisperioodist 01.2024).
+                Acts and transactions subject to tax at a rate of 20% (line 1 of VAT return until the taxation period of 12.2023. 
+                Line 1¹ of VAT return from the taxation period of 01.2024).  -->
+        <selfSupply20>1000.00</selfSupply20>
+        <!-- 20% määraga maksustatav kauba või teenuse omatarve (KMD rida 1.1). Kehtiv kuni maksustamisperioodini 11.2014.
+                Self-supply of goods or services taxable at 20% (line 1.1 of VAT return). Valid until the taxation period of 11.2014 -->
+        <transactions9>10000.00</transactions9>
+        <!-- 9% määraga maksustatavad toimingud ja tehingud (KMD rida 2)
+                Acts and transactions subject to tax at a rate of 9% (line 2 of VAT return)  -->
+        <selfSupply9>1000.00</selfSupply9>
+        <!-- 9% määraga maksustatav kauba või teenuse omatarve (KMD rida 2.1). Kehtiv kuni maksustamisperioodini 11.2014.
+                Self-supply of goods or services taxable at 9% (line 2.1 of VAT return). Valid until the taxation period of 11.2014 -->
+        <transactions5>1000.00</transactions5>
+        <!-- 5% määraga maksustatavad toimingud ja tehingud (KMD rida 2¹). Kehtiv alates maksustamisperioodist 08.2022.
+                Acts and transactions subject to tax at a rate of 5% (line 2¹ of VAT return). Valid from the taxation period of 08.2022. -->
+        <transactions13>1000.00</transactions13>
+        <!-- 13% määraga maksustatavad toimingud ja tehingud (KMD rida 2²). Kehtiv alates maksustamisperioodist 01.2025.
+                Acts and transactions subject to tax at a rate of 13% (line 2² of VAT return). Valid from the taxation period of 01.2025. -->
+        <transactionsZeroVat>1000.00</transactionsZeroVat>
+        <!-- 0% määraga maksustatavad toimingud ja tehingud (KMD rida 3)
+                Acts and transactions subject to tax at a rate of 0%, incl. (line 3 of VAT return)  -->
+        <euSupplyInclGoodsAndServicesZeroVat>200.00</euSupplyInclGoodsAndServicesZeroVat>
+        <!-- Kauba ühendusesisene käive ja teise liikmesriigi maksukohustuslasele/piiratud maksukohustuslasele osutatud teenuste käive kokku (KMD rida 3.1)
+                Intra-Community supply of goods and services provided to a taxable person of another Member State/ taxable person with limited liability, total, incl (line 3.1 of VAT return)  -->
+        <euSupplyGoodsZeroVat>100.00</euSupplyGoodsZeroVat>
+        <!-- Kauba ühendusesisene käive (KMD rida 3.1.1)
+                Intra-Community supply of goods (line 3.1.1 pf VAT return)  -->
+        <exportZeroVat>200.00</exportZeroVat>
+        <!-- Kauba eksport (KMD rida 3.2)
+                Exportation of goods, incl. (line 3.2 of VAT return)  -->
+        <salePassengersWithReturnVat>100.00</salePassengersWithReturnVat>
+        <!-- Käibemaksutagastusega müük reisijale (KMD rida 3.2.1)
+                Sale to passengers with return of value added tax (line 3.2.1 of VAT return)  -->
+        <inputVatTotal>9500.00</inputVatTotal>
+        <!-- Kokku sisendkäibemaksusumma, mis on seadusega lubatud maha arvata (KMD rida 5)
+                Total amount of input VAT subject to deduction pursuant to law, incl (line 5 of VAT return)  -->
+        <importVat>200.00</importVat>
+        <!-- Impordilt tasutud või tasumisele kuuluv käibemaks (KMD rida 5.1)
+                VAT paid or payable on import (line 5.1 of VAT return)  -->
+        <fixedAssetsVat>100.00</fixedAssetsVat>
+        <!-- Põhivara soetamiselt tasutud või tasumisele kuuluv käibemaks (KMD rida 5.2)
+                VAT paid or payable on acquisition of fixed assets (line of 5.2 of VAT return)  -->
+        <carsVat>100.00</carsVat>
+        <!-- Ettevõtluses (100%) kasutatava sõiduauto soetamiselt ja  sellise sõiduauto  
+                tarbeks kaupade soetamiselt ja teenuste saamiselt  tasutud või tasumisele kuuluv käibemaks. 
+                Kehtiv alates maksustamisperioodist 12.2014. (KMD rida 5.3)
+                VAT paid or payable on acquisition of a car used for business purposes (100%), and on acquisition 
+                of goods and receipt of services for such car. Valid from the taxatiod period of 12.2014 (line 5.3 of VAT return) -->
+        <numberOfCars>25</numberOfCars>
+        <!-- Ettevõtluses (100%) kasutatavate sõiduautode arv. Kehtiv alates maksustamisperioodist 12.2014. (KMD rida 5.3)
+                Number of cars used for business purposes (100%). Valid from the taxation period of 12.2014 (line 5.3 of VAT return) -->
+        <carsPartialVat>100.00</carsPartialVat>
+        <!-- Osaliselt ettevõtluses kasutatava sõiduauto soetamiselt ja sellise sõiduauto tarbeks  
+                kaupade  soetamiselt ja teenuste saamiselt tasutud või tasumisele kuuluv käibemaks. 
+                Kehtiv alates maksustamisperioodist 12.2014. (KMD rida 5.4)
+                VAT paid or payable on acquisition of a car used partially for business purposes, and on acquisition of goods and receipt 
+                of services for such car. Valid from the taxation period of 12.2014 (line 5.4 of VAT return) -->
+        <numberOfCarsPartial>12</numberOfCarsPartial>
+        <!-- Osaliselt ettevõtluses kasutatavate sõiduautode arv. Kehtiv alates maksustamisperioodist 12.2014. (KMD rida 5.4)
+                Number of cars used partially for business purposes. Valid from the taxation period of 12.2014 (line 5.4 of VAT return) -->
+        <euAcquisitionsGoodsAndServicesTotal>20000.00</euAcquisitionsGoodsAndServicesTotal>
+        <!-- Kauba ühendusesisene soetamine ja teise liikmesriigi maksukohustuslaselt saadud teenused kokku (KMD rida 6)
+                Intra-Community acquisitions of goods and services received from a taxable person of another Member State, total, incl (line 6 of VAT return)  -->
+        <euAcquisitionsGoods>1000.00</euAcquisitionsGoods>
+        <!-- Kauba ühendusesisene soetamine (KMD rida 6.1)
+                Intra-Community acquisitions of goods (line 6.1 of VAT return)  -->
+        <acquisitionOtherGoodsAndServicesTotal>500.00</acquisitionOtherGoodsAndServicesTotal>
+        <!-- Muu kauba soetamine ja teenuse saamine (KMD rida 7)
+                Acquisition of other goods and services subject to VAT incl. (line 7 of VAT return)  -->
+        <acquisitionImmovablesAndScrapMetalAndGold>100.00</acquisitionImmovablesAndScrapMetalAndGold>
+        <!-- Erikorra alusel maksustatava kinnisasja, metallijäätmete ja väärismetalli  soetamine(KMS § 41^1) (KMD rida 7.1)
+                Acquisition of immovables and metal waste taxable by special arrangements for imposition of value added tax on immovables, metal waste and  precious metals (VAT Act § 41^1) (line 7.1 of VAT return)  -->
+        <supplyExemptFromTax>500.00</supplyExemptFromTax>
+        <!-- Maksuvaba käive (KMD rida 8)
+                Supply exempt from tax (line 8 of VAT return)  -->
+        <supplySpecialArrangements>100.00</supplySpecialArrangements>
+        <!-- Erikorra alusel maksustatava kinnisasja, metallijäätmete ja väärismetalli  käive (KMS § 41^1) ning teises liikmesriigis 
+				paigaldatava või kokkupandava kauba maksustatav väärtus (KMD rida 9)
+				Supply of goods taxable by special arrangements for imposition of value added tax on immovables and metal waste and  precious metals (VAT Act § 41^1) 
+				and taxable value of goods to be installed or assembled in another Member State (line 9 of VAT return) -->
+        <adjustmentsPlus>10.00</adjustmentsPlus>
+        <!-- Täpsustused (+) (KMD rida 10)
+                Adjustments (+) (line 10 of VAT return)  -->
+        <adjustmentsMinus>0.00</adjustmentsMinus>
+        <!-- Täpsustused (-) (KMD rida 11)
+                Adjustments (-) (line 11 of VAT return)  -->
+    </declarationBody>
+    <salesAnnex>
+    <!-- KMD INF A osa, käibemaksukohustuslasel [0..1], käibemaksugruppidel [0..n]
+        Part A of VAT INF return, taxable person [0..1], value added tax group [0..n]  -->
+        <saleLine>
+            <!-- KMD INF A osa - müügiarve rida [0..n]
+                 Part A of VAT INF return - Line of sales invoice [0..n]  -->
+            <buyerRegCode>23456789</buyerRegCode>
+            <!-- Tehingupartneri registri- või isikukood (KMD INF A osa  veerg 2).
+                 Transaction partner's registration code or personal identification number (cell 2 of part A of VAT INF return). -->
+            <buyerName>Nimi</buyerName>
+            <!-- Tehingupartneri nimi (KMD INF A osa veerg 3). Peab olema täidetud, kui on täitmata tehingupartneri registri- või isikukood.
+                 Transaction partner's name (cell 3 of part A of VAT return). Mandatory field if transaction partner's registration code or personal identification number is not filled in. -->
+            <invoiceNumber>887766384</invoiceNumber>
+            <!-- Arve number (KMD INF A osa veerg 4).
+                 Invoice number (cell 4 of part A of VAT return).  -->
+            <invoiceDate>2025-07-04</invoiceDate>
+            <!-- Arve kuupäev pp.kk.aaaa (KMD INF A osa veerg 5). aaaa-kk-pp
+                 Invoice date dd.mm.yyyy (cell 5 of part A of VAT INF return). yyyy-mm-dd  -->
+            <invoiceSum>1500.00</invoiceSum>
+            <!-- Kohustuslik. Arve kogusumma ilma käibemaksuta (KMD INF A osa veerg 6).
+                 Mandatory. Invoice sum excluding VAT (cell 6 of part A of VAT INF return).  -->
+            <taxRate>24erikord</taxRate>
+            <!-- Kohustuslik. Maksumäär (KMD INF A osa veerg 7). Klassifikaator TAX_RATE_SALES.
+                 Mandatory. Tax rate (cell 7 of part A of VAT INF return). Classificator TAX_RATE_SALES.  -->
+            <invoiceSumForRate>400.00</invoiceSumForRate>
+            <!-- Arvel märgitud kauba ja teenuse maksustatav väärtus  (KMD INF A osa veerg 8). Täidab ainult kassapõhine käibemaksukohustuslane.
+                 Taxable value of the goods and services, set out on the invoice (cell 8 of part A of VAT INF return). Filled only by cash accounting taxable person. -->
+            <sumForRateInPeriod>400.00</sumForRateInPeriod>
+              <!-- Maksustamisperioodil KMD lahtris 1, 1¹, 1², 2, 2¹ või 2² kajastatud maksustatav käive (KMD INF A osa veerg 9).
+                 Sum declared on lines 1, 1¹, 1², 2, 2¹ or 2² of VAT return during this period of taxation. (cell 9 of part A of VAT INF return).  -->
+            <comments>01</comments>
+            <!-- Erisuse kood (KMD INF A osa veerg 10). Klassifikaator COMMENT_SALES.
+                 Exception code (cell 10 of part A of VAT INF return). Classificator COMMENT_SALES.  -->
+        </saleLine>
+        <saleLine>
+            <!-- KMD INF A osa - müügiarve rida [0..n]
+                 Part A of VAT INF return - Line of sales invoice [0..n]  -->
+            <buyerRegCode>23456789</buyerRegCode>
+            <!-- Tehingupartneri registri- või isikukood (KMD INF A osa  veerg 2).
+                 Transaction partner's registration code or personal identification number (cell 2 of part A of VAT INF return). -->
+            <buyerName>Nimi</buyerName>
+            <!-- Tehingupartneri nimi (KMD INF A osa veerg 3). Peab olema täidetud, kui on täitmata tehingupartneri registri- või isikukood.
+                 Transaction partner's name (cell 3 of part A of VAT return). Mandatory field if transaction partner's registration code or personal identification number is not filled in. -->
+            <invoiceNumber>887766385</invoiceNumber>
+            <!-- Arve number (KMD INF A osa veerg 4).
+                 Invoice number (cell 4 of part A of VAT return).  -->
+            <invoiceDate>2025-07-04</invoiceDate>
+            <!-- Arve kuupäev pp.kk.aaaa (KMD INF A osa veerg 5). aaaa-kk-pp
+                 Invoice date dd.mm.yyyy (cell 5 of part A of VAT INF return). yyyy-mm-dd  -->
+            <invoiceSum>1500.00</invoiceSum>
+            <!-- Kohustuslik. Arve kogusumma ilma käibemaksuta (KMD INF A osa veerg 6).
+                 Mandatory. Invoice sum excluding VAT (cell 6 of part A of VAT INF return).  -->
+            <taxRate>22</taxRate>
+            <!-- Kohustuslik. Maksumäär (KMD INF A osa veerg 7). Klassifikaator TAX_RATE_SALES.
+                 Mandatory. Tax rate (cell 7 of part A of VAT INF return). Classificator TAX_RATE_SALES.  -->
+            <invoiceSumForRate>1500.00</invoiceSumForRate>
+            <!-- Arvel märgitud kauba ja teenuse maksustatav väärtus  (KMD INF A osa veerg 8). Täidab ainult kassapõhine käibemaksukohustuslane.
+                 Taxable value of the goods and services, set out on the invoice (cell 8 of part A of VAT INF return). Filled only by cash accounting taxable person. -->
+            <sumForRateInPeriod>1500.00</sumForRateInPeriod>
+              <!-- Maksustamisperioodil KMD lahtris 1, 1¹, 1², 2, 2¹ või 2² kajastatud maksustatav käive (KMD INF A osa veerg 9).
+                 Sum declared on lines 1, 1¹, 1², 2 or 2¹ of VAT return during this period of taxation. (cell 9 of part A of VAT INF returnKMD INF A part field 9).  -->
+            <!--<comments></comments>
+				 Erisuse kood (KMD INF A osa veerg 10). Klassifikaator COMMENT_SALES.
+                 Exception code (cell 10 of part A of VAT INF return). Classificator COMMENT_SALES.  -->
+        </saleLine>
+        <saleLine>
+            <!-- KMD INF A osa - müügiarve rida [0..n]
+                 Part A of VAT INF return - Line of sales invoice [0..n]  -->
+            <buyerRegCode>23456789</buyerRegCode>
+            <!-- Tehingupartneri registri- või isikukood (KMD INF A osa  veerg 2).
+                 Transaction partner's registration code or personal identification number (cell 2 of part A of VAT INF return). -->
+            <buyerName>Nimi</buyerName>
+            <!-- Tehingupartneri nimi (KMD INF A osa veerg 3). Peab olema täidetud, kui on täitmata tehingupartneri registri- või isikukood.
+                 Transaction partner's name (cell 3 of part A of VAT return). Mandatory field if transaction partner's registration code or personal identification number is not filled in. -->
+            <invoiceNumber>887766386</invoiceNumber>
+            <!-- Arve number (KMD INF A osa veerg 4).
+                 Invoice number (cell 4 of part A of VAT return).  -->
+            <invoiceDate>2025-07-04</invoiceDate>
+            <!-- Arve kuupäev pp.kk.aaaa (KMD INF A osa veerg 5). aaaa-kk-pp
+                 Invoice date dd.mm.yyyy (cell 5 of part A of VAT INF return). yyyy-mm-dd  -->
+            <invoiceSum>1500.00</invoiceSum>
+            <!-- Kohustuslik. Arve kogusumma ilma käibemaksuta (KMD INF A osa veerg 6).
+                 Mandatory. Invoice sum excluding VAT (cell 6 of part A of VAT INF return).  -->
+            <taxRate>24</taxRate>
+            <!-- Kohustuslik. Maksumäär (KMD INF A osa veerg 7). Klassifikaator TAX_RATE_SALES.
+                 Mandatory. Tax rate (cell 7 of part A of VAT INF return). Classificator TAX_RATE_SALES.  -->
+            <invoiceSumForRate>1200.00</invoiceSumForRate>
+            <!-- Arvel märgitud kauba ja teenuse maksustatav väärtus  (KMD INF A osa veerg 8). Täidab ainult kassapõhine käibemaksukohustuslane.
+                 Taxable value of the goods and services, set out on the invoice (cell 8 of part A of VAT INF return). Filled only by cash accounting taxable person. -->
+            <sumForRateInPeriod>1200.00</sumForRateInPeriod>
+              <!-- Maksustamisperioodil KMD lahtris 1, 1¹, 1², 2, 2¹ või 2² kajastatud maksustatav käive (KMD INF A osa veerg 9).
+                 Sum declared on lines 1, 1¹, 1², 2, 2¹ or 2² of VAT return during this period of taxation. (cell 9 of part A of VAT INF returnKMD INF A part field 9).  -->
+            <!--<comments></comments>
+				 Erisuse kood (KMD INF A osa veerg 10). Klassifikaator COMMENT_SALES.
+                 Exception code (cell 10 of part A of VAT INF return). Classificator COMMENT_SALES.  -->
+        </saleLine>
+    </salesAnnex>
+    <purchasesAnnex>
+    <!-- KMD INF B osa, käibemaksukohustuslasel [0..1], käibemaksugruppidel [0..n]
+         Part B of VAT INF return, taxable person [0..1], value added tax group [0..n]  -->
+        <purchaseLine>
+        <!-- KMD INF B osa - ostuarve rida [0..n]
+            Part B of VAT INF return - Line of purchases invoice [0..n]  -->
+            <sellerRegCode>34567891</sellerRegCode>
+            <!-- Tehingupartneri registri- või isikukood (KMD INF B osa  veerg 2).
+                 Transaction partner's registration code or personal identification number (cell 2 of part B of VAT INF return).  -->
+            <sellerName>Nimi</sellerName>
+            <!-- Tehingupartneri nimi (KMD INF B osa veerg 3). Peab olema täidetud, kui on täitmata tehingupartneri registri- või isikukood.
+                 Transaction partner's name (cell 3 of part B of VAT return). Mandatory field if transaction partner's registration code or personal identification number is not filled in.  -->
+            <invoiceNumber>00448826649</invoiceNumber>
+            <!-- Arve number (KMD INF B osa veerg 4).
+                 Invoice number (cell 4 of part B of VAT return).  -->
+            <invoiceDate>2025-07-04</invoiceDate>
+            <!-- Arve kuupäev pp.kk.aaaa (KMD INF B osa veerg 5). aaaa-kk-pp
+                 Invoice date dd.mm.yyyy (cell 5 of part B of VAT INF return). yyyy-mm-dd  -->
+            <invoiceSumVat>1220.00</invoiceSumVat>
+            <!-- Kohustuslik. Arve kogusumma koos käibemaksuga (KMD INF B osa veerg 6).
+                 Mandatory. Invoice sum including VAT (cell 6 of part B of VAT INF return).  -->
+            <vatSum>220.00</vatSum>
+            <!-- Arvel märgitud käibemaksusumma (KMD INF B osa veerg 7). Täidab ainult kassapõhine käibemaksukohustuslane.
+                 Invoice VAT sum (cell 7 of part B of VAT INF return). Filled only by cash accounting taxable person.  -->
+            <vatInPeriod>110.00</vatInPeriod>
+            <!-- Kohustuslik. Maksustamisperioodil KMD lahtris 5 kajastatud sisendkäibemaksusumma (KMD INF B osa veerg 8).
+                 Mandatory. Input VAT declared on line 5 of VAT return during this period of taxation. (cell 8 of part B of VAT INF return).  -->
+            <comments>12</comments>
+            <!-- Erisuse kood (KMD INF B osa veerg  9). Klassifikaator COMMENT_PURCHASES.
+                 Exception code (cell 9 of part B of VAT INF return). Classificator COMMENT_PURCHASES.  -->
+        </purchaseLine>
+        <purchaseLine>
+            <!-- KMD INF B osa - ostuarve rida [0..n]
+            Part B of VAT INF return - Line of purchases invoice [0..n]  -->
+            <sellerRegCode>34567891</sellerRegCode>
+            <!-- Tehingupartneri registri- või isikukood (KMD INF B osa  veerg 2).
+                 Transaction partner's registration code or personal identification number (cell 2 of part B of VAT INF return).  -->
+            <sellerName>Nimi</sellerName>
+            <!-- Tehingupartneri nimi (KMD INF B osa veerg 3). Peab olema täidetud, kui on täitmata tehingupartneri registri- või isikukood.
+                 Transaction partner's name (cell 3 of part B of VAT return). Mandatory field if transaction partner's registration code or personal identification number is not filled in.  -->
+            <invoiceNumber>00448826648</invoiceNumber>
+            <!-- Arve number (KMD INF B osa veerg 4).
+                 Invoice number (cell 4 of part B of VAT return).  -->
+            <invoiceDate>2025-07-04</invoiceDate>
+            <!-- Arve kuupäev pp.kk.aaaa (KMD INF B osa veerg 5). aaaa-kk-pp
+                 Invoice date dd.mm.yyyy (cell 5 of part B of VAT INF return). yyyy-mm-dd  -->
+            <invoiceSumVat>1220.00</invoiceSumVat>
+            <!-- Kohustuslik. Arve kogusumma koos käibemaksuga (KMD INF B osa veerg 6).
+                 Mandatory. Invoice sum including VAT (cell 6 of part B of VAT INF return).  -->
+            <vatSum>220.00</vatSum>
+            <!-- Arvel märgitud käibemaksusumma (KMD INF B osa veerg 7). Täidab ainult kassapõhine käibemaksukohustuslane.
+                 Invoice VAT sum (cell 7 of part B of VAT INF return). Filled only by cash accounting taxable person.  -->
+            <vatInPeriod>220.00</vatInPeriod>
+            <!-- Kohustuslik. Maksustamisperioodil KMD lahtris 5 kajastatud sisendkäibemaksusumma (KMD INF B osa veerg 8).
+                 Mandatory. Input VAT declared on line 5 of VAT return during this period of taxation. (cell 8 of part B of VAT INF return).  -->
+            <!--<comments></comments>
+				 Erisuse kood (KMD INF B osa veerg  9). Klassifikaator COMMENT_PURCHASES.
+                 Exception code (cell 9 of part B of VAT INF return). Classificator COMMENT_PURCHASES.  -->
+        </purchaseLine>
+    </purchasesAnnex>
+</vatDeclaration>

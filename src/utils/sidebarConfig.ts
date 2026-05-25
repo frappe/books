@@ -58,6 +58,11 @@ const REGIONAL_SIDEBAR_BUILDERS: Record<string, () => SidebarRoot[]> = {
             name: 'lhv-import',
             route: '/regional/ee/lhv-import',
           },
+          {
+            label: t`KMD`,
+            name: 'kmd',
+            route: '/report/KmdReport',
+          },
         ],
       },
     ];

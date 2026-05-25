@@ -1,4 +1,5 @@
 import { BalanceSheet } from './BalanceSheet/BalanceSheet';
+import { KmdReport } from './EstonianTax/KmdReport';
 import { GeneralLedger } from './GeneralLedger/GeneralLedger';
 import { GSTR1 } from './GoodsAndServiceTax/GSTR1';
 import { GSTR2 } from './GoodsAndServiceTax/GSTR2';
@@ -14,6 +15,7 @@ export const reports = {
   TrialBalance,
   GSTR1,
   GSTR2,
+  KmdReport,
   StockLedger,
   StockBalance,
 } as const;
