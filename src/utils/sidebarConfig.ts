@@ -46,10 +46,21 @@ const REGIONAL_SIDEBAR_BUILDERS: Record<string, () => SidebarRoot[]> = {
   ee: () => {
     const hasVatNumber = !!fyo.singles?.AccountingSettings?.vatNumber;
     if (!hasVatNumber) return [];
-    // KMD + Annual Report routes land in later phases.
-    // Sidebar root is registered now so settings UI surfaces it once the
-    // user supplies a VAT number.
-    return [];
+    return [
+      {
+        label: t`Estonia`,
+        name: 'estonia',
+        icon: 'common-entries',
+        route: '/regional/ee/lhv-import',
+        items: [
+          {
+            label: t`LHV Import`,
+            name: 'lhv-import',
+            route: '/regional/ee/lhv-import',
+          },
+        ],
+      },
+    ];
   },
 };
 

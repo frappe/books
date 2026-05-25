@@ -28,6 +28,7 @@
     "codemirror": "^6.0.1",
     "core-js": "^3.19.0",
     "electron-store": "^8.0.1",
+    "fast-xml-parser": "^5.8.0",
     "feather-icons": "^4.28.0",
     "knex": "^2.4.0",
     "lodash": "^4.17.23",

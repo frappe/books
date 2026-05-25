@@ -1,0 +1,6 @@
+"Client account";"Document number";"Date";"Beneficiary's/remitter's account";"Beneficiary's/remitter's name";"D/C";"Amount";"Reference";"Archival ID";"Payment details";"Currency";"Party code";"Bank BIC";"Initiator";"Entry reference";"Bank reference"
+"EE382200221020145685";"REF001";"03.05.2026";"DE89370400440532013000";"Amazon Web Services EMEA SARL";"D";"-150.00";"";"ARCH-001";"AWS invoice 2026-04";"EUR";"";"COBADEFFXXX";"";"E2E001";"BRF001"
+"EE382200221020145685";"REF002";"05.05.2026";"IE6543210987654321";"Stripe Payments Europe Ltd";"D";"-2.50";"";"ARCH-002";"Stripe processing fee";"EUR";"";"CITIIE2XXXX";"";"E2E002";"BRF002"
+"EE382200221020145685";"REF003";"10.05.2026";"US0123456789012345";"Apple Inc";"C";"3200.00";"";"ARCH-003";"App Store payout April 2026";"USD";"";"AAPLUSXX";"";"E2E003";"BRF003"
+"EE382200221020145685";"REF004";"15.05.2026";"EE901700017000123456";"OU Klient";"C";"1200.00";"REF004";"ARCH-004";"Consulting May 2026";"EUR";"";"NDEAEE2X";"";"E2E004";"BRF004"
+"EE382200221020145685";"REF005";"20.05.2026";"";"LHV Pank";"D";"-5.00";"";"ARCH-005";"Monthly account fee";"EUR";"";"LHVBEE22";"";"E2E005";"BRF005"

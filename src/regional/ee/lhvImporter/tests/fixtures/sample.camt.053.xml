@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+  <BkToCstmrStmt>
+    <GrpHdr>
+      <MsgId>MSG-2026-05</MsgId>
+      <CreDtTm>2026-06-01T03:00:00</CreDtTm>
+    </GrpHdr>
+    <Stmt>
+      <Id>STMT-2026-05</Id>
+      <CreDtTm>2026-06-01T03:00:00</CreDtTm>
+      <Acct>
+        <Id>
+          <IBAN>EE382200221020145685</IBAN>
+        </Id>
+        <Ccy>EUR</Ccy>
+      </Acct>
+      <Ntry>
+        <Amt Ccy="EUR">150.00</Amt>
+        <CdtDbtInd>DBIT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-05-03</Dt></BookgDt>
+        <ValDt><Dt>2026-05-03</Dt></ValDt>
+        <AcctSvcrRef>ARCH-001</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs><EndToEndId>E2E001</EndToEndId></Refs>
+            <RltdPties>
+              <Cdtr><Nm>Amazon Web Services EMEA SARL</Nm></Cdtr>
+              <CdtrAcct><Id><IBAN>DE89370400440532013000</IBAN></Id></CdtrAcct>
+            </RltdPties>
+            <RmtInf><Ustrd>AWS invoice 2026-04</Ustrd></RmtInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+      <Ntry>
+        <Amt Ccy="EUR">1200.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-05-15</Dt></BookgDt>
+        <ValDt><Dt>2026-05-15</Dt></ValDt>
+        <AcctSvcrRef>ARCH-004</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs><EndToEndId>E2E004</EndToEndId></Refs>
+            <RltdPties>
+              <Dbtr><Nm>OU Klient</Nm></Dbtr>
+              <DbtrAcct><Id><IBAN>EE901700017000123456</IBAN></Id></DbtrAcct>
+            </RltdPties>
+            <RmtInf><Ustrd>Consulting May 2026</Ustrd></RmtInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>

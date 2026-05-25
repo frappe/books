@@ -1,0 +1,19 @@
+{
+  "name": "JournalEntry",
+  "fields": [
+    {
+      "fieldname": "lhvArchivalId",
+      "label": "LHV Archival ID",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "References"
+    },
+    {
+      "fieldname": "lhvVatCode",
+      "label": "VAT Code",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "References"
+    }
+  ]
+}
