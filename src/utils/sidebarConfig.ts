@@ -63,6 +63,11 @@ const REGIONAL_SIDEBAR_BUILDERS: Record<string, () => SidebarRoot[]> = {
             name: 'kmd',
             route: '/report/KmdReport',
           },
+          {
+            label: t`Annual Report`,
+            name: 'annual-report',
+            route: '/report/AnnualReport',
+          },
         ],
       },
     ];

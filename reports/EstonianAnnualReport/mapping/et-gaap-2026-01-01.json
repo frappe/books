@@ -1,0 +1,62 @@
+{
+  "_about": "Account-name → et-gaap element rollup for Estonian micro-OÜ (RPS, role-201014 balance + role-301011 income). Account names match fixtures/verified/ee.json. Edit freely.",
+  "_taxonomy": "http://xbrl.eesti.ee/taxonomy/et-gaap_2026-01-01/",
+  "balanceSheet": {
+    "CurrentAssets": {
+      "accounts": ["Bank - LHV", "Cash", "Debtors"]
+    },
+    "NonCurrentAssets": {
+      "accounts": [
+        "Office Equipment",
+        "Software",
+        "Accumulated Depreciation"
+      ]
+    },
+    "CurrentLiabilities": {
+      "accounts": [
+        "Creditors",
+        "VAT Payable",
+        "VAT Receivable",
+        "Reverse Charge VAT Payable",
+        "Reverse Charge VAT Receivable",
+        "Income Tax Payable"
+      ]
+    },
+    "NonCurrentLiabilities": {
+      "accounts": []
+    },
+    "IssuedCapital": {
+      "accounts": ["Share Capital"]
+    },
+    "UnpaidCapital": {
+      "accounts": []
+    }
+  },
+  "incomeStatement": {
+    "Revenue": {
+      "accounts": ["SaaS Revenue", "Mobile App Revenue", "Other Services"]
+    },
+    "OtherIncome": {
+      "accounts": ["Interest Income"]
+    },
+    "OtherOperatingExpense": {
+      "accounts": [
+        "Cloud Infrastructure",
+        "Bank Fees",
+        "Software Subscriptions",
+        "Marketing Expenses",
+        "Office Expenses",
+        "Legal and Professional",
+        "Travel Expenses",
+        "Miscellaneous Expenses",
+        "Exchange Gain/Loss"
+      ]
+    },
+    "EmployeeExpense": {
+      "accounts": []
+    },
+    "DepreciationAndImpairmentLossReversal": {
+      "accounts": ["Depreciation"]
+    }
+  }
+}
