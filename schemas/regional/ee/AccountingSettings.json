@@ -14,6 +14,13 @@
       "fieldtype": "Data",
       "placeholder": "12345678",
       "section": "Default"
+    },
+    {
+      "fieldname": "arellePath",
+      "label": "Arelle CLI Path",
+      "fieldtype": "Data",
+      "placeholder": "/Users/you/.local/bin/arelleCmdLine",
+      "section": "Default"
     }
   ],
   "quickEditFields": [
@@ -25,6 +32,7 @@
     "fiscalYearStart",
     "fiscalYearEnd",
     "vatNumber",
-    "registryCode"
+    "registryCode",
+    "arellePath"
   ]
 }

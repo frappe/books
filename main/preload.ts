@@ -275,6 +275,26 @@ const ipc = {
       return config.delete(key);
     },
   },
+
+  ee: {
+    async detectArelle(arellePath: string): Promise<string | null> {
+      return (await ipcRenderer.invoke(
+        IPC_ACTIONS.EE_DETECT_ARELLE,
+        arellePath
+      )) as string | null;
+    },
+
+    async validateXbrl(options: {
+      instancePath: string;
+      taxonomyEntryPath?: string;
+      arellePath: string;
+    }): Promise<BackendResponse> {
+      return (await ipcRenderer.invoke(
+        IPC_ACTIONS.EE_VALIDATE_XBRL,
+        options
+      )) as BackendResponse;
+    },
+  },
 } as const;
 
 contextBridge.exposeInMainWorld('ipc', ipc);

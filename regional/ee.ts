@@ -1,10 +1,3 @@
-/**
- * Estonian regional static lookups.
- *
- * VAT codes drive KMD line aggregation (see plan.md §4.5).
- * County map mirrors regional/in.ts state-code pattern.
- */
-
 export type VatCodeName =
   | 'EE24'
   | 'EE13'

@@ -21,9 +21,6 @@ export class KmdReport extends Report {
   month?: number;
   loading = false;
 
-  /**
-   * Cached aggregated data — populated by setReportData, consumed by export.
-   */
   data?: KmdReportData;
 
   async setDefaultFilters(): Promise<void> {
@@ -155,13 +152,6 @@ export class KmdReport extends Report {
       for (const extra of bucket.also ?? []) {
         body[extra] = round2(body[extra] + net);
       }
-
-      // Regular (non-RC) purchases at standard rates contribute deductible
-      // input VAT (line 5). We don't have the VAT amount stored separately
-      // on a domestic purchase JE today — the LHV importer creates each
-      // bank-leg JE as net only. When invoice-based VAT codes are added in a
-      // later phase this branch will compute input VAT from the matching
-      // VAT-Receivable ledger entry instead.
       if (bucket.side === 'purchase' && bucket.rate > 0) {
         body.inputVatTotal = round2(
           body.inputVatTotal + (net * bucket.rate) / 100

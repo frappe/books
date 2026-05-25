@@ -24,9 +24,9 @@ interface AccountInfo {
 interface AccountBalance {
   name: string;
   rootType: AccountRootType;
-  /** Closing balance (signed per rootType, see signedBalance). */
+
   closing: number;
-  /** Net activity over the period (signed per rootType). */
+
   activity: number;
 }
 
@@ -35,14 +35,14 @@ export class AnnualReport extends Report {
   static reportName = 'AnnualReport';
 
   year?: number;
-  /** ISO yyyy-mm-dd (first day of period). Defaults to fiscal-year start. */
+
   fromDate?: string;
-  /** ISO yyyy-mm-dd (last day of period). Defaults to fiscal-year end. */
+
   toDate?: string;
   loading = false;
 
   data?: XbrlReportData;
-  /** Pre-export balance check; `null` when no data has been aggregated yet. */
+
   balanceOk: boolean | null = null;
   totalsForDebug?: {
     assets: number;
@@ -115,8 +115,18 @@ export class AnnualReport extends Report {
           await this.exportXbrl();
         },
       },
+      {
+        group: t`Validate`,
+        label: t`Arelle`,
+        type: 'secondary',
+        action: async () => {
+          await this.validateLastExport();
+        },
+      },
     ];
   }
+
+  private lastExportPath?: string;
 
   async setReportData(): Promise<void> {
     this.loading = true;
@@ -138,18 +148,12 @@ export class AnnualReport extends Report {
 
     const balanceSheet = this.aggregateBalanceSheet(balances);
     const incomeStatement = this.aggregateIncomeStatement(balances);
-
-    // Compute totals and patch them into the fact lists so the XBRL output
-    // carries every required total, not just leaves.
     this.applyBalanceTotalsInPlace(balanceSheet, incomeStatement);
 
     const registryCode =
       (this.fyo.singles.AccountingSettings?.registryCode as string) ?? '';
 
     const generalInfo: XbrlFact[] = [];
-    // String facts come through the notes channel; numeric general info
-    // (BeginningAndEndOfAnnualPeriod is date-typed) isn't a Monetary fact —
-    // the exporter handles textual contexts via the notes array.
 
     this.balanceOk = assertBalance(balanceSheet);
 
@@ -244,7 +248,6 @@ export class AnnualReport extends Report {
           )
           .map(roundEur)
       );
-      // Always emit balance-sheet facts (zero is meaningful here).
       out.push({ element, value: total, context: 'instant_end' });
     }
     return out;
@@ -266,17 +269,6 @@ export class AnnualReport extends Report {
     return out;
   }
 
-  /**
-   * Derive totals and push them into the fact arrays.
-   *
-   * Balance sheet totals: Assets, Liabilities, Equity, LiabilitiesAndEquity.
-   * Income statement totals: TotalProfitLossBeforeTax, IncomeTaxExpense (0),
-   * TotalAnnualPeriodProfitLoss.
-   *
-   * Current period profit is folded into Equity so the balance equation
-   * holds without needing a separate RetainedEarnings element (which
-   * role-201014 micro-OÜ does not expose).
-   */
   private applyBalanceTotalsInPlace(bs: XbrlFact[], is: XbrlFact[]) {
     const get = (arr: XbrlFact[], el: string) =>
       arr.find((f) => f.element === el)?.value ?? 0;
@@ -305,9 +297,6 @@ export class AnnualReport extends Report {
 
     const assets = currentAssets + nonCurrentAssets;
     const liabilities = currentLiabilities + nonCurrentLiabilities;
-    // Equity must satisfy Assets === Liabilities + Equity. Anchor on the
-    // accounting identity rather than trusting equity-account balances
-    // (which may exclude current-year profit if books haven't been closed).
     const equity = assets - liabilities;
     const liabilitiesAndEquity = liabilities + equity;
 
@@ -399,6 +388,83 @@ export class AnnualReport extends Report {
     if (canceled || !filePath) return;
 
     await ipc.saveData(xml, filePath);
+    this.lastExportPath = filePath;
+  }
+
+  private async validateLastExport() {
+    const { detectArelle, validateXbrl } = await import(
+      'src/regional/ee/xbrlValidator'
+    );
+    const { showDialog } = await import('src/utils/interactive');
+
+    const arellePath =
+      (this.fyo.singles.AccountingSettings?.arellePath as string) ?? '';
+    if (!arellePath) {
+      await showDialog({
+        title: t`Arelle CLI path not set`,
+        detail: t`Open Accounting Settings and set the Arelle CLI Path field.`,
+        type: 'error',
+      });
+      return;
+    }
+
+    const resolved = await detectArelle(arellePath);
+    if (!resolved) {
+      await showDialog({
+        title: t`Arelle binary not found`,
+        detail: t`Path "${arellePath}" is not an executable file. Verify the path in Accounting Settings.`,
+        type: 'error',
+      });
+      return;
+    }
+
+    if (!this.lastExportPath) {
+      await showDialog({
+        title: t`No exported XBRL in this session`,
+        detail: t`Export an XBRL file first. The Validate action checks the most recent export.`,
+        type: 'info',
+      });
+      return;
+    }
+
+    let result;
+    try {
+      result = await validateXbrl({
+        instancePath: this.lastExportPath,
+        arellePath,
+      });
+    } catch (err) {
+      await showDialog({
+        title: t`Validation failed to run`,
+        detail: (err as Error).message ?? String(err),
+        type: 'error',
+      });
+      return;
+    }
+
+    const errors = result.issues.filter((i) => i.severity === 'error');
+    const warnings = result.issues.filter((i) => i.severity === 'warning');
+
+    const summary =
+      errors.length === 0 && warnings.length === 0
+        ? t`No errors or warnings — file accepted by arelle.`
+        : t`${errors.length} errors, ${warnings.length} warnings. See first issues below.`;
+
+    const detail =
+      summary +
+      '\n\n' +
+      [...errors, ...warnings]
+        .slice(0, 10)
+        .map(
+          (i) => `[${i.severity.toUpperCase()}] ${i.code ?? ''} ${i.message}`
+        )
+        .join('\n');
+
+    await showDialog({
+      title: result.ok ? t`Validation OK` : t`Validation issues`,
+      detail,
+      type: result.ok ? 'info' : 'error',
+    });
   }
 }
 
@@ -408,11 +474,6 @@ function num(s: string | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-/**
- * Sign a (debit, credit) pair according to the rootType's normal balance.
- * - Asset, Expense: debit positive
- * - Liability, Equity, Income: credit positive
- */
 function signedBalance(
   rootType: AccountRootType,
   debit: number,
@@ -438,8 +499,6 @@ function assertBalance(bs: XbrlFact[]): boolean {
     get('CurrentLiabilities'),
     get('NonCurrentLiabilities'),
   ]);
-  // After applyBalanceTotalsInPlace, Equity is set to Assets - Liabilities.
-  // This assertion verifies leaf-level rounding hasn't broken the identity.
   const equity = get('Equity');
   return assets === liabilities + equity;
 }

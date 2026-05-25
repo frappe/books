@@ -1,32 +1,20 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { XbrlFact, XbrlReportData } from './types';
 
-/**
- * Build an et-gaap XBRL instance document for the Estonian Business Register
- * portal (ettevõtjaportaal.rik.ee).
- *
- * Taxonomy: http://xbrl.eesti.ee/taxonomy/et-gaap_2026-01-01/
- * Entity scheme: http://www.rik.ee  (registry code as identifier)
- *
- * Two contexts only:
- *   - `instant_end`   for balance sheet (periodEnd)
- *   - `duration_year` for income statement (periodStart..periodEnd)
- *
- * Single unit: EUR (iso4217).
- *
- * Built via fast-xml-parser's XMLBuilder with `preserveOrder: true`
- * (browser-safe, already in deps — see plan §6.3 lesson on xmlbuilder2).
- */
-
 type OrderedNode = Record<string, OrderedNode[]> | { '#text': string };
 
 const XBRLI_NS = 'http://www.xbrl.org/2003/instance';
 const ISO4217_NS = 'http://www.xbrl.org/2003/iso4217';
 const ENTITY_SCHEME = 'http://www.rik.ee';
 
+export interface XbrlExportOptions {
+  schemaRefHref?: string;
+}
+
 export function exportXbrl(
   data: XbrlReportData,
-  taxonomyVersion: string
+  taxonomyVersion: string,
+  options: XbrlExportOptions = {}
 ): string {
   const taxonomyNs = `http://xbrl.eesti.ee/taxonomy/et-gaap_${taxonomyVersion}/`;
 
@@ -40,7 +28,11 @@ export function exportXbrl(
     suppressEmptyNode: false,
   });
 
-  const xbrlChildren: OrderedNode[] = [
+  const xbrlChildren: OrderedNode[] = [];
+  if (options.schemaRefHref) {
+    xbrlChildren.push(schemaRefNode(options.schemaRefHref));
+  }
+  xbrlChildren.push(
     contextInstant(data.registryCode, data.periodEnd, 'instant_end'),
     contextDuration(
       data.registryCode,
@@ -51,8 +43,8 @@ export function exportXbrl(
     unitEUR('EUR'),
     ...factNodes(data.balanceSheet),
     ...factNodes(data.incomeStatement),
-    ...data.notes.map((n) => textFact(n.element, n.text, n.context)),
-  ];
+    ...data.notes.map((n) => textFact(n.element, n.text, n.context))
+  );
 
   const tree: OrderedNode[] = [
     {
@@ -72,6 +64,13 @@ export function exportXbrl(
   ];
 
   return builder.build(tree);
+}
+
+function schemaRefNode(href: string): OrderedNode {
+  return {
+    'link:schemaRef': [],
+    ':@': { '@_xlink:type': 'simple', '@_xlink:href': href },
+  } as unknown as OrderedNode;
 }
 
 function contextInstant(

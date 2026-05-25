@@ -1,22 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { LhvRow } from './types';
 
-/**
- * Parse an ISO 20022 CAMT.053.001.02 bank statement (LHV format).
- *
- * Path of interest:
- *   Document.BkToCstmrStmt.Stmt[].Acct.Id.IBAN
- *   Document.BkToCstmrStmt.Stmt[].Ntry[]
- *     .Amt (#text, @_Ccy)
- *     .CdtDbtInd ('CRDT' | 'DBIT')
- *     .BookgDt.Dt
- *     .AcctSvcrRef                        -> archival id
- *     .NtryDtls.TxDtls.RltdPties.Cdtr.Nm  -> counterparty (when DBIT)
- *     .NtryDtls.TxDtls.RltdPties.Dbtr.Nm  -> counterparty (when CRDT)
- *     .NtryDtls.TxDtls.RltdPties.{CdtrAcct,DbtrAcct}.Id.IBAN
- *     .NtryDtls.TxDtls.RmtInf.Ustrd
- *     .NtryDtls.TxDtls.Refs.EndToEndId
- */
 export function parseLhvCamt(xml: string): LhvRow[] {
   const parser = new XMLParser({
     ignoreAttributes: false,

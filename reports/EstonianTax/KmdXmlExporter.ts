@@ -1,20 +1,6 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { KmdBodyTotals, KmdReportData } from './types';
 
-/**
- * Build the `vatDeclaration` XML matching EMTA's `vatdeclaration.xsd`
- * (current version, valid from 2025-07-01).
- *
- * Schema is no-namespace. Element order matters — XSD declares a `sequence`.
- * We use fast-xml-parser's XMLBuilder with `preserveOrder: true` so the
- * `[{ tag: [...children] }]` array shape encodes order explicitly. This is
- * the same library already running in the renderer for CAMT parsing
- * (xmlbuilder2 was incompatible — pulled Node `stream` deps).
- *
- * The portal computes output VAT and net VAT payable from the rate-bucket
- * totals; we only emit the values that the spec asks for.
- */
-
 type OrderedNode = Record<string, OrderedNode[]> | { '#text': string };
 
 export function exportKmdXml(data: KmdReportData): string {

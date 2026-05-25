@@ -9,13 +9,10 @@ export class Party extends BaseParty {
   vatNumber?: string;
   role?: PartyRole;
   partyVatType?: PartyVatType;
-
   // eslint-disable-next-line @typescript-eslint/require-await
   async beforeSync() {
     const partyVatType = this.get('partyVatType') as PartyVatType | undefined;
     const vatNumber = this.get('vatNumber') as string | undefined;
-
-    // Clear VAT number for consumer / exempt types
     if (
       vatNumber &&
       (partyVatType === 'EE_UNREGISTERED' ||

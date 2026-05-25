@@ -1,13 +1,6 @@
 import { ClassifierRule } from './types';
 
-/**
- * Default classifier rules for a solo SaaS OÜ on LHV.
- *
- * Order matters — first match wins. User can extend via the import wizard
- * UI; persisted rules live alongside these in fyo singles (future phase).
- */
 export const DEFAULT_RULES: ClassifierRule[] = [
-  // ── Cloud / SaaS suppliers (EU/non-EU reverse charge) ─────────────────────
   {
     id: 'aws-eu',
     match: { counterpartyNameContains: 'amazon web services', sign: 'debit' },
@@ -50,7 +43,6 @@ export const DEFAULT_RULES: ClassifierRule[] = [
     vatCode: 'NON_EU_RC',
     side: 'purchase',
   },
-  // ── App stores (commission already netted; treat net inflow as zero-rated) ─
   {
     id: 'apple-payouts',
     match: { counterpartyNameContains: 'apple', sign: 'credit' },
@@ -65,7 +57,6 @@ export const DEFAULT_RULES: ClassifierRule[] = [
     vatCode: 'ZERO_EXPORT',
     side: 'sales',
   },
-  // ── Bank fees (exempt) ────────────────────────────────────────────────────
   {
     id: 'lhv-fees',
     match: { counterpartyNameContains: 'lhv pank', sign: 'debit' },

@@ -3,46 +3,21 @@ import { ModelNameEnum } from 'models/types';
 import { VAT_CODES } from 'regional/ee';
 import { ClassifiedRow } from './types';
 
-/**
- * Account name used to represent the LHV bank balance in the COA (see
- * fixtures/verified/ee.json). Importer creates one leg against this account
- * and one leg against the classified expense/income account.
- */
 const BANK_ACCOUNT = 'Bank - LHV';
 
-/**
- * Reverse-charge VAT account pair (see fixtures/verified/ee.json).
- * Used when proposedVatCode is EU_RC_* or NON_EU_RC: a paired Dr/Cr entry
- * is created so the ledger reflects both the input-VAT and output-VAT legs
- * required for KMD lines 4 + 5 reconciliation.
- */
 const RC_PAYABLE = 'Reverse Charge VAT Payable';
 const RC_RECEIVABLE = 'Reverse Charge VAT Receivable';
 
 export interface BuildResult {
-  /** Number of bank-leg JEs created. */
   bankEntries: number;
-  /** Number of reverse-charge paired JEs created. */
+
   reverseChargeEntries: number;
-  /** Archival IDs already present in the DB (skipped to prevent dupes). */
+
   duplicatesSkipped: string[];
-  /** Rows that produced an error during sync. */
+
   errors: { archivalId: string; message: string }[];
 }
 
-/**
- * Persist classified rows as JournalEntry docs.
- *
- * - Each row → one JournalEntry (entryType "Bank Entry"), 2 lines:
- *   if amount > 0: Dr Bank, Cr ProposedAccount
- *   if amount < 0: Dr ProposedAccount, Cr Bank
- * - If VAT code is reverse-charge: also create one paired JournalEntry
- *   (entryType "Journal Entry"): Dr RC_RECEIVABLE, Cr RC_PAYABLE for
- *   abs(amount) × rate / 100. Both legs net to zero on P&L.
- * - Duplicate detection: skip rows whose archivalId already exists.
- *
- * Submits each JE so it hits the ledger.
- */
 export async function buildJournalEntries(
   rows: ClassifiedRow[],
   fyo: Fyo

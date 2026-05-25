@@ -1,25 +1,17 @@
 import { Fyo } from 'fyo';
 import { VAT_CODES, VatCodeName } from 'regional/ee';
 
-/**
- * Seeds Estonian tax records used by KMD aggregation.
- *
- * Pre-condition: the verified Estonian Chart of Accounts (fixtures/verified/ee.json)
- * has already been imported by SetupWizard. The accounts referenced below
- * (VAT Payable EE24 etc.) must exist before sync() is called.
- */
 export async function createEstonianRecords(fyo: Fyo) {
   await createTaxes(fyo);
 }
 
 interface TaxAccountMap {
-  /** Account credited for output VAT (sales side). */
   outputAccount: string;
-  /** Account debited for input VAT (purchase side). */
+
   inputAccount: string;
-  /** Account credited when self-assessing reverse-charge VAT. */
+
   reverseChargePayable?: string;
-  /** Account debited when self-assessing reverse-charge VAT. */
+
   reverseChargeReceivable?: string;
 }
 
@@ -55,9 +47,6 @@ async function createTaxes(fyo: Fyo) {
   for (const code of Object.keys(VAT_CODES) as VatCodeName[]) {
     const spec = VAT_CODES[code];
     const accounts = getTaxAccounts(code);
-
-    // Skip zero/exempt codes — no Tax doc needed; importer/invoice flow tags
-    // ledger entries directly with the VAT code for KMD aggregation.
     if (accounts === null) continue;
 
     const exists = await fyo.db.exists('Tax', code);
