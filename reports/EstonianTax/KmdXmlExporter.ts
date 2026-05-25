@@ -1,142 +1,147 @@
+import { XMLBuilder } from 'fast-xml-parser';
 import { KmdBodyTotals, KmdReportData } from './types';
 
 /**
  * Build the `vatDeclaration` XML matching EMTA's `vatdeclaration.xsd`
  * (current version, valid from 2025-07-01).
  *
- * Schema is no-namespace. Element order matters — XSD declares a `sequence`,
- * so we emit body fields in the same order as the schema.
- *
- * Hand-rolled string builder (no external XML lib) — xmlbuilder2 drags
- * Node stream polyfills that break the Electron renderer bundle, and we
- * only need single-pass element emission.
+ * Schema is no-namespace. Element order matters — XSD declares a `sequence`.
+ * We use fast-xml-parser's XMLBuilder with `preserveOrder: true` so the
+ * `[{ tag: [...children] }]` array shape encodes order explicitly. This is
+ * the same library already running in the renderer for CAMT parsing
+ * (xmlbuilder2 was incompatible — pulled Node `stream` deps).
  *
  * The portal computes output VAT and net VAT payable from the rate-bucket
  * totals; we only emit the values that the spec asks for.
  */
+
+type OrderedNode = Record<string, OrderedNode[]> | { '#text': string };
+
 export function exportKmdXml(data: KmdReportData): string {
-  const lines: string[] = [];
-  lines.push('<?xml version="1.0" encoding="UTF-8"?>');
-  lines.push('<vatDeclaration>');
+  const builder = new XMLBuilder({
+    format: true,
+    indentBy: '  ',
+    ignoreAttributes: false,
+    attributeNamePrefix: '@_',
+    preserveOrder: true,
+    processEntities: true,
+    suppressEmptyNode: false,
+  });
 
-  pushEl(lines, 1, 'taxPayerRegCode', data.taxPayerRegCode);
-  pushEl(lines, 1, 'year', String(data.year));
-  pushEl(lines, 1, 'month', pad2(data.month));
-  pushEl(lines, 1, 'declarationType', String(data.declarationType));
-  pushEl(lines, 1, 'version', data.version);
+  const tree: OrderedNode[] = [
+    {
+      '?xml': [{ '#text': '' }],
+      ':@': { '@_version': '1.0', '@_encoding': 'UTF-8' },
+    } as unknown as OrderedNode,
+    {
+      vatDeclaration: buildVatDeclaration(data),
+    },
+  ];
 
-  appendDeclarationBody(lines, data);
-  appendSalesAnnex(lines, data);
-  appendPurchasesAnnex(lines, data);
-
-  lines.push('</vatDeclaration>');
-  return lines.join('\n');
+  return builder.build(tree);
 }
 
-function appendDeclarationBody(lines: string[], data: KmdReportData) {
-  const b = data.body;
-  lines.push(indent(1) + '<declarationBody>');
+function buildVatDeclaration(data: KmdReportData): OrderedNode[] {
+  return [
+    text('taxPayerRegCode', data.taxPayerRegCode),
+    text('year', String(data.year)),
+    text('month', pad2(data.month)),
+    text('declarationType', String(data.declarationType)),
+    text('version', data.version),
+    { declarationBody: buildDeclarationBody(data.body) },
+    { salesAnnex: buildSalesAnnex(data) },
+    { purchasesAnnex: buildPurchasesAnnex(data) },
+  ];
+}
 
-  pushEl(lines, 2, 'noSales', allZero(salesValues(b)) ? 'true' : 'false');
-  pushEl(lines, 2, 'noPurchases', allZero(purchaseValues(b)) ? 'true' : 'false');
-  pushEl(lines, 2, 'sumPerPartnerSales', 'true');
-  pushEl(lines, 2, 'sumPerPartnerPurchases', 'true');
+function buildDeclarationBody(b: KmdBodyTotals): OrderedNode[] {
+  const nodes: OrderedNode[] = [
+    text('noSales', allZero(salesValues(b)) ? 'true' : 'false'),
+    text('noPurchases', allZero(purchaseValues(b)) ? 'true' : 'false'),
+    text('sumPerPartnerSales', 'true'),
+    text('sumPerPartnerPurchases', 'true'),
+  ];
 
-  appendMonetaryIfNonZero(lines, 2, 'transactions24', b.transactions24);
-  appendMonetaryIfNonZero(lines, 2, 'transactions22', b.transactions22);
-  appendMonetaryIfNonZero(lines, 2, 'transactions20', b.transactions20);
-  appendMonetaryIfNonZero(lines, 2, 'transactions9', b.transactions9);
-  appendMonetaryIfNonZero(lines, 2, 'transactions5', b.transactions5);
-  appendMonetaryIfNonZero(lines, 2, 'transactions13', b.transactions13);
-  appendMonetaryIfNonZero(lines, 2, 'transactionsZeroVat', b.transactionsZeroVat);
-  appendMonetaryIfNonZero(
-    lines,
-    2,
+  pushMonetary(nodes, 'transactions24', b.transactions24);
+  pushMonetary(nodes, 'transactions22', b.transactions22);
+  pushMonetary(nodes, 'transactions20', b.transactions20);
+  pushMonetary(nodes, 'transactions9', b.transactions9);
+  pushMonetary(nodes, 'transactions5', b.transactions5);
+  pushMonetary(nodes, 'transactions13', b.transactions13);
+  pushMonetary(nodes, 'transactionsZeroVat', b.transactionsZeroVat);
+  pushMonetary(
+    nodes,
     'euSupplyInclGoodsAndServicesZeroVat',
     b.euSupplyInclGoodsAndServicesZeroVat
   );
-  appendMonetaryIfNonZero(lines, 2, 'euSupplyGoodsZeroVat', b.euSupplyGoodsZeroVat);
-  appendMonetaryIfNonZero(lines, 2, 'exportZeroVat', b.exportZeroVat);
-  appendMonetaryIfNonZero(lines, 2, 'inputVatTotal', b.inputVatTotal);
-  appendMonetaryIfNonZero(
-    lines,
-    2,
+  pushMonetary(nodes, 'euSupplyGoodsZeroVat', b.euSupplyGoodsZeroVat);
+  pushMonetary(nodes, 'exportZeroVat', b.exportZeroVat);
+  pushMonetary(nodes, 'inputVatTotal', b.inputVatTotal);
+  pushMonetary(
+    nodes,
     'euAcquisitionsGoodsAndServicesTotal',
     b.euAcquisitionsGoodsAndServicesTotal
   );
-  appendMonetaryIfNonZero(lines, 2, 'euAcquisitionsGoods', b.euAcquisitionsGoods);
-  appendMonetaryIfNonZero(
-    lines,
-    2,
+  pushMonetary(nodes, 'euAcquisitionsGoods', b.euAcquisitionsGoods);
+  pushMonetary(
+    nodes,
     'acquisitionOtherGoodsAndServicesTotal',
     b.acquisitionOtherGoodsAndServicesTotal
   );
-  appendMonetaryIfNonZero(lines, 2, 'supplyExemptFromTax', b.supplyExemptFromTax);
-  appendMonetaryIfNonZero(lines, 2, 'adjustmentsPlus', b.adjustmentsPlus);
-  appendMonetaryIfNonZero(lines, 2, 'adjustmentsMinus', b.adjustmentsMinus);
+  pushMonetary(nodes, 'supplyExemptFromTax', b.supplyExemptFromTax);
+  pushMonetary(nodes, 'adjustmentsPlus', b.adjustmentsPlus);
+  pushMonetary(nodes, 'adjustmentsMinus', b.adjustmentsMinus);
 
-  lines.push(indent(1) + '</declarationBody>');
+  return nodes;
 }
 
-function appendSalesAnnex(lines: string[], data: KmdReportData) {
-  lines.push(indent(1) + '<salesAnnex>');
-  pushEl(lines, 2, 'noSales', data.saleAnnex.length === 0 ? 'true' : 'false');
-  pushEl(lines, 2, 'sumPerPartnerSales', 'true');
+function buildSalesAnnex(data: KmdReportData): OrderedNode[] {
+  const nodes: OrderedNode[] = [
+    text('noSales', data.saleAnnex.length === 0 ? 'true' : 'false'),
+    text('sumPerPartnerSales', 'true'),
+  ];
   for (const line of data.saleAnnex) {
-    lines.push(indent(2) + '<saleLine>');
-    if (line.buyerRegCode) pushEl(lines, 3, 'buyerRegCode', line.buyerRegCode);
-    if (line.buyerName) pushEl(lines, 3, 'buyerName', line.buyerName);
-    if (line.invoiceNumber) pushEl(lines, 3, 'invoiceNumber', line.invoiceNumber);
-    if (line.invoiceDate) pushEl(lines, 3, 'invoiceDate', line.invoiceDate);
-    pushEl(lines, 3, 'invoiceSum', money(line.invoiceSum));
-    pushEl(lines, 3, 'taxRate', line.taxRate);
-    lines.push(indent(2) + '</saleLine>');
+    const lineNodes: OrderedNode[] = [];
+    if (line.buyerRegCode)
+      lineNodes.push(text('buyerRegCode', line.buyerRegCode));
+    if (line.buyerName) lineNodes.push(text('buyerName', line.buyerName));
+    if (line.invoiceNumber)
+      lineNodes.push(text('invoiceNumber', line.invoiceNumber));
+    if (line.invoiceDate) lineNodes.push(text('invoiceDate', line.invoiceDate));
+    lineNodes.push(text('invoiceSum', money(line.invoiceSum)));
+    lineNodes.push(text('taxRate', line.taxRate));
+    nodes.push({ saleLine: lineNodes });
   }
-  lines.push(indent(1) + '</salesAnnex>');
+  return nodes;
 }
 
-function appendPurchasesAnnex(lines: string[], data: KmdReportData) {
-  lines.push(indent(1) + '<purchasesAnnex>');
-  pushEl(lines, 2, 'noPurchases', data.purchaseAnnex.length === 0 ? 'true' : 'false');
-  pushEl(lines, 2, 'sumPerPartnerPurchases', 'true');
+function buildPurchasesAnnex(data: KmdReportData): OrderedNode[] {
+  const nodes: OrderedNode[] = [
+    text('noPurchases', data.purchaseAnnex.length === 0 ? 'true' : 'false'),
+    text('sumPerPartnerPurchases', 'true'),
+  ];
   for (const line of data.purchaseAnnex) {
-    lines.push(indent(2) + '<purchaseLine>');
-    if (line.sellerRegCode) pushEl(lines, 3, 'sellerRegCode', line.sellerRegCode);
-    if (line.sellerName) pushEl(lines, 3, 'sellerName', line.sellerName);
-    if (line.invoiceNumber) pushEl(lines, 3, 'invoiceNumber', line.invoiceNumber);
-    if (line.invoiceDate) pushEl(lines, 3, 'invoiceDate', line.invoiceDate);
-    pushEl(lines, 3, 'invoiceSumVat', money(line.invoiceSumVat));
-    pushEl(lines, 3, 'vatInPeriod', money(line.vatInPeriod));
-    lines.push(indent(2) + '</purchaseLine>');
+    const lineNodes: OrderedNode[] = [];
+    if (line.sellerRegCode)
+      lineNodes.push(text('sellerRegCode', line.sellerRegCode));
+    if (line.sellerName) lineNodes.push(text('sellerName', line.sellerName));
+    if (line.invoiceNumber)
+      lineNodes.push(text('invoiceNumber', line.invoiceNumber));
+    if (line.invoiceDate) lineNodes.push(text('invoiceDate', line.invoiceDate));
+    lineNodes.push(text('invoiceSumVat', money(line.invoiceSumVat)));
+    lineNodes.push(text('vatInPeriod', money(line.vatInPeriod)));
+    nodes.push({ purchaseLine: lineNodes });
   }
-  lines.push(indent(1) + '</purchasesAnnex>');
+  return nodes;
 }
 
-function appendMonetaryIfNonZero(
-  lines: string[],
-  level: number,
-  name: string,
-  value: number
-) {
+function text(tag: string, value: string): OrderedNode {
+  return { [tag]: [{ '#text': value }] } as OrderedNode;
+}
+
+function pushMonetary(nodes: OrderedNode[], name: string, value: number) {
   if (value === 0) return;
-  pushEl(lines, level, name, money(value));
-}
-
-function pushEl(lines: string[], level: number, name: string, value: string) {
-  lines.push(`${indent(level)}<${name}>${escapeXml(value)}</${name}>`);
-}
-
-function indent(level: number): string {
-  return '  '.repeat(level);
-}
-
-function escapeXml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+  nodes.push(text(name, money(value)));
 }
 
 function money(n: number): string {
