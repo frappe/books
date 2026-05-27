@@ -29,7 +29,5 @@ yarn-error.log*
 /dist_electron
 log_creds.txt
 
-# Estonian XBRL taxonomy cache — large (~27 MB, 1000+ files), regenerable.
-# Drop fresh extract under reports/EstonianAnnualReport/taxonomy/ when needed.
-# Source: http://xbrl.eesti.ee/wp-content/uploads/2026/02/et-gaap_2026-01-01.zip
 /reports/EstonianAnnualReport/taxonomy/
+.docs/
