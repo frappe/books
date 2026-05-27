@@ -26,7 +26,7 @@ export function classifyRow(
   return {
     ...row,
     proposedVatCode: null,
-    proposedAccount: row.amount >= 0 ? 'Debtors' : 'Creditors',
+    proposedAccount: row.amount >= 0 ? '1200 - Trade Receivables' : '2110 - Trade Payables',
     side: 'unknown',
   };
 }

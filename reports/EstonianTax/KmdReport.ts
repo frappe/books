@@ -11,7 +11,7 @@ import { exportKmdXml } from './KmdXmlExporter';
 import { KmdBodyTotals, KmdReportData } from './types';
 import { getSavePath } from 'src/utils/ui';
 
-const BANK_ACCOUNT_NAMES = new Set(['Bank - LHV']);
+const BANK_ACCOUNT_NAMES = new Set(['1010 - LHV']);
 
 export class KmdReport extends Report {
   static title = t`KMD (Estonian VAT Return)`;
@@ -138,7 +138,7 @@ export class KmdReport extends Report {
 
       if (isRcSelfAssess) {
         const rcReceivable = accountRows.find(
-          (r) => r.account === 'Reverse Charge VAT Receivable'
+          (r) => r.account === '2314 - RC VAT Receivable'
         );
         const vat = num(rcReceivable?.debit);
         body.inputVatTotal += vat;

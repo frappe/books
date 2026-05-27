@@ -13,12 +13,12 @@
         {{ t`Select File` }}
       </Button>
       <Button
-        v-if="rows.length > 0 && !isCommitting && commitResult === null"
+        v-if="nonDuplicateCount > 0 && !isCommitting && commitResult === null"
         type="primary"
         :title="t`Create Journal Entries`"
         @click="commit"
       >
-        {{ t`Create ${rows.length} Entries` }}
+        {{ t`Create ${nonDuplicateCount} Entries` }}
       </Button>
     </PageHeader>
 
@@ -94,8 +94,15 @@
             v-for="(row, idx) in rows"
             :key="row.archivalId"
             class="border-t border-gray-200"
+            :class="row.isDuplicate ? 'opacity-40 bg-gray-50' : ''"
           >
-            <td class="px-2 py-1.5 font-mono">{{ row.date }}</td>
+            <td class="px-2 py-1.5 font-mono">
+              {{ row.date }}
+              <span
+                v-if="row.isDuplicate"
+                class="ml-1 text-xs text-gray-400 italic"
+              >dup</span>
+            </td>
             <td class="px-2 py-1.5">{{ row.counterpartyName ?? '—' }}</td>
             <td
               class="px-2 py-1.5 text-right font-mono"
@@ -104,13 +111,20 @@
               {{ formatAmount(row.amount) }}
             </td>
             <td class="px-2 py-1.5">
-              <input
+              <select
+                v-if="!row.isDuplicate"
                 v-model="rows[idx].proposedAccount"
-                class="border border-gray-300 rounded px-1 py-0.5 w-44"
-              />
+                class="border border-gray-300 rounded px-1 py-0.5"
+              >
+                <option v-for="a in accountOptions" :key="a" :value="a">
+                  {{ a }}
+                </option>
+              </select>
+              <span v-else class="text-gray-400 text-xs">{{ row.proposedAccount }}</span>
             </td>
             <td class="px-2 py-1.5">
               <select
+                v-if="!row.isDuplicate"
                 v-model="rows[idx].proposedVatCode"
                 class="border border-gray-300 rounded px-1 py-0.5"
               >
@@ -123,6 +137,7 @@
                   {{ code }}
                 </option>
               </select>
+              <span v-else class="text-gray-400 text-xs">{{ row.proposedVatCode ?? '—' }}</span>
             </td>
             <td class="px-2 py-1.5 text-gray-500 max-w-xs truncate">
               {{ row.remittance ?? '' }}
@@ -140,6 +155,7 @@ import Button from 'src/components/Button.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { VAT_CODES, VatCodeName } from 'regional/ee';
+import { ModelNameEnum } from 'models/types';
 import {
   parseLhvCsv,
   parseLhvCamt,
@@ -157,22 +173,33 @@ export default defineComponent({
       parseError: '' as string,
       isCommitting: false,
       commitResult: null as BuildResult | null,
+      accountOptions: [] as string[],
     };
+  },
+  async mounted() {
+    const accounts = await fyo.db.getAll('Account', {
+      fields: ['name'],
+      filters: { isGroup: false },
+      orderBy: 'name',
+    });
+    this.accountOptions = (accounts as { name: string }[]).map((a) => a.name);
   },
   computed: {
     vatCodeOptions(): VatCodeName[] {
       return Object.keys(VAT_CODES) as VatCodeName[];
     },
+    nonDuplicateCount(): number {
+      return this.rows.filter((r) => !r.isDuplicate).length;
+    },
   },
   methods: {
     async selectFile() {
       this.parseError = '';
-      const res = await ipc.getOpenFilePath({
+      const res = await ipc.selectFile({
         title: this.t`Select LHV statement file`,
-        properties: ['openFile'],
         filters: [{ name: 'LHV statement', extensions: ['csv', 'xml'] }],
       });
-      if (res.canceled || !res.filePath || !res.data) return;
+      if (res.canceled || !res.success || !res.filePath || !res.data) return;
 
       const text = bufferToString(res.data);
       const ext = res.filePath.toLowerCase().split('.').pop() ?? '';
@@ -182,9 +209,21 @@ export default defineComponent({
         this.rows = classifyRows(parsed);
         if (this.rows.length === 0) {
           this.parseError = this.t`No rows found in file.`;
+        } else {
+          await this.markDuplicates();
         }
       } catch (err) {
         this.parseError = (err as Error).message ?? String(err);
+      }
+    },
+    async markDuplicates() {
+      for (const row of this.rows) {
+        const existing = (await fyo.db.getAll(ModelNameEnum.JournalEntry, {
+          fields: ['name'],
+          filters: { lhvArchivalId: row.archivalId },
+          limit: 1,
+        })) as { name: string }[];
+        row.isDuplicate = existing.length > 0;
       }
     },
     async commit() {

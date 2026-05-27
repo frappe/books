@@ -30,6 +30,7 @@ export interface ClassifiedRow extends LhvRow {
   proposedAccount: string;
   side: ClassifiedSide;
   matchedRuleId?: string;
+  isDuplicate?: boolean;
 }
 
 export interface ClassifierRule {

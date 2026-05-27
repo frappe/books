@@ -3,10 +3,10 @@ import { ModelNameEnum } from 'models/types';
 import { VAT_CODES } from 'regional/ee';
 import { ClassifiedRow } from './types';
 
-const BANK_ACCOUNT = 'Bank - LHV';
+const BANK_ACCOUNT = '1010 - LHV';
 
-const RC_PAYABLE = 'Reverse Charge VAT Payable';
-const RC_RECEIVABLE = 'Reverse Charge VAT Receivable';
+const RC_PAYABLE = '2314 - RC VAT Payable';
+const RC_RECEIVABLE = '2314 - RC VAT Receivable';
 
 export interface BuildResult {
   bankEntries: number;

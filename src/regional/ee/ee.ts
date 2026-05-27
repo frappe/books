@@ -21,17 +21,17 @@ function getTaxAccounts(code: VatCodeName): TaxAccountMap | null {
     case 'EE13':
     case 'EE9':
       return {
-        outputAccount: 'VAT Payable',
-        inputAccount: 'VAT Receivable',
+        outputAccount: '2310 - Output VAT',
+        inputAccount: '2311 - Input VAT',
       };
     case 'EU_RC_GOODS':
     case 'EU_RC_SERVICES':
     case 'NON_EU_RC':
       return {
-        outputAccount: 'VAT Payable',
-        inputAccount: 'VAT Receivable',
-        reverseChargePayable: 'Reverse Charge VAT Payable',
-        reverseChargeReceivable: 'Reverse Charge VAT Receivable',
+        outputAccount: '2310 - Output VAT',
+        inputAccount: '2311 - Input VAT',
+        reverseChargePayable: '2314 - RC VAT Payable',
+        reverseChargeReceivable: '2314 - RC VAT Receivable',
       };
     case 'EE0':
     case 'ZERO_EU_B2B':

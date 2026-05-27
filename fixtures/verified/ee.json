@@ -4,42 +4,40 @@
   "tree": {
     "Application of Funds (Assets)": {
       "Current Assets": {
-        "Accounts Receivable": {
-          "Debtors": {
-            "accountType": "Receivable"
-          }
-        },
-        "Bank Accounts": {
-          "Bank - LHV": {
+        "Cash and Bank": {
+          "1000 - Cash": {
+            "accountType": "Cash"
+          },
+          "1010 - LHV": {
             "accountType": "Bank"
           },
           "accountType": "Bank",
           "isGroup": true
         },
-        "Cash In Hand": {
-          "Cash": {
-            "accountType": "Cash"
+        "Receivables": {
+          "1200 - Trade Receivables": {
+            "accountType": "Receivable"
           },
-          "accountType": "Cash"
+          "1280 - Claims to Owner": {
+            "accountType": "Receivable"
+          },
+          "isGroup": true
         },
         "Tax Assets": {
-          "VAT Receivable": {
+          "2311 - Input VAT": {
             "accountType": "Tax"
           },
-          "Reverse Charge VAT Receivable": {
+          "2314 - RC VAT Receivable": {
             "accountType": "Tax"
           },
           "isGroup": true
         }
       },
       "Fixed Assets": {
-        "Office Equipment": {
+        "1832 - Computers and Equipment": {
           "accountType": "Fixed Asset"
         },
-        "Software": {
-          "accountType": "Fixed Asset"
-        },
-        "Accumulated Depreciation": {
+        "1833 - Accumulated Depreciation": {
           "accountType": "Accumulated Depreciation"
         }
       },
@@ -51,77 +49,88 @@
       "rootType": "Asset"
     },
     "Expenses": {
-      "Indirect Expenses": {
-        "Cloud Infrastructure": {
-          "accountType": "Chargeable"
-        },
-        "Bank Fees": {},
-        "Software Subscriptions": {},
-        "Marketing Expenses": {
-          "accountType": "Chargeable"
-        },
-        "Office Expenses": {},
-        "Legal and Professional": {},
-        "Travel Expenses": {},
-        "Depreciation": {
+      "Operating Expenses": {
+        "4200 - Set-up Costs": {},
+        "4310 - Telephone and Internet": {},
+        "4320 - IT Services": {},
+        "4340 - Banking Services": {},
+        "4360 - State Fees": {},
+        "4370 - Consultations and Training": {},
+        "4385 - Accounting Services": {},
+        "4395 - Other Operating Expenses": {},
+        "4510 - Travel Expenses": {}
+      },
+      "Financial and Other Expenses": {
+        "4810 - Depreciation": {
           "accountType": "Depreciation"
         },
-        "Exchange Gain/Loss": {},
-        "Miscellaneous Expenses": {
-          "accountType": "Chargeable"
-        }
+        "4950 - Exchange Gain/Loss": {},
+        "6060 - Interest Expense": {},
+        "7000 - Income Tax": {}
       },
       "rootType": "Expense"
     },
     "Income": {
-      "Direct Income": {
-        "SaaS Revenue": {},
-        "Mobile App Revenue": {},
-        "Other Services": {}
+      "Revenue": {
+        "3000 - Sales in Estonia 24%": {},
+        "3015 - Sales to EU 0%": {},
+        "3025 - Service Exports": {},
+        "3060 - VAT-Exempt Sales": {}
       },
-      "Indirect Income": {
-        "Interest Income": {},
+      "Other Income": {
+        "3560 - Other Income": {},
+        "6050 - Interest Income": {},
         "isGroup": true
       },
       "rootType": "Income"
     },
     "Source of Funds (Liabilities)": {
       "Current Liabilities": {
-        "Accounts Payable": {
-          "Creditors": {
+        "Trade Payables": {
+          "2110 - Trade Payables": {
             "accountType": "Payable"
-          }
+          },
+          "isGroup": true
         },
-        "Duties and Taxes": {
-          "VAT Payable": {
+        "Owner Loans": {
+          "2030 - Short-term Loan from Owner": {
+            "accountType": "Payable"
+          },
+          "isGroup": true
+        },
+        "Tax Liabilities": {
+          "2310 - Output VAT": {
             "accountType": "Tax"
           },
-          "Reverse Charge VAT Payable": {
+          "2314 - RC VAT Payable": {
             "accountType": "Tax"
           },
-          "Income Tax Payable": {
+          "2360 - Income Tax Payable": {
             "accountType": "Tax"
           },
           "accountType": "Tax",
           "isGroup": true
-        },
-        "Loans (Liabilities)": {
-          "isGroup": true
         }
+      },
+      "Long-term Liabilities": {
+        "2820 - Long-term Loan from Owner": {
+          "accountType": "Payable"
+        },
+        "isGroup": true
       },
       "rootType": "Liability"
     },
     "Equity": {
-      "Share Capital": {
+      "2910 - Issued Capital": {
         "accountType": "Equity"
       },
-      "Retained Earnings": {
+      "2970 - Retained Earnings": {
+        "accountType": "Equity"
+      },
+      "2980 - Profit for the Year": {
         "accountType": "Equity"
       },
       "Opening Balance Equity": {
-        "accountType": "Equity"
-      },
-      "Current Year Earnings": {
         "accountType": "Equity"
       },
       "rootType": "Equity"

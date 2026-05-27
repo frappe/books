@@ -3,30 +3,33 @@
   "_taxonomy": "http://xbrl.eesti.ee/taxonomy/et-gaap_2026-01-01/",
   "balanceSheet": {
     "CurrentAssets": {
-      "accounts": ["Bank - LHV", "Cash", "Debtors"]
+      "accounts": ["1010 - LHV", "1000 - Cash", "1200 - Trade Receivables", "1280 - Claims to Owner"]
     },
     "NonCurrentAssets": {
       "accounts": [
-        "Office Equipment",
-        "Software",
-        "Accumulated Depreciation"
+        "1832 - Computers and Equipment",
+        "1833 - Accumulated Depreciation"
       ]
     },
     "CurrentLiabilities": {
       "accounts": [
-        "Creditors",
-        "VAT Payable",
-        "VAT Receivable",
-        "Reverse Charge VAT Payable",
-        "Reverse Charge VAT Receivable",
-        "Income Tax Payable"
+        "2110 - Trade Payables",
+        "2030 - Short-term Loan from Owner",
+        "2310 - Output VAT",
+        "2311 - Input VAT",
+        "2314 - RC VAT Payable",
+        "2314 - RC VAT Receivable",
+        "2360 - Income Tax Payable"
       ]
     },
     "NonCurrentLiabilities": {
-      "accounts": []
+      "accounts": ["2820 - Long-term Loan from Owner"]
     },
     "IssuedCapital": {
-      "accounts": ["Share Capital"]
+      "accounts": ["2910 - Issued Capital"]
+    },
+    "RetainedEarnings": {
+      "accounts": ["2970 - Retained Earnings", "2980 - Profit for the Year"]
     },
     "UnpaidCapital": {
       "accounts": []
@@ -34,29 +37,39 @@
   },
   "incomeStatement": {
     "Revenue": {
-      "accounts": ["SaaS Revenue", "Mobile App Revenue", "Other Services"]
+      "accounts": [
+        "3000 - Sales in Estonia 24%",
+        "3015 - Sales to EU 0%",
+        "3025 - Service Exports",
+        "3060 - VAT-Exempt Sales"
+      ]
     },
     "OtherIncome": {
-      "accounts": ["Interest Income"]
+      "accounts": ["3560 - Other Income", "6050 - Interest Income"]
     },
     "OtherOperatingExpense": {
       "accounts": [
-        "Cloud Infrastructure",
-        "Bank Fees",
-        "Software Subscriptions",
-        "Marketing Expenses",
-        "Office Expenses",
-        "Legal and Professional",
-        "Travel Expenses",
-        "Miscellaneous Expenses",
-        "Exchange Gain/Loss"
+        "4200 - Set-up Costs",
+        "4310 - Telephone and Internet",
+        "4320 - IT Services",
+        "4340 - Banking Services",
+        "4360 - State Fees",
+        "4370 - Consultations and Training",
+        "4385 - Accounting Services",
+        "4395 - Other Operating Expenses",
+        "4510 - Travel Expenses",
+        "4950 - Exchange Gain/Loss",
+        "6060 - Interest Expense"
       ]
     },
     "EmployeeExpense": {
       "accounts": []
     },
     "DepreciationAndImpairmentLossReversal": {
-      "accounts": ["Depreciation"]
+      "accounts": ["4810 - Depreciation"]
+    },
+    "IncomeTaxExpense": {
+      "accounts": ["7000 - Income Tax"]
     }
   }
 }
