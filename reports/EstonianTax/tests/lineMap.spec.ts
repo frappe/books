@@ -49,7 +49,7 @@ test('pickVersion: KMD6 from 07.2025+', (t) => {
   t.end();
 });
 
-test('emptyKmdBody: all 17 fields = 0', (t) => {
+test('emptyKmdBody: all fields start at 0', (t) => {
   const b = emptyKmdBody();
   for (const k of Object.keys(b)) {
     t.equal(b[k as keyof typeof b], 0, `${k} starts at 0`);

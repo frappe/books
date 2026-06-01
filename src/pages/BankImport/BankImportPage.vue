@@ -1,11 +1,33 @@
 <template>
   <div class="flex flex-col overflow-hidden w-full h-full">
-    <PageHeader :title="t`LHV Bank Statement Import`">
+    <PageHeader :title="t`EE Bank Statement Import`">
+      <template v-if="rows.length === 0 && commitResult === null">
+        <select
+          v-model="selectedBankId"
+          class="border border-gray-300 rounded px-2 py-1 text-sm"
+        >
+          <option v-for="bank in EE_BANKS" :key="bank.id" :value="bank.id">
+            {{ bank.label }}
+          </option>
+        </select>
+        <select
+          v-model="selectedBankAccount"
+          class="border border-gray-300 rounded px-2 py-1 text-sm"
+        >
+          <option v-for="a in bankAccountOptions" :key="a" :value="a">
+            {{ a }}
+          </option>
+        </select>
+      </template>
+      <span v-else class="text-sm text-gray-500">
+        {{ selectedBank?.label }} · {{ selectedBankAccount }}
+      </span>
+
       <Button v-if="rows.length > 0" :title="t`Clear`" @click="clear">
         {{ t`Clear` }}
       </Button>
       <Button
-        v-if="rows.length === 0"
+        v-if="rows.length === 0 && commitResult === null"
         type="primary"
         :title="t`Select Statement File`"
         @click="selectFile"
@@ -28,11 +50,7 @@
         v-if="rows.length === 0 && commitResult === null"
         class="text-base text-gray-600 max-w-2xl"
       >
-        <p class="mb-2">
-          {{
-            t`Import an LHV CSV (valid-from-25.02.2026 format, 16 columns) or CAMT.053.001.02 XML statement.`
-          }}
-        </p>
+        <p class="mb-2">{{ emptyStateDescription }}</p>
         <p class="mb-2">
           {{
             t`Rows are matched against built-in rules (AWS, GitHub, Stripe, Apple/Google payouts, LHV fees). You can override the proposed account and VAT code before committing.`
@@ -40,7 +58,7 @@
         </p>
         <p>
           {{
-            t`Duplicate detection uses the LHV archival ID, so re-importing the same statement is safe.`
+            t`Duplicate detection uses the archival ID, so re-importing the same statement is safe.`
           }}
         </p>
       </div>
@@ -158,46 +176,78 @@ import { VAT_CODES, VatCodeName } from 'regional/ee';
 import { ModelNameEnum } from 'models/types';
 import {
   parseLhvCsv,
-  parseLhvCamt,
+  parseCamt,
   classifyRows,
   buildJournalEntries,
   ClassifiedRow,
-} from 'src/regional/ee/lhvImporter';
-import type { BuildResult } from 'src/regional/ee/lhvImporter/journalEntryBuilder';
+  EeBank,
+  EE_BANKS,
+} from 'src/regional/ee/bankImporter';
+import type { BuildResult } from 'src/regional/ee/bankImporter/journalEntryBuilder';
+
+const CSV_PARSERS: Partial<Record<string, (text: string) => ReturnType<typeof parseLhvCsv>>> = {
+  lhv: parseLhvCsv,
+};
 
 export default defineComponent({
   components: { Button, PageHeader },
   data() {
     return {
+      selectedBankId: 'lhv' as string,
+      selectedBankAccount: '' as string,
       rows: [] as ClassifiedRow[],
       parseError: '' as string,
       isCommitting: false,
       commitResult: null as BuildResult | null,
       accountOptions: [] as string[],
+      bankAccountOptions: [] as string[],
+      EE_BANKS,
     };
   },
   async mounted() {
-    const accounts = await fyo.db.getAll('Account', {
-      fields: ['name'],
+    const all = await fyo.db.getAll('Account', {
+      fields: ['name', 'accountType'],
       filters: { isGroup: false },
       orderBy: 'name',
-    });
-    this.accountOptions = (accounts as { name: string }[]).map((a) => a.name);
+    }) as { name: string; accountType?: string }[];
+
+    this.accountOptions = all.map((a) => a.name);
+    this.bankAccountOptions = all
+      .filter((a) => a.accountType === 'Bank' || a.accountType === 'Cash')
+      .map((a) => a.name);
+
+    if (this.bankAccountOptions.length > 0) {
+      this.selectedBankAccount = this.bankAccountOptions[0];
+    }
   },
   computed: {
+    selectedBank(): EeBank | undefined {
+      return EE_BANKS.find((b) => b.id === this.selectedBankId);
+    },
     vatCodeOptions(): VatCodeName[] {
       return Object.keys(VAT_CODES) as VatCodeName[];
     },
     nonDuplicateCount(): number {
       return this.rows.filter((r) => !r.isDuplicate).length;
     },
+    emptyStateDescription(): string {
+      const bank = this.selectedBank;
+      if (!bank) return this.t`Select a bank and import a CAMT.053 XML statement.`;
+      if (bank.csvSupported) {
+        return this.t`Import a ${bank.label} CSV or CAMT.053.001.02 XML statement.`;
+      }
+      return this.t`Import a CAMT.053.001.02 XML statement exported from ${bank.label}. CSV is not yet supported for this bank.`;
+    },
   },
   methods: {
     async selectFile() {
       this.parseError = '';
+      const bank = this.selectedBank;
+      const extensions = bank?.csvSupported ? ['csv', 'xml'] : ['xml'];
+
       const res = await ipc.selectFile({
-        title: this.t`Select LHV statement file`,
-        filters: [{ name: 'LHV statement', extensions: ['csv', 'xml'] }],
+        title: this.t`Select bank statement file`,
+        filters: [{ name: 'Bank statement', extensions }],
       });
       if (res.canceled || !res.success || !res.filePath || !res.data) return;
 
@@ -205,7 +255,18 @@ export default defineComponent({
       const ext = res.filePath.toLowerCase().split('.').pop() ?? '';
 
       try {
-        const parsed = ext === 'xml' ? parseLhvCamt(text) : parseLhvCsv(text);
+        let parsed;
+        if (ext === 'xml') {
+          parsed = parseCamt(text);
+        } else {
+          const csvParser = CSV_PARSERS[this.selectedBankId];
+          if (!csvParser) {
+            this.parseError = this.t`CSV import is not yet supported for ${bank?.label ?? this.selectedBankId}. Export a CAMT.053 XML statement instead.`;
+            return;
+          }
+          parsed = csvParser(text);
+        }
+
         this.rows = classifyRows(parsed);
         if (this.rows.length === 0) {
           this.parseError = this.t`No rows found in file.`;
@@ -229,7 +290,7 @@ export default defineComponent({
     async commit() {
       this.isCommitting = true;
       try {
-        this.commitResult = await buildJournalEntries(this.rows, fyo);
+        this.commitResult = await buildJournalEntries(this.rows, fyo, this.selectedBankAccount);
       } catch (err) {
         this.parseError = (err as Error).message ?? String(err);
       } finally {
@@ -252,7 +313,6 @@ function bufferToString(data: unknown): string {
   if (data instanceof Uint8Array) {
     return new TextDecoder('utf-8').decode(data);
   }
-  // Buffer serialized as { type: 'Buffer', data: number[] }
   if (
     data &&
     typeof data === 'object' &&

@@ -1,38 +1,30 @@
 export interface KmdBodyTotals {
-
-transactions24: number;
-
-transactions20: number;
-
-transactions22: number;
-
-transactions9: number;
-
-transactions5: number;
-
-transactions13: number;
-
-transactionsZeroVat: number;
-
-euSupplyInclGoodsAndServicesZeroVat: number;
-
-euSupplyGoodsZeroVat: number;
-
-exportZeroVat: number;
-
-inputVatTotal: number;
-
-euAcquisitionsGoodsAndServicesTotal: number;
-
-euAcquisitionsGoods: number;
-
-acquisitionOtherGoodsAndServicesTotal: number;
-
-supplyExemptFromTax: number;
-
-adjustmentsPlus: number;
-
-adjustmentsMinus: number;
+  transactions24: number;
+  transactions20: number;
+  transactions22: number;
+  transactions9: number;
+  transactions5: number;
+  transactions13: number;
+  transactionsZeroVat: number;
+  euSupplyInclGoodsAndServicesZeroVat: number;
+  euSupplyGoodsZeroVat: number;
+  exportZeroVat: number;
+  salePassengersWithReturnVat: number;
+  inputVatTotal: number;
+  importVat: number;
+  fixedAssetsVat: number;
+  carsVat: number;
+  numberOfCars: number;
+  carsPartialVat: number;
+  numberOfCarsPartial: number;
+  euAcquisitionsGoodsAndServicesTotal: number;
+  euAcquisitionsGoods: number;
+  acquisitionOtherGoodsAndServicesTotal: number;
+  acquisitionImmovablesAndScrapMetalAndGold: number;
+  supplyExemptFromTax: number;
+  supplySpecialArrangements: number;
+  adjustmentsPlus: number;
+  adjustmentsMinus: number;
 }
 
 export interface SaleAnnexLine {
@@ -57,6 +49,19 @@ invoiceDate?: string;
 invoiceSumVat: number;
 
 vatInPeriod: number;
+}
+
+export interface VdLine {
+  partnerCountry: string;
+  partnerVatCode: string;
+  amount: number;
+}
+
+export interface VdReportData {
+  taxPayerRegCode: string;
+  year: number;
+  month: number;
+  lines: VdLine[];
 }
 
 export interface KmdReportData {

@@ -1,8 +1,8 @@
 import test from 'tape';
 import { classifyRow, classifyRows } from '../classifier';
-import { LhvRow } from '../types';
+import { BankRow } from '../types';
 
-function row(over: Partial<LhvRow> = {}): LhvRow {
+function row(over: Partial<BankRow> = {}): BankRow {
   return {
     accountIban: 'EE382200221020145685',
     date: '2026-05-01',

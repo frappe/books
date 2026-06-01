@@ -3,24 +3,20 @@ import { ModelNameEnum } from 'models/types';
 import { VAT_CODES } from 'regional/ee';
 import { ClassifiedRow } from './types';
 
-const BANK_ACCOUNT = '1010 - LHV';
-
 const RC_PAYABLE = '2314 - RC VAT Payable';
 const RC_RECEIVABLE = '2314 - RC VAT Receivable';
 
 export interface BuildResult {
   bankEntries: number;
-
   reverseChargeEntries: number;
-
   duplicatesSkipped: string[];
-
   errors: { archivalId: string; message: string }[];
 }
 
 export async function buildJournalEntries(
   rows: ClassifiedRow[],
-  fyo: Fyo
+  fyo: Fyo,
+  bankAccount: string
 ): Promise<BuildResult> {
   const result: BuildResult = {
     bankEntries: 0,
@@ -42,7 +38,7 @@ export async function buildJournalEntries(
         continue;
       }
 
-      await createBankEntry(row, fyo);
+      await createBankEntry(row, fyo, bankAccount);
       result.bankEntries += 1;
 
       if (row.proposedVatCode && isReverseCharge(row.proposedVatCode)) {
@@ -60,18 +56,18 @@ export async function buildJournalEntries(
   return result;
 }
 
-async function createBankEntry(row: ClassifiedRow, fyo: Fyo) {
+async function createBankEntry(row: ClassifiedRow, fyo: Fyo, bankAccount: string) {
   const absAmount = Math.abs(row.amount);
   const isInflow = row.amount >= 0;
 
   const accounts = isInflow
     ? [
-        { account: BANK_ACCOUNT, debit: absAmount, credit: 0 },
+        { account: bankAccount, debit: absAmount, credit: 0 },
         { account: row.proposedAccount, debit: 0, credit: absAmount },
       ]
     : [
         { account: row.proposedAccount, debit: absAmount, credit: 0 },
-        { account: BANK_ACCOUNT, debit: 0, credit: absAmount },
+        { account: bankAccount, debit: 0, credit: absAmount },
       ];
 
   const doc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {

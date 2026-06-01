@@ -62,7 +62,15 @@ function buildDeclarationBody(b: KmdBodyTotals): OrderedNode[] {
   );
   pushMonetary(nodes, 'euSupplyGoodsZeroVat', b.euSupplyGoodsZeroVat);
   pushMonetary(nodes, 'exportZeroVat', b.exportZeroVat);
+  pushMonetary(nodes, 'salePassengersWithReturnVat', b.salePassengersWithReturnVat);
   pushMonetary(nodes, 'inputVatTotal', b.inputVatTotal);
+  pushMonetary(nodes, 'importVat', b.importVat);
+  pushMonetary(nodes, 'fixedAssetsVat', b.fixedAssetsVat);
+  pushMonetary(nodes, 'carsVat', b.carsVat);
+  if (b.numberOfCars > 0) nodes.push(text('numberOfCars', String(b.numberOfCars)));
+  pushMonetary(nodes, 'carsPartialVat', b.carsPartialVat);
+  if (b.numberOfCarsPartial > 0)
+    nodes.push(text('numberOfCarsPartial', String(b.numberOfCarsPartial)));
   pushMonetary(
     nodes,
     'euAcquisitionsGoodsAndServicesTotal',
@@ -74,7 +82,13 @@ function buildDeclarationBody(b: KmdBodyTotals): OrderedNode[] {
     'acquisitionOtherGoodsAndServicesTotal',
     b.acquisitionOtherGoodsAndServicesTotal
   );
+  pushMonetary(
+    nodes,
+    'acquisitionImmovablesAndScrapMetalAndGold',
+    b.acquisitionImmovablesAndScrapMetalAndGold
+  );
   pushMonetary(nodes, 'supplyExemptFromTax', b.supplyExemptFromTax);
+  pushMonetary(nodes, 'supplySpecialArrangements', b.supplySpecialArrangements);
   pushMonetary(nodes, 'adjustmentsPlus', b.adjustmentsPlus);
   pushMonetary(nodes, 'adjustmentsMinus', b.adjustmentsMinus);
 
@@ -147,15 +161,22 @@ function salesValues(b: KmdBodyTotals): number[] {
     b.transactions5,
     b.transactions13,
     b.transactionsZeroVat,
+    b.salePassengersWithReturnVat,
     b.supplyExemptFromTax,
+    b.supplySpecialArrangements,
   ];
 }
 
 function purchaseValues(b: KmdBodyTotals): number[] {
   return [
     b.inputVatTotal,
+    b.importVat,
+    b.fixedAssetsVat,
+    b.carsVat,
+    b.carsPartialVat,
     b.euAcquisitionsGoodsAndServicesTotal,
     b.acquisitionOtherGoodsAndServicesTotal,
+    b.acquisitionImmovablesAndScrapMetalAndGold,
   ];
 }
 

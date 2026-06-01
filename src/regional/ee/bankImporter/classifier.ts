@@ -1,15 +1,15 @@
-import { ClassifiedRow, ClassifierRule, LhvRow } from './types';
+import { ClassifiedRow, ClassifierRule, BankRow } from './types';
 import { DEFAULT_RULES } from './rules';
 
 export function classifyRows(
-  rows: LhvRow[],
+  rows: BankRow[],
   rules: ClassifierRule[] = DEFAULT_RULES
 ): ClassifiedRow[] {
   return rows.map((row) => classifyRow(row, rules));
 }
 
 export function classifyRow(
-  row: LhvRow,
+  row: BankRow,
   rules: ClassifierRule[] = DEFAULT_RULES
 ): ClassifiedRow {
   for (const rule of rules) {
@@ -31,7 +31,7 @@ export function classifyRow(
   };
 }
 
-function matches(row: LhvRow, rule: ClassifierRule): boolean {
+function matches(row: BankRow, rule: ClassifierRule): boolean {
   const m = rule.match;
 
   if (m.sign === 'debit' && row.amount >= 0) return false;

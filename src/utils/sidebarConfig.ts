@@ -51,12 +51,12 @@ const REGIONAL_SIDEBAR_BUILDERS: Record<string, () => SidebarRoot[]> = {
         label: t`Estonia`,
         name: 'estonia',
         icon: 'common-entries',
-        route: '/regional/ee/lhv-import',
+        route: '/regional/ee/bank-import',
         items: [
           {
-            label: t`LHV Import`,
-            name: 'lhv-import',
-            route: '/regional/ee/lhv-import',
+            label: t`Bank Import`,
+            name: 'bank-import',
+            route: '/regional/ee/bank-import',
           },
           {
             label: t`KMD`,

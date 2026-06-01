@@ -8,10 +8,10 @@ import { ColumnField, ReportData, ReportRow } from 'reports/types';
 import { Field } from 'schemas/types';
 import { emptyKmdBody, pickVersion, VAT_CODE_TO_BUCKET } from './lineMap';
 import { exportKmdXml } from './KmdXmlExporter';
-import { KmdBodyTotals, KmdReportData } from './types';
+import { exportVdXml } from './VdXmlExporter';
+import { KmdBodyTotals, KmdReportData, VdLine, VdReportData } from './types';
 import { getSavePath } from 'src/utils/ui';
 
-const BANK_ACCOUNT_NAMES = new Set(['1010 - LHV']);
 
 export class KmdReport extends Report {
   static title = t`KMD (Estonian VAT Return)`;
@@ -22,6 +22,7 @@ export class KmdReport extends Report {
   loading = false;
 
   data?: KmdReportData;
+  vdData?: VdReportData;
 
   async setDefaultFilters(): Promise<void> {
     if (!this.year || !this.month) {
@@ -76,10 +77,18 @@ export class KmdReport extends Report {
     return [
       {
         group: t`Export`,
-        label: 'XML',
+        label: 'KMD XML',
         type: 'primary',
         action: async () => {
-          await this.exportXml();
+          await this.exportKmdXml();
+        },
+      },
+      {
+        group: t`Export`,
+        label: 'VD XML',
+        type: 'secondary',
+        action: async () => {
+          await this.exportVdXml();
         },
       },
     ];
@@ -88,14 +97,16 @@ export class KmdReport extends Report {
   async setReportData(): Promise<void> {
     this.loading = true;
     try {
-      this.data = await this.aggregate();
+      const { kmd, vd } = await this.aggregate();
+      this.data = kmd;
+      this.vdData = vd;
       this.reportData = this.toReportRows(this.data.body);
     } finally {
       this.loading = false;
     }
   }
 
-  private async aggregate(): Promise<KmdReportData> {
+  private async aggregate(): Promise<{ kmd: KmdReportData; vd: VdReportData }> {
     const year = this.year!;
     const month = this.month!;
     const from = DateTime.fromObject({ year, month, day: 1 });
@@ -105,8 +116,14 @@ export class KmdReport extends Report {
     const taxPayerRegCode =
       (this.fyo.singles.AccountingSettings?.registryCode as string) ?? '';
 
+    const liquidAccounts = (await this.fyo.db.getAllRaw('Account', {
+      fields: ['name'],
+      filters: { accountType: ['in', ['Bank', 'Cash']] },
+    })) as Array<{ name: string }>;
+    const liquidAccountNames = new Set(liquidAccounts.map((a) => a.name));
+
     const jeRows = (await this.fyo.db.getAllRaw(ModelNameEnum.JournalEntry, {
-      fields: ['name', 'lhvVatCode', 'lhvArchivalId', 'entryType', 'date'],
+      fields: ['name', 'lhvVatCode', 'lhvArchivalId', 'euPartnerVat', 'entryType', 'date'],
       filters: {
         submitted: true,
         cancelled: false,
@@ -116,10 +133,12 @@ export class KmdReport extends Report {
       name: string;
       lhvVatCode?: string;
       lhvArchivalId?: string;
+      euPartnerVat?: string;
       entryType?: string;
     }>;
 
     const vatTaggedJEs = jeRows.filter((j) => (j.lhvVatCode ?? '') !== '');
+    const vdAccum = new Map<string, number>();
 
     for (const je of vatTaggedJEs) {
       const vatCode = je.lhvVatCode as VatCodeName;
@@ -145,7 +164,7 @@ export class KmdReport extends Report {
         continue;
       }
 
-      const net = computeNonBankNet(accountRows);
+      const net = computeNonBankNet(accountRows, liquidAccountNames);
       if (net === 0) continue;
 
       body[bucket.primary] = round2(body[bucket.primary] + net);
@@ -157,129 +176,162 @@ export class KmdReport extends Report {
           body.inputVatTotal + (net * bucket.rate) / 100
         );
       }
+
+      if (vatCode === 'ZERO_EU_B2B') {
+        const partnerVat = (je.euPartnerVat ?? '').trim();
+        if (partnerVat) {
+          vdAccum.set(partnerVat, round2((vdAccum.get(partnerVat) ?? 0) + net));
+        }
+      }
+    }
+
+    const vdLines: VdLine[] = [];
+    for (const [partnerVat, amount] of vdAccum) {
+      vdLines.push({
+        partnerCountry: partnerVat.slice(0, 2).toUpperCase(),
+        partnerVatCode: partnerVat,
+        amount,
+      });
     }
 
     return {
-      taxPayerRegCode,
-      year,
-      month,
-      version: pickVersion(year, month),
-      declarationType: 1,
-      body: round2Body(body),
-      saleAnnex: [],
-      purchaseAnnex: [],
+      kmd: {
+        taxPayerRegCode,
+        year,
+        month,
+        version: pickVersion(year, month),
+        declarationType: 1,
+        body: round2Body(body),
+        saleAnnex: [],
+        purchaseAnnex: [],
+      },
+      vd: { taxPayerRegCode, year, month, lines: vdLines },
     };
   }
 
   private toReportRows(body: KmdBodyTotals): ReportData {
-    const rows: Array<{ line: string; description: string; amount: number }> = [
-      {
-        line: '1',
-        description: t`24% taxable supplies`,
-        amount: body.transactions24,
-      },
-      {
-        line: '1¹',
-        description: t`20% taxable supplies (legacy)`,
-        amount: body.transactions20,
-      },
-      {
-        line: '1²',
-        description: t`22% taxable supplies (legacy)`,
-        amount: body.transactions22,
-      },
-      {
-        line: '2',
-        description: t`9% taxable supplies`,
-        amount: body.transactions9,
-      },
-      {
-        line: '2¹',
-        description: t`5% taxable supplies`,
-        amount: body.transactions5,
-      },
-      {
-        line: '2²',
-        description: t`13% taxable supplies`,
-        amount: body.transactions13,
-      },
-      {
-        line: '3',
-        description: t`0% supplies total`,
-        amount: body.transactionsZeroVat,
-      },
+    type MoneyRow = { line: string; description: string; amount: number };
+    type CountRow = { line: string; description: string; count: number };
+    type RowSpec = MoneyRow | CountRow;
+
+    const line4 = round2(
+      body.transactions24 * 0.24 +
+        body.transactions20 * 0.2 +
+        body.transactions22 * 0.22 +
+        body.transactions9 * 0.09 +
+        body.transactions5 * 0.05 +
+        body.transactions13 * 0.13
+    );
+    const vatBalance = round2(
+      line4 + body.importVat - body.inputVatTotal + body.adjustmentsPlus - body.adjustmentsMinus
+    );
+
+    const rows: RowSpec[] = [
+      { line: '1', description: t`24% taxable supplies`, amount: body.transactions24 },
+      { line: '1¹', description: t`20% taxable supplies (legacy)`, amount: body.transactions20 },
+      { line: '1²', description: t`22% taxable supplies (legacy)`, amount: body.transactions22 },
+      { line: '2', description: t`9% taxable supplies`, amount: body.transactions9 },
+      { line: '2¹', description: t`5% taxable supplies`, amount: body.transactions5 },
+      { line: '2²', description: t`13% taxable supplies`, amount: body.transactions13 },
+      { line: '3', description: t`0% supplies total`, amount: body.transactionsZeroVat },
       {
         line: '3.1',
-        description: t`EU B2B supplies`,
+        description: t`EU B2B supplies (incl. goods + services)`,
         amount: body.euSupplyInclGoodsAndServicesZeroVat,
       },
+      { line: '3.1.1', description: t`EU goods supplies`, amount: body.euSupplyGoodsZeroVat },
+      { line: '3.2', description: t`Exports outside EU`, amount: body.exportZeroVat },
       {
-        line: '3.1.1',
-        description: t`EU goods supplies`,
-        amount: body.euSupplyGoodsZeroVat,
+        line: '3.2.1',
+        description: t`Sale to passengers with VAT refund`,
+        amount: body.salePassengersWithReturnVat,
+      },
+      { line: '4', description: t`Total output VAT (computed)`, amount: line4 },
+      {
+        line: '4.1',
+        description: t`VAT payable on import (+)`,
+        amount: body.importVat,
+      },
+      { line: '5', description: t`Input VAT total (deductible)`, amount: body.inputVatTotal },
+      { line: '5.1', description: t`VAT paid/payable on import`, amount: body.importVat },
+      {
+        line: '5.2',
+        description: t`VAT on acquisition of fixed assets`,
+        amount: body.fixedAssetsVat,
       },
       {
-        line: '3.2',
-        description: t`Exports outside EU`,
-        amount: body.exportZeroVat,
+        line: '5.3',
+        description: t`VAT on 100% business-use car + related`,
+        amount: body.carsVat,
       },
       {
-        line: '5',
-        description: t`Input VAT total (deductible)`,
-        amount: body.inputVatTotal,
+        line: '5.3',
+        description: t`Number of 100% business-use cars`,
+        count: body.numberOfCars,
+      },
+      {
+        line: '5.4',
+        description: t`VAT on partial-business car + related`,
+        amount: body.carsPartialVat,
+      },
+      {
+        line: '5.4',
+        description: t`Number of partial-business cars`,
+        count: body.numberOfCarsPartial,
       },
       {
         line: '6',
         description: t`EU acquisitions + RC services`,
         amount: body.euAcquisitionsGoodsAndServicesTotal,
       },
-      {
-        line: '6.1',
-        description: t`EU goods acquisitions`,
-        amount: body.euAcquisitionsGoods,
-      },
+      { line: '6.1', description: t`EU goods acquisitions`, amount: body.euAcquisitionsGoods },
       {
         line: '7',
         description: t`Other purchases subject to VAT`,
         amount: body.acquisitionOtherGoodsAndServicesTotal,
       },
       {
-        line: '8',
-        description: t`Exempt supplies`,
-        amount: body.supplyExemptFromTax,
+        line: '7.1',
+        description: t`Immovables / metal waste (§41¹)`,
+        amount: body.acquisitionImmovablesAndScrapMetalAndGold,
+      },
+      { line: '8', description: t`Exempt supplies`, amount: body.supplyExemptFromTax },
+      {
+        line: '9',
+        description: t`Supply under special arrangements (§41¹)`,
+        amount: body.supplySpecialArrangements,
+      },
+      { line: '10', description: t`Adjustments (+)`, amount: body.adjustmentsPlus },
+      { line: '11', description: t`Adjustments (-)`, amount: body.adjustmentsMinus },
+      {
+        line: '12',
+        description: t`VAT payable (computed)`,
+        amount: vatBalance >= 0 ? vatBalance : 0,
       },
       {
-        line: '10',
-        description: t`Adjustments (+)`,
-        amount: body.adjustmentsPlus,
-      },
-      {
-        line: '11',
-        description: t`Adjustments (-)`,
-        amount: body.adjustmentsMinus,
+        line: '13',
+        description: t`Overpaid VAT (computed)`,
+        amount: vatBalance < 0 ? -vatBalance : 0,
       },
     ];
 
     return rows.map<ReportRow>((r) => ({
       cells: [
         { rawValue: r.line, value: r.line, width: 1, align: 'left' },
-        {
-          rawValue: r.description,
-          value: r.description,
-          width: 3,
-          align: 'left',
-        },
-        {
-          rawValue: r.amount,
-          value: this.fyo.format(r.amount, 'Currency'),
-          width: 1,
-          align: 'right',
-        },
+        { rawValue: r.description, value: r.description, width: 3, align: 'left' },
+        'count' in r
+          ? { rawValue: r.count, value: String(r.count), width: 1, align: 'right' }
+          : {
+              rawValue: r.amount,
+              value: this.fyo.format(r.amount, 'Currency'),
+              width: 1,
+              align: 'right',
+            },
       ],
     }));
   }
 
-  private async exportXml() {
+  private async exportKmdXml() {
     if (!this.data) {
       await this.setReportData();
     }
@@ -292,11 +344,28 @@ export class KmdReport extends Report {
     }
 
     const xml = exportKmdXml(this.data);
-    const yyyymm = `${this.data.year}-${String(this.data.month).padStart(
-      2,
-      '0'
-    )}`;
+    const yyyymm = `${this.data.year}-${String(this.data.month).padStart(2, '0')}`;
     const { filePath, canceled } = await getSavePath(`KMD_${yyyymm}`, 'xml');
+    if (canceled || !filePath) return;
+
+    await ipc.saveData(xml, filePath);
+  }
+
+  private async exportVdXml() {
+    if (!this.vdData) {
+      await this.setReportData();
+    }
+    if (!this.vdData) return;
+
+    if (!this.vdData.taxPayerRegCode) {
+      throw new Error(
+        t`Set Registry Code in Accounting Settings before exporting VD.`
+      );
+    }
+
+    const xml = exportVdXml(this.vdData);
+    const yyyymm = `${this.vdData.year}-${String(this.vdData.month).padStart(2, '0')}`;
+    const { filePath, canceled } = await getSavePath(`VD_${yyyymm}`, 'xml');
     if (canceled || !filePath) return;
 
     await ipc.saveData(xml, filePath);
@@ -310,11 +379,12 @@ function num(s: string | undefined): number {
 }
 
 function computeNonBankNet(
-  rows: Array<{ account: string; debit?: string; credit?: string }>
+  rows: Array<{ account: string; debit?: string; credit?: string }>,
+  liquidAccounts: Set<string>
 ): number {
   let net = 0;
   for (const r of rows) {
-    if (BANK_ACCOUNT_NAMES.has(r.account)) continue;
+    if (liquidAccounts.has(r.account)) continue;
     net += num(r.debit) + num(r.credit);
   }
   return round2(net);

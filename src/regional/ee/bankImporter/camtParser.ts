@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
-import { LhvRow } from './types';
+import { BankRow } from './types';
 
-export function parseLhvCamt(xml: string): LhvRow[] {
+export function parseCamt(xml: string): BankRow[] {
   const parser = new XMLParser({
     ignoreAttributes: false,
     attributeNamePrefix: '@_',
@@ -17,7 +17,7 @@ export function parseLhvCamt(xml: string): LhvRow[] {
   if (!root) return [];
 
   const stmts = asArray(root.Stmt) as Record<string, unknown>[];
-  const rows: LhvRow[] = [];
+  const rows: BankRow[] = [];
 
   for (const stmt of stmts) {
     const accountIban =

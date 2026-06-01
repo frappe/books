@@ -1,8 +1,8 @@
-import { LhvRow } from './types';
+import { BankRow } from './types';
 
 const FIELD_SEPARATORS = [';', ',', '\t'] as const;
 
-export function parseLhvCsv(text: string): LhvRow[] {
+export function parseLhvCsv(text: string): BankRow[] {
   const lines = text
     .replace(/^﻿/, '')
     .split(/\r\n|\n/)
@@ -14,7 +14,7 @@ export function parseLhvCsv(text: string): LhvRow[] {
   const decimalIsComma = sniffDecimalIsComma(lines.slice(1), sep);
   const startIdx = looksLikeData(lines[0], sep) ? 0 : 1;
 
-  const rows: LhvRow[] = [];
+  const rows: BankRow[] = [];
   for (let i = startIdx; i < lines.length; i++) {
     const cols = splitCsvLine(lines[i], sep);
     if (cols.length < 11) continue;

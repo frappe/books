@@ -1,21 +1,21 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import test from 'tape';
-import { parseLhvCamt } from '../camtParser';
+import { parseCamt } from '../camtParser';
 
 const xml = readFileSync(
   join(__dirname, 'fixtures/sample.camt.053.xml'),
   'utf-8'
 );
 
-test('parseLhvCamt: row count', (t) => {
-  const rows = parseLhvCamt(xml);
+test('parseCamt: row count', (t) => {
+  const rows = parseCamt(xml);
   t.equal(rows.length, 2, 'parses 2 Ntry elements');
   t.end();
 });
 
-test('parseLhvCamt: DBIT entry → negative amount + counterparty', (t) => {
-  const rows = parseLhvCamt(xml);
+test('parseCamt: DBIT entry → negative amount + counterparty', (t) => {
+  const rows = parseCamt(xml);
   const aws = rows.find((r) => r.archivalId === 'ARCH-001');
   t.ok(aws, 'AWS row present');
   t.equal(aws?.amount, -150, 'debit amount negative');
@@ -27,8 +27,8 @@ test('parseLhvCamt: DBIT entry → negative amount + counterparty', (t) => {
   t.end();
 });
 
-test('parseLhvCamt: CRDT entry → positive amount + Dbtr name', (t) => {
-  const rows = parseLhvCamt(xml);
+test('parseCamt: CRDT entry → positive amount + Dbtr name', (t) => {
+  const rows = parseCamt(xml);
   const client = rows.find((r) => r.archivalId === 'ARCH-004');
   t.ok(client, 'client row present');
   t.equal(client?.amount, 1200);

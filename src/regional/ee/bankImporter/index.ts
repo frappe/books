@@ -1,11 +1,13 @@
 export { parseLhvCsv } from './csvParser';
-export { parseLhvCamt } from './camtParser';
+export { parseCamt } from './camtParser';
 export { classifyRows, classifyRow } from './classifier';
 export { buildJournalEntries } from './journalEntryBuilder';
 export type {
-  LhvRow,
+  BankRow,
   ClassifiedRow,
   ClassifiedSide,
   ClassifierRule,
+  EeBank,
 } from './types';
+export { EE_BANKS } from './types';
 export { DEFAULT_RULES } from './rules';

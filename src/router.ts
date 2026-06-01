@@ -3,7 +3,7 @@ import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
 import ImportWizard from 'src/pages/ImportWizard.vue';
-import LhvImportPage from 'src/pages/LhvImport/LhvImportPage.vue';
+import BankImportPage from 'src/pages/BankImport/BankImportPage.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
 import PrintView from 'src/pages/PrintView/PrintView.vue';
 import ReportPrintView from 'src/pages/PrintView/ReportPrintView.vue';
@@ -104,9 +104,9 @@ const routes: RouteRecordRaw[] = [
     component: ImportWizard,
   },
   {
-    path: '/regional/ee/lhv-import',
-    name: 'LHV Import',
-    component: LhvImportPage,
+    path: '/regional/ee/bank-import',
+    name: 'EE Bank Import',
+    component: BankImportPage,
   },
   {
     path: '/template-builder/:name',

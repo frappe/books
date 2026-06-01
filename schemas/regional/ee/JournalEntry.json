@@ -14,6 +14,13 @@
       "fieldtype": "Data",
       "readOnly": true,
       "section": "References"
+    },
+    {
+      "fieldname": "euPartnerVat",
+      "label": "EU Partner VAT",
+      "fieldtype": "Data",
+      "section": "References",
+      "placeholder": "e.g. FI12345678"
     }
   ]
 }
