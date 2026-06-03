@@ -9,10 +9,35 @@ test('lineMap: every VAT code maps to a bucket', (t) => {
   t.end();
 });
 
-test('lineMap: ZERO_EU_B2B feeds line 3 + 3.1', (t) => {
+test('lineMap: ZERO_EU_B2B (goods) feeds line 3 + 3.1 + 3.1.1, VD goods', (t) => {
   const b = VAT_CODE_TO_BUCKET.ZERO_EU_B2B!;
   t.equal(b.primary, 'transactionsZeroVat');
+  t.deepEqual(b.also, [
+    'euSupplyInclGoodsAndServicesZeroVat',
+    'euSupplyGoodsZeroVat',
+  ]);
+  t.equal(b.vdColumn, 'goods');
+  t.end();
+});
+
+test('lineMap: ZERO_EU_GOODS feeds 3.1 + 3.1.1, VD goods', (t) => {
+  const b = VAT_CODE_TO_BUCKET.ZERO_EU_GOODS!;
+  t.deepEqual(b.also, [
+    'euSupplyInclGoodsAndServicesZeroVat',
+    'euSupplyGoodsZeroVat',
+  ]);
+  t.equal(b.vdColumn, 'goods');
+  t.end();
+});
+
+test('lineMap: ZERO_EU_SERVICES feeds 3.1 only (not 3.1.1), VD services', (t) => {
+  const b = VAT_CODE_TO_BUCKET.ZERO_EU_SERVICES!;
   t.deepEqual(b.also, ['euSupplyInclGoodsAndServicesZeroVat']);
+  t.notOk(
+    b.also?.includes('euSupplyGoodsZeroVat'),
+    'services excluded from 3.1.1'
+  );
+  t.equal(b.vdColumn, 'services');
   t.end();
 });
 

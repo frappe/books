@@ -3,6 +3,8 @@ import { KmdBodyTotals } from './types';
 
 export type KmdSide = 'sales' | 'purchase' | 'rc-sales' | 'rc-purchase';
 
+export type VdColumn = 'goods' | 'services' | 'triangle';
+
 export interface VatCodeBucket {
   primary: keyof KmdBodyTotals;
 
@@ -10,6 +12,8 @@ export interface VatCodeBucket {
   side: KmdSide;
 
   rate: number;
+
+  vdColumn?: VdColumn;
 }
 
 export const VAT_CODE_TO_BUCKET: Record<VatCodeName, VatCodeBucket | null> = {
@@ -19,9 +23,24 @@ export const VAT_CODE_TO_BUCKET: Record<VatCodeName, VatCodeBucket | null> = {
   EE0: { primary: 'transactionsZeroVat', side: 'sales', rate: 0 },
   ZERO_EU_B2B: {
     primary: 'transactionsZeroVat',
+    also: ['euSupplyInclGoodsAndServicesZeroVat', 'euSupplyGoodsZeroVat'],
+    side: 'sales',
+    rate: 0,
+    vdColumn: 'goods',
+  },
+  ZERO_EU_GOODS: {
+    primary: 'transactionsZeroVat',
+    also: ['euSupplyInclGoodsAndServicesZeroVat', 'euSupplyGoodsZeroVat'],
+    side: 'sales',
+    rate: 0,
+    vdColumn: 'goods',
+  },
+  ZERO_EU_SERVICES: {
+    primary: 'transactionsZeroVat',
     also: ['euSupplyInclGoodsAndServicesZeroVat'],
     side: 'sales',
     rate: 0,
+    vdColumn: 'services',
   },
   ZERO_EXPORT: {
     primary: 'transactionsZeroVat',

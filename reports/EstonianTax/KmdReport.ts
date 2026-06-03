@@ -138,7 +138,10 @@ export class KmdReport extends Report {
     }>;
 
     const vatTaggedJEs = jeRows.filter((j) => (j.lhvVatCode ?? '') !== '');
-    const vdAccum = new Map<string, number>();
+    const vdAccum = new Map<
+      string,
+      { goods: number; services: number; triangle: number }
+    >();
 
     for (const je of vatTaggedJEs) {
       const vatCode = je.lhvVatCode as VatCodeName;
@@ -177,20 +180,29 @@ export class KmdReport extends Report {
         );
       }
 
-      if (vatCode === 'ZERO_EU_B2B') {
+      if (bucket.vdColumn) {
         const partnerVat = (je.euPartnerVat ?? '').trim();
         if (partnerVat) {
-          vdAccum.set(partnerVat, round2((vdAccum.get(partnerVat) ?? 0) + net));
+          const acc = vdAccum.get(partnerVat) ?? {
+            goods: 0,
+            services: 0,
+            triangle: 0,
+          };
+          acc[bucket.vdColumn] = round2(acc[bucket.vdColumn] + net);
+          vdAccum.set(partnerVat, acc);
         }
       }
     }
 
     const vdLines: VdLine[] = [];
-    for (const [partnerVat, amount] of vdAccum) {
+    for (const [partnerVat, acc] of vdAccum) {
+      const { country, number } = splitVatNumber(partnerVat);
       vdLines.push({
-        partnerCountry: partnerVat.slice(0, 2).toUpperCase(),
-        partnerVatCode: partnerVat,
-        amount,
+        partnerCountry: country,
+        partnerVatCode: number,
+        goods: acc.goods,
+        triangle: acc.triangle,
+        services: acc.services,
       });
     }
 
@@ -363,6 +375,12 @@ export class KmdReport extends Report {
       );
     }
 
+    if (this.vdData.lines.length === 0) {
+      throw new Error(
+        t`No intra-Community (EU B2B) supply in this period — VD report is not required.`
+      );
+    }
+
     const xml = exportVdXml(this.vdData);
     const yyyymm = `${this.vdData.year}-${String(this.vdData.month).padStart(2, '0')}`;
     const { filePath, canceled } = await getSavePath(`VD_${yyyymm}`, 'xml');
@@ -370,6 +388,12 @@ export class KmdReport extends Report {
 
     await ipc.saveData(xml, filePath);
   }
+}
+
+function splitVatNumber(vat: string): { country: string; number: string } {
+  const m = /^([A-Za-z]{2})(.+)$/.exec(vat);
+  if (m) return { country: m[1].toUpperCase(), number: m[2] };
+  return { country: vat.slice(0, 2).toUpperCase(), number: vat };
 }
 
 function num(s: string | undefined): number {

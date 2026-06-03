@@ -44,8 +44,8 @@ function buildDeclarationBody(b: KmdBodyTotals): OrderedNode[] {
   const nodes: OrderedNode[] = [
     text('noSales', allZero(salesValues(b)) ? 'true' : 'false'),
     text('noPurchases', allZero(purchaseValues(b)) ? 'true' : 'false'),
-    text('sumPerPartnerSales', 'true'),
-    text('sumPerPartnerPurchases', 'true'),
+    text('sumPerPartnerSales', 'false'),
+    text('sumPerPartnerPurchases', 'false'),
   ];
 
   pushMonetary(nodes, 'transactions24', b.transactions24);
@@ -98,7 +98,7 @@ function buildDeclarationBody(b: KmdBodyTotals): OrderedNode[] {
 function buildSalesAnnex(data: KmdReportData): OrderedNode[] {
   const nodes: OrderedNode[] = [
     text('noSales', data.saleAnnex.length === 0 ? 'true' : 'false'),
-    text('sumPerPartnerSales', 'true'),
+    text('sumPerPartnerSales', 'false'),
   ];
   for (const line of data.saleAnnex) {
     const lineNodes: OrderedNode[] = [];
@@ -118,7 +118,7 @@ function buildSalesAnnex(data: KmdReportData): OrderedNode[] {
 function buildPurchasesAnnex(data: KmdReportData): OrderedNode[] {
   const nodes: OrderedNode[] = [
     text('noPurchases', data.purchaseAnnex.length === 0 ? 'true' : 'false'),
-    text('sumPerPartnerPurchases', 'true'),
+    text('sumPerPartnerPurchases', 'false'),
   ];
   for (const line of data.purchaseAnnex) {
     const lineNodes: OrderedNode[] = [];

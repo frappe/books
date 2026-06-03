@@ -7,6 +7,8 @@ export type VatCodeName =
   | 'EU_RC_SERVICES'
   | 'NON_EU_RC'
   | 'ZERO_EU_B2B'
+  | 'ZERO_EU_GOODS'
+  | 'ZERO_EU_SERVICES'
   | 'ZERO_EXPORT'
   | 'EXEMPT';
 
@@ -51,7 +53,17 @@ export const VAT_CODES: Record<VatCodeName, VatCodeSpec> = {
   ZERO_EU_B2B: {
     rate: 0,
     reverseCharge: false,
-    description: 'EU B2B sale (zero-rated, buyer self-assesses)',
+    description: 'EU B2B sale — goods (deprecated, use ZERO_EU_GOODS)',
+  },
+  ZERO_EU_GOODS: {
+    rate: 0,
+    reverseCharge: false,
+    description: 'EU B2B supply of goods (zero-rated; KMD 3.1 + 3.1.1, VD goods)',
+  },
+  ZERO_EU_SERVICES: {
+    rate: 0,
+    reverseCharge: false,
+    description: 'EU B2B supply of services (zero-rated; KMD 3.1, VD services)',
   },
   ZERO_EXPORT: {
     rate: 0,

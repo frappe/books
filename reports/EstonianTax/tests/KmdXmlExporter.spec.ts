@@ -20,7 +20,6 @@ test('xml: emits root + required fields in schema order', (t) => {
   const xml = exportKmdXml(baseData());
   t.ok(xml.startsWith('<?xml'), 'XML prolog present');
   t.ok(xml.includes('<vatDeclaration>'), 'root element');
-  // Order: taxPayerRegCode, year, month, declarationType, version, declarationBody, salesAnnex, purchasesAnnex
   const order = [
     'taxPayerRegCode',
     'year',
@@ -62,7 +61,6 @@ test('xml: zero monetary values are omitted', (t) => {
 
 test('xml: noSales/noPurchases flags reflect body totals', (t) => {
   const d = baseData();
-  // All zeros → noSales=true, noPurchases=true
   let xml = exportKmdXml(d);
   t.ok(xml.includes('<noSales>true</noSales>'));
   t.ok(xml.includes('<noPurchases>true</noPurchases>'));
@@ -70,6 +68,14 @@ test('xml: noSales/noPurchases flags reflect body totals', (t) => {
   d.body.transactions24 = 500;
   xml = exportKmdXml(d);
   t.ok(xml.includes('<noSales>false</noSales>'));
+  t.end();
+});
+
+test('xml: sumPerPartner flags are false (invoice-by-invoice, not aggregate)', (t) => {
+  const xml = exportKmdXml(baseData());
+  t.ok(xml.includes('<sumPerPartnerSales>false</sumPerPartnerSales>'));
+  t.ok(xml.includes('<sumPerPartnerPurchases>false</sumPerPartnerPurchases>'));
+  t.notOk(xml.includes('>true</sumPerPartnerSales>'), 'no aggregate-basis assertion');
   t.end();
 });
 

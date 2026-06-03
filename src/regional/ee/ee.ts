@@ -35,6 +35,8 @@ function getTaxAccounts(code: VatCodeName): TaxAccountMap | null {
       };
     case 'EE0':
     case 'ZERO_EU_B2B':
+    case 'ZERO_EU_GOODS':
+    case 'ZERO_EU_SERVICES':
     case 'ZERO_EXPORT':
     case 'EXEMPT':
       return null;

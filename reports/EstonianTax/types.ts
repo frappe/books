@@ -54,7 +54,9 @@ vatInPeriod: number;
 export interface VdLine {
   partnerCountry: string;
   partnerVatCode: string;
-  amount: number;
+  goods: number;
+  triangle: number;
+  services: number;
 }
 
 export interface VdReportData {
