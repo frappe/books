@@ -400,6 +400,7 @@ export default defineComponent({
   activated(): void {
     this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
     docsPathRef.value = docsPathMap[this.schemaName] ?? '';
+    this.fyo.doc.observer.on(`load:${this.schemaName}`, this.onDocLoad);
     this.shortcuts?.pmod.set(this.context, ['KeyP'], () => {
       if (!this.canPrint) {
         return;
@@ -419,9 +420,15 @@ export default defineComponent({
     docsPathRef.value = '';
     this.showLinks = false;
     this.row = null;
+    this.fyo.doc.observer.off(`load:${this.schemaName}`, this.onDocLoad);
   },
   methods: {
     routeTo,
+    onDocLoad(name: string) {
+      if (this.hasDoc && name === this.doc.name) {
+        this.updateGroupedFields();
+      }
+    },
     async toggleWidth() {
       const value = !this.useFullWidth;
       await this.fyo.singles.Misc?.setAndSync('useFullWidth', value);
