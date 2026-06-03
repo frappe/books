@@ -29,7 +29,7 @@ export async function buildJournalEntries(
     try {
       const existing = (await fyo.db.getAll(ModelNameEnum.JournalEntry, {
         fields: ['name'],
-        filters: { lhvArchivalId: row.archivalId },
+        filters: { lhvArchivalId: row.archivalId, cancelled: false },
         limit: 1,
       })) as { name: string }[];
 
@@ -42,8 +42,8 @@ export async function buildJournalEntries(
       result.bankEntries += 1;
 
       if (row.proposedVatCode && isReverseCharge(row.proposedVatCode)) {
-        await createReverseChargeEntry(row, fyo);
-        result.reverseChargeEntries += 1;
+        const created = await createReverseChargeEntry(row, fyo);
+        if (created) result.reverseChargeEntries += 1;
       }
     } catch (err) {
       result.errors.push({
@@ -84,14 +84,26 @@ async function createBankEntry(row: ClassifiedRow, fyo: Fyo, bankAccount: string
   await doc.submit();
 }
 
-async function createReverseChargeEntry(row: ClassifiedRow, fyo: Fyo) {
-  if (!row.proposedVatCode) return;
+async function createReverseChargeEntry(
+  row: ClassifiedRow,
+  fyo: Fyo
+): Promise<boolean> {
+  if (!row.proposedVatCode) return false;
   const spec = VAT_CODES[row.proposedVatCode];
-  if (!spec || !spec.reverseCharge || spec.rate === 0) return;
+  if (!spec || !spec.reverseCharge || spec.rate === 0) return false;
 
   const net = Math.abs(row.amount);
   const vatAmount = round2(net * (spec.rate / 100));
-  if (vatAmount === 0) return;
+  if (vatAmount === 0) return false;
+
+  const rcArchivalId = `${row.archivalId}-RC`;
+
+  const existingRc = (await fyo.db.getAll(ModelNameEnum.JournalEntry, {
+    fields: ['name'],
+    filters: { lhvArchivalId: rcArchivalId, cancelled: false },
+    limit: 1,
+  })) as { name: string }[];
+  if (existingRc.length > 0) return false;
 
   const doc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {
     entryType: 'Journal Entry',
@@ -102,12 +114,13 @@ async function createReverseChargeEntry(row: ClassifiedRow, fyo: Fyo) {
     ],
     referenceNumber: row.referenceNumber ?? row.documentNumber,
     userRemark: `Reverse charge VAT (${row.proposedVatCode}) for ${row.archivalId}`,
-    lhvArchivalId: `${row.archivalId}-RC`,
+    lhvArchivalId: rcArchivalId,
     lhvVatCode: row.proposedVatCode,
   });
 
   await doc.sync();
   await doc.submit();
+  return true;
 }
 
 function isReverseCharge(code: string): boolean {

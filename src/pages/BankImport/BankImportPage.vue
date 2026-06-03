@@ -281,7 +281,7 @@ export default defineComponent({
       for (const row of this.rows) {
         const existing = (await fyo.db.getAll(ModelNameEnum.JournalEntry, {
           fields: ['name'],
-          filters: { lhvArchivalId: row.archivalId },
+          filters: { lhvArchivalId: row.archivalId, cancelled: false },
           limit: 1,
         })) as { name: string }[];
         row.isDuplicate = existing.length > 0;
