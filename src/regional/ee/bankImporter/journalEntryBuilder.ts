@@ -11,18 +11,28 @@ export interface BuildResult {
   reverseChargeEntries: number;
   duplicatesSkipped: string[];
   errors: { archivalId: string; message: string }[];
+  autoSubmitted: boolean;
+  draftNames: string[];
+}
+
+export interface BuildOptions {
+  autoSubmit?: boolean;
 }
 
 export async function buildJournalEntries(
   rows: ClassifiedRow[],
   fyo: Fyo,
-  bankAccount: string
+  bankAccount: string,
+  options: BuildOptions = {}
 ): Promise<BuildResult> {
+  const autoSubmit = options.autoSubmit ?? true;
   const result: BuildResult = {
     bankEntries: 0,
     reverseChargeEntries: 0,
     duplicatesSkipped: [],
     errors: [],
+    autoSubmitted: autoSubmit,
+    draftNames: [],
   };
 
   for (const row of rows) {
@@ -38,12 +48,16 @@ export async function buildJournalEntries(
         continue;
       }
 
-      await createBankEntry(row, fyo, bankAccount);
+      const bankName = await createBankEntry(row, fyo, bankAccount, autoSubmit);
       result.bankEntries += 1;
+      if (!autoSubmit && bankName) result.draftNames.push(bankName);
 
       if (row.proposedVatCode && isReverseCharge(row.proposedVatCode)) {
-        const created = await createReverseChargeEntry(row, fyo);
-        if (created) result.reverseChargeEntries += 1;
+        const rcName = await createReverseChargeEntry(row, fyo, autoSubmit);
+        if (rcName) {
+          result.reverseChargeEntries += 1;
+          if (!autoSubmit) result.draftNames.push(rcName);
+        }
       }
     } catch (err) {
       result.errors.push({
@@ -56,7 +70,12 @@ export async function buildJournalEntries(
   return result;
 }
 
-async function createBankEntry(row: ClassifiedRow, fyo: Fyo, bankAccount: string) {
+async function createBankEntry(
+  row: ClassifiedRow,
+  fyo: Fyo,
+  bankAccount: string,
+  autoSubmit: boolean
+): Promise<string> {
   const absAmount = Math.abs(row.amount);
   const isInflow = row.amount >= 0;
 
@@ -81,20 +100,22 @@ async function createBankEntry(row: ClassifiedRow, fyo: Fyo, bankAccount: string
   });
 
   await doc.sync();
-  await doc.submit();
+  if (autoSubmit) await doc.submit();
+  return doc.name!;
 }
 
 async function createReverseChargeEntry(
   row: ClassifiedRow,
-  fyo: Fyo
-): Promise<boolean> {
-  if (!row.proposedVatCode) return false;
+  fyo: Fyo,
+  autoSubmit: boolean
+): Promise<string | null> {
+  if (!row.proposedVatCode) return null;
   const spec = VAT_CODES[row.proposedVatCode];
-  if (!spec || !spec.reverseCharge || spec.rate === 0) return false;
+  if (!spec || !spec.reverseCharge || spec.rate === 0) return null;
 
   const net = Math.abs(row.amount);
   const vatAmount = round2(net * (spec.rate / 100));
-  if (vatAmount === 0) return false;
+  if (vatAmount === 0) return null;
 
   const rcArchivalId = `${row.archivalId}-RC`;
 
@@ -103,7 +124,7 @@ async function createReverseChargeEntry(
     filters: { lhvArchivalId: rcArchivalId, cancelled: false },
     limit: 1,
   })) as { name: string }[];
-  if (existingRc.length > 0) return false;
+  if (existingRc.length > 0) return null;
 
   const doc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {
     entryType: 'Journal Entry',
@@ -119,8 +140,8 @@ async function createReverseChargeEntry(
   });
 
   await doc.sync();
-  await doc.submit();
-  return true;
+  if (autoSubmit) await doc.submit();
+  return doc.name!;
 }
 
 function isReverseCharge(code: string): boolean {

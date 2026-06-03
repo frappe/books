@@ -34,6 +34,14 @@
       >
         {{ t`Select File` }}
       </Button>
+      <label
+        v-if="nonDuplicateCount > 0 && !isCommitting && commitResult === null"
+        class="flex items-center gap-1.5 text-sm text-gray-600"
+        :title="t`When off, entries are created as drafts so you can review and attach invoices before submitting.`"
+      >
+        <input v-model="autoSubmit" type="checkbox" />
+        {{ t`Auto-submit` }}
+      </label>
       <Button
         v-if="nonDuplicateCount > 0 && !isCommitting && commitResult === null"
         type="primary"
@@ -41,6 +49,19 @@
         @click="commit"
       >
         {{ t`Create ${nonDuplicateCount} Entries` }}
+      </Button>
+      <Button
+        v-if="
+          commitResult &&
+          !commitResult.autoSubmitted &&
+          commitResult.draftNames.length > 0 &&
+          !isCommitting
+        "
+        type="primary"
+        :title="t`Submit Drafts`"
+        @click="submitDrafts"
+      >
+        {{ t`Submit ${commitResult.draftNames.length} Drafts` }}
       </Button>
     </PageHeader>
 
@@ -81,6 +102,11 @@
         </div>
         <ul class="text-sm text-green-900 list-disc list-inside">
           <li>{{ t`${commitResult.bankEntries} bank entries created` }}</li>
+          <li v-if="!commitResult.autoSubmitted">
+            {{
+              t`Created as drafts — review and attach invoices, then submit.`
+            }}
+          </li>
           <li>
             {{
               t`${commitResult.reverseChargeEntries} reverse-charge entries created`
@@ -198,6 +224,7 @@ export default defineComponent({
       rows: [] as ClassifiedRow[],
       parseError: '' as string,
       isCommitting: false,
+      autoSubmit: true,
       commitResult: null as BuildResult | null,
       accountOptions: [] as string[],
       bankAccountOptions: [] as string[],
@@ -290,7 +317,30 @@ export default defineComponent({
     async commit() {
       this.isCommitting = true;
       try {
-        this.commitResult = await buildJournalEntries(this.rows, fyo, this.selectedBankAccount);
+        this.commitResult = await buildJournalEntries(
+          this.rows,
+          fyo,
+          this.selectedBankAccount,
+          { autoSubmit: this.autoSubmit }
+        );
+      } catch (err) {
+        this.parseError = (err as Error).message ?? String(err);
+      } finally {
+        this.isCommitting = false;
+      }
+    },
+    async submitDrafts() {
+      if (!this.commitResult) return;
+      this.isCommitting = true;
+      try {
+        for (const name of this.commitResult.draftNames) {
+          const doc = await fyo.doc.getDoc(ModelNameEnum.JournalEntry, name);
+          if (!doc.submitted && !doc.cancelled) {
+            await doc.submit();
+          }
+        }
+        this.commitResult.autoSubmitted = true;
+        this.commitResult.draftNames = [];
       } catch (err) {
         this.parseError = (err as Error).message ?? String(err);
       } finally {
