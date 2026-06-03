@@ -9,6 +9,7 @@ export type VatCodeName =
   | 'ZERO_EU_B2B'
   | 'ZERO_EU_GOODS'
   | 'ZERO_EU_SERVICES'
+  | 'ZERO_EU_TRIANGLE'
   | 'ZERO_EXPORT'
   | 'EXEMPT';
 
@@ -64,6 +65,12 @@ export const VAT_CODES: Record<VatCodeName, VatCodeSpec> = {
     rate: 0,
     reverseCharge: false,
     description: 'EU B2B supply of services (zero-rated; KMD 3.1, VD services)',
+  },
+  ZERO_EU_TRIANGLE: {
+    rate: 0,
+    reverseCharge: false,
+    description:
+      'EU triangular resale as intermediary (VD triangular column only, not on KMD)',
   },
   ZERO_EXPORT: {
     rate: 0,

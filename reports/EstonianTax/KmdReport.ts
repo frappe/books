@@ -170,7 +170,9 @@ export class KmdReport extends Report {
       const net = computeNonBankNet(accountRows, liquidAccountNames);
       if (net === 0) continue;
 
-      body[bucket.primary] = round2(body[bucket.primary] + net);
+      if (bucket.primary) {
+        body[bucket.primary] = round2(body[bucket.primary] + net);
+      }
       for (const extra of bucket.also ?? []) {
         body[extra] = round2(body[extra] + net);
       }

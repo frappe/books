@@ -6,7 +6,7 @@ export type KmdSide = 'sales' | 'purchase' | 'rc-sales' | 'rc-purchase';
 export type VdColumn = 'goods' | 'services' | 'triangle';
 
 export interface VatCodeBucket {
-  primary: keyof KmdBodyTotals;
+  primary?: keyof KmdBodyTotals;
 
   also?: (keyof KmdBodyTotals)[];
   side: KmdSide;
@@ -41,6 +41,11 @@ export const VAT_CODE_TO_BUCKET: Record<VatCodeName, VatCodeBucket | null> = {
     side: 'sales',
     rate: 0,
     vdColumn: 'services',
+  },
+  ZERO_EU_TRIANGLE: {
+    side: 'sales',
+    rate: 0,
+    vdColumn: 'triangle',
   },
   ZERO_EXPORT: {
     primary: 'transactionsZeroVat',

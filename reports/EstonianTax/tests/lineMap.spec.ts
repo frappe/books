@@ -41,6 +41,14 @@ test('lineMap: ZERO_EU_SERVICES feeds 3.1 only (not 3.1.1), VD services', (t) =>
   t.end();
 });
 
+test('lineMap: ZERO_EU_TRIANGLE feeds VD triangle only, no KMD line', (t) => {
+  const b = VAT_CODE_TO_BUCKET.ZERO_EU_TRIANGLE!;
+  t.notOk(b.primary, 'no KMD primary line');
+  t.notOk(b.also, 'no KMD also lines');
+  t.equal(b.vdColumn, 'triangle');
+  t.end();
+});
+
 test('lineMap: ZERO_EXPORT feeds line 3 + 3.2', (t) => {
   const b = VAT_CODE_TO_BUCKET.ZERO_EXPORT!;
   t.equal(b.primary, 'transactionsZeroVat');
