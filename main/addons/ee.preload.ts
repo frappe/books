@@ -7,6 +7,9 @@
  */
 import { ipcRenderer } from 'electron';
 import type { BackendResponse } from 'utils/ipc/types';
+// Type-only import: erased at compile, never pulls node-bound arelleValidator
+// code into the preload bundle. Keeps the IPC contract single-sourced.
+import type { ValidateOptions } from '../arelleValidator';
 import { EE_CHANNELS } from './ee.channels';
 
 export const eePreload = {
@@ -16,11 +19,7 @@ export const eePreload = {
       | null;
   },
 
-  async validateXbrl(options: {
-    instancePath: string;
-    taxonomyEntryPath?: string;
-    arellePath: string;
-  }): Promise<BackendResponse> {
+  async validateXbrl(options: ValidateOptions): Promise<BackendResponse> {
     return (await ipcRenderer.invoke(
       EE_CHANNELS.validateXbrl,
       options

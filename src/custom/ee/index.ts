@@ -20,12 +20,12 @@ import { showDialog, showToast } from 'src/utils/interactive';
 import type { SidebarRoot } from 'src/utils/types';
 import type { AppAddon } from '../types';
 
-function getEstoniaSidebar(fyo: Fyo): SidebarRoot[] {
-  const hasVatNumber = !!fyo.singles?.AccountingSettings?.vatNumber;
-  if (!hasVatNumber) {
-    return [];
-  }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getEstoniaSidebar(_fyo: Fyo): SidebarRoot[] {
+  // Always shown for EE companies (outer addon condition gates the country).
+  // No VAT-number gate: an EE company without a VAT number still needs the
+  // sidebar. KMD viewing is harmless when un-registered, and the XML export
+  // self-guards (throws if Registry Code is unset) at the point it matters.
   return [
     {
       label: t`Estonia`,
