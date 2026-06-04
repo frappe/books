@@ -162,8 +162,11 @@ export class KmdReport extends Report {
         const rcReceivable = accountRows.find(
           (r) => r.account === '2314 - RC VAT Receivable'
         );
-        const vat = num(rcReceivable?.debit);
-        body.inputVatTotal += vat;
+        const rcPayable = accountRows.find(
+          (r) => r.account === '2314 - RC VAT Payable'
+        );
+        body.inputVatTotal = round2(body.inputVatTotal + num(rcReceivable?.debit));
+        body.rcVatPayable = round2(body.rcVatPayable + num(rcPayable?.credit));
         continue;
       }
 
@@ -237,7 +240,7 @@ export class KmdReport extends Report {
         body.transactions13 * 0.13
     );
     const vatBalance = round2(
-      line4 + body.importVat - body.inputVatTotal + body.adjustmentsPlus - body.adjustmentsMinus
+      line4 + body.rcVatPayable + body.importVat - body.inputVatTotal + body.adjustmentsPlus - body.adjustmentsMinus
     );
 
     const rows: RowSpec[] = [

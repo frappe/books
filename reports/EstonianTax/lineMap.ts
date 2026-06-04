@@ -100,6 +100,7 @@ export function emptyKmdBody(): KmdBodyTotals {
     supplySpecialArrangements: 0,
     adjustmentsPlus: 0,
     adjustmentsMinus: 0,
+    rcVatPayable: 0,
   };
 }
 
