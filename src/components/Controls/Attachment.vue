@@ -33,6 +33,15 @@
           />
         </button>
 
+        <!-- CUSTOM: view attachment in-app -->
+        <button v-if="value" class="p-0.5 rounded" @click="view">
+          <FeatherIcon
+            name="eye"
+            class="h-4 w-4 text-gray-600 dark:text-gray-400"
+          />
+        </button>
+        <!-- /CUSTOM -->
+
         <!-- Download Button -->
         <button v-if="value" class="p-0.5 rounded" @click="download">
           <FeatherIcon
@@ -54,6 +63,14 @@
         </button>
       </div>
     </div>
+
+    <!-- CUSTOM: in-app attachment viewer -->
+    <AttachmentViewer
+      :open-modal="showViewer"
+      :value="value"
+      @closemodal="showViewer = false"
+    />
+    <!-- /CUSTOM -->
   </div>
 </template>
 <script lang="ts">
@@ -63,10 +80,12 @@ import { Field } from 'schemas/types';
 import { convertFileToDataURL } from 'src/utils/misc';
 import { defineComponent, PropType } from 'vue';
 import FeatherIcon from '../FeatherIcon.vue';
+// CUSTOM: in-app attachment viewer
+import AttachmentViewer from 'src/custom/components/AttachmentViewer.vue';
 import Base from './Base.vue';
 
 export default defineComponent({
-  components: { FeatherIcon },
+  components: { FeatherIcon, /* CUSTOM: */ AttachmentViewer },
   extends: Base,
   props: {
     df: Object as PropType<Field>,
@@ -95,9 +114,19 @@ export default defineComponent({
       return '';
     },
   },
+  // CUSTOM: viewer open state
+  data() {
+    return { showViewer: false };
+  },
   methods: {
     upload() {
       (this.$refs.fileInput as HTMLInputElement).click();
+    },
+    // CUSTOM: open in-app viewer
+    view() {
+      if (this.value) {
+        this.showViewer = true;
+      }
     },
     clear() {
       (this.$refs.fileInput as HTMLInputElement).value = '';

@@ -23,7 +23,7 @@ import registerIpcMainMessageListeners from './main/registerIpcMainMessageListen
 import registerProcessListeners from './main/registerProcessListeners';
 
 export class Main {
-  title = 'Frappe Books';
+  title = 'Books';
   icon: string;
 
   winURL = '';
@@ -95,6 +95,8 @@ export class Main {
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: false,
+        // CUSTOM: enable Chromium PDF viewer for in-app attachment viewing
+        plugins: true,
         preload,
       },
       autoHideMenuBar: true,
