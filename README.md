@@ -130,6 +130,27 @@ That's it — every Latvian feature is live, with **no** edits to `reports/index
 
 ---
 
+## Installation
+
+**macOS** — [Homebrew](https://brew.sh):
+```bash
+brew install --cask wemit/books/books
+```
+
+**Windows** — [Scoop](https://scoop.sh):
+```bash
+scoop bucket add books https://github.com/wemit/scoop-books
+scoop install books
+```
+
+Or download pre-built binaries from the [Releases](https://github.com/wemit/books/releases) page: `.dmg` for macOS (if Gatekeeper blocks it, right-click → Open), `.exe` installer for Windows, `.AppImage` / `.deb` / `.rpm` for Linux.
+
+### Arelle (Estonian Annual Report only)
+
+XBRL validation of the Annual Report requires [Arelle](https://arelle.readthedocs.io/en/latest/install.html) to be installed separately. Once installed, set **Setup → Settings → General → Arelle CLI Path** to the `arellecmdline` executable. Arelle is not needed for any other feature.
+
+---
+
 ## Development
 
 This fork uses the upstream toolchain (Electron + Vue 3 + TypeScript). See the [upstream README](https://github.com/frappe/books) for full environment setup.

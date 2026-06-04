@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Install dependencies
+        run: |
+          yarn set version 1.22.18
+          yarn
+
+      - name: Build all platforms and publish release
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          GH_TOKEN: ${{ github.token }}
+        run: yarn build -mwl --publish always
+
+      - name: Update Homebrew tap
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          DMG=$(ls dist_electron/bundled/Books-v*-mac-x64.dmg 2>/dev/null | head -1)
+          if [ -z "$DMG" ]; then
+            echo "No macOS DMG found — skipping Homebrew update"
+            exit 0
+          fi
+          SHA256=$(sha256sum "$DMG" | cut -d' ' -f1)
+
+          git clone https://x-access-token:${GH_TOKEN}@github.com/wemit/homebrew-books.git tap
+          cd tap
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git checkout -b "release-${VERSION}"
+
+          mkdir -p Casks
+          {
+            printf 'cask "books" do\n'
+            printf '  version "%s"\n' "$VERSION"
+            printf '  sha256 "%s"\n' "$SHA256"
+            printf '\n'
+            printf '  url "https://github.com/wemit/books/releases/download/v#{version}/Books-v#{version}-mac-x64.dmg"\n'
+            printf '  name "Books"\n'
+            printf '  desc "Offline desktop accounting with Estonian compliance"\n'
+            printf '  homepage "https://github.com/wemit/books"\n'
+            printf '\n'
+            printf '  app "Books.app"\n'
+            printf 'end\n'
+          } > Casks/books.rb
+
+          git add Casks/books.rb
+          git commit -m "books v${VERSION}"
+          git push --force origin "release-${VERSION}"
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/wemit/homebrew-books/pulls \
+            -d "{\"title\":\"books v${VERSION}\",\"head\":\"release-${VERSION}\",\"base\":\"main\",\"body\":\"Automated cask update for v${VERSION}.\"}"
+
+      - name: Update Scoop bucket
+        env:
+          GH_TOKEN: ${{ secrets.SCOOP_BUCKET_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          EXE=$(ls dist_electron/bundled/Books-v*-windows-x64.exe 2>/dev/null | head -1)
+          if [ -z "$EXE" ]; then
+            echo "No Windows installer found — skipping Scoop update"
+            exit 0
+          fi
+          SHA256=$(sha256sum "$EXE" | cut -d' ' -f1)
+
+          git clone https://x-access-token:${GH_TOKEN}@github.com/wemit/scoop-books.git bucket
+          cd bucket
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git checkout -b "release-${VERSION}"
+
+          mkdir -p bucket
+          jq -n \
+            --arg v "$VERSION" \
+            --arg h "sha256:$SHA256" \
+            '{
+              version: $v,
+              description: "Offline desktop accounting with Estonian compliance",
+              homepage: "https://github.com/wemit/books",
+              license: "AGPL-3.0",
+              url: ("https://github.com/wemit/books/releases/download/v" + $v + "/Books-v" + $v + "-windows-x64.exe"),
+              hash: $h,
+              installer: {
+                script: ("Start-Process -Wait \"$dir\\Books-v" + $v + "-windows-x64.exe\" -ArgumentList \"/S\"")
+              }
+            }' > bucket/books.json
+
+          git add bucket/books.json
+          git commit -m "books v${VERSION}"
+          git push --force origin "release-${VERSION}"
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/wemit/scoop-books/pulls \
+            -d "{\"title\":\"books v${VERSION}\",\"head\":\"release-${VERSION}\",\"base\":\"main\",\"body\":\"Automated manifest update for v${VERSION}.\"}"

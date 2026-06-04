@@ -35,9 +35,9 @@ const frappeBooksConfig = {
     artifactName: '${productName}-v${version}-mac-${arch}.${ext}',
     category: 'public.app-category.finance',
     icon: 'build/icon.icns',
-    notarize: {
-      teamId: process.env.APPLE_TEAM_ID || '',
-    },
+    ...(process.env.APPLE_TEAM_ID
+      ? { notarize: { teamId: process.env.APPLE_TEAM_ID } }
+      : {}),
     hardenedRuntime: true,
     gatekeeperAssess: false,
     darkModeSupport: false,

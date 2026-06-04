@@ -65,6 +65,20 @@ export class AnnualReport extends Report {
     totalAnnualPeriodProfitLoss: number;
   };
 
+  async initialize(): Promise<void> {
+    await super.initialize();
+    const arellePath =
+      (this.fyo.singles.AccountingSettings?.arellePath as string) ?? '';
+    if (!arellePath) {
+      const { showToast } = await import('src/utils/interactive');
+      showToast({
+        type: 'info',
+        message: t`Arelle CLI path not configured — XBRL validation unavailable. Set path in Accounting Settings.`,
+        duration: 'long',
+      });
+    }
+  }
+
   async setDefaultFilters(): Promise<void> {
     if (!this.year) {
       this.year = DateTime.local().minus({ months: 6 }).year;
