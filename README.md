@@ -2,12 +2,12 @@
 
 <h1>Books</h1>
 
-**Offline desktop accounting, with first-class Estonian compliance and a modular country-addon system.**
+**Offline desktop accounting, with Estonian compliance and a modular country-addon system.**
 
 </div>
 
-> Fork of [Frappe Books](https://github.com/frappe/books) (© Frappe Technologies Pvt. Ltd.), licensed under **AGPL-3.0**.
-> For the original product, general accounting features, and full development docs, see the upstream repo and its [documentation](https://docs.frappe.io/books). This README covers only what this fork adds.
+> Fork of [Frappe Books](https://github.com/frappe/books), licensed under **AGPL-3.0**.
+> For the original product, general accounting features, and full development docs, see the upstream repo and its [documentation](https://docs.frappe.io/books).
 
 ---
 
@@ -16,7 +16,7 @@
 1. **Estonian (EE) compliance** — VAT (KMD/VD), the Annual Report with XBRL export + validation, and bank-statement import.
 2. **A modular addon system** so country-specific and app-level features plug in **without touching core files** — keeping merges with upstream small.
 
-The two are related: the EE work is the first consumer of the addon system, and the same pattern is how you'd add Latvia (LV), Lithuania (LT), or any other jurisdiction.
+The two are related: the EE work is the first consumer of the addon system, and the same pattern is how you'd add any other jurisdiction.
 
 ---
 
@@ -25,11 +25,19 @@ The two are related: the EE work is the first consumer of the addon system, and 
 - **VAT return (KMD + Annex VD)** — XML export conforming to the EMTA schema, correct VAT-code mapping, EU triangular and reverse-charge handling.
 - **Annual Report** — Estonian GAAP taxonomy mapping with **XBRL** export, validated through [Arelle](https://arelle.org/) (runs as a local process).
 - **Bank import** — LHV CSV and ISO 20022 **CAMT.053** statements, auto-classified into journal entries with reverse-charge VAT, optional draft/review flow.
-- **Post-submit invoice attachment** — attach a source PDF/image to an already-posted journal entry (writes only the attachment, ledger untouched).
-- **In-app attachment viewer** — view attached PDFs/images without downloading.
 - **VAT-code migration** — patch to move legacy entries onto the conformed EE VAT codes.
 
 EE-specific settings (`vatNumber`, `registryCode`, `arellePath`) appear only when the company country is Estonia.
+
+---
+
+## General improvements
+
+Not country-specific — these apply everywhere:
+
+- **Post-submit invoice attachment** — attach a source PDF/image to an already-posted journal entry (writes only the attachment, ledger untouched).
+- **In-app attachment viewer** — view attached PDFs/images without downloading.
+- **One-click single actions** — a dropdown with a single action runs it on click instead of opening a menu.
 
 ---
 
@@ -58,7 +66,9 @@ Region code itself lives in owned folders: `src/regional/<cc>/`, `models/regiona
 
 ### Layer 2 — Addon system (this fork's aggregation layer)
 
-App-level features that upstream offers **no** hook for — reports, routes, sidebar entries, list-view actions, and native IPC — register through an addon manifest. **Adding one of these touches zero core files.**
+An addon can bundle **any** functionality — a whole new page or sub-app, custom logic, background work, native integrations — not just reports. The manifest is simply the *registration surface*: it tells the app where each contribution plugs in (routes, sidebar, reports, list-view actions, native IPC), while the feature code itself lives in owned folders and can do whatever it needs. The EE addon, for example, mounts a complete bank-import page. **Adding any of this touches zero core files.**
+
+The contribution types below are what the core currently exposes hooks for; new types can be added by wiring one more delegation point in core (once) and a field on the `AppAddon` contract.
 
 - **Renderer addons** live in `src/custom/<addon>/index.ts` and export an `AppAddon` (see `src/custom/types.ts`):
 
@@ -107,8 +117,8 @@ A handful of changes modify how an existing upstream component *behaves* (not wh
 
 ### B. App features (Layer 2 — no core edits)
 
-1. Create the feature code in owned folders (`src/regional/lv/…`, `reports/LatvianTax/…`).
-2. Create `src/custom/lv/index.ts` exporting an `AppAddon` (`condition: countryCode === 'lv'`, plus `reports`, lazy `routes`, `sidebar`, `listActions`).
+1. Build whatever the country needs in owned folders — custom pages (`src/pages/…` or `src/regional/lv/…`), reports (`reports/LatvianTax/…`), helpers, etc.
+2. Create `src/custom/lv/index.ts` exporting an `AppAddon` (`condition: countryCode === 'lv'`) and declare each contribution it should register — any of `routes`, `sidebar`, `reports`, `listActions` (only what you need).
 3. Register it in `src/custom/index.ts`:
    ```ts
    import lv from './lv';
@@ -116,7 +126,7 @@ A handful of changes modify how an existing upstream component *behaves* (not wh
    ```
 4. **Native IPC?** Add `main/addons/lv.channels.ts`, `lv.preload.ts`, `lv.handlers.ts`, then register them in `main/addons/preload.ts` and `main/addons/index.ts`.
 
-That's it — reports, route, sidebar, and list actions for Latvia are live, with **no** edits to `reports/index.ts`, `router.ts`, `sidebarConfig.ts`, or the IPC core. Lithuania (`lt`) follows the same two steps.
+That's it — every Latvian feature is live, with **no** edits to `reports/index.ts`, `router.ts`, `sidebarConfig.ts`, or the IPC core.
 
 ---
 
