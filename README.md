@@ -145,4 +145,4 @@ yarn build        # package the desktop app
 
 ## License & attribution
 
-Licensed under the **GNU AGPL-3.0** — see [`LICENSE`](./LICENSE). This is a derivative work of **[Frappe Books](https://github.com/frappe/books)**, © Frappe Technologies Pvt. Ltd., and remains under AGPL-3.0. "Frappe" and "Frappe Books" are trademarks of Frappe Technologies; this project is an independent fork and is not endorsed by or affiliated with Frappe Technologies.
+Licensed under the **GNU AGPL-3.0** — see [`LICENSE`](./LICENSE). This project is an independent fork.
