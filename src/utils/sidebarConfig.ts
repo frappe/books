@@ -2,6 +2,8 @@ import { t } from 'fyo';
 import { routeFilters } from 'src/utils/filters';
 import { fyo } from '../initFyo';
 import { SidebarConfig, SidebarItem, SidebarRoot } from './types';
+// CUSTOM: addon-contributed sidebar
+import { getAddonSidebar } from 'src/custom';
 
 export function getSidebarConfig(): SidebarConfig {
   const sideBar = getCompleteSidebar();
@@ -26,59 +28,32 @@ function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
   });
 }
 
-const REGIONAL_SIDEBAR_BUILDERS: Record<string, () => SidebarRoot[]> = {
-  in: () => {
-    const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
-    if (!hasGstin) return [];
-    return [
-      {
-        label: t`GST`,
-        name: 'gst',
-        icon: 'gst',
-        route: '/report/GSTR1',
-        items: [
-          { label: t`GSTR1`, name: 'gstr1', route: '/report/GSTR1' },
-          { label: t`GSTR2`, name: 'gstr2', route: '/report/GSTR2' },
-        ],
-      },
-    ];
-  },
-  ee: () => {
-    const hasVatNumber = !!fyo.singles?.AccountingSettings?.vatNumber;
-    if (!hasVatNumber) return [];
-    return [
-      {
-        label: t`Estonia`,
-        name: 'estonia',
-        icon: 'common-entries',
-        route: '/regional/ee/bank-import',
-        items: [
-          {
-            label: t`Bank Import`,
-            name: 'bank-import',
-            route: '/regional/ee/bank-import',
-          },
-          {
-            label: t`KMD`,
-            name: 'kmd',
-            route: '/report/KmdReport',
-          },
-          {
-            label: t`Annual Report`,
-            name: 'annual-report',
-            route: '/report/AnnualReport',
-          },
-        ],
-      },
-    ];
-  },
-};
-
 function getRegionalSidebar(): SidebarRoot[] {
-  const countryCode = fyo.singles?.SystemSettings?.countryCode;
-  if (!countryCode) return [];
-  const builder = REGIONAL_SIDEBAR_BUILDERS[countryCode];
-  return builder ? builder() : [];
+  const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
+  if (!hasGstin) {
+    return [];
+  }
+
+  return [
+    {
+      label: t`GST`,
+      name: 'gst',
+      icon: 'gst',
+      route: '/report/GSTR1',
+      items: [
+        {
+          label: t`GSTR1`,
+          name: 'gstr1',
+          route: '/report/GSTR1',
+        },
+        {
+          label: t`GSTR2`,
+          name: 'gstr2',
+          route: '/report/GSTR2',
+        },
+      ],
+    },
+  ];
 }
 
 function getInventorySidebar(): SidebarRoot[] {
@@ -329,6 +304,8 @@ function getCompleteSidebar(): SidebarConfig {
     getInventorySidebar(),
     getPOSSidebar(),
     getRegionalSidebar(),
+    // CUSTOM: addon-contributed sidebar roots
+    ...getAddonSidebar(fyo),
     {
       label: t`Setup`,
       name: 'setup',

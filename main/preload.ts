@@ -10,6 +10,8 @@ import config from 'utils/config';
 import type { DatabaseMethod } from 'utils/db/types';
 import type { BackendResponse } from 'utils/ipc/types';
 import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
+// CUSTOM: addon preload IPC surfaces
+import { mainAddonPreload } from './addons/preload';
 import type {
   ConfigFilesWithModified,
   Creds,
@@ -276,25 +278,8 @@ const ipc = {
     },
   },
 
-  ee: {
-    async detectArelle(arellePath: string): Promise<string | null> {
-      return (await ipcRenderer.invoke(
-        IPC_ACTIONS.EE_DETECT_ARELLE,
-        arellePath
-      )) as string | null;
-    },
-
-    async validateXbrl(options: {
-      instancePath: string;
-      taxonomyEntryPath?: string;
-      arellePath: string;
-    }): Promise<BackendResponse> {
-      return (await ipcRenderer.invoke(
-        IPC_ACTIONS.EE_VALIDATE_XBRL,
-        options
-      )) as BackendResponse;
-    },
-  },
+  // CUSTOM: addon-contributed IPC namespaces
+  ...mainAddonPreload,
 } as const;
 
 contextBridge.exposeInMainWorld('ipc', ipc);

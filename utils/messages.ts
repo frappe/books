@@ -42,9 +42,6 @@ export enum IPC_ACTIONS {
   DB_CALL = 'db-call',
   DB_BESPOKE = 'db-bespoke',
   DB_SCHEMA = 'db-schema',
-  // Estonian XBRL validation
-  EE_VALIDATE_XBRL = 'ee-validate-xbrl',
-  EE_DETECT_ARELLE = 'ee-detect-arelle',
 }
 
 // ipcMain.send(...)

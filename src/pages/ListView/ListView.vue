@@ -41,13 +41,16 @@
           </div>
         </div>
       </div>
+      <!-- CUSTOM: addon-contributed list actions -->
       <Button
-        v-if="schemaName === 'JournalEntry'"
+        v-for="addonAction in addonActions"
+        :key="addonAction.label"
         :icon="false"
-        @click="submitDrafts"
+        @click="runAddonAction(addonAction)"
       >
-        {{ t`Submit Drafts` }}
+        {{ addonAction.label }}
       </Button>
+      <!-- /CUSTOM -->
       <Button ref="exportButton" :icon="false" @click="openExportModal = true">
         {{ t`Export` }}
       </Button>
@@ -101,7 +104,9 @@ import PageHeader from 'src/components/PageHeader.vue';
 
 import { t } from 'fyo';
 import { fyo } from 'src/initFyo';
-import { showDialog, showToast } from 'src/utils/interactive';
+// CUSTOM: addon-contributed list actions
+import { getAddonListActions } from 'src/custom';
+import type { AddonListAction } from 'src/custom/types';
 import { shortcutsKey } from 'src/utils/injectionKeys';
 import {
   docsPathMap,
@@ -157,6 +162,10 @@ export default defineComponent({
     };
   },
   computed: {
+    // CUSTOM: list actions contributed by addons for this schema
+    addonActions(): AddonListAction[] {
+      return getAddonListActions(this.schemaName, fyo);
+    },
     context(): string {
       return 'ListView-' + this.schemaName;
     },
@@ -274,56 +283,10 @@ export default defineComponent({
     updateSelectedItems(selected: string[]) {
       this.selectedItems = selected;
     },
-    async submitDrafts() {
-      const drafts = (await fyo.db.getAllRaw(ModelNameEnum.JournalEntry, {
-        fields: ['name'],
-        filters: { submitted: false, cancelled: false },
-      })) as { name: string }[];
-
-      if (drafts.length === 0) {
-        showToast({ type: 'info', message: t`No draft journal entries.` });
-        return;
-      }
-
-      await showDialog({
-        title: t`Submit ${drafts.length} draft journal entries?`,
-        type: 'warning',
-        detail: t`This posts them to the ledger. Each can still be cancelled individually afterwards.`,
-        buttons: [
-          {
-            label: t`Submit`,
-            isPrimary: true,
-            action: async () => {
-              await this.runSubmitDrafts(drafts);
-              return true;
-            },
-          },
-          { label: t`Cancel`, action: () => null, isEscape: true },
-        ],
-      });
-    },
-    async runSubmitDrafts(drafts: { name: string }[]) {
-      let submitted = 0;
-      let failed = 0;
-      for (const { name } of drafts) {
-        try {
-          const doc = await fyo.doc.getDoc(ModelNameEnum.JournalEntry, name);
-          if (!doc.submitted && !doc.cancelled) {
-            await doc.submit();
-            submitted += 1;
-          }
-        } catch {
-          failed += 1;
-        }
-      }
-
+    // CUSTOM: run an addon-contributed list action, then refresh
+    async runAddonAction(addonAction: AddonListAction) {
+      await addonAction.action(fyo);
       await this.list?.updateData();
-      showToast({
-        type: failed ? 'error' : 'success',
-        message: failed
-          ? t`Submitted ${submitted}, ${failed} failed.`
-          : t`Submitted ${submitted} journal entries.`,
-      });
     },
   },
 });

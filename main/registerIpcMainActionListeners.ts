@@ -29,7 +29,8 @@ import {
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 import { sendAPIRequest } from './api';
 import { initScheduler } from './initSheduler';
-import { ValidateOptions, detectArelle, validateXbrl } from './arelleValidator';
+// CUSTOM: addon-contributed IPC handlers
+import { registerMainAddonHandlers } from './addons';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -305,16 +306,6 @@ export default function registerIpcMainActionListeners(main: Main) {
     });
   });
 
-  ipcMain.handle(IPC_ACTIONS.EE_DETECT_ARELLE, async (_, arellePath: string) => {
-    return await detectArelle(arellePath);
-  });
-
-  ipcMain.handle(
-    IPC_ACTIONS.EE_VALIDATE_XBRL,
-    async (_, options: ValidateOptions) => {
-      return await getErrorHandledReponse(async () => {
-        return await validateXbrl(options);
-      });
-    }
-  );
+  // CUSTOM: register addon IPC handlers
+  registerMainAddonHandlers();
 }
