@@ -82,6 +82,7 @@ export class AccountingSettings extends Doc {
   override hidden: HiddenMap = {
     discountAccount: () => !this.enableDiscounting,
     gstin: () => this.fyo.singles.SystemSettings?.countryCode !== 'in',
+    // EE: Estonian settings fields visibility (native regional pattern)
     vatNumber: () => this.fyo.singles.SystemSettings?.countryCode !== 'ee',
     registryCode: () => this.fyo.singles.SystemSettings?.countryCode !== 'ee',
     arellePath: () => this.fyo.singles.SystemSettings?.countryCode !== 'ee',

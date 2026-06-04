@@ -400,6 +400,7 @@ export default defineComponent({
   activated(): void {
     this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
     docsPathRef.value = docsPathMap[this.schemaName] ?? '';
+    // CUSTOM: refresh grouped fields when the doc reloads programmatically
     this.fyo.doc.observer.on(`load:${this.schemaName}`, this.onDocLoad);
     this.shortcuts?.pmod.set(this.context, ['KeyP'], () => {
       if (!this.canPrint) {
@@ -420,10 +421,12 @@ export default defineComponent({
     docsPathRef.value = '';
     this.showLinks = false;
     this.row = null;
+    // CUSTOM: detach reload-refresh observer
     this.fyo.doc.observer.off(`load:${this.schemaName}`, this.onDocLoad);
   },
   methods: {
     routeTo,
+    // CUSTOM: refresh grouped fields on programmatic doc reload
     onDocLoad(name: string) {
       if (this.hasDoc && name === this.doc.name) {
         this.updateGroupedFields();

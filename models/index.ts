@@ -125,21 +125,20 @@ export const models = {
   IntegrationErrorLog,
 } as ModelMap;
 
-const REGIONAL_MODEL_LOADERS: Record<string, () => Promise<ModelMap>> = {
-  in: async () => {
-    const { Address } = await import('./regionalModels/in/Address');
-    const { Party } = await import('./regionalModels/in/Party');
-    return { Address, Party };
-  },
-  ee: async () => {
-    const { Party } = await import('./regionalModels/ee/Party');
-    return { Party };
-  },
-};
-
 export async function getRegionalModels(
   countryCode: string
 ): Promise<ModelMap> {
-  const loader = REGIONAL_MODEL_LOADERS[countryCode];
-  return loader ? await loader() : {};
+  if (countryCode === 'in') {
+    const { Address } = await import('./regionalModels/in/Address');
+    const { Party } = await import('./regionalModels/in/Party');
+    return { Address, Party };
+  }
+
+  // EE: Estonian regional models (native regional pattern)
+  if (countryCode === 'ee') {
+    const { Party } = await import('./regionalModels/ee/Party');
+    return { Party };
+  }
+
+  return {};
 }
