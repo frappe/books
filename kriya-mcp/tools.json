@@ -1,0 +1,49 @@
+[
+  { "name": "list_documents", "version": 1, "description": "List records of a doctype (e.g. SalesInvoice, Party, Item, Payment, AccountingLedgerEntry). Optional filters + fields.", "permissions": [],
+    "inputSchema": { "type": "object", "properties": {
+      "schemaName": { "type": "string" },
+      "filters": { "type": "object" },
+      "fields": { "type": "array", "items": { "type": "string" } }
+    }, "required": ["schemaName"] } },
+  { "name": "get_document", "version": 1, "description": "Get one record by doctype + name.", "permissions": [],
+    "inputSchema": { "type": "object", "properties": { "schemaName": { "type": "string" }, "name": { "type": "string" } }, "required": ["schemaName", "name"] } },
+  { "name": "get_outstanding", "version": 1, "description": "Total outstanding for receivables (schemaName=SalesInvoice) or payables (PurchaseInvoice) in a date range (YYYY-MM-DD).", "permissions": [],
+    "inputSchema": { "type": "object", "properties": { "schemaName": { "type": "string" }, "fromDate": { "type": "string" }, "toDate": { "type": "string" } }, "required": ["schemaName", "fromDate", "toDate"] } },
+  { "name": "get_cashflow", "version": 1, "description": "Cashflow report for a date range (YYYY-MM-DD).", "permissions": [],
+    "inputSchema": { "type": "object", "properties": { "fromDate": { "type": "string" }, "toDate": { "type": "string" } }, "required": ["fromDate", "toDate"] } },
+  { "name": "get_income_and_expenses", "version": 1, "description": "Income and expense totals for a date range (YYYY-MM-DD).", "permissions": [],
+    "inputSchema": { "type": "object", "properties": { "fromDate": { "type": "string" }, "toDate": { "type": "string" } }, "required": ["fromDate", "toDate"] } },
+
+  { "name": "create_party", "version": 1, "description": "Create a customer/supplier. role: Customer | Supplier | Both.", "permissions": ["write:party"],
+    "inputSchema": { "type": "object", "properties": { "name": { "type": "string" }, "role": { "type": "string" } }, "required": ["name"] } },
+  { "name": "create_item", "version": 1, "description": "Create an item. rate is a currency amount in major units (e.g. 100 or 100.5). for: Sales | Purchases | Both.", "permissions": ["write:item"],
+    "inputSchema": { "type": "object", "properties": {
+      "name": { "type": "string" }, "for": { "type": "string" }, "rate": { "type": "number" },
+      "incomeAccount": { "type": "string" }, "expenseAccount": { "type": "string" }
+    }, "required": ["name", "incomeAccount", "expenseAccount"] } },
+  { "name": "create_account", "version": 1, "description": "Create a chart-of-accounts account. rootType: Asset|Liability|Equity|Income|Expense.", "permissions": ["write:account"],
+    "inputSchema": { "type": "object", "properties": {
+      "name": { "type": "string" }, "rootType": { "type": "string" }, "parentAccount": { "type": "string" },
+      "accountType": { "type": "string" }, "isGroup": { "type": "boolean" }
+    }, "required": ["name", "rootType"] } },
+
+  { "name": "create_sales_invoice", "version": 1, "description": "Create a DRAFT sales invoice (money). account = the receivable (e.g. Debtors); item account auto-resolves. rate per line is a currency amount in major units (e.g. 100 or 100.5). Submitting it later posts the ledger. Requires human approval.", "permissions": ["write:invoices", "money"],
+    "inputSchema": { "type": "object", "properties": {
+      "party": { "type": "string" }, "account": { "type": "string" }, "date": { "type": "string" },
+      "items": { "type": "array", "items": { "type": "object", "properties": {
+        "item": { "type": "string" }, "quantity": { "type": "number" }, "rate": { "type": "number" }
+      }, "required": ["item"] } }
+    }, "required": ["party", "account", "date", "items"] } },
+  { "name": "create_payment", "version": 1, "description": "Create a DRAFT payment (money). paymentType: Receive | Pay. amount is a currency amount in major units (e.g. 100 or 100.5). Requires human approval.", "permissions": ["write:payments", "money"],
+    "inputSchema": { "type": "object", "properties": {
+      "party": { "type": "string" }, "paymentType": { "type": "string" }, "account": { "type": "string" },
+      "paymentAccount": { "type": "string" }, "amount": { "type": "number" }, "date": { "type": "string" },
+      "paymentMethod": { "type": "string" }
+    }, "required": ["party", "paymentType", "account", "paymentAccount", "amount", "date"] } },
+  { "name": "submit_document", "version": 1, "description": "Submit a document (SalesInvoice/PurchaseInvoice/Payment/JournalEntry) — this POSTS double-entry ledger entries and moves money on the books. Requires human approval.", "permissions": ["submit", "money"],
+    "inputSchema": { "type": "object", "properties": { "schemaName": { "type": "string" }, "name": { "type": "string" } }, "required": ["schemaName", "name"] } },
+  { "name": "cancel_document", "version": 1, "description": "Cancel a submitted document — reverses its ledger entries. Requires human approval.", "permissions": ["cancel", "money"],
+    "inputSchema": { "type": "object", "properties": { "schemaName": { "type": "string" }, "name": { "type": "string" } }, "required": ["schemaName", "name"] } },
+  { "name": "delete_document", "version": 1, "description": "Delete a document. Requires human approval.", "permissions": ["delete"],
+    "inputSchema": { "type": "object", "properties": { "schemaName": { "type": "string" }, "name": { "type": "string" } }, "required": ["schemaName", "name"] } }
+]

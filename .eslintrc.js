@@ -60,5 +60,6 @@ module.exports = {
     'postcss.config.js',
     'src/components/**/*.vue', // Incrementally fix these
     'electron-builder.ts',
+    'kriya-mcp/', // optional governed-MCP exec; run via ts-node, not part of the typed app build
   ],
 };

@@ -1,0 +1,20 @@
+{
+  "//": "TEMPLATE — copy the mcpServers.frappe-books block into your assistant's MCP config and replace /ABSOLUTE/PATH/TO/books with your Frappe Books checkout. Claude Desktop (macOS): ~/Library/Application Support/Claude/claude_desktop_config.json. Set FRAPPE_BOOKS_DEMO=1 (instead of FRAPPE_BOOKS_DB) to try it against a throwaway in-memory company. See README.md.",
+  "mcpServers": {
+    "frappe-books": {
+      "command": "kriya-mcp",
+      "args": [
+        "--persistent",
+        "--name", "frappe-books",
+        "--exec", "bash /ABSOLUTE/PATH/TO/books/kriya-mcp/run.sh",
+        "--tools", "/ABSOLUTE/PATH/TO/books/kriya-mcp/tools.json",
+        "--policy", "/ABSOLUTE/PATH/TO/books/kriya-mcp/agent-policy.yaml",
+        "--approval", "gui",
+        "--actor", "claude-desktop"
+      ],
+      "env": {
+        "FRAPPE_BOOKS_DB": "/ABSOLUTE/PATH/TO/your-company.books.db"
+      }
+    }
+  }
+}

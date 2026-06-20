@@ -1,0 +1,46 @@
+# Governance policy for the Frappe Books bolt-on. kriya-mcp enforces this on every tools/call from
+# the external agent — the agent can only *propose*; this policy decides.
+#
+# Posture: reads + reports flow freely; routine record-keeping is allowed but audited; anything that
+# creates a financial document or POSTS TO THE LEDGER (submit) — i.e. moves money on the books — or
+# destroys/reverses a record pauses for on-device human approval. Everything else is denied by
+# default, and a per-minute cap stops a runaway agent. First matching rule wins.
+rules:
+  # Reads + reports — safe to run unattended.
+  - action: "get_*"
+    allow: true
+  - action: "list_documents"
+    allow: true
+
+  # Routine record-keeping — allowed, and recorded in the signed audit log.
+  - action: "create_party"
+    allow: true
+  - action: "create_item"
+    allow: true
+  - action: "create_account"
+    allow: true
+
+  # Financial documents + ledger posting + destructive — require a human's go-ahead, every time.
+  - action: "create_sales_invoice"
+    allow: true
+    require_approval: true
+  - action: "create_payment"
+    allow: true
+    require_approval: true
+  - action: "submit_document"   # posts double-entry AccountingLedgerEntry rows — the money moment
+    allow: true
+    require_approval: true
+  - action: "cancel_document"   # reverses ledger entries
+    allow: true
+    require_approval: true
+  - action: "delete_document"
+    allow: true
+    require_approval: true
+
+  # Everything else: denied (deny-by-default).
+  - action: "*"
+    allow: false
+
+budget:
+  # A looping agent can't hammer your books: at most 30 actions per rolling minute.
+  max_actions_per_minute: 30
