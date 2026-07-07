@@ -115,51 +115,57 @@
         </div>
 
         <!-- Purchase Subscription Section -->
-        <div
-          v-if="shouldShowPurchaseSection"
-          class="border border-gray-200 dark:border-gray-800 rounded-lg p-6 mb-6"
-        >
-          <h3 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
-            {{ t`Purchase Yearly License` }}
-          </h3>
+<!--        <div-->
+<!--          v-if="shouldShowPurchaseSection"-->
+<!--          class="border border-gray-200 dark:border-gray-800 rounded-lg p-6 mb-6"-->
+<!--        >-->
+<!--          <h3 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">-->
+<!--            {{ t`Purchase Yearly License` }}-->
+<!--          </h3>-->
 
-          <div v-if="!showPaymentUI" class="space-y-3">
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ licenseState.state === 'UNLICENSED' ? t`Purchase a yearly license to access all features of RareBooks.` : t`Your license has expired. Purchase a new license to continue using RareBooks.` }}
-            </p>
-            <Button type="primary" @click="startPurchaseFlow">
-              {{ t`Buy License` }}
-            </Button>
-          </div>
+<!--          <div v-if="!showPaymentUI" class="space-y-3">-->
+<!--            <p class="text-sm text-gray-600 dark:text-gray-400">-->
+<!--              {{ licenseState.state === 'UNLICENSED' ? t`Purchase a yearly license to access all features of RareBooks.` : t`Your license has expired. Purchase a new license to continue using RareBooks.` }}-->
+<!--            </p>-->
+<!--            <Button type="primary" @click="startPurchaseFlow">-->
+<!--              {{ t`Buy License` }}-->
+<!--            </Button>-->
+<!--          </div>-->
 
-          <div v-else>
-            <!-- Step 1: select payment method -->
-            <PaymentMethodSelector
-              v-if="paymentStep === 'method'"
-              @methodSelected="handleMethodSelected"
-              @cancel="cancelPurchase"
-            />
+<!--          <div v-else>-->
+<!--            &lt;!&ndash; Step 1: select payment method &ndash;&gt;-->
+<!--            <PaymentMethodSelector-->
+<!--              v-if="paymentStep === 'method'"-->
+<!--              @methodSelected="handleMethodSelected"-->
+<!--              @cancel="cancelPurchase"-->
+<!--            />-->
 
-            <!-- Step 2: enter phone number & pay -->
-            <MobilePaymentForm
-              v-else-if="paymentStep === 'payment'"
-              :payment-method="selectedPaymentMethod"
-              :payment-method-name="selectedPaymentMethodName"
-              :subscription-amount="selectedSubscriptionAmount"
-              :fee="selectedFee"
-              :charge-amount="selectedChargeAmount"
-              :total="selectedTotal"
-              @back="paymentStep = 'method'"
-              @completed="handlePaymentCompleted"
-            />
-          </div>
-        </div>
+<!--            &lt;!&ndash; Step 2: enter phone number & pay &ndash;&gt;-->
+<!--            <MobilePaymentForm-->
+<!--              v-else-if="paymentStep === 'payment'"-->
+<!--              :payment-method="selectedPaymentMethod"-->
+<!--              :payment-method-name="selectedPaymentMethodName"-->
+<!--              :subscription-amount="selectedSubscriptionAmount"-->
+<!--              :fee="selectedFee"-->
+<!--              :charge-amount="selectedChargeAmount"-->
+<!--              :total="selectedTotal"-->
+<!--              @back="paymentStep = 'method'"-->
+<!--              @completed="handlePaymentCompleted"-->
+<!--            />-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Help Section -->
         <div class="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
           <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">{{ t`Need Help?` }}</h3>
-          <div class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-            <p>{{ t`For support with license activation or other issues, please contact our support team by call or Whatsapp on +255 689 255 545.` }}</p>
+          <div class="text-base text-gray-600 dark:text-gray-400 space-y-2">
+            <p>
+              {{ t`Visit your` }}
+              <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline" @click.prevent="openClientPortal">
+                {{ t`Client Portal` }}
+              </a>
+              {{ t`for support and license management.` }}
+            </p>
           </div>
         </div>
       </div>
@@ -182,6 +188,11 @@ import LicenseActivation from 'src/pages/Custom/LicenseActivation.vue';
 import PaymentMethodSelector from 'src/components/Custom/PaymentMethodSelector.vue';
 import MobilePaymentForm from 'src/components/Custom/MobilePaymentForm.vue';
 import { showToast } from 'src/utils/interactive';
+import { fyo } from 'src/initFyo';
+
+const CLIENT_PORTAL_URL = fyo.store.isDevelopment
+  ? 'http://127.0.0.1:6969/rarebooks.cc/dashboard'
+  : 'https://rarebooks.cc/dashboard';
 
 interface MethodSelectedPayload {
   method: string;
@@ -238,6 +249,10 @@ export default defineComponent({
         console.error('Failed to check license:', error);
         showToast({ type: 'error', message: this.t`Failed to check license status` });
       }
+    },
+
+    openClientPortal() {
+      ipc.openExternalUrl(CLIENT_PORTAL_URL);
     },
 
     async clearLicense() {

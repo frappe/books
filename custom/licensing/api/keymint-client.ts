@@ -5,6 +5,13 @@
 
 import { ActivationRequest, ValidationRequest, KeymintApiResponse } from '../types';
 
+export class KeymintApiError extends Error {
+  constructor(public code: number, message: string) {
+    super(message);
+    this.name = 'KeymintApiError';
+  }
+}
+
 // Note: Using node-fetch v2 which is already a dependency
 const fetch = require('node-fetch');
 
@@ -185,31 +192,45 @@ export class KeymintClient {
         }
 
         if (!response.ok) {
-          throw new Error(result.message || `HTTP ${response.status}: ${response.statusText}`);
+          // Preserve the numeric `code` (2 = expired/blocked/limit reached,
+          // 3 = hostId not in allowedHosts) so callers can branch on it
+          // instead of just getting a generic Error string.
+          throw new KeymintApiError(
+            typeof result?.code === 'number' ? result.code : -1,
+            result?.message || `HTTP ${response.status}: ${response.statusText}`
+          );
         }
 
         return result as KeymintApiResponse;
       } catch (error: unknown) {
-        const isLastAttempt = attempt === retries;
-        
-        if (isLastAttempt) {
-          if (error instanceof Error) {
-            // Add more context to the error
-            const errorMessage = error.message;
-            if (error.name === 'AbortError') {
-              throw new Error(`Request timeout after ${this.timeout}ms`);
-            }
-            if (errorMessage.includes('fetch')) {
-              throw new Error(`Network error: Unable to reach ${url}. Check internet connection.`);
-            }
-            throw new Error(`API request failed: ${errorMessage}`);
-          }
-          throw new Error('API request failed: Unknown error');
-        }
+      const isLastAttempt = attempt === retries;
 
-        // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+      if (isLastAttempt) {
+        if (error instanceof KeymintApiError) {
+          throw error; // preserve code — do not retry auth/host errors, but do not mask them either
+        }
+        if (error instanceof Error) {
+          const errorMessage = error.message;
+          if (error.name === 'AbortError') {
+            throw new Error(`Request timeout after ${this.timeout}ms`);
+          }
+          if (errorMessage.includes('fetch')) {
+            throw new Error(`Network error: Unable to reach ${url}. Check internet connection.`);
+          }
+          throw new Error(`API request failed: ${errorMessage}`);
+        }
+        throw new Error('API request failed: Unknown error');
       }
+
+      // Don't burn retries on a definitive 403 (host unauthorized / expired) —
+      // retrying won't change the server's answer.
+      if (error instanceof KeymintApiError && (error.code === 2 || error.code === 3)) {
+        throw error;
+      }
+
+      // Exponential backoff for transient/network errors only
+      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+    }
     }
 
     throw new Error('API request failed after retries');
