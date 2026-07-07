@@ -18,6 +18,8 @@ export enum LicenseState {
   EXPIRED = 'EXPIRED',
   /** No license found */
   UNLICENSED = 'UNLICENSED',
+  /** HostId no longer in allowedHosts */
+  DEVICE_DEACTIVATED = 'DEVICE_DEACTIVATED',
 }
 
 export interface LicenseConfig {
@@ -41,6 +43,7 @@ export interface LicenseValidationResult {
   error?: string;
   lastValidatedAt: Date;
   validatedOnline: boolean;
+  deviceTag?: string;
 }
 
 export interface LicenseCacheData {
@@ -55,12 +58,14 @@ export interface LicenseCacheData {
   lastValidatedAt: string;
   gracePeriodEndsAt: string;
   apiResponseHash: string;
+  deviceTag?: string;
 }
 
 export interface ActivationRequest {
   productId: string;
   licenseKey: string;
   hostId: string;
+  deviceTag: string;
 }
 
 export interface ValidationRequest {

@@ -47,6 +47,20 @@ export const LICENSE_IPC_ACTIONS = {
 // ─── Registration ─────────────────────────────────────────────────────────────
 
 export default function registerLicenseIpcListeners(_main: Main) {
+  const manager = getLicenseManager();
+
+  // Push license state changes to the renderer in real time (e.g. a background
+  // check just discovered this device was deactivated remotely).
+  manager.setOnStateChange((state) => {
+    if (_main.mainWindow && !_main.mainWindow.isDestroyed()) {
+      _main.mainWindow.webContents.send(
+        'license-state-changed',
+        toPlain(state)
+      );
+    }
+  });
+
+  // ... rest of the existing handlers unchanged ...
   /**
    * Activate a license key
    */

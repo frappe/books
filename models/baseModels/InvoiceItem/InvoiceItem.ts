@@ -464,7 +464,6 @@ export abstract class InvoiceItem extends Doc {
           refdoc.items
             ?.filter((i) => i.item === this.item)
             .reduce((acc, i) => i.quantity ?? 0 + acc, 0) ?? 0;
-
         return Math.max(0, this.quantity - transferred);
       },
       dependsOn: ['item', 'quantity'],

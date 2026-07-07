@@ -3,11 +3,12 @@
  * Handles online license activation and validation via keymint.dev
  */
 
-import { KeymintClient } from '../api/keymint-client';
+import { KeymintClient, KeymintApiError } from '../api/keymint-client';
 import { LicenseConfig, LicenseValidationResult, LicenseState, LicenseCacheData } from '../types';
 import { getDeviceId } from '../fingerprint/device-id';
 import { saveLicenseCache } from '../cache/license-cache';
 import { calculateGracePeriodEnd } from './grace-period';
+import { generateDeviceTag } from 'utils/device-tag';
 
 export class OnlineValidator {
   private client: KeymintClient;
@@ -28,11 +29,13 @@ export class OnlineValidator {
   async activate(licenseKey: string): Promise<LicenseValidationResult> {
     try {
       const hostId = getDeviceId();
-      
+      const deviceTag = generateDeviceTag();
+
       const response = await this.client.activate({
         productId: this.config.productId,
         licenseKey,
         hostId,
+        deviceTag,
       });
 
       console.log('Keymint activation response:', JSON.stringify(response, null, 2));
@@ -55,6 +58,7 @@ export class OnlineValidator {
         licenseKey,
         productId: this.config.productId,
         hostId,
+        deviceTag,
         customerId: response.customerId || response.customer_id,
         licenseeEmail: response.licensee_email,
         licenseeName: response.licensee_name,
@@ -91,80 +95,39 @@ export class OnlineValidator {
   }
 
   /**
-   * Validate an existing license online
+   * Validate an existing license online.
+   *
+   * Uses POST /key/activate (idempotent) instead of GET /key, because only
+   * /key/activate is host-aware. Re-activating an already-authorized hostId
+   * is a no-op server-side and does not consume a new seat — but if this
+   * hostId was removed from allowedHosts (deactivated remotely, or the
+   * license's activation limit was lowered), the server returns code 3 and
+   * we must block the rest of the app.
    */
   async validate(licenseKey: string): Promise<LicenseValidationResult> {
-    try {
-      const hostId = getDeviceId();
+    const hostId = getDeviceId();
 
-      const response = await this.client.validate({
+    try {
+      const response = await this.client.activate({
         productId: this.config.productId,
         licenseKey,
         hostId,
       });
 
-      console.log('Keymint validation response:', JSON.stringify(response, null, 2));
-      
-      // Extract data from nested structure
-      // GET /key returns: { data: { license: { expirationDate }, customer: { id, name, email } }, code: 0 }
-      const responseData = (response as any).data;
-      const customerData = responseData?.customer;
-      const licenseData = responseData?.license;
-      
-      const customerId = customerData?.id;
-      const licenseeName = customerData?.name || response.licensee_name;
-      const licenseeEmail = customerData?.email || response.licensee_email;
-      const expirationDate = licenseData?.expirationDate || response.expires_at;
-      
-      console.log('Extracted customer_id:', customerId);
-      console.log('Extracted licensee_name:', licenseeName);
-      console.log('Extracted licensee_email:', licenseeEmail);
-      console.log('Extracted expirationDate:', expirationDate);
+      console.log('Keymint re-activation (validation) response:', JSON.stringify(response, null, 2));
 
-      if (response.code !== 0) {
-        return {
-          state: LicenseState.INVALID,
-          isValid: false,
-          error: response.message || 'Validation failed',
-          lastValidatedAt: new Date(),
-          validatedOnline: true,
-        };
-      }
-
-      // Check if license has expired (for subscription-based licenses)
       const now = new Date();
-      if (expirationDate) {
-        const expiresAt = new Date(expirationDate);
-        // Use >= to catch exact expiration moment
-        // If expiresAt is "2026-03-08T23:59:59.999Z", it expires at the END of that day
-        if (now >= expiresAt) {
-          console.log('License has expired. Expiration date:', expiresAt);
-          console.log('Current time:', now);
-          return {
-            state: LicenseState.EXPIRED,
-            isValid: false,
-            error: 'License subscription has expired',
-            expiresAt,
-            lastValidatedAt: now,
-            validatedOnline: true,
-            licenseeEmail,
-            licenseeName,
-          };
-        }
-      }
-
-      // Update cache with fresh validation
       const gracePeriodEndsAt = calculateGracePeriodEnd(now, this.config.gracePeriodDays);
 
       const cacheData: LicenseCacheData = {
         licenseKey,
         productId: this.config.productId,
         hostId,
-        customerId,
-        licenseeEmail,
-        licenseeName,
-        expiresAt: expirationDate,
-        activatedAt: now.toISOString(), // Keep original if exists
+        customerId: response.customerId || response.customer_id,
+        licenseeEmail: response.licenseeEmail || response.licensee_email,
+        licenseeName: response.licenseeName || response.licensee_name,
+        expiresAt: response.expires_at,
+        activatedAt: now.toISOString(),
         lastValidatedAt: now.toISOString(),
         gracePeriodEndsAt: gracePeriodEndsAt.toISOString(),
         apiResponseHash: '',
@@ -176,17 +139,46 @@ export class OnlineValidator {
         state: LicenseState.ACTIVE_ONLINE,
         isValid: true,
         licenseKey,
-        licenseeEmail,
-        licenseeName,
-        expiresAt: expirationDate ? new Date(expirationDate) : undefined,
+        licenseeEmail: response.licenseeEmail || response.licensee_email,
+        licenseeName: response.licenseeName || response.licensee_name,
+        expiresAt: response.expires_at ? new Date(response.expires_at) : undefined,
         gracePeriodEndsAt,
         lastValidatedAt: now,
         validatedOnline: true,
       };
     } catch (error) {
-      // Re-throw the error so LicenseManager can fallback to offline validation
+      // Host explicitly unauthorized — this is the case you asked about.
+      // Do NOT fall back to offline validation here: offline fallback exists
+      // for network problems, not for "the server told us this device is
+      // no longer allowed." Falling back would let the deactivated device
+      // keep using the cached grace period.
+      if (error instanceof KeymintApiError && error.code === 3) {
+        console.log(`Device hostId ${hostId} is no longer authorized (code 3).`);
+        return {
+          state: LicenseState.DEVICE_DEACTIVATED,
+          isValid: false,
+          error: 'This device is no longer authorized on this license. Please reactivate or contact support.',
+          lastValidatedAt: new Date(),
+          validatedOnline: true,
+        };
+      }
+
+      // License-level problem: expired, blocked, or activation limit reached.
+      if (error instanceof KeymintApiError && error.code === 2) {
+        return {
+          state: LicenseState.EXPIRED,
+          isValid: false,
+          error: error.message || 'License expired, blocked, or activation limit reached',
+          lastValidatedAt: new Date(),
+          validatedOnline: true,
+        };
+      }
+
+      // Anything else (network error, timeout, 5xx) — genuinely unknown,
+      // let LicenseManager fall back to offline/grace-period validation.
       console.error('Online validation failed (will fallback to offline):', error);
       throw error;
     }
   }
 }
+

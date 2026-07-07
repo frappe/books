@@ -154,6 +154,14 @@ const routes: RouteRecordRaw[] = [
 
 const router = createRouter({ routes, history: createWebHistory() });
 
+if ((window as any).ipc?.on) {
+  (window as any).ipc.on('license-state-changed', (_event: unknown, state: any) => {
+    if (!state?.isValid && router.currentRoute.value.path !== '/license') {
+      router.push('/license');
+    }
+  });
+}
+
 router.beforeEach(async (to, from, next) => {
   // Check license
   // Allow access to /license without license check
