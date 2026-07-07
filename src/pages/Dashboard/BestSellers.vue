@@ -115,10 +115,15 @@ export default defineComponent({
   methods: {
     async setData() {
       const { fromDate, toDate } = getDatesAndPeriodList(this.period);
-      let bestSellers = (await fyo.db.getBestSellers(
-        fromDate.toISO(),
-        toDate.toISO()
-      )) || [];
+         let bestSellers: { item: string; total: number }[] = [];
+         try {
+             bestSellers = (await fyo.db.getBestSellers(
+                 fromDate.toISO(),
+                 toDate.toISO()
+               )) || [];
+           } catch (e) {
+                 console.error(e);
+            }
       const shades = [
         { class: 'bg-teal-500', hex: uicolors.teal['500'] },
         { class: 'bg-teal-400', hex: uicolors.teal['400'] },

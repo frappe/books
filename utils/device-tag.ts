@@ -145,7 +145,6 @@ function collectDeviceComponentsWithLogging(): DeviceTagComponents {
 // ============================================================
 // MODEL DETECTION WITH LOGGING
 // ============================================================
-
 function detectModelNameWithLogging(platform: string): string {
   console.log(`  ${DEBUG_PREFIX} Attempting model detection for platform: "${platform}"`);
 
@@ -297,7 +296,6 @@ function detectModelNameWithLogging(platform: string): string {
 // ============================================================
 // MANUFACTURER DETECTION WITH LOGGING (NEW)
 // ============================================================
-
 function detectManufacturerWithLogging(platform: string): string {
   console.log(`  ${DEBUG_PREFIX} Attempting manufacturer detection for platform: "${platform}"`);
 
@@ -422,7 +420,6 @@ function detectManufacturerWithLogging(platform: string): string {
 // ============================================================
 // OS VERSION DETECTION WITH LOGGING (NEW)
 // ============================================================
-
 function detectOSVersionWithLogging(rawPlatform: string, friendlyPlatform: string): string {
   console.log(`  ${DEBUG_PREFIX} Attempting OS version detection for platform: "${rawPlatform}"`);
 
@@ -528,7 +525,6 @@ function detectOSVersionWithLogging(rawPlatform: string, friendlyPlatform: strin
 // ============================================================
 // APPLE MODEL MAPPING WITH LOGGING
 // ============================================================
-
 function mapAppleModelWithLogging(model?: string): string | undefined {
   if (!model) {
     console.log(`  ${DEBUG_PREFIX}   mapAppleModel: received undefined/empty model`);
@@ -584,7 +580,6 @@ function mapAppleModelWithLogging(model?: string): string | undefined {
 // ============================================================
 // HELPER FUNCTIONS
 // ============================================================
-
 function friendlyPlatformName(platform: string): string {
   const map: Record<string, string> = {
     darwin: 'macOS',

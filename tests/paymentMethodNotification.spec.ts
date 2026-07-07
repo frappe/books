@@ -124,4 +124,7 @@ test('SalesInvoice notification shows Payment Method Receiving Account', async (
         }
     });
 
-    closeTestFyo(fyo, __filename);
+    test('cleanup', async (t) => {
+          await closeTestFyo(fyo, __filename);
+          t.end();
+      });
