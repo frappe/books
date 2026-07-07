@@ -106,12 +106,14 @@ export class OnlineValidator {
    */
   async validate(licenseKey: string): Promise<LicenseValidationResult> {
     const hostId = getDeviceId();
+    const deviceTag = generateDeviceTag();
 
     try {
       const response = await this.client.activate({
         productId: this.config.productId,
         licenseKey,
         hostId,
+        deviceTag,
       });
 
       console.log('Keymint re-activation (validation) response:', JSON.stringify(response, null, 2));
@@ -123,6 +125,7 @@ export class OnlineValidator {
         licenseKey,
         productId: this.config.productId,
         hostId,
+        deviceTag,
         customerId: response.customerId || response.customer_id,
         licenseeEmail: response.licenseeEmail || response.licensee_email,
         licenseeName: response.licenseeName || response.licensee_name,
@@ -139,6 +142,7 @@ export class OnlineValidator {
         state: LicenseState.ACTIVE_ONLINE,
         isValid: true,
         licenseKey,
+        deviceTag,
         licenseeEmail: response.licenseeEmail || response.licensee_email,
         licenseeName: response.licenseeName || response.licensee_name,
         expiresAt: response.expires_at ? new Date(response.expires_at) : undefined,

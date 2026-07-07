@@ -104,6 +104,16 @@
           </div>
 
           <div
+            v-if="licenseState && licenseState.state === 'DEVICE_DEACTIVATED'"
+            class="mt-4 p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded"
+          >
+            <p class="text-red-600 dark:text-red-400 font-medium">🚫 {{ t`This device was removed from your license` }}</p>
+            <p class="text-red-600 dark:text-red-400 text-sm mt-1">
+              {{ t`This computer is no longer an authorized device on your RareBooks license. This can happen if the device was deactivated on your client portal or your activation limit changed. Reactivate below, or visit Client portal to free a seat to activate device. Contact support via your client portal if you believe this is a mistake.` }}
+            </p>
+          </div>
+
+          <div
             v-if="!licenseState || licenseState.state === 'UNLICENSED'"
             class="mt-4 p-4 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded"
           >
