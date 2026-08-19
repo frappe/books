@@ -18,7 +18,9 @@ export function getMainProcessCommonConfig(root) {
     sourcemap: true,
     sourcesContent: false,
     platform: 'node',
-    target: 'node20',
+    // Electron 43 embeds Node 24, so keep the emitted syntax aligned with the
+    // Electron runtime and the host toolchain.
+    target: 'node24',
     external: ['knex', 'electron', 'better-sqlite3', 'electron-store'],
     plugins: [excludeVendorFromSourceMap],
     write: true,

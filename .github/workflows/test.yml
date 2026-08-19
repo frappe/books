@@ -17,7 +17,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.18.1'
+          node-version: '24'
 
       - name: Set yarn version
         run: yarn set version 1.22.18
@@ -37,7 +37,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.18.1'
+          node-version: '24'
 
       - name: Set yarn version
         run: yarn set version 1.22.18

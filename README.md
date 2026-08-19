@@ -93,7 +93,7 @@ brew install --cask frappe-books
 
 ### Pre-requisites
 
-To get the dev environment up and running you need to first set up Node.js `v20.18.1` and npm. For this, we suggest using
+To get the dev environment up and running you need to first set up Node.js `v24` and npm. For this, we suggest using
 [nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 Next, you will need to install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable).

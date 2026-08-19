@@ -2,6 +2,10 @@
   "name": "frappe-books",
   "version": "0.37.0",
   "description": "Simple book-keeping app for everyone",
+  "engines": {
+    "node": ">=24 <25",
+    "yarn": ">=1.22.18 <2"
+  },
   "author": {
     "name": "Frappe Technologies Pvt. Ltd.",
     "email": "hello@frappe.io"
@@ -23,7 +27,7 @@
     "@codemirror/autocomplete": "^6.4.2",
     "@codemirror/lang-vue": "^0.1.1",
     "@popperjs/core": "^2.10.2",
-    "better-sqlite3": "^9.2.2",
+    "better-sqlite3": "12.11.1",
     "bree": "^9.2.4",
     "codemirror": "^6.0.1",
     "core-js": "^3.19.0",
@@ -42,7 +46,7 @@
     "@codemirror/language": "^6.0.0",
     "@codemirror/state": "^6.0.0",
     "@codemirror/view": "^6.0.0",
-    "@electron/rebuild": "^3.4.1",
+    "@electron/rebuild": "4.2.0",
     "@lezer/common": "^1.0.0",
     "@types/assert": "^1.5.6",
     "@types/better-sqlite3": "^7.6.4",
@@ -58,8 +62,8 @@
     "autoprefixer": "^9",
     "chokidar": "^3.5.3",
     "dotenv": "^16.0.0",
-    "electron": "22.3.27",
-    "electron-builder": "^24.9.1",
+    "electron": "43.4.1",
+    "electron-builder": "26.15.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-updater": "^6.3.0",
     "eslint": "^8.43.0",
@@ -84,7 +88,7 @@
     "yargs": "^17.7.2"
   },
   "resolutions": {
-    "node-abi": "^3.54.0"
+    "node-abi": "^4.33.0"
   },
   "prettier": {
     "semi": true,
