@@ -1,0 +1,196 @@
+{
+  "name": "AccountingSettings",
+  "label": "Accounting Settings",
+  "isSingle": true,
+  "isChild": false,
+  "isSubmittable": false,
+  "fields": [
+    {
+      "label": "Full Name",
+      "fieldname": "fullname",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "label": "Company Name",
+      "fieldname": "companyName",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "label": "Bank Name",
+      "fieldname": "bankName",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "label": "Country",
+      "fieldname": "country",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select Country",
+      "readOnly": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "label": "Write Off Account",
+      "fieldname": "writeOffAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "section": "Accounts"
+    },
+    {
+      "label": "Round Off Account",
+      "fieldname": "roundOffAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "section": "Accounts"
+    },
+    {
+      "label": "Discount Account",
+      "fieldname": "discountAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "section": "Accounts"
+    },
+    {
+      "fieldname": "enableDiscounting",
+      "label": "Enable Discount Accounting",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableInventory",
+      "label": "Enable Inventory",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enablePriceList",
+      "label": "Enable Price List",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableInvoiceReturns",
+      "label": "Enable Invoice Returns",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableFormCustomization",
+      "label": "Enable Form Customization",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableERPNextSync",
+      "label": "Enable ERPNext Sync",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableLead",
+      "label": "Enable Lead",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enablePricingRule",
+      "label": "Enable Pricing Rule",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableItemEnquiry",
+      "label": "Enable Item Enquiry",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableLoyaltyProgram",
+      "label": "Enable Loyalty Program",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableCouponCode",
+      "label": "Enable Coupon Code",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableitemGroup",
+      "label": "Enable Item Group",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enablePointOfSaleWithOutInventory",
+      "label": "Enable POS Without Inventory",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enablePartialPayment",
+      "label": "Enable Partial Payment",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "fiscalYearStart",
+      "label": "Fiscal Year Start Date",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Fiscal Year"
+    },
+    {
+      "fieldname": "fiscalYearEnd",
+      "label": "Fiscal Year End Date",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Fiscal Year"
+    },
+    {
+      "fieldname": "setupComplete",
+      "label": "Setup Complete",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "fiscalYearStart",
+    "fiscalYearEnd"
+  ]
+}

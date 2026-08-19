@@ -1,0 +1,31 @@
+name: Build
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  setup_and_build:
+    runs-on: macos-15-intel
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Set yarn version
+        run: yarn set version 1.22.18
+
+      - name: Checkout Books
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Run build
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          APPLE_NOTARIZE: 0
+        run: yarn build -mw --publish never

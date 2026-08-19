@@ -1,0 +1,21 @@
+{
+  "name": "Address",
+  "fields": [
+    {
+      "fieldname": "pos",
+      "label": "Place of Supply",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Place of Supply",
+      "section": "Miscellaneous"
+    }
+  ],
+  "quickEditFields": [
+    "addressLine1",
+    "addressLine2",
+    "city",
+    "country",
+    "state",
+    "postalCode",
+    "pos"
+  ]
+}

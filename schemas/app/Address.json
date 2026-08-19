@@ -1,0 +1,91 @@
+{
+  "name": "Address",
+  "label": "Address",
+  "naming": "manual",
+  "isSingle": false,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Address Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "addressLine1",
+      "label": "Address Line 1",
+      "placeholder": "Address Line 1",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "addressLine2",
+      "label": "Address Line 2",
+      "placeholder": "Address Line 2",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "city",
+      "label": "City / Town",
+      "placeholder": "City / Town",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "country",
+      "label": "Country",
+      "placeholder": "Country",
+      "fieldtype": "AutoComplete",
+      "options": [],
+      "required": true
+    },
+    {
+      "fieldname": "state",
+      "label": "State",
+      "placeholder": "State",
+      "options": [],
+      "fieldtype": "AutoComplete"
+    },
+    {
+      "fieldname": "postalCode",
+      "label": "Postal Code",
+      "placeholder": "Postal Code",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "emailAddress",
+      "label": "Email Address",
+      "placeholder": "Email Address",
+      "fieldtype": "Data",
+      "section": "Contacts"
+    },
+    {
+      "fieldname": "phone",
+      "label": "Phone",
+      "placeholder": "Phone",
+      "fieldtype": "Data",
+      "section": "Contacts"
+    },
+    {
+      "fieldname": "fax",
+      "label": "Fax",
+      "fieldtype": "Data",
+      "section": "Contacts"
+    },
+    {
+      "fieldname": "addressDisplay",
+      "fieldtype": "Text",
+      "label": "Address Display",
+      "readOnly": true,
+      "section": "Miscellaneous"
+    }
+  ],
+  "quickEditFields": [
+    "addressLine1",
+    "addressLine2",
+    "city",
+    "country",
+    "state",
+    "postalCode"
+  ],
+  "linkDisplayField": "addressDisplay"
+}

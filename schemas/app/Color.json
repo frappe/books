@@ -1,0 +1,19 @@
+{
+  "name": "Color",
+  "label": "Color",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "label": "Color",
+      "required": true
+    },
+    {
+      "fieldname": "hexvalue",
+      "fieldtype": "Data",
+      "label": "Hex Value",
+      "required": true
+    }
+  ]
+}

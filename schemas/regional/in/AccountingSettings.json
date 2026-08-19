@@ -1,0 +1,22 @@
+{
+  "name": "AccountingSettings",
+  "fields": [
+    {
+      "fieldname": "gstin",
+      "label": "GSTIN",
+      "fieldtype": "Data",
+      "placeholder": "27AAAAA0000A1Z5",
+      "section": "Default"
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "currency",
+    "fiscalYearStart",
+    "fiscalYearEnd",
+    "gstin"
+  ]
+}

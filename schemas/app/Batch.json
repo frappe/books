@@ -1,0 +1,34 @@
+{
+  "name": "Batch",
+  "label": "Batch",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "label": "Batch",
+      "required": true
+    },
+    {
+      "fieldname": "item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "create": true,
+      "label": "Item"
+    },
+    {
+      "fieldname": "expiryDate",
+      "fieldtype": "Date",
+      "label": "Expiry Date",
+      "required": false
+    },
+    {
+      "fieldname": "manufactureDate",
+      "fieldtype": "Date",
+      "label": "Manufacture Date",
+      "required": false
+    }
+  ],
+  "quickEditFields": ["item", "expiryDate", "manufactureDate"],
+  "keywordFields": ["name"]
+}

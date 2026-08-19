@@ -1,0 +1,83 @@
+{
+  "name": "NumberSeries",
+  "label": "Number Series",
+  "naming": "manual",
+  "isSingle": false,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Prefix",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "start",
+      "label": "Start",
+      "fieldtype": "Int",
+      "default": 1001,
+      "required": true,
+      "minvalue": 0
+    },
+    {
+      "fieldname": "padZeros",
+      "label": "Pad Zeros",
+      "fieldtype": "Int",
+      "default": 4,
+      "required": true
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Reference Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "SalesInvoice",
+          "label": "Sales Invoice"
+        },
+        {
+          "value": "SalesQuote",
+          "label": "Sales Quote"
+        },
+        {
+          "value": "PurchaseInvoice",
+          "label": "Purchase Invoice"
+        },
+        {
+          "value": "Payment",
+          "label": "Payment"
+        },
+        {
+          "value": "JournalEntry",
+          "label": "Journal Entry"
+        },
+        {
+          "value": "StockMovement",
+          "label": "Stock Movement"
+        },
+        {
+          "value": "Shipment",
+          "label": "Shipment"
+        },
+        {
+          "value": "PurchaseReceipt",
+          "label": "Purchase Receipt"
+        },
+        {
+          "value": "PricingRule",
+          "label": "Pricing Rule"
+        }
+      ],
+      "default": "-",
+      "required": true
+    },
+    {
+      "fieldname": "current",
+      "label": "Current",
+      "fieldtype": "Int",
+      "required": true,
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": ["referenceType", "start", "padZeros"]
+}

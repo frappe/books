@@ -1,0 +1,194 @@
+name: Publish
+
+on: workflow_dispatch
+
+jobs:
+  build-macos:
+    runs-on: macos-15-intel
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Checkout Books
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          yarn set version 1.22.18
+          yarn
+
+      - name: Set Error Log Creds
+        env:
+          ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
+          ERR_LOG_URL: ${{ secrets.ERR_LOG_URL }}
+          ERR_LOG_SECRET: ${{ secrets.ERR_LOG_SECRET }}
+          TELEMETRY_URL: ${{ secrets.TELEMETRY_URL }}
+        run: |
+          echo $ERR_LOG_KEY > log_creds.txt
+          echo $ERR_LOG_SECRET >> log_creds.txt
+          echo $ERR_LOG_URL >> log_creds.txt
+          echo $TELEMETRY_URL >> log_creds.txt
+
+      - name: Run build
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: true
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          yarn set version 1.22.18
+          yarn build --mac --publish always
+
+      - name: Tar files
+        run: tar -cvf dist-macOS.tar dist_electron
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-macOS
+          path: dist-macOS.tar
+
+  build-macos-arm:
+    runs-on: macos-latest
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Checkout Books
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          yarn set version 1.22.18
+          yarn
+
+      - name: Set Error Log Creds
+        env:
+          ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
+          ERR_LOG_URL: ${{ secrets.ERR_LOG_URL }}
+          ERR_LOG_SECRET: ${{ secrets.ERR_LOG_SECRET }}
+          TELEMETRY_URL: ${{ secrets.TELEMETRY_URL }}
+        run: |
+          echo $ERR_LOG_KEY > log_creds.txt
+          echo $ERR_LOG_SECRET >> log_creds.txt
+          echo $ERR_LOG_URL >> log_creds.txt
+          echo $TELEMETRY_URL >> log_creds.txt
+
+      - name: Run build
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: true
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          yarn set version 1.22.18
+          yarn build --mac --publish always
+
+      - name: Tar files
+        run: tar -cvf dist-macOS-arm.tar dist_electron
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-macOS-arm
+          path: dist-macOS-arm.tar
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Checkout Books
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          yarn set version 1.22.18
+          yarn
+
+      - name: Set Error Log Creds
+        env:
+          ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
+          ERR_LOG_URL: ${{ secrets.ERR_LOG_URL }}
+          ERR_LOG_SECRET: ${{ secrets.ERR_LOG_SECRET }}
+          TELEMETRY_URL: ${{ secrets.TELEMETRY_URL }}
+        run: |
+          echo $ERR_LOG_KEY > log_creds.txt
+          echo $ERR_LOG_SECRET >> log_creds.txt
+          echo $ERR_LOG_URL >> log_creds.txt
+          echo $TELEMETRY_URL >> log_creds.txt
+
+      - name: Run build
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          yarn set version 1.22.18
+          yarn build --linux --publish always
+
+      - name: Tar files
+        run: tar -cvf dist-linux.tar dist_electron
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-linux
+          path: dist-linux.tar
+
+  build-windows:
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.1'
+
+      - name: Checkout Books
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Set Error Log Creds
+        env:
+          ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
+          ERR_LOG_URL: ${{ secrets.ERR_LOG_URL }}
+          ERR_LOG_SECRET: ${{ secrets.ERR_LOG_SECRET }}
+          TELEMETRY_URL: ${{ secrets.TELEMETRY_URL }}
+        run: |
+          echo $ERR_LOG_KEY > log_creds.txt
+          echo $ERR_LOG_SECRET >> log_creds.txt
+          echo $ERR_LOG_URL >> log_creds.txt
+          echo $TELEMETRY_URL >> log_creds.txt
+
+      - name: Run build
+        env:
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: yarn build --win --publish always
+
+      - name: Tar files
+        run: tar -cvf dist-windows.tar dist_electron
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-windows
+          path: dist-windows.tar

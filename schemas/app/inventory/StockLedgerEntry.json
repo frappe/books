@@ -1,0 +1,86 @@
+{
+  "name": "StockLedgerEntry",
+  "label": "Stock Ledger Entry",
+  "create": false,
+  "isSingle": false,
+  "isChild": false,
+  "naming": "autoincrement",
+  "fields": [
+    {
+      "label": "Entry No.",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Datetime",
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "location",
+      "label": "Location",
+      "fieldtype": "Link",
+      "target": "Location",
+      "readOnly": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "batch",
+      "label": "Batch",
+      "fieldtype": "Link",
+      "target": "Batch",
+      "readOnly": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "serialNumber",
+      "label": "Serial Number",
+      "fieldtype": "Link",
+      "target": "SerialNumber",
+      "readOnly": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "readOnly": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Currency",
+      "readOnly": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "quantity",
+      "label": "Quantity",
+      "fieldtype": "Float",
+      "readOnly": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Ref. Type",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "Reference"
+    },
+    {
+      "fieldname": "referenceName",
+      "label": "Ref. Name",
+      "fieldtype": "DynamicLink",
+      "references": "referenceType",
+      "readOnly": true,
+      "section": "Reference"
+    }
+  ]
+}

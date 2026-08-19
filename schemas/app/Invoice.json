@@ -1,0 +1,214 @@
+{
+  "name": "Invoice",
+  "label": "Invoice",
+  "isAbstract": true,
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "fields": [
+    {
+      "label": "Invoice No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true,
+      "hidden": true
+    },
+    {
+      "abstract": true,
+      "fieldname": "numberSeries",
+      "section": "Default"
+    },
+    {
+      "abstract": true,
+      "fieldname": "party",
+      "section": "Default"
+    },
+    {
+      "fieldname": "account",
+      "label": "Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Datetime",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "priceList",
+      "label": "Price List",
+      "fieldtype": "Link",
+      "target": "PriceList",
+      "section": "Default"
+    },
+    {
+      "abstract": true,
+      "fieldname": "items",
+      "section": "Items"
+    },
+    {
+      "fieldname": "netTotal",
+      "label": "Net Total",
+      "fieldtype": "Currency",
+      "readOnly": true,
+      "section": "Items"
+    },
+    {
+      "fieldname": "taxes",
+      "label": "Taxes",
+      "fieldtype": "Table",
+      "target": "TaxSummary",
+      "readOnly": true,
+      "section": "Tax and Totals"
+    },
+    {
+      "fieldname": "baseGrandTotal",
+      "label": "Base Grand Total",
+      "fieldtype": "Currency",
+      "readOnly": true,
+      "section": "Tax and Totals"
+    },
+    {
+      "fieldname": "grandTotal",
+      "label": "Grand Total",
+      "fieldtype": "Currency",
+      "readOnly": true,
+      "section": "Tax and Totals"
+    },
+    {
+      "fieldname": "setDiscountAmount",
+      "label": "Set Discount Amount",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "discountAmount",
+      "label": "Discount Amount",
+      "fieldtype": "Currency",
+      "readOnly": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "discountPercent",
+      "label": "Discount Percent",
+      "fieldtype": "Float",
+      "readOnly": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "entryCurrency",
+      "label": "Entry Currency",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Party",
+          "label": "Party"
+        },
+        {
+          "value": "Company",
+          "label": "Company"
+        }
+      ],
+      "default": "Party",
+      "hidden": true
+    },
+    {
+      "fieldname": "currency",
+      "label": "Customer Currency",
+      "fieldtype": "Link",
+      "target": "Currency",
+      "readOnly": true,
+      "hidden": true
+    },
+    {
+      "fieldname": "exchangeRate",
+      "label": "Exchange Rate",
+      "fieldtype": "Float",
+      "default": 1,
+      "readOnly": true,
+      "hidden": true
+    },
+    {
+      "fieldname": "discountAfterTax",
+      "label": "Apply Discount After Tax",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false,
+      "tab": "Settings"
+    },
+    {
+      "fieldname": "makeAutoPayment",
+      "label": "Make Payment On Submit",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false,
+      "tab": "Settings"
+    },
+    {
+      "abstract": true,
+      "fieldname": "makeAutoStockTransfer",
+      "tab": "Settings"
+    },
+    {
+      "fieldname": "outstandingAmount",
+      "label": "Outstanding Amount",
+      "fieldtype": "Currency",
+      "readOnly": true,
+      "section": "Outstanding"
+    },
+    {
+      "abstract": true,
+      "fieldname": "stockNotTransferred",
+      "section": "Outstanding"
+    },
+    {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add invoice terms",
+      "fieldtype": "Text",
+      "section": "References"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment",
+      "section": "References"
+    },
+    {
+      "fieldname": "isReturned",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
+      "fieldname": "isFullyReturned",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
+      "fieldname": "isSyncedWithErp",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
+      "abstract": true,
+      "fieldname": "backReference",
+      "section": "References"
+    },
+    {
+      "abstract": true,
+      "fieldname": "returnAgainst",
+      "section": "References"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

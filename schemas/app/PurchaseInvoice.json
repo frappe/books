@@ -1,0 +1,67 @@
+{
+  "name": "PurchaseInvoice",
+  "label": "Purchase Invoice",
+  "extends": "Invoice",
+  "naming": "numberSeries",
+  "showTitle": true,
+  "fields": [
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "PINV-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "party",
+      "label": "Supplier",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "backReference",
+      "label": "Back Reference",
+      "fieldtype": "Link",
+      "target": "PurchaseReceipt",
+      "section": "References"
+    },
+    {
+      "fieldname": "makeAutoStockTransfer",
+      "label": "Make Purchase Receipt On Submit",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false,
+      "tab": "Settings"
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "PurchaseInvoiceItem",
+      "required": true,
+      "edit": true,
+      "section": "Items"
+    },
+    {
+      "fieldname": "stockNotTransferred",
+      "label": "Stock Not Received",
+      "fieldtype": "Float",
+      "readOnly": true,
+      "section": "Outstanding"
+    },
+    {
+      "fieldname": "returnAgainst",
+      "fieldtype": "Link",
+      "target": "PurchaseInvoice",
+      "label": "Return Against",
+      "section": "References"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

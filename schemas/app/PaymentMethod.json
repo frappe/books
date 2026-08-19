@@ -1,0 +1,39 @@
+{
+  "name": "PaymentMethod",
+  "label": "Payment Method",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "type",
+      "label": "Type",
+      "fieldtype": "Select",
+      "required": true,
+      "options": [
+        {
+          "value": "Cash",
+          "label": "Cash"
+        },
+        {
+          "value": "Bank",
+          "label": "Bank"
+        },
+        {
+          "value": "Transfer",
+          "label": "Transfer"
+        }
+      ]
+    },
+    {
+      "fieldname": "account",
+      "label": "Account",
+      "fieldtype": "Link",
+      "target": "Account"
+    }
+  ],
+  "quickEditFields": ["name", "type", "account"]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Tax",
+  "label": "Tax Template",
+  "naming": "manual",
+  "isSingle": false,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "details",
+      "label": "Details",
+      "fieldtype": "Table",
+      "target": "TaxDetail",
+      "required": true
+    }
+  ],
+  "keywordFields": ["name"],
+  "quickEditFields": ["details"]
+}

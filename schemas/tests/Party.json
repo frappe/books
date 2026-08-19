@@ -1,0 +1,86 @@
+{
+  "name": "Party",
+  "label": "Party",
+  "isAbstract": true,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true,
+      "placeholder": "Full Name"
+    },
+    {
+      "fieldname": "image",
+      "label": "Image",
+      "fieldtype": "AttachImage"
+    },
+    {
+      "fieldname": "role",
+      "label": "Role",
+      "fieldtype": "Select",
+      "default": "Both",
+      "options": [
+        {
+          "value": "Both",
+          "label": "Both"
+        },
+        {
+          "value": "Supplier",
+          "label": "Supplier"
+        },
+        {
+          "value": "Customer",
+          "label": "Customer"
+        }
+      ],
+      "readOnly": true,
+      "required": true
+    },
+    {
+      "fieldname": "defaultAccount",
+      "label": "Default Account",
+      "fieldtype": "Link",
+      "create": true,
+      "target": "Account"
+    },
+    {
+      "fieldname": "outstandingAmount",
+      "label": "Outstanding Amount",
+      "fieldtype": "Currency"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Link",
+      "target": "Currency",
+      "placeholder": "INR"
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "placeholder": "john@doe.com"
+    },
+    {
+      "fieldname": "phone",
+      "label": "Phone",
+      "fieldtype": "Data",
+      "placeholder": "Phone"
+    },
+    {
+      "fieldname": "address",
+      "label": "Address",
+      "fieldtype": "Link",
+      "target": "Address"
+    }
+  ],
+  "quickEditFields": [
+    "email",
+    "phone",
+    "address",
+    "defaultAccount",
+    "currency"
+  ],
+  "keywordFields": ["name"]
+}

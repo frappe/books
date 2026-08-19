@@ -1,0 +1,122 @@
+{
+  "label": "Journal Entry",
+  "name": "JournalEntry",
+  "naming": "numberSeries",
+  "isSubmittable": true,
+  "fields": [
+    {
+      "label": "Entry No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "JV-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "entryType",
+      "label": "Entry Type",
+      "fieldtype": "Select",
+      "placeholder": "Entry Type",
+      "options": [
+        {
+          "value": "Journal Entry",
+          "label": "Journal Entry"
+        },
+        {
+          "value": "Bank Entry",
+          "label": "Bank Entry"
+        },
+        {
+          "value": "Cash Entry",
+          "label": "Cash Entry"
+        },
+        {
+          "value": "Credit Card Entry",
+          "label": "Credit Card Entry"
+        },
+        {
+          "value": "Debit Note",
+          "label": "Debit Note"
+        },
+        {
+          "value": "Credit Note",
+          "label": "Credit Note"
+        },
+        {
+          "value": "Contra Entry",
+          "label": "Contra Entry"
+        },
+        {
+          "value": "Excise Entry",
+          "label": "Excise Entry"
+        },
+        {
+          "value": "Write Off Entry",
+          "label": "Write Off Entry"
+        },
+        {
+          "value": "Opening Entry",
+          "label": "Opening Entry"
+        },
+        {
+          "value": "Depreciation Entry",
+          "label": "Depreciation Entry"
+        }
+      ],
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "accounts",
+      "label": "Account Entries",
+      "fieldtype": "Table",
+      "target": "JournalEntryAccount",
+      "required": true,
+      "section": "Accounts"
+    },
+    {
+      "fieldname": "referenceNumber",
+      "label": "Reference Number",
+      "fieldtype": "Data",
+      "section": "References"
+    },
+    {
+      "fieldname": "referenceDate",
+      "label": "Reference Date",
+      "fieldtype": "Date",
+      "section": "References"
+    },
+    {
+      "fieldname": "userRemark",
+      "label": "User Remark",
+      "fieldtype": "Text",
+      "placeholder": "Add a remark",
+      "section": "References"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment",
+      "section": "References"
+    }
+  ],
+  "keywordFields": ["name", "entryType"]
+}

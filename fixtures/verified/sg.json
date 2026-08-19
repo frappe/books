@@ -1,0 +1,311 @@
+{
+  "countryCode": "sg",
+  "name": "Singapore - Chart of Accounts",
+  "tree": {
+    "Assets": {
+      "Current assets": {
+        "Accounts Receivable": {
+          "Credit Cards": {
+            "AMEX Receivable": {},
+            "CUP Receivale": {},
+            "MC Receivable": {},
+            "NETS Receivable": {},
+            "VISA Receivable": {}
+          },
+          "Debtors": {
+            "accountType": "Receivable"
+          }
+        },
+        "Bank Accounts": {
+          "Paypal Account": {
+            "accountType": "Bank"
+          },
+          "accountType": "Bank"
+        },
+        "Cash in Hand": {
+          "Cash in Transit": {
+            "accountType": "Cash"
+          },
+          "Petty Cash": {
+            "accountType": "Cash"
+          },
+          "accountType": "Cash"
+        },
+        "Loans and Advances-Assets": {
+          "Prepayments": {}
+        },
+        "Securities and Deposits": {
+          "Bank Deposits": {},
+          "Bank Guarantees": {},
+          "Rental Deposits": {}
+        },
+        "Stock Assets": {
+          "Stock in Hand": {
+            "accountType": "Stock"
+          }
+        },
+        "Tax Assets": {
+          "GST-Input": {}
+        }
+      },
+      "Non-current assets": {
+        "Fixed Assets": {
+          "Accumulated Depreciation": {
+            "AccDep-Equipment-ICT": {
+              "accountType": "Accumulated Depreciation"
+            },
+            "AccDep-Equipment-Office": {
+              "accountType": "Accumulated Depreciation"
+            },
+            "AccDep-Furniture and Fixtures": {
+              "accountType": "Accumulated Depreciation"
+            },
+            "AccDep-Motor Vehicle": {
+              "accountType": "Accumulated Depreciation"
+            },
+            "AccDep-Plant and Machinery": {
+              "accountType": "Accumulated Depreciation"
+            },
+            "accountType": "Accumulated Depreciation"
+          },
+          "Equipment-ICT": {
+            "accountType": "Fixed Asset"
+          },
+          "Equipment-Office": {
+            "accountType": "Fixed Asset"
+          },
+          "Furniture and Fixtures": {
+            "accountType": "Fixed Asset"
+          },
+          "Motor Vehicle": {
+            "accountType": "Fixed Asset"
+          },
+          "Plant and Machinery": {
+            "accountType": "Fixed Asset"
+          },
+          "accountType": "Fixed Asset"
+        },
+        "Non-Fixed Assets": {
+          "Goodwill": {},
+          "Investments": {
+            "Investments-Associated Company": {},
+            "Investments-Subsidiary": {}
+          }
+        },
+        "Shares": {
+          "Shares-Quoted": {},
+          "Shares-Unquoted": {}
+        }
+      },
+      "Temporary Accunts": {
+        "Temporary Opening": {
+          "accountType": "Temporary"
+        }
+      },
+      "rootType": "Asset"
+    },
+    "Equity": {
+      "Current Year Earnings": {},
+      "Proposed Dividends": {},
+      "Retained Earnings": {},
+      "Share Capital": {},
+      "rootType": "Equity"
+    },
+    "Expenses": {
+      "Expenses-Administrative": {
+        "Audit Fees": {},
+        "Bank charges and interest": {},
+        "Currency Exchange Differences": {},
+        "Insurance": {},
+        "Interest on Loan": {},
+        "Legal and Professional Fees": {},
+        "Loss on Disposal of FA": {},
+        "Postal and Courier Charges": {},
+        "Printing and Stationery": {},
+        "Secretarial Fees": {},
+        "Tax Agent Fees": {}
+      },
+      "Expenses-Direct": {
+        "Cost of Goods Sold": {
+          "accountType": "Cost of Goods Sold"
+        },
+        "Cost of Sales": {},
+        "Expenses Included in Valuation": {
+          "accountType": "Expenses Included In Valuation"
+        },
+        "Stock Adjustment": {
+          "accountType": "Stock Adjustment"
+        }
+      },
+      "Expenses-Marketing": {
+        "Advertising and Promotion": {},
+        "Graphic Design Fees": {},
+        "Internet Marketing": {}
+      },
+      "Expenses-Operating": {
+        "Cleaning Costs": {},
+        "Commission Charges": {
+          "Comm-Credit Card": {},
+          "Comm-NETS": {},
+          "Comm-Paypal": {}
+        },
+        "Communication Costs": {
+          "Internet Connection": {},
+          "Telephone Costs": {}
+        },
+        "Entertainment Expenses": {},
+        "General Expenses": {},
+        "Licence Fees": {},
+        "Rental Costs": {
+          "Rental-Equipment": {},
+          "Rental-Premises": {},
+          "Rental-Storage": {}
+        },
+        "Repairs and Maintenance": {
+          "R&M-Building": {},
+          "R&M-Fixtures & Furniture": {},
+          "R&M-ICT": {},
+          "R&M-Office": {},
+          "R&M-Plant & Machinery": {}
+        },
+        "Service Fees": {},
+        "Subscription Fees": {
+          "Publication Subscriptions": {},
+          "TV Subscriptions": {}
+        },
+        "Travel Expenses": {},
+        "Utilities": {
+          "Utility-Electricity": {},
+          "Utility-Gas": {},
+          "Utility-Refuse Removal": {},
+          "Utility-Water": {}
+        }
+      },
+      "Expenses-Other": {
+        "Bad Debts Written Off": {},
+        "Depreciation": {
+          "Dep-Fixtures & Furniture": {
+            "accountType": "Depreciation"
+          },
+          "Dep-ICT Equipment": {
+            "accountType": "Depreciation"
+          },
+          "Dep-Motor Vehicle": {
+            "accountType": "Depreciation"
+          },
+          "Dep-Office Equipment": {
+            "accountType": "Depreciation"
+          },
+          "Dep-Plant & Machinery": {
+            "accountType": "Depreciation"
+          },
+          "Dep-Renovation": {
+            "accountType": "Depreciation"
+          },
+          "accountType": "Depreciation"
+        },
+        "Donations": {},
+        "Round Off": {},
+        "Tax Expenses": {
+          "Tax Expenses 1": {}
+        }
+      },
+      "Expenses-Staff": {
+        "Bonuses": {
+          "Bonus-Executive": {},
+          "Bonus-Non Executive": {},
+          "Bonus-Performance": {}
+        },
+        "CPF": {},
+        "Directors Fees": {},
+        "FWL": {},
+        "Incentives": {},
+        "Medical Expenses": {},
+        "SDF": {},
+        "Salaries": {
+          "Casual Labour": {},
+          "Salary-Executive": {},
+          "Salary-Non Executive-Full Time": {},
+          "Salary-Non Executive-Part Time": {}
+        },
+        "Security Expenses": {},
+        "Staff Advertising": {},
+        "Staff Commission Paid": {},
+        "Staff Meals": {},
+        "Staff Training": {},
+        "Staff Transport": {},
+        "Staff Welfare": {}
+      },
+      "rootType": "Expense"
+    },
+    "Income": {
+      "Direct Income": {
+        "Management Income": {},
+        "Sales Income": {}
+      },
+      "Indirect Income": {
+        "Government Grants": {},
+        "Interest Income": {
+          "Current Account Interest Earned": {},
+          "Fixed Deposit Interest Earned": {}
+        },
+        "Other Income": {},
+        "Service Charges": {}
+      },
+      "rootType": "Income"
+    },
+    "Liabilities": {
+      "Capital Account": {
+        "Reserves and Surplus": {},
+        "Shareholder Funds": {}
+      },
+      "Current liabilities": {
+        "Accounts Payable": {
+          "Creditors": {
+            "accountType": "Payable"
+          },
+          "Payroll Payable": {}
+        },
+        "Duties and Taxes": {
+          "Deferred Tax Liabilities-Current": {},
+          "GST-Output": {},
+          "Income Tax Payable": {},
+          "accountType": "Tax"
+        },
+        "Loans-Current": {
+          "Amount Owing to Directors": {},
+          "Bank Overdaft Account": {},
+          "Secured Loans": {},
+          "Unsecured Loans": {}
+        },
+        "Provision and Accruals": {
+          "Accruals": {
+            "Accr-CPF": {},
+            "Accr-Sundry": {},
+            "Accr-Withholding Tax": {}
+          },
+          "Provisions": {
+            "Prov-Audit Fee": {},
+            "Prov-Bonus": {
+              "Prov-Bonus-Executive": {},
+              "Prov-Bonus-Non Executive": {}
+            },
+            "Prov-Others": {},
+            "Prov-Tax Fee": {}
+          }
+        },
+        "Sponsorship Funds": {},
+        "Stock Liabilities": {
+          "Stock Received But Not Billed": {
+            "accountType": "Stock Received But Not Billed"
+          }
+        }
+      },
+      "Non-current liabilities": {
+        "Deferred Tax Liabilities": {},
+        "Loans-Non Current": {}
+      },
+      "rootType": "Liability"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "PurchaseReceipt",
+  "label": "Purchase Receipt",
+  "extends": "StockTransfer",
+  "naming": "numberSeries",
+  "showTitle": true,
+  "fields": [
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "PREC-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "backReference",
+      "label": "Back Reference",
+      "fieldtype": "Link",
+      "target": "PurchaseInvoice",
+      "section": "References"
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "PurchaseReceiptItem",
+      "required": true,
+      "edit": true
+    },
+    {
+      "fieldname": "returnAgainst",
+      "fieldtype": "Link",
+      "target": "PurchaseReceipt",
+      "label": "Return Against",
+      "section": "References"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "SalesInvoiceItem",
+  "label": "Sales Invoice Item",
+  "extends": "InvoiceItem",
+  "fields": [
+    {
+      "fieldname": "isFreeItem",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "pricingRule",
+      "fieldtype": "Data",
+      "hidden": true
+    }
+  ]
+}

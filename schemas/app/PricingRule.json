@@ -1,0 +1,230 @@
+{
+  "name": "PricingRule",
+  "label": "Pricing Rule",
+  "naming": "numberSeries",
+  "isSubmittable": false,
+  "fields": [
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "PRLE-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "isEnabled",
+      "label": "Is Pricing Rule Enabled",
+      "fieldtype": "Check",
+      "default": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "appliedItems",
+      "label": "Applied Items",
+      "fieldtype": "Table",
+      "target": "PricingRuleItem",
+      "required": true,
+      "edit": true,
+      "section": "Items"
+    },
+    {
+      "fieldname": "discountType",
+      "label": "Discount Type",
+      "fieldtype": "Select",
+      "required": true,
+      "section": "Default",
+      "options": [
+        {
+          "value": "Price Discount",
+          "label": "Price Discount"
+        },
+        {
+          "value": "Product Discount",
+          "label": "Product Discount"
+        }
+      ]
+    },
+    {
+      "fieldname": "isCouponCodeBased",
+      "label": "Is Coupon Code Based",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "priority",
+      "label": "Priority",
+      "fieldtype": "Select",
+      "section": "Default",
+      "required": true,
+      "options": [
+        { "value": "1", "label": 1 },
+        { "value": "2", "label": 2 },
+        { "value": "3", "label": 3 },
+        { "value": "4", "label": 4 },
+        { "value": "5", "label": 5 },
+        { "value": "6", "label": 6 },
+        { "value": "7", "label": 7 },
+        { "value": "8", "label": 8 },
+        { "value": "9", "label": 9 },
+        { "value": "10", "label": 10 },
+        { "value": "11", "label": 11 },
+        { "value": "12", "label": 12 },
+        { "value": "13", "label": 13 },
+        { "value": "14", "label": 14 },
+        { "value": "15", "label": 15 },
+        { "value": "16", "label": 16 },
+        { "value": "17", "label": 17 },
+        { "value": "18", "label": 18 },
+        { "value": "19", "label": 19 },
+        { "value": "20", "label": 20 }
+      ]
+    },
+    {
+      "fieldname": "priceDiscountType",
+      "label": "Price Discount Type",
+      "fieldtype": "Select",
+      "section": "Price Discount Scheme",
+      "options": [
+        {
+          "value": "rate",
+          "label": "Rate"
+        },
+        {
+          "value": "percentage",
+          "label": "Discount Percentage"
+        },
+        {
+          "value": "amount",
+          "label": "Discount Amount"
+        }
+      ]
+    },
+    {
+      "fieldname": "discountRate",
+      "label": "Rate",
+      "fieldtype": "Currency",
+      "section": "Price Discount Scheme"
+    },
+    {
+      "fieldname": "discountPercentage",
+      "label": "Discount Percentage",
+      "fieldtype": "Float",
+      "section": "Price Discount Scheme"
+    },
+    {
+      "fieldname": "discountAmount",
+      "label": "Discount Amount",
+      "fieldtype": "Currency",
+      "section": "Price Discount Scheme"
+    },
+    {
+      "fieldname": "freeItem",
+      "label": "Free Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "section": "Product Discount Scheme"
+    },
+    {
+      "fieldname": "freeItemQuantity",
+      "label": "Quantity",
+      "fieldtype": "Float",
+      "section": "Product Discount Scheme"
+    },
+    {
+      "fieldname": "freeItemUnit",
+      "label": "UOM",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "section": "Product Discount Scheme"
+    },
+    {
+      "fieldname": "roundFreeItemQty",
+      "label": "Round Free Item Quantity",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Product Discount Scheme"
+    },
+    {
+      "fieldname": "roundingMethod",
+      "label": "Rounding Method",
+      "fieldtype": "Select",
+      "required": true,
+      "default": "round",
+      "section": "Product Discount Scheme",
+      "options": [
+        {
+          "value": "floor",
+          "label": "Floor"
+        },
+        {
+          "value": "round",
+          "label": "Round"
+        },
+        {
+          "value": "ceil",
+          "label": "Ceil"
+        }
+      ]
+    },
+    {
+      "fieldname": "isRecursive",
+      "label": "Is Recursive",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Product Discount Scheme"
+    },
+    {
+      "fieldname": "recurseEvery",
+      "label": "Recurse Every (As Per Transaction Unit)",
+      "fieldtype": "Float",
+      "section": "Product Discount Scheme"
+    },
+    {
+      "fieldname": "minQuantity",
+      "label": "Min Qty (As Per Stock Unit)",
+      "fieldtype": "Float",
+      "section": "Quantity and Amount"
+    },
+    {
+      "fieldname": "maxQuantity",
+      "label": "Max Qty (As Per Stock Unit)",
+      "fieldtype": "Float",
+      "section": "Quantity and Amount"
+    },
+    {
+      "fieldname": "minAmount",
+      "label": "Min Amount",
+      "fieldtype": "Currency",
+      "section": "Quantity and Amount"
+    },
+    {
+      "fieldname": "maxAmount",
+      "label": "Max Amount",
+      "fieldtype": "Currency",
+      "section": "Quantity and Amount"
+    },
+    {
+      "fieldname": "validFrom",
+      "label": "Valid From",
+      "fieldtype": "Date",
+      "section": "Validity"
+    },
+    {
+      "fieldname": "validTo",
+      "label": "Valid To",
+      "fieldtype": "Date",
+      "section": "Validity"
+    }
+  ],
+  "keywordFields": ["name"]
+}

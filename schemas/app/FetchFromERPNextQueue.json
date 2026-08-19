@@ -1,0 +1,70 @@
+{
+  "name": "FetchFromERPNextQueue",
+  "label": "Fetch From ERPNext Queue",
+  "naming": "random",
+  "fields": [
+    {
+      "fieldname": "referenceType",
+      "label": "Ref. Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Item",
+          "label": "Item"
+        },
+        {
+          "value": "Party",
+          "label": "Party"
+        },
+        {
+          "value": "SalesInvoice",
+          "label": "Sales Invoice"
+        },
+        {
+          "value": "POSClosingShift",
+          "label": "POS Closing Shift"
+        },
+        {
+          "value": "POSOpeningShift",
+          "label": "POS Opening Shift"
+        },
+        {
+          "value": "Payment",
+          "label": "Sales Payment"
+        },
+        {
+          "value": "StockMovement",
+          "label": "Stock"
+        },
+        {
+          "value": "PriceList",
+          "label": "Price List"
+        },
+        {
+          "value": "SerialNumber",
+          "label": "Serial Number"
+        },
+        {
+          "value": "Batch",
+          "label": "Batch"
+        },
+        {
+          "value": "UOM",
+          "label": "UOM"
+        },
+        {
+          "value": "Address",
+          "label": "Address"
+        }
+      ],
+      "required": true
+    },
+    {
+      "fieldname": "documentName",
+      "label": "Document Name",
+      "fieldtype": "Data",
+      "references": "referenceType",
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "base",
+  "fields": [
+    {
+      "fieldname": "createdBy",
+      "label": "Created By",
+      "fieldtype": "Data",
+      "required": true,
+      "meta": true,
+      "section": "System"
+    },
+    {
+      "fieldname": "modifiedBy",
+      "label": "Modified By",
+      "fieldtype": "Data",
+      "required": true,
+      "meta": true,
+      "section": "System"
+    },
+    {
+      "fieldname": "created",
+      "label": "Created",
+      "fieldtype": "Datetime",
+      "required": true,
+      "meta": true,
+      "section": "System"
+    },
+    {
+      "fieldname": "modified",
+      "label": "Modified",
+      "fieldtype": "Datetime",
+      "required": true,
+      "meta": true,
+      "section": "System"
+    }
+  ]
+}

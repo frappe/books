@@ -1,0 +1,390 @@
+<template>
+  <Dropdown :items="suggestions" :is-loading="isLoading" :df="df" :doc="doc">
+    <template
+      #default="{
+        toggleDropdown,
+        highlightItemUp,
+        highlightItemDown,
+        selectHighlightedItem,
+      }"
+    >
+      <div v-if="showLabel" :class="labelClasses">
+        {{ df.label }}
+      </div>
+      <div
+        class="flex items-center justify-between pe-2 rounded"
+        :style="containerStyles"
+        :class="containerClasses"
+      >
+        <input
+          ref="input"
+          spellcheck="false"
+          :class="inputClasses"
+          class="bg-transparent"
+          type="text"
+          :value="linkValue"
+          :placeholder="inputPlaceholder"
+          :readonly="isReadOnly"
+          :tabindex="isReadOnly ? '-1' : '0'"
+          @focus="(e) => !isReadOnly && onInputFocus(e)"
+          @click="(e) => !isReadOnly && onClick(e, toggleDropdown)"
+          @blur="(e) => !isReadOnly && onBlur(e.target.value, toggleDropdown)"
+          @input="(e) => onInput(e, toggleDropdown)"
+          @keydown.up="onKeyDownUp($event, toggleDropdown, highlightItemUp)"
+          @keydown.down="
+            onKeyDownDown($event, toggleDropdown, highlightItemDown)
+          "
+          @keydown.enter="
+            onPressEnter($event, toggleDropdown, selectHighlightedItem)
+          "
+          @keydown.tab="closeDropdown($event, toggleDropdown)"
+          @keydown.esc="closeDropdown($event, toggleDropdown)"
+        />
+
+        <svg
+          v-if="!isReadOnly && !canLink"
+          class="w-3 h-3"
+          style="background: inherit; margin-right: -3px"
+          viewBox="0 0 5 10"
+          xmlns="http://www.w3.org/2000/svg"
+          @click="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
+        >
+          <path
+            d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
+            class="stroke-current"
+            :class="
+              showMandatory ? 'text-red-400 dark:text-red-600' : 'text-gray-400'
+            "
+            fill="none"
+            fill-rule="evenodd"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <div v-if="canLink" class="flex items-center gap-1">
+          <button
+            v-if="value && showClearButton"
+            class="
+              p-0.5
+              rounded
+              bg-transparent
+              text-gray-600
+              hover:text-gray-800
+              dark:text-gray-300 dark:hover:text-gray-100
+              transition-colors
+            "
+            @click.stop.prevent="clearValue"
+            @mousedown.prevent
+          >
+            <feather-icon name="x" class="w-3.5 h-3.5" />
+          </button>
+          <button
+            class="p-0.5 rounded -me1 bg-transparent"
+            @mouseenter="showQuickView = true"
+            @mouseleave="showQuickView = false"
+            @click="routeToLinkedDoc"
+          >
+            <Popover
+              :show-popup="showQuickView"
+              :entry-delay="300"
+              placement="bottom"
+            >
+              <template #target>
+                <feather-icon
+                  name="chevron-right"
+                  class="w-4 h-4 text-gray-600 dark:text-gray-400"
+                />
+              </template>
+              <template #content>
+                <QuickView :schema-name="linkSchemaName" :name="value" />
+              </template>
+            </Popover>
+          </button>
+        </div>
+      </div>
+    </template>
+  </Dropdown>
+</template>
+<script>
+import { getOptionList } from 'fyo/utils';
+import { FieldTypeEnum } from 'schemas/types';
+import Dropdown from 'src/components/Dropdown.vue';
+import { fuzzyMatch } from 'src/utils';
+import { getFormRoute, routeTo } from 'src/utils/ui';
+import Popover from '../Popover.vue';
+import Base from './Base.vue';
+import QuickView from '../QuickView.vue';
+
+export default {
+  name: 'AutoComplete',
+  components: {
+    Dropdown,
+    Popover,
+    QuickView,
+  },
+  extends: Base,
+  emits: ['focus'],
+  data() {
+    return {
+      showQuickView: false,
+      linkValue: '',
+      focInp: false,
+      isLoading: false,
+      suggestions: [],
+      highlightedIndex: -1,
+      isFocused: false,
+      isDropdownOpen: false,
+    };
+  },
+  computed: {
+    linkSchemaName() {
+      let schemaName = this.df?.target;
+
+      if (!schemaName) {
+        const references = this.df?.references ?? '';
+        schemaName = this.doc?.[references];
+      }
+
+      return schemaName;
+    },
+    options() {
+      if (!this.df) {
+        return [];
+      }
+
+      return getOptionList(this.df, this.doc);
+    },
+    canLink() {
+      if (!this.value || !this.df) {
+        return false;
+      }
+
+      const fieldtype = this.df?.fieldtype;
+      const isLink = fieldtype === FieldTypeEnum.Link;
+      const isDynamicLink = fieldtype === FieldTypeEnum.DynamicLink;
+
+      if (!isLink && !isDynamicLink) {
+        return false;
+      }
+
+      if (isLink && this.df.target) {
+        return true;
+      }
+
+      const references = this.df.references;
+      if (!references) {
+        return false;
+      }
+
+      if (!this.doc?.[references]) {
+        return false;
+      }
+
+      return true;
+    },
+  },
+  watch: {
+    value: {
+      immediate: true,
+      handler(newValue) {
+        this.setLinkValue(this.getLinkValue(newValue));
+      },
+    },
+  },
+  mounted() {
+    const value = this.linkValue || this.value;
+    this.setLinkValue(this.getLinkValue(value));
+  },
+  unmounted() {
+    this.showQuickView = false;
+  },
+  deactivated() {
+    this.showQuickView = false;
+  },
+  methods: {
+    clearValue(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      this.triggerChange('');
+      this.setLinkValue('');
+    },
+    async routeToLinkedDoc() {
+      const name = this.value;
+      if (!this.linkSchemaName || !name) {
+        return;
+      }
+
+      const route = getFormRoute(this.linkSchemaName, name);
+      await routeTo(route);
+    },
+    async focusInputTag() {
+      this.focInp = true;
+      if (this.linkValue) {
+        return;
+      }
+
+      await this.$nextTick();
+      this.$refs.input.focus();
+    },
+    setLinkValue(value) {
+      this.linkValue = value;
+    },
+    getLinkValue(value) {
+      const oldValue = this.linkValue;
+      let option = this.options.find((o) => o.value === value);
+      if (!option) {
+        option = this.options.find((o) => o.label === value);
+      }
+      if (!value && !option) {
+        return null;
+      }
+
+      return option?.label ?? oldValue;
+    },
+    async updateSuggestions(keyword) {
+      if (typeof keyword === 'string') {
+        this.setLinkValue(keyword, true);
+      }
+
+      this.isLoading = true;
+      const suggestions = await this.getSuggestions(keyword);
+      this.suggestions = this.setSetSuggestionAction(suggestions);
+      this.isLoading = false;
+    },
+
+    setSetSuggestionAction(suggestions) {
+      for (const option of suggestions) {
+        if (!option.action) {
+          option.action = () => this.setSuggestion(option);
+        }
+      }
+
+      return suggestions;
+    },
+    async getSuggestions(keyword = '') {
+      keyword = keyword.toLowerCase();
+      if (!keyword) {
+        return this.options;
+      }
+
+      return this.options
+        .map((item) => ({ ...fuzzyMatch(keyword, item.label), item }))
+        .filter(({ isMatch }) => isMatch)
+        .sort((a, b) => a.distance - b.distance)
+        .map(({ item }) => item);
+    },
+    setSuggestion(suggestion) {
+      if (suggestion?.actionOnly) {
+        this.setLinkValue(this.value);
+        return;
+      }
+
+      if (suggestion) {
+        this.setLinkValue(suggestion.label);
+        this.triggerChange(suggestion.value);
+      }
+    },
+    onInputFocus(e) {
+      this.isFocused = true;
+    },
+    onClick(e, toggleDropdown) {
+      if (this.isFocused) {
+        toggleDropdown(true);
+        this.updateSuggestions();
+        this.isDropdownOpen = true;
+        this.$emit('focus', e);
+      }
+    },
+    onFocus(e, toggleDropdown) {
+      this.isFocused = true;
+      toggleDropdown(true);
+      this.updateSuggestions();
+      this.isDropdownOpen = true;
+      this.$emit('focus', e);
+    },
+    async onBlur(label, toggleDropdown) {
+      this.isFocused = false;
+      this.isDropdownOpen = false;
+      if (!label && !this.value) {
+        return;
+      }
+      if (!label) {
+        this.triggerChange('');
+        return;
+      }
+
+      if (this.suggestions.length === 0) {
+        this.triggerChange(label);
+        return;
+      }
+
+      const suggestion = this.suggestions.find((s) => s.label === label);
+      if (suggestion) {
+        this.setSuggestion(suggestion);
+      } else {
+        const suggestions = await this.getSuggestions(label);
+        this.setSuggestion(suggestions[0]);
+      }
+    },
+
+    onInput(e, toggleDropdown) {
+      if (this.isReadOnly) {
+        return;
+      }
+
+      if (!e.target.value || this.focInp) {
+        e.target.value = null;
+        this.focInp = false;
+        toggleDropdown(false);
+        return;
+      }
+
+      this.triggerChange(e.target.value);
+      this.updateSuggestions(e.target.value);
+    },
+
+    async onPressEnter(e, toggleDropdown, selectHighlightedItem) {
+      e.preventDefault();
+
+      if (
+        this.suggestions.length > 0 &&
+        this.isFocused &&
+        this.isDropdownOpen
+      ) {
+        await selectHighlightedItem();
+        this.closeDropdown(e, toggleDropdown);
+        return;
+      }
+
+      await this.updateSuggestions(this.linkValue || e.target.value);
+      toggleDropdown(true);
+      this.isDropdownOpen = true;
+    },
+
+    onKeyDownUp(e, toggleDropdown, highlightItemUp) {
+      if (this.suggestions.length === 0) {
+        this.updateSuggestions();
+        toggleDropdown(true);
+        this.isDropdownOpen = true;
+      }
+      highlightItemUp();
+    },
+    onKeyDownDown(e, toggleDropdown, highlightItemDown) {
+      if (this.suggestions.length === 0) {
+        this.updateSuggestions();
+        toggleDropdown(true);
+        this.isDropdownOpen = true;
+      }
+      highlightItemDown();
+    },
+    closeDropdown(e, toggleDropdown) {
+      toggleDropdown(false);
+      this.isDropdownOpen = false;
+    },
+  },
+};
+</script>

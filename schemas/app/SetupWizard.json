@@ -1,0 +1,101 @@
+{
+  "name": "SetupWizard",
+  "label": "Setup Wizard",
+  "isSingle": true,
+  "isChild": false,
+  "isSubmittable": false,
+  "fields": [
+    {
+      "fieldname": "logo",
+      "label": "Company Logo",
+      "fieldtype": "AttachImage",
+      "section": "Default"
+    },
+    {
+      "fieldname": "companyName",
+      "label": "Company Name",
+      "placeholder": "Company Name",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "fullname",
+      "label": "Full Name",
+      "fieldtype": "Data",
+      "placeholder": "John Doe",
+      "required": true
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "placeholder": "john@doe.com",
+      "required": true
+    },
+    {
+      "fieldname": "country",
+      "label": "Country",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select Country",
+      "section": "Locale",
+      "required": true
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Currency",
+      "section": "Locale",
+      "required": true
+    },
+    {
+      "fieldname": "bankName",
+      "label": "Bank Name",
+      "fieldtype": "Data",
+      "placeholder": "Prime Bank",
+      "section": "Accounting",
+      "required": true
+    },
+    {
+      "fieldname": "chartOfAccounts",
+      "label": "Chart of Accounts",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select CoA",
+      "section": "Accounting",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearStart",
+      "label": "Fiscal Year Start Date",
+      "placeholder": "Fiscal Year Start Date",
+      "fieldtype": "Date",
+      "section": "Accounting",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearEnd",
+      "label": "Fiscal Year End Date",
+      "placeholder": "Fiscal Year End Date",
+      "fieldtype": "Date",
+      "section": "Accounting",
+      "required": true
+    },
+    {
+      "fieldname": "completed",
+      "label": "Completed",
+      "fieldtype": "Check",
+      "hidden": true,
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "bankName",
+    "country",
+    "currency",
+    "chartOfAccounts",
+    "fiscalYearStart",
+    "fiscalYearEnd"
+  ]
+}

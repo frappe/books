@@ -1,0 +1,110 @@
+{
+  "name": "StockMovementItem",
+  "label": "Stock Movement Item",
+  "naming": "random",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "fromLocation",
+      "label": "From",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true
+    },
+    {
+      "fieldname": "toLocation",
+      "label": "To",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true
+    },
+    {
+      "fieldname": "transferUnit",
+      "label": "Transfer Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit"
+    },
+    {
+      "fieldname": "transferQuantity",
+      "label": "Qty. in Transfer Unit",
+      "fieldtype": "Float",
+      "default": 1,
+      "required": true
+    },
+    {
+      "fieldname": "unit",
+      "label": "Stock Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit",
+      "readOnly": true
+    },
+    {
+      "fieldname": "batch",
+      "label": "Batch",
+      "fieldtype": "Link",
+      "target": "Batch",
+      "create": true
+    },
+    {
+      "fieldname": "serialNumber",
+      "label": "Serial Number",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldname": "quantity",
+      "label": "Quantity",
+      "fieldtype": "Float",
+      "required": true,
+      "default": 1
+    },
+    {
+      "fieldname": "unitConversionFactor",
+      "label": "Conversion Factor",
+      "fieldtype": "Float",
+      "required": true,
+      "default": 1
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Currency",
+      "required": true
+    },
+    {
+      "fieldname": "amount",
+      "label": "Amount",
+      "fieldtype": "Currency",
+      "readOnly": true
+    }
+  ],
+  "tableFields": ["item", "fromLocation", "toLocation", "quantity", "rate"],
+  "keywordFields": ["item"],
+  "quickEditFields": [
+    "item",
+    "fromLocation",
+    "toLocation",
+
+    "transferQuantity",
+    "transferUnit",
+    "batch",
+    "serialNumber",
+    "quantity",
+    "unit",
+    "unitConversionFactor",
+
+    "rate",
+    "amount"
+  ]
+}

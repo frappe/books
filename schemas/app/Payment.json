@@ -1,0 +1,191 @@
+{
+  "name": "Payment",
+  "label": "Payment",
+  "naming": "numberSeries",
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "fields": [
+    {
+      "label": "Payment No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true,
+      "hidden": true
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "PAY-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "party",
+      "label": "Party",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "date",
+      "label": "Posting Date",
+      "fieldtype": "Datetime",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "paymentType",
+      "label": "Payment Type",
+      "fieldtype": "Select",
+      "placeholder": "Payment Type",
+      "options": [
+        {
+          "value": "Receive",
+          "label": "Receive"
+        },
+        {
+          "value": "Pay",
+          "label": "Pay"
+        }
+      ],
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "account",
+      "label": "From Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "paymentAccount",
+      "label": "To Account",
+      "placeholder": "To Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "paymentMethod",
+      "label": "Payment Method",
+      "placeholder": "Payment Method",
+      "fieldtype": "Link",
+      "target": "PaymentMethod",
+      "default": "Cash",
+      "required": true,
+      "create": true,
+      "section": "Details"
+    },
+    {
+      "fieldname": "clearanceDate",
+      "label": "Clearance Date",
+      "placeholder": "Clearance Date",
+      "fieldtype": "Date",
+      "section": "Details"
+    },
+    {
+      "fieldname": "referenceId",
+      "label": "Ref. / Cheque No.",
+      "placeholder": "Ref. / Cheque No.",
+      "fieldtype": "Data",
+      "section": "Details"
+    },
+    {
+      "fieldname": "referenceDate",
+      "label": "Reference Date",
+      "placeholder": "Ref. Date",
+      "fieldtype": "Date",
+      "section": "Details"
+    },
+    {
+      "fieldname": "amount",
+      "label": "Amount",
+      "fieldtype": "Currency",
+      "required": true,
+      "section": "Amounts"
+    },
+    {
+      "fieldname": "writeoff",
+      "label": "Write Off",
+      "fieldtype": "Currency",
+      "section": "Amounts"
+    },
+    {
+      "fieldname": "amountPaid",
+      "label": "Amount Paid",
+      "fieldtype": "Currency",
+      "computed": true,
+      "section": "Amounts"
+    },
+    {
+      "fieldname": "taxes",
+      "label": "Taxes",
+      "fieldtype": "Table",
+      "target": "TaxSummary",
+      "readOnly": true,
+      "section": "Amounts"
+    },
+    {
+      "fieldname": "for",
+      "label": "Payment Reference",
+      "fieldtype": "Table",
+      "target": "PaymentFor",
+      "required": false,
+      "section": "References"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment",
+      "section": "References"
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "SalesInvoice",
+          "label": "Sales"
+        },
+        {
+          "value": "PurchaseInvoice",
+          "label": "Purchase"
+        }
+      ],
+      "hidden": true
+    }
+  ],
+  "quickEditFields": [
+    "numberSeries",
+    "party",
+    "date",
+    "paymentMethod",
+    "account",
+    "paymentType",
+    "paymentAccount",
+    "referenceId",
+    "referenceDate",
+    "clearanceDate",
+    "amount",
+    "writeoff",
+    "amountPaid",
+    "attachment",
+    "for"
+  ],
+  "keywordFields": ["name", "party", "paymentType"]
+}

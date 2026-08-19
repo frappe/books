@@ -1,0 +1,124 @@
+{
+  "name": "SalesInvoice",
+  "label": "Sales Invoice",
+  "extends": "Invoice",
+  "naming": "numberSeries",
+  "showTitle": true,
+  "fields": [
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "SINV-",
+      "section": "Default"
+    },
+    {
+      "fieldname": "party",
+      "label": "Customer",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "coupons",
+      "label": "Coupons",
+      "fieldtype": "Table",
+      "target": "AppliedCouponCodes",
+      "section": "Coupons"
+    },
+    {
+      "fieldname": "backReference",
+      "label": "Back Reference",
+      "fieldtype": "Link",
+      "target": "Shipment",
+      "section": "References"
+    },
+    {
+      "fieldname": "quote",
+      "label": "Quote Reference",
+      "fieldtype": "Link",
+      "target": "SalesQuote",
+      "section": "References",
+      "required": false
+    },
+    {
+      "fieldname": "makeAutoStockTransfer",
+      "label": "Make Shipment On Submit",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false,
+      "tab": "Settings"
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "SalesInvoiceItem",
+      "required": true,
+      "edit": true,
+      "section": "Items"
+    },
+    {
+      "fieldname": "stockNotTransferred",
+      "label": "Stock Not Shipped",
+      "fieldtype": "Float",
+      "readOnly": true,
+      "section": "Outstanding"
+    },
+    {
+      "fieldname": "returnAgainst",
+      "fieldtype": "Link",
+      "target": "SalesInvoice",
+      "label": "Return Against",
+      "section": "References"
+    },
+    {
+      "fieldname": "loyaltyProgram",
+      "fieldtype": "Link",
+      "target": "LoyaltyProgram",
+      "label": "Loyalty Program",
+      "section": "References",
+      "readOnly": true
+    },
+    {
+      "fieldname": "redeemLoyaltyPoints",
+      "fieldtype": "Check",
+      "default": false,
+      "label": "Redeem Loyalty Points",
+      "section": "Loyalty Points Redemption"
+    },
+    {
+      "fieldname": "loyaltyPoints",
+      "fieldtype": "Int",
+      "label": "Loyalty Points",
+      "section": "Loyalty Points Redemption"
+    },
+    {
+      "fieldname": "isPOS",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "isPricingRuleApplied",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
+    },
+    {
+      "fieldname": "pricingRuleDetail",
+      "fieldtype": "Table",
+      "label": "Pricing Rule Detail",
+      "target": "PricingRuleDetail",
+      "edit": false,
+      "readOnly": true,
+      "section": "References"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

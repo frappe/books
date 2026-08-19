@@ -1,0 +1,156 @@
+{
+  "name": "PrintSettings",
+  "label": "Print Settings",
+  "isSingle": true,
+  "fields": [
+    {
+      "fieldname": "logo",
+      "label": "Logo",
+      "fieldtype": "AttachImage",
+      "section": "Default"
+    },
+    {
+      "fieldname": "companyName",
+      "label": "Company Name",
+      "fieldtype": "Data",
+      "section": "Default"
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "placeholder": "john@doe.com",
+      "section": "Contacts"
+    },
+    {
+      "fieldname": "phone",
+      "label": "Phone",
+      "fieldtype": "Data",
+      "placeholder": "9888900000",
+      "section": "Contacts"
+    },
+    {
+      "fieldname": "address",
+      "label": "Address",
+      "fieldtype": "Link",
+      "target": "Address",
+      "create": true,
+      "section": "Contacts"
+    },
+    {
+      "fieldname": "color",
+      "label": "Color",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "default": "#112B42",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#f56565"
+        },
+        {
+          "label": "Orange",
+          "value": "#ed8936"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#48bb78"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#33a1ff"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9f7aea"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ],
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "font",
+      "label": "Font",
+      "placeholder": "Font",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Arial",
+          "label": "Arial"
+        },
+        {
+          "value": "Times New Roman",
+          "label": "Times New Roman"
+        },
+        {
+          "value": "Courier",
+          "label": "Courier"
+        }
+      ],
+      "default": "Arial",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "displayLogo",
+      "label": "Display Logo in Invoice",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "amountInWords",
+      "label": "Display Amount In Words",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "displayTime",
+      "label": "Display Time In Invoice",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "displayDescription",
+      "label": "Display Description In Invoice",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "displaytermsandconditions",
+      "label": "Display Terms and Conditions",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "posPrintWidth",
+      "label": "Pos Print Width",
+      "fieldtype": "Float",
+      "default": 8,
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "termsAndConditions",
+      "label": "Terms and Conditions",
+      "fieldtype": "Text",
+      "section": "Customizations"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+name: 'General Question'
+description: Create a new ticket for a general question
+title: '🐛 [General Question] - <title>'
+labels: ['question']
+
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 'Summary'
+      description: General Question(s) (for Bugs and Feature Requests, please use the appropriate template)
+      placeholder: '...'
+    validations:
+      required: true

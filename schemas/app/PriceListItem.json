@@ -1,0 +1,31 @@
+{
+  "name": "PriceListItem",
+  "label": "Price List Item",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "required": true,
+      "create": true,
+      "section": "Item"
+    },
+    {
+      "fieldname": "unit",
+      "label": "Unit Type",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "section": "Item"
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Currency",
+      "required": true,
+      "section": "Item"
+    }
+  ],
+  "tableFields": ["item", "unit", "rate"]
+}

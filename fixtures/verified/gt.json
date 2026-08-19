@@ -1,0 +1,423 @@
+{
+  "countryCode": "gt",
+  "name": "Guatemala - Cuentas",
+  "tree": {
+    "Activos": {
+      "Activo Corriente": {
+        "Activos Biol\u00f3gicos": {
+          "Activos Biol\u00f3gicos a Valor Razonable": {
+            "Animales": {
+              "accountNumber": "1.5.2.1",
+              "accountType": "Stock",
+              "isGroup": true
+            },
+            "Plantas": {
+              "accountNumber": "1.5.2.2",
+              "accountType": "Stock",
+              "isGroup": true
+            },
+            "accountNumber": "1.5.2",
+            "accountType": "Stock"
+          },
+          "Activos Biol\u00f3gicos al Costo": {
+            "accountNumber": "1.5.1",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "accountNumber": "1.5",
+          "accountType": "Stock"
+        },
+        "Activos Corrientes Adicionales": {
+          "Activos Diferidos o Restringidos": {
+            "Cr\u00e9dito Fiscal (IVA Por Cobrar)": {
+              "accountNumber": "1.1.2.1",
+              "accountType": "Chargeable",
+              "isGroup": true
+            },
+            "accountNumber": "1.1.2",
+            "accountType": "Chargeable"
+          },
+          "Inversiones Corrientes no Clasificados como Equivalentes de Caja y Bancos": {
+            "accountNumber": "1.1.1"
+          },
+          "accountNumber": "1.1",
+          "accountType": "Chargeable"
+        },
+        "Activos Devengables y Otros Activos": {
+          "Activos Adicionales y Otros": {
+            "accountNumber": "1.6.6",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Cobrables Relacionados con Impuestos": {
+            "accountNumber": "1.6.2",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Contratos de Construccion": {
+            "accountNumber": "1.6.4",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Costos de Montaje": {
+            "accountNumber": "1.6.5",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Pagos Anticipados y Otros Activos Circulantes": {
+            "Seguro Pagado Anticipadamente": {
+              "accountNumber": "1.6.1.0",
+              "accountType": "Chargeable"
+            },
+            "accountNumber": "1.6.1",
+            "accountType": "Chargeable"
+          },
+          "Proveedores de Servicio": {
+            "accountNumber": "1.6.3",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "accountNumber": "1.6",
+          "accountType": "Chargeable"
+        },
+        "Activos Financieros": {
+          "Activos Financieros Clasificados por Designaci\u00f3n": {
+            "accountNumber": "1.4.6",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Activos Financieros Derivados": {
+            "accountNumber": "1.4.3",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Inversion o Participaci\u00f3n Accionaria en Empresas Afiliadas": {
+            "accountNumber": "1.4.1",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Inversiones Burs\u00e1tiles e Instrumentos Financieros": {
+            "accountNumber": "1.4.2",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Otros Activos Financieros": {
+            "accountNumber": "1.4.4",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Provisi\u00f3n por Riesgo de Cr\u00e9dito (agregado) (Contra-activo)": {
+            "accountNumber": "1.4.5",
+            "accountType": "Round Off",
+            "isGroup": true
+          },
+          "accountNumber": "1.4",
+          "accountType": "Chargeable"
+        },
+        "Activos Intangibles": {
+          "accountNumber": "1.3",
+          "accountType": "Chargeable",
+          "isGroup": true
+        },
+        "Caja y Equivalentes": {
+          "Caja": {
+            "accountNumber": "1.9.1",
+            "accountType": "Cash",
+            "isGroup": true
+          },
+          "Equivalentes de Efectivo (Bancos)": {
+            "Bancos Internacionales": {
+              "HSBC": {
+                "accountNumber": "1.9.2.2.1",
+                "accountType": "Bank"
+              },
+              "accountNumber": "1.9.2.2",
+              "accountType": "Bank"
+            },
+            "Bancos Nacionales": {
+              "Banco Agromercantil de Guatemala": {
+                "accountNumber": "1.9.2.1.2",
+                "accountType": "Bank"
+              },
+              "Banco G&T Continental": {
+                "accountNumber": "1.9.2.1.5",
+                "accountType": "Bank"
+              },
+              "Banco Industrial": {
+                "accountNumber": "1.9.2.1.1",
+                "accountType": "Bank",
+                "isGroup": true
+              },
+              "Banco Internacional": {
+                "accountNumber": "1.9.2.1.6",
+                "accountType": "Bank"
+              },
+              "Banco Prom\u00e9rica": {
+                "accountNumber": "1.9.2.1.3",
+                "accountType": "Bank"
+              },
+              "Banco de Am\u00e9rica Central": {
+                "accountNumber": "1.9.2.1.4",
+                "accountType": "Bank"
+              },
+              "Banco de Desarrollo Rural": {
+                "accountNumber": "1.9.2.1.7",
+                "accountType": "Bank"
+              },
+              "Banco de los Trabajadores": {
+                "accountNumber": "1.9.2.1.8",
+                "accountType": "Bank"
+              },
+              "Vivibanco": {
+                "accountNumber": "1.9.2.1.9",
+                "accountType": "Bank"
+              },
+              "accountNumber": "1.9.2.1",
+              "accountType": "Bank"
+            },
+            "Cadena de Bloques (Blockchain)": {
+              "Billetera Bitcoin 1234567890abcdefg": {
+                "accountNumber": "1.9.2.3.1",
+                "accountType": "Cash"
+              },
+              "accountNumber": "1.9.2.3",
+              "accountType": "Cash"
+            },
+            "accountNumber": "1.9.2",
+            "accountType": "Bank"
+          },
+          "Inversiones a Corto Plazo": {
+            "accountNumber": "1.9.3",
+            "accountType": "Bank",
+            "isGroup": true
+          },
+          "Otros Equivalentes de Caja y Bancos": {
+            "accountNumber": "1.9.4",
+            "accountType": "Cash",
+            "isGroup": true
+          },
+          "accountNumber": "1.9",
+          "accountType": "Bank"
+        },
+        "Cobrables": {
+          "Activos bajo Contrato": {
+            "accountNumber": "1.8.2",
+            "accountType": "Receivable",
+            "isGroup": true
+          },
+          "Ajustes": {
+            "accountNumber": "1.8.4",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "Otras Cuentas por Cobrar": {
+            "Cuentas Por Cobrar Compa\u00f1\u00edas Afiliadas": {
+              "Compa\u00f1\u00eda subsidiaria (EJEMPLO)": {
+                "accountNumber": "1.8.3.2.1",
+                "accountType": "Receivable"
+              },
+              "accountNumber": "1.8.3.2",
+              "accountType": "Receivable"
+            },
+            "Cuentas por Cobrar a Empleados": {
+              "Prestamo EJEMPLO": {
+                "accountNumber": "1.8.3.3.1",
+                "accountType": "Receivable"
+              },
+              "accountNumber": "1.8.3.3",
+              "accountType": "Receivable"
+            },
+            "Cuentas por Cobrar a Otras Entidades no Afiliadas": {
+              "Compa\u00f1\u00eda No Afiliada (EJEMPLO)": {
+                "accountNumber": "1.8.3.1.1",
+                "accountType": "Receivable"
+              },
+              "accountNumber": "1.8.3.1",
+              "accountType": "Receivable"
+            },
+            "accountNumber": "1.8.3",
+            "accountType": "Receivable"
+          },
+          "Ventas al Cr\u00e9dito": {
+            "accountNumber": "1.8.1",
+            "accountType": "Receivable",
+            "isGroup": true
+          },
+          "accountNumber": "1.8",
+          "accountType": "Receivable"
+        },
+        "Impuestos por Cobrar": {
+          "Retenciones de IVA recibidas": {}
+        },
+        "Inventario": {
+          "Art\u00edculos de Inventario Adicionales": {
+            "accountNumber": "1.7.8",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Combustibles": {
+            "accountNumber": "1.7.5",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Inventarios Pignorados Como Garant\u00eda de Pasivo": {
+            "accountNumber": "1.7.10",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Inventarios a Valor Razonable Menos Costos de Venta": {
+            "accountNumber": "1.7.11",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Materia Prima": {
+            "accountNumber": "1.7.1",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Mercader\u00eda (Mercanc\u00edas)": {
+            "accountNumber": "1.7.2",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Otros Inventarios": {
+            "Merma o Ajuste de Inventario": {
+              "accountNumber": "1.7.9.1",
+              "accountType": "Stock Adjustment",
+              "isGroup": true
+            },
+            "accountNumber": "1.7.9",
+            "accountType": "Stock"
+          },
+          "Producto Terminado": {
+            "accountNumber": "1.7.7",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Repuestos": {
+            "Respuestos en Transito": {
+              "accountNumber": "1.7.4.0",
+              "accountType": "Stock",
+              "isGroup": true
+            },
+            "accountNumber": "1.7.4",
+            "accountType": "Stock"
+          },
+          "Suministros de Producci\u00f3n y Consumibles": {
+            "accountNumber": "1.7.3",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Trabajo en Progeso": {
+            "accountNumber": "1.7.6",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "accountNumber": "1.7",
+          "accountType": "Stock"
+        },
+        "Inversion en Propiedades": {
+          "Inversion Inmobiliaria Bajo Construccion": {
+            "accountNumber": "1.2.1",
+            "accountType": "Chargeable"
+          },
+          "Inversion Inmobiliaria Construida": {
+            "accountNumber": "1.2.2",
+            "accountType": "Chargeable",
+            "isGroup": true
+          },
+          "accountNumber": "1.2",
+          "accountType": "Chargeable"
+        },
+        "accountNumber": "1.0"
+      },
+      "No Corriente": {
+        "Activos Fijos": {
+          "accountType": "Fixed Asset"
+        },
+        "Cargos Diferidos": {}
+      },
+      "accountNumber": "1",
+      "rootType": "Asset"
+    },
+    "Costos": {
+      "Costo de Ventas": {
+        "accountType": "Cost of Goods Sold"
+      },
+      "Costos Incluidos en la Valuaci\u00f3n": {
+        "accountType": "Expenses Included In Valuation"
+      },
+      "Merma o Ajuste de Inventario": {
+        "accountType": "Stock Adjustment"
+      },
+      "accountNumber": "5",
+      "rootType": "Expense"
+    },
+    "Gastos": {
+      "Alquileres": {},
+      "Depreciaciones": {
+        "accountType": "Depreciation"
+      },
+      "Gastos Diversos": {},
+      "Gastos de Personal": {},
+      "Honorarios Profesionales": {},
+      "Mantenimiento": {},
+      "Seguros": {},
+      "Servicios B\u00e1sicos": {},
+      "accountNumber": "6",
+      "rootType": "Expense"
+    },
+    "Ingresos": {
+      "Productos": {},
+      "Servicios": {},
+      "accountNumber": "4",
+      "rootType": "Income"
+    },
+    "Otros Gastos y Productos Financieros": {
+      "Otros Gastos": {
+        "Otros Gastos y Productos Financieros 2": {
+          "Intereses 1": {},
+          "Otros Gastos Financieros 1": {}
+        }
+      },
+      "Otros Ingresos": {
+        "Otros Gastos y Productos Financieros 1": {
+          "Intereses": {},
+          "Otros Gastos Financieros": {}
+        }
+      },
+      "accountNumber": "7",
+      "rootType": "Expense"
+    },
+    "Pasivos": {
+      "Pasivo Corriente": {
+        "Acreedores 1": {
+          "accountType": "Payable"
+        },
+        "Cuentas por Pagar": {},
+        "Impuestos por Pagar": {},
+        "Otras Cuentas por Pagar": {},
+        "Prestaciones": {},
+        "Proveedores": {
+          "Inventario Recibido pero No Cobrado": {
+            "accountType": "Stock Received But Not Billed"
+          }
+        },
+        "Sueldos por Liquidar": {}
+      },
+      "Pasivo No Corriente": {
+        "Acreedores": {},
+        "Provisi\u00f3n para Indemnizaciones": {}
+      },
+      "accountNumber": "2",
+      "rootType": "Liability"
+    },
+    "Patrimonio": {
+      "Capital": {},
+      "Resultados del Ejercicio": {},
+      "Utilidades Retenidas": {},
+      "accountNumber": "3",
+      "rootType": "Asset"
+    }
+  }
+}

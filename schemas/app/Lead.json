@@ -1,0 +1,76 @@
+{
+  "name": "Lead",
+  "label": "Lead",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true,
+      "placeholder": "Full Name",
+      "section": "Default"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "default": "Open",
+      "options": [
+        {
+          "value": "Open",
+          "label": "Open"
+        },
+        {
+          "value": "Replied",
+          "label": "Replied"
+        },
+        {
+          "value": "Interested",
+          "label": "Interested"
+        },
+        {
+          "value": "Opportunity",
+          "label": "Opportunity"
+        },
+        {
+          "value": "Converted",
+          "label": "Converted"
+        },
+        {
+          "value": "Quotation",
+          "label": "Quotation"
+        },
+        {
+          "value": "DonotContact",
+          "label": "Do not Contact"
+        }
+      ],
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "placeholder": "john@doe.com",
+      "section": "Contacts"
+    },
+    {
+      "fieldname": "mobile",
+      "label": "Mobile",
+      "fieldtype": "Data",
+      "placeholder": "Mobile",
+      "section": "Contacts"
+    },
+    {
+      "fieldname": "address",
+      "label": "Address",
+      "fieldtype": "Link",
+      "target": "Address",
+      "create": true,
+      "section": "Contacts"
+    }
+  ],
+  "keywordFields": ["name", "email", "mobile"]
+}

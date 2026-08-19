@@ -1,0 +1,687 @@
+{
+  "countryCode": "id",
+  "name": "Indonesia - Chart of Accounts",
+  "tree": {
+    "Aktiva": {
+      "Aktiva Lancar": {
+        "Akun sementara": {
+          "Pembukaan sementara": {
+            "accountNumber": "1171.000",
+            "accountType": "Temporary"
+          },
+          "accountNumber": "1170.000"
+        },
+        "Bank ": {
+          "Bank Other Currency": {
+            "accountNumber": "1122.000",
+            "isGroup": true
+          },
+          "Bank Rupiah": {
+            "accountNumber": "1121.000",
+            "isGroup": true
+          },
+          "accountNumber": "1120.000",
+          "accountType": "Bank"
+        },
+        "Biaya di Bayar di Muka": {
+          "Biaya di Bayar di Muka": {
+            "Biaya di Bayar di Muka": {
+              "Biaya d Bayar di Muka": {
+                "accountNumber": "1151.00111"
+              },
+              "accountNumber": "1151.001"
+            },
+            "accountNumber": "1151.000"
+          },
+          "accountNumber": "1150.000"
+        },
+        "Kas": {
+          "Kas Mata Uang Lain": {
+            "Kas USD": {
+              "accountNumber": "1112.0010",
+              "accountType": "Cash"
+            },
+            "accountNumber": "1112.000"
+          },
+          "Kas Rupiah": {
+            "Kas Besar": {
+              "accountNumber": "1111.0020",
+              "accountType": "Cash"
+            },
+            "Kas Kecil": {
+              "accountNumber": "1111.0010",
+              "accountType": "Cash"
+            },
+            "accountNumber": "1111.000",
+            "accountType": "Cash"
+          },
+          "accountNumber": "1110.0000"
+        },
+        "Pendapatan Yang Akan di Terima": {
+          "Pendapatan Yang di Terima": {
+            "Pendapatan Yang Akan di Terima": {
+              "accountNumber": "1161.001"
+            },
+            "accountNumber": "1161.000"
+          },
+          "accountNumber": "1160.000"
+        },
+        "Persediaan Barang": {
+          "Persediaan Barang": {
+            "accountNumber": "1141.000",
+            "accountType": "Stock",
+            "isGroup": true
+          },
+          "Uang Muka Pembelian": {
+            "Uang Muka Pembelian": {
+              "accountNumber": "1142.001",
+              "accountType": "Bank"
+            },
+            "accountNumber": "1142.000"
+          },
+          "accountNumber": "1140.000"
+        },
+        "Piutang": {
+          "Piutang Dagang": {
+            "Piutang Dagang": {
+              "accountNumber": "1131.0010",
+              "accountType": "Receivable"
+            },
+            "accountNumber": "1131.000"
+          },
+          "Piutang Lain lain": {
+            "Piutang Lain-lain 1": {
+              "accountNumber": "1132.001",
+              "accountType": "Receivable"
+            },
+            "accountNumber": "1132.000"
+          },
+          "accountNumber": "1130.000"
+        },
+        "accountNumber": "1100.0000"
+      },
+      "Aktiva Tetap": {
+        "Aktiva": {
+          "Aktiva": {
+            "Aktiva": {
+              "accountNumber": "1211.001",
+              "accountType": "Fixed Asset"
+            },
+            "accountNumber": "1211.000"
+          },
+          "Akumulasi Penyusutan Aktiva": {
+            "Akumulasi Penyusutan Aktiva": {
+              "accountNumber": "1212.001",
+              "accountType": "Accumulated Depreciation"
+            },
+            "accountNumber": "1212.000"
+          },
+          "accountNumber": "1210.000"
+        },
+        "Investasi": {
+          "Investasi": {
+            "Deposito": {
+              "accountNumber": "1231.003",
+              "isGroup": true
+            },
+            "Investai Saham": {
+              "Investasi Saham": {
+                "accountNumber": "1231.0011"
+              },
+              "accountNumber": "1231.001"
+            },
+            "Investasi Perumahan": {
+              "Investasi Perumahan": {
+                "accountNumber": "1231.0021"
+              },
+              "accountNumber": "1231.002"
+            },
+            "accountNumber": "1231.000"
+          },
+          "accountNumber": "1230.000"
+        },
+        "accountNumber": "1200.000"
+      },
+      "accountNumber": "1000.0000",
+      "rootType": "Asset"
+    },
+    "Beban": {
+      "Beban Lain lain": {
+        "Beban Lain lain": {
+          "Beban Adm Bank": {
+            "accountNumber": "5510.001"
+          },
+          "Beban Bunga Kredit Rekening Koran Bank": {
+            "accountNumber": "5510.004"
+          },
+          "Beban Bunga Pinjaman Pada Pihak Ke 3": {
+            "accountNumber": "5510.005"
+          },
+          "Beban Notaris Dan ADM Kredit Bank": {
+            "accountNumber": "5510.003"
+          },
+          "Beban Pajak Bumi & Bangunan": {
+            "accountNumber": "5510.006"
+          },
+          "Beban Pajak PPN": {
+            "accountNumber": "5510.008"
+          },
+          "Beban Pajak Penghasilan ": {
+            "accountNumber": "5510.007"
+          },
+          "Beban Provisi Pinjaman Bank": {
+            "accountNumber": "5510.002"
+          },
+          "Selisih Kurs": {
+            "accountNumber": "5510.010",
+            "accountType": "Round Off"
+          },
+          "Selisih Pembayaran Customer": {
+            "accountNumber": "5510.009",
+            "accountType": "Round Off"
+          },
+          "accountNumber": "5510.000"
+        },
+        "accountNumber": "5500.000"
+      },
+      "Beban Langsung": {
+        "Beban Penjualan": {
+          "Biaya Asuransi Kendaraan Operasional": {
+            "accountNumber": "5110.009"
+          },
+          "Biaya BBM": {
+            "accountNumber": "5110.001"
+          },
+          "Biaya Barang Rusak": {
+            "accountNumber": "5110.007"
+          },
+          "Biaya Bonus, Hadiah, dan Sampel": {
+            "accountNumber": "5110.013"
+          },
+          "Biaya Entertainment dan Pergaulan": {
+            "accountNumber": "5110.014"
+          },
+          "Biaya Kebutuhan Penjualan": {
+            "accountNumber": "5110.011"
+          },
+          "Biaya Kuli": {
+            "accountNumber": "5110.005"
+          },
+          "Biaya Leasing Kendaraan Operasional": {
+            "accountNumber": "5110.010"
+          },
+          "Biaya Parkir": {
+            "accountNumber": "5110.003"
+          },
+          "Biaya Penjualan Lain Lain": {
+            "accountNumber": "5110.019"
+          },
+          "Biaya Perbaikan Kendaraan Operasional": {
+            "accountNumber": "5110.008"
+          },
+          "Biaya Perjalanan Dinas": {
+            "accountNumber": "5110.006"
+          },
+          "Biaya Piutang Tak Tertagih": {
+            "accountNumber": "5110.017"
+          },
+          "Biaya Sample": {
+            "accountNumber": "5110.012"
+          },
+          "Biaya Sewa Gudang": {
+            "accountNumber": "5110.015"
+          },
+          "Biaya Sewa Peralatan Gudang": {
+            "accountNumber": "5110.016"
+          },
+          "Biaya Susut Barang": {
+            "accountNumber": "5110.021"
+          },
+          "Biaya Tol": {
+            "accountNumber": "5110.002"
+          },
+          "Biaya Upah Angkat/Turun Barang": {
+            "accountNumber": "5110.004"
+          },
+          "Penyesuaian Stock": {
+            "accountNumber": "5110.020",
+            "accountType": "Stock Adjustment"
+          },
+          "Potongan Supplier": {
+            "accountNumber": "5110.018"
+          },
+          "accountNumber": "5110.000"
+        },
+        "Biaya Gaji & Kesejahteraan Pegawai": {
+          "Biaya Asuransi Kesehatan Pegawai": {
+            "accountNumber": "5120.004"
+          },
+          "Biaya Gaji & Kesejahteraan Lainnya": {
+            "accountNumber": "5120.007"
+          },
+          "Biaya Gaji Karyawan Harian": {
+            "accountNumber": "5120.002"
+          },
+          "Biaya Gaji Staff & Karyawan Tetap": {
+            "accountNumber": "5120.001"
+          },
+          "Biaya Konsumsi": {
+            "accountNumber": "5120.006"
+          },
+          "Biaya Pengobatan": {
+            "accountNumber": "5120.003"
+          },
+          "Biaya THR, Bonus, dan Komisi": {
+            "accountNumber": "5120.005"
+          },
+          "accountNumber": "5120.000"
+        },
+        "Biaya Kantor & Gudang": {
+          "Biaya Alat Tulis Kantor": {
+            "accountNumber": "5130.005"
+          },
+          "Biaya Asuransi Bangunan": {
+            "accountNumber": "5130.014"
+          },
+          "Biaya Fotocopy, Photo, Print Out": {
+            "accountNumber": "5130.004"
+          },
+          "Biaya Humas & Pergaulan": {
+            "accountNumber": "5130.009"
+          },
+          "Biaya KTR & GDG Lain Lain": {
+            "accountNumber": "5130.018"
+          },
+          "Biaya PAM Gudang & Kantor": {
+            "accountNumber": "5130.002"
+          },
+          "Biaya PLN Gudang & Kantor": {
+            "accountNumber": "5130.001"
+          },
+          "Biaya Pemeliharaan Bgn Gudang": {
+            "accountNumber": "5130.008"
+          },
+          "Biaya Perizinan Kendaraan Operasional": {
+            "accountNumber": "5130.017"
+          },
+          "Biaya Perizinan Usaha dan Bangunan": {
+            "accountNumber": "5130.016"
+          },
+          "Biaya Perlengkapan Gudang": {
+            "accountNumber": "5130.010"
+          },
+          "Biaya Serba Serbi": {
+            "accountNumber": "5130.012"
+          },
+          "Biaya Servis Peralatan Gudang": {
+            "accountNumber": "5130.007"
+          },
+          "Biaya Sewa Kantor": {
+            "accountNumber": "5130.013"
+          },
+          "Biaya Stamp Duty & Pos": {
+            "accountNumber": "5130.006"
+          },
+          "Biaya Sumbangan": {
+            "accountNumber": "5130.015"
+          },
+          "Biaya TLP Gudang & Kantor": {
+            "accountNumber": "5130.003"
+          },
+          "Iuran Bulanan": {
+            "accountNumber": "5130.011"
+          },
+          "accountNumber": "5130.000"
+        },
+        "accountNumber": "5100.000"
+      },
+      "Beban Tidak Langsung": {
+        "Biaya Gaji & Kesejahteraan Pegawai Indirect": {
+          "Biaya Gaji Lain Lain": {
+            "accountNumber": "5210.005"
+          },
+          "Biaya Gaji Staff": {
+            "accountNumber": "5210.001"
+          },
+          "Biaya Konsumsi": {
+            "accountNumber": "5210.004"
+          },
+          "Biaya Pengobatan & Kesehatan": {
+            "accountNumber": "5210.003"
+          },
+          "Biaya THR dan Bonus Staff": {
+            "accountNumber": "5210.002"
+          },
+          "accountNumber": "5210.000"
+        },
+        "Biaya Kantor Indirect": {
+          "Biaya Alat Tulis Kantor": {
+            "accountNumber": "5230.006"
+          },
+          "Biaya Asuransi Bangunan": {
+            "accountNumber": "5230.005"
+          },
+          "Biaya Fotocopy, Photo, Print Out": {
+            "accountNumber": "5230.007"
+          },
+          "Biaya Iuran Bulanan": {
+            "accountNumber": "5230.012"
+          },
+          "Biaya KTR Lain Lain": {
+            "accountNumber": "5230.016"
+          },
+          "Biaya Kirim Dokumen": {
+            "accountNumber": "5230.008"
+          },
+          "Biaya PAM Kantor": {
+            "accountNumber": "5230.002"
+          },
+          "Biaya PLN Kantor": {
+            "accountNumber": "5230.001"
+          },
+          "Biaya Pemeliharaan Bangunan Kantor": {
+            "accountNumber": "5230.011"
+          },
+          "Biaya Perizinan Bangunan": {
+            "accountNumber": "5230.014"
+          },
+          "Biaya Perizinan Kendaraan Dinas": {
+            "accountNumber": "5230.015"
+          },
+          "Biaya Perlengkapan & Peralatan Kantor": {
+            "accountNumber": "5230.009"
+          },
+          "Biaya Sewa Kantor": {
+            "accountNumber": "5230.004"
+          },
+          "Biaya Stamp Duty & Pos": {
+            "accountNumber": "5230.017"
+          },
+          "Biaya Sumbangan": {
+            "accountNumber": "5230.013"
+          },
+          "Biaya TLP Kantor": {
+            "accountNumber": "5230.003"
+          },
+          "Service Peralatan Kantor": {
+            "accountNumber": "5230.010"
+          },
+          "accountNumber": "5230.000"
+        },
+        "Biaya Operational Indirect": {
+          "Biaya Asuransi Kendaraan Dinas": {
+            "accountNumber": "5220.006"
+          },
+          "Biaya BBM": {
+            "accountNumber": "5220.001"
+          },
+          "Biaya Entertainment dan Pergaulan": {
+            "accountNumber": "5220.008"
+          },
+          "Biaya Hadiah dan Bonus": {
+            "accountNumber": "5220.009"
+          },
+          "Biaya Leasing Kendaraan Dinas": {
+            "accountNumber": "5220.007"
+          },
+          "Biaya Perbaikan Kendaraan Dinas": {
+            "accountNumber": "5220.005"
+          },
+          "Biaya Perjalanan Dinas": {
+            "accountNumber": "5220.004"
+          },
+          "Biaya TLP & HP": {
+            "accountNumber": "5220.003"
+          },
+          "Biaya Tol & Parkir": {
+            "accountNumber": "5220.002"
+          },
+          "accountNumber": "5220.000"
+        },
+        "accountNumber": "5200.000"
+      },
+      "Biaya Amortisasi": {
+        "Biaya Amortisasi": {
+          "accountNumber": "5410.000"
+        },
+        "accountNumber": "5400.000"
+      },
+      "Biaya Penyusutan": {
+        "Biaya Penyusutan": {
+          "By Peny Aktiva ": {
+            "accountNumber": "5310.001",
+            "accountType": "Depreciation"
+          },
+          "accountNumber": "5310.000"
+        },
+        "accountNumber": "5300.000"
+      },
+      "accountNumber": "5000.000",
+      "rootType": "Expense"
+    },
+    "Modal": {
+      "Laba": {
+        "Laba Periode Berjalan": {
+          "accountNumber": "3230.000"
+        },
+        "Laba Tahun Berjalan": {
+          "accountNumber": "3220.000"
+        },
+        "Laba di Tahan": {
+          "accountNumber": "3210.000"
+        },
+        "accountNumber": "3200.000"
+      },
+      "Modal": {
+        "Modal di Setor": {
+          "accountNumber": "3110.000"
+        },
+        "Prive P.Saham": {
+          "accountNumber": "3120.000"
+        },
+        "Saldo pembukaan Equity": {
+          "accountNumber": "3130.000"
+        },
+        "accountNumber": "3100.000"
+      },
+      "accountNumber": "3000.000",
+      "rootType": "Equity"
+    },
+    "Passiva": {
+      "Pasiva Lancar": {
+        "Biaya Yang Akan di Bayar": {
+          "Biaya Yang Akan di Bayar": {
+            "Biaya Yang Akan di Bayar": {
+              "accountNumber": "2131.001"
+            },
+            "accountNumber": "2131.000"
+          },
+          "Biaya Yang Akan di Bayar - Freight": {
+            "Biaya Yang Akan di Bayar - Freight": {
+              "accountNumber": "2132.001",
+              "accountType": "Expenses Included In Valuation"
+            },
+            "accountNumber": "2132.000"
+          },
+          "accountNumber": "2130.000"
+        },
+        "Hutang Dagang": {
+          "Hutang Dagang Other Currency": {
+            "Hutang Dagang Biaya Kirim Dalam Negeri": {
+              "accountNumber": "2112.005",
+              "accountType": "Payable"
+            },
+            "Hutang Dagang Biaya Kirim Luar Negeri (SGD)": {
+              "accountNumber": "2112.004",
+              "accountType": "Payable"
+            },
+            "Hutang Dagang Biaya Kirim Luar Negeri (USD)": {
+              "accountNumber": "2112.003",
+              "accountType": "Payable"
+            },
+            "Hutang Dagang Luar Negeri (SGD)": {
+              "accountNumber": "2112.002",
+              "accountType": "Payable"
+            },
+            "Hutang Dagang Luar Negeri (USD)": {
+              "accountNumber": "2112.001",
+              "accountType": "Payable"
+            },
+            "accountNumber": "2112.000"
+          },
+          "Hutang Dagang Rupiah": {
+            "HUtang Dagang Biaya Kirim Luar Negeri": {
+              "accountNumber": "2111.004",
+              "accountType": "Payable"
+            },
+            "Hutang Dagang Biaya Kirim Dalam Negeri": {
+              "accountNumber": "2111.003",
+              "accountType": "Payable"
+            },
+            "Hutang Dagang Dalam Negeri": {
+              "accountNumber": "2111.001",
+              "accountType": "Payable"
+            },
+            "Hutang Dagang Luar Negeri": {
+              "accountNumber": "2111.002",
+              "accountType": "Payable"
+            },
+            "accountNumber": "2111.000"
+          },
+          "Stock Diterima Tapi Tidak Ditagih": {
+            "accountNumber": "2115.000",
+            "accountType": "Stock Received But Not Billed"
+          },
+          "accountNumber": "2110.000"
+        },
+        "Hutang Pajak": {
+          "Hutang Pajak": {
+            "accountNumber": "2141.000",
+            "accountType": "Payable"
+          },
+          "accountNumber": "2140.000"
+        },
+        "Pendapatan di Terima di Muka": {
+          "Pendapatan di Terima di Muka": {
+            "Dp Penjualan": {
+              "accountNumber": "2121.001",
+              "accountType": "Bank"
+            },
+            "accountNumber": "2121.000"
+          },
+          "accountNumber": "2120.000"
+        },
+        "accountNumber": "2100.000"
+      },
+      "Passiva Tetap": {
+        "Hutang Lain Lain": {
+          "Hutang Lain Lain": {
+            "Hutang": {
+              "accountNumber": "2241.001"
+            },
+            "accountNumber": "2241.000"
+          },
+          "accountNumber": "2240.000"
+        },
+        "Hutang Leasing Kendaraan": {
+          "Hutang Leasing Kendaraan": {
+            "Hutang Leasing Kendaraan": {
+              "accountNumber": "2231.001"
+            },
+            "accountNumber": "2231.000"
+          },
+          "accountNumber": "2230.000"
+        },
+        "Hutang Pada Bank": {
+          "Hutang Bank": {
+            "Hutang": {
+              "accountNumber": "2221.001"
+            },
+            "accountNumber": "2221.000"
+          },
+          "accountNumber": "2220.000"
+        },
+        "Hutang Pada Pihak ke 3": {
+          "Hutang Bunga Pinjaman Pihak Ke 3 Tidak Rutin": {
+            "Hutang Bunga": {
+              "accountNumber": "2213.001"
+            },
+            "accountNumber": "2213.000"
+          },
+          "Pinjaman Pihak ke 3 Rutin": {
+            "Hutang": {
+              "accountNumber": "2211.001"
+            },
+            "accountNumber": "2211.000"
+          },
+          "Pinjaman Pihak ke 3 Tidak Rutin": {
+            "Hutang": {
+              "accountNumber": "2212.001"
+            },
+            "accountNumber": "2212.000"
+          },
+          "accountNumber": "2210.000"
+        },
+        "accountNumber": "2200.000"
+      },
+      "accountNumber": "2000.000",
+      "rootType": "Liability"
+    },
+    "Penjualan": {
+      "Harga Pokok Pembelian": {
+        "HPP Pembelian": {
+          "accountNumber": "4210.000",
+          "accountType": "Cost of Goods Sold"
+        },
+        "accountNumber": "4200.000"
+      },
+      "Pendapatan Lain lain": {
+        "Pendapatan Bunga Bank": {
+          "accountNumber": "4410.000"
+        },
+        "Pendapatan Bunga Dari Pihak Ke 3": {
+          "accountNumber": "4420.000"
+        },
+        "Pendapatan Keuntungan Penjualan Aktiva": {
+          "accountNumber": "4430.000"
+        },
+        "Pendapatan Komisi": {
+          "accountNumber": "4440.000"
+        },
+        "Pendapatan Lain lain": {
+          "accountNumber": "4480.000"
+        },
+        "Pendapatan Penjualan Barang BS": {
+          "accountNumber": "4470.000"
+        },
+        "Pendapatan Sewa Gudang": {
+          "accountNumber": "4450.000"
+        },
+        "Pendapatan Sewa Lain lain": {
+          "accountNumber": "4460.000"
+        },
+        "accountNumber": "4400.000"
+      },
+      "Pendapatan Service/Jasa": {
+        "Pendapatan Service": {
+          "accountNumber": "4310.000"
+        },
+        "accountNumber": "4300.000"
+      },
+      "Penjualan Barang Dagangan": {
+        "Penjualan": {
+          "accountNumber": "4110.000"
+        },
+        "Potongan Penjualan": {
+          "accountNumber": "4130.000"
+        },
+        "Retur Penjualan": {
+          "accountNumber": "4120.000"
+        },
+        "accountNumber": "4100.000"
+      },
+      "accountNumber": "4000.000",
+      "rootType": "Income"
+    }
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "name": "Account",
+  "label": "Account",
+  "naming": "manual",
+  "create": false,
+  "isSingle": false,
+  "isTree": true,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Account Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "rootType",
+      "label": "Root Type",
+      "fieldtype": "Select",
+      "placeholder": "Root Type",
+      "options": [
+        {
+          "value": "Asset",
+          "label": "Asset"
+        },
+        {
+          "value": "Liability",
+          "label": "Liability"
+        },
+        {
+          "value": "Equity",
+          "label": "Equity"
+        },
+        {
+          "value": "Income",
+          "label": "Income"
+        },
+        {
+          "value": "Expense",
+          "label": "Expense"
+        }
+      ],
+      "required": true
+    },
+    {
+      "fieldname": "parentAccount",
+      "label": "Parent Account",
+      "fieldtype": "Link",
+      "target": "Account"
+    },
+    {
+      "fieldname": "accountType",
+      "label": "Account Type",
+      "placeholder": "Account Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Accumulated Depreciation",
+          "label": "Accumulated Depreciation"
+        },
+        {
+          "value": "Bank",
+          "label": "Bank"
+        },
+        {
+          "value": "Cash",
+          "label": "Cash"
+        },
+        {
+          "value": "Chargeable",
+          "label": "Chargeable"
+        },
+        {
+          "value": "Cost of Goods Sold",
+          "label": "Cost of Goods Sold"
+        },
+        {
+          "value": "Depreciation",
+          "label": "Depreciation"
+        },
+        {
+          "value": "Equity",
+          "label": "Equity"
+        },
+        {
+          "value": "Expense Account",
+          "label": "Expense Account"
+        },
+        {
+          "value": "Expenses Included In Valuation",
+          "label": "Expenses Included In Valuation"
+        },
+        {
+          "value": "Fixed Asset",
+          "label": "Fixed Asset"
+        },
+        {
+          "value": "Income Account",
+          "label": "Income Account"
+        },
+        {
+          "value": "Payable",
+          "label": "Payable"
+        },
+        {
+          "value": "Receivable",
+          "label": "Receivable"
+        },
+        {
+          "value": "Round Off",
+          "label": "Round Off"
+        },
+        {
+          "value": "Stock",
+          "label": "Stock"
+        },
+        {
+          "value": "Stock Adjustment",
+          "label": "Stock Adjustment"
+        },
+        {
+          "value": "Stock Received But Not Billed",
+          "label": "Stock Received But Not Billed"
+        },
+        {
+          "value": "Tax",
+          "label": "Tax"
+        },
+        {
+          "value": "Temporary",
+          "label": "Temporary"
+        }
+      ]
+    },
+    {
+      "fieldname": "isGroup",
+      "label": "Is Group",
+      "fieldtype": "Check",
+      "default": false
+    }
+  ],
+  "quickEditFields": ["rootType", "parentAccount", "accountType", "isGroup"]
+}

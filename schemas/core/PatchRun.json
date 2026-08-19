@@ -1,0 +1,25 @@
+{
+  "name": "PatchRun",
+  "label": "Patch Run",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "label": "Name",
+      "required": true
+    },
+    {
+      "fieldname": "failed",
+      "fieldtype": "Check",
+      "label": "Failed",
+      "default": false
+    },
+    {
+      "fieldname": "version",
+      "fieldtype": "Data",
+      "label": "Version",
+      "default": "0.0.0"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "PriceList",
+  "label": "Price List",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "isEnabled",
+      "label": "Is Price List Enabled",
+      "fieldtype": "Check",
+      "default": true
+    },
+    {
+      "fieldname": "isSales",
+      "label": "For Sales",
+      "fieldtype": "Check",
+      "default": true
+    },
+    {
+      "fieldname": "isPurchase",
+      "label": "For Purchase",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "priceListItem",
+      "label": "Item Prices",
+      "fieldtype": "Table",
+      "target": "PriceListItem",
+      "section": "Item Prices"
+    }
+  ]
+}

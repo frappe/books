@@ -1,0 +1,82 @@
+{
+  "name": "StockTransfer",
+  "label": "StockTransfer",
+  "isAbstract": true,
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "fields": [
+    {
+      "label": "Transfer No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true,
+      "hidden": true
+    },
+    {
+      "abstract": true,
+      "fieldname": "numberSeries",
+      "section": "Default"
+    },
+    {
+      "fieldname": "party",
+      "label": "Party",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Datetime",
+      "required": true,
+      "section": "Default"
+    },
+    {
+      "abstract": true,
+      "fieldname": "items",
+      "section": "Items"
+    },
+    {
+      "fieldname": "grandTotal",
+      "label": "Grand Total",
+      "fieldtype": "Currency",
+      "readOnly": true,
+      "section": "Items"
+    },
+    {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add transfer terms",
+      "fieldtype": "Text",
+      "section": "References"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment",
+      "section": "References"
+    },
+    {
+      "fieldname": "isReturned",
+      "fieldtype": "Check",
+      "hidden": true,
+      "default": false
+    },
+    {
+      "abstract": true,
+      "fieldname": "backReference",
+      "section": "References"
+    },
+    {
+      "abstract": true,
+      "fieldname": "returnAgainst",
+      "section": "References"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

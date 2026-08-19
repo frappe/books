@@ -1,0 +1,28 @@
+{
+  "name": "JournalEntryAccount",
+  "label": "Journal Entry Account",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "account",
+      "label": "Account",
+      "placeholder": "Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true,
+      "groupBy": "rootType"
+    },
+    {
+      "fieldname": "debit",
+      "label": "Debit",
+      "fieldtype": "Currency"
+    },
+    {
+      "fieldname": "credit",
+      "label": "Credit",
+      "fieldtype": "Currency"
+    }
+  ],
+  "tableFields": ["account", "debit", "credit"],
+  "keywordFields": ["account"]
+}

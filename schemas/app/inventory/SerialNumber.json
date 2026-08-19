@@ -1,0 +1,51 @@
+{
+  "name": "SerialNumber",
+  "label": "Serial Number",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "label": "Serial Number",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "item",
+      "fieldtype": "Link",
+      "label": "Item",
+      "target": "Item",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "placeholder": "Serial Number Description",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "default": "Inactive",
+      "readOnly": true,
+      "options": [
+        {
+          "value": "Inactive",
+          "label": "Inactive"
+        },
+        {
+          "value": "Active",
+          "label": "Active"
+        },
+        {
+          "value": "Delivered",
+          "label": "Delivered"
+        }
+      ]
+    }
+  ],
+  "quickEditFields": ["item", "description"],
+  "keywordFields": ["name"]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "PrintTemplate",
+  "label": "Print Template",
+  "naming": "manual",
+  "isSingle": false,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Template Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "type",
+      "label": "Template Type",
+      "fieldtype": "AutoComplete",
+      "default": "SalesInvoice",
+      "required": true
+    },
+    {
+      "fieldname": "template",
+      "label": "Template",
+      "fieldtype": "Text",
+      "required": true
+    },
+    {
+      "fieldname": "height",
+      "label": "Height (in cm)",
+      "fieldtype": "Float",
+      "default": 29.7
+    },
+    {
+      "fieldname": "width",
+      "label": "Width (in cm)",
+      "fieldtype": "Float",
+      "default": 21
+    },
+    {
+      "fieldname": "isCustom",
+      "label": "Is Custom",
+      "fieldtype": "Check",
+      "default": true,
+      "readOnly": true
+    }
+  ]
+}

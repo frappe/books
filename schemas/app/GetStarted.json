@@ -1,0 +1,72 @@
+{
+  "name": "GetStarted",
+  "label": "Get Started",
+  "isSingle": true,
+  "fields": [
+    {
+      "fieldname": "onboardingComplete",
+      "label": "Onboarding Complete",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "companySetup",
+      "label": "Company Setup",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "systemSetup",
+      "label": "System Setup",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "printSetup",
+      "label": "Print Setup",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "salesItemCreated",
+      "label": "Purchase Item Created",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "purchaseItemCreated",
+      "label": "Sales Item Created",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "customerCreated",
+      "label": "Customer Created",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "supplierCreated",
+      "label": "Supplier Created",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "invoiceCreated",
+      "label": "Invoice Created",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "billCreated",
+      "label": "Bill Created",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "chartOfAccountsReviewed",
+      "label": "Chart Of Accounts Reviewed",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "openingBalanceChecked",
+      "label": "Opening Balances",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "taxesAdded",
+      "label": "Add Taxes",
+      "fieldtype": "Check"
+    }
+  ]
+}

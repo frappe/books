@@ -1,0 +1,193 @@
+{
+  "name": "Item",
+  "label": "Item",
+  "isSingle": false,
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "image",
+      "label": "Image",
+      "section": "Default",
+      "fieldtype": "AttachImage"
+    },
+    {
+      "fieldname": "name",
+      "label": "Item Name",
+      "fieldtype": "Data",
+      "placeholder": "Item Name",
+      "section": "Default",
+      "required": true
+    },
+    {
+      "fieldname": "itemCode",
+      "label": "Item Code",
+      "fieldtype": "Data",
+      "placeholder": "Item Code",
+      "section": "Default"
+    },
+    {
+      "fieldname": "itemGroup",
+      "label": "Item Group",
+      "fieldtype": "Link",
+      "target": "ItemGroup",
+      "create": true,
+      "placeholder": "Item Group"
+    },
+    {
+      "fieldname": "for",
+      "label": "Purpose",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Purchases",
+          "label": "Purchases"
+        },
+        {
+          "value": "Sales",
+          "label": "Sales"
+        },
+        {
+          "value": "Both",
+          "label": "Both"
+        }
+      ],
+      "required": true,
+      "section": "Default",
+      "default": "Both"
+    },
+    {
+      "fieldname": "itemType",
+      "label": "Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "default": "Product",
+      "section": "Default",
+      "options": [
+        {
+          "value": "Product",
+          "label": "Product"
+        },
+        {
+          "value": "Service",
+          "label": "Service"
+        }
+      ]
+    },
+    {
+      "fieldname": "unit",
+      "label": "Unit Type",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "create": true,
+      "default": "Unit",
+      "section": "Details",
+      "placeholder": "Unit Type"
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "section": "Details",
+      "fieldtype": "Currency"
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "placeholder": "Item Description",
+      "section": "Details",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldname": "incomeAccount",
+      "label": "Sales Acc.",
+      "fieldtype": "Link",
+      "target": "Account",
+      "placeholder": "Income",
+      "section": "Accounts",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "expenseAccount",
+      "label": "Purchase Acc.",
+      "fieldtype": "Link",
+      "target": "Account",
+      "placeholder": "Expense",
+      "section": "Accounts",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "tax",
+      "label": "Tax",
+      "fieldtype": "Link",
+      "target": "Tax",
+      "section": "Accounts",
+      "create": true,
+      "placeholder": "Tax"
+    },
+    {
+      "fieldname": "hsnCode",
+      "label": "HSN/SAC",
+      "fieldtype": "Data",
+      "placeholder": "HSN/SAC Code",
+      "section": "Inventory"
+    },
+    {
+      "fieldname": "barcode",
+      "label": "Barcode",
+      "fieldtype": "Data",
+      "placeholder": "Barcode",
+      "section": "Inventory"
+    },
+    {
+      "fieldname": "trackItem",
+      "label": "Track Inventory",
+      "fieldtype": "Check",
+      "section": "Inventory",
+      "default": false
+    },
+    {
+      "fieldname": "hasBatch",
+      "label": "Has Batch",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Inventory"
+    },
+    {
+      "fieldname": "hasSerialNumber",
+      "label": "Has Serial Number",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Inventory"
+    },
+    {
+      "fieldname": "restockQuantity",
+      "label": "Restock Quantity",
+      "fieldtype": "Float",
+      "section": "Inventory"
+    },
+    {
+      "fieldname": "uomConversions",
+      "label": "UOM Conversions",
+      "fieldtype": "Table",
+      "target": "UOMConversionItem",
+      "section": "Inventory"
+    }
+  ],
+  "quickEditFields": [
+    "rate",
+    "unit",
+    "itemType",
+    "for",
+    "tax",
+    "description",
+    "incomeAccount",
+    "expenseAccount",
+    "barcode",
+    "hsnCode",
+    "trackItem",
+    "restockQuantity",
+    "uom"
+  ],
+  "keywordFields": ["name", "itemType", "for"]
+}

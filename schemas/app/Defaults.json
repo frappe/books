@@ -1,0 +1,562 @@
+{
+  "name": "Defaults",
+  "label": "Defaults",
+  "isSingle": true,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "salesPaymentAccount",
+      "label": "Sales Payment Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "section": "Auto Payments"
+    },
+    {
+      "fieldname": "purchasePaymentAccount",
+      "label": "Purchase Payment Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "section": "Auto Payments"
+    },
+    {
+      "fieldname": "shipmentLocation",
+      "label": "Shipment Location",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true,
+      "section": "Auto Stock Transfer"
+    },
+    {
+      "fieldname": "purchaseReceiptLocation",
+      "label": "Purchase Receipt Location",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true,
+      "section": "Auto Stock Transfer"
+    },
+    {
+      "fieldname": "salesInvoiceNumberSeries",
+      "label": "Sales Invoice Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
+      "fieldname": "purchaseInvoiceNumberSeries",
+      "label": "Purchase Invoice Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
+      "fieldname": "journalEntryNumberSeries",
+      "label": "Journal Entry Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
+      "fieldname": "paymentNumberSeries",
+      "label": "Payment Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
+      "fieldname": "stockMovementNumberSeries",
+      "label": "Stock Movement Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
+      "fieldname": "shipmentNumberSeries",
+      "label": "Shipment Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
+      "fieldname": "purchaseReceiptNumberSeries",
+      "label": "Purchase Receipt Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
+      "fieldname": "salesQuoteNumberSeries",
+      "label": "Sales Quote Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "section": "Number Series"
+    },
+    {
+      "fieldname": "salesInvoiceTerms",
+      "label": "Sales Invoice Terms",
+      "fieldtype": "Text",
+      "section": "Terms"
+    },
+    {
+      "fieldname": "purchaseInvoiceTerms",
+      "label": "Purchase Invoice Terms",
+      "fieldtype": "Text",
+      "section": "Terms"
+    },
+    {
+      "fieldname": "shipmentTerms",
+      "label": "Shipment Terms",
+      "fieldtype": "Text",
+      "section": "Terms"
+    },
+    {
+      "fieldname": "purchaseReceiptTerms",
+      "label": "Purchase Receipt Terms",
+      "fieldtype": "Text",
+      "section": "Terms"
+    },
+    {
+      "fieldname": "salesQuotePrintTemplate",
+      "label": "Sales Quote Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "default": "Business - Quote",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "salesInvoicePrintTemplate",
+      "label": "Sales Invoice Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "default": "Business - Sales Invoice",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "purchaseInvoicePrintTemplate",
+      "label": "Purchase Invoice Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "default": "Business - Purchase Invoice",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "journalEntryPrintTemplate",
+      "label": "Journal Entry Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "paymentPrintTemplate",
+      "label": "Payment Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "default": "Business - Payment",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "shipmentPrintTemplate",
+      "label": "Shipment Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "default": "Business - Shipment",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "purchaseReceiptPrintTemplate",
+      "label": "Purchase Receipt Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "stockMovementPrintTemplate",
+      "label": "Stock Movement Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "posPrintTemplate",
+      "label": "POS Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "default": "Business-POS - Sales Invoice",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "posCustomer",
+      "label": "POS Customer",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "posCashDenominations",
+      "label": "Cash Denominations",
+      "fieldtype": "Table",
+      "target": "DefaultCashDenominations",
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "saveButtonColour",
+      "label": "Save Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#86efac",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#f98080"
+        },
+        {
+          "label": "Orange",
+          "value": "#fbbf70"
+        },
+        {
+          "label": "Yellow",
+          "value": "#fde047"
+        },
+        {
+          "label": "Green",
+          "value": "#86efac"
+        },
+        {
+          "label": "Teal",
+          "value": "#5eead4"
+        },
+        {
+          "label": "Blue",
+          "value": "#60a5fa"
+        },
+        {
+          "label": "Indigo",
+          "value": "#818cf8"
+        },
+        {
+          "label": "Purple",
+          "value": "#a78bfa"
+        },
+        {
+          "label": "Pink",
+          "value": "#f472b6"
+        },
+        {
+          "label": "Black",
+          "value": "#9ca3af"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "cancelButtonColour",
+      "label": "Cancel Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#f98080",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#f98080"
+        },
+        {
+          "label": "Orange",
+          "value": "#fbbf70"
+        },
+        {
+          "label": "Yellow",
+          "value": "#fde047"
+        },
+        {
+          "label": "Green",
+          "value": "#86efac"
+        },
+        {
+          "label": "Teal",
+          "value": "#5eead4"
+        },
+        {
+          "label": "Blue",
+          "value": "#60a5fa"
+        },
+        {
+          "label": "Indigo",
+          "value": "#818cf8"
+        },
+        {
+          "label": "Purple",
+          "value": "#a78bfa"
+        },
+        {
+          "label": "Pink",
+          "value": "#f472b6"
+        },
+        {
+          "label": "Black",
+          "value": "#9ca3af"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "submitButtonColour",
+      "label": "Submit Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#86efac",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#f98080"
+        },
+        {
+          "label": "Orange",
+          "value": "#fbbf70"
+        },
+        {
+          "label": "Yellow",
+          "value": "#fde047"
+        },
+        {
+          "label": "Green",
+          "value": "#86efac"
+        },
+        {
+          "label": "Teal",
+          "value": "#5eead4"
+        },
+        {
+          "label": "Blue",
+          "value": "#60a5fa"
+        },
+        {
+          "label": "Indigo",
+          "value": "#818cf8"
+        },
+        {
+          "label": "Purple",
+          "value": "#a78bfa"
+        },
+        {
+          "label": "Pink",
+          "value": "#f472b6"
+        },
+        {
+          "label": "Black",
+          "value": "#9ca3af"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "heldButtonColour",
+      "label": "Held Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#f98080",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#f98080"
+        },
+        {
+          "label": "Orange",
+          "value": "#fbbf70"
+        },
+        {
+          "label": "Yellow",
+          "value": "#fde047"
+        },
+        {
+          "label": "Green",
+          "value": "#86efac"
+        },
+        {
+          "label": "Teal",
+          "value": "#5eead4"
+        },
+        {
+          "label": "Blue",
+          "value": "#60a5fa"
+        },
+        {
+          "label": "Indigo",
+          "value": "#818cf8"
+        },
+        {
+          "label": "Purple",
+          "value": "#a78bfa"
+        },
+        {
+          "label": "Pink",
+          "value": "#f472b6"
+        },
+        {
+          "label": "Black",
+          "value": "#9ca3af"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "returnButtonColour",
+      "label": "Return Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#f98080",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#f98080"
+        },
+        {
+          "label": "Orange",
+          "value": "#fbbf70"
+        },
+        {
+          "label": "Yellow",
+          "value": "#fde047"
+        },
+        {
+          "label": "Green",
+          "value": "#86efac"
+        },
+        {
+          "label": "Teal",
+          "value": "#5eead4"
+        },
+        {
+          "label": "Blue",
+          "value": "#60a5fa"
+        },
+        {
+          "label": "Indigo",
+          "value": "#818cf8"
+        },
+        {
+          "label": "Purple",
+          "value": "#a78bfa"
+        },
+        {
+          "label": "Pink",
+          "value": "#f472b6"
+        },
+        {
+          "label": "Black",
+          "value": "#9ca3af"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "payButtonColour",
+      "label": "Pay Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#86efac",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#f98080"
+        },
+        {
+          "label": "Orange",
+          "value": "#fbbf70"
+        },
+        {
+          "label": "Yellow",
+          "value": "#fde047"
+        },
+        {
+          "label": "Green",
+          "value": "#86efac"
+        },
+        {
+          "label": "Teal",
+          "value": "#5eead4"
+        },
+        {
+          "label": "Blue",
+          "value": "#60a5fa"
+        },
+        {
+          "label": "Indigo",
+          "value": "#818cf8"
+        },
+        {
+          "label": "Purple",
+          "value": "#a78bfa"
+        },
+        {
+          "label": "Pink",
+          "value": "#f472b6"
+        },
+        {
+          "label": "Black",
+          "value": "#9ca3af"
+        }
+      ],
+      "section": "Point of Sale"
+    },
+    {
+      "fieldname": "payAndPrintButtonColour",
+      "label": "Pay And Print Button Colour",
+      "placeholder": "Select Colour",
+      "fieldtype": "Color",
+      "default": "#86efac",
+      "options": [
+        {
+          "label": "Red",
+          "value": "#f98080"
+        },
+        {
+          "label": "Orange",
+          "value": "#fbbf70"
+        },
+        {
+          "label": "Yellow",
+          "value": "#fde047"
+        },
+        {
+          "label": "Green",
+          "value": "#86efac"
+        },
+        {
+          "label": "Teal",
+          "value": "#5eead4"
+        },
+        {
+          "label": "Blue",
+          "value": "#60a5fa"
+        },
+        {
+          "label": "Indigo",
+          "value": "#818cf8"
+        },
+        {
+          "label": "Purple",
+          "value": "#a78bfa"
+        },
+        {
+          "label": "Pink",
+          "value": "#f472b6"
+        },
+        {
+          "label": "Black",
+          "value": "#9ca3af"
+        }
+      ],
+      "section": "Point of Sale"
+    }
+  ]
+}
