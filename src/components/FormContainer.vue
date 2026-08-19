@@ -27,6 +27,7 @@
         class="
           flex flex-col
           self-center
+          window-no-drag
           h-full
           overflow-auto
           bg-white

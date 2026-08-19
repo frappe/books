@@ -14,7 +14,7 @@
       'window-drag': platform !== 'Windows',
     }"
   >
-    <div>
+    <div class="window-no-drag">
       <!-- Company name -->
       <div
         class="px-4 flex flex-row items-center justify-between mb-4"

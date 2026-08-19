@@ -9,6 +9,7 @@
     <div
       class="
         w-full w-form
+        window-no-drag
         shadow-lg
         rounded-lg
         border

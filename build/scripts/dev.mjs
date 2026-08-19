@@ -7,8 +7,8 @@ import { getMainProcessCommonConfig } from './helpers.mjs';
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 process.env['NODE_ENV'] = 'development';
-process.env['VITE_HOST'] = '127.0.0.1';
-process.env['VITE_PORT'] = 6969;
+process.env['VITE_HOST'] ??= '127.0.0.1';
+process.env['VITE_PORT'] ??= '6969';
 
 /**
  * This script does several things:
