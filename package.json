@@ -103,9 +103,9 @@
       }
     ]
   },
-  "homepage": "https://rare.co.tz/books",
+  "homepage": "https://rarebooks.cc",
   "repository": {
-    "url": "https://github.com/frappe/books"
+    "url": "https://github.com/charlitokenn/rarebooks"
   },
   "license": "AGPL-3.0-only"
 }
