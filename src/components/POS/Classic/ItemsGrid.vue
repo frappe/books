@@ -1,37 +1,14 @@
 <template>
   <div
-    class="
-      gap-4
-      py-2
-      w-full
-      flex flex-col
-      items-center
-      rounded-t-md
-      text-black
-      overflow-y-auto
-      custom-scroll custom-scroll-thumb2
-    "
+    class="gap-4 py-2 w-full flex flex-col items-center rounded-t-md text-black overflow-y-auto custom-scroll custom-scroll-thumb2"
     style="height: 83vh"
   >
     <!-- Items Grid -->
     <div
-      class="
-        gap-2
-        w-full
-        grid grid-cols-1
-        md:grid-cols-2
-        lg:grid-cols-3
-        xl:grid-cols-4
-      "
+      class="gap-2 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
     >
       <div
-        class="
-          p-1
-          border border-gray-300
-          flex flex-col
-          text-sm text-center
-          dark:border-gray-800
-        "
+        class="p-1 border border-gray-300 flex flex-col text-sm text-center dark:border-gray-800"
         @click="handleChange(item as POSItem)"
         v-for="item in items as POSItem[]"
         :key="item.name"
@@ -47,33 +24,14 @@
 
             <div
               v-else
-              class="
-                rounded-lg
-                w-full
-                h-full
-                bg-gray-100
-                flex
-                justify-center
-                items-center
-                dark:bg-gray-850
-              "
+              class="rounded-lg w-full h-full bg-gray-100 flex justify-center items-center dark:bg-gray-850"
             >
               <p class="text-4xl font-semibold text-gray-400 select-none">
                 {{ getExtractedWords(item.name) }}
               </p>
             </div>
             <p
-              class="
-                absolute
-                top-1
-                right-1
-                rounded-full
-                w-6
-                h-6
-                flex
-                justify-center
-                items-center
-              "
+              class="absolute top-1 right-1 rounded-full w-6 h-6 flex justify-center items-center"
               :class="
                 item.availableQty > 0
                   ? 'bg-green-100 text-green-900'
@@ -114,9 +72,10 @@ export default defineComponent({
   },
   methods: {
     getExtractedWords(item: string) {
-      const initials = item.split(' ').map((word) => {
-        return word[0].toUpperCase();
-      });
+      const initials = (item ?? '')
+        .split(' ')
+        .filter((word) => word.length > 0)
+        .map((word) => word[0].toUpperCase());
       return initials.join('');
     },
     handleChange(value: POSItem) {

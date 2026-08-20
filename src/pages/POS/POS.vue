@@ -139,6 +139,7 @@ import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
 import { showToast } from 'src/utils/interactive';
 import { Item } from 'models/baseModels/Item/Item';
+import { PriceList } from 'models/baseModels/PriceList/PriceList';
 import { Shipment } from 'models/inventory/Shipment';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { shortcutsKey } from 'src/utils/injectionKeys';
@@ -743,12 +744,13 @@ export default defineComponent({
       if (!this.sinvDoc.priceList) {
         const priceLists = await fyo.db.getAll(ModelNameEnum.PriceList, {
           fields: ['name'],
+          filters: { isEnabled: true, isSales: true },
         });
 
         if (priceLists.length > 0) {
-          const lastPriceListName = priceLists[priceLists.length - 1].name;
-          await this.sinvDoc.set('priceList', lastPriceListName);
-          this.lastPriceList = lastPriceListName;
+          const defaultPriceListName = priceLists[0].name;
+          await this.sinvDoc.set('priceList', defaultPriceListName);
+          this.lastPriceList = defaultPriceListName;
         }
       }
     },
@@ -799,6 +801,8 @@ export default defineComponent({
         filters: filters,
       })) as Item[];
 
+      const priceListRates = await this.getPriceListRates();
+
       this.items = [] as POSItem[];
       for (const item of items) {
         let availableQty = 0;
@@ -818,12 +822,34 @@ export default defineComponent({
           availableQty,
           name: item.name,
           image: item?.image as string,
-          rate: item.rate as Money,
+          rate: priceListRates?.[item.name] ?? (item.rate as Money),
           unit: item.unit as string,
           hasBatch: !!item.hasBatch,
           hasSerialNumber: !!item.hasSerialNumber,
         });
       }
+    },
+    async getPriceListRates(): Promise<Record<string, Money> | undefined> {
+      if (
+        !this.fyo.singles.AccountingSettings?.enablePriceList ||
+        !this.sinvDoc.priceList
+      ) {
+        return undefined;
+      }
+
+      const priceList = (await this.fyo.doc.getDoc(
+        ModelNameEnum.PriceList,
+        this.sinvDoc.priceList
+      )) as PriceList;
+
+      const rates: Record<string, Money> = {};
+      for (const pli of priceList.priceListItem ?? []) {
+        if (pli.item && pli.rate) {
+          rates[pli.item] = pli.rate;
+        }
+      }
+
+      return rates;
     },
     async selectedReturnInvoice(invoiceName: string) {
       const salesInvoiceDoc = (await this.fyo.doc.getDoc(
@@ -986,43 +1012,6 @@ export default defineComponent({
           item?.name,
           'hsnCode'
         )) as number;
-
-        if (item.hasBatch) {
-          const addQty = quantity ?? 1;
-
-          if (existingItems.length > 0) {
-            for (let item of existingItems) {
-              const availableQty = await fyo.db.getStockQuantity(
-                item.item as string,
-                undefined,
-                undefined,
-                undefined,
-                item.batch
-              );
-              if (
-                item.batch != null &&
-                availableQty != null &&
-                availableQty > (item.quantity as number)
-              ) {
-                const currentQty = item.quantity ?? 0;
-                await item.set('quantity', currentQty + addQty);
-                await this.applyPricingRule();
-                await this.sinvDoc.runFormulas();
-                return;
-              }
-            }
-          }
-
-          await this.sinvDoc.append('items', {
-            rate: item.rate,
-            item: item.name,
-            quantity: addQty,
-            hsnCode: itemsHsncode,
-          });
-          await this.applyPricingRule();
-          await this.sinvDoc.runFormulas();
-          return;
-        }
 
         if (existingItems.length) {
           if (!this.sinvDoc.priceList) {
