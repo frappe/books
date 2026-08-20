@@ -51,7 +51,7 @@ import registerIpcMainMessageListeners from './main/registerIpcMainMessageListen
 import registerProcessListeners from './main/registerProcessListeners';
 
 export class Main {
-  title = 'Rare Books';
+  title = 'RareBooks';
   icon: string;
 
   winURL = '';

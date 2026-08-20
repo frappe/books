@@ -44,3 +44,6 @@ electron-builder.env
 .cache/
 .eslintcache
 .parcel-cache/
+
+# Databases
+dbs/
