@@ -862,12 +862,13 @@ export default defineComponent({
 
       const absentLinks = await this.importer.checkLinks();
       if (absentLinks.length) {
+        const absentLinkList = absentLinks
+          .map((l) => `(${l.schemaLabel ?? l.schemaName}, ${l.name})`)
+          .join(', ');
         await showDialog({
           title,
           type: 'error',
-          detail: this.t`Following links do not exist: ${absentLinks
-            .map((l) => `(${l.schemaLabel ?? l.schemaName}, ${l.name})`)
-            .join(', ')}.`,
+          detail: this.t`Following links do not exist: ${absentLinkList}.`,
         });
         return false;
       }
