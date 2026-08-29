@@ -19,6 +19,7 @@ export const languageCodeMap: Record<string, string> = {
   Nepali: 'np',
   Persian: 'fa',
   Portuguese: 'pt',
+  Russian: 'ru',
   'Simplified Chinese': 'zh-CN',
   'Traditional Chinese': 'zh-Hant',
   Spanish: 'es',
