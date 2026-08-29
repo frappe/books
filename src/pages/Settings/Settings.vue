@@ -95,13 +95,14 @@ import { shortcutsKey } from 'src/utils/injectionKeys';
 import { showDialog } from 'src/utils/interactive';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
-import { UIGroupedFields } from 'src/utils/types';
+import { UIGroupedFields, UpdateCheckResult } from 'src/utils/types';
 import { computed, defineComponent, inject } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
 
 const COMPONENT_NAME = 'Settings';
 
 export default defineComponent({
+  name: COMPONENT_NAME,
   components: { FormContainer, Button, FormHeader, CommonFormSection },
   provide() {
     return { doc: computed(() => this.doc) };
@@ -113,13 +114,12 @@ export default defineComponent({
   },
   data() {
     return {
-      errors: {},
+      errors: {} as Record<string, string>,
       activeTab: ModelNameEnum.AccountingSettings,
-      groupedFields: null,
-    } as {
-      errors: Record<string, string>;
-      activeTab: string;
-      groupedFields: null | UIGroupedFields;
+      groupedFields: null as UIGroupedFields | null,
+      showUpdateModal: false,
+      showManualCheckModal: false,
+      updateInfo: null as UpdateCheckResult | null,
     };
   },
   computed: {
@@ -206,7 +206,7 @@ export default defineComponent({
       // @ts-ignore
       window.settings = this;
     }
-
+    this.setupUpdateListeners();
     this.update();
   },
   activated(): void {
@@ -233,6 +233,36 @@ export default defineComponent({
     await this.reset();
   },
   methods: {
+    setupUpdateListeners() {
+      if (window.ipc && window.ipc.on) {
+        window.ipc.on('update-available', (info: unknown) => {
+          this.updateInfo = info as UpdateCheckResult;
+          this.showUpdateModal = true;
+        });
+      }
+    },
+    async handleManualUpdateCheck() {
+      this.showManualCheckModal = true;
+
+      const result = await window.ipc?.checkForUpdates?.();
+
+      this.showManualCheckModal = false;
+
+      if (result && !result.available) {
+        await showDialog({
+          title: this.t`Check for Updates`,
+          detail: this.t`You are running the latest version.`,
+          type: 'info',
+          buttons: [
+            {
+              label: this.t`OK`,
+              action: () => null,
+              isPrimary: true,
+            },
+          ],
+        });
+      }
+    },
     async reset() {
       const resetableDocs = this.schemas
         .map(({ name }) => this.fyo.singles[name])
@@ -262,7 +292,7 @@ export default defineComponent({
           {
             label: this.t`Yes`,
             isPrimary: true,
-            action: ipc.reloadWindow.bind(ipc),
+            action: window.ipc?.reloadWindow?.bind(window.ipc),
           },
           {
             label: this.t`No`,
@@ -283,7 +313,10 @@ export default defineComponent({
     async onValueChange(field: Field, value: DocValue): Promise<void> {
       const { fieldname } = field;
       delete this.errors[fieldname];
-
+      if (fieldname === 'updateButton') {
+        await this.handleManualUpdateCheck();
+        return;
+      }
       try {
         await this.doc?.set(fieldname, value ?? '');
       } catch (err) {
