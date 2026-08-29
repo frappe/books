@@ -14,20 +14,19 @@
     >
       <!-- Report Print Display Area -->
       <div
+        ref="previewContainer"
         class="
           p-4
           bg-gray-25
           dark:bg-gray-890
           overflow-auto
-          flex
-          justify-center
           custom-scroll custom-scroll-thumb1
         "
       >
         <!-- Report Print Display Container -->
         <ScaledContainer
           ref="scaledContainer"
-          class="shadow-lg border bg-white"
+          class="shadow-lg border bg-white mx-auto"
           :scale="scale"
           :width="size.width"
           :height="size.height"
@@ -266,20 +265,41 @@ export default defineComponent({
     this.report = await getReport(this.reportName);
     this.limit = this.report.reportData.length;
     this.columnSelection = this.report.columns.map(() => true);
+
+    await this.$nextTick();
     this.setScale();
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    window.addEventListener('resize', this.setScale);
 
     // @ts-ignore
     window.rpv = this;
   },
+  unmounted() {
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    window.removeEventListener('resize', this.setScale);
+  },
   methods: {
     setScale() {
-      const width = this.size.width * 37.2;
-      let containerWidth = window.innerWidth - 26 * 16;
-      if (showSidebar.value) {
-        containerWidth -= 12 * 16;
+      const el = this.$refs.previewContainer as HTMLElement | undefined;
+      const pageWidthPx = this.size.width * 37.2;
+      if (!pageWidthPx) {
+        return;
       }
-
-      this.scale = Math.min(containerWidth / width, 1);
+      let containerWidth: number;
+      if (el && el.clientWidth > 0) {
+        const style = window.getComputedStyle(el);
+        const pl = parseFloat(style.paddingLeft) || 0;
+        const pr = parseFloat(style.paddingRight) || 0;
+        containerWidth = Math.max(el.clientWidth - pl - pr, 0);
+      } else {
+        // fallback: subtract settings panel, optional sidebar, and p-4 padding (32px)
+        containerWidth = window.innerWidth - 26 * 16 - 32;
+        if (showSidebar.value) {
+          containerWidth -= 12 * 16;
+        }
+      }
+      this.scale = Math.min(containerWidth / pageWidthPx, 1);
     },
     async savePDF(shouldPrint?: boolean): Promise<void> {
       // @ts-ignore
