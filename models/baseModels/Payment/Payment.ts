@@ -346,9 +346,27 @@ export class Payment extends Transactional {
     const paymentAccount = this.paymentAccount as string;
     const account = this.account as string;
     const amount = this.amount as Money;
+    const amountPaid = this.amountPaid as Money;
 
-    await posting.debit(paymentAccount, amount);
-    await posting.credit(account, amount);
+    // The party account (Debtors/Creditors) clears the full amount, while the
+    // bank/cash account only moves amountPaid (amount - writeoff). The write-off
+    // leg in applyWriteOffPosting posts the difference to the write-off account.
+    // We resolve which side is the party account rather than assuming it from
+    // paymentType, since either field can hold the party account depending on how
+    // the payment was created. When there is no write-off, amountPaid === amount,
+    // so behavior is unchanged. See #1540.
+    const partyAccount = await this._getPartyPostingAccount();
+    const paymentAccountAmount =
+      paymentAccount === partyAccount ? amount : amountPaid;
+    const accountAmount = account === partyAccount ? amount : amountPaid;
+
+    if (this.paymentType === 'Pay') {
+      await posting.debit(account, accountAmount);
+      await posting.credit(paymentAccount, paymentAccountAmount);
+    } else {
+      await posting.debit(paymentAccount, paymentAccountAmount);
+      await posting.credit(account, accountAmount);
+    }
 
     if (this.taxes) {
       if (this.paymentType === 'Receive') {
@@ -374,16 +392,25 @@ export class Payment extends Transactional {
       return posting;
     }
 
-    const account = this.account as string;
-    const paymentAccount = this.paymentAccount as string;
     const writeOffAccount = this.fyo.singles.AccountingSettings!
       .writeOffAccount as string;
 
-    if (this.paymentType === 'Pay') {
-      await posting.credit(paymentAccount, writeoff);
+    // getPosting clears the party account for the full amount but only moves
+    // amountPaid to the bank account, leaving a gap equal to the write-off. This
+    // leg fills that gap on the write-off account, on the same side as the bank
+    // account. For a receivable settlement (money in) the discount is an expense
+    // (debit); for a payable settlement (money out) it is income (credit). We key
+    // off the party account type so both Sales and Purchase payments balance,
+    // regardless of which field holds the party account. See #1540.
+    const partyAccount = await this._getPartyPostingAccount();
+    const accountsMap = await this._getAccountsMap();
+    const isReceivable = (
+      accountsMap[AccountTypeEnum.Receivable] ?? []
+    ).includes(partyAccount ?? '');
+
+    if (isReceivable) {
       await posting.debit(writeOffAccount, writeoff);
     } else {
-      await posting.debit(account, writeoff);
       await posting.credit(writeOffAccount, writeoff);
     }
   }
@@ -543,6 +570,35 @@ export class Payment extends Transactional {
     return taxArr
       .map(({ amount }) => amount)
       .reduce((a, b) => a.add(b), this.fyo.pesa(0));
+  }
+
+  /**
+   * Returns whichever of `account` / `paymentAccount` is the party
+   * (Receivable/Payable) account. The party account clears the full reference
+   * amount, while the other (bank/cash) account moves only amountPaid. Falls
+   * back to the paymentType-based convention if neither is classified as a
+   * party account. See #1540.
+   */
+  async _getPartyPostingAccount(): Promise<string | undefined> {
+    const accountsMap = await this._getAccountsMap();
+    const partyAccounts = [
+      ...(accountsMap[AccountTypeEnum.Receivable] ?? []),
+      ...(accountsMap[AccountTypeEnum.Payable] ?? []),
+    ];
+
+    const account = this.account as string;
+    const paymentAccount = this.paymentAccount as string;
+
+    if (partyAccounts.includes(account)) {
+      return account;
+    }
+    if (partyAccounts.includes(paymentAccount)) {
+      return paymentAccount;
+    }
+
+    // Fallback to the documented convention: on Receive the party account is
+    // `account`, on Pay it is `paymentAccount`.
+    return this.paymentType === 'Pay' ? paymentAccount : account;
   }
 
   async _getAccountsMap(): Promise<AccountTypeMap> {
