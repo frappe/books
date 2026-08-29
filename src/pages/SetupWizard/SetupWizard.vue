@@ -21,7 +21,7 @@
       <!-- Section Container -->
       <div
         v-if="hasDoc"
-        class="overflow-auto custom-scroll custom-scroll-thumb1"
+        class="overflow-auto custom-scroll custom-scroll-thumb1 window-no-drag"
       >
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
@@ -58,6 +58,7 @@
           bottom-0
           bg-white
           dark:bg-gray-890
+          window-no-drag
         "
       >
         <p v-if="loading" class="text-base text-gray-600 dark:text-gray-400">

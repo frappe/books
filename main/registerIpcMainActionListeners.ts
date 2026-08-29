@@ -7,6 +7,7 @@ import {
   ipcMain,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import type { RequestInit } from 'node-fetch';
 import { constants } from 'fs';
 import fs from 'fs-extra';
 import path from 'path';
@@ -136,7 +137,13 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.PRINT_HTML_DOCUMENT,
     async (_, html: string, width: number, height: number) => {
-      return await printHtmlDocument(html, app, width, height);
+      try {
+        return await printHtmlDocument(html, app, width, height);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('printHtmlDocument failed:', err);
+        return false;
+      }
     }
   );
 

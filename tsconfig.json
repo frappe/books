@@ -12,7 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "types": ["webpack-env"],
+
     "baseUrl": ".",
     "paths": {
       "src/*": ["src/*"],
@@ -32,6 +32,7 @@
     "files": true
   },
   "include": [
+    "main.ts",
     "src/**/*.ts",
     "src/**/*.vue",
     "schemas/**/*.ts",

@@ -2,6 +2,7 @@ import vue from '@vitejs/plugin-vue';
 import builder from 'electron-builder';
 import esbuild from 'esbuild';
 import fs from 'fs-extra';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
@@ -133,6 +134,33 @@ function copyPackageJson() {
 }
 
 /**
+ * On Linux, installs an rpmbuild compatibility wrapper into a temp directory
+ * and prepends it to PATH before electron-builder runs.
+ *
+ * This fixes a breaking change in rpm 6.x (Fedora 44+) that is incompatible
+ * with the bundled fpm 1.9.3:
+ *   - rpm 6.x added a %mkbuilddir phase that wipes %{buildroot} before %install
+ *   - fpm 1.9.3 stages files into BUILD/ and uses '%install # noop', expecting
+ *     those files to already be present in the buildroot
+ *   - The wrapper patches the generated spec's %install to restore the staged
+ *     files after %mkbuilddir has created a fresh empty buildroot
+ *
+ * See: build/scripts/rpmbuild-compat.sh
+ */
+function setupRpmbuildWrapper() {
+  const wrapperSrc = path.join(dirname, 'rpmbuild-compat.sh');
+  const tempBinDir = path.join(os.tmpdir(), 'frappe-books-rpmbuild-compat');
+  const wrapperDst = path.join(tempBinDir, 'rpmbuild');
+
+  fs.ensureDirSync(tempBinDir);
+  fs.copySync(wrapperSrc, wrapperDst);
+  fs.chmodSync(wrapperDst, 0o755);
+
+  process.env.PATH = `${tempBinDir}:${process.env.PATH}`;
+  console.log(`rpmbuild-compat: wrapper installed at ${wrapperDst}`);
+}
+
+/**
  * Packages the app using electron builder.
  *
  * Note: this also handles signing and notarization if the
@@ -142,6 +170,10 @@ function copyPackageJson() {
  * are passed on as builderArgs.
  */
 async function packageApp() {
+  if (process.platform === 'linux') {
+    setupRpmbuildWrapper();
+  }
+
   const { configureBuildCommand } = await await import(
     'electron-builder/out/builder.js'
   );
@@ -171,10 +203,28 @@ async function packageApp() {
  * @param {string} base
  */
 function removeBaseLeadingSlash(dir, base) {
+  const TEXT_EXTENSIONS = new Set([
+    '.js',
+    '.mjs',
+    '.cjs',
+    '.css',
+    '.html',
+    '.svg',
+    '.json',
+    '.map',
+    '.txt',
+    '.ts',
+  ]);
+
   for (const file of fs.readdirSync(dir)) {
     const filePath = path.join(dir, file);
     if (fs.lstatSync(filePath).isDirectory()) {
       removeBaseLeadingSlash(filePath, base);
+      continue;
+    }
+
+    const ext = path.extname(file).toLowerCase();
+    if (!TEXT_EXTENSIONS.has(ext)) {
       continue;
     }
 
