@@ -68,11 +68,52 @@ async function buildRendererProcessSource() {
   await vite.build({
     base: `/${base}`,
     root: path.join(root, 'src'),
-    build: { outDir, sourcemap: true },
+    build: {
+      outDir,
+      sourcemap: true,
+      emptyOutDir: false,
+      target: 'chrome108',
+      chunkSizeWarningLimit: 750,
+      rollupOptions: {
+        onwarn(warning, warn) {
+          // Suppress mixed static/dynamic import warnings — these are
+          // intentional patterns to avoid circular deps at module init time
+          if (warning.code === 'PLUGIN_WARNING' &&
+              warning.message?.includes('dynamic import will not move')) {
+            return;
+          }
+          warn(warning);
+        },
+        output: {
+          manualChunks(id) {
+            if (
+              id.includes('/node_modules/codemirror') ||
+              id.includes('/node_modules/@codemirror') ||
+              id.includes('/node_modules/@lezer')
+            ) {
+              return 'vendor-codemirror';
+            }
+            if (
+              id.includes('/node_modules/vue') ||
+              id.includes('/node_modules/vue-router') ||
+              id.includes('/node_modules/@vue')
+            ) {
+              return 'vendor-vue';
+            }
+            if (id.includes('/node_modules/lodash')) {
+              return 'vendor-lodash';
+            }
+            if (id.includes('/node_modules/luxon')) {
+              return 'vendor-luxon';
+            }
+          },
+        },
+      },
+    },
     plugins: [vue()],
     resolve: {
       alias: {
-        vue: 'vue/dist/vue.esm-bundler.js',
+        vue: 'vue/dist/vue.runtime.esm-bundler.js',
         fyo: path.join(root, 'fyo'),
         src: path.join(root, 'src'),
         schemas: path.join(root, 'schemas'),
@@ -142,7 +183,7 @@ function copyPackageJson() {
  * are passed on as builderArgs.
  */
 async function packageApp() {
-  const { configureBuildCommand } = await await import(
+  const { configureBuildCommand } = await import(
     'electron-builder/out/builder.js'
   );
 
@@ -154,7 +195,7 @@ async function packageApp() {
     delete builderArgs[opt];
   }
 
-  let buildOptions = {
+  const buildOptions = {
     config: frappeBooksConfig,
     ...builderArgs,
   };
