@@ -133,11 +133,16 @@ async function updateSystemSettings(
   const systemSettings = await fyo.doc.getDoc('SystemSettings');
   const instanceId = getRandomString();
 
+  const fractionUnits = countryOptions.currency_fraction_units ?? 100;
+  const displayPrecision =
+    fractionUnits > 0 ? Math.round(Math.log10(fractionUnits)) : 2;
+
   await systemSettings.setAndSync({
     locale,
     currency,
     instanceId,
     countryCode,
+    displayPrecision,
   });
 }
 
