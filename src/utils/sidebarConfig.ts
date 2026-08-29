@@ -275,6 +275,16 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/list/JournalEntry',
           schemaName: 'JournalEntry',
         },
+		{
+		  label: 'Bank Statement Import',
+		  route: '/bank-import',
+		  icon: 'upload-cloud' // or any other valid feather-icon name
+		},
+        {
+          label: 'Import Bank Statement',
+          route: '/bank-import',
+          icon: 'upload-cloud', // or any other valid feather-icon name
+        },
         {
           label: t`Party`,
           name: 'party',
