@@ -41,6 +41,7 @@ input[type='number']::-webkit-inner-spin-button {
 
 .window-drag {
   -webkit-app-region: drag;
+  user-select: none;
 }
 
 .window-no-drag {
