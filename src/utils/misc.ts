@@ -19,7 +19,7 @@ export function getDatesAndPeriodList(period: PeriodKey): {
   fromDate: DateTime;
   toDate: DateTime;
 } {
-  const toDate: DateTime = DateTime.now().plus({ days: 1 });
+  let toDate: DateTime = DateTime.now().plus({ days: 1 });
   let fromDate: DateTime;
 
   if (period === 'This Year') {
@@ -30,6 +30,9 @@ export function getDatesAndPeriodList(period: PeriodKey): {
     fromDate = toDate.minus({ months: 3 });
   } else if (period === 'This Month') {
     fromDate = toDate.startOf('month');
+  } else if (period === 'Custom') {
+    fromDate = DateTime.now().minus({ years: 1 });
+    toDate = DateTime.now().plus({ days: 1 });
   } else {
     fromDate = toDate.minus({ days: 1 });
   }
