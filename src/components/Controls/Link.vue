@@ -16,8 +16,11 @@ export default {
   watch: {
     value: {
       immediate: true,
-      handler(newValue) {
+      handler(newValue, oldValue) {
         this.setLinkValue(newValue);
+        if (oldValue && !newValue) {
+          this.results = [];
+        }
       },
     },
   },
