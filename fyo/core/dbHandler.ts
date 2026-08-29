@@ -7,12 +7,16 @@ import { translateSchema } from 'fyo/utils/translation';
 import { Field, RawValue, SchemaMap } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import {
+  CashOnHand,
   Cashflow,
   DatabaseBase,
   DatabaseDemuxBase,
   GetAllOptions,
+  GrossMargin,
   IncomeExpense,
   QueryFilter,
+  TopCustomers,
+  TopSuppliers,
   TopExpenses,
   TotalCreditAndDebit,
   TotalOutstanding,
@@ -305,6 +309,40 @@ export class DatabaseHandler extends DatabaseBase {
       fromDate,
       toDate
     )) as IncomeExpense;
+  }
+
+  async getCashOnHand(): Promise<CashOnHand> {
+    return (await this.#demux.callBespoke('getCashOnHand')) as CashOnHand;
+  }
+
+  async getTopCustomers(
+    fromDate: string,
+    toDate: string
+  ): Promise<TopCustomers> {
+    return (await this.#demux.callBespoke(
+      'getTopCustomers',
+      fromDate,
+      toDate
+    )) as TopCustomers;
+  }
+
+  async getTopSuppliers(
+    fromDate: string,
+    toDate: string
+  ): Promise<TopSuppliers> {
+    return (await this.#demux.callBespoke(
+      'getTopSuppliers',
+      fromDate,
+      toDate
+    )) as TopSuppliers;
+  }
+
+  async getGrossMargin(fromDate: string, toDate: string): Promise<GrossMargin> {
+    return (await this.#demux.callBespoke(
+      'getGrossMargin',
+      fromDate,
+      toDate
+    )) as GrossMargin;
   }
 
   async getTotalCreditAndDebit(): Promise<TotalCreditAndDebit[]> {

@@ -13,6 +13,7 @@ import InvoiceItem from './app/InvoiceItem.json';
 import Item from './app/Item.json';
 import JournalEntry from './app/JournalEntry.json';
 import JournalEntryAccount from './app/JournalEntryAccount.json';
+import DashboardSettings from './app/DashboardSettings.json';
 import Misc from './app/Misc.json';
 import NumberSeries from './app/NumberSeries.json';
 import SerialNumberSeries from './app/SerialNumberSeries.json';
@@ -99,6 +100,7 @@ export const metaSchemas: SchemaStub[] = [
 ];
 
 export const appSchemas: Schema[] | SchemaStub[] = [
+  DashboardSettings as Schema,
   Misc as Schema,
   SetupWizard as Schema,
   GetStarted as Schema,
