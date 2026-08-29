@@ -6,6 +6,7 @@ import testPatch from './testPatch';
 import updateSchemas from './updateSchemas';
 import setPaymentReferenceType from './setPaymentReferenceType';
 import fixLedgerDateTime from './v0_21_0/fixLedgerDateTime';
+import fixLedgerDateTimeRerun from './v0_37_0/fixLedgerDateTimeRerun';
 import fixItemHSNField from './fixItemHSNField';
 import createPaymentMethods from './createPaymentMethods';
 
@@ -41,6 +42,11 @@ export default [
     name: 'fixLedgerDateTime',
     version: '0.21.2',
     patch: fixLedgerDateTime,
+  },
+  {
+    name: 'fixLedgerDateTimeRerun',
+    version: '0.37.0',
+    patch: fixLedgerDateTimeRerun,
   },
   { name: 'fixItemHSNField', version: '0.24.0', patch: fixItemHSNField },
   {
