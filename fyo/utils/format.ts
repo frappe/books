@@ -170,7 +170,11 @@ function getNumberFormatter(fyo: Fyo) {
     (fyo.singles.SystemSettings?.displayPrecision as number) ??
     DEFAULT_DISPLAY_PRECISION;
 
-  return (fyo.currencyFormatter = Intl.NumberFormat(locale, {
+  // Force Latin (Western) digits for all locales by appending the Unicode
+  // locale extension '-u-nu-latn'. Without this, locales like 'ar-SA' use
+  // Arabic-Indic numerals (٠١٢٣) which are not suitable for accounting.
+  const latnLocale = `${locale}-u-nu-latn`;
+  return (fyo.currencyFormatter = Intl.NumberFormat(latnLocale, {
     style: 'decimal',
     minimumFractionDigits: display,
   }));
