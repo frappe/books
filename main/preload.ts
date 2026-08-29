@@ -122,6 +122,10 @@ const ipc = {
     ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, link);
   },
 
+  openDataURL(link: string, filename: string) {
+    ipcRenderer.send(IPC_MESSAGES.OPEN_DATA_URL, { link, filename });
+  },
+
   async deleteFile(filePath: string) {
     return (await ipcRenderer.invoke(
       IPC_ACTIONS.DELETE_FILE,
