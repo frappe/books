@@ -43,6 +43,10 @@ export class TrialBalance extends AccountReport {
 
   accountMap?: Record<string, Account>;
 
+  get acceptSingleTimePeriod() {
+    return true;
+  }
+
   get rootTypes(): AccountRootType[] {
     return [
       AccountRootTypeEnum.Asset,
