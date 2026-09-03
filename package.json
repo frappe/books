@@ -1,10 +1,10 @@
 {
   "name": "rarebooks",
-  "version": "0.40.1",
+  "version": "0.40.2",
   "description": "Simple book-keeping app for everyone",
   "author": {
     "name": "Rareco Company Ltd.",
-    "email": "hello@rare.co.tz"
+    "email": "support@rarebooks.cc"
   },
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
