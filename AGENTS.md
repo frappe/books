@@ -59,13 +59,13 @@ yarn format
 
 ## Specs
 
-No `docs/specs/` yet.
+`docs/specs/`: 0001 web platform foundation & control plane (in progress) · 0002 tenant schema & data layer · 0003 subscription gating & seat sync · 0004 PayPal subscriptions · 0005 Lipa Namba manual payments & admin review · 0006 OneSignal notifications · 0007 deploy & cutover readiness. See `docs/scope/scope.md` for the full plan (features 01-05 existing, 06-13 planned) and `context/build-plan.md` for the original, more detailed sub-phase writeups these specs were captured from.
 
 ## Rules
 
-- Strict client/server separation: `src/`, `fyo/`, `models/`, `reports/` are client(-adjacent); `main/`, `backend/`, `schemas/`, `scripts/`, `translations/` are server-side. Client code never imports server code and vice versa.
+- Strict client/server separation: `src`, `fyo`, `models`, `reports` are client(-adjacent); `main`, `backend`, `schemas`, `scripts`, `translations` are server-side. Client code never imports server code and vice versa.
 - All platform-specific (Electron vs. browser) calls go through `fyo/demux/*.ts` only — no other client file should know which platform it's running on.
-- `models/**` must not import Vue or the `src/` singleton `Fyo` globally (breaks mocha tests); use dynamic `await import('...')` if frontend code is genuinely needed, and pass `fyo` in as a parameter.
+- `models/**` must not import Vue or the `src` singleton `Fyo` globally (breaks mocha tests); use dynamic `await import('...')` if frontend code is genuinely needed, and pass `fyo` in as a parameter.
 - `**/types.ts` files are side-agnostic and import only other type files.
 - Tests live in `**/tests/*.spec.ts`, run server-side via mocha/tape, never imported at runtime.
 - TypeScript strict mode; ESLint + Prettier enforced (`no-floating-promises`, `no-misused-promises` as warnings).
