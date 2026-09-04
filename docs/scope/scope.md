@@ -51,16 +51,18 @@ Stand up the Hono API, Clerk auth, and the control plane Neon project. No accoun
 **Done when:** creating an organization auto provisions a dedicated Neon tenant project, the control plane project records the org, its tenant pointer, and subscription status, and a signed in user with a `READY` tenant reaches an empty dashboard shell.
 - [x] Design it (spec): `/architect web platform foundation & control plane`
 - [ ] Build it: `/develop web platform foundation & control plane`
-   - [ ] `worker/` scaffold: Hono app, `@hono/clerk-auth` middleware, `wrangler.toml`
-   - [ ] Control plane Neon project: `organizations`, `tenant_projects`, `subscriptions`, `payments` tables
-   - [ ] `worker/routes/webhooks/clerk-org-created.ts`: provision a tenant Neon project on org creation, store the encrypted connection string
-   - [ ] `worker/db/control.ts` and `worker/db/resolve-tenant.ts`
-   - [ ] `fyo/demux/*.ts` web implementation + `rendererWeb.ts` entry point
+   - [x] `worker/` scaffold: Hono app, `@hono/clerk-auth` middleware, `wrangler.toml`
+   - [x] Control plane Neon project: `organizations`, `tenant_projects`, `subscriptions`, `payments` tables — schema written (`worker/db/schema.sql`), not yet applied to a real Neon project
+   - [x] `worker/routes/webhooks/organization-created.ts`: provisions a tenant Neon project on org creation, stores the encrypted connection string
+   - [x] `worker/db/control.ts` and `worker/db/resolve-tenant.ts`
+   - [x] `fyo/demux/*.ts` web implementation + `rendererWeb.ts` entry point, plus the sign-in/sign-up/org-creation/dashboard UI (`src/pages/web/`, `src/web/router.ts`)
 - [ ] Verify it: `/check verify web platform foundation & control plane`
 - [ ] Test it: `/test web platform foundation & control plane`
 - [ ] Review it: `/check review web platform foundation & control plane`
 - [ ] Document it: `/document web platform foundation & control plane`
-Spec 0001
+Spec 0001. code in `worker/`, `custom/web/auth/`, `fyo/demux/`, `src/pages/web/`, `src/web/`, `rendererWeb.ts`
+
+All 5 milestones are code-complete and typecheck clean (verified against real, currently-published package versions and types — `@neon/sdk`, `svix`, `@clerk/vue`, `@hono/clerk-auth` — not assumed from memory; two real bugs were caught and fixed this way: svix's `verify()` doesn't parse the payload, and `@neon/sdk`'s `orgId` is client-level config, not a per-call field). Not yet run against live infrastructure — no Cloudflare, Neon, or Clerk account is available in the build environment. Before `Build it` can be ticked: create the Neon, Clerk, and Cloudflare accounts/projects, set the secrets in `worker/wrangler.toml`'s comment block (including generating `TENANT_ENCRYPTION_KEY`), apply `worker/db/schema.sql` to the control plane project, and run `wrangler dev` end to end.
 
 ### 07. Tenant schema & data layer · needs a decision
 Apply the accounting schema to freshly provisioned tenant projects, and route doc CRUD through the correct per tenant connection, so the same doctypes and forms Desktop already has work through the Web stack.

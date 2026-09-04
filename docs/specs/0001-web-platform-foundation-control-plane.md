@@ -63,6 +63,7 @@ Each tenant project gets the standard accounting schema (Party, SalesInvoice, Pu
 | Org creation | New Neon project + connection string | Neon API `createAndConnect()` via `@neon/sdk`, our own Neon account (`NEON_ACCOUNT_ORG_ID`, static, not per tenant) |
 | Every tenant request | The tenant's Neon connection | `worker/db/resolve-tenant.ts`, control plane lookup of `tenant_projects` by the Clerk `org_id` from the verified session, decrypted in memory, short TTL cached per request, never cached across different orgs |
 | Dashboard reachability | Whether to allow or block | `tenant_projects.status === 'READY'` for the signed in user's `org_id` |
+| `tenant_projects.connection_string` encryption key | The AES-256-GCM key used to encrypt/decrypt it | `TENANT_ENCRYPTION_KEY`, a dedicated Worker secret: a random 32 byte key generated once and stored in Cloudflare, never derived from another secret. Decided during `/develop` on 2026-09-03, since the spec did not originally name a source; see Configuration required. |
 
 **Key invariants**:
 - Client code (`src/`) never imports server code (`worker/`) directly, and vice versa; only `fyo/demux/*.ts` is platform aware.
@@ -77,6 +78,7 @@ Each tenant project gets the standard accounting schema (Party, SalesInvoice, Pu
 - `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `CLERK_WEBHOOK_SIGNING_SECRET`: Clerk auth and webhook verification
 - `NEON_API_KEY`, `NEON_ACCOUNT_ORG_ID`: provisioning tenant projects via `@neon/sdk`
 - `CONTROL_DATABASE_URL`: the single, fixed connection string to the shared control plane project
+- `TENANT_ENCRYPTION_KEY`: a dedicated, randomly generated 32 byte AES-256-GCM key (Worker secret) used only to encrypt and decrypt `tenant_projects.connection_string`; generated once and stored in Cloudflare, not derived from any other secret
 
 **Critical test scenarios**:
 - Happy path: a new user signs up, creates an org, the org's Neon project provisions and reaches `READY`, and the user reaches the empty dashboard. Verifies **AC-1, AC-2, AC-5**.

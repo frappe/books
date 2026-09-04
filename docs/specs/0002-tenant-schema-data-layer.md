@@ -5,11 +5,11 @@
 
 ## Summary
 
-This decision applies the full accounting schema to a freshly provisioned tenant Neon project as the last step of onboarding, and builds the generic document CRUD routes that let the existing accounting UI and business logic run against a tenant's Postgres database instead of Desktop's SQLite file. Nothing changes in `src/`, `models/`, or `reports/`; this is a backend only feature that proves the shared accounting core works unmodified against the new tenant boundary from feature 06.
+This decision applies the full accounting schema to a freshly provisioned tenant Neon project as the last step of onboarding, and builds the generic document CRUD routes that let the existing accounting UI and business logic run against a tenant's Postgres database instead of Desktop's SQLite file. Nothing changes in `../../src`, `../../models`, or `../../reports`; this is a backend only feature that proves the shared accounting core works unmodified against the new tenant boundary from feature 06.
 
 ## Context
 
-Feature 06 provisions an empty, isolated Neon project per organization but does not put the accounting schema into it or expose any way to read or write documents against it. Without this feature, an organization has a database with nothing in it and no route that talks to it. The accounting schema and business logic already exist and are shared between Desktop and Web by design (`fyo`, `models/`, `reports/`); the work here is routing, migration, and confirming Postgres flavored behavior matches SQLite flavored behavior closely enough that nothing in the shared layer needs to change.
+Feature 06 provisions an empty, isolated Neon project per organization but does not put the accounting schema into it or expose any way to read or write documents against it. Without this feature, an organization has a database with nothing in it and no route that talks to it. The accounting schema and business logic already exist and are shared between Desktop and Web by design (`fyo`, `../../models`, `../../reports`); the work here is routing, migration, and confirming Postgres flavored behavior matches SQLite flavored behavior closely enough that nothing in the shared layer needs to change.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ Feature 06 provisions an empty, isolated Neon project per organization but does 
 
 **Acceptance criteria**:
 - **AC-1**: The accounting schema (Party, SalesInvoice, PurchaseInvoice, Payment, JournalEntry, Item, StockLedgerEntry, Account, and RareBooks's custom doctypes) is applied to a tenant project as the final step of provisioning, and `tenant_projects.status` only becomes `READY` once the migration succeeds.
-- **AC-2**: Generic doc CRUD routes exist in `worker/routes/`, mirroring the actions `main/registerIpcMainActionListeners.ts` exposes on Desktop, each running after the tenant resolution middleware from feature 06.
+- **AC-2**: Generic doc CRUD routes exist in `worker/routes/`, mirroring the actions `../../main/registerIpcMainActionListeners.ts` exposes on Desktop, each running after the tenant resolution middleware from feature 06.
 - **AC-3**: No tenant project table has an `org_id` column or any tenant filter; the resolved connection is the only tenant boundary.
 - **AC-4**: `models/**` and `reports/**` run correctly against a tenant's Neon project, with any Postgres versus SQLite query differences found and fixed.
 - **AC-5**: A migration runner exists that can roll out a future schema change across every row in `tenant_projects`, not just one project.
@@ -30,7 +30,7 @@ Feature 06 provisions an empty, isolated Neon project per organization but does 
 
 ## Rationale
 
-Reusing the existing schema and business logic unmodified is the entire point of keeping `fyo/demux/*.ts` as the only platform aware layer; rewriting `models/`/`reports/` for Web would defeat that design. Postgres's `ALTER TABLE ADD COLUMN` is safe for additive changes, unlike SQLite's rebuild based "prestige" migration Desktop has to work around, but because there is one project per tenant instead of one shared database, any schema change must be applied by a runner that iterates every tenant project rather than a single statement.
+Reusing the existing schema and business logic unmodified is the entire point of keeping `fyo/demux/*.ts` as the only platform aware layer; rewriting `../../models`/`../../reports` for Web would defeat that design. Postgres's `ALTER TABLE ADD COLUMN` is safe for additive changes, unlike SQLite's rebuild based "prestige" migration Desktop has to work around, but because there is one project per tenant instead of one shared database, any schema change must be applied by a runner that iterates every tenant project rather than a single statement.
 
 ## Feature design
 
@@ -54,7 +54,7 @@ Reusing the existing schema and business logic unmodified is the entire point of
 **Key invariants**:
 - No `org_id` column or filter anywhere in tenant project tables; the resolved connection is the only tenant boundary.
 - A schema change is applied by a migration runner over every `tenant_projects` row, never a single `ALTER TABLE` against one shared database.
-- Route handlers stay thin, delegating to `models/`/`fyo` for business logic, the same way `main/registerIpcMainActionListeners.ts` stays thin on Desktop.
+- Route handlers stay thin, delegating to `../../models`/`fyo` for business logic, the same way `../../main/registerIpcMainActionListeners.ts` stays thin on Desktop.
 
 **Security model**: Every doc CRUD route runs after Clerk session verification and tenant resolution (feature 06); there is no route that accepts a client supplied tenant identifier.
 
@@ -79,7 +79,7 @@ Reusing the existing schema and business logic unmodified is the entire point of
 - Every future schema change is now a fan out migration across N tenant projects instead of one shared database statement, adding operational complexity as tenant count grows.
 
 **Neutral**:
-- Postgres versus SQLite query differences discovered here may require small, targeted fixes in `models/`/`reports/`, shared code that also runs on Desktop; any such fix must not change Desktop's behavior.
+- Postgres versus SQLite query differences discovered here may require small, targeted fixes in `../../models`/`../../reports`, shared code that also runs on Desktop; any such fix must not change Desktop's behavior.
 
 ## Follow-up
 

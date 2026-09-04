@@ -22,7 +22,7 @@ Desktop sells licenses via ClickPesa, a Tanzania only mobile money integration. 
 - **AC-2**: `BILLING.SUBSCRIPTION.ACTIVATED` and `PAYMENT.SALE.COMPLETED` webhook events update `subscriptions.status = ACTIVE` and insert a `payments` row respectively.
 - **AC-3**: `BILLING.SUBSCRIPTION.SUSPENDED`, `BILLING.SUBSCRIPTION.CANCELLED`, `BILLING.SUBSCRIPTION.EXPIRED`, and `BILLING.SUBSCRIPTION.PAYMENT.FAILED` update `subscriptions.status` to the matching state (`PAST_DUE` for a payment failure).
 - **AC-4**: No webhook payload is trusted or acted on before its PayPal signature is verified against PayPal's verify webhook signature endpoint.
-- **AC-5**: This feature does not import or reference `custom/licensing/api/clickpesa-client.ts` anywhere; PayPal is a full replacement, not an addition alongside ClickPesa, on Web.
+- **AC-5**: This feature does not import or reference `../../custom/licensing/api/clickpesa-client.ts` anywhere; PayPal is a full replacement, not an addition alongside ClickPesa, on Web.
 - **AC-6**: Sandbox PayPal credentials are used until an explicit go live step switches to production credentials.
 
 ## Decision
@@ -53,7 +53,7 @@ PayPal Subscriptions is the standard recurring billing product for customers Pay
 **Key invariants**:
 - No `subscriptions`/`payments` update happens from an unverified webhook payload.
 - Sandbox environment (`api-m.sandbox.paypal.com`) is used until go live is explicitly confirmed; production PayPal is never pointed at from a dev branch.
-- `custom/licensing/api/clickpesa-client.ts` is never imported by, bundled into, or referenced from this feature.
+- `../../custom/licensing/api/clickpesa-client.ts` is never imported by, bundled into, or referenced from this feature.
 
 **Security model**: The create subscription route only ever creates a subscription for the currently signed in session's org; the webhook route trusts nothing until PayPal's signature verification succeeds, using `PAYPAL_WEBHOOK_ID` against PayPal's verify endpoint (there is no official SDK helper for this, confirmed no webhook verification code exists in PayPal's TypeScript Server SDK client, so this is a manual REST call).
 

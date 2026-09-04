@@ -22,7 +22,7 @@ Desktop enforces access through Keymint, a device bound license with an offline 
 - **AC-2**: A denied request routes the client to a billing or upgrade prompt; there is no offline grace period on Web.
 - **AC-3**: On every subscription activation, plan change, and cancellation or downgrade, the org's `maxAllowedMemberships` is synced to Clerk via the Backend API to match the new plan's seat count.
 - **AC-4**: Seat limits are never re-checked in `worker/middleware/`; Clerk's own enforcement is the only seat check.
-- **AC-5**: This feature does not import or reference `custom/licensing/` (Keymint) anywhere.
+- **AC-5**: This feature does not import or reference `../../custom/licensing` (Keymint) anywhere.
 
 ## Decision
 
@@ -52,7 +52,7 @@ Checking subscription status before resolving the tenant connection avoids wasti
 **Key invariants**:
 - Seat limits are Clerk's own responsibility; never re-implemented as a per request check.
 - No offline grace period on Web; a denied request routes straight to a billing prompt.
-- This feature never imports or references `custom/licensing/`.
+- This feature never imports or references `../../custom/licensing`.
 
 **Security model**: The gate reads only from the verified Clerk session's `org_id`, never a client supplied value. `maxAllowedMemberships` above 20 requires Clerk's paid B2B Authentication add on; any subscription tier planned above 20 seats needs that add on confirmed before launch.
 

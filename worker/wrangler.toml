@@ -1,0 +1,20 @@
+name = "rarebooks-web"
+main = "index.ts"
+compatibility_date = "2026-09-03"
+compatibility_flags = ["nodejs_compat"]
+
+# Secrets (set with `wrangler secret put <NAME>`, never committed here):
+#   CLERK_SECRET_KEY
+#   CLERK_PUBLISHABLE_KEY
+#   CLERK_WEBHOOK_SIGNING_SECRET
+#   NEON_API_KEY
+#   NEON_ACCOUNT_ORG_ID
+#   CONTROL_DATABASE_URL
+#   TENANT_ENCRYPTION_KEY   (32 random bytes, base64-encoded — e.g.
+#                            `openssl rand -base64 32`)
+
+[env.staging]
+name = "rarebooks-web-staging"
+
+[env.production]
+name = "rarebooks-web-production"

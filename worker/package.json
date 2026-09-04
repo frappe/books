@@ -1,0 +1,27 @@
+{
+  "name": "rarebooks-worker",
+  "private": true,
+  "version": "0.1.0",
+  "description": "RareBooks web platform API (Cloudflare Workers, Hono) — Web only, kept as its own package since the Workers runtime and its dependency set are unrelated to the Electron app's.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/clerk-auth": "^3.1.1",
+    "@clerk/backend": "^3.17.1",
+    "@neon/sdk": "^3.1.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "hono": "^4.13.5",
+    "svix": "^2.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "wrangler": "^4.129.0",
+    "@cloudflare/workers-types": "^5.20260903.1"
+  }
+}
