@@ -13,7 +13,14 @@
  *
  * Spec: docs/specs/0001-web-platform-foundation-control-plane.md
  */
-import { getControlDb, insertOrganization, insertTenantProject, setTenantProjectStatus } from '../../../worker/db/control';
+import {
+  claimTenantProject,
+  failTenantProjectClaim,
+  getControlDb,
+  getTenantProject,
+  insertOrganization,
+  insertTenantProject,
+} from '../../../worker/db/control';
 import { encrypt } from '../../../worker/lib/encryption';
 
 export interface ClerkOrganizationCreatedEvent {
@@ -49,6 +56,16 @@ export async function handleOrganizationCreated(
   // 1. Record the org itself, before attempting to provision anything.
   await insertOrganization(controlDb, { id: orgId, name: event.data.name });
 
+  const claimId = crypto.randomUUID();
+  const claimed = await claimTenantProject(controlDb, { orgId, claimId });
+  if (!claimed) {
+    const existing = await getTenantProject(controlDb, orgId);
+    if (existing?.status === 'FAILED') {
+      throw new Error('Tenant provisioning previously failed');
+    }
+    return;
+  }
+
   try {
     // 2. Provision a dedicated, isolated Neon project for this org.
     //    This is a real network call to Neon's API — see Follow-up in
@@ -64,27 +81,22 @@ export async function handleOrganizationCreated(
       env.TENANT_ENCRYPTION_KEY
     );
 
-    await insertTenantProject(controlDb, {
+    const completed = await insertTenantProject(controlDb, {
       orgId,
+      claimId,
       neonProjectId: provisioned.neonProjectId,
       encryptedConnectionString,
       region: provisioned.region,
     });
+    if (!completed) {
+      throw new Error('Tenant provisioning claim was lost before completion');
+    }
 
     // NOTE: status stays PROVISIONING here — feature 0002 (tenant schema
     // & data layer) applies the accounting schema and is the one that
     // flips status to READY, per docs/specs/0001 AC-1 and docs/specs/0002.
   } catch (err) {
-    // Provisioning failed — the org must not be left in limbo indefinitely.
-    // Insert a FAILED row so the dashboard can show a clear failure state
-    // instead of an infinite "setting up your account" spinner.
-    await insertTenantProject(controlDb, {
-      orgId,
-      neonProjectId: '',
-      encryptedConnectionString: '',
-      region: '',
-    });
-    await setTenantProjectStatus(controlDb, orgId, 'FAILED');
+    await failTenantProjectClaim(controlDb, { orgId, claimId });
     throw err;
   }
 }

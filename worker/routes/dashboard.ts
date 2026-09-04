@@ -13,6 +13,7 @@ import type { WorkerEnv } from '../types';
 export const dashboardRoute = new Hono<{ Bindings: WorkerEnv; Variables: AuthedVariables }>();
 
 dashboardRoute.get('/', requireOrgSession, async (c) => {
+  c.header('Cache-Control', 'no-store');
   const orgId = c.get('orgId');
   const controlDb = getControlDb(c.env);
   const tenant = await getTenantProject(controlDb, orgId);

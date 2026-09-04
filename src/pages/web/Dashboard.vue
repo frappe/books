@@ -25,11 +25,21 @@ type Status = 'CHECKING' | 'PROVISIONING' | 'READY' | 'FAILED';
 const status = ref<Status>('CHECKING');
 const errorMessage = ref('');
 let pollHandle: ReturnType<typeof setTimeout> | undefined;
+let activeRequest: AbortController | undefined;
+let disposed = false;
 
 async function checkStatus() {
+  if (disposed) return;
+
+  const request = new AbortController();
+  activeRequest = request;
   try {
-    const res = await fetch('/api/dashboard', { credentials: 'include' });
+    const res = await fetch('/api/dashboard', {
+      credentials: 'include',
+      signal: request.signal,
+    });
     const body = (await res.json().catch(() => ({}))) as { status?: string };
+    if (disposed) return;
 
     if (!res.ok && res.status !== 202) {
       status.value = 'FAILED';
@@ -39,12 +49,18 @@ async function checkStatus() {
 
     status.value = (body.status as Status) ?? 'UNKNOWN';
   } catch (err) {
+    if (disposed) return;
     status.value = 'FAILED';
     errorMessage.value = err instanceof Error ? err.message : String(err);
     return;
+  } finally {
+    if (activeRequest === request) activeRequest = undefined;
   }
 
-  if (status.value === 'PROVISIONING' || status.value === 'CHECKING') {
+  if (
+    !disposed &&
+    (status.value === 'PROVISIONING' || status.value === 'CHECKING')
+  ) {
     pollHandle = setTimeout(checkStatus, 2000);
   }
 }
@@ -70,7 +86,9 @@ onMounted(() => {
   );
 });
 onUnmounted(() => {
+  disposed = true;
   if (pollHandle) clearTimeout(pollHandle);
+  activeRequest?.abort();
 });
 </script>
 
