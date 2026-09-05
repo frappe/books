@@ -2,13 +2,6 @@
 node_modules/
 .pnpm-store/
 
-# Build outputs
-dist/
-dist_electron/
-out/
-release/
-worker/.wrangler/
-
 # Environment
 .env
 .env.local
@@ -38,9 +31,6 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
-
-# Electron
-electron-builder.env
 
 # Cache
 .cache/

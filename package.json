@@ -8,7 +8,9 @@
   },
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
+    "dev:web": "vite --config vite.config.web.ts",
     "build": "node build/scripts/build.mjs",
+    "build:web": "vite build --config vite.config.web.ts",
     "build:msix": "electron-builder --win msix --x64",
     "release": "scripts/publish-mac-arm.sh",
     "postinstall": "electron-rebuild",
@@ -21,6 +23,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@clerk/vue": "^2.5.0",
     "@codemirror/autocomplete": "^6.4.2",
     "@codemirror/lang-vue": "^0.1.1",
     "@popperjs/core": "^2.10.2",
