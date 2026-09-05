@@ -19,7 +19,7 @@ Every prior feature in this phase (06 through 11) builds the actual product; non
 
 **Acceptance criteria**:
 - **AC-1**: `wrangler deploy` ships `worker/` to Cloudflare Workers with all production secrets (PayPal, Clerk, Neon, OneSignal) configured, not left as sandbox or development values.
-- **AC-2**: The deployed Worker bundle contains no code from `../../custom/licensing` (Keymint) or `../../custom/licensing/api/clickpesa-client.ts` (ClickPesa).
+- **AC-2**: The Worker source graph and the emitted deployment artifact contain no Keymint or ClickPesa code.
 - **AC-3**: A load or smoke test exercises multiple tenants concurrently and confirms each request only ever reads or writes its own org's tenant project, never another org's.
 - **AC-4**: Legal and compliance pages (feature 13) are live before cutover.
 
@@ -41,7 +41,7 @@ The invariants forbidding Keymint and ClickPesa in the Web bundle are enforced b
 | Action | Value produced / displayed | Source |
 |---|---|---|
 | Production deploy | The live Worker | `wrangler deploy`, with production values for `PAYPAL_CLIENT_ID`/`PAYPAL_CLIENT_SECRET`, `CLERK_SECRET_KEY`, `NEON_API_KEY`, `ONESIGNAL_API_KEY`, and the other secrets each prior feature introduced |
-| Bundle check | Pass or fail | A search of the deployed bundle for any reference to `../../custom/licensing` |
+| Bundle check | Pass or fail | Run `wrangler deploy --dry-run --outdir <dir> --metafile <dir>/bundle-meta.json`, then inspect both the esbuild metafile's input graph and every emitted module. Reject licensing source inputs and stable provider markers such as `keymint.dev`, `KEYMINT_`, `api.clickpesa.com`, `CLICKPESA_`, `preview-ussd-push-request`, and `initiate-ussd-push-request`; do not rely on an unresolved `../../custom/licensing` import surviving bundling. |
 | Load test result | Pass or fail | Concurrent requests across multiple test tenants, each checked against the tenant project it should and should not have touched |
 
 **Key invariants**:
@@ -55,13 +55,13 @@ The invariants forbidding Keymint and ClickPesa in the Web bundle are enforced b
 
 **Critical test scenarios**:
 - Happy path: `wrangler deploy` succeeds and the deployed Worker serves requests correctly for a real tenant. Verifies **AC-1**.
-- Failure case: a bundle scan finds a reference to `../../custom/licensing`; deploy is blocked until it is removed. Verifies **AC-2**.
+- Failure case: the source graph contains a Desktop licensing input, or an emitted module contains a Keymint or ClickPesa provider marker after esbuild has inlined imports; deploy is blocked until it is removed. Verifies **AC-2**.
 - Isolation under load: concurrent requests from multiple test tenants never cross tenant boundaries. Verifies **AC-3**.
 
 ## Build plan
 
 1. Script the Wrangler deploy pipeline with a production secrets checklist. Satisfies **AC-1**.
-2. Add a bundle content check that fails the deploy if `../../custom/licensing` is referenced. Satisfies **AC-2**.
+2. Add a bundle gate that inspects the Wrangler/esbuild metafile and all dry-run output modules for Desktop licensing inputs and stable Keymint or ClickPesa provider markers. Satisfies **AC-2**.
 3. Write and run a concurrent, multi tenant load or smoke test against a staging deploy before the first real customer is onboarded. Satisfies **AC-3**.
 4. Confirm feature 13 (legal and compliance pages) is live before flipping the deploy to serve real customers. Satisfies **AC-4**.
 

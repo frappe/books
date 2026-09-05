@@ -31,6 +31,7 @@ export interface TenantProjectRow {
   neon_project_id: string;
   connection_string: string; // still encrypted here — decrypt only in resolve-tenant.ts, in memory, per request
   region: string;
+  provisioning_claim_id: string | null;
   status: 'PROVISIONING' | 'READY' | 'SUSPENDED' | 'FAILED';
   created_at: string;
 }
@@ -50,16 +51,81 @@ export async function insertTenantProject(
   db: ControlDb,
   row: {
     orgId: string;
+    claimId: string;
     neonProjectId: string;
     encryptedConnectionString: string;
     region: string;
   }
-): Promise<void> {
-  await db`
-    INSERT INTO tenant_projects (org_id, neon_project_id, connection_string, region, status)
-    VALUES (${row.orgId}, ${row.neonProjectId}, ${row.encryptedConnectionString}, ${row.region}, 'PROVISIONING')
+): Promise<boolean> {
+  const rows = (await db`
+    WITH owned_claim AS (
+      SELECT org_id
+      FROM tenant_projects
+      WHERE org_id = ${row.orgId}
+        AND status = 'PROVISIONING'
+        AND provisioning_claim_id = ${row.claimId}
+    )
+    INSERT INTO tenant_projects (
+      org_id,
+      neon_project_id,
+      connection_string,
+      region,
+      status,
+      provisioning_claim_id
+    )
+    SELECT
+      ${row.orgId},
+      ${row.neonProjectId},
+      ${row.encryptedConnectionString},
+      ${row.region},
+      'PROVISIONING',
+      NULL
+    FROM owned_claim
+    ON CONFLICT (org_id) DO UPDATE SET
+      neon_project_id = EXCLUDED.neon_project_id,
+      connection_string = EXCLUDED.connection_string,
+      region = EXCLUDED.region,
+      provisioning_claim_id = NULL
+    WHERE tenant_projects.status = 'PROVISIONING'
+      AND tenant_projects.provisioning_claim_id = ${row.claimId}
+    RETURNING org_id
+  `) as unknown as Array<{ org_id: string }>;
+  return rows.length === 1;
+}
+
+export async function claimTenantProject(
+  db: ControlDb,
+  claim: { orgId: string; claimId: string }
+): Promise<boolean> {
+  const rows = (await db`
+    INSERT INTO tenant_projects (
+      org_id,
+      neon_project_id,
+      connection_string,
+      region,
+      status,
+      provisioning_claim_id
+    )
+    VALUES (${claim.orgId}, '', '', '', 'PROVISIONING', ${claim.claimId})
     ON CONFLICT (org_id) DO NOTHING
-  `;
+    RETURNING org_id
+  `) as unknown as Array<{ org_id: string }>;
+  return rows.length === 1;
+}
+
+export async function failTenantProjectClaim(
+  db: ControlDb,
+  claim: { orgId: string; claimId: string }
+): Promise<boolean> {
+  const rows = (await db`
+    UPDATE tenant_projects
+    SET status = 'FAILED', provisioning_claim_id = NULL
+    WHERE org_id = ${claim.orgId}
+      AND status = 'PROVISIONING'
+      AND provisioning_claim_id = ${claim.claimId}
+    RETURNING org_id
+  `) as unknown as Array<{ org_id: string }>;
+  return rows.length === 1;
 }
 
 export async function setTenantProjectStatus(

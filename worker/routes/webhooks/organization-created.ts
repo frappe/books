@@ -24,6 +24,7 @@ import {
   type ClerkOrganizationCreatedEvent,
 } from '../../../custom/web/auth/handleOrganizationCreated';
 import { createNeonProvisioningClient } from '../../lib/neon-client';
+import { getControlDb, getTenantProject } from '../../db/control';
 import type { WorkerEnv } from '../../types';
 
 export const organizationCreatedRoute = new Hono<{ Bindings: WorkerEnv }>();
@@ -62,12 +63,21 @@ organizationCreatedRoute.post('/', async (c) => {
     );
   } catch (err) {
     console.error('organization.created provisioning failed', err);
-    // Still 200: Clerk will retry on non-2xx, but a provisioning failure
-    // is already recorded as FAILED in the control plane (see
-    // handleOrganizationCreated's catch block) — a retry would just
-    // re-attempt against the same FAILED row, which is a job for manual
-    // or scheduled remediation, not a webhook retry storm.
-    return c.json({ received: true, provisioning: 'failed' }, 200);
+    try {
+      const tenant = await getTenantProject(
+        getControlDb(c.env),
+        (verified.data as { id: string }).id
+      );
+      if (tenant?.status === 'FAILED') {
+        return c.json({ received: true, provisioning: 'failed' }, 200);
+      }
+    } catch (statusError) {
+      console.error(
+        'organization.created provisioning status lookup failed',
+        statusError
+      );
+    }
+    return c.json({ received: false, provisioning: 'retry' }, 500);
   }
 
   return c.json({ received: true }, 200);

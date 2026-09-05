@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS tenant_projects (
   neon_project_id text NOT NULL,
   connection_string text NOT NULL,   -- AES-256-GCM encrypted at rest with TENANT_ENCRYPTION_KEY; never logged or returned in an API response
   region text NOT NULL,
+  provisioning_claim_id text,
   status text NOT NULL DEFAULT 'PROVISIONING'
     CHECK (status IN ('PROVISIONING', 'READY', 'SUSPENDED', 'FAILED')),
   created_at timestamptz NOT NULL DEFAULT now()
@@ -29,7 +30,7 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   org_id text NOT NULL REFERENCES organizations(id),
   provider text NOT NULL CHECK (provider IN ('paypal', 'lipa_namba')),
   status text NOT NULL
-    CHECK (status IN ('ACTIVE', 'PAST_DUE', 'EXPIRED', 'PENDING_REVIEW', 'CANCELLED')),
+    CHECK (status IN ('ACTIVE', 'PAST_DUE', 'EXPIRED', 'PENDING_REVIEW', 'SUSPENDED', 'CANCELLED')),
   paypal_subscription_id text,
   current_period_end timestamptz,
   updated_at timestamptz NOT NULL DEFAULT now()
