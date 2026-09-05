@@ -7,7 +7,7 @@
  * Spec: docs/specs/0001-web-platform-foundation-control-plane.md
  */
 import { createMiddleware } from 'hono/factory';
-import { getAuth } from '@hono/clerk-auth';
+import { getAuth } from '@clerk/hono';
 import type { WorkerEnv } from '../types';
 
 export interface AuthedVariables {
@@ -22,7 +22,12 @@ export const requireOrgSession = createMiddleware<{
 }>(async (c, next) => {
   const auth = getAuth(c);
 
-  if (!auth?.userId) {
+  // isAuthenticated is Clerk's documented discriminant for this check
+  // (https://clerk.com/docs/reference/backend/types/auth-object) — a
+  // truthy userId check works too, but isAuthenticated is what Clerk's
+  // own examples use and is what correctly narrows the auth object's
+  // type in the SDK's discriminated union.
+  if (!auth?.isAuthenticated) {
     return c.json({ error: 'Unauthenticated' }, 401);
   }
   if (!auth.orgId) {

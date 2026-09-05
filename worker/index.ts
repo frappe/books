@@ -5,7 +5,7 @@
  * Spec: docs/specs/0001-web-platform-foundation-control-plane.md
  */
 import { Hono } from 'hono';
-import { clerkMiddleware } from '@hono/clerk-auth';
+import { clerkMiddleware } from '@clerk/hono';
 import type { WorkerEnv } from './types';
 import { meRoute } from './routes/me';
 import { dashboardRoute } from './routes/dashboard';

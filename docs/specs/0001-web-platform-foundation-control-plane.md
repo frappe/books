@@ -72,7 +72,7 @@ Each tenant project gets the standard accounting schema (Party, SalesInvoice, Pu
 - New organizations get a provisioned Neon project automatically via the `organization.created` webhook, never as a manual step.
 - Keymint (`custom/licensing/`) and ClickPesa code must never be imported by, bundled into, or referenced from `worker/`, `rendererWeb.ts`, or anything under `custom/web/`.
 
-**Security model**: Every request is authenticated via a verified Clerk session (`@hono/clerk-auth`); the active Clerk `org_id` on that session is the only source of tenant identity, never a client supplied value. The `organization.created` webhook is verified via `svix` against the raw request body and the endpoint's signing secret before any provisioning happens. `NEON_API_KEY` is a platform level secret capable of managing every tenant project; it is never exposed to the client or logged, same handling as `CLERK_SECRET_KEY`.
+**Security model**: Every request is authenticated via a verified Clerk session (`@clerk/hono`, migrated from the initially-built `@hono/clerk-auth` after it was deprecated in favor of `@clerk/hono` — see the note in `worker/routes/webhooks/organization-created.ts`); the active Clerk `org_id` on that session is the only source of tenant identity, never a client supplied value. The `organization.created` webhook is verified via `@clerk/hono/webhooks`' `verifyWebhook` (Svix under the hood) against the raw request body and the endpoint's signing secret before any provisioning happens. `NEON_API_KEY` is a platform level secret capable of managing every tenant project; it is never exposed to the client or logged, same handling as `CLERK_SECRET_KEY`.
 
 **Configuration required**:
 - `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `CLERK_WEBHOOK_SIGNING_SECRET`: Clerk auth and webhook verification
@@ -88,9 +88,9 @@ Each tenant project gets the standard accounting schema (Party, SalesInvoice, Pu
 
 ## Build plan
 
-1. Scaffold `worker/`: Hono app, `@hono/clerk-auth` middleware, `wrangler.toml`. Satisfies **AC-1**.
+1. Scaffold `worker/`: Hono app, `@clerk/hono` middleware, `wrangler.toml`. Satisfies **AC-1**.
 2. Provision the control plane Neon project (once) and create the `organizations`, `tenant_projects`, `subscriptions`, `payments` tables. Satisfies **AC-3**.
-3. Build `worker/routes/webhooks/organization-created.ts`: verify the svix signature, then call `@neon/sdk`'s `createAndConnect()` to provision a tenant project, encrypt the connection string, and write the `tenant_projects` row. Satisfies **AC-2, AC-4**.
+3. Build `worker/routes/webhooks/organization-created.ts`: verify the webhook via `@clerk/hono/webhooks`, then call `@neon/sdk`'s `createAndConnect()` to provision a tenant project, encrypt the connection string, and write the `tenant_projects` row. Satisfies **AC-2, AC-4**.
 4. Build `worker/db/control.ts` (fixed control plane connection) and `worker/db/resolve-tenant.ts` (per request tenant lookup, decrypt, short TTL cache). Satisfies **AC-4**.
 5. Build the `fyo/demux/*.ts` web implementation (swap `ipcRenderer` calls for `fetch()` against `worker/`) and `rendererWeb.ts`, the browser entry point. Satisfies **AC-6**.
 6. Build the sign in, sign up, org creation UI (Clerk components) and the empty dashboard shell, gated on `tenant_projects.status === 'READY'`. Satisfies **AC-5**.

@@ -12,16 +12,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hono/clerk-auth": "^3.1.1",
     "@clerk/backend": "^3.17.1",
+    "@clerk/hono": "^0.1.76",
     "@neon/sdk": "^3.1.0",
     "@neondatabase/serverless": "^1.1.0",
-    "hono": "^4.13.5",
-    "svix": "^2.3.0"
+    "hono": "^4.13.5"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260903.1",
     "typescript": "^5.9.0",
-    "wrangler": "^4.129.0",
-    "@cloudflare/workers-types": "^5.20260903.1"
+    "wrangler": "^4.129.0"
   }
 }

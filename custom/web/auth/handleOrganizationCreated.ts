@@ -13,9 +13,20 @@
  *
  * Spec: docs/specs/0001-web-platform-foundation-control-plane.md
  */
-import { getControlDb, insertOrganization, insertTenantProject, setTenantProjectStatus } from '../../../worker/db/control';
+import {
+  getControlDb,
+  insertOrganization,
+  insertTenantProject,
+  setTenantProjectStatus,
+} from '../../../worker/db/control';
 import { encrypt } from '../../../worker/lib/encryption';
 
+// Deliberately NOT importing @clerk/backend's OrganizationJSON here: this
+// file lives under custom/ (the root package's tree), not worker/, and
+// @clerk/backend is only installed in worker/node_modules — the two are
+// separate packages (see worker/package.json vs the root package.json).
+// worker/routes/webhooks/organization-created.ts maps the real, fully
+// typed Clerk event down to this minimal shape at the boundary.
 export interface ClerkOrganizationCreatedEvent {
   data: {
     id: string; // Clerk org ID
@@ -30,7 +41,11 @@ export interface NeonProvisioningClient {
    * tenant's Clerk org. */
   createAndConnect(params: {
     name: string;
-  }): Promise<{ neonProjectId: string; connectionString: string; region: string }>;
+  }): Promise<{
+    neonProjectId: string;
+    connectionString: string;
+    region: string;
+  }>;
 }
 
 export interface HandleOrgCreatedEnv {

@@ -4,10 +4,21 @@
  * logic. This file should stay thin — business logic belongs in custom/web/,
  * matching how main/registerIpcMainActionListeners.ts stays thin on Desktop.
  *
+ * Uses @clerk/hono/webhooks' verifyWebhook rather than a manual svix
+ * integration: it verifies AND parses the payload in one call (reads the
+ * body itself via c.req.text(), so don't read c.req.text()/json()
+ * separately before calling it — the request body can only be consumed
+ * once). Originally built by hand with the svix package directly; swapped
+ * after @hono/clerk-auth's deprecation warning pointed at @clerk/hono,
+ * which turned out to also fix an actual bug in the original code (see
+ * git history: svix's own verify() doesn't parse the payload the way this
+ * route first assumed).
+ *
  * Spec: docs/specs/0001-web-platform-foundation-control-plane.md (AC-2, AC-4)
  */
 import { Hono } from 'hono';
-import { Webhook } from 'svix';
+import { verifyWebhook } from '@clerk/hono/webhooks';
+import type { OrganizationJSON, WebhookEvent } from '@clerk/backend';
 import {
   handleOrganizationCreated,
   type ClerkOrganizationCreatedEvent,
@@ -18,43 +29,34 @@ import type { WorkerEnv } from '../../types';
 export const organizationCreatedRoute = new Hono<{ Bindings: WorkerEnv }>();
 
 organizationCreatedRoute.post('/', async (c) => {
-  const svixId = c.req.header('svix-id');
-  const svixTimestamp = c.req.header('svix-timestamp');
-  const svixSignature = c.req.header('svix-signature');
-
-  if (!svixId || !svixTimestamp || !svixSignature) {
-    return c.json({ error: 'Missing svix headers' }, 400);
-  }
-
-  const rawBody = await c.req.text();
-
-  let verified: { type: string; data: unknown };
+  let event: WebhookEvent;
   try {
-    const wh = new Webhook(c.env.CLERK_WEBHOOK_SIGNING_SECRET);
-    // verify() throws on a bad signature and otherwise returns undefined —
-    // it does not parse the payload (this route passes format defaults,
-    // no jsonParse option). Parse rawBody ourselves, only after
-    // verification has already thrown or not.
-    wh.verify(rawBody, {
-      'svix-id': svixId,
-      'svix-timestamp': svixTimestamp,
-      'svix-signature': svixSignature,
+    // Explicitly pass signingSecret rather than relying on verifyWebhook's
+    // process.env fallback — Workers has no process.env, only c.env.
+    event = await verifyWebhook(c, {
+      signingSecret: c.env.CLERK_WEBHOOK_SIGNING_SECRET,
     });
-    verified = JSON.parse(rawBody) as { type: string; data: unknown };
   } catch {
     // Never act on an unverified (or unparseable) payload — AC-4.
     return c.json({ error: 'Invalid webhook signature' }, 400);
   }
 
-  if (verified.type !== 'organization.created') {
+  if (event.type !== 'organization.created') {
     // We only registered this endpoint for organization.created, but be
     // defensive if Clerk's dashboard config ever changes underneath us.
-    return c.json({ received: true, ignored: verified.type }, 200);
+    return c.json({ received: true, ignored: event.type }, 200);
   }
+
+  // custom/web/auth/ lives outside worker/ and can't resolve @clerk/backend
+  // (only installed here, in worker/node_modules) — map fields explicitly
+  // at this boundary rather than passing the whole OrganizationJSON across.
+  const orgEvent: ClerkOrganizationCreatedEvent = {
+    data: { id: event.data.id, name: (event.data as OrganizationJSON).name },
+  };
 
   try {
     await handleOrganizationCreated(
-      verified as ClerkOrganizationCreatedEvent,
+      orgEvent,
       c.env,
       createNeonProvisioningClient(c.env)
     );

@@ -3,10 +3,10 @@ import path from 'path';
 import { defineConfig } from 'vite';
 
 /**
- * Vite config for the Web target (rendererWeb.ts / index.web.html), kept
+ * Vite config for the Web target (rendererWeb.ts / index.html), kept
  * separate from vite.config.ts — that one's `root` is `src/` and serves
  * renderer.ts for Electron's dev server; this one's `root` is the repo
- * root, since rendererWeb.ts and index.web.html live there per
+ * root, since rendererWeb.ts and index.html live there per
  * context/architecture.md's target layout.
  *
  * Dev: `vite --config vite.config.web.ts`
@@ -19,7 +19,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, './dist_web'),
     rollupOptions: {
-      input: path.resolve(__dirname, './index.web.html'),
+      input: path.resolve(__dirname, './index.html'),
     },
   },
   plugins: [vue()],
