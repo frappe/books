@@ -66,7 +66,7 @@ organizationCreatedRoute.post('/', async (c) => {
     try {
       const tenant = await getTenantProject(
         getControlDb(c.env),
-        (verified.data as { id: string }).id
+        event.data.id
       );
       if (tenant?.status === 'FAILED') {
         return c.json({ received: true, provisioning: 'failed' }, 200);

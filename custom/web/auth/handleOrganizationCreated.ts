@@ -14,10 +14,12 @@
  * Spec: docs/specs/0001-web-platform-foundation-control-plane.md
  */
 import {
+  claimTenantProject,
+  type ControlDb,
+  failTenantProjectClaim,
   getControlDb,
   insertOrganization,
   insertTenantProject,
-  setTenantProjectStatus,
 } from '../../../worker/db/control';
 import { encrypt } from '../../../worker/lib/encryption';
 
@@ -39,9 +41,7 @@ export interface NeonProvisioningClient {
    * org (NEON_ACCOUNT_ORG_ID) is configured once at client construction
    * (worker/lib/neon-client.ts), not passed per call — it is NOT the
    * tenant's Clerk org. */
-  createAndConnect(params: {
-    name: string;
-  }): Promise<{
+  createAndConnect(params: { name: string }): Promise<{
     neonProjectId: string;
     connectionString: string;
     region: string;
@@ -56,13 +56,19 @@ export interface HandleOrgCreatedEnv {
 export async function handleOrganizationCreated(
   event: ClerkOrganizationCreatedEvent,
   env: HandleOrgCreatedEnv,
-  neonClient: NeonProvisioningClient
+  neonClient: NeonProvisioningClient,
+  controlDb: ControlDb = getControlDb(env)
 ): Promise<void> {
   const orgId = event.data.id;
-  const controlDb = getControlDb(env);
 
   // 1. Record the org itself, before attempting to provision anything.
   await insertOrganization(controlDb, { id: orgId, name: event.data.name });
+
+  const claimId = crypto.randomUUID();
+  const claimed = await claimTenantProject(controlDb, { orgId, claimId });
+  if (!claimed) {
+    return;
+  }
 
   try {
     // 2. Provision a dedicated, isolated Neon project for this org.
@@ -79,27 +85,22 @@ export async function handleOrganizationCreated(
       env.TENANT_ENCRYPTION_KEY
     );
 
-    await insertTenantProject(controlDb, {
+    const completed = await insertTenantProject(controlDb, {
       orgId,
+      claimId,
       neonProjectId: provisioned.neonProjectId,
       encryptedConnectionString,
       region: provisioned.region,
     });
+    if (!completed) {
+      throw new Error('Tenant provisioning claim was lost before completion');
+    }
 
     // NOTE: status stays PROVISIONING here — feature 0002 (tenant schema
     // & data layer) applies the accounting schema and is the one that
     // flips status to READY, per docs/specs/0001 AC-1 and docs/specs/0002.
   } catch (err) {
-    // Provisioning failed — the org must not be left in limbo indefinitely.
-    // Insert a FAILED row so the dashboard can show a clear failure state
-    // instead of an infinite "setting up your account" spinner.
-    await insertTenantProject(controlDb, {
-      orgId,
-      neonProjectId: '',
-      encryptedConnectionString: '',
-      region: '',
-    });
-    await setTenantProjectStatus(controlDb, orgId, 'FAILED');
+    await failTenantProjectClaim(controlDb, { orgId, claimId });
     throw err;
   }
 }

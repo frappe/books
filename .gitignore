@@ -7,6 +7,7 @@ dist/
 dist_electron/
 out/
 release/
+worker/.wrangler/
 
 # Environment
 .env

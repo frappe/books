@@ -58,36 +58,15 @@ export async function insertTenantProject(
   }
 ): Promise<boolean> {
   const rows = (await db`
-    WITH owned_claim AS (
-      SELECT org_id
-      FROM tenant_projects
-      WHERE org_id = ${row.orgId}
-        AND status = 'PROVISIONING'
-        AND provisioning_claim_id = ${row.claimId}
-    )
-    INSERT INTO tenant_projects (
-      org_id,
-      neon_project_id,
-      connection_string,
-      region,
-      status,
-      provisioning_claim_id
-    )
-    SELECT
-      ${row.orgId},
-      ${row.neonProjectId},
-      ${row.encryptedConnectionString},
-      ${row.region},
-      'PROVISIONING',
-      NULL
-    FROM owned_claim
-    ON CONFLICT (org_id) DO UPDATE SET
-      neon_project_id = EXCLUDED.neon_project_id,
-      connection_string = EXCLUDED.connection_string,
-      region = EXCLUDED.region,
+    UPDATE tenant_projects
+    SET
+      neon_project_id = ${row.neonProjectId},
+      connection_string = ${row.encryptedConnectionString},
+      region = ${row.region},
       provisioning_claim_id = NULL
-    WHERE tenant_projects.status = 'PROVISIONING'
-      AND tenant_projects.provisioning_claim_id = ${row.claimId}
+    WHERE org_id = ${row.orgId}
+      AND status = 'PROVISIONING'
+      AND provisioning_claim_id = ${row.claimId}
     RETURNING org_id
   `) as unknown as Array<{ org_id: string }>;
   return rows.length === 1;
@@ -107,7 +86,13 @@ export async function claimTenantProject(
       provisioning_claim_id
     )
     VALUES (${claim.orgId}, '', '', '', 'PROVISIONING', ${claim.claimId})
-    ON CONFLICT (org_id) DO NOTHING
+    ON CONFLICT (org_id) DO UPDATE SET
+      neon_project_id = '',
+      connection_string = '',
+      region = '',
+      status = 'PROVISIONING',
+      provisioning_claim_id = EXCLUDED.provisioning_claim_id
+    WHERE tenant_projects.status = 'FAILED'
     RETURNING org_id
   `) as unknown as Array<{ org_id: string }>;
   return rows.length === 1;
