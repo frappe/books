@@ -74,6 +74,7 @@ export default defineComponent({
       YTD: t`Year to Date`,
       'This Quarter': t`This Quarter`,
       'This Month': t`This Month`,
+      Custom: 'Custom Date',
     };
 
     this.periodOptions = this.options.map((option) => {
