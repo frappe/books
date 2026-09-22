@@ -126,4 +126,69 @@ for (const quantity of [2, 1]) {
   });
 }
 
+test('receipt valuation clears the gross amount of a discounted invoice', async (t) => {
+  await fyo.doc
+    .getNewDoc(ModelNameEnum.Account, {
+      name: 'Purchase Discounts',
+      rootType: 'Income',
+      parentAccount: 'Indirect Income',
+      isGroup: false,
+    })
+    .sync();
+  await fyo.singles.AccountingSettings?.setAndSync({
+    enableDiscounting: true,
+    discountAccount: 'Purchase Discounts',
+  });
+
+  const invoice = fyo.doc.getNewDoc(ModelNameEnum.PurchaseInvoice, {
+    party: 'Stock supplier',
+    account: 'Creditors',
+    items: [
+      {
+        item: 'Taxed stock',
+        quantity: 2,
+        rate: 100,
+        tax: 'Receipt tax',
+        itemDiscountPercent: 10,
+        account: 'Stock Received But Not Billed',
+      },
+    ],
+  }) as PurchaseInvoice;
+  await invoice.sync();
+  await invoice.submit();
+  const invoiceEntries = await getALEs(invoice.name!, invoice.schemaName, fyo);
+  const srbnb = (entries: typeof invoiceEntries) =>
+    entries
+      .filter((entry) => entry.account === 'Stock Received But Not Billed')
+      .reduce(
+        (total, entry) => total + Number(entry.debit) - Number(entry.credit),
+        0
+      );
+  t.ok(
+    invoiceEntries.some(
+      (entry) => entry.account === 'Purchase Discounts' && Number(entry.credit)
+    ),
+    'invoice posts the discount separately'
+  );
+
+  const receipt = (await invoice.getStockTransfer())!;
+  await receipt.items![0].set({ location: 'Common' });
+  await receipt.sync();
+  await receipt.submit();
+  const entries = await getALEs(receipt.name!, receipt.schemaName, fyo);
+
+  t.equal(
+    srbnb(invoiceEntries) + srbnb(entries),
+    0,
+    'invoice and receipt leave no balance in Stock Received But Not Billed'
+  );
+  t.equal(
+    Number(entries.find((entry) => entry.account === 'Stock In Hand')?.debit),
+    200,
+    'stock is valued at the gross item amount, like the stock ledger'
+  );
+
+  await fyo.singles.AccountingSettings?.setAndSync('enableDiscounting', false);
+});
+
 closeTestFyo(fyo, __filename);
