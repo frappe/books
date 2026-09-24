@@ -1,6 +1,16 @@
 <template>
-  <FormContainer>
+  <FormContainer :use-full-width="useFullWidth">
     <template #header>
+      <Button
+        :icon="true"
+        :title="t`Toggle between form and full width`"
+        @click="toggleWidth"
+      >
+        <feather-icon
+          :name="useFullWidth ? 'minimize' : 'maximize'"
+          class="w-4 h-4"
+        ></feather-icon>
+      </Button>
       <Button v-if="canSave" type="primary" @click="sync">
         {{ t`Save` }}
       </Button>
@@ -116,10 +126,12 @@ export default defineComponent({
       errors: {},
       activeTab: ModelNameEnum.AccountingSettings,
       groupedFields: null,
+      useFullWidth: false,
     } as {
       errors: Record<string, string>;
       activeTab: string;
       groupedFields: null | UIGroupedFields;
+      useFullWidth: boolean;
     };
   },
   computed: {
@@ -207,9 +219,11 @@ export default defineComponent({
       window.settings = this;
     }
 
+    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
     this.update();
   },
   activated(): void {
+    this.useFullWidth = !!this.fyo.singles.Misc?.useFullWidth;
     const tab = this.$route.query.tab;
     if (typeof tab === 'string' && this.tabLabels[tab]) {
       this.activeTab = tab;
@@ -233,6 +247,11 @@ export default defineComponent({
     await this.reset();
   },
   methods: {
+    async toggleWidth() {
+      const value = !this.useFullWidth;
+      await this.fyo.singles.Misc?.setAndSync('useFullWidth', value);
+      this.useFullWidth = value;
+    },
     async reset() {
       const resetableDocs = this.schemas
         .map(({ name }) => this.fyo.singles[name])
