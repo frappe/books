@@ -43,7 +43,7 @@ export abstract class DatabaseBase {
 
   // Delete
   abstract delete(schemaName: string, name: string): Promise<void>;
-  
+
   abstract deleteAll(schemaName:string, filters:QueryFilter): Promise<number>;
 
   // Other
@@ -105,3 +105,7 @@ export type TotalCreditAndDebit = {
   totalCredit: number;
   totalDebit: number;
 };
+export type CashOnHand = { total: number };
+export type TopCustomers = { party: string; total: number }[];
+export type GrossMargin = { income: number; cogs: number };
+export type TopSuppliers = { party: string; total: number }[];

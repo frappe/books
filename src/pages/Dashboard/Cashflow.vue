@@ -65,8 +65,8 @@ import { getMapFromList } from 'utils/index';
 import { PeriodKey } from 'src/utils/types';
 
 // Linting broken in this file cause of `extends: ...`
-/* 
-  eslint-disable @typescript-eslint/no-unsafe-argument, 
+/*
+  eslint-disable @typescript-eslint/no-unsafe-argument,
   @typescript-eslint/no-unsafe-return
 */
 
@@ -119,6 +119,14 @@ export default defineComponent({
         fontColor: this.darkMode ? uicolors.gray['400'] : undefined,
       };
     },
+  },
+  async mounted() {
+    // Base class mounted() already calls setData(); we only need to resolve
+    // hasData here so the chart switches from the gray placeholder to real
+    // colours when this widget first appears after a layout save.
+    if (!this.hasData) {
+      await this.setHasData();
+    }
   },
   async activated() {
     await this.setData();

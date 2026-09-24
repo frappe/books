@@ -1,0 +1,26 @@
+{
+  "name": "DashboardSettings",
+  "label": "Dashboard Settings",
+  "isSingle": true,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "widgetLayout",
+      "label": "Widget Layout",
+      "fieldtype": "Data",
+      "hidden": true
+    },
+    {
+      "fieldname": "activeProfile",
+      "label": "Active Profile",
+      "fieldtype": "Select",
+      "options": [
+        { "value": "Freelancer", "label": "Freelancer" },
+        { "value": "Shop / Trader", "label": "Shop / Trader" },
+        { "value": "Small Business", "label": "Small Business" },
+        { "value": "Custom", "label": "Custom" }
+      ],
+      "default": "Custom"
+    }
+  ]
+}
