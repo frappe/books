@@ -40,13 +40,37 @@
             h-row
             items-center
             flex
+            gap-1
           "
           :class="{
             'ms-auto': isNumeric(column.fieldtype),
             'pe-4': i === columns.length - 1,
+            'cursor-pointer select-none group': sortableFieldnames.has(
+              column.fieldname
+            ),
           }"
+          @click="handleColumnHeaderClick(column.fieldname)"
         >
           {{ column.label }}
+          <template v-if="sortableFieldnames.has(column.fieldname)">
+            <feather-icon
+              v-if="sortField === column.fieldname"
+              :name="sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'"
+              class="w-3 h-3 flex-shrink-0"
+            />
+            <feather-icon
+              v-else
+              name="chevron-up"
+              class="
+                w-3
+                h-3
+                flex-shrink-0
+                opacity-0
+                group-hover:opacity-40
+                transition-opacity
+              "
+            />
+          </template>
         </div>
       </Row>
     </div>
@@ -183,6 +207,8 @@ export default defineComponent({
       pageEnd: 0,
       statusMap: {} as Record<string, string>,
       selectedItems: [] as string[],
+      sortField: null as string | null,
+      sortOrder: 'asc' as 'asc' | 'desc',
     };
   },
   computed: {
@@ -195,6 +221,14 @@ export default defineComponent({
     isAllSelected(): boolean {
       return (
         this.data.length > 0 && this.selectedItems.length === this.data.length
+      );
+    },
+    sortableFieldnames(): Set<string> {
+      const schemaFieldMap = fyo.db.fieldMap[this.schemaName] ?? {};
+      return new Set(
+        Object.values(schemaFieldMap)
+          .filter((field) => !field.computed && field.fieldtype !== 'Table')
+          .map((field) => field.fieldname)
       );
     },
     columns() {
@@ -272,15 +306,25 @@ export default defineComponent({
         delete filters['status'];
       }
 
-      const orderBy = ['created'];
-      if (fyo.db.fieldMap[this.schemaName]['date']) {
-        orderBy.unshift('date');
+      let orderBy: string[];
+      let order: 'asc' | 'desc';
+
+      if (this.sortField) {
+        orderBy = [this.sortField];
+        order = this.sortOrder;
+      } else {
+        orderBy = ['created'];
+        if (fyo.db.fieldMap[this.schemaName]['date']) {
+          orderBy.unshift('date');
+        }
+        order = 'desc';
       }
 
       const tableData = await fyo.db.getAll(this.schemaName, {
         fields: ['*'],
         filters: filters as QueryFilter,
         orderBy,
+        order,
       });
 
       let filteredData = tableData;
@@ -302,6 +346,18 @@ export default defineComponent({
         schema: fyo.schemaMap[this.schemaName],
       })) as RenderData[];
       this.$emit('updatedData', filters);
+    },
+    handleColumnHeaderClick(fieldname: string) {
+      if (!this.sortableFieldnames.has(fieldname)) {
+        return;
+      }
+      if (this.sortField === fieldname) {
+        this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        this.sortField = fieldname;
+        this.sortOrder = 'asc';
+      }
+      void this.updateData();
     },
     toggleItemSelection(itemName: string) {
       const index = this.selectedItems.indexOf(itemName);
