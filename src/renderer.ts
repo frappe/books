@@ -26,6 +26,19 @@ import { setLanguageMap } from './utils/language';
   fyo.store.isDevelopment = isDevelopment;
   fyo.store.appVersion = version;
   fyo.store.platform = platform;
+
+  if (platform === 'darwin') {
+    document.addEventListener('dblclick', (event) => {
+      const target = event.target as Element;
+      if (
+        target.closest('.window-drag') &&
+        !target.closest('.window-no-drag')
+      ) {
+        ipc.toggleMaximize();
+      }
+    });
+  }
+
   const platformName = getPlatformName(platform);
 
   setOnWindow(isDevelopment);
