@@ -134,6 +134,11 @@ function getReportSidebar() {
         route: '/report/BalanceSheet',
       },
       {
+        label: t`Cash Movement`,
+        name: 'cash-movement',
+        route: '/report/CashMovement',
+      },
+      {
         label: t`Trial Balance`,
         name: 'trial-balance',
         route: '/report/TrialBalance',
