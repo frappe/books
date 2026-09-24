@@ -81,6 +81,14 @@
       "section": "Default"
     },
     {
+      "fieldname": "customize",
+      "label": "Customize",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "Enable column selector for customizing list view columns.",
+      "section": "Default"
+    },
+    {
       "fieldname": "locale",
       "label": "Locale",
       "fieldtype": "AutoComplete",
