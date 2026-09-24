@@ -35,9 +35,16 @@
           <div class="bg-white mx-auto">
             <div class="p-2">
               <div class="font-semibold text-xl w-full flex justify-between">
-                <h1>
-                  {{ `${fyo.singles.PrintSettings?.companyName}` }}
-                </h1>
+                <div class="flex items-center gap-2">
+                  <img
+                    v-if="includeLogo && logoSrc"
+                    :src="logoSrc"
+                    class="h-12 max-w-32 object-contain"
+                  />
+                  <h1>
+                    {{ `${fyo.singles.PrintSettings?.companyName}` }}
+                  </h1>
+                </div>
                 <p class="text-gray-600">
                   {{ title }}
                 </p>
@@ -106,6 +113,21 @@
             }"
             :value="limit"
             @change="(v) => (limit = v)"
+          />
+        </div>
+
+        <!-- Logo Toggle -->
+        <div class="border-t dark:border-gray-800 p-4">
+          <Check
+            :show-label="true"
+            :border="true"
+            :df="{
+              label: t`Include Company Logo`,
+              fieldname: 'includeLogo',
+              fieldtype: 'Check',
+            }"
+            :value="includeLogo"
+            @change="(v) => (includeLogo = v)"
           />
         </div>
 
@@ -190,6 +212,7 @@ export default defineComponent({
       printSize: 'A4' as typeof printSizes[number],
       isLandscape: false,
       scale: 0.65,
+      includeLogo: false,
       report: null as null | Report,
       columnSelection: [] as boolean[],
     };
@@ -197,6 +220,13 @@ export default defineComponent({
   computed: {
     title(): string {
       return reports[this.reportName]?.title ?? this.t`Report`;
+    },
+    logoSrc(): string | undefined {
+      const logo = this.fyo.singles.PrintSettings?.logo;
+      if (!logo) {
+        return undefined;
+      }
+      return typeof logo === 'string' ? logo : (logo as { data: string }).data;
     },
     printSizeDf(): OptionField {
       return {
