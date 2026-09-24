@@ -28,6 +28,7 @@ export function getCOAList() {
       countryCode: 'ca',
       name: 'Canada - Plan comptable pour les provinces francophones',
     },
+    { countryCode: 'cz', name: 'Czech Republic - Účtová osnova' },
     { countryCode: 'gt', name: 'Guatemala - Cuentas' },
     { countryCode: 'hu', name: 'Hungary - Chart of Accounts' },
     { countryCode: 'id', name: 'Indonesia - Chart of Accounts' },
