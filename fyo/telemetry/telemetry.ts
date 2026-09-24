@@ -77,17 +77,25 @@ export class TelemetryManager {
       return;
     }
 
+    if (!this.hasCreds) {
+      return;
+    }
+
     this.#sendBeacon(verb, noun, more);
   }
 
   async logOpened() {
     await this.#setCreds();
+    if (!this.hasCreds) {
+      return;
+    }
     this.#sendBeacon(Verb.Opened, 'app');
   }
 
   #sendBeacon(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
     if (
       !this.hasCreds ||
+      !this.#url ||
       this.fyo.store.skipTelemetryLogging ||
       ignoreList.includes(noun)
     ) {

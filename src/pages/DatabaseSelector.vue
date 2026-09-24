@@ -16,6 +16,7 @@
         relative
         bg-white
         dark:bg-gray-875
+        window-no-drag
       "
       style="height: 700px"
     >

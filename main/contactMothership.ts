@@ -39,6 +39,10 @@ export function getUrlAndTokenString(): Creds {
     return empty;
   }
 
+  if (!apiKey || !apiSecret || !errorLogUrl || !telemetryUrl) {
+    return empty;
+  }
+
   return {
     errorLogUrl: encodeURI(errorLogUrl),
     telemetryUrl: encodeURI(telemetryUrl),
@@ -48,6 +52,10 @@ export function getUrlAndTokenString(): Creds {
 
 export async function sendError(body: string, main: Main) {
   const { errorLogUrl, tokenString } = getUrlAndTokenString();
+  if (!errorLogUrl) {
+    return;
+  }
+
   const headers = {
     Authorization: tokenString,
     Accept: 'application/json',
