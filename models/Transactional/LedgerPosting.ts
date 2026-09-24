@@ -118,6 +118,7 @@ export class LedgerPosting {
         reverted: this.reverted,
         debit: this.fyo.pesa(0),
         credit: this.fyo.pesa(0),
+        userRemark: this._getUserRemark(),
       },
       false
     ) as AccountingLedgerEntry;
@@ -126,6 +127,16 @@ export class LedgerPosting {
     map[account] = ledgerEntry;
 
     return map[account];
+  }
+
+  /**
+   * Get the user remark / narration from the reference document.
+   * JournalEntry uses 'userRemark', Invoice/SalesQuote use 'terms'.
+   */
+  _getUserRemark(): string {
+    return (
+      (this.refDoc.userRemark as string) ?? (this.refDoc.terms as string) ?? ''
+    );
   }
 
   _validateIsEqual() {

@@ -87,6 +87,7 @@ export abstract class LedgerReport extends Report {
       'party',
       'reverted',
       'reverts',
+      'userRemark',
     ];
 
     const filters = await this._getQueryFilters();
@@ -113,6 +114,7 @@ export abstract class LedgerReport extends Report {
         party: entry.party,
         reverted: Boolean(entry.reverted),
         reverts: entry.reverts,
+        userRemark: entry.userRemark ?? '',
       } as LedgerEntry;
     });
   }

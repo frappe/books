@@ -79,6 +79,7 @@ export class GeneralLedger extends LedgerReport {
       party: '',
       reverted: false,
       reverts: '',
+      userRemark: '',
     });
 
     this.reportData = this._convertEntriesToReportData(consolidated);
@@ -189,6 +190,7 @@ export class GeneralLedger extends LedgerReport {
       party: '',
       reverted: false,
       reverts: '',
+      userRemark: '',
     });
   }
 
@@ -226,6 +228,7 @@ export class GeneralLedger extends LedgerReport {
           party: '',
           reverted: false,
           reverts: '',
+          userRemark: '',
         });
       }
 
@@ -410,6 +413,12 @@ export class GeneralLedger extends LedgerReport {
         label: t`Ref Type`,
         fieldtype: 'Data',
         fieldname: 'referenceType',
+      },
+      {
+        label: t`Remarks`,
+        fieldtype: 'Data',
+        fieldname: 'userRemark',
+        width: 1.5,
       },
       {
         label: t`Reverted`,
