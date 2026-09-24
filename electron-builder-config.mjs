@@ -2,6 +2,14 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// When TARGET_ARCH is set, only build for that architecture.
+// This is used by CI to ensure each runner only packages its own arch,
+// preventing cross-arch native module contamination (e.g. x64
+// better-sqlite3.node ending up in an arm64 package).
+const targetArch = process.env.TARGET_ARCH
+  ? [process.env.TARGET_ARCH]
+  : ['x64', 'arm64'];
+
 /**
  * electron-builder doesn't look for the APPLE_TEAM_ID environment variable for some reason.
  * This workaround allows an environment variable to be added to the electron-builder.yml config
@@ -78,15 +86,15 @@ const frappeBooksConfig = {
     target: [
       {
         target: 'deb',
-        arch: ['x64', 'arm64'],
+        arch: targetArch,
       },
       {
         target: 'AppImage',
-        arch: ['x64'],
+        arch: targetArch,
       },
       {
         target: 'rpm',
-        arch: ['x64', 'arm64'],
+        arch: targetArch,
       },
     ],
   },
