@@ -252,7 +252,7 @@ export abstract class StockTransfer extends Transfer {
 
   async getPostingAmount(): Promise<Money> {
     if (!this.isSales) {
-      return this.grandTotal ?? this.fyo.pesa(0);
+      return this.getNetTotal() as Money;
     }
 
     return await getShipmentCOGSAmountFromSLEs(this);
