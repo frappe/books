@@ -1,5 +1,5 @@
 > [!IMPORTANT]  
-> **Frappe Books has reached its end of life and has been archived.** [Read more](https://github.com/frappe/books/issues/1566)
+> **This repo, Electron/Vue variant of Books has reached its end of life and is superseded by [Frappe Books](https://github.com/frappe/frappe-books).** [Read more](https://github.com/frappe/books/issues/1566)
 
 <div align="center" markdown="1">
 <br/>
